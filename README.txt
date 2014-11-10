@@ -11,6 +11,6 @@ The 'serial communication manager' is released under LGPL license.
 Author
 ~~~~~~~~ 
 
-The author is Rishi Gupta, an embedded system engineer with work experinec on android table, android watch and bare metal embedded systems.
+The author Rishi Gupta, an embedded system engineer with work experience on android tablet, android watch and bare metal embedded systems. He holds a Bachelor of Engineering in electronics and communication degree.
 
 Linkdin profile : http://in.linkedin.com/pub/rishi-gupta/20/9b8/a10
