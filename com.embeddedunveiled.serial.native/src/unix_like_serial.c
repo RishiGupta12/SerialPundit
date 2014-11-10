@@ -2,7 +2,7 @@
  * Author : Rishi Gupta
  * Email  : gupt21@gmail.com
  *
- * This file is part of 'serial communication manager' program.
+ * This file is part of 'serial communication manager' library.
  *
  * 'serial communication manager' is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -27,7 +27,7 @@
  * <KERNEL_SOURCE>/include/linux/serial.h, serial_8250.h, serial_core.h
  * <KERNEL_SOURCE>/drivers/usb/serial
  *
- * For Mac OS
+ * For Mac OS:
  *
  *
  * For Solaris:
