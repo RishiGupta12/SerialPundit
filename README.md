@@ -6,9 +6,8 @@ SCM; a serial communication library
 The 'serial communication manager' is a reliable, testable, portable, scalable, performance efficient, thread based, light weight library designed and developed to exchange data on serial port. It supports RS-232 control signals monitoring and has been ported to Linux, MAC, Solaris and Windows operating system.
 
 ###Examples usage
-`
+```java
 package example;
-
 import com.embeddedunveiled.serial.SerialComManager;
 import com.embeddedunveiled.serial.SerialComManager.BAUDRATE;
 import com.embeddedunveiled.serial.SerialComManager.DATABITS;
@@ -51,16 +50,15 @@ public class Test1 {
 		}
 	}
 }
-`
-More examples could be found here
+```
+More examples could be found here : https://github.com/RishiGupta12/serial-com-manager/blob/master/example_usage.txt
 
 ###Java docs
 
-Detailed javadocs can be found here https://github.com/RishiGupta12/serial-com-manager/tree/master/javadoc
+Detailed javadocs can be found here : https://github.com/RishiGupta12/serial-com-manager/tree/master/javadoc
 
 ###License
 SCM is licensed under the LGPL, See LICENSE AND COPYING for full license text.
 
 ###Author
-The Linkdin profile of the author can be found here :
-http://in.linkedin.com/pub/rishi-gupta/20/9b8/a10
+The Linkdin profile of the author can be found here : http://in.linkedin.com/pub/rishi-gupta/20/9b8/a10
