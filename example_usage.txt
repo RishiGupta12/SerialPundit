@@ -1,4 +1,5 @@
-*********************************** Library usage guide ********************************************
+
+*********************************** Library usage guide **************************************************
 
 Example 1 : demonstrates how to open, close, read and write to a serial port.
 Example 2 : demonstrates how to find serial ports available on system.
@@ -254,5 +255,4 @@ public class Test6 {
 	}
 }
 
-
-############################ Document ends ########################################################################
+**************************************** Doc ends here ********************************************************
