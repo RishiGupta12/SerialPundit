@@ -1,7 +1,7 @@
 SCM : a serial communication library
 ====================================
 
-![scm L](images/scm.jpg "scm")
+
 
 The 'serial communication manager' is a reliable, testable, portable, scalable, performance efficient, thread based, light weight library designed and developed to exchange data on serial port. It supports RS-232 control signals monitoring and has been ported to Linux, MAC, Solaris and Windows operating system.
 
