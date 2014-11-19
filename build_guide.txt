@@ -1,0 +1,14 @@
+
+- Install eclipse IDE for java developers from here https://eclipse.org/downloads. Select 32 bit or 64 bit as per your system and operating system.
+- Install CDT plugin from here https://eclipse.org/cdt/downloads.php
+File->New->C Project->Shared Library->Empty Project
+Project Name : com.embeddedunveiled.native
+Select Configurations : Release
+File-> new ->source folder
+File->Properties->C/C++ Build->Settings->Tool Settings->Includes->includes path (-I)
+select where jdk include folder is found <your-path>/jdk/jdk1.6.0_45/include
+
+File->Properties->C/C++ Build->Settings->Tool Settings->Miscelleneous->Position Independent Code (-fpic)
+
+Note : The name of native library must be what is defined in 
+

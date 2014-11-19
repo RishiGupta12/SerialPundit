@@ -595,8 +595,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINative
  * Method:    writeBytes
  * Signature: (J[BI)I
  *
- * Note that write method return success does not mean data has been sent to receiver. Therefore we flush data after writing using 'TCSBRK' ioctl.
- * Delay is in micro-seconds.
+ * Try writing all data using a loop by handling partial writes. The 'TCSBRK' ioctl is used to make sure that data gets sent out of the port physically.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_writeBytes(JNIEnv *env, jobject obj, jlong fd, jbyteArray buffer, jint delay) {
 	jint ret = -1;
@@ -607,17 +606,29 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 
     errno = 0;
     if(delay == 0) {
-		ret = write(fd, data_buf, count);
-		if(ret < 0) {
-			fprintf(stderr, "%s %d\n", "NATIVE writeBytes() failed to write requested data with error number : -", errno);
-			return (negative * errno);
-		}
-    } else {
-		ret = write(fd, data_buf, count);
-		if(ret < 0) {
-			fprintf(stderr, "%s %d\n", "NATIVE writeBytes() failed to write requested data with error number : -", errno);
-			return (negative * errno);
-		}
+    	while((count > 0 && (ret = write(fd, data_buf, count))) != count) {
+    	    if(ret < 0 && errno == EINTR) {
+    	    	continue;
+    	    }
+    		if(ret < 0) {
+    			fprintf(stderr, "%s %d\n", "NATIVE writeBytes() failed to write requested data with error number : -", errno);
+    			return (negative * errno);
+    		}
+    	    count -= ret;
+    	    data_buf += ret;
+    	}
+    }else {
+    	while((count > 0 && (ret = write(fd, data_buf, count))) != count) {
+    	    if(ret < 0 && errno == EINTR) {
+    	    	continue;
+    	    }
+    		if(ret < 0) {
+    			fprintf(stderr, "%s %d\n", "NATIVE writeBytes() failed to write requested data with error number : -", errno);
+    			return (negative * errno);
+    		}
+    	    count -= ret;
+    	    data_buf += ret;
+    	}
     }
 
     (*env)->ReleaseByteArrayElements(env, buffer, data_buf, 0);

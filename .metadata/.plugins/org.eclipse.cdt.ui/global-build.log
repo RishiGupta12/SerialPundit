@@ -1,0 +1,401 @@
+15:42:39 **** Build of configuration Debug for project com.embeddedunveiled.native ****
+make all 
+Building file: ../src/unix_like_serial.c
+Invoking: Cross GCC Compiler
+gcc -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/unix_like_serial.d" -MT"src/unix_like_serial.d" -o "src/unix_like_serial.o" "../src/unix_like_serial.c"
+In file included from ../src/unix_like_serial.c:55:0:
+../src/com_embeddedunveiled_serial_SerialComJNINativeInterface.h:2:17: fatal error: jni.h: No such file or directory
+compilation terminated.
+make: *** [src/unix_like_serial.o] Error 1
+15:56:11 **** Incremental Build of configuration Debug for project com.embeddedunveiled.native ****
+make all 
+Building file: ../src/unix_like_serial.c
+Invoking: Cross GCC Compiler
+gcc -I/home/r/packages/jdk/jdk1.6.0_45/include -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/unix_like_serial.d" -MT"src/unix_like_serial.d" -o "src/unix_like_serial.o" "../src/unix_like_serial.c"
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_openComPort’:
+../src/unix_like_serial.c:378:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial.c
+ 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: Cross GCC Compiler
+gcc -I/home/r/packages/jdk/jdk1.6.0_45/include -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘serial_delay’:
+../src/unix_like_serial_lib.c:80:2: warning: passing argument 5 of ‘pselect’ from incompatible pointer type [enabled by default]
+/usr/include/x86_64-linux-gnu/sys/select.h:119:12: note: expected ‘const struct timespec * __restrict__’ but argument is of type ‘struct timeval *’
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:292:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial_lib.c
+ 
+Building file: ../src/windows_serial.c
+Invoking: Cross GCC Compiler
+gcc -I/home/r/packages/jdk/jdk1.6.0_45/include -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/windows_serial.d" -MT"src/windows_serial.d" -o "src/windows_serial.o" "../src/windows_serial.c"
+Finished building: ../src/windows_serial.c
+ 
+Building file: ../src/windows_serial_lib.c
+Invoking: Cross GCC Compiler
+gcc -I/home/r/packages/jdk/jdk1.6.0_45/include -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/windows_serial_lib.d" -MT"src/windows_serial_lib.d" -o "src/windows_serial_lib.o" "../src/windows_serial_lib.c"
+Finished building: ../src/windows_serial_lib.c
+ 
+Building target: com.embeddedunveiled.native
+Invoking: Cross GCC Linker
+gcc  -o "com.embeddedunveiled.native"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o ./src/windows_serial.o ./src/windows_serial_lib.o   
+/usr/lib/gcc/x86_64-linux-gnu/4.6/../../../x86_64-linux-gnu/crt1.o: In function `_start':
+(.text+0x20): undefined reference to `main'
+./src/unix_like_serial.o: In function `Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_setUpDataLooperThread':
+/home/r/ws-host-uart/serial-com-manager/com.embeddedunveiled.native/Debug/../src/unix_like_serial.c:1442: undefined reference to `pthread_create'
+./src/unix_like_serial.o: In function `Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_destroyDataLooperThread':
+/home/r/ws-host-uart/serial-com-manager/com.embeddedunveiled.native/Debug/../src/unix_like_serial.c:1494: undefined reference to `pthread_cancel'
+/home/r/ws-host-uart/serial-com-manager/com.embeddedunveiled.native/Debug/../src/unix_like_serial.c:1509: undefined reference to `pthread_join'
+./src/unix_like_serial.o: In function `Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_setUpEventLooperThread':
+/home/r/ws-host-uart/serial-com-manager/com.embeddedunveiled.native/Debug/../src/unix_like_serial.c:1577: undefined reference to `pthread_create'
+./src/unix_like_serial.o: In function `Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_destroyEventLooperThread':
+/home/r/ws-host-uart/serial-com-manager/com.embeddedunveiled.native/Debug/../src/unix_like_serial.c:1623: undefined reference to `pthread_cancel'
+/home/r/ws-host-uart/serial-com-manager/com.embeddedunveiled.native/Debug/../src/unix_like_serial.c:1630: undefined reference to `pthread_join'
+./src/unix_like_serial_lib.o: In function `data_looper':
+/home/r/ws-host-uart/serial-com-manager/com.embeddedunveiled.native/Debug/../src/unix_like_serial_lib.c:163: undefined reference to `pthread_testcancel'
+/home/r/ws-host-uart/serial-com-manager/com.embeddedunveiled.native/Debug/../src/unix_like_serial_lib.c:171: undefined reference to `pthread_testcancel'
+collect2: ld returned 1 exit status
+make: *** [com.embeddedunveiled.native] Error 1
+16:01:22 **** Incremental Build of configuration Debug for project com.embeddedunveiled.native ****
+make all 
+Building target: com.embeddedunveiled.native
+Invoking: Cross GCC Linker
+gcc  -o "com.embeddedunveiled.native"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o ./src/windows_serial.o ./src/windows_serial_lib.o   
+/usr/lib/gcc/x86_64-linux-gnu/4.6/../../../x86_64-linux-gnu/crt1.o: In function `_start':
+(.text+0x20): undefined reference to `main'
+./src/unix_like_serial.o: In function `Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_setUpDataLooperThread':
+/home/r/ws-host-uart/serial-com-manager/com.embeddedunveiled.native/Debug/../src/unix_like_serial.c:1442: undefined reference to `pthread_create'
+./src/unix_like_serial.o: In function `Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_destroyDataLooperThread':
+/home/r/ws-host-uart/serial-com-manager/com.embeddedunveiled.native/Debug/../src/unix_like_serial.c:1494: undefined reference to `pthread_cancel'
+/home/r/ws-host-uart/serial-com-manager/com.embeddedunveiled.native/Debug/../src/unix_like_serial.c:1509: undefined reference to `pthread_join'
+./src/unix_like_serial.o: In function `Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_setUpEventLooperThread':
+/home/r/ws-host-uart/serial-com-manager/com.embeddedunveiled.native/Debug/../src/unix_like_serial.c:1577: undefined reference to `pthread_create'
+./src/unix_like_serial.o: In function `Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_destroyEventLooperThread':
+/home/r/ws-host-uart/serial-com-manager/com.embeddedunveiled.native/Debug/../src/unix_like_serial.c:1623: undefined reference to `pthread_cancel'
+/home/r/ws-host-uart/serial-com-manager/com.embeddedunveiled.native/Debug/../src/unix_like_serial.c:1630: undefined reference to `pthread_join'
+./src/unix_like_serial_lib.o: In function `data_looper':
+/home/r/ws-host-uart/serial-com-manager/com.embeddedunveiled.native/Debug/../src/unix_like_serial_lib.c:163: undefined reference to `pthread_testcancel'
+/home/r/ws-host-uart/serial-com-manager/com.embeddedunveiled.native/Debug/../src/unix_like_serial_lib.c:171: undefined reference to `pthread_testcancel'
+collect2: ld returned 1 exit status
+make: *** [com.embeddedunveiled.native] Error 1
+16:01:44 **** Incremental Build of configuration Debug for project com.embeddedunveiled.native ****
+make all 
+Building target: com.embeddedunveiled.native
+Invoking: Cross GCC Linker
+gcc -lpthread -o "com.embeddedunveiled.native"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o ./src/windows_serial.o ./src/windows_serial_lib.o   
+/usr/lib/gcc/x86_64-linux-gnu/4.6/../../../x86_64-linux-gnu/crt1.o: In function `_start':
+(.text+0x20): undefined reference to `main'
+./src/unix_like_serial.o: In function `Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_setUpDataLooperThread':
+/home/r/ws-host-uart/serial-com-manager/com.embeddedunveiled.native/Debug/../src/unix_like_serial.c:1442: undefined reference to `pthread_create'
+./src/unix_like_serial.o: In function `Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_destroyDataLooperThread':
+/home/r/ws-host-uart/serial-com-manager/com.embeddedunveiled.native/Debug/../src/unix_like_serial.c:1494: undefined reference to `pthread_cancel'
+/home/r/ws-host-uart/serial-com-manager/com.embeddedunveiled.native/Debug/../src/unix_like_serial.c:1509: undefined reference to `pthread_join'
+./src/unix_like_serial.o: In function `Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_setUpEventLooperThread':
+/home/r/ws-host-uart/serial-com-manager/com.embeddedunveiled.native/Debug/../src/unix_like_serial.c:1577: undefined reference to `pthread_create'
+./src/unix_like_serial.o: In function `Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_destroyEventLooperThread':
+/home/r/ws-host-uart/serial-com-manager/com.embeddedunveiled.native/Debug/../src/unix_like_serial.c:1623: undefined reference to `pthread_cancel'
+/home/r/ws-host-uart/serial-com-manager/com.embeddedunveiled.native/Debug/../src/unix_like_serial.c:1630: undefined reference to `pthread_join'
+./src/unix_like_serial_lib.o: In function `data_looper':
+/home/r/ws-host-uart/serial-com-manager/com.embeddedunveiled.native/Debug/../src/unix_like_serial_lib.c:163: undefined reference to `pthread_testcancel'
+/home/r/ws-host-uart/serial-com-manager/com.embeddedunveiled.native/Debug/../src/unix_like_serial_lib.c:171: undefined reference to `pthread_testcancel'
+collect2: ld returned 1 exit status
+make: *** [com.embeddedunveiled.native] Error 1
+16:05:02 **** Incremental Build of configuration Debug for project com.embeddedunveiled.native ****
+make all 
+Building file: ../src/unix_like_serial.c
+Invoking: Cross GCC Compiler
+gcc -I/home/r/packages/jdk/jdk1.6.0_45/include -O0 -g3 -Wall -c -fmessage-length=0 -fPIC -MMD -MP -MF"src/unix_like_serial.d" -MT"src/unix_like_serial.d" -o "src/unix_like_serial.o" "../src/unix_like_serial.c"
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_openComPort’:
+../src/unix_like_serial.c:378:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial.c
+ 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: Cross GCC Compiler
+gcc -I/home/r/packages/jdk/jdk1.6.0_45/include -O0 -g3 -Wall -c -fmessage-length=0 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘serial_delay’:
+../src/unix_like_serial_lib.c:80:2: warning: passing argument 5 of ‘pselect’ from incompatible pointer type [enabled by default]
+/usr/include/x86_64-linux-gnu/sys/select.h:119:12: note: expected ‘const struct timespec * __restrict__’ but argument is of type ‘struct timeval *’
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:292:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial_lib.c
+ 
+Building file: ../src/windows_serial.c
+Invoking: Cross GCC Compiler
+gcc -I/home/r/packages/jdk/jdk1.6.0_45/include -O0 -g3 -Wall -c -fmessage-length=0 -fPIC -MMD -MP -MF"src/windows_serial.d" -MT"src/windows_serial.d" -o "src/windows_serial.o" "../src/windows_serial.c"
+Finished building: ../src/windows_serial.c
+ 
+Building file: ../src/windows_serial_lib.c
+Invoking: Cross GCC Compiler
+gcc -I/home/r/packages/jdk/jdk1.6.0_45/include -O0 -g3 -Wall -c -fmessage-length=0 -fPIC -MMD -MP -MF"src/windows_serial_lib.d" -MT"src/windows_serial_lib.d" -o "src/windows_serial_lib.o" "../src/windows_serial_lib.c"
+Finished building: ../src/windows_serial_lib.c
+ 
+Building target: com.embeddedunveiled.native
+Invoking: Cross GCC Linker
+gcc -pthread -o "com.embeddedunveiled.native"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o ./src/windows_serial.o ./src/windows_serial_lib.o   
+/usr/lib/gcc/x86_64-linux-gnu/4.6/../../../x86_64-linux-gnu/crt1.o: In function `_start':
+(.text+0x20): undefined reference to `main'
+collect2: ld returned 1 exit status
+make: *** [com.embeddedunveiled.native] Error 1
+16:10:59 **** Build of configuration Release for project com.embeddedunveiled.native ****
+make all 
+Building file: ../src/unix_like_serial.c
+Invoking: Cross GCC Compiler
+gcc -O3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/unix_like_serial.d" -MT"src/unix_like_serial.d" -o "src/unix_like_serial.o" "../src/unix_like_serial.c"
+In file included from ../src/unix_like_serial.c:55:0:
+../src/com_embeddedunveiled_serial_SerialComJNINativeInterface.h:2:17: fatal error: jni.h: No such file or directory
+compilation terminated.
+make: *** [src/unix_like_serial.o] Error 1
+16:11:41 **** Incremental Build of configuration Release for project com.embeddedunveiled.native ****
+make all 
+Building file: ../src/unix_like_serial.c
+Invoking: Cross GCC Compiler
+gcc -I/home/r/packages/jdk/jdk1.6.0_45/include -O3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/unix_like_serial.d" -MT"src/unix_like_serial.d" -o "src/unix_like_serial.o" "../src/unix_like_serial.c"
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_openComPort’:
+../src/unix_like_serial.c:378:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial.c
+ 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: Cross GCC Compiler
+gcc -I/home/r/packages/jdk/jdk1.6.0_45/include -O3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘serial_delay’:
+../src/unix_like_serial_lib.c:80:2: warning: passing argument 5 of ‘pselect’ from incompatible pointer type [enabled by default]
+/usr/include/x86_64-linux-gnu/sys/select.h:119:12: note: expected ‘const struct timespec * __restrict__’ but argument is of type ‘struct timeval *’
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:292:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial_lib.c
+ 
+Building file: ../src/windows_serial.c
+Invoking: Cross GCC Compiler
+gcc -I/home/r/packages/jdk/jdk1.6.0_45/include -O3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/windows_serial.d" -MT"src/windows_serial.d" -o "src/windows_serial.o" "../src/windows_serial.c"
+Finished building: ../src/windows_serial.c
+ 
+Building file: ../src/windows_serial_lib.c
+Invoking: Cross GCC Compiler
+gcc -I/home/r/packages/jdk/jdk1.6.0_45/include -O3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/windows_serial_lib.d" -MT"src/windows_serial_lib.d" -o "src/windows_serial_lib.o" "../src/windows_serial_lib.c"
+Finished building: ../src/windows_serial_lib.c
+ 
+Building target: libcom.embeddedunveiled.native.so
+Invoking: Cross GCC Linker
+gcc -shared -o "libcom.embeddedunveiled.native.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o ./src/windows_serial.o ./src/windows_serial_lib.o   
+/usr/bin/ld: ./src/unix_like_serial.o: relocation R_X86_64_32 against `jvm' can not be used when making a shared object; recompile with -fPIC
+./src/unix_like_serial.o: could not read symbols: Bad value
+collect2: ld returned 1 exit status
+make: *** [libcom.embeddedunveiled.native.so] Error 1
+16:12:07 **** Incremental Build of configuration Release for project com.embeddedunveiled.native ****
+make all 
+Building target: libcom.embeddedunveiled.native.so
+Invoking: Cross GCC Linker
+gcc -shared -o "libcom.embeddedunveiled.native.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o ./src/windows_serial.o ./src/windows_serial_lib.o   
+/usr/bin/ld: ./src/unix_like_serial.o: relocation R_X86_64_32 against `jvm' can not be used when making a shared object; recompile with -fPIC
+./src/unix_like_serial.o: could not read symbols: Bad value
+collect2: ld returned 1 exit status
+make: *** [libcom.embeddedunveiled.native.so] Error 1
+16:13:26 **** Incremental Build of configuration Release for project com.embeddedunveiled.native ****
+make all 
+Building file: ../src/unix_like_serial.c
+Invoking: Cross GCC Compiler
+gcc -I/home/r/packages/jdk/jdk1.6.0_45/include -O3 -Wall -c -fmessage-length=0 -fPIC -MMD -MP -MF"src/unix_like_serial.d" -MT"src/unix_like_serial.d" -o "src/unix_like_serial.o" "../src/unix_like_serial.c"
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_openComPort’:
+../src/unix_like_serial.c:378:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial.c
+ 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: Cross GCC Compiler
+gcc -I/home/r/packages/jdk/jdk1.6.0_45/include -O3 -Wall -c -fmessage-length=0 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘serial_delay’:
+../src/unix_like_serial_lib.c:80:2: warning: passing argument 5 of ‘pselect’ from incompatible pointer type [enabled by default]
+/usr/include/x86_64-linux-gnu/sys/select.h:119:12: note: expected ‘const struct timespec * __restrict__’ but argument is of type ‘struct timeval *’
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:292:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial_lib.c
+ 
+Building file: ../src/windows_serial.c
+Invoking: Cross GCC Compiler
+gcc -I/home/r/packages/jdk/jdk1.6.0_45/include -O3 -Wall -c -fmessage-length=0 -fPIC -MMD -MP -MF"src/windows_serial.d" -MT"src/windows_serial.d" -o "src/windows_serial.o" "../src/windows_serial.c"
+Finished building: ../src/windows_serial.c
+ 
+Building file: ../src/windows_serial_lib.c
+Invoking: Cross GCC Compiler
+gcc -I/home/r/packages/jdk/jdk1.6.0_45/include -O3 -Wall -c -fmessage-length=0 -fPIC -MMD -MP -MF"src/windows_serial_lib.d" -MT"src/windows_serial_lib.d" -o "src/windows_serial_lib.o" "../src/windows_serial_lib.c"
+Finished building: ../src/windows_serial_lib.c
+ 
+Building target: libcom.embeddedunveiled.native.so
+Invoking: Cross GCC Linker
+gcc -shared -o "libcom.embeddedunveiled.native.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o ./src/windows_serial.o ./src/windows_serial_lib.o   
+Finished building target: libcom.embeddedunveiled.native.so
+ 
+16:52:51 **** Build of configuration Release for project com.embeddedunveiled.serial.native ****
+make all 
+Building target: libcom.embeddedunveiled.serial.native.so
+Invoking: Cross GCC Linker
+gcc -shared -o "libcom.embeddedunveiled.serial.native.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o ./src/windows_serial.o ./src/windows_serial_lib.o   
+Finished building target: libcom.embeddedunveiled.serial.native.so
+ 
+17:37:18 **** Clean-only build of configuration Release for project com.embeddedunveiled.serial.native ****
+make clean 
+rm -rf  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o ./src/windows_serial.o ./src/windows_serial_lib.o  ./src/unix_like_serial.d ./src/unix_like_serial_lib.d ./src/windows_serial.d ./src/windows_serial_lib.d  libcom.embeddedunveiled.serial.native.so
+ 
+17:37:19 **** Build of configuration Release for project com.embeddedunveiled.serial.native ****
+make all 
+Building file: ../src/unix_like_serial.c
+Invoking: Cross GCC Compiler
+gcc -I/home/r/packages/jdk/jdk1.6.0_45/include -O3 -Wall -c -fmessage-length=0 -fPIC -MMD -MP -MF"src/unix_like_serial.d" -MT"src/unix_like_serial.d" -o "src/unix_like_serial.o" "../src/unix_like_serial.c"
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_openComPort’:
+../src/unix_like_serial.c:378:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial.c
+ 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: Cross GCC Compiler
+gcc -I/home/r/packages/jdk/jdk1.6.0_45/include -O3 -Wall -c -fmessage-length=0 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘serial_delay’:
+../src/unix_like_serial_lib.c:80:2: warning: passing argument 5 of ‘pselect’ from incompatible pointer type [enabled by default]
+/usr/include/x86_64-linux-gnu/sys/select.h:119:12: note: expected ‘const struct timespec * __restrict__’ but argument is of type ‘struct timeval *’
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:292:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial_lib.c
+ 
+Building file: ../src/windows_serial.c
+Invoking: Cross GCC Compiler
+gcc -I/home/r/packages/jdk/jdk1.6.0_45/include -O3 -Wall -c -fmessage-length=0 -fPIC -MMD -MP -MF"src/windows_serial.d" -MT"src/windows_serial.d" -o "src/windows_serial.o" "../src/windows_serial.c"
+Finished building: ../src/windows_serial.c
+ 
+Building file: ../src/windows_serial_lib.c
+Invoking: Cross GCC Compiler
+gcc -I/home/r/packages/jdk/jdk1.6.0_45/include -O3 -Wall -c -fmessage-length=0 -fPIC -MMD -MP -MF"src/windows_serial_lib.d" -MT"src/windows_serial_lib.d" -o "src/windows_serial_lib.o" "../src/windows_serial_lib.c"
+Finished building: ../src/windows_serial_lib.c
+ 
+Building target: libcom.embeddedunveiled.serial.native.so
+Invoking: Cross GCC Linker
+gcc -shared -o "libcom.embeddedunveiled.serial.native.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o ./src/windows_serial.o ./src/windows_serial_lib.o   
+Finished building target: libcom.embeddedunveiled.serial.native.so
+ 
+17:37:25 **** Clean-only build of configuration Release for project com.embeddedunveiled.serial.native ****
+make clean 
+rm -rf  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o ./src/windows_serial.o ./src/windows_serial_lib.o  ./src/unix_like_serial.d ./src/unix_like_serial_lib.d ./src/windows_serial.d ./src/windows_serial_lib.d  libcom.embeddedunveiled.serial.native.so
+ 
+17:37:25 **** Build of configuration Release for project com.embeddedunveiled.serial.native ****
+make all 
+Building file: ../src/unix_like_serial.c
+Invoking: Cross GCC Compiler
+gcc -I/home/r/packages/jdk/jdk1.6.0_45/include -O3 -Wall -c -fmessage-length=0 -fPIC -MMD -MP -MF"src/unix_like_serial.d" -MT"src/unix_like_serial.d" -o "src/unix_like_serial.o" "../src/unix_like_serial.c"
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_openComPort’:
+../src/unix_like_serial.c:378:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial.c
+ 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: Cross GCC Compiler
+gcc -I/home/r/packages/jdk/jdk1.6.0_45/include -O3 -Wall -c -fmessage-length=0 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘serial_delay’:
+../src/unix_like_serial_lib.c:80:2: warning: passing argument 5 of ‘pselect’ from incompatible pointer type [enabled by default]
+/usr/include/x86_64-linux-gnu/sys/select.h:119:12: note: expected ‘const struct timespec * __restrict__’ but argument is of type ‘struct timeval *’
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:292:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial_lib.c
+ 
+Building file: ../src/windows_serial.c
+Invoking: Cross GCC Compiler
+gcc -I/home/r/packages/jdk/jdk1.6.0_45/include -O3 -Wall -c -fmessage-length=0 -fPIC -MMD -MP -MF"src/windows_serial.d" -MT"src/windows_serial.d" -o "src/windows_serial.o" "../src/windows_serial.c"
+Finished building: ../src/windows_serial.c
+ 
+Building file: ../src/windows_serial_lib.c
+Invoking: Cross GCC Compiler
+gcc -I/home/r/packages/jdk/jdk1.6.0_45/include -O3 -Wall -c -fmessage-length=0 -fPIC -MMD -MP -MF"src/windows_serial_lib.d" -MT"src/windows_serial_lib.d" -o "src/windows_serial_lib.o" "../src/windows_serial_lib.c"
+Finished building: ../src/windows_serial_lib.c
+ 
+Building target: libcom.embeddedunveiled.serial.native.so
+Invoking: Cross GCC Linker
+gcc -shared -o "libcom.embeddedunveiled.serial.native.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o ./src/windows_serial.o ./src/windows_serial_lib.o   
+Finished building target: libcom.embeddedunveiled.serial.native.so
+ 
+17:40:20 **** Incremental Build of configuration Release for project com.embeddedunveiled.serial.native ****
+make all 
+make: Nothing to be done for `all'.
+17:40:24 **** Incremental Build of configuration Release for project com.embeddedunveiled.serial.native ****
+make all 
+make: Nothing to be done for `all'.
+17:40:32 **** Incremental Build of configuration Release for project com.embeddedunveiled.serial.native ****
+make all 
+make: Nothing to be done for `all'.
+17:52:41 **** Incremental Build of configuration Release for project com.embeddedunveiled.serial.native ****
+make all 
+make: Nothing to be done for `all'.
+17:55:05 **** Incremental Build of configuration Release for project com.embeddedunveiled.serial.native ****
+make all 
+Building target: linux_1.0.0_x86_64.so
+Invoking: Cross GCC Linker
+gcc -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o ./src/windows_serial.o ./src/windows_serial_lib.o   
+Finished building target: linux_1.0.0_x86_64.so
+ 
+17:55:07 **** Incremental Build of configuration Release for project com.embeddedunveiled.serial.native ****
+make all 
+make: Nothing to be done for `all'.
+17:55:15 **** Incremental Build of configuration Release for project com.embeddedunveiled.serial.native ****
+make all 
+make: Nothing to be done for `all'.
+17:55:31 **** Incremental Build of configuration Release for project com.embeddedunveiled.serial.native ****
+make all 
+make: Nothing to be done for `all'.
+17:59:59 **** Incremental Build of configuration Release for project com.embeddedunveiled.serial.native ****
+make all 
+make: Nothing to be done for `all'.
+18:00:14 **** Incremental Build of configuration Release for project com.embeddedunveiled.serial.native ****
+make all 
+make: Nothing to be done for `all'.
+18:00:48 **** Incremental Build of configuration Release for project com.embeddedunveiled.serial.native ****
+make all 
+Building file: ../src/unix_like_serial.c
+Invoking: Cross GCC Compiler
+gcc -I/home/r/packages/jdk/jdk1.6.0_45/include -include/home/r/packages/jdk/jdk1.6.0_45/include/jni.h -O3 -Wall -c -fmessage-length=0 -fPIC -MMD -MP -MF"src/unix_like_serial.d" -MT"src/unix_like_serial.d" -o "src/unix_like_serial.o" "../src/unix_like_serial.c"
+../src/unix_like_serial.c:52:0: warning: "_BSD_SOURCE" redefined [enabled by default]
+/usr/include/features.h:184:0: note: this is the location of the previous definition
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_openComPort’:
+../src/unix_like_serial.c:378:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial.c
+ 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: Cross GCC Compiler
+gcc -I/home/r/packages/jdk/jdk1.6.0_45/include -include/home/r/packages/jdk/jdk1.6.0_45/include/jni.h -O3 -Wall -c -fmessage-length=0 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘serial_delay’:
+../src/unix_like_serial_lib.c:80:2: warning: passing argument 5 of ‘pselect’ from incompatible pointer type [enabled by default]
+/usr/include/x86_64-linux-gnu/sys/select.h:119:12: note: expected ‘const struct timespec * __restrict__’ but argument is of type ‘struct timeval *’
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:292:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial_lib.c
+ 
+Building file: ../src/windows_serial.c
+Invoking: Cross GCC Compiler
+gcc -I/home/r/packages/jdk/jdk1.6.0_45/include -include/home/r/packages/jdk/jdk1.6.0_45/include/jni.h -O3 -Wall -c -fmessage-length=0 -fPIC -MMD -MP -MF"src/windows_serial.d" -MT"src/windows_serial.d" -o "src/windows_serial.o" "../src/windows_serial.c"
+Finished building: ../src/windows_serial.c
+ 
+Building file: ../src/windows_serial_lib.c
+Invoking: Cross GCC Compiler
+gcc -I/home/r/packages/jdk/jdk1.6.0_45/include -include/home/r/packages/jdk/jdk1.6.0_45/include/jni.h -O3 -Wall -c -fmessage-length=0 -fPIC -MMD -MP -MF"src/windows_serial_lib.d" -MT"src/windows_serial_lib.d" -o "src/windows_serial_lib.o" "../src/windows_serial_lib.c"
+Finished building: ../src/windows_serial_lib.c
+ 
+Building target: linux_1.0.0_x86_64.so
+Invoking: Cross GCC Linker
+gcc -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o ./src/windows_serial.o ./src/windows_serial_lib.o   
+Finished building target: linux_1.0.0_x86_64.so
+ 
+18:02:39 **** Incremental Build of configuration Release for project com.embeddedunveiled.serial.native ****
+make all 
+make: Nothing to be done for `all'.
+18:02:47 **** Incremental Build of configuration Release for project com.embeddedunveiled.serial.native ****
+make all 
+make: Nothing to be done for `all'.
+18:29:43 **** Incremental Build of configuration Release for project com.embeddedunveiled.serial.native ****
+make all 
+Building file: ../src/unix_like_serial.c
+Invoking: Cross GCC Compiler
+gcc -I/home/r/packages/jdk/jdk1.6.0_45/include -include/home/r/packages/jdk/jdk1.6.0_45/include/jni.h -O3 -Wall -c -fmessage-length=0 -fPIC -MMD -MP -MF"src/unix_like_serial.d" -MT"src/unix_like_serial.d" -o "src/unix_like_serial.o" "../src/unix_like_serial.c"
+../src/unix_like_serial.c:52:0: warning: "_BSD_SOURCE" redefined [enabled by default]
+/usr/include/features.h:184:0: note: this is the location of the previous definition
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_openComPort’:
+../src/unix_like_serial.c:378:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial.c
+ 
+Building target: linux_1.0.0_x86_64.so
+Invoking: Cross GCC Linker
+gcc -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o ./src/windows_serial.o ./src/windows_serial_lib.o   
+Finished building target: linux_1.0.0_x86_64.so
+ 

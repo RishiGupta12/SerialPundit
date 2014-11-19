@@ -1,0 +1,13 @@
+Que: How can we know that native library is getting loaded at runtime.
+Ans: Following error will occur if native library fails to load :
+
+java.lang.NullPointerException
+	at com.embeddedunveiled.serial.SerialComJNINativeInterface.loadNativeLibrary(SerialComJNINativeInterface.java:138)
+	at com.embeddedunveiled.serial.SerialComJNINativeInterface.<clinit>(SerialComJNINativeInterface.java:37)
+	at com.embeddedunveiled.serial.SerialComManager.<init>(SerialComManager.java:188)
+	at example.Test1.main(Test1.java:16)
+Exception in thread "main" java.lang.UnsatisfiedLinkError: com.embeddedunveiled.serial.SerialComJNINativeInterface.initNativeLib()I
+	at com.embeddedunveiled.serial.SerialComJNINativeInterface.initNativeLib(Native Method)
+	at com.embeddedunveiled.serial.SerialComJNINativeInterface.<init>(SerialComJNINativeInterface.java:45)
+	at com.embeddedunveiled.serial.SerialComManager.<init>(SerialComManager.java:188)
+	at example.Test1.main(Test1.java:16)
