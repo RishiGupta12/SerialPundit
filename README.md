@@ -10,6 +10,8 @@ The 'serial communication manager (scm)' is a java library designed and develope
 - Linux, Windows, Mac OS, Solaris OS supprted
 - Both 32 and 64 bit library support
 - Both poll based and listener based data read supported
+- Concurrent event driven non-blocking IO
+- Leverages OS specific facilities
 - Find what all serial style ports are present in system
 - Extensive error handling and reliable operations support
 - Fully documented both java and native code
