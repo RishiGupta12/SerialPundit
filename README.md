@@ -14,6 +14,10 @@ The 'serial communication manager (scm)' is a java library designed and develope
 - Extensive error handling and reliable operations support
 - Fully documented both java and native code
 
+###Getting started
+
+The folder prebuilt contains ready-to-use jar file (scm.jar) that can be imported in any project and referenced right away.
+
 ###Examples usage
 ```java
 package example;
@@ -65,6 +69,8 @@ More examples could be found here : https://github.com/RishiGupta12/serial-com-m
 ###Java docs
 
 Detailed javadocs can be found here : https://github.com/RishiGupta12/serial-com-manager/tree/master/javadoc
+
+###Build guide
 
 ###License
 SCM is licensed under the LGPL, See LICENSE AND COPYING for full license text.
