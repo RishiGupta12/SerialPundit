@@ -1,0 +1,5 @@
+package com.embeddedunveiled.serial;
+
+public interface IPortMonitor {
+
+}

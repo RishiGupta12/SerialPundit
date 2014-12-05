@@ -5,6 +5,8 @@
 		<item value="false" key="WizardProjectsImportPage.STORE_COPY_PROJECT_ID"/>
 		<item value="false" key="WizardProjectsImportPage.STORE_NESTED_PROJECTS"/>
 		<list key="WizardProjectsImportPage.STORE_DIRECTORIES">
+			<item value="/home/r/ws-host-uart/serial-com-manager/tests/test9"/>
+			<item value="/home/r/ws-host-uart/serial-com-manager/tests/test8"/>
 			<item value="/home/r/ws-host-uart/serial-com-manager/tests/HelloCC"/>
 			<item value="/home/r/ws-host-uart/serial-com-manager/tests/test7"/>
 			<item value="/home/r/ws-host-uart/serial-com-manager/tests"/>
@@ -16,10 +18,10 @@
 	<section name="CleanDialogSettings">
 		<item value="565" key="DIALOG_WIDTH"/>
 		<item value="true" key="BUILD_NOW"/>
-		<item value="true" key="BUILD_ALL"/>
 		<item value="259" key="DIALOG_Y_ORIGIN"/>
-		<item value="461" key="DIALOG_HEIGHT"/>
+		<item value="true" key="BUILD_ALL"/>
 		<item value="711" key="DIALOG_X_ORIGIN"/>
+		<item value="461" key="DIALOG_HEIGHT"/>
 		<item value="false" key="TOGGLE_SELECTED"/>
 	</section>
 </section>

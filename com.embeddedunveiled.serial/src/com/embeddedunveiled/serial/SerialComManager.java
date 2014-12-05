@@ -199,6 +199,7 @@ public final class SerialComManager {
 	}
 
 	/**
+	 * For internal use.
 	 * @return platform OS type, the library is running on (for internal use only). 
 	 */
 	public static int getOSType() {
@@ -1016,7 +1017,7 @@ public final class SerialComManager {
 	 * @param clearRxPort if true receive buffer will be cleared otherwise will be left untouched 
 	 * @param clearTxPort if true transmit buffer will be cleared otherwise will be left untouched
 	 * @throws SerialComException if invalid handle is passed or operation can not be completed successfully
-	 * @return true on success false otherwise
+	 * @return true on success
 	 */
 	public synchronized boolean clearPortIOBuffers(long handle, boolean clearRxPort, boolean clearTxPort) throws SerialComException {
 		boolean handlefound = false;
@@ -1042,11 +1043,13 @@ public final class SerialComManager {
 	
 	/**
 	 * Assert a break condition on the specified port for the duration expressed in milliseconds.
+	 * If the line is held in the logic low condition (space in UART jargon) for longer than a character 
+	 * time, this is a break condition that can be detected by the UART.
 	 * 
 	 * @param handle of the opened port
 	 * @param duration the time in milliseconds for which break will be active
 	 * @throws SerialComException if invalid handle is passed or operation can not be successfully completed
-	 * @return true on success false otherwise
+	 * @return true on success
 	 */
 	public synchronized boolean sendBreak(long handle, int duration) throws SerialComException {
 		boolean handlefound = false;
@@ -1189,7 +1192,7 @@ public final class SerialComManager {
 	 * This is currently not supported for Solaris.
 	 * 
 	 * @param handle
-	 * @return
+	 * @return true on success false otherwise
 	 * @throws SerialComException
 	 */
 	public boolean registerPortMonitorListener(long handle, IPortMonitor portMonitor) throws SerialComException {

@@ -71,11 +71,11 @@ void LOGE(JNIEnv *env) {
 	(*env)->ExceptionClear(env);
 }
 
-int serial_delay(unsigned usecs) {
+int serial_delay(unsigned milliSeconds) {
 	struct timespec t;
-	t.tv_sec  = usecs/1000000;
-	t.tv_nsec = usecs%1000000;
-	pselect(1, 0, 0, 0, &t,0);
+	t.tv_sec  = milliSeconds/1000;
+	t.tv_nsec = 0;
+	pselect(1, 0, 0, 0, &t, 0);
 	return 0;
 }
 

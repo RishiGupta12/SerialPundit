@@ -46,10 +46,10 @@ public final class SerialComCompletionDispatcher {
 	
 	/**
 	 * 
-	 * @param listener
+	 * @param dataListener listener for which looper has to be set up
 	 * @param mHandleInfo Reference to SerialComPortHandleInfo object associated with given handle
-	 * @return
-	 * @throws SerialComException
+	 * @return true on success
+	 * @throws SerialComException if not able to complete requested operation
 	 */
 	
 	public boolean setUpDataLooper(long handle, SerialComPortHandleInfo mHandleInfo, ISerialComDataListener dataListener) throws SerialComException {
@@ -76,9 +76,9 @@ public final class SerialComCompletionDispatcher {
 	/**
 	 * Check if we have handler corresponding to this listener and take actions accordingly.
 	 * 
-	 * @param dataListener
-	 * @return
-	 * @throws SerialComException
+	 * @param dataListener listener for which looper has to be removed
+	 * @return true on success
+	 * @throws SerialComException if not able to complete requested operation
 	 */
 	public boolean destroyDataLooper(ISerialComDataListener dataListener) throws SerialComException {
 		long handle = -1;
@@ -109,9 +109,9 @@ public final class SerialComCompletionDispatcher {
 	
 	/**
 	 * 
-	 * @param listener
+	 * @param eventListener listener for which looper has to be set up
 	 * @param mHandleInfo Reference to SerialComPortHandleInfo object associated with given handle
-	 * @return
+	 * @return true on success
 	 */
 	
 	public boolean setUpEventLooper(long handle, SerialComPortHandleInfo mHandleInfo, ISerialComEventListener eventListener) throws SerialComException {
@@ -138,9 +138,9 @@ public final class SerialComCompletionDispatcher {
 	/**
 	 * Check if we have handler corresponding to this listener and take actions accordingly.
 	 * 
-	 * @param eventListener
-	 * @return
-	 * @throws SerialComException
+	 * @param eventListener listener for which looper has to be removed
+	 * @return true on success
+	 * @throws SerialComException if not able to complete requested operation
 	 */
 	public boolean destroyEventLooper(ISerialComEventListener eventListener) throws SerialComException {
 		long handle = -1;
@@ -172,9 +172,9 @@ public final class SerialComCompletionDispatcher {
 	/**
 	 * Check if we have handler corresponding to this listener and take actions accordingly.
 	 * 
-	 * @param listener
-	 * @return
-	 * @throws SerialComException
+	 * @param listener listener for which event has to be paused
+	 * @return true on success
+	 * @throws SerialComException if not able to complete requested operation
 	 */
 	public boolean pauseListeningEvents(ISerialComEventListener listener) throws SerialComException {
 		long handle = -1;
@@ -205,9 +205,9 @@ public final class SerialComCompletionDispatcher {
 	/**
 	 * Check if we have handler corresponding to this listener and take actions accordingly.
 	 * 
-	 * @param listener
-	 * @return
-	 * @throws SerialComException
+	 * @param listener for which events sending should be resumed
+	 * @return true on success
+	 * @throws SerialComException if not able to complete requested operation
 	 */
 	public boolean resumeListeningEvents(ISerialComEventListener listener) throws SerialComException {
 		long handle = -1;

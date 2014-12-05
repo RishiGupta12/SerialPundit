@@ -1252,7 +1252,9 @@ JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeI
  * Method:    sendBreak
  * Signature: (JI)I
  *
- * The duration is in milliseconds.
+ * The duration is in milliseconds. If the line is held in the logic low condition (space in UART jargon) for longer than a character
+ * time, this is a break condition that can be detected by the UART.
+ * Use this for testing timing fprintf(stderr, "%u\n", (unsigned)time(NULL));
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_sendBreak(JNIEnv *env, jobject obj, jlong fd, jint duration) {
 	jint ret = -1;
@@ -1262,18 +1264,17 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 	errno = 0;
 	ret = ioctl(fd, TIOCSBRK, 0);
 	if(ret < 0) {
-		fprintf(stderr, "%s %d\n", "NATIVE sendBreak() failed to start break condition with error number : -", errno);
+		fprintf(stderr, "%s%d\n", "NATIVE sendBreak() failed to start break condition with error number : -", errno);
 		return (negative * errno);
 	}
 
-	/* Duration must be in micro-seconds. */
 	serial_delay(duration);
 
-	/* Stop break condition. */
+	/* Release break condition. */
 	errno = 0;
 	ret = ioctl(fd, TIOCCBRK, 0);
 	if(ret < 0) {
-		fprintf(stderr, "%s %d\n", "NATIVE sendBreak() failed to stop break condition with error number : -", errno);
+		fprintf(stderr, "%s%d\n", "NATIVE sendBreak() failed to stop break condition with error number : -", errno);
 		return (negative * errno);
 	}
 
