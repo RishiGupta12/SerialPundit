@@ -1,18 +1,16 @@
-/*
+/**
  * Author : Rishi Gupta
  * Email  : gupt21@gmail.com
  * 
  * This file is part of 'serial communication manager' library.
  *
- * 'serial communication manager' is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * The 'serial communication manager' is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by the Free Software 
+ * Foundation, either version 3 of the License, or (at your option) any later version.
  *
- * 'serial communication manager' is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * The 'serial communication manager' is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
+ * PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
  * along with serial communication manager. If not, see <http://www.gnu.org/licenses/>.
@@ -31,6 +29,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public final class SerialComLooper {
 	
+	private final boolean DEBUG = true;
 	private final int MAX_NUM_EVENTS = 5000;
 	
 	private BlockingQueue<SerialComDataEvent> mDataQueue = new ArrayBlockingQueue<SerialComDataEvent>(MAX_NUM_EVENTS);
@@ -69,7 +68,7 @@ public final class SerialComLooper {
 							mDataLock.wait();
 						}
 					} catch (InterruptedException e) {
-						e.printStackTrace();
+						if(DEBUG) e.printStackTrace();
 					}
 				}
 			}
@@ -89,7 +88,7 @@ public final class SerialComLooper {
 					try {
 						mEventListener.onNewSerialEvent(mEventQueue.take());
 					} catch (InterruptedException e) {
-						e.printStackTrace();
+						if(DEBUG) e.printStackTrace();
 					}
 				}
 			}
@@ -111,7 +110,7 @@ public final class SerialComLooper {
         try {
 			mDataQueue.offer(new SerialComDataEvent(newData));
 		} catch (Exception e) {
-			e.printStackTrace();
+			if(DEBUG) e.printStackTrace();
 		}
 	}
 	
@@ -121,18 +120,14 @@ public final class SerialComLooper {
 	 */
 	public void insertInEventQueue(int newEvent) {
 		newLineState = newEvent & appliedMask;
-		
-		if(newLineState != 0) {
 	        if(mEventQueue.remainingCapacity() == 0) {
 	        	mEventQueue.poll();
 	        }
 	        try {
 				mEventQueue.offer(new SerialComLineEvent(oldLineState, newLineState));
 			} catch (Exception e) {
-				e.printStackTrace();
+				if(DEBUG) e.printStackTrace();
 			}
-		}
-		
 		oldLineState = newLineState;
 	}
 
@@ -145,7 +140,7 @@ public final class SerialComLooper {
 			mDataLooperThread = new Thread(new DataLooper(), "DataLooper for handle " + handle + " and port " + portName);
 			mDataLooperThread.start();
 		} catch (Exception e) {
-			e.printStackTrace();
+			if(DEBUG) e.printStackTrace();
 		}
 	}
 
@@ -169,7 +164,7 @@ public final class SerialComLooper {
 			mEventLooperThread = new Thread(new EventLooper(), "EventLooper for handle " + handle + " and port " + portName);
 			mEventLooperThread.start();
 		} catch (Exception e) {
-			e.printStackTrace();
+			if(DEBUG) e.printStackTrace();
 		}
 	}
 	
@@ -180,7 +175,7 @@ public final class SerialComLooper {
 		try {
 			//mDataLooperThread.stop(); TODO
 		} catch (Exception e) {
-			e.printStackTrace();
+			if(DEBUG) e.printStackTrace();
 		}
 	}
 
@@ -191,7 +186,7 @@ public final class SerialComLooper {
 		try {
 			//mEventLooperThread.stop(); TODO
 		} catch (Exception e) {
-			e.printStackTrace();
+			if(DEBUG) e.printStackTrace();
 		}
 	}
 	
@@ -225,5 +220,4 @@ public final class SerialComLooper {
 	public int getEventsMask() {
 		return appliedMask;
 	}
-
 }

@@ -41,6 +41,14 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINati
 
 /*
  * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
+ * Method:    registerPortMonitorListener
+ * Signature: (JLjava/lang/String;Lcom/embeddedunveiled/serial/IPortMonitor;)I
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_registerPortMonitorListener
+  (JNIEnv *, jobject, jlong, jstring, jobject);
+
+/*
+ * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
  * Method:    openComPort
  * Signature: (Ljava/lang/String;ZZZ)J
  */
@@ -89,10 +97,18 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 
 /*
  * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
- * Method:    getCurrentConfiguration
+ * Method:    getCurrentConfigurationU
  * Signature: (J)[I
  */
-JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_getCurrentConfiguration
+JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_getCurrentConfigurationU
+  (JNIEnv *, jobject, jlong);
+
+/*
+ * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
+ * Method:    getCurrentConfigurationW
+ * Signature: (J)[Ljava/lang/String;
+ */
+JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_getCurrentConfigurationW
   (JNIEnv *, jobject, jlong);
 
 /*

@@ -4,15 +4,13 @@
  *
  * This file is part of 'serial communication manager' library.
  *
- * 'serial communication manager' is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * The 'serial communication manager' is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later version.
  *
- * 'serial communication manager' is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * The 'serial communication manager' is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+ * PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
  * along with serial communication manager. If not, see <http://www.gnu.org/licenses/>.
@@ -1133,6 +1131,9 @@ JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeI
  * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
  * Method:    clearPortIOBuffers
  * Signature: (JZZ)I
+ *
+ *  This will discard all pending data in given buffers. Received data therefore can not be read by application or/and data to be transmitted
+ *  in output buffer will get discarded i.e. not transmitted.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_clearPortIOBuffers(JNIEnv *env, jobject obj, jlong handle, jboolean rxPortbuf, jboolean txPortbuf) {
 	jint ret = -1;

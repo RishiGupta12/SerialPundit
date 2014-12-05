@@ -1,18 +1,16 @@
-/*
+/**
  * Author : Rishi Gupta
  * Email  : gupt21@gmail.com
  * 
  * This file is part of 'serial communication manager' library.
  *
- * 'serial communication manager' is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * The 'serial communication manager' is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by the Free Software 
+ * Foundation, either version 3 of the License, or (at your option) any later version.
  *
- * 'serial communication manager' is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * The 'serial communication manager' is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
+ * PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
  * along with serial communication manager. If not, see <http://www.gnu.org/licenses/>.
@@ -137,9 +135,7 @@ public final class SerialComManager {
 		}
 	}
 	
-	/**
-	 * Mask bits for UART control lines.
-	 */
+	/** Mask bits for UART control lines. */
 	public static final int CTS =  0x01;  // 0000001
 	public static final int DSR =  0x02;  // 0000010
 	public static final int DCD =  0x04;  // 0000100
@@ -148,19 +144,15 @@ public final class SerialComManager {
 	public static final int RTS =  0x20;  // 0100000
 	public static final int DTR  = 0x40;  // 1000000
 
-	/** 
-	 * These properties are used to load OS specific native library.
-	 */
+	/** These properties are used to load OS specific native library. */
 	public static final String osName = System.getProperty("os.name");
 	public static final String osArch = System.getProperty("os.arch");
 	public static final String userHome = System.getProperty("user.home");
 	public static final String javaTmpDir = System.getProperty("java.io.tmpdir");
 	public static final String fileSeparator = System.getProperty("file.separator");
 	
-	/** 
-	 * Maintain integrity and consistency among all operations, therefore synchronise them for
-	 * making structural changes. This array can be sorted array if scaled to large scale. 
-	 */
+	/** Maintain integrity and consistency among all operations, therefore synchronise them for
+	 *  making structural changes. This array can be sorted array if scaled to large scale. */
 	private ArrayList<SerialComPortHandleInfo> handleInfo = new ArrayList<SerialComPortHandleInfo>();
 	private List<SerialComPortHandleInfo> mPortHandleInfo = Collections.synchronizedList(handleInfo);
 
@@ -191,9 +183,9 @@ public final class SerialComManager {
 	}
 
 	/**
-	 * Gives library versions of java and native modules
+	 * Gives library versions of java and native modules.
 	 * 
-	 * @return Java and C library versions implementing this program
+	 * @return Java and C library versions implementing this library.
 	 */
 	public String getLibraryVersions() {
 		String version = null;
@@ -220,7 +212,7 @@ public final class SerialComManager {
 	 * Developers must consider using this method to know which ports are valid communications ports before opening them for writing
 	 * more robust code.
 	 * 
-	 * @return Available UART style ports name for windows, full path with name for Unix like OS, returns empty array if no ports found
+	 * @return Available UART style ports name for windows, full path with name for Unix like OS, returns empty array if no ports found.
 	 */
 	public String[] listAvailableComPorts() {
 		String[] availablePorts = null;
@@ -232,8 +224,8 @@ public final class SerialComManager {
 	}
 
 	/** 
-	 * To make library robust, maintain integrity, consistency of related data, avoiding ambiguity, we have tried to make some methods
-	 * like openComPort(), closeComPort() and configureComPort() etc thread safe.
+	 * Developers are advised to use methods like openComPort(), closeComPort() and configureComPort() etc thread safe to maintian reliable
+	 * and  operation. 
 	 * 
 	 * This method runs to completion in synchronised manner, therefore a port before returning from this method have an exclusive owner 
 	 * or not. If it has exclusive owner and an attempt is made to open it again, native code will return error. On the other hand if it 
@@ -250,7 +242,7 @@ public final class SerialComManager {
 	 * @throws SerialComException if null argument is passed, if both enableWrite and enableRead are false
 	 * @return handle of the port successfully opened
 	 */
-	public synchronized long openComPort(String portName, boolean enableRead, boolean enableWrite, boolean exclusiveOwnerShip) throws SerialComException {
+	public long openComPort(String portName, boolean enableRead, boolean enableWrite, boolean exclusiveOwnerShip) throws SerialComException {
 		if (portName == null) {
 			throw new NullPointerException("openComPort(), " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_PORT_OPENING);
 		}
@@ -288,7 +280,7 @@ public final class SerialComManager {
 	 * @throws SerialComException if invalid handle is passed or when it fails in closing the port
 	 * @return Return true on success in closing the port false otherwise
 	 */
-	public synchronized boolean closeComPort(long handle) throws SerialComException {
+	public boolean closeComPort(long handle) throws SerialComException {
 		boolean handlefound = false;
 		SerialComPortHandleInfo mHandleInfo = null;
 		
@@ -565,7 +557,7 @@ public final class SerialComManager {
 	 * @throws SerialComException if invalid handle is passed or an error occurs in configuring the port
 	 * @return true on success false otherwise
 	 */
-	public synchronized boolean configureComPortData(long handle, DATABITS dataBits, STOPBITS stopBits, PARITY parity, BAUDRATE baudRate, int custBaud) throws SerialComException {
+	public boolean configureComPortData(long handle, DATABITS dataBits, STOPBITS stopBits, PARITY parity, BAUDRATE baudRate, int custBaud) throws SerialComException {
 
 		int baudRateTranslated = 0;
 		int custBaudTranslated = 0;
@@ -629,7 +621,7 @@ public final class SerialComManager {
 	 * be taken when an error is encountered in communication.
 	 * 
 	 * @param handle of opened port to which this configuration applies to
-	 * @param flowctrl flow control, who and how data flow will be controlled (refer FLOWCONTROL enum for this)
+	 * @param flowctrl flow control, how data flow will be controlled (refer FLOWCONTROL enum for this)
 	 * @param xon character representing on condition if software flow control is used
 	 * @param xoff character representing off condition if software flow control is used
 	 * @param ParFraError true if parity and frame errors are to be checked false otherwise
@@ -637,7 +629,7 @@ public final class SerialComManager {
 	 * @throws SerialComException if invalid handle is passed or an error occurs in configuring the port
 	 * @return true on success false otherwise
 	 */
-	public synchronized boolean configureComPortControl(long handle, FLOWCONTROL flowctrl, char xon, char xoff, boolean ParFraError, boolean overFlowErr) throws SerialComException {
+	public boolean configureComPortControl(long handle, FLOWCONTROL flowctrl, char xon, char xoff, boolean ParFraError, boolean overFlowErr) throws SerialComException {
 
 		boolean handlefound = false;
 		for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
@@ -661,6 +653,12 @@ public final class SerialComManager {
 	/**
 	 * This method gives currently applicable settings associated with particular serial port.
 	 * The values are bit mask so that application can manipulate them to get required information.
+	 * 
+	 * For Linux the order is : c_iflag, c_oflag, c_cflag, c_lflag, c_line, c_cc[0], c_cc[1], c_cc[2], c_cc[3]
+	 * c_cc[4], c_cc[5], c_cc[6], c_cc[7], c_cc[8], c_cc[9], c_cc[10], c_cc[11], c_cc[12], c_cc[13], c_cc[14],
+	 * c_cc[15], c_cc[16], c_ispeed and c_ospeed.
+	 * 
+	 * For Windows the order is : TODO
 	 * 
 	 * @param handle of the opened port
 	 * @throws SerialComException if invalid handle is passed or an error occurs while reading current settings
@@ -686,8 +684,9 @@ public final class SerialComManager {
 			if(config[0] < 0) {
 				throw new SerialComException("getCurrentConfiguration()", mErrMapper.getMappedError(config[0]));
 			}
+			// if an error occurs, config[0] will contain error code, otherwise actual data
 			for(int x=0; x<config.length; x++) {
-				configuration[x] = "" + config[x+1];
+				configuration[x] = "" + config[x];
 			}
 			return configuration;
 		}else {
@@ -699,6 +698,18 @@ public final class SerialComManager {
 
 	/**
 	 * This method assert/de-assert RTS line of serial port. Set "true" for asserting signal, false otherwise.
+	 * 
+	 * The RS-232 standard defines the voltage levels that correspond to logical one and logical zero levels for the data 
+	 * transmission and the control signal lines. Valid signals are either in the range of +3 to +15 volts or the range 
+	 * −3 to −15 volts with respect to the ground/common pin; consequently, the range between −3 to +3 volts is not a 
+	 * valid RS-232 level. 
+	 * 
+	 * For data lines (TxD, RxD and their secondary channel equivalents) logic one is defined as a negative voltage, the 
+	 * signal condition is called "mark". Logic zero is positive and the signal condition is termed "space". 
+	 * 
+	 * Control signals have the opposite polarity: the asserted or active state is positive voltage and the de-asserted 
+	 * or inactive state is negative voltage. Examples of control lines include request to send (RTS), clear to send (CTS), 
+	 * data terminal ready (DTR), and data set ready (DSR).
 	 * 
 	 * @param handle of the opened port
 	 * @param enabled if true RTS will be asserted and vice-versa
@@ -995,7 +1006,11 @@ public final class SerialComManager {
 	}
 
 	/**
-	 * Clear IO buffers. Some device/OS/driver might not have support for this, but most of them may have.
+	 * Discards data sent to port but not transmitted, or data received but not read. Some device/OS/driver might
+	 * not have support for this, but most of them may have.
+	 * If there is some data to be pending for transmission, it will be discarded and therefore no longer sent.
+	 * If the application wants to make sure that all data has been transmitted before discarding anything, it must
+	 * first flush data and then call this method.
 	 * 
 	 * @param handle of the opened port
 	 * @param clearRxPort if true receive buffer will be cleared otherwise will be left untouched 
@@ -1096,10 +1111,11 @@ public final class SerialComManager {
 	/**
 	 * Gives status of serial port's control lines.
 	 * Note for windows, DTR, RTS, LOOP will always return 0, as windows does not have any API to read there status.
+	 * The sequence of status in returned array is; CTS, DSR, DCD, RI, LOOP, RTS, DTR respectively.
 	 * 
 	 * @param handle of the port opened
 	 * @throws SerialComException if invalid handle is passed or operation can not be completed successfully
-	 * @return The sequence of status in returned array is; CTS, DSR, DCD, RI, LOOP, RTS, DTR respectively.
+	 * @return status of control lines
 	 */
 	public int[] getLinesStatus(long handle) throws SerialComException {
 		int x = 0;
@@ -1131,7 +1147,11 @@ public final class SerialComManager {
 	
 	/**
 	 * Get number of bytes in input and output port buffers used by operating system for instance tty buffers
-	 * in Unix like systems.
+	 * in Unix like systems. Sequence of data in array is : Input count, Output count.
+	 * 
+	 * It should be noted that some chipset specially USB to UART converters might have FIFO buffers in chipset
+	 * itself. For this reason number of bytes reported by this method and actual bytes received might differ.
+	 * This is driver and OS specific scenario.
 	 * 
 	 * @param handle of the opened port
 	 * @throws SerialComException if invalid handle is passed or operation can not be completed successfully
@@ -1162,6 +1182,38 @@ public final class SerialComManager {
 		numBytesInfo[1] = ret[2];  // Output buffer count
 		
 		return numBytesInfo;
+	}
+	
+	/**
+	 * This will create a native thread that will invoke given listener whenever given port is removed.
+	 * This is currently not supported for Solaris.
+	 * 
+	 * @param handle
+	 * @return
+	 * @throws SerialComException
+	 */
+	public boolean registerPortMonitorListener(long handle, IPortMonitor portMonitor) throws SerialComException {
+		boolean handlefound = false;
+		String portName = null;
+		int ret = 0;
+		
+		for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
+			if(mInfo.containsHandle(handle)) {
+				portName = mInfo.getOpenedPortName();
+				handlefound = true;
+				break;
+			}
+		}
+		if(handlefound == false) {
+			throw new SerialComException("registerPortMonitorListener()", SerialComErrorMapper.ERR_WRONG_HANDLE);
+		}
+		
+		ret = mNativeInterface.registerPortMonitorListener(handle, portName, portMonitor);
+		if(ret < 0) {
+			throw new SerialComException("registerPortMonitorListener()", mErrMapper.getMappedError(ret));
+		}
+		
+		return false;
 	}
 
 	/**

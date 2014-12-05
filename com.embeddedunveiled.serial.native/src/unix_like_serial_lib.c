@@ -4,15 +4,13 @@
  *
  * This file is part of 'serial communication manager' library.
  *
- * 'serial communication manager' is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * The 'serial communication manager' is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later version.
  *
- * 'serial communication manager' is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * The 'serial communication manager' is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+ * PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
  * along with serial communication manager. If not, see <http://www.gnu.org/licenses/>.
@@ -74,9 +72,9 @@ void LOGE(JNIEnv *env) {
 }
 
 int serial_delay(unsigned usecs) {
-	struct timeval t;
+	struct timespec t;
 	t.tv_sec  = usecs/1000000;
-	t.tv_usec = usecs%1000000;
+	t.tv_nsec = usecs%1000000;
 	pselect(1, 0, 0, 0, &t,0);
 	return 0;
 }
@@ -143,7 +141,7 @@ void *data_looper(void *arg) {
 
 	ret = epoll_ctl(epfd, EPOLL_CTL_ADD, fd, &ev);
 	if(ret < 0) {
-		fprintf(stderr, "%s %d\n", "NATIVE data_looper() thread failed in epoll_ctl() with error number : -", errno);
+		fprintf(stderr, "%s%d\n", "NATIVE data_looper() thread failed in epoll_ctl() with error number : -", errno);
 		fprintf(stderr, "%s \n", "NATIVE data_looper() thread exiting. Please RETRY registering data listener !");
 		pthread_mutex_lock(&mutex);
 		((struct com_thread_params*) arg)->data_thread_id = 0;
@@ -164,13 +162,13 @@ void *data_looper(void *arg) {
 
 		ret = epoll_wait(epfd, &events, 1, -1);
 		if(ret < 0) {
-			fprintf(stderr, "%s %d\n", "NATIVE data_looper() thread failed in epoll_wait() with error number : -", errno);
+			fprintf(stderr, "%s%d\n", "NATIVE data_looper() thread failed in epoll_wait() with error number : -", errno);
 			continue;
 		}
 
 		pthread_testcancel();
 
-    	/* we have data to read on file descriptor. */
+		/* we have data to read on file descriptor. */
 		do {
 			errno = 0;
 			ret = read(fd, buffer, sizeof(buffer));
@@ -208,7 +206,7 @@ void *data_looper(void *arg) {
 				} else if(errno != EINTR) {
 					/* This indicates, irrespective of, there was data to read or not, we got an error during operation. */
 					/* Can we handle this condition more gracefully. */
-					fprintf(stderr, "%s %d\n", "Native readBytes() failed to read data with error number : -", errno);
+					fprintf(stderr, "%s%d\n", "Native readBytes() failed to read data with error number : -", errno);
 
 					dataRead = (*env)->NewByteArray(env, sizeof(empty_buf));
 					(*env)->SetByteArrayRegion(env, dataRead, 0, sizeof(empty_buf), empty_buf);
@@ -225,11 +223,11 @@ void *data_looper(void *arg) {
 			}
 		} while(1);
 
-    	/* once we have successfully read the data, let us pass this to java layer. */
-    	(*env)->CallVoidMethod(env, looper, mid, dataRead);
-    	if( (*env)->ExceptionOccurred(env) ) {
-    		LOGE(env);
-    	}
+		/* once we have successfully read the data, let us pass this to java layer. */
+		(*env)->CallVoidMethod(env, looper, mid, dataRead);
+		if( (*env)->ExceptionOccurred(env) ) {
+			LOGE(env);
+		}
 
 	} /* Go back to loop again waiting for the data, available to read. */
 
@@ -277,28 +275,36 @@ void *event_looper(void *arg) {
 		pthread_exit((void *)0);
 	}
 
+	int CTS =  0x01;  // 0000001
+	int DSR =  0x02;  // 0000010
+	int DCD =  0x04;  // 0000100
+	int RI  =  0x08;  // 0001000
+	int lines_status = 0;
+	int cts,dsr,dcd,ri = 0;
+	int event = 0;
+
 	/* This keep looping until listener is unregistered, waiting for events and passing it to java layer.
-	 * We sleep within the kernel until something happens to the MSR register of the tty device. */
+	 * This sleep within the kernel until something happens to the MSR register of the tty device. */
 	while(1) {
-		jint lines_status = 0;
-		int CTS =  0x01;  // 0000001
-		int DSR =  0x02;  // 0000010
-		int DCD =  0x04;  // 0000100
-		int RI  =  0x08;  // 0001000
-		int cts,dsr,dcd,ri = 0;
-		int event = 0;
+		lines_status = 0;
+		cts = 0;
+		dsr = 0;
+		dcd = 0;
+		ri = 0;
+		event = 0;
 
 		errno = 0;
 		ret = ioctl(fd, TIOCMIWAIT, TIOCM_CD | TIOCM_RNG | TIOCM_DSR | TIOCM_CTS);
 		if(ret < 0) {
-			fprintf(stderr, "%s %d\n", "NATIVE event_looper() failed in ioctl TIOCMIWAIT with error number : -", errno);
+			fprintf(stderr, "%s%d\n", "NATIVE event_looper() failed in ioctl TIOCMIWAIT with error number : -", errno);
 			continue;
 		}
+
 		/* Something happened on status line so get it. */
 		errno = 0;
 		ret = ioctl(fd, TIOCMGET, &lines_status);
 		if(ret < 0) {
-			fprintf(stderr, "%s %d\n", "NATIVE event_looper() failed in ioctl TIOCMGET with error number : -", errno);
+			fprintf(stderr, "%s%d\n", "NATIVE event_looper() failed in ioctl TIOCMGET with error number : -", errno);
 			continue;
 		}
 
@@ -306,6 +312,7 @@ void *event_looper(void *arg) {
 		dsr = (lines_status & TIOCM_DSR)  ? 1 : 0;
 		dcd = (lines_status & TIOCM_CD)   ? 1 : 0;
 		ri  = (lines_status & TIOCM_RI)   ? 1 : 0;
+
 		if(cts) {
 			event = event | CTS;
 		}
@@ -320,11 +327,11 @@ void *event_looper(void *arg) {
 		}
 		fprintf(stderr, "%s %d\n", "NATIVE event_looper() sending bit mapped events ", event);
 
-    	/* Pass this to java layer inserting event in event queue. */
-    	(*env)->CallVoidMethod(env, looper, mid, event);
-    	if( (*env)->ExceptionOccurred(env) ) {
-    		LOGE(env);
-    	}
+		/* Pass this to java layer inserting event in event queue. */
+		(*env)->CallVoidMethod(env, looper, mid, event);
+		if( (*env)->ExceptionOccurred(env) ) {
+			LOGE(env);
+		}
 
 	} /* Go back to loop again waiting for event to happen. */
 
