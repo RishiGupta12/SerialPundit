@@ -72,6 +72,9 @@ More examples could be found here : https://github.com/RishiGupta12/serial-com-m
 
 Detailed javadocs can be found here : https://github.com/RishiGupta12/serial-com-manager/tree/master/javadoc
 
+##Wiki, Help, Discussion
+The wiki page for the project is maintained here https://code.google.com/p/serial-com-manager/w/list
+
 ##Build guide
 
 ##Programs to test RS-232
@@ -84,6 +87,3 @@ MAC :
 The 'serial communication manager (scm)' is designed, developed and maintained by Rishi gupta. The Linkdin profile of the author can be found here : http://in.linkedin.com/pub/rishi-gupta/20/9b8/a10
 
 This library is licensed under the LGPL, See LICENSE AND COPYING for full license text.
-
-##Help & Discussion
-The wiki page for the project is maintained here https://code.google.com/p/serial-com-manager/w/list
