@@ -1897,3 +1897,367 @@ Invoking: Cross GCC Linker
 gcc -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o ./src/windows_serial.o ./src/windows_serial_lib.o   
 Finished building target: linux_1.0.0_x86_64.so
  
+11:27:58 **** Incremental Build of configuration Release for project com.embeddedunveiled.serial.native ****
+make all 
+make: Nothing to be done for `all'.
+11:28:30 **** Incremental Build of configuration Release for project com.embeddedunveiled.serial.native ****
+make all 
+make: Nothing to be done for `all'.
+11:48:43 **** Incremental Build of configuration Release for project com.embeddedunveiled.serial.native ****
+make all 
+Building file: ../src/unix_like_serial.c
+Invoking: Cross GCC Compiler
+gcc -I/home/r/packages/jdk/jdk1.6.0_45/include -include/home/r/packages/jdk/jdk1.6.0_45/include/jni.h -O3 -Wall -c -fmessage-length=0 -fPIC -MMD -MP -MF"src/unix_like_serial.d" -MT"src/unix_like_serial.d" -o "src/unix_like_serial.o" "../src/unix_like_serial.c"
+../src/unix_like_serial.c:51:0: warning: "_BSD_SOURCE" redefined [enabled by default]
+/usr/include/features.h:184:0: note: this is the location of the previous definition
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_openComPort’:
+../src/unix_like_serial.c:378:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_writeBytes’:
+../src/unix_like_serial.c:637:2: warning: implicit declaration of function ‘tcdrain’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_registerPortMonitorListener’:
+../src/unix_like_serial.c:1663:6: warning: unused variable ‘negative’ [-Wunused-variable]
+../src/unix_like_serial.c:1662:6: warning: unused variable ‘ret’ [-Wunused-variable]
+../src/unix_like_serial.c: At top level:
+../src/unix_like_serial.c:38:0: error: unterminated #if
+make: *** [src/unix_like_serial.o] Error 1
+11:50:37 **** Incremental Build of configuration Release for project com.embeddedunveiled.serial.native ****
+make all 
+Building file: ../src/unix_like_serial.c
+Invoking: Cross GCC Compiler
+gcc -I/home/r/packages/jdk/jdk1.6.0_45/include -include/home/r/packages/jdk/jdk1.6.0_45/include/jni.h -O3 -Wall -c -fmessage-length=0 -fPIC -MMD -MP -MF"src/unix_like_serial.d" -MT"src/unix_like_serial.d" -o "src/unix_like_serial.o" "../src/unix_like_serial.c"
+../src/unix_like_serial.c:51:0: warning: "_BSD_SOURCE" redefined [enabled by default]
+/usr/include/features.h:184:0: note: this is the location of the previous definition
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_openComPort’:
+../src/unix_like_serial.c:378:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_writeBytes’:
+../src/unix_like_serial.c:637:2: warning: implicit declaration of function ‘tcdrain’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_registerPortMonitorListener’:
+../src/unix_like_serial.c:1662:6: warning: unused variable ‘negative’ [-Wunused-variable]
+../src/unix_like_serial.c:1661:6: warning: unused variable ‘ret’ [-Wunused-variable]
+Finished building: ../src/unix_like_serial.c
+ 
+Building target: linux_1.0.0_x86_64.so
+Invoking: Cross GCC Linker
+gcc -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o ./src/windows_serial.o ./src/windows_serial_lib.o   
+Finished building target: linux_1.0.0_x86_64.so
+ 
+11:50:40 **** Incremental Build of configuration Release for project com.embeddedunveiled.serial.native ****
+make all 
+make: Nothing to be done for `all'.
+11:50:43 **** Incremental Build of configuration Release for project com.embeddedunveiled.serial.native ****
+make all 
+make: Nothing to be done for `all'.
+11:50:44 **** Incremental Build of configuration Release for project com.embeddedunveiled.serial.native ****
+make all 
+make: Nothing to be done for `all'.
+11:53:06 **** Incremental Build of configuration Release for project com.embeddedunveiled.serial.native ****
+make all 
+make: Nothing to be done for `all'.
+11:53:08 **** Incremental Build of configuration Release for project com.embeddedunveiled.serial.native ****
+make all 
+make: Nothing to be done for `all'.
+11:53:13 **** Incremental Build of configuration Release for project com.embeddedunveiled.serial.native ****
+make all 
+make: Nothing to be done for `all'.
+11:53:15 **** Incremental Build of configuration Release for project com.embeddedunveiled.serial.native ****
+make all 
+make: Nothing to be done for `all'.
+11:58:22 **** Incremental Build of configuration Release for project com.embeddedunveiled.serial.native ****
+make all 
+Building file: ../src/unix_like_serial.c
+Invoking: Cross GCC Compiler
+gcc -I/home/r/packages/jdk/jdk1.6.0_45/include -include/home/r/packages/jdk/jdk1.6.0_45/include/jni.h -O3 -Wall -c -fmessage-length=0 -fPIC -MMD -MP -MF"src/unix_like_serial.d" -MT"src/unix_like_serial.d" -o "src/unix_like_serial.o" "../src/unix_like_serial.c"
+../src/unix_like_serial.c:51:0: warning: "_BSD_SOURCE" redefined [enabled by default]
+/usr/include/features.h:184:0: note: this is the location of the previous definition
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_openComPort’:
+../src/unix_like_serial.c:380:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_writeBytes’:
+../src/unix_like_serial.c:639:2: warning: implicit declaration of function ‘tcdrain’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_registerPortMonitorListener’:
+../src/unix_like_serial.c:1665:6: warning: unused variable ‘negative’ [-Wunused-variable]
+../src/unix_like_serial.c:1664:6: warning: unused variable ‘ret’ [-Wunused-variable]
+Finished building: ../src/unix_like_serial.c
+ 
+Building target: linux_1.0.0_x86_64.so
+Invoking: Cross GCC Linker
+gcc -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o ./src/windows_serial.o ./src/windows_serial_lib.o   
+Finished building target: linux_1.0.0_x86_64.so
+ 
+11:58:23 **** Incremental Build of configuration Release for project com.embeddedunveiled.serial.native ****
+make all 
+make: Nothing to be done for `all'.
+11:58:36 **** Incremental Build of configuration Release for project com.embeddedunveiled.serial.native ****
+make all 
+make: Nothing to be done for `all'.
+11:58:37 **** Incremental Build of configuration Release for project com.embeddedunveiled.serial.native ****
+make all 
+make: Nothing to be done for `all'.
+11:58:40 **** Incremental Build of configuration Release for project com.embeddedunveiled.serial.native ****
+make all 
+make: Nothing to be done for `all'.
+11:58:43 **** Incremental Build of configuration Release for project com.embeddedunveiled.serial.native ****
+make all 
+make: Nothing to be done for `all'.
+12:07:49 **** Incremental Build of configuration Release for project com.embeddedunveiled.serial.native ****
+make all 
+make: Nothing to be done for `all'.
+12:18:44 **** Incremental Build of configuration Release for project com.embeddedunveiled.serial.native ****
+make all 
+make: Nothing to be done for `all'.
+12:21:30 **** Incremental Build of configuration Release for project com.embeddedunveiled.serial.native ****
+make all 
+make: Nothing to be done for `all'.
+12:21:32 **** Incremental Build of configuration Release for project com.embeddedunveiled.serial.native ****
+make all 
+make: Nothing to be done for `all'.
+12:22:01 **** Incremental Build of configuration Release for project com.embeddedunveiled.serial.native ****
+make all 
+make: Nothing to be done for `all'.
+12:22:09 **** Incremental Build of configuration Release for project com.embeddedunveiled.serial.native ****
+make all 
+make: Nothing to be done for `all'.
+12:25:18 **** Clean-only build of configuration Release for project com.embeddedunveiled.serial.native ****
+make clean 
+rm -rf  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o ./src/windows_serial.o ./src/windows_serial_lib.o  ./src/unix_like_serial.d ./src/unix_like_serial_lib.d ./src/windows_serial.d ./src/windows_serial_lib.d  linux_1.0.0_x86_64.so
+ 
+12:25:18 **** Build of configuration Release for project com.embeddedunveiled.serial.native ****
+make all 
+Building file: ../src/unix_like_serial.c
+Invoking: Cross GCC Compiler
+gcc -I/home/r/packages/jdk/jdk1.6.0_45/include -include/home/r/packages/jdk/jdk1.6.0_45/include/jni.h -O3 -Wall -c -fmessage-length=0 -fPIC -MMD -MP -MF"src/unix_like_serial.d" -MT"src/unix_like_serial.d" -o "src/unix_like_serial.o" "../src/unix_like_serial.c"
+../src/unix_like_serial.c:51:0: warning: "_BSD_SOURCE" redefined [enabled by default]
+/usr/include/features.h:184:0: note: this is the location of the previous definition
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_openComPort’:
+../src/unix_like_serial.c:380:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_writeBytes’:
+../src/unix_like_serial.c:639:2: warning: implicit declaration of function ‘tcdrain’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_registerPortMonitorListener’:
+../src/unix_like_serial.c:1665:6: warning: unused variable ‘negative’ [-Wunused-variable]
+../src/unix_like_serial.c:1664:6: warning: unused variable ‘ret’ [-Wunused-variable]
+Finished building: ../src/unix_like_serial.c
+ 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: Cross GCC Compiler
+gcc -I/home/r/packages/jdk/jdk1.6.0_45/include -include/home/r/packages/jdk/jdk1.6.0_45/include/jni.h -O3 -Wall -c -fmessage-length=0 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:297:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial_lib.c
+ 
+Building file: ../src/windows_serial.c
+Invoking: Cross GCC Compiler
+gcc -I/home/r/packages/jdk/jdk1.6.0_45/include -include/home/r/packages/jdk/jdk1.6.0_45/include/jni.h -O3 -Wall -c -fmessage-length=0 -fPIC -MMD -MP -MF"src/windows_serial.d" -MT"src/windows_serial.d" -o "src/windows_serial.o" "../src/windows_serial.c"
+Finished building: ../src/windows_serial.c
+ 
+Building file: ../src/windows_serial_lib.c
+Invoking: Cross GCC Compiler
+gcc -I/home/r/packages/jdk/jdk1.6.0_45/include -include/home/r/packages/jdk/jdk1.6.0_45/include/jni.h -O3 -Wall -c -fmessage-length=0 -fPIC -MMD -MP -MF"src/windows_serial_lib.d" -MT"src/windows_serial_lib.d" -o "src/windows_serial_lib.o" "../src/windows_serial_lib.c"
+Finished building: ../src/windows_serial_lib.c
+ 
+Building target: linux_1.0.0_x86_64.so
+Invoking: Cross GCC Linker
+gcc -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o ./src/windows_serial.o ./src/windows_serial_lib.o   
+Finished building target: linux_1.0.0_x86_64.so
+ 
+12:25:25 **** Incremental Build of configuration Release for project com.embeddedunveiled.serial.native ****
+make all 
+make: Nothing to be done for `all'.
+12:26:04 **** Incremental Build of configuration Release for project com.embeddedunveiled.serial.native ****
+make all 
+make: Nothing to be done for `all'.
+13:15:29 **** Incremental Build of configuration Release for project com.embeddedunveiled.serial.native ****
+make all 
+make: Nothing to be done for `all'.
+14:12:55 **** Incremental Build of configuration Release for project com.embeddedunveiled.serial.native ****
+make all 
+make: Nothing to be done for `all'.
+14:12:58 **** Incremental Build of configuration Release for project com.embeddedunveiled.serial.native ****
+make all 
+make: Nothing to be done for `all'.
+14:19:55 **** Incremental Build of configuration Release for project com.embeddedunveiled.serial.native ****
+make all 
+make: Nothing to be done for `all'.
+14:35:51 **** Incremental Build of configuration Release for project com.embeddedunveiled.serial.native ****
+make all 
+make: Nothing to be done for `all'.
+14:35:54 **** Incremental Build of configuration Release for project com.embeddedunveiled.serial.native ****
+make all 
+make: Nothing to be done for `all'.
+14:50:53 **** Incremental Build of configuration Release for project com.embeddedunveiled.serial.native ****
+make all 
+make: Nothing to be done for `all'.
+14:51:15 **** Incremental Build of configuration Release for project com.embeddedunveiled.serial.native ****
+make all 
+make: Nothing to be done for `all'.
+15:17:23 **** Incremental Build of configuration Release for project com.embeddedunveiled.serial.native ****
+make all 
+make: Nothing to be done for `all'.
+15:19:09 **** Incremental Build of configuration Release for project com.embeddedunveiled.serial.native ****
+make all 
+make: Nothing to be done for `all'.
+15:51:07 **** Incremental Build of configuration Release for project com.embeddedunveiled.serial.native ****
+make all 
+make: Nothing to be done for `all'.
+15:54:56 **** Clean-only build of configuration Release for project com.embeddedunveiled.serial.native ****
+make clean 
+rm -rf  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o ./src/windows_serial.o ./src/windows_serial_lib.o  ./src/unix_like_serial.d ./src/unix_like_serial_lib.d ./src/windows_serial.d ./src/windows_serial_lib.d  linux_1.0.0_x86_64.so
+ 
+15:54:56 **** Build of configuration Release for project com.embeddedunveiled.serial.native ****
+make all 
+Building file: ../src/unix_like_serial.c
+Invoking: Cross GCC Compiler
+gcc -I/home/r/packages/jdk/jdk1.6.0_45/include -include/home/r/packages/jdk/jdk1.6.0_45/include/jni.h -O3 -Wall -c -fmessage-length=0 -fPIC -MMD -MP -MF"src/unix_like_serial.d" -MT"src/unix_like_serial.d" -o "src/unix_like_serial.o" "../src/unix_like_serial.c"
+../src/unix_like_serial.c:51:0: warning: "_BSD_SOURCE" redefined [enabled by default]
+/usr/include/features.h:184:0: note: this is the location of the previous definition
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_openComPort’:
+../src/unix_like_serial.c:380:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_writeBytes’:
+../src/unix_like_serial.c:639:2: warning: implicit declaration of function ‘tcdrain’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_registerPortMonitorListener’:
+../src/unix_like_serial.c:1665:6: warning: unused variable ‘negative’ [-Wunused-variable]
+../src/unix_like_serial.c:1664:6: warning: unused variable ‘ret’ [-Wunused-variable]
+Finished building: ../src/unix_like_serial.c
+ 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: Cross GCC Compiler
+gcc -I/home/r/packages/jdk/jdk1.6.0_45/include -include/home/r/packages/jdk/jdk1.6.0_45/include/jni.h -O3 -Wall -c -fmessage-length=0 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:297:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial_lib.c
+ 
+Building file: ../src/windows_serial.c
+Invoking: Cross GCC Compiler
+gcc -I/home/r/packages/jdk/jdk1.6.0_45/include -include/home/r/packages/jdk/jdk1.6.0_45/include/jni.h -O3 -Wall -c -fmessage-length=0 -fPIC -MMD -MP -MF"src/windows_serial.d" -MT"src/windows_serial.d" -o "src/windows_serial.o" "../src/windows_serial.c"
+Finished building: ../src/windows_serial.c
+ 
+Building file: ../src/windows_serial_lib.c
+Invoking: Cross GCC Compiler
+gcc -I/home/r/packages/jdk/jdk1.6.0_45/include -include/home/r/packages/jdk/jdk1.6.0_45/include/jni.h -O3 -Wall -c -fmessage-length=0 -fPIC -MMD -MP -MF"src/windows_serial_lib.d" -MT"src/windows_serial_lib.d" -o "src/windows_serial_lib.o" "../src/windows_serial_lib.c"
+Finished building: ../src/windows_serial_lib.c
+ 
+Building target: linux_1.0.0_x86_64.so
+Invoking: Cross GCC Linker
+gcc -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o ./src/windows_serial.o ./src/windows_serial_lib.o   
+Finished building target: linux_1.0.0_x86_64.so
+ 
+15:56:22 **** Incremental Build of configuration Release for project com.embeddedunveiled.serial.native ****
+make all 
+make: Nothing to be done for `all'.
+15:57:17 **** Incremental Build of configuration Release for project com.embeddedunveiled.serial.native ****
+make all 
+make: Nothing to be done for `all'.
+15:57:19 **** Incremental Build of configuration Release for project com.embeddedunveiled.serial.native ****
+make all 
+make: Nothing to be done for `all'.
+16:10:36 **** Incremental Build of configuration Release for project com.embeddedunveiled.serial.native ****
+make all 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: Cross GCC Compiler
+gcc -I/home/r/packages/jdk/jdk1.6.0_45/include -include/home/r/packages/jdk/jdk1.6.0_45/include/jni.h -O3 -Wall -c -fmessage-length=0 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:299:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial_lib.c
+ 
+Building target: linux_1.0.0_x86_64.so
+Invoking: Cross GCC Linker
+gcc -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o ./src/windows_serial.o ./src/windows_serial_lib.o   
+Finished building target: linux_1.0.0_x86_64.so
+ 
+16:16:08 **** Incremental Build of configuration Release for project com.embeddedunveiled.serial.native ****
+make all 
+make: Nothing to be done for `all'.
+16:19:05 **** Incremental Build of configuration Release for project com.embeddedunveiled.serial.native ****
+make all 
+make: Nothing to be done for `all'.
+16:19:08 **** Clean-only build of configuration Release for project com.embeddedunveiled.serial.native ****
+make clean 
+rm -rf  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o ./src/windows_serial.o ./src/windows_serial_lib.o  ./src/unix_like_serial.d ./src/unix_like_serial_lib.d ./src/windows_serial.d ./src/windows_serial_lib.d  linux_1.0.0_x86_64.so
+ 
+16:19:08 **** Build of configuration Release for project com.embeddedunveiled.serial.native ****
+make all 
+Building file: ../src/unix_like_serial.c
+Invoking: Cross GCC Compiler
+gcc -I/home/r/packages/jdk/jdk1.6.0_45/include -include/home/r/packages/jdk/jdk1.6.0_45/include/jni.h -O3 -Wall -c -fmessage-length=0 -fPIC -MMD -MP -MF"src/unix_like_serial.d" -MT"src/unix_like_serial.d" -o "src/unix_like_serial.o" "../src/unix_like_serial.c"
+../src/unix_like_serial.c:51:0: warning: "_BSD_SOURCE" redefined [enabled by default]
+/usr/include/features.h:184:0: note: this is the location of the previous definition
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_openComPort’:
+../src/unix_like_serial.c:380:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_writeBytes’:
+../src/unix_like_serial.c:639:2: warning: implicit declaration of function ‘tcdrain’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_registerPortMonitorListener’:
+../src/unix_like_serial.c:1665:6: warning: unused variable ‘negative’ [-Wunused-variable]
+../src/unix_like_serial.c:1664:6: warning: unused variable ‘ret’ [-Wunused-variable]
+Finished building: ../src/unix_like_serial.c
+ 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: Cross GCC Compiler
+gcc -I/home/r/packages/jdk/jdk1.6.0_45/include -include/home/r/packages/jdk/jdk1.6.0_45/include/jni.h -O3 -Wall -c -fmessage-length=0 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:299:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial_lib.c
+ 
+Building file: ../src/windows_serial.c
+Invoking: Cross GCC Compiler
+gcc -I/home/r/packages/jdk/jdk1.6.0_45/include -include/home/r/packages/jdk/jdk1.6.0_45/include/jni.h -O3 -Wall -c -fmessage-length=0 -fPIC -MMD -MP -MF"src/windows_serial.d" -MT"src/windows_serial.d" -o "src/windows_serial.o" "../src/windows_serial.c"
+Finished building: ../src/windows_serial.c
+ 
+Building file: ../src/windows_serial_lib.c
+Invoking: Cross GCC Compiler
+gcc -I/home/r/packages/jdk/jdk1.6.0_45/include -include/home/r/packages/jdk/jdk1.6.0_45/include/jni.h -O3 -Wall -c -fmessage-length=0 -fPIC -MMD -MP -MF"src/windows_serial_lib.d" -MT"src/windows_serial_lib.d" -o "src/windows_serial_lib.o" "../src/windows_serial_lib.c"
+Finished building: ../src/windows_serial_lib.c
+ 
+Building target: linux_1.0.0_x86_64.so
+Invoking: Cross GCC Linker
+gcc -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o ./src/windows_serial.o ./src/windows_serial_lib.o   
+Finished building target: linux_1.0.0_x86_64.so
+ 
+16:19:10 **** Incremental Build of configuration Release for project com.embeddedunveiled.serial.native ****
+make all 
+make: Nothing to be done for `all'.
+16:19:23 **** Incremental Build of configuration Release for project com.embeddedunveiled.serial.native ****
+make all 
+make: Nothing to be done for `all'.
+14:38:13 **** Clean-only build of configuration Release for project com.embeddedunveiled.serial.native ****
+make clean 
+rm -rf  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o ./src/windows_serial.o ./src/windows_serial_lib.o  ./src/unix_like_serial.d ./src/unix_like_serial_lib.d ./src/windows_serial.d ./src/windows_serial_lib.d  linux_1.0.0_x86_64.so
+ 
+14:38:14 **** Build of configuration Release for project com.embeddedunveiled.serial.native ****
+make all 
+Building file: ../src/unix_like_serial.c
+Invoking: Cross GCC Compiler
+gcc -I/home/r/packages/jdk/jdk1.6.0_45/include -include/home/r/packages/jdk/jdk1.6.0_45/include/jni.h -O3 -Wall -c -fmessage-length=0 -fPIC -MMD -MP -MF"src/unix_like_serial.d" -MT"src/unix_like_serial.d" -o "src/unix_like_serial.o" "../src/unix_like_serial.c"
+../src/unix_like_serial.c:51:0: warning: "_BSD_SOURCE" redefined [enabled by default]
+/usr/include/features.h:184:0: note: this is the location of the previous definition
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_openComPort’:
+../src/unix_like_serial.c:380:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_writeBytes’:
+../src/unix_like_serial.c:639:2: warning: implicit declaration of function ‘tcdrain’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_registerPortMonitorListener’:
+../src/unix_like_serial.c:1665:6: warning: unused variable ‘negative’ [-Wunused-variable]
+../src/unix_like_serial.c:1664:6: warning: unused variable ‘ret’ [-Wunused-variable]
+Finished building: ../src/unix_like_serial.c
+ 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: Cross GCC Compiler
+gcc -I/home/r/packages/jdk/jdk1.6.0_45/include -include/home/r/packages/jdk/jdk1.6.0_45/include/jni.h -O3 -Wall -c -fmessage-length=0 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:299:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial_lib.c
+ 
+Building file: ../src/windows_serial.c
+Invoking: Cross GCC Compiler
+gcc -I/home/r/packages/jdk/jdk1.6.0_45/include -include/home/r/packages/jdk/jdk1.6.0_45/include/jni.h -O3 -Wall -c -fmessage-length=0 -fPIC -MMD -MP -MF"src/windows_serial.d" -MT"src/windows_serial.d" -o "src/windows_serial.o" "../src/windows_serial.c"
+Finished building: ../src/windows_serial.c
+ 
+Building file: ../src/windows_serial_lib.c
+Invoking: Cross GCC Compiler
+gcc -I/home/r/packages/jdk/jdk1.6.0_45/include -include/home/r/packages/jdk/jdk1.6.0_45/include/jni.h -O3 -Wall -c -fmessage-length=0 -fPIC -MMD -MP -MF"src/windows_serial_lib.d" -MT"src/windows_serial_lib.d" -o "src/windows_serial_lib.o" "../src/windows_serial_lib.c"
+Finished building: ../src/windows_serial_lib.c
+ 
+Building target: linux_1.0.0_x86_64.so
+Invoking: Cross GCC Linker
+gcc -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o ./src/windows_serial.o ./src/windows_serial_lib.o   
+Finished building target: linux_1.0.0_x86_64.so
+ 
+14:39:02 **** Incremental Build of configuration Release for project com.embeddedunveiled.serial.native ****
+make all 
+make: Nothing to be done for `all'.

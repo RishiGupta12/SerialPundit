@@ -12,8 +12,8 @@ import com.embeddedunveiled.serial.SerialComLineEvent;
 class EventListener implements ISerialComEventListener{
 	@Override
 	public void onNewSerialEvent(SerialComLineEvent lineEvent) {
-		System.out.println("eventDCD : " + lineEvent.getCTS() + "\n");
-		System.out.println("eventDSR : " + lineEvent.getDSR() + "\n");
+		System.out.println("eventCTS : " + lineEvent.getCTS());
+		System.out.println("eventDSR : " + lineEvent.getDSR());
 	}
 }
 
@@ -38,26 +38,28 @@ public class Test6 {
 			
 			Thread.sleep(2000);
 			scm.setDTR(handle1, true);
-			
-			Thread.sleep(2000);
-			scm.setDTR(handle1, false);
-			
 			Thread.sleep(2000);
 			scm.setRTS(handle1, true);
-			
+			Thread.sleep(2000);
+			scm.setDTR(handle1, false);
 			Thread.sleep(2000);
 			scm.setRTS(handle1, false);
-			
-			Thread.sleep(3000);
-
-			// unregister data listener
-			scm.unregisterLineEventListener(eventListener);
-			
-			// close the port releasing handle
-			scm.closeComPort(handle);
-			scm.closeComPort(handle1);
+			Thread.sleep(2000);
+			scm.setDTR(handle1, true);
+			Thread.sleep(2000);
+			scm.setRTS(handle1, true);
+			Thread.sleep(2000);
 			
 			while(true);
+
+//			// unregister data listener
+//			scm.unregisterLineEventListener(eventListener);
+//			
+//			// close the port releasing handle
+//			scm.closeComPort(handle);
+//			scm.closeComPort(handle1);
+			
+			
 			
 		} catch (Exception e) {
 			e.printStackTrace();

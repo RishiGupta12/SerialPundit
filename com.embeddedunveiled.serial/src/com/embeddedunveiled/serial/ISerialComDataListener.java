@@ -21,14 +21,13 @@ package com.embeddedunveiled.serial;
 /**
  * This interface represents Completion handler in our proactor design pattern.
  * 
- * The class implementing this interface is expected to override onNewSerialEvent() method.
- * This method gets called from the looper thread associated with the corresponding listener (handler).
+ * <p>The class implementing this interface is expected to override onNewSerialEvent() method.
+ * This method gets called from the looper thread associated with the corresponding listener (handler).</p>
  * 
  * The listener can extract data bytes from the event object passed by calling getDataBytes() method.
  * 
- * By default, the listener is called for every new byte available. This behaviour can be modified by 
- * using available API.
- *  
+ * <p>By default, the listener is called for every new byte available. This behaviour can be modified by 
+ * using available API.</p>
  */
 
 public interface ISerialComDataListener {

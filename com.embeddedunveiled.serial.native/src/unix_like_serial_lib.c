@@ -293,6 +293,8 @@ void *event_looper(void *arg) {
 		ri = 0;
 		event = 0;
 
+		/*TODO when the user removes port on which this thread was calling this ioctl, this thread keep giving
+		 * error -5 and keep looping in this ioctl. */
 		errno = 0;
 		ret = ioctl(fd, TIOCMIWAIT, TIOCM_CD | TIOCM_RNG | TIOCM_DSR | TIOCM_CTS);
 		if(ret < 0) {

@@ -1,23 +1,27 @@
-
 *********************************** Library usage guide **************************************************
 
-Example 1 : demonstrates how to find serial ports available on system.
-Example 2 : demonstrates how to open, close, read and write to a serial port.
-Example 3 : demonstrates how to register and use data listener for receiving data from serial port. 
-Example 4 : demonstrates how to register and use event listener for receiving event from serial port.
-Example 5 : demonstrates how to read the status of control lines (flowcontrol) of serial port.
-Example 6 : demonstrates how to get current settings of serial port.
-Example 7 : demonstrates how to discard all pending data from output and input buffers of OS.
-Example 8 : demonstrates how to turn on/off debugging messages from java layer.
-Example 9 : demonstrates how to get current java and native library version.
-Example 10: demonstrates how to assert break condition on data lines.
+Example 1  : demonstrates how to find serial ports available on system.
+Example 2  : demonstrates how to open, close, read and write to a serial port.
+Example 3  : demonstrates how to register and use data listener for receiving data from serial port. 
+Example 4  : demonstrates how to register and use event listener for receiving event from serial port.
+Example 5  : demonstrates how to read the status of control lines (flowcontrol) of serial port.
+Example 6  : demonstrates how to get current settings of serial port.
+Example 7  : demonstrates how to discard all pending data from output and input buffers of OS.
+Example 8  : demonstrates how to turn on/off debugging messages from java layer.
+Example 9  : demonstrates how to get current java and native library version.
+Example 10 : demonstrates how to assert break condition on data lines.
+Example 11 : demonstrates how to get interrupts count that has happended on serial port.
+Example 12 : demonstrates how to send data encoded into a particular format.
+Example 13 : demonstrates how to send single interger value in different format and length.
+Example 14 : demonstrates how to set minimum number of bytes available length when using data listener.
+Example 15 : demonstrates how to mask events for control lines.
+Example 16 : demonstrates how to get currently active mask for control line events.
 
 ~~~ Example 1 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 This demonstrates how to find serial ports available on system.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 package test1;
-
 import com.embeddedunveiled.serial.SerialComManager;
 
 public class Test1 {
@@ -36,7 +40,6 @@ This demonstrates how to open, close, read and write to a serial port.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 package test2;
-
 import com.embeddedunveiled.serial.SerialComManager;
 import com.embeddedunveiled.serial.SerialComManager.BAUDRATE;
 import com.embeddedunveiled.serial.SerialComManager.DATABITS;
@@ -87,7 +90,6 @@ listener.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 package test3;
-
 import com.embeddedunveiled.serial.SerialComManager;
 import com.embeddedunveiled.serial.SerialComManager.BAUDRATE;
 import com.embeddedunveiled.serial.SerialComManager.DATABITS;
@@ -149,7 +151,6 @@ This demonstrates how to register and use event listener for receiving control e
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 package test6;
-
 import com.embeddedunveiled.serial.SerialComManager;
 import com.embeddedunveiled.serial.SerialComManager.BAUDRATE;
 import com.embeddedunveiled.serial.SerialComManager.DATABITS;
@@ -162,7 +163,7 @@ import com.embeddedunveiled.serial.SerialComLineEvent;
 class EventListener implements ISerialComEventListener{
 	@Override
 	public void onNewSerialEvent(SerialComLineEvent lineEvent) {
-		System.out.println("eventDCD : " + lineEvent.getCTS() + "\n");
+		System.out.println("eventCTS : " + lineEvent.getCTS() + "\n");
 		System.out.println("eventDSR : " + lineEvent.getDSR() + "\n");
 	}
 }
@@ -220,7 +221,6 @@ This demonstrates how to read the status of control lines (flowcontrol) of seria
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 package test5;
-
 import com.embeddedunveiled.serial.SerialComManager;
 import com.embeddedunveiled.serial.SerialComManager.BAUDRATE;
 import com.embeddedunveiled.serial.SerialComManager.DATABITS;
@@ -257,7 +257,6 @@ This demonstrates how to get current settings of serial port.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 package test4;
-
 import java.util.Arrays;
 import com.embeddedunveiled.serial.SerialComManager;
 import com.embeddedunveiled.serial.SerialComManager.BAUDRATE;
@@ -294,7 +293,6 @@ framework. Additionally, is also demonstrate how many bytes are there in input a
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 package test7;
-
 import com.embeddedunveiled.serial.SerialComManager;
 import com.embeddedunveiled.serial.SerialComManager.BAUDRATE;
 import com.embeddedunveiled.serial.SerialComManager.DATABITS;
@@ -351,7 +349,6 @@ This demonstrates how to turn on/off debugging messages from java layer.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 package example;
-
 import com.embeddedunveiled.serial.SerialComManager;
 
 public class Test6 {
@@ -366,7 +363,6 @@ This demonstrates how to turn on/off debugging messages from java layer.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 package test8;
-
 import com.embeddedunveiled.serial.SerialComManager;
 
 public class Test8 {
@@ -382,7 +378,6 @@ This demonstrates how to assert break condition on UART data lines.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 package test9;
-
 import com.embeddedunveiled.serial.SerialComManager;
 import com.embeddedunveiled.serial.SerialComManager.BAUDRATE;
 import com.embeddedunveiled.serial.SerialComManager.DATABITS;
@@ -406,6 +401,436 @@ public class Test9 {
 			
 			// close the port releasing handle
 			scm.closeComPort(handle);
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+}
+
+~~~ Example 11~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This demonstrates how to get interrupts count that has happended on serial port. 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+package test
+import java.util.Arrays;
+
+import com.embeddedunveiled.serial.SerialComManager;
+import com.embeddedunveiled.serial.SerialComManager.BAUDRATE;
+import com.embeddedunveiled.serial.SerialComManager.DATABITS;
+import com.embeddedunveiled.serial.SerialComManager.FLOWCONTROL;
+import com.embeddedunveiled.serial.SerialComManager.PARITY;
+import com.embeddedunveiled.serial.SerialComManager.STOPBITS;
+import com.embeddedunveiled.serial.ISerialComDataListener;
+import com.embeddedunveiled.serial.SerialComDataEvent;
+
+class Data implements ISerialComDataListener{
+	@Override
+	public void onNewSerialDataAvailable(SerialComDataEvent data) {
+		System.out.println("Read from serial port : " + new String(data.getDataBytes()) + "\n");
+	}
+}
+
+public class Test10 {
+	public static void main(String[] args) {
+		
+		long handle = 0;
+		SerialComManager scm = new SerialComManager();
+		
+		// instantiate class which is will implement ISerialComDataListener interface
+		Data dataListener = new Data();
+		
+		try {
+			// open and configure port that will listen data
+			handle = scm.openComPort("/dev/ttyUSB1", true, true, false);
+			scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
+			scm.configureComPortControl(handle, FLOWCONTROL.NONE, 'x', 'x', false, false);
+			
+			// register data listener for this port
+			scm.registerDataListener(handle, dataListener);
+			
+			// open and configure port which will send data
+			long handle1 = scm.openComPort("/dev/ttyUSB0", true, true, false);
+			scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
+			scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+			scm.writeString(handle1, "test string", 0);
+			
+			// wait for data to be displayed on console
+			Thread.sleep(100);
+			
+			int[] interrupts = scm.getInterruptCount(handle);
+			System.out.println(Arrays.toString(interrupts));
+			
+			// unregister data listener
+			scm.unregisterDataListener(dataListener);
+			
+			// close the port releasing handle
+			scm.closeComPort(handle);
+			scm.closeComPort(handle1);
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+}
+
+~~~ Example 12~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This demonstrates how to send data encoded into a particular format.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+package test11;
+import java.nio.charset.Charset;
+import com.embeddedunveiled.serial.SerialComManager;
+import com.embeddedunveiled.serial.SerialComManager.BAUDRATE;
+import com.embeddedunveiled.serial.SerialComManager.DATABITS;
+import com.embeddedunveiled.serial.SerialComManager.FLOWCONTROL;
+import com.embeddedunveiled.serial.SerialComManager.PARITY;
+import com.embeddedunveiled.serial.SerialComManager.STOPBITS;
+
+public class Test11 {
+	public static void main(String[] args) {
+		
+		SerialComManager scm = new SerialComManager();
+		
+		try {
+			// open and configure port that will listen data
+			long handle = scm.openComPort("/dev/ttyUSB1", true, true, false);
+			scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
+			scm.configureComPortControl(handle, FLOWCONTROL.NONE, 'x', 'x', false, false);
+			
+			// open and configure port which will send data
+			long handle1 = scm.openComPort("/dev/ttyUSB0", true, true, false);
+			scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
+			scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+			
+			scm.writeString(handle, "test", Charset.forName("UTF-8"), 0);
+			
+			// wait for data to be displayed on console
+			Thread.sleep(1000);
+			System.out.println(scm.readString(handle1));
+			
+			// close the port releasing handle
+			scm.closeComPort(handle);
+			scm.closeComPort(handle1);
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+}
+
+~~~ Example 13~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This demonstrates how to send single interger value in different format and length.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+package test12;
+import com.embeddedunveiled.serial.SerialComManager;
+import com.embeddedunveiled.serial.SerialComManager.BAUDRATE;
+import com.embeddedunveiled.serial.SerialComManager.DATABITS;
+import com.embeddedunveiled.serial.SerialComManager.ENDIAN;
+import com.embeddedunveiled.serial.SerialComManager.FLOWCONTROL;
+import com.embeddedunveiled.serial.SerialComManager.NUMOFBYTES;
+import com.embeddedunveiled.serial.SerialComManager.PARITY;
+import com.embeddedunveiled.serial.SerialComManager.STOPBITS;
+
+public class Test12 {
+	public static void main(String[] args) {
+		
+		SerialComManager scm = new SerialComManager();
+		
+		try {
+			// open and configure port that will listen data
+			long handle = scm.openComPort("/dev/ttyUSB1", true, true, false);
+			scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
+			scm.configureComPortControl(handle, FLOWCONTROL.NONE, 'x', 'x', false, false);
+			
+			// open and configure port which will send data
+			long handle1 = scm.openComPort("/dev/ttyUSB0", true, true, false);
+			scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
+			scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+			
+			// 350 = 00000001 01011110, 2 bytes required, big endian format
+			scm.writeSingleInt(handle, 350, 0, ENDIAN.E_BIG, NUMOFBYTES.NUM_2);
+			Thread.sleep(100);
+			byte[] arr = new byte[2];
+			arr = scm.readBytes(handle1, 2);
+			System.out.println("dataa: " + arr[0]); // prints 1  which is 00000001
+			System.out.println("datab: " + arr[1]); // prints 94 which is 01011110
+			
+			// 350 = 00000001 01011110, 2 bytes required, little endian format
+			scm.writeSingleInt(handle, 350, 0, ENDIAN.E_LITTLE, NUMOFBYTES.NUM_2);
+			Thread.sleep(100);
+			byte[] arr1 = new byte[2];
+			arr1 = scm.readBytes(handle1, 2);
+			System.out.println("dataa: " + arr1[0]); // prints 94 which is 01011110
+			System.out.println("datab: " + arr1[1]); // prints 1  which is 00000001
+			
+			// 7050354 = 00000000 01101011 10010100 01110010, 4 bytes required, big endian format
+			scm.writeSingleInt(handle, 7050354, 0, ENDIAN.E_BIG, NUMOFBYTES.NUM_4);
+			Thread.sleep(100);
+			byte[] arr2 = new byte[4];
+			arr2 = scm.readBytes(handle1, 4);
+			System.out.println("dataa: " + arr2[0]); // prints 0    which is 00000000
+			System.out.println("datab: " + arr2[1]); // prints 107  which is 01101011
+			System.out.println("datac: " + arr2[2]); // prints -108 which is 10010100
+			System.out.println("datad: " + arr2[3]); // prints 114  which is 01110010
+			
+			// 7050354 = 00000000 01101011 10010100 01110010, 4 bytes required, little endian format
+			scm.writeSingleInt(handle, 7050354, 0, ENDIAN.E_LITTLE, NUMOFBYTES.NUM_4);
+			Thread.sleep(100);
+			byte[] arr3 = new byte[4];
+			arr3 = scm.readBytes(handle1, 4);
+			System.out.println("dataa: " + arr3[0]); // prints 114  which is 01110010
+			System.out.println("datab: " + arr3[1]); // prints -108 which is 10010100
+			System.out.println("datac: " + arr3[2]); // prints 107  which is 01101011
+			System.out.println("datad: " + arr3[3]); // prints 0    which is 00000000
+			
+			scm.closeComPort(handle);
+			scm.closeComPort(handle1);
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+}
+
+~~~ Example 13~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This demonstrates how to send interger array in different format and length.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+package test13;
+import com.embeddedunveiled.serial.SerialComManager;
+import com.embeddedunveiled.serial.SerialComManager.BAUDRATE;
+import com.embeddedunveiled.serial.SerialComManager.DATABITS;
+import com.embeddedunveiled.serial.SerialComManager.ENDIAN;
+import com.embeddedunveiled.serial.SerialComManager.FLOWCONTROL;
+import com.embeddedunveiled.serial.SerialComManager.NUMOFBYTES;
+import com.embeddedunveiled.serial.SerialComManager.PARITY;
+import com.embeddedunveiled.serial.SerialComManager.STOPBITS;
+
+public class Test13 {
+	public static void main(String[] args) {
+		
+		SerialComManager scm = new SerialComManager();
+		
+		try {
+			// open and configure port that will listen data
+			long handle = scm.openComPort("/dev/ttyUSB1", true, true, false);
+			scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
+			scm.configureComPortControl(handle, FLOWCONTROL.NONE, 'x', 'x', false, false);
+			
+			// open and configure port which will send data
+			long handle1 = scm.openComPort("/dev/ttyUSB0", true, true, false);
+			scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
+			scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+			
+			/* 350 = 00000001 01011110, 650 = 00000010 10001010 , 2 bytes required, big endian format.
+			 * In java numbers are in 2's complement so byte 10001010 in 650 will be -118 */
+			int[] buf = {350, 650};
+			scm.writeIntArray(handle, buf, 0, ENDIAN.E_BIG, NUMOFBYTES.NUM_2);
+			Thread.sleep(100);
+			byte[] arr = new byte[4];
+			arr = scm.readBytes(handle1);
+			System.out.println("dataa: " + arr[0]); // prints 1    which is 00000001
+			System.out.println("datab: " + arr[1]); // prints 94   which is 01011110
+			System.out.println("datac: " + arr[2]); // prints 2    which is 00000001
+			System.out.println("datad: " + arr[3]); // prints -118 which is 10001010
+			
+			scm.closeComPort(handle);
+			scm.closeComPort(handle1);
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+}
+
+~~~ Example 14~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This demonstrates how to set minimum number of bytes available length when using data listener.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+package test14;
+import com.embeddedunveiled.serial.SerialComManager;
+import com.embeddedunveiled.serial.SerialComManager.BAUDRATE;
+import com.embeddedunveiled.serial.SerialComManager.DATABITS;
+import com.embeddedunveiled.serial.SerialComManager.FLOWCONTROL;
+import com.embeddedunveiled.serial.SerialComManager.PARITY;
+import com.embeddedunveiled.serial.SerialComManager.STOPBITS;
+import com.embeddedunveiled.serial.ISerialComDataListener;
+import com.embeddedunveiled.serial.SerialComDataEvent;
+
+class Data implements ISerialComDataListener{
+	@Override
+	public void onNewSerialDataAvailable(SerialComDataEvent data) {
+		System.out.println("Read from serial port : " + new String(data.getDataBytes()) + "\n");
+	}
+}
+
+public class Test14 {
+	public static void main(String[] args) {
+		
+		long handle = 0;
+		SerialComManager scm = new SerialComManager();
+		
+		// instantiate class which is will implement ISerialComDataListener interface
+		Data dataListener = new Data();
+		
+		try {
+			// open and configure port that will listen data
+			handle = scm.openComPort("/dev/ttyUSB1", true, true, false);
+			scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
+			scm.configureComPortControl(handle, FLOWCONTROL.NONE, 'x', 'x', false, false);
+			
+			// register data listener for this port
+			scm.registerDataListener(handle, dataListener);
+			scm.setMinDataLength(handle, 5);
+			
+			// open and configure port which will send data
+			long handle1 = scm.openComPort("/dev/ttyUSB0", true, true, false);
+			scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
+			scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+			scm.writeString(handle1, "test", 0);
+			Thread.sleep(1000);
+			
+			// although test string has been tranmitted, but listener will not get called because test has only
+			// 4 bytes where as we set minnimum length as 5, so let us transmit 1 more byte and listener will
+			// get called.
+			scm.writeString(handle1, "H", 0);
+			Thread.sleep(1000);
+			
+			// unregister data listener
+			scm.unregisterDataListener(dataListener);
+			
+			// close the port releasing handle
+			scm.closeComPort(handle);
+			scm.closeComPort(handle1);
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+}
+
+~~~ Example 15~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This demonstrates how to mask events for control lines.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+package test15;
+import com.embeddedunveiled.serial.SerialComManager;
+import com.embeddedunveiled.serial.SerialComManager.BAUDRATE;
+import com.embeddedunveiled.serial.SerialComManager.DATABITS;
+import com.embeddedunveiled.serial.SerialComManager.FLOWCONTROL;
+import com.embeddedunveiled.serial.SerialComManager.PARITY;
+import com.embeddedunveiled.serial.SerialComManager.STOPBITS;
+import com.embeddedunveiled.serial.ISerialComEventListener;
+import com.embeddedunveiled.serial.SerialComLineEvent;
+
+class EventListener implements ISerialComEventListener{
+	@Override
+	public void onNewSerialEvent(SerialComLineEvent lineEvent) {
+		System.out.println("eventCTS : " + lineEvent.getCTS());
+		System.out.println("eventDSR : " + lineEvent.getDSR());
+	}
+}
+
+public class Test15 {
+	public static void main(String[] args) {
+		
+		SerialComManager scm = new SerialComManager();
+		
+		// instantiate class which is will implement ISerialComEventListener interface
+		EventListener eventListener = new EventListener();
+		
+		try {
+			long handle = scm.openComPort("/dev/ttyUSB0", true, true, false);
+			scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
+			scm.configureComPortControl(handle, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+			scm.registerLineEventListener(handle, eventListener);
+			
+			long handle1 = scm.openComPort("/dev/ttyUSB1", true, true, false);
+			scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
+			scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+			
+			// both event will be called
+			Thread.sleep(1000);
+			scm.setRTS(handle1, false);
+			Thread.sleep(1000);
+			scm.setDTR(handle1, false);
+			
+			// mask CTS, so only changes to CTS line will be reported.
+			scm.setEventsMask(eventListener, SerialComManager.CTS);
+			Thread.sleep(1000);
+			scm.setRTS(handle1, true);
+			Thread.sleep(1000);
+			scm.setDTR(handle1, true);
+			Thread.sleep(1000);
+			scm.setRTS(handle1, false);
+			Thread.sleep(1000);
+			scm.setDTR(handle1, false);
+			
+			while(true);
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+}
+
+~~~ Example 16~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This demonstrates how to get currently active mask for control line events.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+package test16;
+import com.embeddedunveiled.serial.SerialComManager;
+import com.embeddedunveiled.serial.SerialComManager.BAUDRATE;
+import com.embeddedunveiled.serial.SerialComManager.DATABITS;
+import com.embeddedunveiled.serial.SerialComManager.FLOWCONTROL;
+import com.embeddedunveiled.serial.SerialComManager.PARITY;
+import com.embeddedunveiled.serial.SerialComManager.STOPBITS;
+import com.embeddedunveiled.serial.ISerialComEventListener;
+import com.embeddedunveiled.serial.SerialComLineEvent;
+
+class EventListener implements ISerialComEventListener{
+	@Override
+	public void onNewSerialEvent(SerialComLineEvent lineEvent) {
+	}
+}
+
+public class Test16 {
+	public static void main(String[] args) {
+		
+		SerialComManager scm = new SerialComManager();
+		
+		// instantiate class which is will implement ISerialComEventListener interface
+		EventListener eventListener = new EventListener();
+		
+		try {
+			long handle = scm.openComPort("/dev/ttyUSB0", true, true, false);
+			scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
+			scm.configureComPortControl(handle, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+			scm.registerLineEventListener(handle, eventListener);
+			
+			long handle1 = scm.openComPort("/dev/ttyUSB1", true, true, false);
+			scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
+			scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+			
+			// get current active mask
+			int mask1 = scm.getEventsMask(eventListener);
+			System.out.println("mask before : " + mask1);
+			
+			// mask CTS, so only changes to CTS line will be reported.
+			scm.setEventsMask(eventListener, SerialComManager.CTS);
+
+			// get current active mask
+			int mask2 = scm.getEventsMask(eventListener);
+			System.out.println("mask after : " + mask2);
+			
+			// unregister data listener
+			scm.unregisterLineEventListener(eventListener);
+			
+			// close the port releasing handle
+			scm.closeComPort(handle);
+			scm.closeComPort(handle1);
 			
 		} catch (Exception e) {
 			e.printStackTrace();

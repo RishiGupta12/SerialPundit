@@ -66,13 +66,13 @@
 		<section name="projects">
 			<section name="com.embeddedunveiled.serial.native">
 				<item value="/home/r/ws-host-uart/serial-com-manager/com.embeddedunveiled.serial.native/doc" key="destdir"/>
-				<item value="" key="href"/>
 				<item value="/home/r/ws-host-uart/serial-com-manager/com.embeddedunveiled.serial.native/javadoc.xml" key="antpath"/>
+				<item value="" key="href"/>
 			</section>
 			<section name="com.embeddedunveiled.serial">
 				<item value="/home/r/ws-host-uart/serial-com-manager/javadoc" key="destdir"/>
-				<item value="" key="href"/>
 				<item value="/home/r/ws-host-uart/serial-com-manager/com.embeddedunveiled.serial/javadoc.xml" key="antpath"/>
+				<item value="" key="href"/>
 			</section>
 		</section>
 	</section>

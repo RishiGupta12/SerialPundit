@@ -19,6 +19,7 @@
 package com.embeddedunveiled.serial;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.ArrayList;
 import java.util.List;
@@ -210,8 +211,8 @@ public final class SerialComManager {
 	 * Returns all available UART style ports available on this system, otherwise an empty array of strings, if no serial style port is
 	 * found in the system. Note that the BIOS may ignore UART ports on a PCI card and therefore BIOS settings has to be corrected.
 	 * 
-	 * Developers must consider using this method to know which ports are valid communications ports before opening them for writing
-	 * more robust code.
+	 * <p>Developers must consider using this method to know which ports are valid communications ports before opening them for writing
+	 * more robust code.</p>
 	 * 
 	 * @return Available UART style ports name for windows, full path with name for Unix like OS, returns empty array if no ports found.
 	 */
@@ -228,13 +229,13 @@ public final class SerialComManager {
 	 * Developers are advised to use methods like openComPort(), closeComPort() and configureComPort() etc thread safe to maintian reliable
 	 * and  operation. 
 	 * 
-	 * This method runs to completion in synchronised manner, therefore a port before returning from this method have an exclusive owner 
+	 * <p>This method runs to completion in synchronised manner, therefore a port before returning from this method have an exclusive owner 
 	 * or not. If it has exclusive owner and an attempt is made to open it again, native code will return error. On the other hand if it 
 	 * does not have an exclusive owner and application tries to open it in exclusive ownership mode, we issue a warning to the caller 
-	 * that the port is already opened.
+	 * that the port is already opened.</p>
 	 * 
-	 * Note that even if the port is opened in exclusive ownership mode, the root user will still be able to access and operate on that
-	 * serial port.
+	 * <p>Note that even if the port is opened in exclusive ownership mode, the root user will still be able to access and operate on that
+	 * serial port.</p>
 	 * 
 	 * @param portName name of the port to be opened for communication
 	 * @param enableRead allows application to read bytes from this port
@@ -316,7 +317,7 @@ public final class SerialComManager {
 	/**
 	 * This method writes bytes from the specified byte type buffer. To make read and write take as less time as possible,
 	 * we do not check whether port has been opened and configured or not. If the method returns false, the application
-	 * should try to re-send bytes.
+	 * should try to re-send bytes. The data has been transmitted out of serial port when this method returns.
 	 * 
 	 * @param handle handle of the opened port on which to write bytes
 	 * @param buffer byte type buffer containing bytes to be written to port
@@ -333,7 +334,8 @@ public final class SerialComManager {
 	}
 
 	/**
-	 * This method writes a single byte to the specified port. 
+	 * This method writes a single byte to the specified port. The data has been transmitted out of serial port when 
+	 * this method returns.
 	 * 
 	 * @param handle handle of the opened port on which to write byte
 	 * @param value byte to be written to port
@@ -345,6 +347,7 @@ public final class SerialComManager {
 
 	/**
 	 * This method writes a string to the specified port. The library internally converts string to byte buffer. 
+	 * The data has been transmitted out of serial port when this method returns.
 	 * 
 	 * @param handle handle of the opened port on which to write byte
 	 * @param data the string to be send to port
@@ -357,14 +360,15 @@ public final class SerialComManager {
 
 	/**
 	 * This method writes a string to the specified port. The library internally converts string to byte buffer. 
+	 * The data has been transmitted out of serial port when this method returns.
 	 * 
 	 * @param handle handle of the opened port on which to write byte
 	 * @param data the string to be send to port
-	 * @param charsetName the character set associated with this string for example UTF8 encoded string
+	 * @param charset the character set into which given string will be encoded
 	 * @return true on success false otherwise
 	 */
-	public boolean writeString(long handle, String data, String charsetName, int delay) throws UnsupportedEncodingException {
-		return writeBytes(handle, data.getBytes(charsetName), delay);
+	public boolean writeString(long handle, String data, Charset charset, int delay) throws UnsupportedEncodingException {
+		return writeBytes(handle, data.getBytes(charset), delay);
 	}
 
 	/** 
@@ -375,6 +379,11 @@ public final class SerialComManager {
 	 * correctly by the receiver terminal. This method assumes that integer value can be represented by 32 or less
 	 * number of bits. On x86_64 architecture, loss of precision will occur if the integer value is of more than 32 bit.
 	 * 
+	 * <p>The data has been transmitted out of serial port when this method returns.</p>
+	 * 
+	 * In java numbers are represented in 2's complement, so number 650 whose binary representation is 0000001010001010
+	 * is printed byte by byte, then will be printed as 1 and -118, because 10001010 in 2's complement is negative number.
+	 * 
 	 * @param handle handle of the opened port on which to write byte
 	 * @param data an integer number to be sent to port
 	 * @param delay interval between two successive bytes 
@@ -383,39 +392,38 @@ public final class SerialComManager {
 	 * @return true on success false otherwise
 	 */
 	public boolean writeSingleInt(long handle, int data, int delay, ENDIAN endianness, NUMOFBYTES numOfBytes) {
-		byte[] localBuf = new byte[0];
+		byte[] buffer = null;
 		
-		if(numOfBytes.getValue() == 1) {
-			// conversion to two bytes data
-			if(endianness.getValue() == 1) {
-				// Little endian
-				localBuf[1] = (byte) (data >>> 8);
-				localBuf[0] = (byte)  data;
-			} else {
-				// Java is big endian by default or user wish big endianness
-				localBuf[1] = (byte)  data;
-				localBuf[0] = (byte) (data >>> 8);
+		if(numOfBytes.getValue() == 2) {             // conversion to two bytes data
+			buffer = new byte[2];
+			if(endianness.getValue() == 1) {         // Little endian
+				buffer[1] = (byte) (data >>> 8);
+				buffer[0] = (byte)  data;
+			}else {                                 // big endian/default (java is big endian by default)
+				buffer[1] = (byte)  data;
+				buffer[0] = (byte) (data >>> 8);
 			}
-			return writeBytes(handle, localBuf, delay);
-		} else {
-			// conversion to four bytes data
-			if(endianness.getValue() == 1) {
-				localBuf[3] = (byte) (data >>> 24);
-				localBuf[2] = (byte) (data >>> 16);
-				localBuf[1] = (byte) (data >>> 8);
-				localBuf[0] = (byte)  data;
-			} else {
-				localBuf[3] = (byte)  data;
-				localBuf[2] = (byte) (data >>> 8);
-				localBuf[1] = (byte) (data >>> 16);
-				localBuf[0] = (byte) (data >>> 24);
+			return writeBytes(handle, buffer, delay);
+		}else {                                     // conversion to four bytes data
+			buffer = new byte[4];
+			if(endianness.getValue() == 1) {        // Little endian
+				buffer[3] = (byte) (data >>> 24);
+				buffer[2] = (byte) (data >>> 16);
+				buffer[1] = (byte) (data >>> 8);
+				buffer[0] = (byte)  data;
+			}else {                                 // big endian/default (java is big endian by default)
+				buffer[3] = (byte)  data;
+				buffer[2] = (byte) (data >>> 8);
+				buffer[1] = (byte) (data >>> 16);
+				buffer[0] = (byte) (data >>> 24);
 			}
-			return writeBytes(handle, localBuf, delay);
+			return writeBytes(handle, buffer, delay);
 		}
 	}
 
 	/** 
-	 * This method sents an array of integers on the specified port.
+	 * This method send an array of integers on the specified port. The data has been transmitted out of serial 
+	 * port when this method returns.
 	 * 
 	 * @param handle handle of the opened port on which to write byte
 	 * @param buffer an array of integers to be sent to port
@@ -425,10 +433,11 @@ public final class SerialComManager {
 	 * @return true on success false otherwise
 	 */
 	public boolean writeIntArray(long handle, int[] buffer, int delay, ENDIAN endianness, NUMOFBYTES numOfBytes) {
-		byte[] localBuf = new byte[0];
+		byte[] localBuf = null;
 		
-		if(numOfBytes.getValue() == 1) {
-			if(endianness.getValue() == 1) {
+		if(numOfBytes.getValue() == 2) {
+			localBuf = new byte[2 * buffer.length];
+			if(endianness.getValue() == 1) {                 // little endian
 				int a = 0;
 				for(int b=0; b<buffer.length; b++) {
 					localBuf[a] = (byte)  buffer[b];
@@ -436,7 +445,7 @@ public final class SerialComManager {
 					localBuf[a] = (byte) (buffer[b] >>> 8);
 					a++;
 				}
-			} else {
+			}else {                                         // big/default endian
 				int c = 0;
 				for(int d=0; d<buffer.length; d++) {
 					localBuf[c] = (byte) (buffer[d] >>> 8);
@@ -446,8 +455,9 @@ public final class SerialComManager {
 				}
 			}
 			return writeBytes(handle, localBuf, delay);
-		} else {
-			if(endianness.getValue() == 1) {
+		}else {
+			localBuf = new byte[4 * buffer.length];
+			if(endianness.getValue() == 1) {                  // little endian
 				int e = 0;
 				for(int f=0; f<buffer.length; f++) {
 					localBuf[e] = (byte)  buffer[f];
@@ -459,7 +469,7 @@ public final class SerialComManager {
 					localBuf[e] = (byte) (buffer[f] >>> 24);
 					e++;
 				}
-			} else {
+			}else {                                          // big/default endian
 				int g = 0;
 				for(int h=0; h<buffer.length; h++) {
 					localBuf[g] = (byte)  buffer[h];
@@ -481,9 +491,9 @@ public final class SerialComManager {
 	 * that negative error number at 0th index of byte buffer. We do not validate arguments supplied to serve as
 	 * fast as possible to the caller. Application can call this method even when they have registered a listener.
 	 * 
-	 * Note that, we do not prevent caller from reading port even if he has registered a event listener for
+	 * <p>Note that, we do not prevent caller from reading port even if he has registered a event listener for
 	 * specified port. There may be cases where caller wants to read asynchronously outside the listener. It is callers
-	 * responsibility to manage complexity associated with this use case.
+	 * responsibility to manage complexity associated with this use case.</p>
 	 * 
 	 * @param handle of port from which to read bytes
 	 * @param byteCount number of bytes to read from this port
@@ -540,14 +550,14 @@ public final class SerialComManager {
 	 * reception. Further, all the hardware and OS does not support all the baud rates (maximum change in signal per second). It is the applications 
 	 * responsibility to consider these factors when writing portable software.
 	 * 
-	 * If parity is enabled, the parity bit will be removed from frame before passing it library.
+	 * <p>If parity is enabled, the parity bit will be removed from frame before passing it library.</p>
 	 * 
 	 * Note: (1) some restrictions apply in case of Windows. Please refer http://msdn.microsoft.com/en-us/library/windows/desktop/aa363214(v=vs.85).aspx
 	 * for details.
 	 * 
-	 * (2) Some drivers especially windows driver for usb to serial converters support non-standard baud rates. They either supply a text file that can be used for 
+	 * <p>(2) Some drivers especially windows driver for usb to serial converters support non-standard baud rates. They either supply a text file that can be used for 
 	 * configuration or user may edit windows registry directly to enable this support. The user supplied standard baud rate is translated to custom baud rate as 
-	 * specified in vendor specific configuration file.
+	 * specified in vendor specific configuration file.</p>
 	 * 
 	 * @param handle of opened port to which this configuration applies to
 	 * @param dataBits number of data bits in one frame (refer DATABITS enum for this)
@@ -655,9 +665,9 @@ public final class SerialComManager {
 	 * This method gives currently applicable settings associated with particular serial port.
 	 * The values are bit mask so that application can manipulate them to get required information.
 	 * 
-	 * For Linux the order is : c_iflag, c_oflag, c_cflag, c_lflag, c_line, c_cc[0], c_cc[1], c_cc[2], c_cc[3]
+	 * <p>For Linux the order is : c_iflag, c_oflag, c_cflag, c_lflag, c_line, c_cc[0], c_cc[1], c_cc[2], c_cc[3]
 	 * c_cc[4], c_cc[5], c_cc[6], c_cc[7], c_cc[8], c_cc[9], c_cc[10], c_cc[11], c_cc[12], c_cc[13], c_cc[14],
-	 * c_cc[15], c_cc[16], c_ispeed and c_ospeed.
+	 * c_cc[15], c_cc[16], c_ispeed and c_ospeed.</p>
 	 * 
 	 * For Windows the order is : TODO
 	 * 
@@ -700,17 +710,17 @@ public final class SerialComManager {
 	/**
 	 * This method assert/de-assert RTS line of serial port. Set "true" for asserting signal, false otherwise.
 	 * 
-	 * The RS-232 standard defines the voltage levels that correspond to logical one and logical zero levels for the data 
+	 * <p>The RS-232 standard defines the voltage levels that correspond to logical one and logical zero levels for the data 
 	 * transmission and the control signal lines. Valid signals are either in the range of +3 to +15 volts or the range 
 	 * −3 to −15 volts with respect to the ground/common pin; consequently, the range between −3 to +3 volts is not a 
-	 * valid RS-232 level. 
+	 * valid RS-232 level.</p>
 	 * 
 	 * For data lines (TxD, RxD and their secondary channel equivalents) logic one is defined as a negative voltage, the 
 	 * signal condition is called "mark". Logic zero is positive and the signal condition is termed "space". 
 	 * 
-	 * Control signals have the opposite polarity: the asserted or active state is positive voltage and the de-asserted 
+	 * <p>Control signals have the opposite polarity: the asserted or active state is positive voltage and the de-asserted 
 	 * or inactive state is negative voltage. Examples of control lines include request to send (RTS), clear to send (CTS), 
-	 * data terminal ready (DTR), and data set ready (DSR).
+	 * data terminal ready (DTR), and data set ready (DSR).</p>
 	 * 
 	 * @param handle of the opened port
 	 * @param enabled if true RTS will be asserted and vice-versa
@@ -804,8 +814,8 @@ public final class SerialComManager {
 	 * of data, but may be critical in case data actually is part of some custom protocol. So, applications can
 	 * dynamically change the behaviour of 'calling data listener' based on the amount of data availability.
 	 * 
-	 * Note: (1) If the port has been opened by more than one user, all the users will be affected by this method.
-	 * (2) This is not supported on Windows OS
+	 * <p>Note: (1) If the port has been opened by more than one user, all the users will be affected by this method.
+	 * (2) This is not supported on Windows OS</p>
 	 * 
 	 * @param handle of the opened port
 	 * @param numOfBytes minimum number of bytes that would have been read from port to pass to listener
@@ -845,10 +855,10 @@ public final class SerialComManager {
 	 * This method associate a event looper with the given listener. This looper will keep delivering new event whenever
 	 * it is made available from native event collection and dispatching subsystem.
 	 * 
-	 * By default all four events are dispatched to listener. However, application can mask events through setEventsMask()
+	 * <p>By default all four events are dispatched to listener. However, application can mask events through setEventsMask()
 	 * method. In current implementation, native code sends all the events irrespective of mask and we actually filter
 	 * them in java layers, to decide whether this should be sent to application or not (as per the mask set by
-	 * setEventsMask() method).
+	 * setEventsMask() method).</p>
 	 * 
 	 * @param handle of the port opened
 	 * @param eventListener instance of class which implements ISerialComEventListener interface
@@ -944,6 +954,10 @@ public final class SerialComManager {
 	}
 
 	/**
+	 * In future we may shift modifying mask in the native code itself, so as to prevent JNI transitions.
+	 * This filters what events should be sent to application. Note that, although we sent only those event
+	 * for which user has set mask, however native code send all the events to java layer as of now.
+	 * 
 	 * @param eventListener instance of class which implemented ISerialComEventListener interface
 	 * @throws SerialComException if null is passed for listener field or invalid listener is passed
 	 * @return true on success false otherwise
@@ -971,7 +985,6 @@ public final class SerialComManager {
 		} else {
 			throw new SerialComException("setEventsMask()", SerialComErrorMapper.ERR_WRONG_LISTENER_PASSED);
 		}
-		
 	}
 
 	/**
@@ -1077,7 +1090,7 @@ public final class SerialComManager {
 	 * CTS, DSR, RING, CARRIER DETECT, RECEIVER BUFFER, TRANSMIT BUFFER, FRAME ERROR, OVERRUN ERROR, PARITY ERROR,
 	 * BREAK AND BUFFER OVERRUN.
 	 * 
-	 * Note: It is supported on Linux OS only. For other operating systems, this will return 0 for all the indexes.
+	 * <p>Note: It is supported on Linux OS only. For other operating systems, this will return 0 for all the indexes.</p>
 	 * 
 	 * @param handle of the port opened on which interrupts might have occurred
 	 * @throws SerialComException if invalid handle is passed or operation can not be completed
@@ -1087,7 +1100,7 @@ public final class SerialComManager {
 		int x = 0;
 		boolean handlefound = false;
 		int[] ret = null;
-		int[] countDetails = {0,0,0,0,0,0,0};
+		int[] interruptsCount = new int[11];
 		
 		for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
 			if(mInfo.containsHandle(handle)) {
@@ -1104,11 +1117,11 @@ public final class SerialComManager {
 			throw new SerialComException("getInterruptCount()", mErrMapper.getMappedError(ret[0]));
 		}
 		
-		for(x=0; x<7; x++) {
-			countDetails[x] = ret[x+1];
+		for(x=0; x<11; x++) {
+			interruptsCount[x] = ret[x];
 		}
 		
-		return countDetails;
+		return interruptsCount;
 	}
 	
 	/**
@@ -1152,9 +1165,9 @@ public final class SerialComManager {
 	 * Get number of bytes in input and output port buffers used by operating system for instance tty buffers
 	 * in Unix like systems. Sequence of data in array is : Input count, Output count.
 	 * 
-	 * It should be noted that some chipset specially USB to UART converters might have FIFO buffers in chipset
+	 * <p>It should be noted that some chipset specially USB to UART converters might have FIFO buffers in chipset
 	 * itself. For this reason number of bytes reported by this method and actual bytes received might differ.
-	 * This is driver and OS specific scenario.
+	 * This is driver and OS specific scenario.</p>
 	 * 
 	 * @param handle of the opened port
 	 * @throws SerialComException if invalid handle is passed or operation can not be completed successfully

@@ -21,10 +21,9 @@ package com.embeddedunveiled.serial;
 /**
  * This interface represents Completion handler in our proactor design pattern.
  * 
- * The class implementing this interface is expected to override onNewSerialEvent() method.
+ * <p>The class implementing this interface is expected to override onNewSerialEvent() method.
  * This method gets called from the looper thread associated with the corresponding listener (handler).
- * The listener can extract detailed information about event from the event object passed.
- *  
+ * The listener can extract detailed information about event from the event object passed.</p>
  */
 
 public interface ISerialComEventListener {

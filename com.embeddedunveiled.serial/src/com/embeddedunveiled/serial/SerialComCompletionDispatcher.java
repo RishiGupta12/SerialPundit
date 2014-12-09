@@ -23,9 +23,9 @@ import java.util.List;
 /**
  * This class represents Proactor in our IO design pattern.
  * 
- * An application may register data listener only, event listener only or both listeners. A single dedicated looper handles both the listeners.
+ * <p>An application may register data listener only, event listener only or both listeners. A single dedicated looper handles both the listeners.
  * We first check if a looper exist for given handle or not. If it does not exist we create and start looper thread which loops over data or event 
- * as specified by application. If it exist, we start data or event looper thread as specified by application.
+ * as specified by application. If it exist, we start data or event looper thread as specified by application.</p>
  * 
  * An application can have multiple handles for the same port (if there is no exclusive owner).
  * A handle can have only one looper for delivering data and line events.
