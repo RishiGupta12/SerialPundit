@@ -77,11 +77,13 @@ Detailed javadocs can be found here : https://github.com/RishiGupta12/serial-com
 ###Programs to test RS-232
 
 Linux : gtkterm, minicom
-Windows : 
+Windows :
 MAC : 
 
-###License
-SCM is licensed under the LGPL, See LICENSE AND COPYING for full license text.
+###Author, License, and Copyright
+The 'serial communication manager (scm)' is designed, developed and maintained by Rishi gupta. The Linkdin profile of the author can be found here : http://in.linkedin.com/pub/rishi-gupta/20/9b8/a10
 
-###Author
-The Linkdin profile of the author can be found here : http://in.linkedin.com/pub/rishi-gupta/20/9b8/a10
+This library is licensed under the LGPL, See LICENSE AND COPYING for full license text.
+
+###Help & Discussion
+The wiki page for the project is maintained here https://code.google.com/p/serial-com-manager/w/list
