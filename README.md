@@ -3,16 +3,16 @@ Serial communication manager (SCM)
 
 ![scm](images/scm.jpg "scm")
 
-The 'serial communication manager (scm)' is a java library designed and developed to exchange data on serial port. It supports RS-232 control signals handshaking, monitoring and has been ported to Linux, MAC, Solaris and Windows operating system. It is scalable, testable, efficent, reliable and small footprint library.
+The 'serial communication manager (scm)' is a java library designed and developed to exchange data on serial port. It supports RS-232 control signals handshaking, monitoring and has been ported to Linux, MAC, Solaris and Windows operating system. It is scalable, testable, efficient, reliable and small footprint library.
 
 ###Features
 - Notification whenever a serial port is removed from system
-- Linux, Windows, Mac OS, Solaris OS supprted
+- Linux, Windows, Mac OS, Solaris OS supported
 - Both 32 and 64 bit library support
 - Both poll based and listener based data read supported
 - Concurrent event driven non-blocking IO
 - Leverages OS specific facilities
-- Find what all serial style ports are present in system
+- Find what all serial style ports are present in system reliably
 - Extensive error handling and reliable operations support
 - Fully documented both java and native code
 
