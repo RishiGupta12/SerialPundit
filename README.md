@@ -20,7 +20,7 @@ The 'serial communication manager (scm)' is a java library designed and develope
 
 The folder prebuilt contains ready-to-use jar file (scm.jar) that can be imported in any project and referenced right away.
 
-###Examples usage
+##Examples usage
 ```java
 package test2;
 import com.embeddedunveiled.serial.SerialComManager;
@@ -68,22 +68,22 @@ public class Test2 {
 ```
 More examples could be found here : https://github.com/RishiGupta12/serial-com-manager/blob/master/example_usage.txt
 
-###Java docs
+##Java docs
 
 Detailed javadocs can be found here : https://github.com/RishiGupta12/serial-com-manager/tree/master/javadoc
 
-###Build guide
+##Build guide
 
-###Programs to test RS-232
+##Programs to test RS-232
 
 Linux : gtkterm, minicom
 Windows :
 MAC : 
 
-###Author, License, and Copyright
+##Author, License, and Copyright
 The 'serial communication manager (scm)' is designed, developed and maintained by Rishi gupta. The Linkdin profile of the author can be found here : http://in.linkedin.com/pub/rishi-gupta/20/9b8/a10
 
 This library is licensed under the LGPL, See LICENSE AND COPYING for full license text.
 
-###Help & Discussion
+##Help & Discussion
 The wiki page for the project is maintained here https://code.google.com/p/serial-com-manager/w/list
