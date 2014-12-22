@@ -10,9 +10,9 @@ Example 7  : demonstrates how to discard all pending data from output and input 
 Example 8  : demonstrates how to turn on/off debugging messages from java layer.
 Example 9  : demonstrates how to get current java and native library version.
 Example 10 : demonstrates how to assert break condition on data lines.
-Example 11 : demonstrates how to get interrupts count that has happended on serial port.
+Example 11 : demonstrates how to get interrupts count that has occurred on serial port.
 Example 12 : demonstrates how to send data encoded into a particular format.
-Example 13 : demonstrates how to send single interger value in different format and length.
+Example 13 : demonstrates how to send single integer value in different format and length.
 Example 14 : demonstrates how to set minimum number of bytes available length when using data listener.
 Example 15 : demonstrates how to mask events for control lines.
 Example 16 : demonstrates how to get currently active mask for control line events.
@@ -409,7 +409,7 @@ public class Test9 {
 }
 
 ~~~ Example 11~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-This demonstrates how to get interrupts count that has happended on serial port. 
+This demonstrates how to get interrupts count that has occurred on serial port. 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 package test
@@ -520,7 +520,7 @@ public class Test11 {
 }
 
 ~~~ Example 13~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-This demonstrates how to send single interger value in different format and length.
+This demonstrates how to send single integer value in different format and length.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 package test12;

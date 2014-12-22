@@ -75,6 +75,8 @@ Detailed javadocs can be found here : https://github.com/RishiGupta12/serial-com
 ##Wiki, Help, Discussion
 The wiki page for the project is maintained here https://code.google.com/p/serial-com-manager/w/list
 
+Mailing list and discussion group is here https://groups.google.com/d/forum/serial-com-manager
+
 ##Build guide
 
 ##Programs to test RS-232
