@@ -220,6 +220,9 @@ public final class SerialComManager {
 		String[] availablePorts = null;
 		if(mSerialComPortList != null) {
 			availablePorts = mSerialComPortList.listAvailableComPorts();
+			if(availablePorts == null) {
+				return new String[]{};
+			}
 			return availablePorts;
 		}
 		return new String[]{};
