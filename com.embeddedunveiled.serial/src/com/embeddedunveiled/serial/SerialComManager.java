@@ -596,24 +596,24 @@ public final class SerialComManager {
 					BAUDRATE br = BAUDRATE.BCUSTOM;
 					baudRateTranslated = br.getValue();     // 251
 					custBaudTranslated = baudRateGiven;
-				} else {
+				}else {
 					// standard baud rate for Unix-like OS
 					baudRateTranslated = baudRateGiven;
 					custBaudTranslated = 0;
 				}
-			} else if(osType == OS_WINDOWS) {
+			}else if(osType == OS_WINDOWS) {
 				if(baudRateGiven == 28800 || baudRateGiven == 56000 || baudRateGiven == 153600) {
 					// user thinks these are standard but actually they are non-standard for this particular OS type
 					BAUDRATE br = BAUDRATE.BCUSTOM;
 					baudRateTranslated = br.getValue();     // 251
 					custBaudTranslated = baudRateGiven;
-				} else if(baudRateGiven == 14400 || baudRateGiven == 128000 || baudRateGiven == 256000) {
+				}else {
 					// standard baud rate for for Windows OS
 					baudRateTranslated = baudRateGiven;
 					custBaudTranslated = 0;
 				}
 			}
-		} else {
+		}else {
 			// custom baud rate
 			baudRateTranslated = baudRateGiven;
 			custBaudTranslated = custBaud;
