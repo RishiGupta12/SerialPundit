@@ -1041,6 +1041,13 @@ public final class SerialComManager {
 	 * If the line is held in the logic low condition (space in UART jargon) for longer than a character 
 	 * time, this is a break condition that can be detected by the UART.
 	 * 
+	 * A "break condition" occurs when the receiver input is at the "space" level for longer than some duration
+	 * of time, typically, for more than a character time. This is not necessarily an error, but appears to the
+	 * receiver as a character of all zero bits with a framing error. The term "break" derives from current loop
+	 * signaling, which was the traditional signaling used for teletypewriters. The "spacing" condition of a 
+	 * current loop line is indicated by no current flowing, and a very long period of no current flowing is often
+	 * caused by a break or other fault in the line.
+	 * 
 	 * @param handle of the opened port
 	 * @param duration the time in milliseconds for which break will be active
 	 * @throws SerialComException if invalid handle is passed or operation can not be successfully completed
