@@ -648,7 +648,10 @@ public final class SerialComManager {
 	 * c_cc[4], c_cc[5], c_cc[6], c_cc[7], c_cc[8], c_cc[9], c_cc[10], c_cc[11], c_cc[12], c_cc[13], c_cc[14],
 	 * c_cc[15], c_cc[16], c_ispeed and c_ospeed.</p>
 	 * 
-	 * For Windows the order is : TODO
+	 * For Windows the order is :DCBlength, BaudRate, fBinary, fParity, fOutxCtsFlow, fOutxDsrFlow, fDtrControl,
+	 * fDsrSensitivity, fTXContinueOnXoff, fOutX, fInX, fErrorChar, fNull, fRtsControl, fAbortOnError, fDummy2,
+	 * wReserved, XonLim, XoffLim, ByteSize, Parity, StopBits, XonChar, XoffChar, ErrorChar, StopBits, EvtChar,
+	 * wReserved1.
 	 * 
 	 * @param handle of the opened port
 	 * @throws SerialComException if invalid handle is passed or an error occurs while reading current settings
