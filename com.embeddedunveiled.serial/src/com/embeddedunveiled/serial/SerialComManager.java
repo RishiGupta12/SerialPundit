@@ -330,8 +330,8 @@ public final class SerialComManager {
 	 */
 	public boolean writeBytes(long handle, byte[] buffer, int delay) {
 		int ret = mNativeInterface.writeBytes(handle, buffer, delay);
-		if (ret < 0) {
-			if (DEBUG) System.out.println("writeBytes() encountered error: " + mErrMapper.getMappedError(ret));
+		if(ret < 0) {
+			if(DEBUG) System.out.println("writeBytes() encountered error: " + mErrMapper.getMappedError(ret));
 			return false;
 		}
 		return true;
@@ -589,34 +589,9 @@ public final class SerialComManager {
 			throw new SerialComException("configureComPortData()", SerialComErrorMapper.ERR_WRONG_HANDLE);
 		}
 		
-		/* See the enum for baud rate. A value of 251 means, user has explicitly specified that the baud rate supplied is a non-standard rate
-		 * as per his understanding. In this case we pass this custom baud rate value as it is to native library. However, in case of standard
-		 * baud rate, the a particular baud rate might be standard for Unix-like OS but might not be standard for Windows OS. So, we decide that
-		 * whether this supplied baud rate is to be seen as standard or as custom for a specific OS type. */
 		if(baudRateGiven != 251) {
-			if( (osType == OS_LINUX) || (osType == OS_SOLARIS) || (osType == OS_MAC_OS_X) ) {
-				if(baudRateGiven == 14400 || baudRateGiven == 28800 || baudRateGiven == 56000 || baudRateGiven == 128000 || baudRateGiven == 153600 || baudRateGiven == 256000) {
-					// user thinks these are standard but actually they are non-standard for this particular OS type
-					BAUDRATE br = BAUDRATE.BCUSTOM;
-					baudRateTranslated = br.getValue();     // 251
-					custBaudTranslated = baudRateGiven;
-				}else {
-					// standard baud rate for Unix-like OS
-					baudRateTranslated = baudRateGiven;
-					custBaudTranslated = 0;
-				}
-			}else if(osType == OS_WINDOWS) {
-				if(baudRateGiven == 28800 || baudRateGiven == 56000 || baudRateGiven == 153600) {
-					// user thinks these are standard but actually they are non-standard for this particular OS type
-					BAUDRATE br = BAUDRATE.BCUSTOM;
-					baudRateTranslated = br.getValue();     // 251
-					custBaudTranslated = baudRateGiven;
-				}else {
-					// standard baud rate for for Windows OS
-					baudRateTranslated = baudRateGiven;
-					custBaudTranslated = 0;
-				}
-			}
+			baudRateTranslated = baudRateGiven;
+			custBaudTranslated = 0;
 		}else {
 			// custom baud rate
 			baudRateTranslated = baudRateGiven;
