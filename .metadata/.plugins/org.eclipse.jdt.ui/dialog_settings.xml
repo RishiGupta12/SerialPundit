@@ -64,11 +64,6 @@
 		<item value="/home/r/ws-host-uart/serial-com-manager/com.embeddedunveiled.serial/javadoc.xml" key="antpath"/>
 		<item value="true" key="fromStandard"/>
 		<section name="projects">
-			<section name="com.embeddedunveiled.serial.native">
-				<item value="/home/r/ws-host-uart/serial-com-manager/com.embeddedunveiled.serial.native/doc" key="destdir"/>
-				<item value="" key="href"/>
-				<item value="/home/r/ws-host-uart/serial-com-manager/com.embeddedunveiled.serial.native/javadoc.xml" key="antpath"/>
-			</section>
 			<section name="com.embeddedunveiled.serial">
 				<item value="/home/r/ws-host-uart/serial-com-manager/javadoc" key="destdir"/>
 				<item value="" key="href"/>
@@ -77,10 +72,10 @@
 		</section>
 	</section>
 	<section name="JavadocWizardDialog">
-		<item value="702" key="DIALOG_WIDTH"/>
+		<item value="704" key="DIALOG_WIDTH"/>
 		<item value="90" key="DIALOG_Y_ORIGIN"/>
 		<item value="577" key="DIALOG_X_ORIGIN"/>
-		<item value="679" key="DIALOG_HEIGHT"/>
+		<item value="708" key="DIALOG_HEIGHT"/>
 		<item value="1|Ubuntu|11.0|0|GTK|1|" key="DIALOG_FONT_NAME"/>
 	</section>
 </section>
