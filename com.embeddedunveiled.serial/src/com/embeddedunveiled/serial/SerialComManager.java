@@ -168,13 +168,13 @@ public final class SerialComManager {
 	 */
 	public SerialComManager() {
 		String osNameMatch = osName.toLowerCase();
-		if (osNameMatch.contains("linux")) {
+		if(osNameMatch.contains("linux")) {
 			osType = OS_LINUX;
-		} else if (osNameMatch.contains("windows")) {
+		}else if(osNameMatch.contains("windows")) {
 			osType = OS_WINDOWS;
-		} else if (osNameMatch.contains("solaris") || osNameMatch.contains("sunos")) {
+		}else if(osNameMatch.contains("solaris") || osNameMatch.contains("sunos")) {
 			osType = OS_SOLARIS;
-		} else if (osNameMatch.contains("mac os") || osNameMatch.contains("macos") || osNameMatch.contains("darwin")) {
+		}else if(osNameMatch.contains("mac os") || osNameMatch.contains("macos") || osNameMatch.contains("darwin")) {
 			osType = OS_MAC_OS_X;
 		}
 		
@@ -192,9 +192,9 @@ public final class SerialComManager {
 	public String getLibraryVersions() {
 		String version = null;
 		String nativeLibversion = mNativeInterface.getNativeLibraryVersion();
-		if (nativeLibversion != null) {
+		if(nativeLibversion != null) {
 			version = "Java lib version: " + JAVA_LIB_VERSION + "\n" + "Native lib version: " + nativeLibversion;
-		} else {
+		}else {
 			version = "Java lib version: " + JAVA_LIB_VERSION + "\n" + "Native lib version: " + "Could not be determined !";
 		}
 		return version;
@@ -249,7 +249,7 @@ public final class SerialComManager {
 	 * @return handle of the port successfully opened
 	 */
 	public long openComPort(String portName, boolean enableRead, boolean enableWrite, boolean exclusiveOwnerShip) throws SerialComException {
-		if (portName == null) {
+		if(portName == null) {
 			throw new NullPointerException("openComPort(), " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_PORT_OPENING);
 		}
 		
@@ -757,7 +757,7 @@ public final class SerialComManager {
 				handlefound = true;
 				if(mInfo.getDataListener() != null) {
 					throw new SerialComException("registerDataListener()", SerialComErrorMapper.ERR_LISTENER_ALREADY_EXIST);
-				} else {
+				}else {
 					mHandleInfo = mInfo;
 				}
 				break;
@@ -780,7 +780,7 @@ public final class SerialComManager {
 	 * @return true on success false otherwise
 	 */
 	public boolean unregisterDataListener(ISerialComDataListener dataListener) throws SerialComException {
-		if (dataListener == null) {
+		if(dataListener == null) {
 			throw new NullPointerException("unregisterDataListener(), " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_LISTENER);
 		}
 		
@@ -851,7 +851,7 @@ public final class SerialComManager {
 		boolean handlefound = false;
 		SerialComPortHandleInfo mHandleInfo = null;
 		
-		if (eventListener == null) {
+		if(eventListener == null) {
 			throw new NullPointerException("registerLineEventListener(), " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_LISTENER);
 		}
 		
@@ -860,7 +860,7 @@ public final class SerialComManager {
 				handlefound = true;
 				if(mInfo.getEventListener() != null) {
 					throw new SerialComException("registerLineEventListener()", SerialComErrorMapper.ERR_LISTENER_ALREADY_EXIST);
-				} else {
+				}else {
 					mHandleInfo = mInfo;
 				}
 				break;
@@ -902,7 +902,7 @@ public final class SerialComManager {
 	 * @return true on success false otherwise
 	 */
 	public boolean pauseListeningEvents(ISerialComEventListener eventListener) throws SerialComException {
-		if (eventListener == null) {
+		if(eventListener == null) {
 			throw new NullPointerException("pauseListeningEvents(), " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_LISTENER);
 
 		}
@@ -924,7 +924,7 @@ public final class SerialComManager {
 	 * @return true on success false otherwise
 	 */
 	public boolean resumeListeningEvents(ISerialComEventListener eventListener) throws SerialComException {
-		if (eventListener == null) {
+		if(eventListener == null) {
 			throw new NullPointerException("pauseListeningEvents(), " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_LISTENER);
 
 		}
@@ -949,7 +949,7 @@ public final class SerialComManager {
 		SerialComLooper looper = null;
 		ISerialComEventListener mEventListener = null;
 		
-		if (eventListener == null) {
+		if(eventListener == null) {
 			throw new NullPointerException("setEventsMask(), " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_LISTENER);
 		}
 
@@ -964,7 +964,7 @@ public final class SerialComManager {
 		if(looper != null && mEventListener != null) {
 			looper.setEventsMask(newMask);
 			return true;
-		} else {
+		}else {
 			throw new SerialComException("setEventsMask()", SerialComErrorMapper.ERR_WRONG_LISTENER_PASSED);
 		}
 	}
@@ -981,7 +981,7 @@ public final class SerialComManager {
 		SerialComLooper looper = null;
 		ISerialComEventListener mEventListener = null;
 		
-		if (eventListener == null) {
+		if(eventListener == null) {
 			throw new NullPointerException("getEventsMask(), " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_LISTENER);
 		}
 		
@@ -996,7 +996,7 @@ public final class SerialComManager {
 		
 		if(looper != null && mEventListener != null) {
 			return looper.getEventsMask();
-		} else {
+		}else {
 			throw new SerialComException("setEventsMask()", SerialComErrorMapper.ERR_WRONG_LISTENER_PASSED);
 		}
 	}
@@ -1026,9 +1026,9 @@ public final class SerialComManager {
 			throw new SerialComException("clearPortIOBuffers()", SerialComErrorMapper.ERR_WRONG_HANDLE);
 		}
 		
-		if (clearRxPort == true || clearTxPort == true) {
+		if(clearRxPort == true || clearTxPort == true) {
 			int ret = mNativeInterface.clearPortIOBuffers(handle, clearRxPort, clearTxPort);
-			if (ret < 0) {
+			if(ret < 0) {
 				throw new SerialComException("clearPortIOBuffers()", mErrMapper.getMappedError(ret));
 			}
 		}
@@ -1044,7 +1044,7 @@ public final class SerialComManager {
 	 * A "break condition" occurs when the receiver input is at the "space" level for longer than some duration
 	 * of time, typically, for more than a character time. This is not necessarily an error, but appears to the
 	 * receiver as a character of all zero bits with a framing error. The term "break" derives from current loop
-	 * signaling, which was the traditional signaling used for teletypewriters. The "spacing" condition of a 
+	 * signalling, which was the traditional signalling used for tele-typewriters. The "spacing" condition of a 
 	 * current loop line is indicated by no current flowing, and a very long period of no current flowing is often
 	 * caused by a break or other fault in the line.
 	 * 
@@ -1066,7 +1066,7 @@ public final class SerialComManager {
 		}
 		
 		int ret = mNativeInterface.sendBreak(handle, duration);
-		if (ret < 0) {
+		if(ret < 0) {
 			throw new SerialComException("sendBreak()", mErrMapper.getMappedError(ret));
 		}
 		
@@ -1102,7 +1102,7 @@ public final class SerialComManager {
 		}
 		
 		ret = mNativeInterface.getInterruptCount(handle);
-		if (ret[0] < 0) {
+		if(ret[0] < 0) {
 			throw new SerialComException("getInterruptCount()", mErrMapper.getMappedError(ret[0]));
 		}
 		
@@ -1139,7 +1139,7 @@ public final class SerialComManager {
 		}
 		
 		ret = mNativeInterface.getLinesStatus(handle);
-		if (ret[0] < 0) {
+		if(ret[0] < 0) {
 			throw new SerialComException("getLinesStatus()", mErrMapper.getMappedError(ret[0]));
 		}
 		
@@ -1179,7 +1179,7 @@ public final class SerialComManager {
 		
 		// ret[0]=error info, ret[1]=byte count in input buffer, ret[2]=byte count in output buffer
 		ret = mNativeInterface.getByteCount(handle);
-		if (ret[0] < 0) {
+		if(ret[0] < 0) {
 			throw new SerialComException("getByteCountInPortIOBuffer()", mErrMapper.getMappedError(ret[0]));
 		}
 		

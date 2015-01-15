@@ -1,0 +1,6 @@
+12:41:31 **** Incremental Build of configuration Debug for project unix-like-serial ****
+make all 
+make: Nothing to be done for `all'.
+
+12:41:32 Build Finished (took 58ms)
+

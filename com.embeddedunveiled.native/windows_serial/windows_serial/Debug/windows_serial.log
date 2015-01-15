@@ -1,0 +1,18 @@
+﻿Build started 1/6/2015 3:52:10 PM.
+     1>Project "D:\serial-com-manager\com.embeddedunveiled.serial.native\windows_serial\windows_serial\windows_serial.vcxproj" on node 2 (Build target(s)).
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /I"C:\Program Files\Java\jdk1.8.0_25\include" /I"C:\Program Files\Java\jdk1.8.0_25\include\win32" /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D WIN32 /D _DEBUG /D _WINDOWS /D _USRDLL /D WINDOWS_SERIAL_EXPORTS /D _WINDLL /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Yu"stdafx.h" /Fp"Debug\windows_serial.pch" /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TC /analyze- /errorReport:prompt windows_serial.c
+         windows_serial.c
+     1>d:\serial-com-manager\com.embeddedunveiled.serial.native\windows_serial\windows_serial\windows_serial.c(139): warning C4133: 'function' : incompatible types - from 'char [31]' to 'LPCWSTR'
+     1>d:\serial-com-manager\com.embeddedunveiled.serial.native\windows_serial\windows_serial\windows_serial.c(254): warning C4133: 'function' : incompatible types - from 'char *' to 'LPCWSTR'
+     1>d:\serial-com-manager\com.embeddedunveiled.serial.native\windows_serial\windows_serial\windows_serial.c(608): warning C4244: '=' : conversion from 'jint' to 'BYTE', possible loss of data
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"D:\serial-com-manager\com.embeddedunveiled.serial.native\windows_serial\Debug\windows_serial.dll" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"D:\serial-com-manager\com.embeddedunveiled.serial.native\windows_serial\Debug\windows_serial.pdb" /SUBSYSTEM:WINDOWS /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"D:\serial-com-manager\com.embeddedunveiled.serial.native\windows_serial\Debug\windows_serial.lib" /MACHINE:X86 /DLL Debug\stdafx.obj
+         Debug\windows_serial.obj
+         Debug\windows_serial_lib.obj
+         windows_serial.vcxproj -> D:\serial-com-manager\com.embeddedunveiled.serial.native\windows_serial\Debug\windows_serial.dll
+     1>Done Building Project "D:\serial-com-manager\com.embeddedunveiled.serial.native\windows_serial\windows_serial\windows_serial.vcxproj" (Build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:00.91

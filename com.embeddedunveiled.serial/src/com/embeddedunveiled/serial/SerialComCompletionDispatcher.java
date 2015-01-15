@@ -57,7 +57,7 @@ public final class SerialComCompletionDispatcher {
 		SerialComLooper looper = mHandleInfo.getLooper();
 		
 		// Create looper for this handle and listener, if it does not exist.
-		if (looper == null) {
+		if(looper == null) {
 			looper = new SerialComLooper(mNativeInterface, mErrMapper);
 			mHandleInfo.setLooper(looper);
 		}
@@ -66,7 +66,7 @@ public final class SerialComCompletionDispatcher {
 		mHandleInfo.setDataListener(dataListener);
 		
 		int ret = mNativeInterface.setUpDataLooperThread(handle, looper);
-		if (ret < 0) {
+		if(ret < 0) {
 			throw new SerialComException("setUpDataLooper()", mErrMapper.getMappedError(ret));
 		}
 		
@@ -128,7 +128,7 @@ public final class SerialComCompletionDispatcher {
 		mHandleInfo.setEventListener(eventListener);
 		
 		int ret = mNativeInterface.setUpEventLooperThread(handle, looper);
-		if (ret < 0) {
+		if(ret < 0) {
 			throw new SerialComException("setUpEventLooper()", mErrMapper.getMappedError(ret));
 		}
 		
@@ -190,14 +190,14 @@ public final class SerialComCompletionDispatcher {
 		if(handle != -1) {
 			// We got a valid handle, so pause native threads for this listener first.
 			int ret = mNativeInterface.pauseListeningEvents(handle);
-			if (ret > 0) {
+			if(ret > 0) {
 				// now pause corresponding looper thread.
 				looper.pause();
 				return true;
-			} else {
+			}else {
 				throw new SerialComException("pauseListeningEvents()", mErrMapper.getMappedError(ret));
 			}
-		} else {
+		}else {
 			throw new SerialComException("pauseListeningEvents()", SerialComErrorMapper.ERR_WRONG_LISTENER_PASSED);
 		}
 	}
@@ -226,12 +226,12 @@ public final class SerialComCompletionDispatcher {
 			
 			// now resume native subsystem.
 			int ret = mNativeInterface.resumeListeningEvents(handle);
-			if (ret > 0) {
+			if(ret > 0) {
 				return true;
-			} else {
+			}else {
 				throw new SerialComException("resumeListeningEvents()", mErrMapper.getMappedError(ret));
 			}
-		} else {
+		}else {
 			throw new SerialComException("resumeListeningEvents()", SerialComErrorMapper.ERR_WRONG_LISTENER_PASSED);
 		}
 	}

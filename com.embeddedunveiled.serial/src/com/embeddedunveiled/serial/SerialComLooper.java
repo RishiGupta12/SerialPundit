@@ -104,7 +104,7 @@ public final class SerialComLooper {
 	 * This method is called from native code to pass data bytes.
 	 */
 	public void insertInDataQueue(byte[] newData) {
-        if (mDataQueue.remainingCapacity() == 0) {
+        if(mDataQueue.remainingCapacity() == 0) {
         	mDataQueue.poll();
         }
         try {

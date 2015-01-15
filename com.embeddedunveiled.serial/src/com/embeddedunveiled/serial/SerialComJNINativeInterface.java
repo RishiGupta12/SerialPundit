@@ -34,7 +34,7 @@ public final class SerialComJNINativeInterface {
 		try {
 			loadNativeLibrary();
 		} catch (Exception e) {
-			if (SerialComManager.DEBUG) e.printStackTrace();
+			if(SerialComManager.DEBUG) e.printStackTrace();
 		}
 	}
 	
@@ -58,10 +58,10 @@ public final class SerialComJNINativeInterface {
         FileOutputStream output = null;
 		
 		tmpDir = new File(SerialComManager.javaTmpDir);
-		if (!tmpDir.canWrite()) {
+		if(!tmpDir.canWrite()) {
 			// we don't have write permission probably, so try using user's home directory 
 			tmpDir = new File(SerialComManager.userHome);
-			if (!tmpDir.canWrite()) {
+			if(!tmpDir.canWrite()) {
 				throw new SerialComException("loadNativeLibrary()", SerialComErrorMapper.ERR_UNABLE_TO_WRITE);
 			}
 		}
@@ -72,14 +72,14 @@ public final class SerialComJNINativeInterface {
 		if(tmpDir.exists() && tmpDir.isDirectory()){
 			workingDir = new File(tmpDir.toString() + SerialComManager.fileSeparator + "_tuartx1");
 			try {
-				if (!workingDir.exists()) {
+				if(!workingDir.exists()) {
 					workingDir.mkdir();
-				} else {
+				}else {
 					workingDir.delete();
 					workingDir.mkdir();
 				}
 			} catch (Exception e) {
-				if (SerialComManager.DEBUG) e.printStackTrace();
+				if(SerialComManager.DEBUG) e.printStackTrace();
 			}
 		}
 		
@@ -90,22 +90,22 @@ public final class SerialComJNINativeInterface {
 						SerialComManager.osArch.equals("i686") || SerialComManager.osArch.equals("x86") || SerialComManager.osArch.equals("Sparc")) {
 					if(osType == SerialComManager.OS_LINUX) {
 						libNameOnly = "linux_"   + SerialComManager.JAVA_LIB_VERSION + "_x86.so";
-					} else if(osType == SerialComManager.OS_WINDOWS) {
+					}else if(osType == SerialComManager.OS_WINDOWS) {
 						libNameOnly = "windows_" + SerialComManager.JAVA_LIB_VERSION + "_x86.dll";
-					} else if(osType == SerialComManager.OS_MAC_OS_X) {
+					}else if(osType == SerialComManager.OS_MAC_OS_X) {
 						libNameOnly = "mac_"     + SerialComManager.JAVA_LIB_VERSION + "_x86.jnilib";
-					} else if(osType == SerialComManager.OS_SOLARIS) {
+					}else if(osType == SerialComManager.OS_SOLARIS) {
 						libNameOnly = "solaris_" + SerialComManager.JAVA_LIB_VERSION + "_x86.so";
 					}
-				} else if(SerialComManager.osArch.equals("amd64") || SerialComManager.osArch.equals("amd64 em64t x86_64") || SerialComManager.osArch.equals("x86-64") ||
+				}else if(SerialComManager.osArch.equals("amd64") || SerialComManager.osArch.equals("amd64 em64t x86_64") || SerialComManager.osArch.equals("x86-64") ||
 						SerialComManager.osArch.equals("Sparcv9")) {
 					if(osType == SerialComManager.OS_LINUX) {
 						libNameOnly = "linux_"   + SerialComManager.JAVA_LIB_VERSION + "_x86_64.so";
-					} else if(osType == SerialComManager.OS_WINDOWS) {
+					}else if(osType == SerialComManager.OS_WINDOWS) {
 						libNameOnly = "windows_" + SerialComManager.JAVA_LIB_VERSION + "_x86_64.dll";
-					} else if(osType == SerialComManager.OS_MAC_OS_X) {
+					}else if(osType == SerialComManager.OS_MAC_OS_X) {
 						libNameOnly = "mac_"     + SerialComManager.JAVA_LIB_VERSION + "_x86_64.jnilib";
-					} else if(osType == SerialComManager.OS_SOLARIS) {
+					}else if(osType == SerialComManager.OS_SOLARIS) {
 						libNameOnly = "solaris_" + SerialComManager.JAVA_LIB_VERSION + "_x86_64.so";
 					}
 				}
@@ -129,13 +129,13 @@ public final class SerialComJNINativeInterface {
 		            	}
 		        	}
 		        } catch (Exception e) {
-	            	if (SerialComManager.DEBUG) e.printStackTrace();
+	            	if(SerialComManager.DEBUG) e.printStackTrace();
 		        } finally {
 		        	try {
 			        	output.close();
 		            	input.close();
 		        	} catch (Exception e) {
-		            	if (SerialComManager.DEBUG) e.printStackTrace();
+		            	if(SerialComManager.DEBUG) e.printStackTrace();
 			        }
 		        }
 		        
@@ -145,9 +145,9 @@ public final class SerialComJNINativeInterface {
 		        	try {
 		        		System.load(libFile.toString());
 		        	} catch (UnsatisfiedLinkError e) {
-		        		if (SerialComManager.DEBUG) System.err.println("Failed to load native dynamic shared library.\n" + e);
+		        		if(SerialComManager.DEBUG) System.err.println("Failed to load native dynamic shared library.\n" + e);
 		            } catch (Exception e) {
-		        		if (SerialComManager.DEBUG) e.printStackTrace();
+		        		if(SerialComManager.DEBUG) e.printStackTrace();
 		        	}
 		        }
 			}
