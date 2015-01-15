@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<libraryInfos>
+<libraryInfo home="C:\Program Files\Java\jre1.8.0_25" version="1.8.0_25">
+<bootpath>
+<entry path="C:\Program Files\Java\jre1.8.0_25\lib\resources.jar"/>
+<entry path="C:\Program Files\Java\jre1.8.0_25\lib\rt.jar"/>
+<entry path="C:\Program Files\Java\jre1.8.0_25\lib\sunrsasign.jar"/>
+<entry path="C:\Program Files\Java\jre1.8.0_25\lib\jsse.jar"/>
+<entry path="C:\Program Files\Java\jre1.8.0_25\lib\jce.jar"/>
+<entry path="C:\Program Files\Java\jre1.8.0_25\lib\charsets.jar"/>
+<entry path="C:\Program Files\Java\jre1.8.0_25\lib\jfr.jar"/>
+<entry path="C:\Program Files\Java\jre1.8.0_25\classes"/>
+</bootpath>
+<extensionDirs>
+<entry path="C:\Program Files\Java\jre1.8.0_25\lib\ext"/>
+<entry path="C:\Windows\Sun\Java\lib\ext"/>
+</extensionDirs>
+<endorsedDirs>
+<entry path="C:\Program Files\Java\jre1.8.0_25\lib\endorsed"/>
+</endorsedDirs>
+</libraryInfo>
+<libraryInfo home="/home/r/packages/jdk/jdk1.6.0_45" version="1.6.0_45">
+<bootpath>
+<entry path="/home/r/packages/jdk/jdk1.6.0_45/jre/lib/resources.jar"/>
+<entry path="/home/r/packages/jdk/jdk1.6.0_45/jre/lib/rt.jar"/>
+<entry path="/home/r/packages/jdk/jdk1.6.0_45/jre/lib/sunrsasign.jar"/>
+<entry path="/home/r/packages/jdk/jdk1.6.0_45/jre/lib/jsse.jar"/>
+<entry path="/home/r/packages/jdk/jdk1.6.0_45/jre/lib/jce.jar"/>
+<entry path="/home/r/packages/jdk/jdk1.6.0_45/jre/lib/charsets.jar"/>
+<entry path="/home/r/packages/jdk/jdk1.6.0_45/jre/lib/modules/jdk.boot.jar"/>
+<entry path="/home/r/packages/jdk/jdk1.6.0_45/jre/classes"/>
+</bootpath>
+<extensionDirs>
+<entry path="/home/r/packages/jdk/jdk1.6.0_45/jre/lib/ext"/>
+<entry path="/usr/java/packages/lib/ext"/>
+</extensionDirs>
+<endorsedDirs>
+<entry path="/home/r/packages/jdk/jdk1.6.0_45/jre/lib/endorsed"/>
+</endorsedDirs>
+</libraryInfo>
+</libraryInfos>

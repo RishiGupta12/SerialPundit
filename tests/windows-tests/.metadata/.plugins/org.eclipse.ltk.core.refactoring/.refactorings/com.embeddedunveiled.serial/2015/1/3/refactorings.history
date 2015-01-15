@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring accessors="true" comment="Delete element from project &apos;com.embeddedunveiled.serial&apos;&#x0D;&#x0A;- Original project: &apos;com.embeddedunveiled.serial&apos;&#x0D;&#x0A;- Original element: &apos;windows_1.0.0_x86_64.dll&apos;" description="Delete element" element1="libs/windows_1.0.0_x86_64.dll" elements="0" flags="589830" id="org.eclipse.jdt.ui.delete" resources="1" stamp="1421238131412" subPackages="false" version="1.0"/>
+</session>
