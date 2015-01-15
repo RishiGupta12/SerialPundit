@@ -1,17 +1,16 @@
-###Common steps
+####Common steps
 ------
 
 1. Get the project by either cloning repository or downloading it.
 
-⋅⋅* Clone using command : git clone https://github.com/RishiGupta12/serial-com-manager.git
-
-⋅⋅* Download project by clicking 'Download Zip' button on this page https://github.com/RishiGupta12/serial-com-manager
+- Clone using command : git clone https://github.com/RishiGupta12/serial-com-manager.git
+- Download project by clicking 'Download Zip' button on this page https://github.com/RishiGupta12/serial-com-manager
 
 2. Install eclipse IDE for java developers from here https://eclipse.org/downloads. Select 32 bit or 64 bit as per your system and OS.
 
 3. Install CDT plugin from here https://eclipse.org/cdt/downloads.php
 
-###Building java library
+####Building java library
 ------
 
 1. Start eclipse selecting workspace folder as per your choice.
