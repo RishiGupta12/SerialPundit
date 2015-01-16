@@ -8,10 +8,11 @@ Part 1 covers building and exporting java and native library when no source file
 1. Get the project by either cloning repository or downloading it.
 
    Clone repository :
-```sh
-$ git clone https://github.com/RishiGupta12/serial-com-manager.git
-```
+   ```sh
+   $ git clone https://github.com/RishiGupta12/serial-com-manager.git
+   ```
    Download project :
+   
    Click 'Download Zip' button on this page https://github.com/RishiGupta12/serial-com-manager
 
 2. Install eclipse IDE for java developers from here https://eclipse.org/downloads.
