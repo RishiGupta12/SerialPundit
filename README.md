@@ -34,32 +34,19 @@ public class Test2 {
 	public static void main(String[] args) {
 	
 		long handle = 0;
-		
-		// get serial communication manager instance
 		SerialComManager scm = new SerialComManager();
 		
 		try {
-			// try opening serial port for read and write without exclusive ownership
 			handle = scm.openComPort("/dev/ttyUSB1", true, true, false);
-			
-			// configure data communication related parameters
 			scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
-			
-			// configure line control related parameters
 			scm.configureComPortControl(handle, FLOWCONTROL.NONE, 'x', 'x', false, false);
-			
-			// try to send data out of serial port
 			if(scm.writeString(handle, "testing hello", 0) == true) {
 				System.out.println("write success \n");
 			}
-		
-			// try to read data from serial port
+
 			String data = scm.readString(handle);
 			System.out.println("data read is :" + data);
-
-			// close serial port
 			scm.closeComPort(handle);
-			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -70,7 +57,8 @@ More examples could be found here : https://github.com/RishiGupta12/serial-com-m
 
 ##Java docs
 
-Detailed javadocs can be found here : https://github.com/RishiGupta12/serial-com-manager/tree/master/javadoc
+For online browsing javadocs are here : 
+For offline browsing they are part of repository : https://github.com/RishiGupta12/serial-com-manager/tree/master/javadoc
 
 ##Wiki, Help, Discussion
 The wiki page for the project is maintained here https://code.google.com/p/serial-com-manager/w/list
@@ -82,7 +70,9 @@ Mailing list and discussion group is here https://groups.google.com/d/forum/seri
 ##Programs to test RS-232
 
 Linux : gtkterm, minicom
-Windows :
+
+Windows : teraterm
+
 MAC : 
 
 ##Author, License, and Copyright
