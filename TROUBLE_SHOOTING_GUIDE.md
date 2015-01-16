@@ -2,6 +2,7 @@
 ---
 
 **Que: How can we know that native library is getting loaded at runtime.**
+
 Ans: Following error will occur if native library fails to load :
 
 java.lang.NullPointerException
@@ -19,6 +20,7 @@ Exception in thread "main" java.lang.**UnsatisfiedLinkError**: com.embeddedunvei
 ---
 
 **Que: How to verify that shared library is a 32 bit or 64 bit file.**
+
 Ans: For Linux use *file* command.
    ```sh
    $ file linux_1.0.0_x86_64.so
@@ -41,6 +43,7 @@ FILE HEADER VALUES
 ---
 
 **Que: How to debug data loss or buffer under-flow/over-flow conditions ?**
+
 Ans: - If the UART chipset in use supports on-chip flow control on both sides of the connection, 
   then the driver may not be working as expected or there may be some limitaions.
   - When using using XON/XOFF flow control without on-chip support, try disabling the FIFO.
