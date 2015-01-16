@@ -1,6 +1,6 @@
 ##Part 1
 
-Part 1 covers building and exporting java and native library when no source file has been modified.
+Part 1 covers building and exporting java and native library when generating JNI-style header file is not required.
 
 ####Common steps
 ---
@@ -82,56 +82,67 @@ Part 1 covers building and exporting java and native library when no source file
    Write -m32 for 32 bit library and -m64 for 64 bit library.
    Click Apply button.
    
+   Note that for 32 bit libraries must be installed on your system if your system is 64 bit.
+   $ sudo apt-get install gcc-multilib
+   $ sudo apt-get install ia32-libs
+   
 7. Define linking against 32 bit or 64 bit version library to linker.
    Select project and then right click on it.
    Properties->C/C+ Build->Settings->Tool Settings->GCC C Linker->Miscellaneous->Linker flags
    Write -m32 for 32 bit library and -m64 for 64 bit library.
    Click Apply button.
    
+8. Generate shared library file.
+   Select project and then Project->Build All
+   This will create '.so' file for example "linux_1.0.0_x86_64.so" in Debug folder.
+   
+   Copy this file into *'libs'* folder of com.embeddedunveiled.serial eclipse java project.
+   
+####Building native library (.dll files) for windows
+---
+
+1. Install Visual Studio Express 2013 with Update 4 for *Windows Desktop* from here
+   http://www.visualstudio.com/downloads/download-visual-studio-vs
+   
+   We used online installer as offline iso file does not contain many packages required.
+   
+2. Start visual studio and then click on Open Project option.
+   Navigate to the file windows_serial.sln file (basically VS project) and select it.
+  
+   Press ok button if security dialog pop up. If you cancel it, then reload project.
+   http://msdn.microsoft.com/en-us/library/tt479x1t%28v=vs.90%29.aspx
+  
+
+2. Locate jni.h header file(s) on your system. 
+   Right click on windows_serial project and then select Properties.
+   Configuration Properties->C/C++->General and click on Additional Include Directories.
+   
+   Click on the drop down arrow and then select <edit>. Locate the path to include directory for example as showwn below:
+   
+   C:\Program Files\Java\jdk1.8.0_25\include
+   C:\Program Files\Java\jdk1.8.0_25\include\win32
+   
+3. Define 32 bit or 64 bit build to visual studio.
+
+   Right click on windows_serial project and then select Properties.
+   Select Configuration Properties and then from drop down menu select Win32 for 32 bit build or x64 for 64 bit build.
+   
+   This can also be done via Configuration manager : 
+   http://msdn.microsoft.com/en-us/library/kwybya3w(v=vs.90).aspx
+   
+   
+4. The java library at runtime loads 32 or 64 bit native library as per system, JRE and OS in use. The name of native library is formulated as a combination of OS, library version and bit(32/64). For example "windows_1.0.0_x86_64.dll" for 64 bit and "windows_1.0.0_x86.so" for 32 bit.
+
+   Note this step should be done together when performing step 3 i.e. setting Active platform.
+   
+   Right click on windows_serial project and then select Properties.
+   Configuration Properties->General and select Target Name option.
+   
+   From drop down <edit> and enter windows_1.0.0_x86_64 for 64 bit and windows_1.0.0_x86 for 32 bit.
+   
 ##Part 2
 
-Part 2 cover steps required to build and export java and native library if one or more source file has been modified depending upon what and how source file is modified.
+Part 2 cover steps required to build and export java and native library if one or more *source file has been modified* in such a way that it becomes necessary to generate new JNI-STYLE header file.
 
-File->New->C Project->Shared Library->Empty Project
-Project Name : com.embeddedunveiled.native
-Select Configurations : Release
-File-> new ->source folder
-File->Properties->C/C++ Build->Settings->Tool Settings->Includes->includes path (-I)
-select where jdk include folder is found <your-path>/jdk/jdk1.6.0_45/include
-
-File->Properties->C/C++ Build->Settings->Tool Settings->Miscelleneous->Position Independent Code (-fpic)
-
-Note : The name of native library must be what is defined in
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+####Generate header file
+---
