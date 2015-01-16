@@ -51,3 +51,11 @@ Ans: - If the UART chipset in use supports on-chip flow control on both sides of
 
 ####Hardware trouble shooting
 ---
+
+**Que: When using USB hub sometimes only one port show up.**
+
+Ans: This is not due to library, rather a USB HUB and OS specific issue. Try different USB hub or insert USB-UART converter slowly one after the other.
+
+**Que: Same device with different COM port numbers is confusing to me**
+
+Ans: This is Windows specific issue. The same device will often appear at different comport numbers when it is on different USB hub ports.
