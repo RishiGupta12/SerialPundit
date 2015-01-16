@@ -2,6 +2,7 @@
 ---
 
 **Que: How can we know that native library is getting loaded at runtime.**
+
 Ans: Following error will occur if native library fails to load :
 
 java.lang.NullPointerException
