@@ -68,11 +68,9 @@ Mailing list and discussion group is here https://groups.google.com/d/forum/seri
 Detailed build guide for all operating system is here :
 https://github.com/RishiGupta12/serial-com-manager/blob/master/BUILD_GUIDE.md
 
-##Programs to test RS-232
+##Programs to test library
 
-Linux : gtkterm, minicom
-Windows : teraterm
-MAC : 
+For Linus use gtkterm, minicom, for Windows use teraterm and for MAC use.
 
 ##Author, License, and Copyright
 The 'serial communication manager (scm)' is designed, developed and maintained by Rishi gupta. The Linkdin profile of the author can be found here : http://in.linkedin.com/pub/rishi-gupta/20/9b8/a10
