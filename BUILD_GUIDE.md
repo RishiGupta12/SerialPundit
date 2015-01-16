@@ -91,8 +91,13 @@ Part 1 covers building and exporting java and native library when generating JNI
    Properties->C/C+ Build->Settings->Tool Settings->GCC C Linker->Miscellaneous->Linker flags
    Write -m32 for 32 bit library and -m64 for 64 bit library.
    Click Apply button.
+
+8. Set scalability parameter for eclipse IDE.
+   Window->Preferences->C/C++->Editor->Scalability->"Enable scalability mode when ..." set high value for example 60000.
+
+   Project-> C/C++ Index->Freshen All Files and Rebuild
    
-8. Generate shared library file.
+9. Generate shared library file.
    Select project and then Project->Build All
    This will create '.so' file for example "linux_1.0.0_x86_64.so" in Debug folder.
    
