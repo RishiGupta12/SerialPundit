@@ -37,7 +37,7 @@ Part 1 covers building and exporting java and native library when no source file
    Select the export destination which is the place where this jar will be placed on file system.
    Click Browse and give name for example scm and click Finish button.
 
-###Building native library (.so files) for linux
+####Building native library (.so files) for linux
 ---
 
 1. Install CDT plugin from here https://eclipse.org/cdt/downloads.php
@@ -89,7 +89,6 @@ Part 1 covers building and exporting java and native library when no source file
    Click Apply button.
    
 ##Part 2
----
 
 Part 2 cover steps required to build and export java and native library if one or more source file has been modified depending upon what and how source file is modified.
 
