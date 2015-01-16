@@ -1,5 +1,4 @@
 ##Part 1
----
 
 Part 1 covers building and exporting java and native library when no source file has been modified.
 
