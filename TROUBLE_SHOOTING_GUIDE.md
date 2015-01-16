@@ -15,6 +15,7 @@ Exception in thread "main" java.lang.**UnsatisfiedLinkError**: com.embeddedunvei
 	at com.embeddedunveiled.serial.SerialComJNINativeInterface.<init>(SerialComJNINativeInterface.java:45)
 	at com.embeddedunveiled.serial.SerialComManager.<init>(SerialComManager.java:188)
 	at example.Test1.main(Test1.java:16)
+	
 
 
 ####Build time errors
@@ -40,6 +41,7 @@ FILE HEADER VALUES
             **8664 machine (x64)**
                7 number of sections
                
+               
 
 ####Functional debugging
 ---
@@ -50,12 +52,14 @@ Ans: - If the UART chipset in use supports on-chip flow control on both sides of
   then the driver may not be working as expected or there may be some limitaions.
   - When using using XON/XOFF flow control without on-chip support, try disabling the FIFO.
   - Check that RTS-CTS pins are connected properly and they meet expected timings.
-
+  
+  
 
 ####Hardware trouble shooting
 ---
 
 **Que: Sometimes I observe power related issues when using USB-UART bridge.**
+
 Ans: Try to investigate issues like the one stated here.
      http://support.microsoft.com/kb/935892/en-us
 
