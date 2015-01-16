@@ -22,7 +22,7 @@ The folder prebuilt contains ready-to-use jar file (scm.jar) that can be importe
 
 ##Examples usage
 ```java
-package test2;
+package example;
 import com.embeddedunveiled.serial.SerialComManager;
 import com.embeddedunveiled.serial.SerialComManager.BAUDRATE;
 import com.embeddedunveiled.serial.SerialComManager.DATABITS;
@@ -30,7 +30,7 @@ import com.embeddedunveiled.serial.SerialComManager.FLOWCONTROL;
 import com.embeddedunveiled.serial.SerialComManager.PARITY;
 import com.embeddedunveiled.serial.SerialComManager.STOPBITS;
 
-public class Test2 {
+public class Example {
 	public static void main(String[] args) {
 	
 		long handle = 0;
@@ -40,10 +40,7 @@ public class Test2 {
 			handle = scm.openComPort("/dev/ttyUSB1", true, true, false);
 			scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
 			scm.configureComPortControl(handle, FLOWCONTROL.NONE, 'x', 'x', false, false);
-			if(scm.writeString(handle, "testing hello", 0) == true) {
-				System.out.println("write success \n");
-			}
-
+			scm.writeString(handle, "testing hello", 0) == true);
 			String data = scm.readString(handle);
 			System.out.println("data read is :" + data);
 			scm.closeComPort(handle);
@@ -58,6 +55,7 @@ More examples could be found here : https://github.com/RishiGupta12/serial-com-m
 ##Java docs
 
 For online browsing javadocs are here : 
+
 For offline browsing they are part of repository : https://github.com/RishiGupta12/serial-com-manager/tree/master/javadoc
 
 ##Wiki, Help, Discussion
@@ -67,12 +65,13 @@ Mailing list and discussion group is here https://groups.google.com/d/forum/seri
 
 ##Build guide
 
+Detailed build guide for all operating system is here :
+https://github.com/RishiGupta12/serial-com-manager/blob/master/BUILD_GUIDE.md
+
 ##Programs to test RS-232
 
 Linux : gtkterm, minicom
-
 Windows : teraterm
-
 MAC : 
 
 ##Author, License, and Copyright
