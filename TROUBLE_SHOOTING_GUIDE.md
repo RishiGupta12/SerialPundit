@@ -62,6 +62,16 @@ Ans: - If the UART chipset in use supports on-chip flow control on both sides of
 
 Ans: Try to investigate issues like the one stated here.
      http://support.microsoft.com/kb/935892/en-us
+     
+**Que: How can I check the driver for USB-UART converter IC FT232R has been loaded successfully.**
+
+Ans: Try running following command and you should see something like this :
+   ```sh
+   $ dmesg | grep -i ftdi
+   ```
+usbcore: registered new interface driver ftdi_sio
+.....
+usb 3-3: FTDI USB Serial Device converter now attached to ttyUSB0
 
 **Que: When using USB hub sometimes only one port show up.**
 
