@@ -157,11 +157,7 @@ Part 1 covers building and exporting java and native library when generating JNI
    http://www.oracle.com/technetwork/java/javase/downloads/jdk7-downloads-1880260.html
 
 3. Install CDT plugin from here https://eclipse.org/cdt/downloads.php Help->Install New Software.
-Then in "Work with" field, pull down the drop-down menu and select "Kepler - http://download.eclipse.org/releases/kepler" (or juno for Eclipse 4.2; or helios for Eclipse 3.7).
-
-In "Name" box, expand "Programming Language" node and Check "C/C++ Development Tools" -> "Next"-> "Next". Accept the license agreement and then click "Finish" button.
-
-Let the installation finish and it will ask to restart eclipse. Restart eclipse so CDT become active.
+Then in "Work with" field, pull down the drop-down menu and select "Kepler - http://download.eclipse.org/releases/kepler" (or juno for Eclipse 4.2; or helios for Eclipse 3.7). In "Name" box, expand "Programming Language" node and Check "C/C++ Development Tools" -> "Next"-> "Next". Accept the license agreement and then click "Finish" button. Let the installation finish and it will ask to restart eclipse. Restart eclipse so CDT become active.
 
 4. Import this C project into workspace. File->Import->General->Existing Projects Into Workspace->Select root directory: Then browse to the location where this project exist and select unix-like folder.
 
