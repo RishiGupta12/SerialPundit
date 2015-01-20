@@ -29,8 +29,8 @@ struct com_thread_params {
 	JavaVM *jvm;
 	int fd;
 	jobject looper;
-	unsigned long int data_thread_id;
-	unsigned long int event_thread_id;
+	pthread_t data_thread_id;
+	pthread_t event_thread_id;
 	int evfd;
 	int epfd;
 	pthread_mutex_t mutex;
