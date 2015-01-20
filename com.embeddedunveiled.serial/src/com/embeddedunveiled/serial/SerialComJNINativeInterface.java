@@ -93,18 +93,18 @@ public final class SerialComJNINativeInterface {
 					}else if(osType == SerialComManager.OS_WINDOWS) {
 						libNameOnly = "windows_" + SerialComManager.JAVA_LIB_VERSION + "_x86.dll";
 					}else if(osType == SerialComManager.OS_MAC_OS_X) {
-						libNameOnly = "mac_"     + SerialComManager.JAVA_LIB_VERSION + "_x86.jnilib";
+						libNameOnly = "mac_"     + SerialComManager.JAVA_LIB_VERSION + "_x86.dylib";
 					}else if(osType == SerialComManager.OS_SOLARIS) {
 						libNameOnly = "solaris_" + SerialComManager.JAVA_LIB_VERSION + "_x86.so";
 					}
-				}else if(SerialComManager.osArch.equals("amd64") || SerialComManager.osArch.equals("amd64 em64t x86_64") || SerialComManager.osArch.equals("x86-64") ||
+				}else if(SerialComManager.osArch.equals("amd64") || SerialComManager.osArch.equals("x86_64") || SerialComManager.osArch.equals("amd64 em64t x86_64") || SerialComManager.osArch.equals("x86-64") ||
 						SerialComManager.osArch.equals("Sparcv9")) {
 					if(osType == SerialComManager.OS_LINUX) {
 						libNameOnly = "linux_"   + SerialComManager.JAVA_LIB_VERSION + "_x86_64.so";
 					}else if(osType == SerialComManager.OS_WINDOWS) {
 						libNameOnly = "windows_" + SerialComManager.JAVA_LIB_VERSION + "_x86_64.dll";
 					}else if(osType == SerialComManager.OS_MAC_OS_X) {
-						libNameOnly = "mac_"     + SerialComManager.JAVA_LIB_VERSION + "_x86_64.jnilib";
+						libNameOnly = "mac_"     + SerialComManager.JAVA_LIB_VERSION + "_x86_64.dylib";
 					}else if(osType == SerialComManager.OS_SOLARIS) {
 						libNameOnly = "solaris_" + SerialComManager.JAVA_LIB_VERSION + "_x86_64.so";
 					}
@@ -125,8 +125,12 @@ public final class SerialComJNINativeInterface {
 		            	if(libFile != null) {
 			            	if(libFile.exists() && libFile.isFile()){
 			            		readyToLoad = true;
+			            	}else {
+			            		if(SerialComManager.DEBUG) System.out.println("Can not write as stream to libFile !");
 			            	}
 		            	}
+		        	}else {
+		        		if(SerialComManager.DEBUG) System.out.println("Can not extract library file : " + libNameOnly + " from jar file !");
 		        	}
 		        } catch (Exception e) {
 	            	if(SerialComManager.DEBUG) e.printStackTrace();
@@ -139,7 +143,7 @@ public final class SerialComJNINativeInterface {
 			        }
 		        }
 		        
-		        /* Try loading the shared library (from the local file system as a dynamic library), 
+		        /* Try loading the dynamic shared library from the local file system, 
 		         * else tell user something went wrong, he should retry. */
 		        if(readyToLoad == true) {
 		        	try {
