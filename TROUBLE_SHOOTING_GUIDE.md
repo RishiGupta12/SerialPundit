@@ -23,7 +23,7 @@ Exception in thread "main" java.lang.**UnsatisfiedLinkError**: com.embeddedunvei
 
 **Que: How to verify that shared library is a 32 bit or 64 bit file.**
 
-Ans: For Linux use *file* command.
+Ans: For Linux and MAC OS use *file* command.
    ```sh
    $ file linux_1.0.0_x86_64.so
    ```
