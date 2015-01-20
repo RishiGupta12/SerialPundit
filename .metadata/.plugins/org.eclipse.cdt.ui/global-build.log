@@ -358,3 +358,734 @@ Invoking: GCC C Linker
 gcc -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   
 Finished building target: linux_1.0.0_x86_64.so
  
+16:25:36 **** Incremental Build of configuration Debug for project unix-like-serial ****
+make all 
+Building file: ../src/unix_like_serial.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk/jdk1.6.0_45/include -include/home/r/packages/jdk/jdk1.6.0_45/include/jni.h -O0 -g3 -Wall -c -fmessage-length=0 -fPIC -MMD -MP -MF"src/unix_like_serial.d" -MT"src/unix_like_serial.d" -o "src/unix_like_serial.o" "../src/unix_like_serial.c"
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_openComPort’:
+../src/unix_like_serial.c:403:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_writeBytes’:
+../src/unix_like_serial.c:675:2: warning: implicit declaration of function ‘tcdrain’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_clearPortIOBuffers’:
+../src/unix_like_serial.c:1267:3: warning: implicit declaration of function ‘tcflush’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_registerPortMonitorListener’:
+../src/unix_like_serial.c:1755:6: warning: unused variable ‘negative’ [-Wunused-variable]
+../src/unix_like_serial.c:1754:6: warning: unused variable ‘ret’ [-Wunused-variable]
+Finished building: ../src/unix_like_serial.c
+ 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk/jdk1.6.0_45/include -include/home/r/packages/jdk/jdk1.6.0_45/include/jni.h -O0 -g3 -Wall -c -fmessage-length=0 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c:68:11: error: expected ‘=’, ‘,’, ‘;’, ‘asm’ or ‘__attribute__’ before numeric constant
+../src/unix_like_serial_lib.c: In function ‘data_looper’:
+../src/unix_like_serial_lib.c:110:6: error: ‘DEBUG’ undeclared (first use in this function)
+../src/unix_like_serial_lib.c:110:6: note: each undeclared identifier is reported only once for each function it appears in
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:269:6: error: ‘DEBUG’ undeclared (first use in this function)
+../src/unix_like_serial_lib.c:312:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+make: *** [src/unix_like_serial_lib.o] Error 1
+16:25:38 **** Incremental Build of configuration Debug for project unix-like-serial ****
+make all 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk/jdk1.6.0_45/include -include/home/r/packages/jdk/jdk1.6.0_45/include/jni.h -O0 -g3 -Wall -c -fmessage-length=0 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c:68:11: error: expected ‘=’, ‘,’, ‘;’, ‘asm’ or ‘__attribute__’ before numeric constant
+../src/unix_like_serial_lib.c: In function ‘data_looper’:
+../src/unix_like_serial_lib.c:110:6: error: ‘DEBUG’ undeclared (first use in this function)
+../src/unix_like_serial_lib.c:110:6: note: each undeclared identifier is reported only once for each function it appears in
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:269:6: error: ‘DEBUG’ undeclared (first use in this function)
+../src/unix_like_serial_lib.c:312:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+make: *** [src/unix_like_serial_lib.o] Error 1
+16:27:09 **** Incremental Build of configuration Debug for project unix-like-serial ****
+make all 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk/jdk1.6.0_45/include -include/home/r/packages/jdk/jdk1.6.0_45/include/jni.h -O0 -g3 -Wall -c -fmessage-length=0 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:312:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial_lib.c
+ 
+Building target: linux_1.0.0_x86_64.so
+Invoking: GCC C Linker
+gcc -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   
+Finished building target: linux_1.0.0_x86_64.so
+ 
+16:27:26 **** Incremental Build of configuration Debug for project unix-like-serial ****
+make all 
+Building file: ../src/unix_like_serial.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk/jdk1.6.0_45/include -include/home/r/packages/jdk/jdk1.6.0_45/include/jni.h -O0 -g3 -Wall -c -fmessage-length=0 -fPIC -MMD -MP -MF"src/unix_like_serial.d" -MT"src/unix_like_serial.d" -o "src/unix_like_serial.o" "../src/unix_like_serial.c"
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_initNativeLib’:
+../src/unix_like_serial.c:150:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:151:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:158:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:159:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_getSerialPortNames’:
+../src/unix_like_serial.c:275:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:276:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_openComPort’:
+../src/unix_like_serial.c:376:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:377:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:392:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:393:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:403:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c:405:7: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:406:7: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:458:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:459:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_closeComPort’:
+../src/unix_like_serial.c:515:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:516:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:517:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:526:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:527:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:536:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:537:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_readBytes’:
+../src/unix_like_serial.c:611:8: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:612:8: error: expected expression before ‘=’ token
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_writeBytes’:
+../src/unix_like_serial.c:651:8: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:652:8: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:664:8: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:665:8: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:675:2: warning: implicit declaration of function ‘tcdrain’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_configureComPortData’:
+../src/unix_like_serial.c:693:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:694:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:695:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:721:7: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:722:7: error: expected expression before ‘=’ token
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_configureComPortControl’:
+../src/unix_like_serial.c:954:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:955:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:956:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:989:7: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:990:7: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1019:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1020:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_setRTS’:
+../src/unix_like_serial.c:1051:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1052:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1066:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1067:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_setDTR’:
+../src/unix_like_serial.c:1087:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1088:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1101:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1102:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_getCurrentConfigurationU’:
+../src/unix_like_serial.c:1127:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1128:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1129:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_getByteCount’:
+../src/unix_like_serial.c:1232:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1233:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1242:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1243:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_clearPortIOBuffers’:
+../src/unix_like_serial.c:1267:3: warning: implicit declaration of function ‘tcflush’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c:1269:7: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1270:7: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1271:7: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1277:7: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1278:7: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1279:7: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1285:7: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1286:7: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1287:7: error: expected expression before ‘=’ token
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_getLinesStatus’:
+../src/unix_like_serial.c:1313:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1314:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_sendBreak’:
+../src/unix_like_serial.c:1350:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1351:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1361:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1362:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_getInterruptCount’:
+../src/unix_like_serial.c:1393:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1394:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_setMinDataLength’:
+../src/unix_like_serial.c:1438:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1439:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1440:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1461:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1462:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_setUpDataLooperThread’:
+../src/unix_like_serial.c:1516:7: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1517:7: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1533:7: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1534:7: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1552:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1553:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_destroyDataLooperThread’:
+../src/unix_like_serial.c:1615:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1616:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1619:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1620:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_setUpEventLooperThread’:
+../src/unix_like_serial.c:1664:7: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1665:7: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1684:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1685:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_destroyEventLooperThread’:
+../src/unix_like_serial.c:1733:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1734:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1738:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1739:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_registerPortMonitorListener’:
+../src/unix_like_serial.c:1755:6: warning: unused variable ‘negative’ [-Wunused-variable]
+../src/unix_like_serial.c:1754:6: warning: unused variable ‘ret’ [-Wunused-variable]
+make: *** [src/unix_like_serial.o] Error 1
+16:29:03 **** Clean-only build of configuration Debug for project unix-like-serial ****
+make clean 
+rm -rf  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o  ./src/unix_like_serial.d ./src/unix_like_serial_lib.d  linux_1.0.0_x86_64.so
+ 
+16:29:03 **** Build of configuration Debug for project unix-like-serial ****
+make all 
+Building file: ../src/unix_like_serial.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk/jdk1.6.0_45/include -include/home/r/packages/jdk/jdk1.6.0_45/include/jni.h -O0 -g3 -Wall -c -fmessage-length=0 -fPIC -MMD -MP -MF"src/unix_like_serial.d" -MT"src/unix_like_serial.d" -o "src/unix_like_serial.o" "../src/unix_like_serial.c"
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_initNativeLib’:
+../src/unix_like_serial.c:150:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:151:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:158:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:159:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_getSerialPortNames’:
+../src/unix_like_serial.c:275:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:276:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_openComPort’:
+../src/unix_like_serial.c:376:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:377:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:392:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:393:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:403:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c:405:7: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:406:7: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:458:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:459:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_closeComPort’:
+../src/unix_like_serial.c:515:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:516:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:517:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:526:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:527:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:536:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:537:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_readBytes’:
+../src/unix_like_serial.c:611:8: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:612:8: error: expected expression before ‘=’ token
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_writeBytes’:
+../src/unix_like_serial.c:651:8: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:652:8: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:664:8: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:665:8: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:675:2: warning: implicit declaration of function ‘tcdrain’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_configureComPortData’:
+../src/unix_like_serial.c:693:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:694:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:695:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:721:7: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:722:7: error: expected expression before ‘=’ token
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_configureComPortControl’:
+../src/unix_like_serial.c:954:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:955:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:956:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:989:7: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:990:7: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1019:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1020:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_setRTS’:
+../src/unix_like_serial.c:1051:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1052:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1066:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1067:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_setDTR’:
+../src/unix_like_serial.c:1087:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1088:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1101:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1102:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_getCurrentConfigurationU’:
+../src/unix_like_serial.c:1127:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1128:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1129:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_getByteCount’:
+../src/unix_like_serial.c:1232:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1233:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1242:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1243:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_clearPortIOBuffers’:
+../src/unix_like_serial.c:1267:3: warning: implicit declaration of function ‘tcflush’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c:1269:7: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1270:7: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1271:7: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1277:7: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1278:7: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1279:7: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1285:7: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1286:7: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1287:7: error: expected expression before ‘=’ token
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_getLinesStatus’:
+../src/unix_like_serial.c:1313:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1314:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_sendBreak’:
+../src/unix_like_serial.c:1350:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1351:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1361:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1362:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_getInterruptCount’:
+../src/unix_like_serial.c:1393:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1394:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_setMinDataLength’:
+../src/unix_like_serial.c:1438:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1439:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1440:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1461:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1462:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_setUpDataLooperThread’:
+../src/unix_like_serial.c:1516:7: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1517:7: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1533:7: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1534:7: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1552:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1553:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_destroyDataLooperThread’:
+../src/unix_like_serial.c:1615:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1616:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1619:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1620:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_setUpEventLooperThread’:
+../src/unix_like_serial.c:1664:7: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1665:7: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1684:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1685:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_destroyEventLooperThread’:
+../src/unix_like_serial.c:1733:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1734:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1738:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c:1739:6: error: expected expression before ‘=’ token
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_registerPortMonitorListener’:
+../src/unix_like_serial.c:1755:6: warning: unused variable ‘negative’ [-Wunused-variable]
+../src/unix_like_serial.c:1754:6: warning: unused variable ‘ret’ [-Wunused-variable]
+make: *** [src/unix_like_serial.o] Error 1
+16:29:26 **** Incremental Build of configuration Debug for project unix-like-serial ****
+make all 
+Building file: ../src/unix_like_serial.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk/jdk1.6.0_45/include -include/home/r/packages/jdk/jdk1.6.0_45/include/jni.h -O0 -g3 -Wall -c -fmessage-length=0 -fPIC -MMD -MP -MF"src/unix_like_serial.d" -MT"src/unix_like_serial.d" -o "src/unix_like_serial.o" "../src/unix_like_serial.c"
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_initNativeLib’:
+../src/unix_like_serial.c:150:6: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c:151:6: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c:158:6: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c:159:6: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_getSerialPortNames’:
+../src/unix_like_serial.c:275:6: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c:276:6: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_openComPort’:
+../src/unix_like_serial.c:376:6: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c:377:6: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c:392:6: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c:393:6: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c:403:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c:405:7: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c:406:7: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c:458:6: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c:459:6: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_closeComPort’:
+../src/unix_like_serial.c:515:6: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c:516:6: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c:517:6: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c:526:6: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c:527:6: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c:536:6: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c:537:6: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_readBytes’:
+../src/unix_like_serial.c:611:8: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c:612:8: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_writeBytes’:
+../src/unix_like_serial.c:651:8: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c:652:8: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c:664:8: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c:665:8: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c:675:2: warning: implicit declaration of function ‘tcdrain’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_configureComPortData’:
+../src/unix_like_serial.c:693:6: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c:694:6: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c:695:6: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c:721:7: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c:722:7: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_configureComPortControl’:
+../src/unix_like_serial.c:954:6: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c:955:6: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c:956:6: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c:989:7: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c:990:7: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c:1019:6: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c:1020:6: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_setRTS’:
+../src/unix_like_serial.c:1051:6: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c:1052:6: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c:1066:6: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c:1067:6: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_setDTR’:
+../src/unix_like_serial.c:1087:6: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c:1088:6: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c:1101:6: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c:1102:6: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_getCurrentConfigurationU’:
+../src/unix_like_serial.c:1127:6: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c:1128:6: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c:1129:6: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_getByteCount’:
+../src/unix_like_serial.c:1232:6: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c:1233:6: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c:1242:6: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c:1243:6: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_clearPortIOBuffers’:
+../src/unix_like_serial.c:1267:3: warning: implicit declaration of function ‘tcflush’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c:1269:7: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c:1270:7: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c:1271:7: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c:1277:7: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c:1278:7: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c:1279:7: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c:1285:7: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c:1286:7: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c:1287:7: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_getLinesStatus’:
+../src/unix_like_serial.c:1313:6: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c:1314:6: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_sendBreak’:
+../src/unix_like_serial.c:1350:6: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c:1351:6: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c:1361:6: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c:1362:6: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_getInterruptCount’:
+../src/unix_like_serial.c:1393:6: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c:1394:6: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_setMinDataLength’:
+../src/unix_like_serial.c:1438:6: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c:1439:6: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c:1440:6: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c:1461:6: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c:1462:6: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_setUpDataLooperThread’:
+../src/unix_like_serial.c:1516:7: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c:1517:7: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c:1533:7: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c:1534:7: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c:1552:6: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c:1553:6: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_destroyDataLooperThread’:
+../src/unix_like_serial.c:1615:6: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c:1616:6: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c:1619:6: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c:1620:6: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_setUpEventLooperThread’:
+../src/unix_like_serial.c:1664:7: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c:1665:7: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c:1684:6: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c:1685:6: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_destroyEventLooperThread’:
+../src/unix_like_serial.c:1733:6: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c:1734:6: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c:1738:6: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c:1739:6: error: expected ‘)’ before ‘;’ token
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_registerPortMonitorListener’:
+../src/unix_like_serial.c:1755:6: warning: unused variable ‘negative’ [-Wunused-variable]
+../src/unix_like_serial.c:1754:6: warning: unused variable ‘ret’ [-Wunused-variable]
+make: *** [src/unix_like_serial.o] Error 1
+16:29:36 **** Incremental Build of configuration Debug for project unix-like-serial ****
+make all 
+Building file: ../src/unix_like_serial.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk/jdk1.6.0_45/include -include/home/r/packages/jdk/jdk1.6.0_45/include/jni.h -O0 -g3 -Wall -c -fmessage-length=0 -fPIC -MMD -MP -MF"src/unix_like_serial.d" -MT"src/unix_like_serial.d" -o "src/unix_like_serial.o" "../src/unix_like_serial.c"
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_openComPort’:
+../src/unix_like_serial.c:403:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_writeBytes’:
+../src/unix_like_serial.c:675:2: warning: implicit declaration of function ‘tcdrain’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_clearPortIOBuffers’:
+../src/unix_like_serial.c:1267:3: warning: implicit declaration of function ‘tcflush’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_registerPortMonitorListener’:
+../src/unix_like_serial.c:1755:6: warning: unused variable ‘negative’ [-Wunused-variable]
+../src/unix_like_serial.c:1754:6: warning: unused variable ‘ret’ [-Wunused-variable]
+Finished building: ../src/unix_like_serial.c
+ 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk/jdk1.6.0_45/include -include/home/r/packages/jdk/jdk1.6.0_45/include/jni.h -O0 -g3 -Wall -c -fmessage-length=0 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:312:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial_lib.c
+ 
+Building target: linux_1.0.0_x86_64.so
+Invoking: GCC C Linker
+gcc -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   
+Finished building target: linux_1.0.0_x86_64.so
+ 
+16:41:32 **** Incremental Build of configuration Debug for project unix-like-serial ****
+make all 
+make: Nothing to be done for `all'.
+16:41:52 **** Incremental Build of configuration Debug for project unix-like-serial ****
+make all 
+make: Nothing to be done for `all'.
+16:50:21 **** Incremental Build of configuration Debug for project unix-like-serial ****
+make all 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk/jdk1.6.0_45/include -include/home/r/packages/jdk/jdk1.6.0_45/include/jni.h -O0 -g3 -Wall -c -fmessage-length=0 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘data_looper’:
+../src/unix_like_serial_lib.c:143:9: error: ‘evfd’ undeclared (first use in this function)
+../src/unix_like_serial_lib.c:143:9: note: each undeclared identifier is reported only once for each function it appears in
+../src/unix_like_serial_lib.c:184:27: error: ‘events’ undeclared (first use in this function)
+../src/unix_like_serial_lib.c:103:21: warning: unused variable ‘events_exit’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:101:21: warning: unused variable ‘events_port’ [-Wunused-variable]
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:332:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+make: *** [src/unix_like_serial_lib.o] Error 1
+16:50:36 **** Incremental Build of configuration Debug for project unix-like-serial ****
+make all 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk/jdk1.6.0_45/include -include/home/r/packages/jdk/jdk1.6.0_45/include/jni.h -O0 -g3 -Wall -c -fmessage-length=0 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘data_looper’:
+../src/unix_like_serial_lib.c:162:9: error: ‘evfd’ undeclared (first use in this function)
+../src/unix_like_serial_lib.c:162:9: note: each undeclared identifier is reported only once for each function it appears in
+../src/unix_like_serial_lib.c:184:27: error: ‘events’ undeclared (first use in this function)
+../src/unix_like_serial_lib.c:103:21: warning: unused variable ‘events_exit’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:101:21: warning: unused variable ‘events_port’ [-Wunused-variable]
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:332:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+make: *** [src/unix_like_serial_lib.o] Error 1
+16:50:51 **** Incremental Build of configuration Debug for project unix-like-serial ****
+make all 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk/jdk1.6.0_45/include -include/home/r/packages/jdk/jdk1.6.0_45/include/jni.h -O0 -g3 -Wall -c -fmessage-length=0 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘data_looper’:
+../src/unix_like_serial_lib.c:176:9: error: ‘evfd’ undeclared (first use in this function)
+../src/unix_like_serial_lib.c:176:9: note: each undeclared identifier is reported only once for each function it appears in
+../src/unix_like_serial_lib.c:184:27: error: ‘events’ undeclared (first use in this function)
+../src/unix_like_serial_lib.c:103:21: warning: unused variable ‘events_exit’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:101:21: warning: unused variable ‘events_port’ [-Wunused-variable]
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:332:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+make: *** [src/unix_like_serial_lib.o] Error 1
+16:51:04 **** Incremental Build of configuration Debug for project unix-like-serial ****
+make all 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk/jdk1.6.0_45/include -include/home/r/packages/jdk/jdk1.6.0_45/include/jni.h -O0 -g3 -Wall -c -fmessage-length=0 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘data_looper’:
+../src/unix_like_serial_lib.c:184:27: error: ‘events’ undeclared (first use in this function)
+../src/unix_like_serial_lib.c:184:27: note: each undeclared identifier is reported only once for each function it appears in
+../src/unix_like_serial_lib.c:196:10: error: ‘evfd’ undeclared (first use in this function)
+../src/unix_like_serial_lib.c:103:21: warning: unused variable ‘events_exit’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:101:21: warning: unused variable ‘events_port’ [-Wunused-variable]
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:332:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+make: *** [src/unix_like_serial_lib.o] Error 1
+16:51:16 **** Incremental Build of configuration Debug for project unix-like-serial ****
+make all 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk/jdk1.6.0_45/include -include/home/r/packages/jdk/jdk1.6.0_45/include/jni.h -O0 -g3 -Wall -c -fmessage-length=0 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘data_looper’:
+../src/unix_like_serial_lib.c:184:27: error: ‘events’ undeclared (first use in this function)
+../src/unix_like_serial_lib.c:184:27: note: each undeclared identifier is reported only once for each function it appears in
+../src/unix_like_serial_lib.c:103:21: warning: unused variable ‘events_exit’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:101:21: warning: unused variable ‘events_port’ [-Wunused-variable]
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:332:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+make: *** [src/unix_like_serial_lib.o] Error 1
+16:54:14 **** Incremental Build of configuration Debug for project unix-like-serial ****
+make all 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk/jdk1.6.0_45/include -include/home/r/packages/jdk/jdk1.6.0_45/include/jni.h -O0 -g3 -Wall -c -fmessage-length=0 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘data_looper’:
+../src/unix_like_serial_lib.c:189:27: error: ‘events’ undeclared (first use in this function)
+../src/unix_like_serial_lib.c:189:27: note: each undeclared identifier is reported only once for each function it appears in
+../src/unix_like_serial_lib.c:103:21: warning: unused variable ‘events_exit’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:101:21: warning: unused variable ‘events_port’ [-Wunused-variable]
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:337:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+make: *** [src/unix_like_serial_lib.o] Error 1
+16:59:41 **** Incremental Build of configuration Debug for project unix-like-serial ****
+make all 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk/jdk1.6.0_45/include -include/home/r/packages/jdk/jdk1.6.0_45/include/jni.h -O0 -g3 -Wall -c -fmessage-length=0 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘data_looper’:
+../src/unix_like_serial_lib.c:151:2: error: ‘ev’ undeclared (first use in this function)
+../src/unix_like_serial_lib.c:151:2: note: each undeclared identifier is reported only once for each function it appears in
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:336:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+make: *** [src/unix_like_serial_lib.o] Error 1
+16:59:54 **** Incremental Build of configuration Debug for project unix-like-serial ****
+make all 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk/jdk1.6.0_45/include -include/home/r/packages/jdk/jdk1.6.0_45/include/jni.h -O0 -g3 -Wall -c -fmessage-length=0 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:336:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial_lib.c
+ 
+Building target: linux_1.0.0_x86_64.so
+Invoking: GCC C Linker
+gcc -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   
+Finished building target: linux_1.0.0_x86_64.so
+ 
+17:01:20 **** Incremental Build of configuration Debug for project unix-like-serial ****
+make all 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk/jdk1.6.0_45/include -include/home/r/packages/jdk/jdk1.6.0_45/include/jni.h -O0 -g3 -Wall -c -fmessage-length=0 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:342:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial_lib.c
+ 
+Building target: linux_1.0.0_x86_64.so
+Invoking: GCC C Linker
+gcc -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   
+Finished building target: linux_1.0.0_x86_64.so
+ 
+17:01:26 **** Clean-only build of configuration Debug for project unix-like-serial ****
+make clean 
+rm -rf  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o  ./src/unix_like_serial.d ./src/unix_like_serial_lib.d  linux_1.0.0_x86_64.so
+ 
+17:01:27 **** Build of configuration Debug for project unix-like-serial ****
+make all 
+Building file: ../src/unix_like_serial.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk/jdk1.6.0_45/include -include/home/r/packages/jdk/jdk1.6.0_45/include/jni.h -O0 -g3 -Wall -c -fmessage-length=0 -fPIC -MMD -MP -MF"src/unix_like_serial.d" -MT"src/unix_like_serial.d" -o "src/unix_like_serial.o" "../src/unix_like_serial.c"
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_openComPort’:
+../src/unix_like_serial.c:403:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_writeBytes’:
+../src/unix_like_serial.c:675:2: warning: implicit declaration of function ‘tcdrain’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_clearPortIOBuffers’:
+../src/unix_like_serial.c:1267:3: warning: implicit declaration of function ‘tcflush’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_registerPortMonitorListener’:
+../src/unix_like_serial.c:1755:6: warning: unused variable ‘negative’ [-Wunused-variable]
+../src/unix_like_serial.c:1754:6: warning: unused variable ‘ret’ [-Wunused-variable]
+Finished building: ../src/unix_like_serial.c
+ 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk/jdk1.6.0_45/include -include/home/r/packages/jdk/jdk1.6.0_45/include/jni.h -O0 -g3 -Wall -c -fmessage-length=0 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:342:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial_lib.c
+ 
+Building target: linux_1.0.0_x86_64.so
+Invoking: GCC C Linker
+gcc -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   
+Finished building target: linux_1.0.0_x86_64.so
+ 
+17:01:31 **** Incremental Build of configuration Debug for project unix-like-serial ****
+make all 
+make: Nothing to be done for `all'.
+17:01:46 **** Incremental Build of configuration Debug for project unix-like-serial ****
+make all 
+make: Nothing to be done for `all'.
+17:03:03 **** Incremental Build of configuration Debug for project unix-like-serial ****
+make all 
+Building file: ../src/unix_like_serial.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk/jdk1.6.0_45/include -include/home/r/packages/jdk/jdk1.6.0_45/include/jni.h -O0 -g3 -Wall -c -fmessage-length=0 -fPIC -MMD -MP -MF"src/unix_like_serial.d" -MT"src/unix_like_serial.d" -o "src/unix_like_serial.o" "../src/unix_like_serial.c"
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_openComPort’:
+../src/unix_like_serial.c:403:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_writeBytes’:
+../src/unix_like_serial.c:675:2: warning: implicit declaration of function ‘tcdrain’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_clearPortIOBuffers’:
+../src/unix_like_serial.c:1267:3: warning: implicit declaration of function ‘tcflush’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_destroyDataLooperThread’:
+../src/unix_like_serial.c:1585:11: warning: unused variable ‘value’ [-Wunused-variable]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_registerPortMonitorListener’:
+../src/unix_like_serial.c:1755:6: warning: unused variable ‘negative’ [-Wunused-variable]
+../src/unix_like_serial.c:1754:6: warning: unused variable ‘ret’ [-Wunused-variable]
+Finished building: ../src/unix_like_serial.c
+ 
+Building target: linux_1.0.0_x86_64.so
+Invoking: GCC C Linker
+gcc -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   
+Finished building target: linux_1.0.0_x86_64.so
+ 
+17:03:23 **** Incremental Build of configuration Debug for project unix-like-serial ****
+make all 
+make: Nothing to be done for `all'.
+17:04:06 **** Clean-only build of configuration Debug for project unix-like-serial ****
+make clean 
+rm -rf  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o  ./src/unix_like_serial.d ./src/unix_like_serial_lib.d  linux_1.0.0_x86_64.so
+ 
+17:04:06 **** Build of configuration Debug for project unix-like-serial ****
+make all 
+Building file: ../src/unix_like_serial.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk/jdk1.6.0_45/include -include/home/r/packages/jdk/jdk1.6.0_45/include/jni.h -O0 -g3 -Wall -c -fmessage-length=0 -fPIC -MMD -MP -MF"src/unix_like_serial.d" -MT"src/unix_like_serial.d" -o "src/unix_like_serial.o" "../src/unix_like_serial.c"
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_openComPort’:
+../src/unix_like_serial.c:403:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_writeBytes’:
+../src/unix_like_serial.c:675:2: warning: implicit declaration of function ‘tcdrain’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_clearPortIOBuffers’:
+../src/unix_like_serial.c:1267:3: warning: implicit declaration of function ‘tcflush’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_registerPortMonitorListener’:
+../src/unix_like_serial.c:1755:6: warning: unused variable ‘negative’ [-Wunused-variable]
+../src/unix_like_serial.c:1754:6: warning: unused variable ‘ret’ [-Wunused-variable]
+Finished building: ../src/unix_like_serial.c
+ 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk/jdk1.6.0_45/include -include/home/r/packages/jdk/jdk1.6.0_45/include/jni.h -O0 -g3 -Wall -c -fmessage-length=0 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:342:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial_lib.c
+ 
+Building target: linux_1.0.0_x86_64.so
+Invoking: GCC C Linker
+gcc -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   
+Finished building target: linux_1.0.0_x86_64.so
+ 
+17:04:09 **** Incremental Build of configuration Debug for project unix-like-serial ****
+make all 
+make: Nothing to be done for `all'.
+17:07:00 **** Clean-only build of configuration Debug for project unix-like-serial ****
+make clean 
+rm -rf  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o  ./src/unix_like_serial.d ./src/unix_like_serial_lib.d  linux_1.0.0_x86_64.so
+ 
+17:07:02 **** Build of configuration Debug for project unix-like-serial ****
+make all 
+Building file: ../src/unix_like_serial.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk/jdk1.6.0_45/include -include/home/r/packages/jdk/jdk1.6.0_45/include/jni.h -O0 -g3 -Wall -c -fmessage-length=0 -fPIC -MMD -MP -MF"src/unix_like_serial.d" -MT"src/unix_like_serial.d" -o "src/unix_like_serial.o" "../src/unix_like_serial.c"
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_openComPort’:
+../src/unix_like_serial.c:403:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_writeBytes’:
+../src/unix_like_serial.c:675:2: warning: implicit declaration of function ‘tcdrain’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_clearPortIOBuffers’:
+../src/unix_like_serial.c:1267:3: warning: implicit declaration of function ‘tcflush’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_registerPortMonitorListener’:
+../src/unix_like_serial.c:1755:6: warning: unused variable ‘negative’ [-Wunused-variable]
+../src/unix_like_serial.c:1754:6: warning: unused variable ‘ret’ [-Wunused-variable]
+Finished building: ../src/unix_like_serial.c
+ 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk/jdk1.6.0_45/include -include/home/r/packages/jdk/jdk1.6.0_45/include/jni.h -O0 -g3 -Wall -c -fmessage-length=0 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:342:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial_lib.c
+ 
+Building target: linux_1.0.0_x86_64.so
+Invoking: GCC C Linker
+gcc -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   
+Finished building target: linux_1.0.0_x86_64.so
+ 
+17:07:10 **** Incremental Build of configuration Debug for project unix-like-serial ****
+make all 
+make: Nothing to be done for `all'.
+17:07:15 **** Incremental Build of configuration Debug for project unix-like-serial ****
+make all 
+make: Nothing to be done for `all'.

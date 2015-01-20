@@ -51,9 +51,9 @@ public class Test10 {
 			// unregister data listener
 			boolean ret = scm.unregisterDataListener(dataListener);
 			if(ret == true) {
-				System.out.println("kok");
+				System.out.println("listener unregistered successfully");
 			}else {
-				System.out.println("222");
+				System.out.println("listener unregistered ERROR !");
 			}
 			
 			// close the port releasing handle

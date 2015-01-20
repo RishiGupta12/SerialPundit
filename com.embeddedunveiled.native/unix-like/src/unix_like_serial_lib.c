@@ -65,12 +65,15 @@
 #include <sys/filio.h>
 #endif
 
+#define DEBUG 1
+
 /* Do not let any exception propagate. Handle and clear it. */
 void LOGE(JNIEnv *env) {
 	(*env)->ExceptionDescribe(env);
 	(*env)->ExceptionClear(env);
 }
 
+/* pselect() is used to provide delay whenever required. */
 int serial_delay(unsigned milliSeconds) {
 	struct timespec t;
 	t.tv_sec  = milliSeconds/1000;
@@ -90,81 +93,120 @@ void *data_looper(void *arg) {
 	jbyte empty_buf[] = { };
 	jbyteArray dataRead;
 
+#if defined (__linux__)
+	/* ev_port refers to serial port fd and ev_exit refers to fd on which we make an event happen explicitly
+	 * so as to signal epoll_wait come out of waiting state. */
 	int epfd = 0;
-	struct epoll_event ev;
+	struct epoll_event ev_port;
+	struct epoll_event ev_exit;
 	struct epoll_event events;
+#endif
 
 	struct com_thread_params* params = (struct com_thread_params*) arg;
 	JavaVM *jvm = (*params).jvm;
 	int fd = (*params).fd;
 	jobject looper = (*params).looper;
-	int evfd =  (*params).evfd;
 
 	/* The JNIEnv is valid only in the current thread. So, threads created should attach itself to the VM and obtain a JNI interface pointer. */
 	void* env1;
 	JNIEnv* env;
-	if( (*jvm)->AttachCurrentThread(jvm, &env1, NULL) != JNI_OK ) {
-		fprintf(stderr, "%s \n", "NATIVE data_looper() thread failed to attach itself to JVM.");
+	if((*jvm)->AttachCurrentThread(jvm, &env1, NULL) != JNI_OK) {
+		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE data_looper() thread failed to attach itself to JVM.");
+		if(DEBUG) fflush(stderr);
 	}
+
 	env = (JNIEnv*) env1;
 	jclass SerialComLooper = (*env)->GetObjectClass(env, looper);
 	if(SerialComLooper == NULL) {
-		fprintf(stderr, "%s \n", "NATIVE data_looper() thread could not get class of object of type looper !");
-		fprintf(stderr, "%s \n", "NATIVE data_looper() thread exiting. Please RETRY registering data listener !");
+		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE data_looper() thread could not get class of object of type looper !");
+		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE data_looper() thread exiting. Please RETRY registering data listener !");
+		if(DEBUG) fflush(stderr);
 		pthread_mutex_lock(((struct com_thread_params*) arg)->mutex);
 		((struct com_thread_params*) arg)->data_thread_id = 0;
-		close(evfd);
+		close(((struct com_thread_params*) arg)->evfd);
 		pthread_mutex_unlock(((struct com_thread_params*) arg)->mutex);
-		/* For unrecoverable errors we would like to exit and try again. */
-		pthread_exit((void *)0);
+		pthread_exit((void *)0);  /* For unrecoverable errors we would like to exit and try again. */
 	}
 
 	jmethodID mid = (*env)->GetMethodID(env, SerialComLooper, "insertInDataQueue", "([B)V");
-	if( (*env)->ExceptionOccurred(env) ) {
+	if((*env)->ExceptionOccurred(env)) {
 		LOGE(env);
 	}
 	if(mid == NULL) {
-		fprintf(stderr, "%s \n", "NATIVE data_looper() thread failed to retrieve method id of method insertInDataQueue in class SerialComLooper !");
-		fprintf(stderr, "%s \n", "NATIVE data_looper() thread exiting. Please RETRY registering data listener !");
+		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE data_looper() thread failed to retrieve method id of method insertInDataQueue in class SerialComLooper !");
+		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE data_looper() thread exiting. Please RETRY registering data listener !");
+		if(DEBUG) fflush(stderr);
 		pthread_mutex_lock(((struct com_thread_params*) arg)->mutex);
 		((struct com_thread_params*) arg)->data_thread_id = 0;
-		close(evfd);
+		close(((struct com_thread_params*) arg)->evfd);
 		pthread_mutex_unlock(((struct com_thread_params*) arg)->mutex);
 		pthread_exit((void *)0);
 	}
 
+#if defined (__linux__)
 	epfd = epoll_create(2);
-	ev.events = (EPOLLIN | EPOLLPRI | EPOLLERR | EPOLLHUP);
-	ev.data.fd = fd;
+	((struct com_thread_params*) arg)->epfd = epfd;  /* Save epfd for cleanup. */
 
-	ret = epoll_ctl(epfd, EPOLL_CTL_ADD, fd, &ev);
+	/* add serial port to epoll wait mechanism. */
+	ev_port.events = (EPOLLIN | EPOLLPRI | EPOLLERR | EPOLLHUP);
+	ev_port.data.fd = fd;
+	errno = 0;
+	ret = epoll_ctl(epfd, EPOLL_CTL_ADD, fd, &ev_port);
 	if(ret < 0) {
-		fprintf(stderr, "%s%d\n", "NATIVE data_looper() thread failed in epoll_ctl() with error number : -", errno);
-		fprintf(stderr, "%s \n", "NATIVE data_looper() thread exiting. Please RETRY registering data listener !");
+		if(DEBUG) fprintf(stderr, "%s%d\n", "NATIVE data_looper() thread failed in epoll_ctl() with error number : -", errno);
+		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE data_looper() thread exiting. Please RETRY registering data listener !");
+		if(DEBUG) fflush(stderr);
 		pthread_mutex_lock(((struct com_thread_params*) arg)->mutex);
 		((struct com_thread_params*) arg)->data_thread_id = 0;
 		close(epfd);
-		close(evfd);
+		close(((struct com_thread_params*) arg)->evfd);
 		pthread_mutex_unlock(((struct com_thread_params*) arg)->mutex);
 		pthread_exit((void *)0);
 	}
-	/* Save epfd for cleanup. */
-	((struct com_thread_params*) arg)->epfd = epfd;
+
+	/* add our thread exit signal fd to epoll wait mechanism. */
+	ev_exit.events = (EPOLLIN | EPOLLPRI | EPOLLERR | EPOLLHUP);
+	ev_exit.data.fd = ((struct com_thread_params*) arg)->evfd;
+	errno = 0;
+	ret = epoll_ctl(epfd, EPOLL_CTL_ADD, ((struct com_thread_params*) arg)->evfd, &ev_exit);
+	if(ret < 0) {
+		if(DEBUG) fprintf(stderr, "%s%d\n", "NATIVE data_looper() thread failed in epoll_ctl() with error number : -", errno);
+		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE data_looper() thread exiting. Please RETRY registering data listener !");
+		if(DEBUG) fflush(stderr);
+		pthread_mutex_lock(((struct com_thread_params*) arg)->mutex);
+		((struct com_thread_params*) arg)->data_thread_id = 0;
+		close(epfd);
+		close(((struct com_thread_params*) arg)->evfd);
+		pthread_mutex_unlock(((struct com_thread_params*) arg)->mutex);
+		pthread_exit((void *)0);
+	}
+#endif
 
 	/* This keep looping until listener is unregistered, waiting for data and passing it to java layer. */
 	while(1) {
 
-		/* Test for pending cancellation for the current thread and terminate
-		   the thread as per pthread_exit(PTHREAD_CANCELED) if it has been cancelled.  */
-		pthread_testcancel();
-
-		ret = epoll_wait(epfd, &events, 1, -1);
+#if defined (__linux__)
+		errno = 0;
+		ret = epoll_wait(epfd, &events, 2, -1);
 		if(ret < 0) {
-			fprintf(stderr, "%s%d\n", "NATIVE data_looper() thread failed in epoll_wait() with error number : -", errno);
+			if(DEBUG) fprintf(stderr, "%s%d\n", "NATIVE data_looper() thread failed in epoll_wait() with error number : -", errno);
+			if(DEBUG) fflush(stderr);
 			continue;
 		}
+#endif
 
-		pthread_testcancel();
+		if(DEBUG) fprintf(stderr, "====%d\n", ((struct com_thread_params*) arg)->thread_exit);
+		if(DEBUG) fflush(stderr);
+
+		/* check if thread should exit due to un-registration of listener. */
+		if(1 == ((struct com_thread_params*) arg)->thread_exit) {
+			pthread_mutex_lock(((struct com_thread_params*) arg)->mutex);
+			((struct com_thread_params*) arg)->data_thread_id = 0;
+			close(epfd);
+			close(((struct com_thread_params*) arg)->evfd);
+			pthread_mutex_unlock(((struct com_thread_params*) arg)->mutex);
+			pthread_exit((void *)0);
+		}
 
 		/* we have data to read on file descriptor. */
 		do {
@@ -180,13 +222,13 @@ void *data_looper(void *arg) {
 					dataRead = (*env)->NewByteArray(env, index + ret);
 					(*env)->SetByteArrayRegion(env, dataRead, 0, index + ret, final_buf);
 					break;
-				} else {
+				}else {
 					/* Pass the successful read to java layer straight away. */
 					dataRead = (*env)->NewByteArray(env, ret);
 					(*env)->SetByteArrayRegion(env, dataRead, 0, ret, buffer);
 					break;
 				}
-			} else if (ret > 0 && errno == EINTR) {
+			}else if (ret > 0 && errno == EINTR) {
 				/* This indicates, there is data to read, however, we got interrupted before we finish reading
 				 * all of the available data. So we need to save this partial data and get back to read remaining. */
 				for(i = index; i < ret; i++) {
@@ -195,25 +237,26 @@ void *data_looper(void *arg) {
 				index = ret;
 				partialData = 1;
 				continue;
-			} else if(ret < 0) {
+			}else if(ret < 0) {
 				if(errno == EAGAIN || errno == EWOULDBLOCK) {
 					/* This indicates, there was no data to read. Therefore just return null. */
 					dataRead = (*env)->NewByteArray(env, sizeof(empty_buf));
 					(*env)->SetByteArrayRegion(env, dataRead, 0, sizeof(empty_buf), empty_buf);
 					break;
-				} else if(errno != EINTR) {
+				}else if(errno != EINTR) {
 					/* This indicates, irrespective of, there was data to read or not, we got an error during operation. */
 					/* Can we handle this condition more gracefully. */
-					fprintf(stderr, "%s%d\n", "Native readBytes() failed to read data with error number : -", errno);
+					if(DEBUG) fprintf(stderr, "%s%d\n", "Native readBytes() failed to read data with error number : -", errno);
+					if(DEBUG) fflush(stderr);
 
 					dataRead = (*env)->NewByteArray(env, sizeof(empty_buf));
 					(*env)->SetByteArrayRegion(env, dataRead, 0, sizeof(empty_buf), empty_buf);
 					break;
-				} else if (errno == EINTR) {
+				}else if (errno == EINTR) {
 					/* This indicates that we should retry as we are just interrupted by a signal. */
 					continue;
 				}
-			} else if (ret == 0) {
+			}else if (ret == 0) {
 				/* This indicates, there was no data to read or EOF. */
 				dataRead = (*env)->NewByteArray(env, sizeof(empty_buf));
 				(*env)->SetByteArrayRegion(env, dataRead, 0, sizeof(empty_buf), empty_buf);
@@ -223,7 +266,7 @@ void *data_looper(void *arg) {
 
 		/* once we have successfully read the data, let us pass this to java layer. */
 		(*env)->CallVoidMethod(env, looper, mid, dataRead);
-		if( (*env)->ExceptionOccurred(env) ) {
+		if((*env)->ExceptionOccurred(env)) {
 			LOGE(env);
 		}
 
@@ -252,15 +295,17 @@ void *event_looper(void *arg) {
 	/* The JNIEnv is valid only in the current thread. So, threads created should attach itself to the VM and obtain a JNI interface pointer. */
 	void* env1;
 	JNIEnv* env;
-	if( (*jvm)->AttachCurrentThread(jvm, &env1, NULL) != JNI_OK ) {
-		fprintf(stderr, "%s \n", "NATIVE event_looper() thread failed to attach itself to JVM.");
+	if((*jvm)->AttachCurrentThread(jvm, &env1, NULL) != JNI_OK) {
+		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE event_looper() thread failed to attach itself to JVM.");
+		if(DEBUG) fflush(stderr);
 	}
 	env = (JNIEnv*) env1;
 
 	jclass SerialComLooper = (*env)->GetObjectClass(env, looper);
 	if(SerialComLooper == NULL) {
-		fprintf(stderr, "%s \n", "NATIVE event_looper() thread could not get class of object of type looper !");
-		fprintf(stderr, "%s \n", "NATIVE event_looper() thread exiting. Please RETRY registering event listener !");
+		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE event_looper() thread could not get class of object of type looper !");
+		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE event_looper() thread exiting. Please RETRY registering event listener !");
+		if(DEBUG) fflush(stderr);
 		pthread_mutex_lock(((struct com_thread_params*) arg)->mutex);
 		((struct com_thread_params*) arg)->event_thread_id = 0;
 		pthread_mutex_unlock(((struct com_thread_params*) arg)->mutex);
@@ -268,12 +313,13 @@ void *event_looper(void *arg) {
 	}
 
 	jmethodID mid = (*env)->GetMethodID(env, SerialComLooper, "insertInEventQueue", "(I)V");
-	if( (*env)->ExceptionOccurred(env) ) {
+	if((*env)->ExceptionOccurred(env)) {
 		LOGE(env);
 	}
 	if(mid == NULL) {
-		fprintf(stderr, "%s \n", "NATIVE data_looper() thread failed to retrieve method id of method insertInDataQueue in class SerialComLooper !");
-		fprintf(stderr, "%s \n", "NATIVE data_looper() thread exiting. Please RETRY registering data listener !");
+		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE data_looper() thread failed to retrieve method id of method insertInDataQueue in class SerialComLooper !");
+		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE data_looper() thread exiting. Please RETRY registering data listener !");
+		if(DEBUG) fflush(stderr);
 		pthread_mutex_lock(((struct com_thread_params*) arg)->mutex);
 		((struct com_thread_params*) arg)->data_thread_id = 0;
 		pthread_mutex_unlock(((struct com_thread_params*) arg)->mutex);
@@ -295,7 +341,8 @@ void *event_looper(void *arg) {
 		errno = 0;
 		ret = ioctl(fd, TIOCMIWAIT, TIOCM_CD | TIOCM_RNG | TIOCM_DSR | TIOCM_CTS);
 		if(ret < 0) {
-			fprintf(stderr, "%s%d\n", "NATIVE event_looper() failed in ioctl TIOCMIWAIT with error number : -", errno);
+			if(DEBUG) fprintf(stderr, "%s%d\n", "NATIVE event_looper() failed in ioctl TIOCMIWAIT with error number : -", errno);
+			if(DEBUG) fflush(stderr);
 			continue;
 		}
 
@@ -303,7 +350,8 @@ void *event_looper(void *arg) {
 		errno = 0;
 		ret = ioctl(fd, TIOCMGET, &lines_status);
 		if(ret < 0) {
-			fprintf(stderr, "%s%d\n", "NATIVE event_looper() failed in ioctl TIOCMGET with error number : -", errno);
+			if(DEBUG) fprintf(stderr, "%s%d\n", "NATIVE event_looper() failed in ioctl TIOCMGET with error number : -", errno);
+			if(DEBUG) fflush(stderr);
 			continue;
 		}
 
@@ -324,11 +372,13 @@ void *event_looper(void *arg) {
 		if(ri) {
 			event = event | RI;
 		}
-		fprintf(stderr, "%s %d\n", "NATIVE event_looper() sending bit mapped events ", event);
+
+		if(DEBUG) fprintf(stderr, "%s %d\n", "NATIVE event_looper() sending bit mapped events ", event);
+		if(DEBUG) fflush(stderr);
 
 		/* Pass this to java layer inserting event in event queue. */
 		(*env)->CallVoidMethod(env, looper, mid, event);
-		if( (*env)->ExceptionOccurred(env) ) {
+		if((*env)->ExceptionOccurred(env)) {
 			LOGE(env);
 		}
 

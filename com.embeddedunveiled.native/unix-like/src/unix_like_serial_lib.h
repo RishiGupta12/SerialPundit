@@ -33,6 +33,7 @@ struct com_thread_params {
 	pthread_t event_thread_id;
 	int evfd;
 	int epfd;
+	int thread_exit;
 	pthread_mutex_t *mutex;
 };
 
