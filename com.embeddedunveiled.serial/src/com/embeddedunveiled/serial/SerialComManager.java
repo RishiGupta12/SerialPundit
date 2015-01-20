@@ -1114,9 +1114,12 @@ public final class SerialComManager {
 	}
 	
 	/**
-	 * Gives status of serial port's control lines.
-	 * Note for windows, DTR, RTS, LOOP will always return 0, as windows does not have any API to read there status.
-	 * The sequence of status in returned array is; CTS, DSR, DCD, RI, LOOP, RTS, DTR respectively.
+	 * <p>Gives status of serial port's control lines as supported by underlying operating system.</p>
+	 * 
+	 * The sequence of status in returned array is :
+	 * Linux    : CTS, DSR, DCD, RI, LOOP, RTS, DTR respectively.
+	 * MAC OS X : CTS, DSR, DCD, RI, 0,    RTS, DTR respectively.
+	 * Windows  : CTS, DSR, DCD, RI, 0,    0,   0   respectively.
 	 * 
 	 * @param handle of the port opened
 	 * @throws SerialComException if invalid handle is passed or operation can not be completed successfully
