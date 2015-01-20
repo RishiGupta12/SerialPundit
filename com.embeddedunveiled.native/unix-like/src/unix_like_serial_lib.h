@@ -33,7 +33,7 @@ struct com_thread_params {
 	pthread_t event_thread_id;
 	int evfd;
 	int epfd;
-	pthread_mutex_t mutex;
+	pthread_mutex_t *mutex;
 };
 
 /* function prototypes */

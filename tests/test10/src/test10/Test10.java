@@ -49,7 +49,12 @@ public class Test10 {
 			System.out.println(Arrays.toString(interrupts));
 			
 			// unregister data listener
-			scm.unregisterDataListener(dataListener);
+			boolean ret = scm.unregisterDataListener(dataListener);
+			if(ret == true) {
+				System.out.println("kok");
+			}else {
+				System.out.println("222");
+			}
 			
 			// close the port releasing handle
 			scm.closeComPort(handle);

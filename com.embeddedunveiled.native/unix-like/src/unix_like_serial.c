@@ -1524,7 +1524,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 		params.looper = datalooper;
 		params.data_thread_id = 0;
 		params.event_thread_id = 0;
-		params.mutex = mutex;
+		params.mutex = &mutex;
 
 		/* Create and save eventfd which will be used when listener is unregistered. */
 #if defined (__linux__)
@@ -1680,7 +1680,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 		params.looper = eventlooper;
 		params.data_thread_id = 0;
 		params.event_thread_id = 0;
-		params.mutex = mutex;
+		params.mutex = &mutex;
 		fd_looper_info[dtp_index] = params;
 		arg = &fd_looper_info[dtp_index];
 	}

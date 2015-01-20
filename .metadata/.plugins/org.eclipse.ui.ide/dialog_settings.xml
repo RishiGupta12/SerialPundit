@@ -5,14 +5,23 @@
 		<item value="false" key="WizardProjectsImportPage.STORE_COPY_PROJECT_ID"/>
 		<item value="false" key="WizardProjectsImportPage.STORE_NESTED_PROJECTS"/>
 		<list key="WizardProjectsImportPage.STORE_DIRECTORIES">
-			<item value="/home/r/ws-host-uart/serial-com-manager/tests/test3"/>
-			<item value="/home/r/ws-host-uart/serial-com-manager/tests/test2"/>
-			<item value="/home/r/ws-host-uart/serial-com-manager/tests/test1"/>
-			<item value="/home/r/ws-host-uart/serial-com-manager/com.embeddedunveiled.native/unix-like"/>
-			<item value="/home/r/ws-host-uart/serial-com-manager/com.embeddedunveiled.serial"/>
+			<item value="/home/r/ws-host-uart/serial-com-manager/tests/test10"/>
+			<item value="/home/r/ws-host-uart/serial-com-manager/tests/test5"/>
+			<item value="/home/r/ws-host-uart/serial-com-manager/tests/test9"/>
+			<item value="/home/r/ws-host-uart/serial-com-manager/tests/test8"/>
+			<item value="/home/r/ws-host-uart/serial-com-manager/tests/test7"/>
 		</list>
 		<list key="WizardProjectsImportPage.STORE_ARCHIVES">
 			<item value=""/>
 		</list>
+	</section>
+	<section name="CleanDialogSettings">
+		<item value="565" key="DIALOG_WIDTH"/>
+		<item value="true" key="BUILD_NOW"/>
+		<item value="true" key="BUILD_ALL"/>
+		<item value="264" key="DIALOG_Y_ORIGIN"/>
+		<item value="461" key="DIALOG_HEIGHT"/>
+		<item value="711" key="DIALOG_X_ORIGIN"/>
+		<item value="false" key="TOGGLE_SELECTED"/>
 	</section>
 </section>
