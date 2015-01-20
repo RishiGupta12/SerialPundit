@@ -55,11 +55,6 @@
 #define _GNU_SOURCE
 #endif
 
-/* Common interface with java layer for supported OS types. */
-#include "../../com_embeddedunveiled_serial_SerialComJNINativeInterface.h"
-
-#include <jni.h>
-
 #include <unistd.h>      /* UNIX standard function definitions  */
 #include <stdarg.h>      /* ISO C Standard. Variable arguments  */
 #include <stdio.h>       /* ISO C99 Standard: Input/output      */
@@ -72,8 +67,6 @@
 #include <sys/stat.h>    /* Defines the structure of the data   */
 #include <pthread.h>     /* POSIX thread definitions            */
 #include <sys/select.h>
-
-#include "unix_like_serial_lib.h"
 
 #ifdef __linux__
 #include <linux/types.h>
@@ -101,6 +94,13 @@
 #include <sys/ioctl.h>
 #include <sys/filio.h>
 #endif
+
+#include <jni.h>
+
+/* Common interface with java layer for supported OS types. */
+#include "../../com_embeddedunveiled_serial_SerialComJNINativeInterface.h"
+
+#include "unix_like_serial_lib.h"
 
 #undef  UART_NATIVE_LIB_VERSION
 #define UART_NATIVE_LIB_VERSION "1.0.0"
@@ -262,16 +262,16 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINati
 			LOGE(env);
 		}
 
-		for(i=0; i<portsadded; i++) {
+		for (i=0; i < portsadded; i++) {
 			devnode = strcat( strcpy(devbase, "/dev/"), ports_identified[i]);
 			(*env)->SetObjectArrayElement(env, portsFound, i, (*env)->NewStringUTF(env, devnode));
-			if( (*env)->ExceptionOccurred(env) ) {
+			if((*env)->ExceptionOccurred(env)) {
 				LOGE(env);
 			}
 		}
 		return portsFound;
 
-	} else {
+	}else {
 		if(DEBUG) fprintf(stderr, "%s \n", "ERROR scanning directory : /sys/class/tty/");
 		if(DEBUG) fflush(stderr);
 	}
@@ -284,41 +284,50 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINati
 	io_service_t service = 0;
 	kern_return_t kr;
 	CFStringRef cfCalloutPath;
-	Char calloutPath[512];
+	CFStringRef cfDeviceName;
+	char calloutPath[512];
+	char deviceName[512];
 	int i = 0;
-	char *ports_identified[100];
+	jstring ports_identified[100];
 	int portsadded = 0;
-	memset(calloutPath, 0, sizeof(calloutPath));
+	jclass strClass;
+	jobjectArray portsFound;
 
 	/* Create a matching dictionary that will find any serial device. */
 	matchingDict = IOServiceMatching(kIOSerialBSDServiceValue);
 	kr = IOServiceGetMatchingServices(kIOMasterPortDefault, matchingDict, &iter);
 	if (kr != KERN_SUCCESS) {
-		if(DEBUG) fprintf(stderr, "%s %ld \n", "NATIVE getSerialPortNames() failed in IOServiceGetMatchingServices() with error", kr);
+		if(DEBUG) fprintf(stderr, "%s %d \n", "NATIVE getSerialPortNames() failed in IOServiceGetMatchingServices() with error", kr);
 		if(DEBUG) fflush(stderr);
-		return -240;
+		return NULL;
 	}
 
 	/* Iterate over all matching objects. */
 	while((service = IOIteratorNext(iter)) != 0) {
-		/* Get the character device path. */
+		/* clear out buffers to remove garbage. */
+		memset(calloutPath, 0, sizeof(calloutPath));
+		memset(deviceName, 0, sizeof(deviceName));
+
+		/* Get the device name in UTF-8 encoding. */
+		cfDeviceName = IORegistryEntryCreateCFProperty(service, CFSTR(kIOTTYDeviceKey), kCFAllocatorDefault, 0);
+		CFStringGetCString(cfDeviceName, deviceName, sizeof(deviceName), kCFStringEncodingUTF8);
+		CFRelease(cfDeviceName);
+
+		/* Get the character device path in UTF-8 encoding. */
 		cfCalloutPath = IORegistryEntryCreateCFProperty(service, CFSTR(kIOCalloutDeviceKey), kCFAllocatorDefault, 0);
 		CFStringGetCString(cfCalloutPath, calloutPath, sizeof(calloutPath), kCFStringEncodingUTF8);
-		CFRelease(cfCalloutPath);
-		IOObjectRelease(service); /* The I/O Registry object is no longer needed. */
+		CFRelease(cfDeviceName);
+
+		IOObjectRelease(service);   /* The I/O Registry object is no longer needed. */
 
 		/* Save the found port. */
-		if(DEBUG) fprintf(stderr, "Found device %s at path %s \n", deviceName, calloutPath);
-		if(DEBUG) fflush(stderr);
-		ports_identified[portsadded] = calloutPath;
+		ports_identified[portsadded] =  (*env)->NewStringUTF(env, calloutPath);
 		portsadded++;
 	}
-	IOObjectRelease(iter); /* Release iterator. */
+
+	IOObjectRelease(iter);   /* Release iterator. */
 
 	/* Prepare the array, populate it and return to java layer. */
-	jclass strClass;
-	jobjectArray portsFound;
-
 	strClass = (*env)->FindClass(env, "java/lang/String");
 	if((*env)->ExceptionOccurred(env)) {
 		LOGE(env);
@@ -327,9 +336,9 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINati
 	if((*env)->ExceptionOccurred(env)) {
 		LOGE(env);
 	}
-	for(i=0; i<portsadded; i++) {
-		(*env)->SetObjectArrayElement(env, portsFound, i, (*env)->NewStringUTF(env, ports_identified[i]));
-		if( (*env)->ExceptionOccurred(env) ) {
+	for (i=0; i < portsadded; i++) {
+		(*env)->SetObjectArrayElement(env, portsFound, i, ports_identified[i]);
+		if((*env)->ExceptionOccurred(env)) {
 			LOGE(env);
 		}
 	}
@@ -433,8 +442,10 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInter
 	 * Non-canonical mode is enabled. Do not echo. */
 	settings.c_lflag &= ~(ECHO | ECHONL | ICANON | ISIG | IEXTEN);
 
+#if defined (__linux__)
 	/* Line discipline : */
 	settings.c_line = 0;
+#endif
 
 	/* Set 9600 baud per second as default baud rate and apply settings to specified tty port. */
 #if defined (__linux__)
@@ -783,29 +794,29 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 					break;
 				case 256000: baud = 256000;
 					break;
-				case 460800: baud = B460800;
+				case 460800: baud = 460800;
 					break;
-				case 500000: baud = B500000;
+				case 500000: baud = 500000;
 					break;
-				case 576000: baud = B576000;
+				case 576000: baud = 576000;
 					break;
-				case 921600: baud = B921600;
+				case 921600: baud = 921600;
 					break;
-				case 1000000: baud = B1000000;
+				case 1000000: baud = 1000000;
 					break;
-				case 1152000: baud = B1152000;
+				case 1152000: baud = 1152000;
 					break;
-				case 1500000: baud = B1500000;
+				case 1500000: baud = 1500000;
 					break;
-				case 2000000: baud = B2000000;
+				case 2000000: baud = 2000000;
 					break;
-				case 2500000: baud = B2500000;
+				case 2500000: baud = 2500000;
 					break;
-				case 3000000: baud = B3000000;
+				case 3000000: baud = 3000000;
 					break;
-				case 3500000: baud = B3500000;
+				case 3500000: baud = 3500000;
 					break;
-				case 4000000: baud = B4000000;
+				case 4000000: baud = 4000000;
 					break;
 				default: baud = -1;
 					break;
@@ -1124,7 +1135,7 @@ JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeI
 
 #elif defined (__APPLE__) || defined (__SunOS)
 	jint settings[23];
-	jintArray configuration = env->NewIntArray(23);
+	jintArray configuration = (*env)->NewIntArray(env, 23);
 
 	struct termios currentconfig = {0};
 	errno = 0;
@@ -1177,26 +1188,25 @@ JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeI
 	settings[2] = (jint) currentconfig.c_oflag;
 	settings[3] = (jint) currentconfig.c_cflag;
 	settings[4] = (jint) currentconfig.c_lflag;
-	settings[5] = (jint) currentconfig.c_line;
-	settings[6] = (jint) currentconfig.c_cc[0];
-	settings[7] = (jint) currentconfig.c_cc[1];
-	settings[8] = (jint) currentconfig.c_cc[2];
-	settings[9] = (jint) currentconfig.c_cc[3];
-	settings[10] = (jint) currentconfig.c_cc[4];
-	settings[11] = (jint) currentconfig.c_cc[5];
-	settings[12] = (jint) currentconfig.c_cc[6];
-	settings[13] = (jint) currentconfig.c_cc[7];
-	settings[14] = (jint) currentconfig.c_cc[8];
-	settings[15] = (jint) currentconfig.c_cc[9];
-	settings[16] = (jint) currentconfig.c_cc[10];
-	settings[17] = (jint) currentconfig.c_cc[11];
-	settings[18] = (jint) currentconfig.c_cc[12];
-	settings[19] = (jint) currentconfig.c_cc[13];
-	settings[20] = (jint) currentconfig.c_cc[14];
-	settings[21] = (jint) currentconfig.c_cc[15];
-	settings[22] = (jint) currentconfig.c_cc[16];
+	settings[5] = (jint) currentconfig.c_cc[0];
+	settings[6] = (jint) currentconfig.c_cc[1];
+	settings[7] = (jint) currentconfig.c_cc[2];
+	settings[8] = (jint) currentconfig.c_cc[3];
+	settings[9] = (jint) currentconfig.c_cc[4];
+	settings[10] = (jint) currentconfig.c_cc[5];
+	settings[11] = (jint) currentconfig.c_cc[6];
+	settings[12] = (jint) currentconfig.c_cc[7];
+	settings[13] = (jint) currentconfig.c_cc[8];
+	settings[14] = (jint) currentconfig.c_cc[9];
+	settings[15] = (jint) currentconfig.c_cc[10];
+	settings[16] = (jint) currentconfig.c_cc[11];
+	settings[17] = (jint) currentconfig.c_cc[12];
+	settings[18] = (jint) currentconfig.c_cc[13];
+	settings[19] = (jint) currentconfig.c_cc[14];
+	settings[20] = (jint) currentconfig.c_cc[15];
+	settings[21] = (jint) currentconfig.c_cc[16];
 
-	(*env)->SetIntArrayRegion(env, configuration, 0, 23, settings);
+	(*env)->SetIntArrayRegion(env, configuration, 0, 22, settings);
 
 #endif
 
@@ -1251,23 +1261,32 @@ JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeI
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_clearPortIOBuffers(JNIEnv *env, jobject obj, jlong fd, jboolean rxPortbuf, jboolean txPortbuf) {
 	jint ret = -1;
 	jint negative = -1;
-	jint PORTIOBUFFER = -1;
-
-	if( (rxPortbuf == JNI_TRUE) && (txPortbuf == JNI_TRUE) ) {
-		PORTIOBUFFER = TCIOFLUSH;
-	} else if (rxPortbuf == JNI_TRUE) {
-		PORTIOBUFFER = TCIFLUSH;
-	} else if (txPortbuf == JNI_TRUE) {
-		PORTIOBUFFER = TCOFLUSH;
-	}
 
 	errno = 0;
-	ret = ioctl(fd , TCFLSH, PORTIOBUFFER);
-	if(ret < 0) {
-		if(DEBUG) fprintf(stderr, "%s%d\n", "NATIVE clearPortIOBuffers() failed to clear requested buffer(s) with error number : -", errno);
-		if(DEBUG) fprintf(stderr, "%s\n", "Please try again !");
-		if(DEBUG) fflush(stderr);
-		return (negative * errno);
+	if((rxPortbuf == JNI_TRUE) && (txPortbuf == JNI_TRUE)) {
+		ret = tcflush(fd, TCIOFLUSH);
+		if(ret < 0) {
+			if(DEBUG) fprintf(stderr, "%s%d\n", "NATIVE clearPortIOBuffers() failed to clear INPUT and OUTPUT buffer(s) with error number : -", errno);
+			if(DEBUG) fprintf(stderr, "%s\n", "Please try again !");
+			if(DEBUG) fflush(stderr);
+			return (negative * errno);
+		}
+	}else if(rxPortbuf == JNI_TRUE) {
+		ret = tcflush(fd, TCIFLUSH);
+		if(ret < 0) {
+			if(DEBUG) fprintf(stderr, "%s%d\n", "NATIVE clearPortIOBuffers() failed to clear INPUT buffer(s) with error number : -", errno);
+			if(DEBUG) fprintf(stderr, "%s\n", "Please try again !");
+			if(DEBUG) fflush(stderr);
+			return (negative * errno);
+		}
+	}else if(txPortbuf == JNI_TRUE) {
+		ret = tcflush(fd, TCOFLUSH);
+		if(ret < 0) {
+			if(DEBUG) fprintf(stderr, "%s%d\n", "NATIVE clearPortIOBuffers() failed to clear OUTPUT buffer(s) with error number : -", errno);
+			if(DEBUG) fprintf(stderr, "%s\n", "Please try again !");
+			if(DEBUG) fflush(stderr);
+			return (negative * errno);
+		}
 	}
 
 	return 0;
@@ -1282,11 +1301,10 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
  * The sequence of lines matches in both java layer and native layer.
  */
 JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_getLinesStatus(JNIEnv *env, jobject obj, jlong fd) {
-
 	jint ret = -1;
 	jint negative = -1;
-	jint status[8] = {0};
 	jint lines_status = 0;
+	jint status[8] = {0};
 	jintArray current_status = (*env)->NewIntArray(env, 8);
 
 	errno = 0;
@@ -1304,7 +1322,7 @@ JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeI
 	status[2] = (lines_status & TIOCM_DSR)  ? 1 : 0;
 	status[3] = (lines_status & TIOCM_CD)   ? 1 : 0;
 	status[4] = (lines_status & TIOCM_RI)   ? 1 : 0;
-	status[5] = (lines_status & TIOCM_LOOP) ? 1 : 0;
+	status[5] = 0;
 	status[6] = (lines_status & TIOCM_RTS)  ? 1 : 0;
 	status[7] = (lines_status & TIOCM_DTR)  ? 1 : 0;
 	(*env)->SetIntArrayRegion(env, current_status, 0, 8, status);
@@ -1358,14 +1376,16 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
  * counter every time the function is run by the kernel. This ioctl call passes the kernel a pointer to a structure
  * serial_icounter_struct , which should be filled by the tty driver.
  *
- * Not supported on Solaris and Mac OS. This will return 0 for all the indexes.
+ * Not supported on Solaris and Mac OS (will return NULL).
  */
 JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_getInterruptCount(JNIEnv *env, jobject obj, jlong fd) {
+	jint count_info[11] = {0};
+	jintArray interrupt_info = (*env)->NewIntArray(env, 11);
+
+#if defined(__linux__)
 	jint ret = -1;
 	jint negative = -1;
 	struct serial_icounter_struct counter = {0};
-	jint count_info[11] = {0};
-	jintArray interrupt_info = (*env)->NewIntArray(env, 11);
 
 	errno = 0;
 	ret = ioctl(fd , TIOCGICOUNT, &counter);
@@ -1389,6 +1409,11 @@ JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeI
 	count_info[9] = counter.brk;
 	count_info[10] = counter.buf_overrun;
 
+	(*env)->SetIntArrayRegion(env, interrupt_info, 0, 11, count_info);
+	return interrupt_info;
+#endif
+
+	count_info[0] = -1;
 	(*env)->SetIntArrayRegion(env, interrupt_info, 0, 11, count_info);
 	return interrupt_info;
 }
@@ -1556,7 +1581,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 	int x = -1;
 	struct com_thread_params *ptr;
 	ptr = fd_looper_info;
-	unsigned long int data_thread_id = 0;
+	pthread_t data_thread_id = 0;
 	void *status;
 #if defined (__linux__)
 	uint64_t value = 1;
@@ -1696,7 +1721,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 	int x = -1;
 	struct com_thread_params *ptr;
 	ptr = fd_looper_info;
-	unsigned long int event_thread_id = 0;
+	pthread_t event_thread_id = 0;
 	void *status;
 
 	/* Find the event thread serving this file descriptor. */
