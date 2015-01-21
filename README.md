@@ -70,16 +70,17 @@ https://github.com/RishiGupta12/serial-com-manager/blob/master/BUILD_GUIDE.md
 
 ##Programs to test library
 
-For Linus use gtkterm, minicom, for Windows use teraterm and for MAC use. We usually test by making connections as shown below :
-
-/dev/ttyUSB0             /dev/ttyUSB1
-         RXD <---------> TXD
-         TXD <---------> RXD
-         DTR <---------> DSR,RNG
-     DSR,RNG <---------> DTR
-         CTS <---------> RTS
-         RTS <---------> CTS
-         GND <---------> GND
+For Linus use gtkterm, minicom, for Windows use teraterm and for MAC use. We usually test by making connections between two FT232R chip boards as shown below :
+<pre>
+/dev/ttyUSB0            /dev/ttyUSB1
+        RXD <~~~~~~~~~~> TXD
+        TXD <~~~~~~~~~~> RXD
+        DTR <~~~~~~~~~~> DSR,RNG
+    DSR,RNG <~~~~~~~~~~> DTR
+        CTS <~~~~~~~~~~> RTS
+        RTS <~~~~~~~~~~> CTS
+        GND <~~~~~~~~~~> GND
+</pre>
 
 ##Author, License, and Copyright
 The 'serial communication manager (scm)' is designed, developed and maintained by Rishi gupta. The Linkdin profile of the author can be found here : http://in.linkedin.com/pub/rishi-gupta/20/9b8/a10
