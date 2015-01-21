@@ -36,4 +36,73 @@
 	</section>
 	<section name="quick_assist_proposal_size">
 	</section>
+	<section name="javadoc">
+		<item value="false" key="nodeprecatedlist"/>
+		<item value="false" key="notree"/>
+		<item value="true" key="splitindex"/>
+		<item value="/home/r/packages/jdk/jdk1.6.0_45/bin/javadoc" key="javadoc_command_history"/>
+		<item value="true" key="use"/>
+		<item value="false" key="nonavbar"/>
+		<item value="public" key="access"/>
+		<item value="true" key="version"/>
+		<item value="false" key="nodeprecated"/>
+		<item value="/home/r/ws-host-uart/serial-com-manager/javadoc" key="destdir"/>
+		<item value="true" key="author"/>
+		<item value="" key="docletname"/>
+		<item value="1.6" key="source"/>
+		<item value="false" key="openinbrowser"/>
+		<item value="false" key="noindex"/>
+		<item value="" key="docletpath"/>
+		<item value="/home/r/ws-host-uart/serial-com-manager/com.embeddedunveiled.serial/javadoc.xml" key="antpath"/>
+		<item value="true" key="fromStandard"/>
+		<section name="projects">
+			<section name="test10">
+				<item value="/home/r/ws-host-uart/serial-com-manager/tests/test10/doc" key="destdir"/>
+				<item value="/home/r/ws-host-uart/serial-com-manager/tests/test10/javadoc.xml" key="antpath"/>
+				<item value="" key="href"/>
+			</section>
+			<section name="test8">
+				<item value="/home/r/ws-host-uart/serial-com-manager/tests/test8/doc" key="destdir"/>
+				<item value="/home/r/ws-host-uart/serial-com-manager/tests/test8/javadoc.xml" key="antpath"/>
+				<item value="" key="href"/>
+			</section>
+			<section name="test9">
+				<item value="/home/r/ws-host-uart/serial-com-manager/tests/test9/doc" key="destdir"/>
+				<item value="/home/r/ws-host-uart/serial-com-manager/tests/test9/javadoc.xml" key="antpath"/>
+				<item value="" key="href"/>
+			</section>
+			<section name="test6">
+				<item value="/home/r/ws-host-uart/serial-com-manager/tests/test6/doc" key="destdir"/>
+				<item value="/home/r/ws-host-uart/serial-com-manager/tests/test6/javadoc.xml" key="antpath"/>
+				<item value="" key="href"/>
+			</section>
+			<section name="test7">
+				<item value="/home/r/ws-host-uart/serial-com-manager/tests/test7/doc" key="destdir"/>
+				<item value="/home/r/ws-host-uart/serial-com-manager/tests/test7/javadoc.xml" key="antpath"/>
+				<item value="" key="href"/>
+			</section>
+			<section name="test5">
+				<item value="/home/r/ws-host-uart/serial-com-manager/tests/test5/doc" key="destdir"/>
+				<item value="/home/r/ws-host-uart/serial-com-manager/tests/test5/javadoc.xml" key="antpath"/>
+				<item value="" key="href"/>
+			</section>
+			<section name="unix-like-serial">
+				<item value="/home/r/ws-host-uart/serial-com-manager/com.embeddedunveiled.native/unix-like/doc" key="destdir"/>
+				<item value="/home/r/ws-host-uart/serial-com-manager/com.embeddedunveiled.native/unix-like/javadoc.xml" key="antpath"/>
+				<item value="" key="href"/>
+			</section>
+			<section name="com.embeddedunveiled.serial">
+				<item value="/home/r/ws-host-uart/serial-com-manager/javadoc" key="destdir"/>
+				<item value="/home/r/ws-host-uart/serial-com-manager/com.embeddedunveiled.serial/javadoc.xml" key="antpath"/>
+				<item value="" key="href"/>
+			</section>
+		</section>
+	</section>
+	<section name="JavadocWizardDialog">
+		<item value="702" key="DIALOG_WIDTH"/>
+		<item value="90" key="DIALOG_Y_ORIGIN"/>
+		<item value="679" key="DIALOG_HEIGHT"/>
+		<item value="577" key="DIALOG_X_ORIGIN"/>
+		<item value="1|Ubuntu|11.0|0|GTK|1|" key="DIALOG_FONT_NAME"/>
+	</section>
 </section>

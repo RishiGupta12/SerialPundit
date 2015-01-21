@@ -842,6 +842,9 @@ public final class SerialComManager {
 	 * them in java layers, to decide whether this should be sent to application or not (as per the mask set by
 	 * setEventsMask() method).</p>
 	 * 
+	 * Before calling this method, make sure that port has been configured for hardware flow control using configureComPortControl
+	 * method.
+	 * 
 	 * @param handle of the port opened
 	 * @param eventListener instance of class which implements ISerialComEventListener interface
 	 * @throws SerialComException if invalid handle passed, handle is null or event listener already exist for this handle
@@ -1116,10 +1119,10 @@ public final class SerialComManager {
 	/**
 	 * <p>Gives status of serial port's control lines as supported by underlying operating system.</p>
 	 * 
-	 * The sequence of status in returned array is :
-	 * Linux    : CTS, DSR, DCD, RI, LOOP, RTS, DTR respectively.
-	 * MAC OS X : CTS, DSR, DCD, RI, 0,    RTS, DTR respectively.
-	 * Windows  : CTS, DSR, DCD, RI, 0,    0,   0   respectively.
+	 * The sequence of status in returned array is :<br/>
+	 * Linux    : CTS, DSR, DCD, RI, LOOP, RTS, DTR respectively.<br/>
+	 * MAC OS X : CTS, DSR, DCD, RI, 0,    RTS, DTR respectively.<br/>
+	 * Windows  : CTS, DSR, DCD, RI, 0,    0,   0   respectively.<br/>
 	 * 
 	 * @param handle of the port opened
 	 * @throws SerialComException if invalid handle is passed or operation can not be completed successfully
