@@ -19,12 +19,6 @@
 
 #if defined (__linux__) || defined (__APPLE__) || defined (__SunOS)
 
-/* Common interface with java layer for supported OS types. */
-#include "../../com_embeddedunveiled_serial_SerialComJNINativeInterface.h"
-
-#include <jni.h>
-#include "unix_like_serial_lib.h"
-
 #include <unistd.h>     	/* UNIX standard function definitions */
 #include <stdio.h>
 #include <stdlib.h>     	/* Standard ANSI routines             */
@@ -64,6 +58,9 @@
 #include <sys/ioctl.h>
 #include <sys/filio.h>
 #endif
+
+#include <jni.h>
+#include "unix_like_serial_lib.h"
 
 #define DEBUG 1
 
