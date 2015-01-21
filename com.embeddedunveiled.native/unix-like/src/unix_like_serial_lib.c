@@ -189,14 +189,17 @@ void *data_looper(void *arg) {
 		errno = 0;
 		ret = epoll_wait(epfd, &events, 2, -1);
 		if(ret < 0) {
-			if(DEBUG) fprintf(stderr, "%s%d\n", "NATIVE data_looper() thread failed in epoll_wait() with error number : -", errno);
-			if(DEBUG) fflush(stderr);
-			continue;
+			if(errno == EINTR) {
+				   /* The call was interrupted by a signal handler before either any of the requested events occurred
+			        or the timeout expired, so do nothing just restart waiting. */
+					continue;
+			}else {
+					if(DEBUG) fprintf(stderr, "%s%d\n", "NATIVE data_looper() thread failed in epoll_wait() with error number : -", errno);
+					if(DEBUG) fflush(stderr);
+					continue;	
+			}
 		}
 #endif
-
-		if(DEBUG) fprintf(stderr, "====%d\n", ((struct com_thread_params*) arg)->thread_exit);
-		if(DEBUG) fflush(stderr);
 
 		/* check if thread should exit due to un-registration of listener. */
 		if(1 == ((struct com_thread_params*) arg)->thread_exit) {
