@@ -72,14 +72,14 @@ https://github.com/RishiGupta12/serial-com-manager/blob/master/BUILD_GUIDE.md
 
 For Linus use gtkterm, minicom, for Windows use teraterm and for MAC use. We usually test by making connections between two FT232R chip boards as shown below :
 <pre>
-/dev/ttyUSB0            /dev/ttyUSB1
-        RXD <~~~~~~~~~~> TXD
-        TXD <~~~~~~~~~~> RXD
-        DTR <~~~~~~~~~~> DSR,RNG
-    DSR,RNG <~~~~~~~~~~> DTR
-        CTS <~~~~~~~~~~> RTS
-        RTS <~~~~~~~~~~> CTS
-        GND <~~~~~~~~~~> GND
+/dev/ttyUSB0		/dev/ttyUSB1
+        RXD ++++++++++++ TXD
+        TXD ++++++++++++ RXD
+        DTR ++++++++++++ DSR,RNG
+    DSR,RNG ++++++++++++ DTR
+        CTS ++++++++++++ RTS
+        RTS ++++++++++++ CTS
+        GND ++++++++++++ GND
 </pre>
 
 ##Author, License, and Copyright
