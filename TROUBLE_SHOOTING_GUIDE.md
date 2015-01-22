@@ -83,6 +83,11 @@ usb 3-3: FTDI USB Serial Device converter now attached to ttyUSB0
 
 Ans: This is not due to library, rather a USB HUB and OS specific issue. Try different USB hub or insert USB-UART converter slowly one after the other.
 
-**Que: Same device with different COM port numbers is confusing to me**
+**Que: Same device with different COM port numbers is confusing to me.**
 
 Ans: This is Windows specific issue. The same device will often appear at different comport numbers when it is on different USB hub ports.
+
+**Que: My FT232R chip is not detected by Windows.**
+
+Ans: Install drivers for F232RL to support virtual com port from here http://www.ftdichip.com/Drivers/VCP.htm
+connect the usb to serial converter and then run .exe file.
