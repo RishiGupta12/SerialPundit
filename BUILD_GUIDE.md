@@ -14,18 +14,21 @@ Part 1 covers building and exporting java and native library when generating JNI
    Download project :
    
    Click 'Download Zip' button on this page https://github.com/RishiGupta12/serial-com-manager
+   
+2. Install JDK 7 and make sure it in included in your PATH variable.    
+   http://www.oracle.com/technetwork/java/javase/downloads/jdk7-downloads-1880260.html
 
-2. Install eclipse IDE for java developers from here https://eclipse.org/downloads.
-   Select 32 bit or 64 bit as per your system and OS. For MAC OS it may ask to install java JRE etc. also.
+3. Install eclipse IDE for java developers from here https://eclipse.org/downloads.
+   Select 32 bit or 64 bit as per your system and OS. We used Eclipse Luna for development and testing.
 
 ####Building java library (.jar file)
 ---
 
-1. Start eclipse selecting workspace folder as per your choice.
+1. Start eclipse selecting serial-com-manager as workspace directory.
 
-2. Import this java project into workspace.
+2. Import java project into workspace.
    File->Import->General->Existing Projects Into Workspace->Select root directory:
-   Then browse to the location where this project exist and select com.embeddedunveiled.serial folder.
+   Then browse to the location where this project exist and select com.embeddedunveiled.serial directory.
    
 3. Build the project.
    Select project folder and then from menu, Project->Build All.
@@ -43,7 +46,7 @@ Part 1 covers building and exporting java and native library when generating JNI
 1. Install CDT plugin from here https://eclipse.org/cdt/downloads.php
    Help->Install New Software
    
-   Then in "Work with" field, pull down the drop-down menu and select "Kepler - http://download.eclipse.org/releases/kepler" (or juno for Eclipse 4.2; or helios for Eclipse 3.7).
+   Then in "Work with" field, pull down the drop-down menu and select Luna - http://download.eclipse.org/releases/luna/ (or kepler or juno for Eclipse 4.2; or helios for Eclipse 3.7).
    
    In "Name" box, expand "Programming Language" node and Check "C/C++ Development Tools" -> "Next"-> "Next".
    Accept the license agreement and then click "Finish" button.
@@ -136,13 +139,16 @@ Part 1 covers building and exporting java and native library when generating JNI
    
    
 5. The java library at runtime loads 32 or 64 bit native library as per system, JRE and OS in use. The name of native library is formulated as a combination of OS, library version and bit(32/64). For example "windows_1.0.0_x86_64.dll" for 64 bit and "windows_1.0.0_x86.so" for 32 bit.
-
    Note this step should be done together when performing step 3 i.e. setting Active platform.
    
    Right click on windows_serial project and then select Properties.
    Configuration Properties->General and select Target Name option.
    
    From drop down <edit> and enter windows_1.0.0_x86_64 for 64 bit and windows_1.0.0_x86 for 32 bit.
+
+6. Generate shared library file by building project. This will create '.dll' file for example "windows_1.0.0_x86_64.dll" in Debug folder.
+
+Copy this file into 'libs' folder of com.embeddedunveiled.serial eclipse java project.
    
 ####Building native library (.dylib files) for MAC OS X
 ---
@@ -152,39 +158,36 @@ Part 1 covers building and exporting java and native library when generating JNI
    $ gcc
    ```
    If the xcode is not installed a pop up box asking to install software will pop up. Click on install button.
-   
-2. Install jdk for your MAC OS X 32 bit or 64 bit version from here :
-   http://www.oracle.com/technetwork/java/javase/downloads/jdk7-downloads-1880260.html
 
-3. Install CDT plugin from here https://eclipse.org/cdt/downloads.php Help->Install New Software.
+2. Install CDT plugin from here https://eclipse.org/cdt/downloads.php Help->Install New Software.
 Then in "Work with" field, pull down the drop-down menu and select "Kepler - http://download.eclipse.org/releases/kepler" (or juno for Eclipse 4.2; or helios for Eclipse 3.7). In "Name" box, expand "Programming Language" node and Check "C/C++ Development Tools" -> "Next"-> "Next". Accept the license agreement and then click "Finish" button. Let the installation finish and it will ask to restart eclipse. Restart eclipse so CDT become active.
 
-4. Import this C project into workspace. File->Import->General->Existing Projects Into Workspace->Select root directory: Then browse to the location where this project exist and select unix-like folder.
+3. Import this C project into workspace. File->Import->General->Existing Projects Into Workspace->Select root directory: Then browse to the location where this project exist and select unix-like folder.
 
-5. Set 'MacOS X C Linker' toolchain as linker for this project. Select project and then right click on it. Properties->C/C+ Build->Tool Chain Editor. Set Current toolchain as 'MacOSX GCC', Current builder as 'Gnu Make Builder' and in Select tools add 'MacOS X C Linker'.
+4. Set 'MacOS X C Linker' toolchain as linker for this project. Select project and then right click on it. Properties->C/C+ Build->Tool Chain Editor. Set Current toolchain as 'MacOSX GCC', Current builder as 'Gnu Make Builder' and in Select tools add 'MacOS X C Linker'.
 
-6. Set flags that would be passed to linker for linking against correct 32 or 64 bit libraries. Select project and then right click on it. Properties->C/C+ Build->Settings->MacOS X C Linker->Miscellaneous. Enter following in Linker flags box :
+5. Set flags that would be passed to linker for linking against correct 32 or 64 bit libraries. Select project and then right click on it. Properties->C/C+ Build->Settings->MacOS X C Linker->Miscellaneous. Enter following in Linker flags box :
 -framework IOKit -framework CoreFoundation -framework System
 
-7. Set linker for dynamic linking. Select project and then right click on it. Properties->C/C+ Build->Settings->MacOS X C Linker->Shared Library Settings. Check the box for '-dynamiclib' flag.
+6. Set linker for dynamic linking. Select project and then right click on it. Properties->C/C+ Build->Settings->MacOS X C Linker->Shared Library Settings. Check the box for '-dynamiclib' flag.
 
-8. Locate jni.h header file(s) on your system. Select project and then right click on it. Properties->C/C+ Build->Settings->Tool Settings->GCC C Compiler->Includes. Type in Includes paths : /System/Library/Frameworks/JavaVM.framework/Versions/A/Headers". If header files are on different place, modify above line as per your system.
+7. Locate jni.h header file(s) on your system. Select project and then right click on it. Properties->C/C+ Build->Settings->Tool Settings->GCC C Compiler->Includes. Type in Includes paths : /System/Library/Frameworks/JavaVM.framework/Versions/A/Headers". If header files are on different place, modify above line as per your system.
 
-9. Specify building shared library by passing -fPIC flag. Select project and then right click on it. Properties->C/C+ Build->Settings->Tool Settings->Miscellaneous and then check (-fPIC) flag.
+8. Specify building shared library by passing -fPIC flag. Select project and then right click on it. Properties->C/C+ Build->Settings->Tool Settings->Miscellaneous and then check (-fPIC) flag.
 
-10. The java library at runtime loads 32 or 64 bit native library as per system, JRE and OS in use. The name of native library is formulated as a combination of OS, library version and bit(32/64). For example "mac_1.0.0_x86_64.dylib" for 64 bit and "mac_1.0.0_x86.dylib" for 32 bit
+9. The java library at runtime loads 32 or 64 bit native library as per system, JRE and OS in use. The name of native library is formulated as a combination of OS, library version and bit(32/64). For example "mac_1.0.0_x86_64.dylib" for 64 bit and "mac_1.0.0_x86.dylib" for 32 bit
    Select project, right click and then select Properties. Under C/C++ option select Settings and
    then Build Artifact. 
   - Enter Artifact name as described above without extension.
   - Enter Artifact extension as "dylib".
 
-11. Define building 32 bit or 64 bit version library to compiler. Select project and then right click on it. Properties->C/C+ Build->Settings->Tool Settings->GCC C Compiler->Miscellaneous->Other flags and write -m32 for 32 bit library and -m64 for 64 bit library. Click Apply button.
+10. Define building 32 bit or 64 bit version library to compiler. Select project and then right click on it. Properties->C/C+ Build->Settings->Tool Settings->GCC C Compiler->Miscellaneous->Other flags and write -m32 for 32 bit library and -m64 for 64 bit library. Click Apply button.
 
-12. Define linking against 32 bit or 64 bit version library to linker. Select project and then right click on it. Properties->C/C+ Build->Settings->Tool Settings->GCC C Linker->Miscellaneous->Linker flags. Write -m32 for 32 bit library and -m64 for 64 bit library. Click Apply button.
+11. Define linking against 32 bit or 64 bit version library to linker. Select project and then right click on it. Properties->C/C+ Build->Settings->Tool Settings->GCC C Linker->Miscellaneous->Linker flags. Write -m32 for 32 bit library and -m64 for 64 bit library. Click Apply button.
 
-13. Set scalability parameter for eclipse IDE. Eclipse->Preferences->C/C++->Editor->Scalability->"Enable scalability mode when ..." set high value for example 60000. Project-> C/C++ Index->Freshen All Files and Rebuild.
+12. Set scalability parameter for eclipse IDE. Eclipse->Preferences->C/C++->Editor->Scalability->"Enable scalability mode when ..." set high value for example 60000. Project-> C/C++ Index->Freshen All Files and Rebuild.
 
-14. Generate shared library file. Select project and then Project->Build All. This will create '.dylib' file for example "mac_1.0.0_x86_64.dylib" in Debug folder. 
+13. Generate shared library file. Select project and then Project->Build All. This will create '.dylib' file for example "mac_1.0.0_x86_64.dylib" in Debug folder. 
 
 Copy this file into *'libs'* folder of com.embeddedunveiled.serial eclipse java project.
    
