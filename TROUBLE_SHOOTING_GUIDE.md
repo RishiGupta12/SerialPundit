@@ -44,6 +44,9 @@ FILE HEADER VALUES
             **8664 machine (x64)**
                7 number of sections
                
+**Que: Eclipse crashes sometimes or a particular functionality does not work.**
+
+Ans: See eclipse log file to find specific error <YOUR-WORKSPACE>/.metadata/.log
                
 
 ####Functional debugging
