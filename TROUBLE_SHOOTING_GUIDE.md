@@ -1,3 +1,6 @@
+This is a collection of FAQ-style troubleshooting tips.
+
+
 ####Run time debugging
 ---
 
