@@ -209,8 +209,8 @@ public final class SerialComManager {
 	}
 
 	/**
-	 * Returns all available UART style ports available on this system, otherwise an empty array of strings, if no serial style port is
-	 * found in the system. Note that the BIOS may ignore UART ports on a PCI card and therefore BIOS settings has to be corrected.
+	 * <p>Returns all available UART style ports available on this system, otherwise an empty array of strings, if no serial style port is
+	 * found in the system. Note that the BIOS may ignore UART ports on a PCI card and therefore BIOS settings has to be corrected.</p>
 	 * 
 	 * <p>Developers must consider using this method to know which ports are valid communications ports before opening them for writing
 	 * more robust code.</p>
@@ -230,8 +230,8 @@ public final class SerialComManager {
 	}
 
 	/** 
-	 * Developers are advised to use methods like openComPort(), closeComPort() and configureComPort() etc thread safe to maintian reliable
-	 * and  operation. 
+	 * <p>Developers are advised to use methods like openComPort(), closeComPort() and configureComPort() etc thread safe to maintian reliable
+	 * and  operation.</p>
 	 * 
 	 * <p>This method runs to completion in synchronised manner, therefore a port before returning from this method have an exclusive owner 
 	 * or not. If it has exclusive owner and an attempt is made to open it again, native code will return error. On the other hand if it 
@@ -280,7 +280,7 @@ public final class SerialComManager {
 	}
 
 	/**
-	 * Close the serial port. Application should unregister listeners if it has registered any.
+	 * <p>Close the serial port. Application should unregister listeners if it has registered any.</p>
 	 * 
 	 * @param handle of the port to be closed
 	 * @throws SerialComException if invalid handle is passed or when it fails in closing the port

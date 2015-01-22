@@ -23,9 +23,10 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * This class runs in as a different thread context and keep looping over event queue, delivering 
- * events to the intended registered listener (event handler) one by one. The rate of delivery of
- * events are directly proportional to how fast listener finishes his job and let us return.
+ * <p>This class runs in as a different thread context and keep looping over data/event queue, 
+ * delivering data/events to the intended registered listener (data/event handler) one by one. 
+ * The rate of delivery of data/events are directly proportional to how fast listener finishes
+ * his job and let us return.</p>
  */
 public final class SerialComLooper {
 	
@@ -51,9 +52,9 @@ public final class SerialComLooper {
 	private SerialComErrorMapper mErrMapper = null;
 	
 	/**
-	 * This class runs in as a different thread context and keep looping over data queue, delivering 
+	 * <p>This class runs in as a different thread context and keep looping over data queue, delivering 
 	 * data to the intended registered listener (data handler) one by one. The rate of delivery of
-	 * new data is directly proportional to how fast listener finishes his job and let us return.
+	 * new data is directly proportional to how fast listener finishes his job and let us return.</p>
 	 */
 	class DataLooper implements Runnable {
 		@Override
@@ -76,9 +77,9 @@ public final class SerialComLooper {
 	}
 	
 	/**
-	 * This class runs in as a different thread context and keep looping over event queue, delivering 
+	 * <p>This class runs in as a different thread context and keep looping over event queue, delivering 
 	 * events to the intended registered listener (event handler) one by one. The rate of delivery of
-	 * events are directly proportional to how fast listener finishes his job and let us return.
+	 * events are directly proportional to how fast listener finishes his job and let us return.</p>
 	 */
 	class EventLooper implements Runnable {
 		@Override
@@ -95,13 +96,14 @@ public final class SerialComLooper {
 		}
 	}
 	
+	/* Constructor */
 	public SerialComLooper(SerialComJNINativeInterface nativeInterface, SerialComErrorMapper errMapper) { 
 		mNativeInterface = nativeInterface;
 		mErrMapper = errMapper;
 	}
 	
 	/**
-	 * This method is called from native code to pass data bytes.
+	 * <p>This method is called from native code to pass data bytes.</p>
 	 */
 	public void insertInDataQueue(byte[] newData) {
         if(mDataQueue.remainingCapacity() == 0) {
@@ -115,8 +117,8 @@ public final class SerialComLooper {
 	}
 	
 	/**
-	 * Native side detects the change in status of lines, get the new line status and call this method. Based on the
-	 * mask this method determines whether this event should be sent to application or not.
+	 * <p>Native side detects the change in status of lines, get the new line status and call this method. Based on the
+	 * mask this method determines whether this event should be sent to application or not.</p>
 	 */
 	public void insertInEventQueue(int newEvent) {
 		newLineState = newEvent & appliedMask;
@@ -132,7 +134,7 @@ public final class SerialComLooper {
 	}
 
 	/**
-	 * 
+	 * <p>Start the thread to loop over data queue. </p>
 	 */
 	public void startDataLooper(long handle, ISerialComDataListener dataListener, String portName) {
 		try {
@@ -145,7 +147,7 @@ public final class SerialComLooper {
 	}
 
 	/**
-	 * Get initial status of control lines and start thread.
+	 * <p>Get initial status of control lines and start thread.</p>
 	 */
 	public void startEventLooper(long handle, ISerialComEventListener eventListener, String portName) throws SerialComException {
 		int state = 0;
@@ -191,14 +193,14 @@ public final class SerialComLooper {
 	}
 	
 	/**
-	 * Looper thread refrains from sending new data to the data listener.
+	 * </p>Looper thread refrains from sending new data to the data listener.</p>
 	 */
 	public void pause() {
 		deliverDataEvent.set(false);
 	}
 	
 	/**
-	 * Looper starts sending new data again to the data listener.
+	 * <p>Looper starts sending new data again to the data listener.</p>
 	 */
 	public void resume() {
 		deliverDataEvent.set(true);
@@ -206,16 +208,16 @@ public final class SerialComLooper {
 	}
 
 	/**
-	 * In future we may shift modifying mask in the native code itself, so as to prevent JNI transitions.
+	 * <p>In future we may shift modifying mask in the native code itself, so as to prevent JNI transitions.
 	 * This filters what events should be sent to application. Note that, although we sent only those event
-	 * for which user has set mask, however native code send all the events to java layer as of now.
+	 * for which user has set mask, however native code send all the events to java layer as of now.</p>
 	 */
 	public void setEventsMask(int newMask) {
 		appliedMask = newMask;
 	}
 
 	/**
-	 * Gives the event mask currently active.
+	 * <p>Gives the event mask currently active.</p>
 	 */
 	public int getEventsMask() {
 		return appliedMask;

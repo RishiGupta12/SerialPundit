@@ -17,6 +17,9 @@
  *
  ***************************************************************************************************/
 
+/* We have tried to follow the philosophy that resources specific to thread should be held by thread
+ * and that the thread is responsible for cleaning them before exiting. */
+
 #if defined (__linux__) || defined (__APPLE__) || defined (__SunOS)
 
 #include <unistd.h>     	/* UNIX standard function definitions */
@@ -28,19 +31,21 @@
 #include <dirent.h>     	/* Format of directory entries        */
 #include <sys/types.h>  	/* Primitive System Data Types        */
 #include <sys/stat.h>   	/* Defines the structure of the data  */
-#include <pthread.h>		/* POSIX thread definitions	      */
+#include <pthread.h>		/* POSIX thread definitions	          */
 #include <sys/select.h>
-#include <sys/epoll.h>		/* epoll feature of Linux	      */
 
-#ifdef __linux__
+
+#if defined (__linux__)
 #include <linux/types.h>
 #include <linux/termios.h>  /* POSIX terminal control definitions for Linux (termios2) */
 #include <linux/serial.h>
 #include <linux/ioctl.h>
 #include <sys/eventfd.h>    /* Linux eventfd for event notification. */
+#include <sys/epoll.h>		/* epoll feature of Linux	          */
+#include <signal.h>
 #endif
 
-#ifdef __APPLE__
+#if defined (__APPLE__)
 #include <termios.h>
 #include <sys/ioctl.h>
 #include <paths.h>
@@ -53,7 +58,7 @@
 #include <IOKit/IOBSD.h>
 #endif
 
-#ifdef __SunOS
+#if defined (__SunOS)
 #include <termios.h>
 #include <sys/ioctl.h>
 #include <sys/filio.h>
@@ -79,9 +84,23 @@ int serial_delay(unsigned milliSeconds) {
 	return 0;
 }
 
-/* This thread wait for data to be available on fd and enqueues it in data queue managed by java layer. */
+/* This handler is invoked whenever application unregisters event listener. */
+void exit_signal_handler(int signal_number) {
+	if(signal_number == SIGUSR1) {
+		if(DEBUG) fprintf(stderr, "%s\n", "SIGUSR1 RECEIVED");
+		if(DEBUG) fflush(stderr);
+		pthread_exit((void *)0);
+	}else {
+		if(DEBUG) fprintf(stderr, "%s %d\n", "UNKNOWN SIGNAL", signal_number);
+		if(DEBUG) fflush(stderr);
+	}
+}
+
+/* This thread wait for data to be available on fd and enqueues it in data queue managed by java layer.
+ * For unrecoverable errors thread would like to exit and try again. */
 void *data_looper(void *arg) {
 	int i = -1;
+	int negative = -1;
 	int index = 0;
 	int partialData = -1;
 	ssize_t ret = -1;
@@ -97,7 +116,8 @@ void *data_looper(void *arg) {
 	struct epoll_event ev_port;
 	struct epoll_event ev_exit;
 	struct epoll_event events;
-#endif
+
+	pthread_mutex_lock(((struct com_thread_params*) arg)->mutex);
 
 	struct com_thread_params* params = (struct com_thread_params*) arg;
 	JavaVM *jvm = (*params).jvm;
@@ -108,8 +128,12 @@ void *data_looper(void *arg) {
 	void* env1;
 	JNIEnv* env;
 	if((*jvm)->AttachCurrentThread(jvm, &env1, NULL) != JNI_OK) {
-		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE data_looper() thread failed to attach itself to JVM.");
+		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE data_looper() thread failed to attach itself to JVM to access JNI ENV !.");
 		if(DEBUG) fflush(stderr);
+		((struct com_thread_params*) arg)->data_thread_id = 0;
+		((struct com_thread_params*) arg)->data_init_done = -240;
+		pthread_mutex_unlock(((struct com_thread_params*) arg)->mutex);
+		pthread_exit((void *)0);
 	}
 
 	env = (JNIEnv*) env1;
@@ -118,11 +142,10 @@ void *data_looper(void *arg) {
 		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE data_looper() thread could not get class of object of type looper !");
 		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE data_looper() thread exiting. Please RETRY registering data listener !");
 		if(DEBUG) fflush(stderr);
-		pthread_mutex_lock(((struct com_thread_params*) arg)->mutex);
 		((struct com_thread_params*) arg)->data_thread_id = 0;
-		close(((struct com_thread_params*) arg)->evfd);
+		((struct com_thread_params*) arg)->data_init_done = -240;
 		pthread_mutex_unlock(((struct com_thread_params*) arg)->mutex);
-		pthread_exit((void *)0);  /* For unrecoverable errors we would like to exit and try again. */
+		pthread_exit((void *)0);
 	}
 
 	jmethodID mid = (*env)->GetMethodID(env, SerialComLooper, "insertInDataQueue", "([B)V");
@@ -133,15 +156,36 @@ void *data_looper(void *arg) {
 		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE data_looper() thread failed to retrieve method id of method insertInDataQueue in class SerialComLooper !");
 		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE data_looper() thread exiting. Please RETRY registering data listener !");
 		if(DEBUG) fflush(stderr);
-		pthread_mutex_lock(((struct com_thread_params*) arg)->mutex);
 		((struct com_thread_params*) arg)->data_thread_id = 0;
-		close(((struct com_thread_params*) arg)->evfd);
+		((struct com_thread_params*) arg)->data_init_done = -240;
 		pthread_mutex_unlock(((struct com_thread_params*) arg)->mutex);
 		pthread_exit((void *)0);
 	}
 
-#if defined (__linux__)
+	errno = 0;
+	ret  = eventfd(0, O_NONBLOCK);
+	if(ret < 0) {
+		if(DEBUG) fprintf(stderr, "%s %d\n", "NATIVE data_looper() thread failed to create eventfd with error number : -", errno);
+		if(DEBUG) fflush(stderr);
+		((struct com_thread_params*) arg)->data_thread_id = 0;
+		((struct com_thread_params*) arg)->data_init_done = negative * errno;
+		pthread_mutex_unlock(((struct com_thread_params*) arg)->mutex);
+		pthread_exit((void *)0);
+	}
+	((struct com_thread_params*) arg)->evfd = ret;  /* Save evfd for cleanup. */
+
+	errno = 0;
 	epfd = epoll_create(2);
+	if(epfd < 0) {
+		if(DEBUG) fprintf(stderr, "%s%d\n", "NATIVE data_looper() thread failed in epoll_create() with error number : -", errno);
+		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE data_looper() thread exiting. Please RETRY registering data listener !");
+		if(DEBUG) fflush(stderr);
+		close(((struct com_thread_params*) arg)->evfd);
+		((struct com_thread_params*) arg)->data_thread_id = 0;
+		((struct com_thread_params*) arg)->data_init_done = negative * errno;
+		pthread_mutex_unlock(((struct com_thread_params*) arg)->mutex);
+		pthread_exit((void *)0);
+	}
 	((struct com_thread_params*) arg)->epfd = epfd;  /* Save epfd for cleanup. */
 
 	/* add serial port to epoll wait mechanism. */
@@ -150,13 +194,13 @@ void *data_looper(void *arg) {
 	errno = 0;
 	ret = epoll_ctl(epfd, EPOLL_CTL_ADD, fd, &ev_port);
 	if(ret < 0) {
-		if(DEBUG) fprintf(stderr, "%s%d\n", "NATIVE data_looper() thread failed in epoll_ctl() with error number : -", errno);
+		if(DEBUG) fprintf(stderr, "%s%d\n", "NATIVE data_looper() thread failed in epoll_ctl() for adding serial port with error number : -", errno);
 		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE data_looper() thread exiting. Please RETRY registering data listener !");
 		if(DEBUG) fflush(stderr);
-		pthread_mutex_lock(((struct com_thread_params*) arg)->mutex);
-		((struct com_thread_params*) arg)->data_thread_id = 0;
 		close(epfd);
 		close(((struct com_thread_params*) arg)->evfd);
+		((struct com_thread_params*) arg)->data_thread_id = 0;
+		((struct com_thread_params*) arg)->data_init_done = negative * errno;
 		pthread_mutex_unlock(((struct com_thread_params*) arg)->mutex);
 		pthread_exit((void *)0);
 	}
@@ -167,17 +211,21 @@ void *data_looper(void *arg) {
 	errno = 0;
 	ret = epoll_ctl(epfd, EPOLL_CTL_ADD, ((struct com_thread_params*) arg)->evfd, &ev_exit);
 	if(ret < 0) {
-		if(DEBUG) fprintf(stderr, "%s%d\n", "NATIVE data_looper() thread failed in epoll_ctl() with error number : -", errno);
+		if(DEBUG) fprintf(stderr, "%s%d\n", "NATIVE data_looper() thread failed in epoll_ctl() for adding exit event evfd with error number : -", errno);
 		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE data_looper() thread exiting. Please RETRY registering data listener !");
 		if(DEBUG) fflush(stderr);
-		pthread_mutex_lock(((struct com_thread_params*) arg)->mutex);
-		((struct com_thread_params*) arg)->data_thread_id = 0;
 		close(epfd);
 		close(((struct com_thread_params*) arg)->evfd);
+		((struct com_thread_params*) arg)->data_thread_id = 0;
+		((struct com_thread_params*) arg)->data_init_done = negative * errno;
 		pthread_mutex_unlock(((struct com_thread_params*) arg)->mutex);
 		pthread_exit((void *)0);
 	}
 #endif
+
+	/* indicate success to caller so it can return success to java layer */
+	((struct com_thread_params*) arg)->data_init_done = 1;
+	pthread_mutex_unlock(((struct com_thread_params*) arg)->mutex);
 
 	/* This keep looping until listener is unregistered, waiting for data and passing it to java layer. */
 	while(1) {
@@ -196,17 +244,16 @@ void *data_looper(void *arg) {
 					continue;	
 			}
 		}
-#endif
 
 		/* check if thread should exit due to un-registration of listener. */
-		if(1 == ((struct com_thread_params*) arg)->thread_exit) {
-			pthread_mutex_lock(((struct com_thread_params*) arg)->mutex);
-			((struct com_thread_params*) arg)->data_thread_id = 0;
+		if(1 == ((struct com_thread_params*) arg)->data_thread_exit) {
 			close(epfd);
 			close(((struct com_thread_params*) arg)->evfd);
-			pthread_mutex_unlock(((struct com_thread_params*) arg)->mutex);
+			((struct com_thread_params*) arg)->data_thread_id = 0;
 			pthread_exit((void *)0);
 		}
+
+#endif
 
 		/* we have data to read on file descriptor. */
 		do {
@@ -279,6 +326,7 @@ void *data_looper(void *arg) {
 /* TIOCMWAIT RETURNS -EIO IF DEVICE FROM USB PORT HAS BEEN REMOVED */
 void *event_looper(void *arg) {
 	int ret = 0;
+	int negative = -1;
 	struct com_thread_params* params = (struct com_thread_params*) arg;
 	JavaVM *jvm = (*params).jvm;
 	int fd = (*params).fd;
@@ -291,6 +339,8 @@ void *event_looper(void *arg) {
 	int lines_status = 0;
 	int cts,dsr,dcd,ri = 0;
 	int event = 0;
+
+	pthread_mutex_lock(((struct com_thread_params*) arg)->mutex);
 
 	/* The JNIEnv is valid only in the current thread. So, threads created should attach itself to the VM and obtain a JNI interface pointer. */
 	void* env1;
@@ -306,8 +356,8 @@ void *event_looper(void *arg) {
 		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE event_looper() thread could not get class of object of type looper !");
 		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE event_looper() thread exiting. Please RETRY registering event listener !");
 		if(DEBUG) fflush(stderr);
-		pthread_mutex_lock(((struct com_thread_params*) arg)->mutex);
 		((struct com_thread_params*) arg)->event_thread_id = 0;
+		((struct com_thread_params*) arg)->event_init_done = -240;
 		pthread_mutex_unlock(((struct com_thread_params*) arg)->mutex);
 		pthread_exit((void *)0);
 	}
@@ -320,11 +370,25 @@ void *event_looper(void *arg) {
 		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE data_looper() thread failed to retrieve method id of method insertInDataQueue in class SerialComLooper !");
 		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE data_looper() thread exiting. Please RETRY registering data listener !");
 		if(DEBUG) fflush(stderr);
-		pthread_mutex_lock(((struct com_thread_params*) arg)->mutex);
-		((struct com_thread_params*) arg)->data_thread_id = 0;
+		((struct com_thread_params*) arg)->event_thread_id = 0;
+		((struct com_thread_params*) arg)->event_init_done = -240;
 		pthread_mutex_unlock(((struct com_thread_params*) arg)->mutex);
 		pthread_exit((void *)0);
 	}
+
+	/* Install signal handler that will be invoked to indicate that the thread should exit. */
+    if(signal(SIGUSR1, exit_signal_handler) == SIG_ERR) {
+    	if(DEBUG) fprintf(stderr, "%s\n", "Unable to create handler for SIGUSR1");
+        if(DEBUG) fflush(stderr);
+		((struct com_thread_params*) arg)->event_thread_id = 0;
+		((struct com_thread_params*) arg)->event_init_done = -240;
+		pthread_mutex_unlock(((struct com_thread_params*) arg)->mutex);
+		pthread_exit((void *)0);
+    }
+
+	/* indicate success to caller so it can return success to java layer */
+	((struct com_thread_params*) arg)->event_init_done = 1;
+	pthread_mutex_unlock(((struct com_thread_params*) arg)->mutex);
 
 	/* This keep looping until listener is unregistered, waiting for events and passing it to java layer.
 	 * This sleep within the kernel until something happens to the MSR register of the tty device. */

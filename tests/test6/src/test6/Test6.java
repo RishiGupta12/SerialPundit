@@ -30,37 +30,33 @@ public class Test6 {
 			handle = scm.openComPort("/dev/ttyUSB0", true, true, false);
 			scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
 			scm.configureComPortControl(handle, FLOWCONTROL.NONE, 'x', 'x', false, false);
-			scm.registerLineEventListener(handle, eventListener);
+			System.out.println("" + scm.registerLineEventListener(handle, eventListener));
 			
 			long handle1 = scm.openComPort("/dev/ttyUSB1", true, true, false);
 			scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
 			scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
 			
-			Thread.sleep(2000);
+			Thread.sleep(1000);
 			scm.setDTR(handle1, true);
-			Thread.sleep(2000);
+			Thread.sleep(1000);
 			scm.setRTS(handle1, true);
-			Thread.sleep(2000);
+			Thread.sleep(1000);
 			scm.setDTR(handle1, false);
-			Thread.sleep(2000);
+			Thread.sleep(1000);
 			scm.setRTS(handle1, false);
-			Thread.sleep(2000);
+			Thread.sleep(1000);
 			scm.setDTR(handle1, true);
-			Thread.sleep(2000);
+			Thread.sleep(1000);
 			scm.setRTS(handle1, true);
-			Thread.sleep(2000);
-			
-			while(true);
+			Thread.sleep(1000);
 
-//			// unregister data listener
-//			scm.unregisterLineEventListener(eventListener);
-//			
-//			// close the port releasing handle
-//			scm.closeComPort(handle);
-//			scm.closeComPort(handle1);
-			
-			
-			
+			// unregister data listener
+			scm.unregisterLineEventListener(eventListener);
+			Thread.sleep(1000);
+
+			// close the port releasing handle
+			scm.closeComPort(handle);
+			scm.closeComPort(handle1);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

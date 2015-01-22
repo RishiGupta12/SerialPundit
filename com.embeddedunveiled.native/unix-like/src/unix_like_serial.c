@@ -17,8 +17,9 @@
  *
  ***************************************************************************************************/
 
-/* Native code to communicate with tty-style port in Unix-like operating systems
- * These references have been used.
+/* - This file contains native code to communicate with tty-style port in Unix-like operating systems.
+ *
+ * - These references have been used.
  *
  * For Linux:
  * <KERNEL_SOURCE>/drivers/tty/serial
@@ -33,16 +34,15 @@
  * http://docs.oracle.com/cd/E36784_01/html/E36884/termio-7i.html#REFMAN7termio-7i
  * http://docs.oracle.com/cd/E36784_01/html/E36873/termios.h-3head.html
  * http://docs.oracle.com/cd/E36784_01/html/E36874/termios-3c.html
- * http://docs.oracle.com/cd/E36784_01/html/E36884/termiox-7i.html */
+ * http://docs.oracle.com/cd/E36784_01/html/E36884/termiox-7i.html
+ *
+ * - When printing error number, number returned by OS is printed as it is.
+ *
+ * - There will be only one instance of this shared library at runtime. So if something goes wrong
+ *   it will affect everything, until this library has been unloaded and then loaded again.
+ */
 
 #if defined (__linux__) || defined (__APPLE__) || defined (__SunOS)
-
-/*
- * There will be only one instance of this shared library at runtime. So if something goes wrong
- * it will affect everything, until this library has been unloaded and then loaded again.
- *
- * When printing error number, number returned by OS is printed as it is.
- */
 
 /* Make primitives such as read and write resume, in case they are interrupted by signal,
  * before they actually start reading or writing data. The partial success case are handled
@@ -68,15 +68,16 @@
 #include <pthread.h>     /* POSIX thread definitions            */
 #include <sys/select.h>
 
-#ifdef __linux__
+#if defined (__linux__)
 #include <linux/types.h>
 #include <linux/termios.h>  /* POSIX terminal control definitions for Linux (termios2) */
 #include <linux/serial.h>
 #include <linux/ioctl.h>
 #include <sys/eventfd.h>    /* Linux eventfd for event notification. */
+#include <signal.h>
 #endif
 
-#ifdef __APPLE__
+#if defined (__APPLE__)
 #include <termios.h>
 #include <sys/ioctl.h>
 #include <paths.h>
@@ -89,18 +90,18 @@
 #include <IOKit/IOBSD.h>
 #endif
 
-#ifdef __SunOS
+#if defined (__SunOS)
 #include <termios.h>
 #include <sys/ioctl.h>
 #include <sys/filio.h>
 #endif
 
 #include <jni.h>
+#include "unix_like_serial_lib.h"
 
 /* Common interface with java layer for supported OS types. */
 #include "../../com_embeddedunveiled_serial_SerialComJNINativeInterface.h"
 
-#include "unix_like_serial_lib.h"
 
 #undef  UART_NATIVE_LIB_VERSION
 #define UART_NATIVE_LIB_VERSION "1.0.0"
@@ -1480,7 +1481,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
  * Method:    setUpDataLooperThread
  * Signature: (JLcom/embeddedunveiled/serial/SerialComLooper;)I
  *
- * Note that, GetMethodID() causes an uninitialised class to be initialised. However in our case we have already initialised classes required.
+ * Note that, GetMethodID() causes an uninitialized class to be initialized. However in our case we have already initialized classes required.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_setUpDataLooperThread(JNIEnv *env, jobject obj, jlong fd, jobject looper) {
 	jint ret = -1;
@@ -1489,7 +1490,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 	struct com_thread_params *ptr;
 	ptr = fd_looper_info;
 	jboolean entry_found = JNI_FALSE;
-	pthread_t thread_id;
+	pthread_t thread_id = 0;
 	struct com_thread_params params;
 	pthread_attr_t attr;
 	void *arg;
@@ -1515,6 +1516,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 		if(datalooper == NULL) {
 			if(DEBUG) fprintf(stderr, "%s \n", "NATIVE setUpDataLooperThread() could not create global reference for looper object.");
 			if(DEBUG) fflush(stderr);
+			pthread_mutex_unlock(&mutex);
 			return -240;
 		}
 		params.jvm = jvm;
@@ -1522,20 +1524,15 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 		params.looper = datalooper;
 		params.data_thread_id = 0;
 		params.event_thread_id = 0;
+		params.epfd = 0;
+		params.evfd = 0;
+		params.data_thread_exit = 0;
+		params.event_thread_exit = 0;
 		params.mutex = &mutex;
-		params.thread_exit = 0;
+		params.data_init_done = 0;
+		params.event_init_done = 0;
 
 		/* Create and save eventfd which will be used when listener is unregistered. */
-#if defined (__linux__)
-		errno = 0;
-		ret  = eventfd(0, O_NONBLOCK);
-		if(ret < 0) {
-			if(DEBUG) fprintf(stderr, "%s %d\n", "NATIVE setUpDataLooperThread() failed to create eventfd with error number : -", errno);
-			if(DEBUG) fflush(stderr);
-			return (negative * errno);
-		}
-		params.evfd = ret;
-#endif
 #if defined (__APPLE__) || defined (__SunOS)
 		/*TODO evfd for apple and sun*/
 #endif
@@ -1551,6 +1548,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 	if(ret < 0) {
 		if(DEBUG) fprintf(stderr, "%s %d\n", "NATIVE setUpDataLooperThread() failed to create native data looper thread with error number : -", errno);
 		if(DEBUG) fflush(stderr);
+		pthread_mutex_unlock(&mutex);
 		return (negative * errno);
 	}
 
@@ -1565,7 +1563,15 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 	}
 
 	pthread_mutex_unlock(&mutex);
-	return 0;
+
+	/* let thread initialize completely and then return success. */
+	while(0 == ((struct com_thread_params*) arg)->data_init_done) { }
+
+	if(1 == ((struct com_thread_params*) arg)->data_init_done) {
+		return 0; /* success */
+	}else {
+		return ((struct com_thread_params*) arg)->data_init_done;  /* error */
+	}
 }
 
 /*
@@ -1599,7 +1605,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 	}
 
 	/* Set the flag that will be checked by thread when it comes out of waiting state. */
-	ptr->thread_exit = 1;
+	ptr->data_thread_exit = 1;
 
 #if defined (__linux__)
 	/* If the data looper thread is waiting for an event, let us cause an event to happen,
@@ -1611,14 +1617,18 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 
 	/* Join the thread to check its exit status. */
 	ret = pthread_join(data_thread_id, &status);
-	if((ret == 0) && (status == PTHREAD_CANCELED)) {
-		if(DEBUG) fprintf(stderr, "%s \n", "native data looper thread cancelled successfully !");
+	if(ret != 0) {
+		if(DEBUG) fprintf(stderr, "%s \n", "native data looper thread failed to join !");
 		if(DEBUG) fflush(stderr);
-	}
-	if((ret != 0) || (status != PTHREAD_CANCELED)) {
-		if(DEBUG) fprintf(stderr, "%s %d\n", "NATIVE destroyDataLooperThread() failed to join/cancel native data looper thread with error number : -", ret);
-		if(DEBUG) fflush(stderr);
+		pthread_mutex_unlock(&mutex);
 		return (negative * ret);
+	}
+
+	ptr->data_thread_id = 0;   /* Reset thread id field. */
+
+	/* If neither data nor event thread exist for this file descriptor remove entry for it from global array. */
+	if(ptr->event_thread_id == 0) {
+		ptr->fd = -1;
 	}
 
 	pthread_mutex_unlock(&mutex);
@@ -1663,15 +1673,22 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 		if(eventlooper == NULL) {
 			if(DEBUG) fprintf(stderr, "%s \n", "NATIVE setUpEventLooperThread() could not create global reference for looper object.");
 			if(DEBUG) fflush(stderr);
+			pthread_mutex_unlock(&mutex);
 			return -240;
 		}
+
 		params.jvm = jvm;
 		params.fd = fd;
 		params.looper = eventlooper;
 		params.data_thread_id = 0;
 		params.event_thread_id = 0;
-		params.thread_exit = 0;
+		params.epfd = 0;
+		params.evfd = 0;
+		params.data_thread_exit = 0;
+		params.event_thread_exit = 0;
 		params.mutex = &mutex;
+		params.data_init_done = 0;
+		params.event_init_done = 0;
 		fd_looper_info[dtp_index] = params;
 		arg = &fd_looper_info[dtp_index];
 	}
@@ -1683,6 +1700,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 	if(ret < 0) {
 		if(DEBUG) fprintf(stderr, "%s %d\n", "NATIVE setUpEventLooperThread() failed to create native data looper thread with error number : -", errno);
 		if(DEBUG) fflush(stderr);
+		pthread_mutex_unlock(&mutex);
 		return (negative * errno);
 	}
 
@@ -1697,7 +1715,15 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 	}
 
 	pthread_mutex_unlock(&mutex);
-	return 0;
+
+	/* let thread initialize completely and then return success. */
+	while(0 == ((struct com_thread_params*) arg)->event_init_done) { }
+
+	if(1 == ((struct com_thread_params*) arg)->event_init_done) {
+		return 0; /* success */
+	}else {
+		return ((struct com_thread_params*) arg)->event_init_done;  /* error */
+	}
 }
 
 
@@ -1715,6 +1741,8 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 	pthread_t event_thread_id = 0;
 	void *status;
 
+	pthread_mutex_lock(&mutex);
+
 	/* Find the event thread serving this file descriptor. */
 	for (x=0; x < MAX_NUM_THREADS; x++) {
 		if(ptr->fd == fd) {
@@ -1725,21 +1753,34 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 	}
 
 	/* Set the flag that will be checked by thread when it comes out of waiting state. */
-	ptr->thread_exit = 1;
+	ptr->event_thread_exit = 1;
 
-	/* Join the thread to check its exit status. */
-	ret = pthread_join(event_thread_id, &status);
-	if(status == PTHREAD_CANCELED) {
-		if(DEBUG) fprintf(stderr, "%s \n", "cancelled");
+	/* send signal to event thread. */
+	ret = pthread_kill(event_thread_id, SIGUSR1);
+	if(ret != 0) {
+		if(DEBUG) fprintf(stderr, "%s %d\n", "NATIVE destroyEventLooperThread() failed to terminate event looper thread with error number : -", ret);
 		if(DEBUG) fflush(stderr);
-	}
-
-	if( (ret != 0) || (status != PTHREAD_CANCELED) ) {
-		if(DEBUG) fprintf(stderr, "%s %d\n", "NATIVE destroyEventLooperThread() failed to join/cancel native event looper thread with error number : -", ret);
-		if(DEBUG) fflush(stderr);
+		pthread_mutex_unlock(&mutex);
 		return (negative * ret);
 	}
 
+	/* Join the thread (waits for the thread specified to terminate). */
+	ret = pthread_join(event_thread_id, &status);
+	if(ret != 0) {
+		if(DEBUG) fprintf(stderr, "%s \n", "native event looper thread failed to join !");
+		if(DEBUG) fflush(stderr);
+		pthread_mutex_unlock(&mutex);
+		return (negative * ret);
+	}
+
+	ptr->event_thread_id = 0;    /* Reset thread id field. */
+
+	/* If neither data nor event thread exist for this file descriptor remove entry for it from global array. */
+	if(ptr->data_thread_id == 0) {
+		ptr->fd = -1;
+	}
+
+	pthread_mutex_unlock(&mutex);
 	return 0;
 }
 

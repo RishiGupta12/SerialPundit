@@ -19,8 +19,8 @@
 package com.embeddedunveiled.serial;
 
 /**
- * Whenever an opened port has been removed, native layer will call this method
- * of the registered listener. 
+ * <p>Whenever an opened port has been removed, native layer will call this method
+ * of the registered listener.</p>
  */
 
 public interface IPortMonitor {

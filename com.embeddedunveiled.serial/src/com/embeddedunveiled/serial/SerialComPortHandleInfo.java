@@ -19,8 +19,7 @@
 package com.embeddedunveiled.serial;
 
 /**
- * This class contain information about The association that exist among port name, its corresponding handle,
- * looper, data and event listener.
+ * <p>This class encapsulate port handle, looper object, event listener, data listener and port name associated with a particular port.</p>
  */
 public final class SerialComPortHandleInfo {
 
@@ -39,15 +38,17 @@ public final class SerialComPortHandleInfo {
 	}
 
 
-	/* Port name, info and manipulation. */	
+	/** <p>Get the name of port associated with given handle Callers first find reference to this class object using given handle and then invoke this method.</p>*/	
 	public String getOpenedPortName() {
 		return mOpenedPortName;
 	}
 
+	/** <p>Set the name of port.</p>*/	
 	public void setOpenedPortName(String portName) {
 		this.mOpenedPortName = portName;
 	}
 
+	/** <p> Check if the corresponding port name exist. </p>*/
 	public boolean containsPort(String portName) throws SerialComException {
 		if(portName == null) {
 			throw new SerialComException("containsPort()", SerialComErrorMapper.ERR_PORT_NAME_NULL);
@@ -60,15 +61,17 @@ public final class SerialComPortHandleInfo {
 		return false;
 	}
 
-	/* Port file descriptor, info and manipulation. */	
+	/** <p>Returns handle to the opened port. </p>*/	
 	public long getPortHandle() {
 		return mPortHandle;
 	}
 
+	/** <p>Sets the handle of the port opened.</p>*/
 	public void setPortHandle(long handle) {
 		this.mPortHandle = handle;
 	}
 
+	/** <p>Check if the object of this class have this handle. </p>*/
 	public boolean containsHandle(long handle) {
 		if(handle == mPortHandle) {
 			return true;
@@ -76,24 +79,27 @@ public final class SerialComPortHandleInfo {
 		return false;
 	}
 
-	/* Looper associated with this port, info and manipulation. */	
+	/** <p>Looper associated with this port, info and manipulation. </p>*/	
 	public SerialComLooper getLooper() {
 		return mLooper;
 	}
 
+	/** <p>Set the looper object that is associated with this handle.</p>*/
 	public void setLooper(SerialComLooper looper) {
 		this.mLooper = looper;
 	}
 
-	/* Event listener associated with this port, info and manipulation. */	
+	/** <p>Event listener associated with this port, info and manipulation. </p>*/	
 	public ISerialComEventListener getEventListener() {
 		return mEventListener;
 	}
 
+	/** <p> Set the event listener associated with this handle. </p> */
 	public void setEventListener(ISerialComEventListener eventListener) {
 		this.mEventListener  = eventListener;
 	}
 
+	/** <p> Check if there is already a registered event listener for this handle. </p> */
 	public boolean containsEventListener(ISerialComEventListener eventListener) {
 		if(eventListener == mEventListener) {
 			return true;
@@ -101,21 +107,21 @@ public final class SerialComPortHandleInfo {
 		return false;
 	}
 	
-	/* Data Listener associated with this port, info and manipulation. */	
+	/** <p>Data Listener associated with this port, info and manipulation.</p> */	
 	public ISerialComDataListener getDataListener() {
 		return mDataListener;
 	}
 
+	/** <p> Set the data listener for this handle. </p> */
 	public void setDataListener(ISerialComDataListener dataListener) {
 		this.mDataListener  = dataListener;
 	}
 	
+	/** <p> Check if there already exist a data listener for this handle. </p> */
 	public boolean containsDataListener(ISerialComDataListener dataListener) {
 		if(dataListener == mDataListener) {
 			return true;
 		}
 		return false;
 	}
-
 }
-

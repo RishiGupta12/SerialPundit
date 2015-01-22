@@ -19,10 +19,10 @@
 package com.embeddedunveiled.serial;
 
 /**
- * This class encapsulate events that happens on serial port control lines. Application can call various
+ * <p>This class encapsulate events that happens on serial port control lines. Application can call various
  * methods on an instance of this class to know which event has happen and to get its details.
  * Whenever an event happens, an object of this class containing details about the event is passed to
- * registered listener.
+ * registered listener.</p>
  */
 
 public final class SerialComLineEvent {
@@ -32,7 +32,8 @@ public final class SerialComLineEvent {
 	private int mChanged = -1;
 
 	/**
-	 * The looper object remembers state of lines and pass both previous and new state.
+	 * <p>The looper object remembers state of lines and pass both previous and new state.</p>
+	 * 
 	 * @param oldLineState previous line state
 	 * @param newLineState new line state
 	 */
@@ -43,8 +44,9 @@ public final class SerialComLineEvent {
 	}
 
 	/**
-	 * Gives the status of CTS (clear to send) control line.
-	 * Transition from 0 to 1 means line is asserted and vice-versa.
+	 * <p>Gives the status of CTS (clear to send) control line.
+	 * Transition from 0 to 1 means line is asserted and vice-versa.</p>
+	 * 
 	 * @return 0 if CTS is not changed, 1 if CTS went from 0 to 1, 2 if CTS went from 1 to 0
 	 */
 	public int getCTS() {
@@ -60,8 +62,9 @@ public final class SerialComLineEvent {
 	}
 
 	/**
-	 * Gives the status of DSR (data set ready) control line.
-	 * Transition from 0 to 1 means line is asserted and vice-versa.
+	 * <p>Gives the status of DSR (data set ready) control line.
+	 * Transition from 0 to 1 means line is asserted and vice-versa.</p>
+	 * 
 	 * @return 0 if DSR is not changed, 1 if DSR went from 0 to 1, 2 if DSR went from 1 to 0
 	 */
 	public int getDSR() {
@@ -77,8 +80,9 @@ public final class SerialComLineEvent {
 	}
 
 	/**
-	 * Gives the status of DCD (data carrier detect) control line.
-	 * Transition from 0 to 1 means line is asserted and vice-versa.
+	 * <p>Gives the status of DCD (data carrier detect) control line.
+	 * Transition from 0 to 1 means line is asserted and vice-versa.</p>
+	 * 
 	 * @return 0 if DCD is not changed, 1 if DCD went from 0 to 1, 2 if DCD went from 1 to 0
 	 */
 	public int getDCD() {
@@ -94,8 +98,9 @@ public final class SerialComLineEvent {
 	}
 
 	/**
-	 * Gives the status of RI (ring indicator) control line.
-	 * Transition from 0 to 1 means line is asserted and vice-versa.
+	 * <p>Gives the status of RI (ring indicator) control line.
+	 * Transition from 0 to 1 means line is asserted and vice-versa.</p>
+	 * 
 	 * @return 0 if RI is not changed, 1 if RI went from 0 to 1, 2 if RI went from 1 to 0
 	 */
 	public int getRI() {
@@ -106,7 +111,7 @@ public final class SerialComLineEvent {
 				return 2; 											               // RI went from 1 to 0
 			}
 		}else {
-			return 0;     											              // RI is not changed
+			return 0;     											               // RI is not changed
 		}
 	}
 }

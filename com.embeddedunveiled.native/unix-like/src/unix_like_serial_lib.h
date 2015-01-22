@@ -31,10 +31,13 @@ struct com_thread_params {
 	jobject looper;
 	pthread_t data_thread_id;
 	pthread_t event_thread_id;
-	int evfd;
-	int epfd;
-	int thread_exit;
-	pthread_mutex_t *mutex;
+	int evfd;               /* used to get epoll_wait out of waiting state so that it checks for thread exit condition. */
+	int epfd;               /* epoll file descriptor instance */
+	int data_thread_exit;   /* set to 1 to indicate that the data thread should exit gracefully. */
+	int event_thread_exit;  /* set to 1 to indicate that the event thread should exit gracefully. */
+	pthread_mutex_t *mutex; /* protect global shared data from synchronous access */
+	int data_init_done;     /* indicates data thread has been successfully initialized or not; 0 is default 1 is success, otherwise error number as set by thread */
+	int event_init_done;    /* indicates event thread has been successfully initialized or not; 0 is default 1 is success, otherwise error number as set by thread */
 };
 
 /* function prototypes */

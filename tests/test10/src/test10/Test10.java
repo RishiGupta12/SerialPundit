@@ -55,7 +55,7 @@ public class Test10 {
 			}else {
 				System.out.println("listener unregistered ERROR !");
 			}
-			
+				
 			// close the port releasing handle
 			scm.closeComPort(handle);
 			scm.closeComPort(handle1);
