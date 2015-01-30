@@ -17,6 +17,7 @@ class EventListener implements ISerialComEventListener{
 	}
 }
 
+// Custom baud rate setting and register/unregister listener many times
 public class Test18 {
 	public static void main(String[] args) {
 		
@@ -28,12 +29,12 @@ public class Test18 {
 		
 		try {
 			handle = scm.openComPort("/dev/ttyUSB0", true, true, false);
-			scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
+			scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.BCUSTOM, 512000);
 			scm.configureComPortControl(handle, FLOWCONTROL.NONE, 'x', 'x', false, false);
 			System.out.println("" + scm.registerLineEventListener(handle, eventListener));
 			
 			long handle1 = scm.openComPort("/dev/ttyUSB1", true, true, false);
-			scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
+			scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.BCUSTOM, 512000);
 			scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
 			
 			Thread.sleep(1000);

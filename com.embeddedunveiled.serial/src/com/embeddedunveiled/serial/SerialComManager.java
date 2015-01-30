@@ -563,6 +563,8 @@ public final class SerialComManager {
 	 * configuration or user may edit windows registry directly to enable this support. The user supplied standard baud rate is translated to custom baud rate as 
 	 * specified in vendor specific configuration file.</p>
 	 * 
+	 * <p>Take a look at http://www.ftdichip.com/Support/Documents/AppNotes/AN232B-05_BaudRates.pdf to understand using custom baud rates with USB-UART chips.</p>
+	 * 
 	 * @param handle of opened port to which this configuration applies to
 	 * @param dataBits number of data bits in one frame (refer DATABITS enum for this)
 	 * @param stopBits number of stop bits in one frame (refer STOPBITS enum for this)

@@ -188,7 +188,7 @@ void *data_looper(void *arg) {
 	}
 	((struct com_thread_params*) arg)->epfd = epfd;  /* Save epfd for cleanup. */
 
-	/* add serial port to epoll wait mechanism. */
+	/* add serial port to epoll wait mechanism. Use level triggered epoll mechanism.  */
 	ev_port.events = (EPOLLIN | EPOLLPRI | EPOLLERR | EPOLLHUP);
 	ev_port.data.fd = fd;
 	errno = 0;
@@ -230,19 +230,11 @@ void *data_looper(void *arg) {
 	/* This keep looping until listener is unregistered, waiting for data and passing it to java layer. */
 	while(1) {
 
-#if defined (__linux__)
 		errno = 0;
-		ret = epoll_wait(epfd, &events, 2, -1);
+		ret = epoll_wait(epfd, &events, 4, -1);
 		if(ret < 0) {
-			if(errno == EINTR) {
-				   /* The call was interrupted by a signal handler before either any of the requested events occurred
-			        or the timeout expired, so do nothing just restart waiting. */
-					continue;
-			}else {
-					if(DEBUG) fprintf(stderr, "%s%d\n", "NATIVE data_looper() thread failed in epoll_wait() with error number : -", errno);
-					if(DEBUG) fflush(stderr);
-					continue;	
-			}
+			/* for error just restart looping. */
+			continue;
 		}
 
 		/* check if thread should exit due to un-registration of listener. */
@@ -253,68 +245,68 @@ void *data_looper(void *arg) {
 			pthread_exit((void *)0);
 		}
 
-#endif
-
-		/* we have data to read on file descriptor. */
-		do {
-			errno = 0;
-			ret = read(fd, buffer, sizeof(buffer));
-			if(ret > 0 && errno == 0) {
-				/* This indicates we got success and have read data. */
-				/* If there is partial data read previously, append this data. */
-				if(partialData == 1) {
+		if((events.events & EPOLLIN) && !(events.events & EPOLLERR)) {
+			/* input event happened, no error occurred, we have data to read on file descriptor. */
+			do {
+				errno = 0;
+				ret = read(fd, buffer, sizeof(buffer));
+				if(ret > 0 && errno == 0) {
+					/* This indicates we got success and have read data. */
+					/* If there is partial data read previously, append this data. */
+					if(partialData == 1) {
+						for(i = index; i < ret; i++) {
+							final_buf[i] = buffer[i];
+						}
+						dataRead = (*env)->NewByteArray(env, index + ret);
+						(*env)->SetByteArrayRegion(env, dataRead, 0, index + ret, final_buf);
+						break;
+					}else {
+						/* Pass the successful read to java layer straight away. */
+						dataRead = (*env)->NewByteArray(env, ret);
+						(*env)->SetByteArrayRegion(env, dataRead, 0, ret, buffer);
+						break;
+					}
+				}else if (ret > 0 && errno == EINTR) {
+					/* This indicates, there is data to read, however, we got interrupted before we finish reading
+					 * all of the available data. So we need to save this partial data and get back to read remaining. */
 					for(i = index; i < ret; i++) {
 						final_buf[i] = buffer[i];
 					}
-					dataRead = (*env)->NewByteArray(env, index + ret);
-					(*env)->SetByteArrayRegion(env, dataRead, 0, index + ret, final_buf);
-					break;
-				}else {
-					/* Pass the successful read to java layer straight away. */
-					dataRead = (*env)->NewByteArray(env, ret);
-					(*env)->SetByteArrayRegion(env, dataRead, 0, ret, buffer);
-					break;
-				}
-			}else if (ret > 0 && errno == EINTR) {
-				/* This indicates, there is data to read, however, we got interrupted before we finish reading
-				 * all of the available data. So we need to save this partial data and get back to read remaining. */
-				for(i = index; i < ret; i++) {
-					final_buf[i] = buffer[i];
-				}
-				index = ret;
-				partialData = 1;
-				continue;
-			}else if(ret < 0) {
-				if(errno == EAGAIN || errno == EWOULDBLOCK) {
-					/* This indicates, there was no data to read. Therefore just return null. */
-					dataRead = (*env)->NewByteArray(env, sizeof(empty_buf));
-					(*env)->SetByteArrayRegion(env, dataRead, 0, sizeof(empty_buf), empty_buf);
-					break;
-				}else if(errno != EINTR) {
-					/* This indicates, irrespective of, there was data to read or not, we got an error during operation. */
-					/* Can we handle this condition more gracefully. */
-					if(DEBUG) fprintf(stderr, "%s%d\n", "Native readBytes() failed to read data with error number : -", errno);
-					if(DEBUG) fflush(stderr);
-
-					dataRead = (*env)->NewByteArray(env, sizeof(empty_buf));
-					(*env)->SetByteArrayRegion(env, dataRead, 0, sizeof(empty_buf), empty_buf);
-					break;
-				}else if (errno == EINTR) {
-					/* This indicates that we should retry as we are just interrupted by a signal. */
+					index = ret;
+					partialData = 1;
 					continue;
-				}
-			}else if (ret == 0) {
-				/* This indicates, there was no data to read or EOF. */
-				dataRead = (*env)->NewByteArray(env, sizeof(empty_buf));
-				(*env)->SetByteArrayRegion(env, dataRead, 0, sizeof(empty_buf), empty_buf);
-				break;
-			}
-		} while(1);
+				}else if(ret < 0) {
+					if(errno == EAGAIN || errno == EWOULDBLOCK) {
+						/* This indicates, there was no data to read. Therefore just return null. */
+						dataRead = (*env)->NewByteArray(env, sizeof(empty_buf));
+						(*env)->SetByteArrayRegion(env, dataRead, 0, sizeof(empty_buf), empty_buf);
+						break;
+					}else if(errno != EINTR) {
+						/* This indicates, irrespective of, there was data to read or not, we got an error during operation. */
+						/* Can we handle this condition more gracefully. */
+						if(DEBUG) fprintf(stderr, "%s%d\n", "Native readBytes() failed to read data with error number : -", errno);
+						if(DEBUG) fflush(stderr);
 
-		/* once we have successfully read the data, let us pass this to java layer. */
-		(*env)->CallVoidMethod(env, looper, mid, dataRead);
-		if((*env)->ExceptionOccurred(env)) {
-			LOGE(env);
+						dataRead = (*env)->NewByteArray(env, sizeof(empty_buf));
+						(*env)->SetByteArrayRegion(env, dataRead, 0, sizeof(empty_buf), empty_buf);
+						break;
+					}else if (errno == EINTR) {
+						/* This indicates that we should retry as we are just interrupted by a signal. */
+						continue;
+					}
+				}else if (ret == 0) {
+					/* This indicates, there was no data to read or EOF. */
+					dataRead = (*env)->NewByteArray(env, sizeof(empty_buf));
+					(*env)->SetByteArrayRegion(env, dataRead, 0, sizeof(empty_buf), empty_buf);
+					break;
+				}
+			} while(1);
+
+			/* once we have successfully read the data, let us pass this to java layer. */
+			(*env)->CallVoidMethod(env, looper, mid, dataRead);
+			if((*env)->ExceptionOccurred(env)) {
+				LOGE(env);
+			}
 		}
 
 	} /* Go back to loop again waiting for the data, available to read. */

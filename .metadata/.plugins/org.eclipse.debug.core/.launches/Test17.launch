@@ -6,6 +6,7 @@
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
 <listEntry value="1"/>
 </listAttribute>
+<stringAttribute key="org.eclipse.debug.ui.ATTR_CAPTURE_IN_FILE" value="/home/r/Desktop/macz.txt"/>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="test17.Test17"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="test17"/>
 </launchConfiguration>
