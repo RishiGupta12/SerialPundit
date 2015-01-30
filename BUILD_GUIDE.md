@@ -65,6 +65,8 @@ Part 1 covers building and exporting java and native library when generating JNI
    Properties->C/C+ Build->Settings->Tool Settings->GCC C Compiler->Includes
    Now select Includes paths and locate include folder where jdk is installed on your system.
    Similarly, locate and select jni.h file under Include files.
+
+   If the compiler is unable to find jni_md.h header file, modify jni.h to include "linux/jni_md.h".
    
 4. Specify building shared library by passing -fPIC flag.
    Select project and then right click on it.
