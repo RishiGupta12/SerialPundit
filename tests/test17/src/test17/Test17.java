@@ -41,7 +41,7 @@ public class Test17 {
 			
 			// wait for data to be displayed on console
 			scm.writeString(handle1, "test", 0);
-			Thread.sleep(10000);
+			Thread.sleep(100);
 			System.out.println("2" + scm.unregisterDataListener(dataListener));
 
 			Thread.sleep(10);
@@ -57,10 +57,9 @@ public class Test17 {
 			System.out.println("6" + scm.unregisterDataListener(dataListener));
 			Thread.sleep(100);
 			
-			while(true);
 			// close the port releasing handle
-//			scm.closeComPort(handle);
-//			scm.closeComPort(handle1);
+			scm.closeComPort(handle);
+			scm.closeComPort(handle1);
 			
 		} catch (Exception e) {
 			e.printStackTrace();

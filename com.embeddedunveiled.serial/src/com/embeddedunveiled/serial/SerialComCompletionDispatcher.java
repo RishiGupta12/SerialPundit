@@ -67,7 +67,7 @@ public final class SerialComCompletionDispatcher {
 		
 		int ret = mNativeInterface.setUpDataLooperThread(handle, looper);
 		if(ret < 0) {
-			looper.stopDataLooper(handle, dataListener, mHandleInfo.getOpenedPortName());
+			looper.stopDataLooper();
 			mHandleInfo.setDataListener(null);
 			throw new SerialComException("setUpDataLooper()", mErrMapper.getMappedError(ret));
 		}
@@ -106,6 +106,9 @@ public final class SerialComCompletionDispatcher {
 		// Remove data listener from information object about this handle.
 		mHandleInfo.setDataListener(null);
 		
+		// Destroy data looper thread.
+		mHandleInfo.getLooper().stopDataLooper();
+		
 		// If neither data nor event listener exist, looper object should be destroyed.
 		if((mHandleInfo.getEventListener() == null) && (mHandleInfo.getDataListener() == null)) {
 			mHandleInfo.setLooper(null);
@@ -136,7 +139,7 @@ public final class SerialComCompletionDispatcher {
 		
 		int ret = mNativeInterface.setUpEventLooperThread(handle, looper);
 		if(ret < 0) {
-			looper.stopEventLooper(handle, eventListener, mHandleInfo.getOpenedPortName());
+			looper.stopEventLooper();
 			mHandleInfo.setEventListener(null);
 			throw new SerialComException("setUpEventLooper()", mErrMapper.getMappedError(ret));
 		}

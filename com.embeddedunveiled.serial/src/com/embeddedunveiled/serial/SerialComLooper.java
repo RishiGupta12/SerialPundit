@@ -38,11 +38,13 @@ public final class SerialComLooper {
 	private Object mDataLock = new Object();
 	private Thread mDataLooperThread = null;
 	private AtomicBoolean deliverDataEvent = new AtomicBoolean(true);
+	private AtomicBoolean exitDataThread = new AtomicBoolean(false);
 	
 	private BlockingQueue<SerialComLineEvent> mEventQueue = new ArrayBlockingQueue<SerialComLineEvent>(MAX_NUM_EVENTS);
 	private ISerialComEventListener mEventListener = null;
 	private Object mEventLock = new Object();
 	private Thread mEventLooperThread = null;
+	private AtomicBoolean exitEventThread = new AtomicBoolean(false);
 	
 	private int appliedMask = SerialComManager.CTS | SerialComManager.DSR | SerialComManager.DCD | SerialComManager.RI;
 	private int oldLineState = 0;
@@ -66,10 +68,16 @@ public final class SerialComLooper {
 					try {
 						mDataListener.onNewSerialDataAvailable(mDataQueue.take());
 						if(deliverDataEvent.get() == false) {
+							/* Causes the current thread to wait until another thread
+							 * invokes the notify method. */
 							mDataLock.wait();
 						}
 					} catch (InterruptedException e) {
-						if(DEBUG) e.printStackTrace();
+						if(exitDataThread.get() == true) {
+							break;
+						}else {
+							if(DEBUG) e.printStackTrace();
+						}
 					}
 				}
 			}
@@ -89,7 +97,11 @@ public final class SerialComLooper {
 					try {
 						mEventListener.onNewSerialEvent(mEventQueue.take());
 					} catch (InterruptedException e) {
-						if(DEBUG) e.printStackTrace();
+						if(exitEventThread.get() == true) {
+							break;
+						}else {
+							if(DEBUG) e.printStackTrace();
+						}
 					}
 				}
 			}
@@ -171,29 +183,33 @@ public final class SerialComLooper {
 	}
 	
 	/**
-	 * 
+	 * <p>Set the flag to indicate that the thread is supposed to run to completion and exit.
+	 * Interrupt the thread so that take() method can come out of blocked sleep state.</p>
 	 */
-	public void stopDataLooper(long handle, ISerialComDataListener dataListener, String portName) {
+	public void stopDataLooper() {
 		try {
-			//mDataLooperThread.stop(); TODO
+			exitDataThread.set(true);
+			mDataLooperThread.interrupt();
 		} catch (Exception e) {
 			if(DEBUG) e.printStackTrace();
 		}
 	}
 
 	/**
-	 * 
+	 * <p>Set the flag to indicate that the thread is supposed to run to completion and exit.
+	 * Interrupt the thread so that take() method can come out of blocked sleep state.</p>
 	 */
-	public void stopEventLooper(long handle, ISerialComEventListener eventListener, String portName) throws SerialComException {
+	public void stopEventLooper() throws SerialComException {
 		try {
-			//mEventLooperThread.stop(); TODO
+			exitEventThread.set(true);
+			mEventLooperThread.interrupt();
 		} catch (Exception e) {
 			if(DEBUG) e.printStackTrace();
 		}
 	}
 	
 	/**
-	 * </p>Looper thread refrains from sending new data to the data listener.</p>
+	 * <p>Looper thread refrains from sending new data to the data listener.</p>
 	 */
 	public void pause() {
 		deliverDataEvent.set(false);
