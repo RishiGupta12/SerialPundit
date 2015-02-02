@@ -767,7 +767,7 @@ public final class SerialComManager {
 			if(mInfo.containsHandle(handle)) {
 				handlefound = true;
 				if(mInfo.getDataListener() != null) {
-					throw new SerialComException("registerDataListener()", SerialComErrorMapper.ERR_LISTENER_ALREADY_EXIST);
+					throw new SerialComException("registerDataListener()", SerialComErrorMapper.ERR_DATA_LISTENER_ALREADY_EXIST);
 				}else {
 					mHandleInfo = mInfo;
 				}

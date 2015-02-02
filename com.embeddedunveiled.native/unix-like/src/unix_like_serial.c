@@ -949,7 +949,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 	}
 #endif
 
-	/* Set flow control. */
+	/* Set flow control. The CRTSCTS for Solaris enables outbound hardware flow control if set, while for Linux and Mac enables both inbound and outbound. */
 	if(flowctrl == 1) {
 		currentconfig.c_cflag &= ~CRTSCTS;                  /* No flow control. */
 	} else if(flowctrl == 2) {                             /* Hardware flow control. */
