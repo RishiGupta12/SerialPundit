@@ -1,23 +1,126 @@
 #!/bin/bash
-set -e
+# Steps are :
+# - generate header file
+# - build C source
+# - copy native libraries into libs folder
+# - build java source files and place class files in bin folder
+# - export artifact scm.jar in scripts_output folder
 
-#set the variable and flags to be passed
+# Modify these variables/path as per your system
+################################################
 
-JDK_INCLUDE_DIR="/home/r/packages/jdk/jdk1.6.0_45/include"
-JNI_HEADER_FILE_PATH="/home/r/packages/jdk/jdk1.6.0_45/include/jni.h"
-OUTPUT_FILE_NAME="linux_1.0.0_x86_64.so"
+PROJECT_ROOT_DIR_PATH="/home/r/Desktop/serial-com-manager"
+JDK_INCLUDE_DIR="/home/r/packages/jdk1.7.0_75/include"
+JNI_HEADER_FILE_PATH="/home/r/packages/jdk1.7.0_75/include/jni.h"
 
-if [ 1==1 ]
-then
+javah -jni -d $PROJECT_ROOT_DIR_PATH/com.embeddedunveiled.native -classpath /home/r/Desktop/serial-com-manager/com.embeddedunveiled.serial/src com.embeddedunveiled.serial.SerialComJNINativeInterface
 
-#Building file: unix_like_serial.c
-gcc -I$JDK_INCLUDE_DIR -include$JNI_HEADER_FILE_PATH -O0 -g3 -Wall -c -fmessage-length=0 -v -fPIC -m64 -o unix_like_serial.o unix_like_serial.c
+# Do not modify anything after this line
+################################################
 
-#Building file: unix_like_serial_lib.c
-gcc -I$JDK_INCLUDE_DIR -include$JNI_HEADER_FILE_PATH -O0 -g3 -Wall -c -fmessage-length=0 -v -fPIC -m64 -o unix_like_serial_lib.o unix_like_serial_lib.c
+echo "~~~~~~~~~ Build starts.....wait for message Build completed. ~~~~~~~~~~~~~~~~~~~~"
+echo "  "
 
-#Building target: linux_1.0.0_x86_64.so
-gcc -shared -o $OUTPUT_FILE_NAME unix_like_serial.o unix_like_serial_lib.o
-else
+LIB_VERSION="1.0.0"
+a="windows_"
+b="_x86_64.dll"
+c="_x86.dll"
+d="mac_"
+e="_x86_64.dylib"
+f="_x86.dylib"
+g="linux_"
+h="_x86_64.so"
+i="_x86.so"
 
+# Generating header file
+javah -jni -d $PROJECT_ROOT_DIR_PATH/com.embeddedunveiled.native -classpath $PROJECT_ROOT_DIR_PATH/com.embeddedunveiled.serial/src com.embeddedunveiled.serial.SerialComJNINativeInterface
+
+# Building file: unix_like_serial.c
+gcc -I$JDK_INCLUDE_DIR -include$JNI_HEADER_FILE_PATH -O0 -g3 -Wall -c -fmessage-length=0 -fPIC -m64 -pthread -o $PROJECT_ROOT_DIR_PATH/scripts_output/unix_like_serial_64.o $PROJECT_ROOT_DIR_PATH/com.embeddedunveiled.native/unix-like/src/unix_like_serial.c
+
+# Building file: unix_like_serial_lib.c
+gcc -I$JDK_INCLUDE_DIR -include$JNI_HEADER_FILE_PATH -O0 -g3 -Wall -c -fmessage-length=0 -fPIC -m64 -pthread -o $PROJECT_ROOT_DIR_PATH/scripts_output/unix_like_serial_lib_64.o $PROJECT_ROOT_DIR_PATH/com.embeddedunveiled.native/unix-like/src/unix_like_serial_lib.c
+
+# Building target: linux_X.X.X_x86_64.so
+gcc -shared -m64 -o $PROJECT_ROOT_DIR_PATH/scripts_output/$g$LIB_VERSION$h $PROJECT_ROOT_DIR_PATH/scripts_output/unix_like_serial_64.o $PROJECT_ROOT_DIR_PATH/scripts_output/unix_like_serial_lib_64.o -lpthread
+
+# Clean up
+if [ -f $PROJECT_ROOT_DIR_PATH/scripts_output/unix_like_serial_lib_64.o  ]; then
+rm $PROJECT_ROOT_DIR_PATH/scripts_output/unix_like_serial_lib_64.o
 fi
+
+if [ -f $PROJECT_ROOT_DIR_PATH/scripts_output/unix_like_serial_64.o  ]; then
+rm $PROJECT_ROOT_DIR_PATH/scripts_output/unix_like_serial_64.o
+fi
+
+# Building file: unix_like_serial.c
+gcc -I$JDK_INCLUDE_DIR -include$JNI_HEADER_FILE_PATH -O0 -g3 -Wall -c -fmessage-length=0 -fPIC -m32 -lpthread -o $PROJECT_ROOT_DIR_PATH/scripts_output/unix_like_serial_32.o $PROJECT_ROOT_DIR_PATH/com.embeddedunveiled.native/unix-like/src/unix_like_serial.c
+
+# Building file: unix_like_serial_lib.c
+gcc -I$JDK_INCLUDE_DIR -include$JNI_HEADER_FILE_PATH -O0 -g3 -Wall -c -fmessage-length=0 -fPIC -m32 -lpthread -o $PROJECT_ROOT_DIR_PATH/scripts_output/unix_like_serial_lib_32.o $PROJECT_ROOT_DIR_PATH/com.embeddedunveiled.native/unix-like/src/unix_like_serial_lib.c
+
+# Building target: linux_X.X.X_x86_64.so
+gcc -shared -m32 -o $PROJECT_ROOT_DIR_PATH/scripts_output/$g$LIB_VERSION$i $PROJECT_ROOT_DIR_PATH/scripts_output/unix_like_serial_32.o $PROJECT_ROOT_DIR_PATH/scripts_output/unix_like_serial_lib_32.o -lpthread
+
+# Clean up
+if [ -f $PROJECT_ROOT_DIR_PATH/scripts_output/unix_like_serial_lib_32.o  ]; then
+rm $PROJECT_ROOT_DIR_PATH/scripts_output/unix_like_serial_lib_32.o
+fi
+
+if [ -f $PROJECT_ROOT_DIR_PATH/scripts_output/unix_like_serial_32.o  ]; then
+rm $PROJECT_ROOT_DIR_PATH/scripts_output/unix_like_serial_32.o
+fi
+
+# Copy all shared libraries in libs folder that will be packaged in jar
+if [ -f $PROJECT_ROOT_DIR_PATH/scripts_output/$g$LIB_VERSION$h  ]; then
+cp $PROJECT_ROOT_DIR_PATH/scripts_output/$g$LIB_VERSION$h $PROJECT_ROOT_DIR_PATH/com.embeddedunveiled.serial/libs
+fi
+
+if [ -f $PROJECT_ROOT_DIR_PATH/scripts_output/$g$LIB_VERSION$i ]; then
+cp $PROJECT_ROOT_DIR_PATH/scripts_output/$g$LIB_VERSION$i $PROJECT_ROOT_DIR_PATH/com.embeddedunveiled.serial/libs
+fi
+
+if [ -f $PROJECT_ROOT_DIR_PATH/com.embeddedunveiled.native/windows_serial/x64/Debug/$a$LIB_VERSION$b  ]; then
+cp $PROJECT_ROOT_DIR_PATH/com.embeddedunveiled.native/windows_serial/x64/Debug/$a$LIB_VERSION$b $PROJECT_ROOT_DIR_PATH/com.embeddedunveiled.serial/libs
+fi
+
+if [ -f $PROJECT_ROOT_DIR_PATH/com.embeddedunveiled.native/windows_serial/Debug/$a$LIB_VERSION$c ]; then
+cp $PROJECT_ROOT_DIR_PATH/com.embeddedunveiled.native/windows_serial/Debug/$a$LIB_VERSION$c $PROJECT_ROOT_DIR_PATH/com.embeddedunveiled.serial/libs
+fi
+
+if [ -f $PROJECT_ROOT_DIR_PATH/com.embeddedunveiled.native/unix-like/Debug/$d$LIB_VERSION$e  ]; then
+cp $PROJECT_ROOT_DIR_PATH/com.embeddedunveiled.native/unix-like/Debug/$d$LIB_VERSION$e $PROJECT_ROOT_DIR_PATH/com.embeddedunveiled.serial/libs
+fi
+
+if [ -f $PROJECT_ROOT_DIR_PATH/com.embeddedunveiled.native/unix-like/Debug/$d$LIB_VERSION$f ]; then
+cp $PROJECT_ROOT_DIR_PATH/com.embeddedunveiled.native/unix-like/Debug/$d$LIB_VERSION$f $PROJECT_ROOT_DIR_PATH/com.embeddedunveiled.serial/libs
+fi
+
+# Build java source files and place class files in bin folder
+javac -d $PROJECT_ROOT_DIR_PATH/com.embeddedunveiled.serial/bin $PROJECT_ROOT_DIR_PATH/com.embeddedunveiled.serial/src/com/embeddedunveiled/serial/*.java
+
+# Export artifact scm.jar
+jar cf $PROJECT_ROOT_DIR_PATH/scripts_output/scm.jar -C $PROJECT_ROOT_DIR_PATH/com.embeddedunveiled.serial/bin com -C $PROJECT_ROOT_DIR_PATH/com.embeddedunveiled.serial libs
+
+echo "  "
+echo "~~~~~~~~~~ Build completed. Jar file is in scripts_output folder. ~~~~~~~~~~"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

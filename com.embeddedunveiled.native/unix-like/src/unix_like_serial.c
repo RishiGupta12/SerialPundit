@@ -271,7 +271,6 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINati
 			}
 		}
 		return portsFound;
-
 	}else {
 		if(DEBUG) fprintf(stderr, "%s \n", "ERROR scanning directory : /sys/class/tty/");
 		if(DEBUG) fflush(stderr);
@@ -344,7 +343,6 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINati
 		}
 	}
 	return portsFound;
-
 #endif
 }
 
@@ -379,7 +377,7 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInter
 		return -240;
 	}
 
-	if( (enableRead == JNI_TRUE) && (enableWrite == JNI_TRUE) ) {
+	if((enableRead == JNI_TRUE) && (enableWrite == JNI_TRUE)) {
 		OPEN_MODE = O_RDWR;
 	} else if (enableRead == JNI_TRUE) {
 		OPEN_MODE = O_RDONLY;
@@ -408,9 +406,8 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInter
 			return (negative * errno);
 		}
 #elif defined (__SunOS)
-		if(DEBUG) fprintf(stderr, "%s %d\n", "NATIVE openComPort(). Exclusive ownership is not supported for Solaris as of now.");
-		if(DEBUG) fflush(stderr);
-		return -1;
+		/* Exclusive ownership is not supported for Solaris as of now. */
+		return -241;
 #endif
 	}
 
@@ -482,7 +479,6 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInter
 	}
 
 	tcflush(fd, TCIOFLUSH);
-
 #endif
 
 	return fd;
@@ -500,10 +496,6 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInter
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_closeComPort(JNIEnv *env, jobject obj, jlong fd) {
 	jint ret = -1;
 	jint negative = -1;
-
-	/* int x = 0;
-	struct com_thread_params *ptr;
-	ptr = fd_looper_info; */
 
 	/* Flush all remaining data if any to the receiver. */
 #if defined (__linux__)
@@ -538,18 +530,6 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 		if(DEBUG) fflush(stderr);
 		return (negative * errno);
 	}
-
-	/* More analysis required http://manpages.ubuntu.com/manpages/precise/man7/epoll.7.html
-	pthread_mutex_lock(&mutex);
-	// Update the entry for this fd in global array.
-	for(x=0; x<MAX_NUM_THREADS; x++) {
-		if(ptr->fd == fd) {
-			ptr->fd = -1;
-			break;
-		}
-		ptr++;
-	}
-	pthread_mutex_unlock(&mutex); */
 
 	return ret;
 }

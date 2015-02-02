@@ -231,7 +231,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINati
 * Method:    openComPort
 * Signature: (Ljava/lang/String;ZZZ)J
 *
-* Communications ports cannot be shared in the same manner that files are shared.
+* Communications ports cannot be shared in the same manner as text files are shared in Windows.
 */
 JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_openComPort(JNIEnv *env, jobject obj, jstring portName, jboolean enableRead, jboolean enableWrite, jboolean exclusiveOwner) {
 	jint ret = 0;
@@ -253,7 +253,7 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInter
 		return -240;
 	}
 
-	/* To specify a COM port number greater than 9, use the following syntax : "\\.\COMXX". TODO  sprintf(str,"COM%d",port); */
+	/* To specify a COM port number greater than 9, use the following syntax : "\\.\COMXX". */
 	swprintf_s(portFullName, 512/2, TEXT("\\\\.\\%s"), port);
 
 	/* Access style; read, write or both */
@@ -267,11 +267,6 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInter
 
 	/* Exclusive ownership claim; '0' means no sharing. As per this link sharing has to be 0 means exclusive access.
 	 * msdn.microsoft.com/en-us/library/windows/desktop/aa363858%28v=vs.85%29.aspx */
-	if(exclusiveOwner == JNI_TRUE) {
-		SHARING = 0;
-	}else {
-		SHARING = FILE_SHARE_READ | FILE_SHARE_WRITE;
-	}
 	SHARING = 0;
 
 	/* The CreateFile function opens a communications port. */
@@ -1255,14 +1250,14 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 
 	if((rxPortbuf == JNI_TRUE) && (txPortbuf == JNI_TRUE)) {
 		PORTIOBUFFER = PURGE_RXCLEAR | PURGE_TXCLEAR;
-	}
-	else if(rxPortbuf == JNI_TRUE) {
+	}else if(rxPortbuf == JNI_TRUE) {
 		PORTIOBUFFER = PURGE_RXCLEAR;
-	}
-	else if(txPortbuf == JNI_TRUE) {
+	}else if(txPortbuf == JNI_TRUE) {
 		PORTIOBUFFER = PURGE_TXCLEAR;
+	}else {
 	}
 
+TODO FIND WHT ERROR PURGECOM MAY RETURN AND PASS MEANINGFUL ERROR N INSTEAD OF 240
 	ret = PurgeComm(hComm, PORTIOBUFFER);
 	if(ret == 0) {
 		errorVal = GetLastError();
@@ -1302,8 +1297,8 @@ JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeI
 	}
 
 	status[0] = 0;
-	status[1] = (modem_stat & MS_CTS_ON) ? 1 : 0;
-	status[2] = (modem_stat & MS_DSR_ON) ? 1 : 0;
+	status[1] = (modem_stat & MS_CTS_ON)  ? 1 : 0;
+	status[2] = (modem_stat & MS_DSR_ON)  ? 1 : 0;
 	status[3] = (modem_stat & MS_RLSD_ON) ? 1 : 0;
 	status[4] = (modem_stat & MS_RING_ON) ? 1 : 0;
 	status[5] = 0;

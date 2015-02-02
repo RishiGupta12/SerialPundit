@@ -62,13 +62,11 @@ public final class SerialComPortsList {
                         if(valueA.length() < valueB.length()){
                             i = resultsA[1];
                             shiftB = resultsA[1] - resultsB[1];
-                        }
-                        else {
+                        }else {
                             i = resultsB[1];
                             shiftA = resultsB[1] - resultsA[1];
                         }
-                    }
-                    else {
+                    }else {
                         if(Character.toLowerCase(charA) - Character.toLowerCase(charB) != 0){
                             return Character.toLowerCase(charA) - Character.toLowerCase(charB);
                         }
@@ -81,15 +79,17 @@ public final class SerialComPortsList {
         private int[] getNumberAndLastIndex(String str, int startIndex) {
             String numVal = "";
             int[] val = {-1, startIndex};
+            
             for(int i = startIndex; i < str.length(); i++){
                 val[1] = i;
                 char c = str.charAt(i);
                 if(Character.isDigit(c)){
                     numVal += c;
-                } else {
+                }else {
                     break;
                 }
             }
+            
             try {
                 val[0] = Integer.valueOf(numVal);
             } catch (Exception e) {
@@ -99,10 +99,18 @@ public final class SerialComPortsList {
         }
     };
 
+    /* Constructor */
 	public SerialComPortsList(SerialComJNINativeInterface nativeInterface) {
 		this.mNativeInterface = nativeInterface;
 	}
 	
+	/**
+	 * <p>This methods find all ports known to system at this instant.</p>
+	 * <p>For Linux, Windows and Mac OS, ports are found with the help of OS specific facilities/API.</p>
+	 * <p>For Solaris, a predefined port naming pattern is matched.</p>
+	 * 
+	 * @return array of ports found on system
+	 */
 	public String[] listAvailableComPorts() {
 		if(SerialComManager.getOSType() != SerialComManager.OS_SOLARIS) {
 			// For Linux, Mac, Windows get list from native library

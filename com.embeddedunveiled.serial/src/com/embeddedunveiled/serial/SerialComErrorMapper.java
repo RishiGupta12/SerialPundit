@@ -33,6 +33,9 @@ public final class SerialComErrorMapper {
 	public static final String ERR_UNABLE_TO_WRITE = "Unable to copy native library in tmp directory. Probably insufficient permissions !";
 	public static final String ERR_PORT_NAME_NULL = "Port name can not be null !";
 	public static final String ERR_INVALID_DATA_LENGTH = "Number of bytes should be positive value !";
+	public static final String ERR_WIN_OWNERSHIP = "Windows does not allow port sharing. The exclusiveOwnerShip must be true !";
+	public static final String ERR_CLOSE_WITHOUT_UNREG_DATA = "Closing port without unregistering data listener is not allowed. !";
+	public static final String ERR_CLOSE_WITHOUT_UNREG_EVENT = "Closing port without unregistering event listener is not allowed. !";
 	
 	public SerialComErrorMapper() {
 	}
@@ -190,6 +193,9 @@ public final class SerialComErrorMapper {
 			case -240:
 				// In some cases, we may deliberately send this value is we want known error to occur.
 				exceptionType = new String("Unknown exception occured !");
+				break;
+			case -241:
+				exceptionType = new String("Exclusive ownership is not supported for Solaris as of now. !");
 				break;
 			default:
 				// This means some we were not able to figure out.

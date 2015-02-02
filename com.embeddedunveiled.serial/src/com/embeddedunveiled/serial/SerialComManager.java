@@ -230,16 +230,17 @@ public final class SerialComManager {
 	}
 
 	/** 
-	 * <p>Developers are advised to use methods like openComPort(), closeComPort() and configureComPort() etc thread safe to maintian reliable
-	 * and  operation.</p>
+	 * <p>Developers are advised to consider using methods like openComPort(), closeComPort() and configureComPort() etc in thread safe
+	 * manner to maintain reliable and consistent operation.</p>
 	 * 
-	 * <p>This method runs to completion in synchronised manner, therefore a port before returning from this method have an exclusive owner 
-	 * or not. If it has exclusive owner and an attempt is made to open it again, native code will return error. On the other hand if it 
-	 * does not have an exclusive owner and application tries to open it in exclusive ownership mode, we issue a warning to the caller 
-	 * that the port is already opened.</p>
+	 * <p>For Linux and Mac OS X, if exclusiveOwnerShip is true, before this method return, the caller will either be exclusive owner
+	 * or not. If the caller is successful in becoming exclusive owner than all the attempt to open the same port again will cause
+	 * native code to return error. Note that a root owned process (root user) will still be able to open the port.</p>
 	 * 
-	 * <p>Note that even if the port is opened in exclusive ownership mode, the root user will still be able to access and operate on that
-	 * serial port.</p>
+	 * <p>For Windows, the caller has to be exclusive owner as Windows does not allow sharing COM ports as files can be shared.
+	 * An exception is thrown if exclusiveOwnerShip is set to false. The exclusiveOwnerShip must be true for Windows.</p>
+	 * 
+	 * <p>For Solaris, exclusiveOwnerShip should be set to false as of now.</p>
 	 * 
 	 * @param portName name of the port to be opened for communication
 	 * @param enableRead allows application to read bytes from this port
@@ -263,6 +264,13 @@ public final class SerialComManager {
 					System.out.println("The requested port " + portName + " is already opened.");
 					return -1; // let application be not only aware of this but re-think its design
 				}
+			}
+		}
+		
+		// For windows COM port can not be shared, so throw exception
+		if(getOSType() == OS_WINDOWS) {
+			if(exclusiveOwnerShip == false) {
+				throw new SerialComException(portName, "openComPort()",  SerialComErrorMapper.ERR_WIN_OWNERSHIP);
 			}
 		}
 
@@ -303,10 +311,11 @@ public final class SerialComManager {
 		}
 		
 		if(mHandleInfo.getDataListener() != null) {
-			System.out.println("CLOSING HANDLE WITHOUT UNREGISTERING DATA LISTENER !");
+			/* Proper clean up requires that, native thread should be destroyed before closing port. */
+			throw new SerialComException("closeComPort()", SerialComErrorMapper.ERR_CLOSE_WITHOUT_UNREG_DATA);
 		}
 		if(mHandleInfo.getEventListener() != null) {
-			System.out.println("CLOSING HANDLE WITHOUT UNREGISTERING EVENT LISTENER !");
+			throw new SerialComException("closeComPort()", SerialComErrorMapper.ERR_CLOSE_WITHOUT_UNREG_EVENT);
 		}
 		
 		int ret = mNativeInterface.closeComPort(handle);
@@ -692,15 +701,15 @@ public final class SerialComManager {
 	}
 
 	/**
-	 * This method assert/de-assert RTS line of serial port. Set "true" for asserting signal, false otherwise.
+	 * <p>This method assert/de-assert RTS line of serial port. Set "true" for asserting signal, false otherwise.</p>
 	 * 
 	 * <p>The RS-232 standard defines the voltage levels that correspond to logical one and logical zero levels for the data 
 	 * transmission and the control signal lines. Valid signals are either in the range of +3 to +15 volts or the range 
 	 * −3 to −15 volts with respect to the ground/common pin; consequently, the range between −3 to +3 volts is not a 
 	 * valid RS-232 level.</p>
 	 * 
-	 * For data lines (TxD, RxD and their secondary channel equivalents) logic one is defined as a negative voltage, the 
-	 * signal condition is called "mark". Logic zero is positive and the signal condition is termed "space". 
+	 * <p>For data lines (TxD, RxD and their secondary channel equivalents) logic one is defined as a negative voltage, the 
+	 * signal condition is called "mark". Logic zero is positive and the signal condition is termed "space".</p>
 	 * 
 	 * <p>Control signals have the opposite polarity: the asserted or active state is positive voltage and the de-asserted 
 	 * or inactive state is negative voltage. Examples of control lines include request to send (RTS), clear to send (CTS), 
@@ -720,7 +729,7 @@ public final class SerialComManager {
 	}
 
 	/**
-	 * This method assert/de-assert DTR line of serial port. Set "true" for asserting signal, false otherwise.
+	 * <p>This method assert/de-assert DTR line of serial port. Set "true" for asserting signal, false otherwise.</p>
 	 * 
 	 * @param handle of the opened port
 	 * @param enabled if true DTR will be asserted and vice-versa
@@ -736,9 +745,9 @@ public final class SerialComManager {
 	}
 
 	/**
-	 * This method associate a data looper with the given listener. This looper will keep delivering new data whenever
+	 * <p>This method associate a data looper with the given listener. This looper will keep delivering new data whenever
 	 * it is made available from native data collection and dispatching subsystem.
-	 * Note that listener will start receiving new data, even before this method returns.
+	 * Note that listener will start receiving new data, even before this method returns.</p>
 	 * 
 	 * @param handle of the port opened
 	 * @param dataListener instance of class which implements ISerialComDataListener interface
@@ -774,8 +783,8 @@ public final class SerialComManager {
 	}
 	
 	/**
-	 * This method destroys complete java and native looper subsystem associated with this particular data listener. This has no
-	 * effect on event looper subsystem.
+	 * <p>This method destroys complete java and native looper subsystem associated with this particular data listener. This has no
+	 * effect on event looper subsystem.</p>
 	 * 
 	 * @param dataListener instance of class which implemented ISerialComDataListener interface
 	 * @throws SerialComException if null value is passed in dataListener field
@@ -794,9 +803,9 @@ public final class SerialComManager {
 	}
 	
 	/**
-	 * By default, the data listener will be called for every single byte available. This may not be optimal in case
+	 * <p>By default, the data listener will be called for every single byte available. This may not be optimal in case
 	 * of data, but may be critical in case data actually is part of some custom protocol. So, applications can
-	 * dynamically change the behaviour of 'calling data listener' based on the amount of data availability.
+	 * dynamically change the behaviour of 'calling data listener' based on the amount of data availability.</p>
 	 * 
 	 * <p>Note: (1) If the port has been opened by more than one user, all the users will be affected by this method.
 	 * (2) This is not supported on Windows OS</p>
@@ -836,16 +845,16 @@ public final class SerialComManager {
 	}
 
 	/**
-	 * This method associate a event looper with the given listener. This looper will keep delivering new event whenever
-	 * it is made available from native event collection and dispatching subsystem.
+	 * <p>This method associate a event looper with the given listener. This looper will keep delivering new event whenever
+	 * it is made available from native event collection and dispatching subsystem.</p>
 	 * 
 	 * <p>By default all four events are dispatched to listener. However, application can mask events through setEventsMask()
 	 * method. In current implementation, native code sends all the events irrespective of mask and we actually filter
 	 * them in java layers, to decide whether this should be sent to application or not (as per the mask set by
 	 * setEventsMask() method).</p>
 	 * 
-	 * Before calling this method, make sure that port has been configured for hardware flow control using configureComPortControl
-	 * method.
+	 * <p>Before calling this method, make sure that port has been configured for hardware flow control using configureComPortControl
+	 * method.</p>
 	 * 
 	 * @param handle of the port opened
 	 * @param eventListener instance of class which implements ISerialComEventListener interface
@@ -880,8 +889,8 @@ public final class SerialComManager {
 	}
 	
 	/**
-	 * This method destroys complete java and native looper subsystem associated with this particular event listener. This has no
-	 * effect on data looper subsystem.
+	 * <p>This method destroys complete java and native looper subsystem associated with this particular event listener. This has no
+	 * effect on data looper subsystem.</p>
 	 * 
 	 * @param eventListener instance of class which implemented ISerialComEventListener interface
 	 * @throws SerialComException if null value is passed in eventListener field
@@ -900,7 +909,7 @@ public final class SerialComManager {
 
 	
 	/**
-	 * The user don't need data for some time or he may be managing data more efficiently.
+	 * <p>The user don't need data for some time or he may be managing data more efficiently.</p>
 	 * 
 	 * @param eventListener instance of class which implemented ISerialComEventListener interface
 	 * @throws SerialComException if null is passed for eventListener field
@@ -919,10 +928,10 @@ public final class SerialComManager {
 	}
 	
 	/**
-	 * The user don't need data for some time or he may be managing data more efficiently.
+	 * <p>The user don't need data for some time or he may be managing data more efficiently.
 	 * Note that the native thread will continue to receive events and data, it will pass this data to
 	 * java layer. User must be careful that new data will exist in queue if received after pausing, but
-	 * it will not get delivered to application.
+	 * it will not get delivered to application.</p>
 	 * 
 	 * @param eventListener is an instance of class which implements ISerialComEventListener
 	 * @throws SerialComException
@@ -941,9 +950,9 @@ public final class SerialComManager {
 	}
 
 	/**
-	 * In future we may shift modifying mask in the native code itself, so as to prevent JNI transitions.
+	 * <p>In future we may shift modifying mask in the native code itself, so as to prevent JNI transitions.
 	 * This filters what events should be sent to application. Note that, although we sent only those event
-	 * for which user has set mask, however native code send all the events to java layer as of now.
+	 * for which user has set mask, however native code send all the events to java layer as of now.</p>
 	 * 
 	 * @param eventListener instance of class which implemented ISerialComEventListener interface
 	 * @throws SerialComException if null is passed for listener field or invalid listener is passed
@@ -975,7 +984,7 @@ public final class SerialComManager {
 	}
 
 	/**
-	 * This method return currently applicable mask for events on serial port.
+	 * <p>This method return currently applicable mask for events on serial port.</p>
 	 * 
 	 * @param eventListener instance of class which implemented ISerialComEventListener interface
 	 * @throws SerialComException if null or wrong listener is passed
@@ -1007,11 +1016,11 @@ public final class SerialComManager {
 	}
 
 	/**
-	 * Discards data sent to port but not transmitted, or data received but not read. Some device/OS/driver might
+	 * <p>Discards data sent to port but not transmitted, or data received but not read. Some device/OS/driver might
 	 * not have support for this, but most of them may have.
 	 * If there is some data to be pending for transmission, it will be discarded and therefore no longer sent.
 	 * If the application wants to make sure that all data has been transmitted before discarding anything, it must
-	 * first flush data and then call this method.
+	 * first flush data and then call this method.</p>
 	 * 
 	 * @param handle of the opened port
 	 * @param clearRxPort if true receive buffer will be cleared otherwise will be left untouched 
@@ -1042,16 +1051,16 @@ public final class SerialComManager {
 	}
 	
 	/**
-	 * Assert a break condition on the specified port for the duration expressed in milliseconds.
+	 * <p>Assert a break condition on the specified port for the duration expressed in milliseconds.
 	 * If the line is held in the logic low condition (space in UART jargon) for longer than a character 
-	 * time, this is a break condition that can be detected by the UART.
+	 * time, this is a break condition that can be detected by the UART.</p>
 	 * 
-	 * A "break condition" occurs when the receiver input is at the "space" level for longer than some duration
+	 * <p>A "break condition" occurs when the receiver input is at the "space" level for longer than some duration
 	 * of time, typically, for more than a character time. This is not necessarily an error, but appears to the
 	 * receiver as a character of all zero bits with a framing error. The term "break" derives from current loop
 	 * signalling, which was the traditional signalling used for tele-typewriters. The "spacing" condition of a 
 	 * current loop line is indicated by no current flowing, and a very long period of no current flowing is often
-	 * caused by a break or other fault in the line.
+	 * caused by a break or other fault in the line.</p>
 	 * 
 	 * @param handle of the opened port
 	 * @param duration the time in milliseconds for which break will be active
@@ -1079,10 +1088,10 @@ public final class SerialComManager {
 	}
 	
 	/**
-	 * This method gives the number of serial line interrupts that have occurred. The interrupt count is in following
+	 * <p>This method gives the number of serial line interrupts that have occurred. The interrupt count is in following
 	 * order in array beginning from index 0 and ending with 11th index :
 	 * CTS, DSR, RING, CARRIER DETECT, RECEIVER BUFFER, TRANSMIT BUFFER, FRAME ERROR, OVERRUN ERROR, PARITY ERROR,
-	 * BREAK AND BUFFER OVERRUN.
+	 * BREAK AND BUFFER OVERRUN.</p>
 	 * 
 	 * <p>Note: It is supported on Linux OS only. For other operating systems, this will return 0 for all the indexes.</p>
 	 * 
@@ -1159,8 +1168,8 @@ public final class SerialComManager {
 	}
 	
 	/**
-	 * Get number of bytes in input and output port buffers used by operating system for instance tty buffers
-	 * in Unix like systems. Sequence of data in array is : Input count, Output count.
+	 * <p>Get number of bytes in input and output port buffers used by operating system for instance tty buffers
+	 * in Unix like systems. Sequence of data in array is : Input count, Output count.</p>
 	 * 
 	 * <p>It should be noted that some chipset specially USB to UART converters might have FIFO buffers in chipset
 	 * itself. For this reason number of bytes reported by this method and actual bytes received might differ.
@@ -1198,8 +1207,8 @@ public final class SerialComManager {
 	}
 	
 	/**
-	 * This will create a native thread that will invoke given listener whenever given port is removed.
-	 * This is currently not supported for Solaris.
+	 * <p>This will create a native thread that will invoke given listener whenever given port is removed.
+	 * This is currently not supported for Solaris.</p>
 	 * 
 	 * @param handle
 	 * @return true on success false otherwise
@@ -1230,7 +1239,7 @@ public final class SerialComManager {
 	}
 
 	/**
-	 * Enable printing debugging messages and stack trace for development and debugging purpose.
+	 * <p>Enable printing debugging messages and stack trace for development and debugging purpose.</p>
 	 * 
 	 * @param enable if true debugging messages will be printed otherwise not
 	 */

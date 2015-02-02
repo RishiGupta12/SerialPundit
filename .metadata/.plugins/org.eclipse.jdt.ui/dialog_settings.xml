@@ -52,6 +52,7 @@
 		<item value="true" key="use"/>
 		<item value="false" key="nonavbar"/>
 		<item value="public" key="access"/>
+		<item value="/home/r/ws-host-uart/development/stylesheet.css" key="stylesheetfile"/>
 		<item value="true" key="version"/>
 		<item value="false" key="nodeprecated"/>
 		<item value="/home/r/ws-host-uart/serial-com-manager/javadoc" key="destdir"/>
@@ -64,6 +65,31 @@
 		<item value="/home/r/ws-host-uart/serial-com-manager/com.embeddedunveiled.serial/javadoc.xml" key="antpath"/>
 		<item value="true" key="fromStandard"/>
 		<section name="projects">
+			<section name="test18">
+				<item value="/home/r/ws-host-uart/serial-com-manager/tests/test18/doc" key="destdir"/>
+				<item value="/home/r/ws-host-uart/serial-com-manager/tests/test18/javadoc.xml" key="antpath"/>
+				<item value="" key="href"/>
+			</section>
+			<section name="test17">
+				<item value="/home/r/ws-host-uart/serial-com-manager/tests/test17/doc" key="destdir"/>
+				<item value="/home/r/ws-host-uart/serial-com-manager/tests/test17/javadoc.xml" key="antpath"/>
+				<item value="" key="href"/>
+			</section>
+			<section name="test19">
+				<item value="/home/r/ws-host-uart/serial-com-manager/tests/test19/doc" key="destdir"/>
+				<item value="/home/r/ws-host-uart/serial-com-manager/tests/test19/javadoc.xml" key="antpath"/>
+				<item value="" key="href"/>
+			</section>
+			<section name="unix-like-serial">
+				<item value="/home/r/ws-host-uart/serial-com-manager/com.embeddedunveiled.native/unix-like/doc" key="destdir"/>
+				<item value="/home/r/ws-host-uart/serial-com-manager/com.embeddedunveiled.native/unix-like/javadoc.xml" key="antpath"/>
+				<item value="" key="href"/>
+			</section>
+			<section name="com.embeddedunveiled.serial">
+				<item value="/home/r/ws-host-uart/serial-com-manager/javadoc" key="destdir"/>
+				<item value="/home/r/ws-host-uart/serial-com-manager/com.embeddedunveiled.serial/javadoc.xml" key="antpath"/>
+				<item value="" key="href"/>
+			</section>
 		</section>
 	</section>
 	<section name="JavadocWizardDialog">

@@ -81,6 +81,7 @@ public final class SerialComLooper {
 					}
 				}
 			}
+			exitDataThread.set(false); // Reset exit flag
 		}
 	}
 	
@@ -105,6 +106,7 @@ public final class SerialComLooper {
 					}
 				}
 			}
+			exitEventThread.set(false); // Reset exit flag
 		}
 	}
 	
