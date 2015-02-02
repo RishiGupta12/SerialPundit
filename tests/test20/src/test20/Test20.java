@@ -12,14 +12,14 @@ import com.embeddedunveiled.serial.SerialComDataEvent;
 class Data0 implements ISerialComDataListener{
 	@Override
 	public void onNewSerialDataAvailable(SerialComDataEvent data) {
-		System.out.println("0 Read from serial port : " + new String(data.getDataBytes()) + "\n");
+		System.out.println("0 Read from serial port : " + new String(data.getDataBytes()));
 	}
 }
 
 class Data1 implements ISerialComDataListener{
 	@Override
 	public void onNewSerialDataAvailable(SerialComDataEvent data) {
-		System.out.println("1 Read from serial port : " + new String(data.getDataBytes()) + "\n");
+		System.out.println("1 Read from serial port : " + new String(data.getDataBytes()));
 	}
 }
 
@@ -44,11 +44,28 @@ public class Test20 {
 			long handle1 = scm.openComPort("/dev/ttyUSB1", true, true, false);
 			scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
 			scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, '$', '#', false, false);
-			scm.registerDataListener(handle, dataListener1);
+			scm.registerDataListener(handle1, dataListener1);
 			
-			scm.writeString(handle, "#", 0);
+			scm.writeString(handle, "$", 0);
+			scm.writeString(handle1, "$", 0);
 			
-			scm.writeString(handle1, "17", 0);
+			scm.writeString(handle, "a#b", 0);
+			scm.writeString(handle1, "c#d", 0);
+			
+//			scm.writeString(handle, "$", 0);
+//			scm.writeString(handle1, "$", 0);
+			
+			scm.writeString(handle, "e", 0);
+			scm.writeString(handle1, "f", 0);
+			
+			scm.writeString(handle, "\n", 0);
+			scm.writeString(handle1, "\n", 0);
+			
+			scm.writeString(handle, "a$b", 0);
+			scm.writeString(handle1, "c$d", 0);
+			
+			scm.writeString(handle, "e$f", 0);
+			scm.writeString(handle1, "g$h", 0);
 
 
 			Thread.sleep(2000);

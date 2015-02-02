@@ -45,6 +45,7 @@ public final class SerialComCompletionDispatcher {
 	}
 	
 	/**
+	 * <p>This method creates data looper thread and initialise subsystem for data event passing. </p>
 	 * 
 	 * @param dataListener listener for which looper has to be set up
 	 * @param mHandleInfo Reference to SerialComPortHandleInfo object associated with given handle

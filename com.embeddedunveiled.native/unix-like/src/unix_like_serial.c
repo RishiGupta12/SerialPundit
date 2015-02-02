@@ -430,6 +430,9 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInter
 	/* Input options :
 	 * IGNBRK : Ignore break conditions, INLCR : Don't Map NL to CR, ICRNL : Don't Map CR to NL */
 	settings.c_iflag &= ~(IMAXBEL | IGNBRK | BRKINT | PARMRK | ISTRIP | INLCR | IGNCR | ICRNL | IXON);
+#ifdef IUCLC
+    settings.c_iflag &= ~IUCLC;
+#endif
 
 	/* Output options :
 	 * OPOST : No output processing, ONLCR : Don't convert line feeds */
@@ -958,7 +961,8 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 		currentconfig.c_cflag |= CRTSCTS;                   /* Specifying hardware flow control. */
 		currentconfig.c_cflag &= ~CLOCAL;
 	} else if(flowctrl == 3) {
-		currentconfig.c_iflag |= (IXON | IXOFF | IXANY);    /* Software flow control on both tx and rx data. */
+		currentconfig.c_cflag &= ~CRTSCTS;
+		currentconfig.c_iflag |= (IXON | IXOFF);    /* Software flow control on both tx and rx data. */
 		currentconfig.c_cc[VSTART] = xon;                   /* The value of the XON character for both transmission and reception. */
 		currentconfig.c_cc[VSTOP] = xoff;                   /* The value of the XOFF character for both transmission and reception. */
 	}
