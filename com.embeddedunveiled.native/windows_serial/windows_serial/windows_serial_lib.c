@@ -17,6 +17,9 @@
  *
  ***************************************************************************************************/
 
+/* We have tried to follow the philosophy that resources specific to thread should be held by thread
+ * and that the thread is responsible for cleaning them before exiting. */
+
 #include "stdafx.h"
 #include <jni.h>
 #include <windows.h>
@@ -140,6 +143,17 @@ unsigned __stdcall event_data_looper(void* arg) {
 		return 0; /* For unrecoverable errors we would like to exit and try again. */
 	}
 
+	((struct looper_thread_params*) arg)->wait_event_handles[0] = CreateEvent(NULL, FALSE, FALSE, NULL);
+	if (((struct looper_thread_params*) arg)->wait_event_handles[0] == NULL) {
+		if (DEBUG) fprintf(stderr, "%s\n", "NATIVE event_data_looper() failed to create thread exit event handle.");
+		if (DEBUG) fflush(stderr);
+		EnterCriticalSection(((struct looper_thread_params*) arg)->csmutex);
+		CloseHandle(((struct looper_thread_params*) arg)->thread_handle);
+		((struct looper_thread_params*) arg)->thread_handle = 0;
+		LeaveCriticalSection(((struct looper_thread_params*) arg)->csmutex);
+		return 0;
+	}
+
 	/* This keep looping forever until listener is unregistered, waiting for data or event and passing it to java layer which put it in the queue. */
 	while(1) {
 		eventOccurred = FALSE;
@@ -163,7 +177,10 @@ unsigned __stdcall event_data_looper(void* arg) {
 		/* If the overlapped operation cannot be completed immediately, the function returns FALSE and the GetLastError function returns ERROR_IO_PENDING,
 		   indicating that the operation is executing in the background. When this happens, the system sets the hEvent member of the OVERLAPPED structure
 		   to the not-signaled state before WaitCommEvent returns, and then it sets it to the signaled state when one of the specified events or an error 
-		   occurs. */
+		   occurs.
+
+		   Note that sometimes if port is physically removed from system while listener thread is still alive, system may become slow or hang. This need
+		   more testing and clarification from Windows OS perspective. */
 		ret = WaitCommEvent(hComm, &events_mask, &overlapped);
 		if(ret == 0) {
 			errorVal = GetLastError();

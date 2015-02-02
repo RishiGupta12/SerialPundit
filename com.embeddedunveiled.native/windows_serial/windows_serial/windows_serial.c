@@ -131,8 +131,6 @@ JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInt
 JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_getSerialPortNames(JNIEnv *env, jobject obj) {
 	LONG result = 0;
 	HKEY hKey;
-	TCHAR achKey[255];                    /* buffer for subkey name      */
-	DWORD cbName;                         /* size of name string         */
 	TCHAR achClass[MAX_PATH] = TEXT("");  /* buffer for class name       */
 	DWORD cchClassName = MAX_PATH;        /* size of class string        */
 	DWORD cSubKeys = 0;                   /* number of subkeys           */
@@ -303,6 +301,7 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInter
 	/* Make sure that the device we are going to operate on, is a valid serial port. */
 	SecureZeroMemory(&dcb, sizeof(DCB));
 	dcb.DCBlength = sizeof(DCB);
+	/* Retrieves the current control settings for a specified communications device. */
 	ret = GetCommState(hComm, &dcb);
 	if(ret == 0) {
 		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE GetCommState() in openComPort() failed.");
@@ -1257,7 +1256,6 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 	}else {
 	}
 
-TODO FIND WHT ERROR PURGECOM MAY RETURN AND PASS MEANINGFUL ERROR N INSTEAD OF 240
 	ret = PurgeComm(hComm, PORTIOBUFFER);
 	if(ret == 0) {
 		errorVal = GetLastError();
@@ -1416,7 +1414,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 		return setupLooperThread(env, obj, handle, looper, 1, 0);
 	}
 
-	return -1;
+	return 0;
 }
 /*
 * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
@@ -1466,7 +1464,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 		return setupLooperThread(env, obj, handle, looper, 0, 1);
 	}
 
-	return -1;
+	return 0;
 }
 
 int setupLooperThread(JNIEnv *env, jobject obj, jlong handle, jobject looper_obj_ref, int data_enabled, int event_enabled) {
@@ -1494,14 +1492,7 @@ int setupLooperThread(JNIEnv *env, jobject obj, jlong handle, jobject looper_obj
 	params.event_enabled = event_enabled;
 	params.thread_exit = 0;
 	params.csmutex = &csmutex;           /* Same mutex is shared across all the threads. */
-
-	params.wait_event_handles[0] = CreateEvent(NULL, FALSE, FALSE, NULL);
-	if(params.wait_event_handles[0] == NULL) {
-		if(DEBUG) fprintf(stderr, "%s%d\n", "NATIVE setupLooperThread() failed to create wait event with error number : -", GetLastError());
-		if(DEBUG) fprintf(stderr, "%s \n", "PLEASE TRY AGAIN !");
-		if(DEBUG) fflush(stderr);
-		return -240;
-	}
+	params.wait_event_handles[0] = 0;
 	params.wait_event_handles[1] = 0;
 
 	/* We have prepared data to be passed to thread, so create reference and pass it. */
