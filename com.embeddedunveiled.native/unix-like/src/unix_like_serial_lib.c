@@ -187,7 +187,6 @@ void *data_looper(void *arg) {
 		pthread_mutex_unlock(((struct com_thread_params*) arg)->mutex);
 		pthread_exit((void *)0);
 	}
-	((struct com_thread_params*) arg)->epfd = epfd;  /* Save epfd for cleanup. */
 
 	/* add serial port to epoll wait mechanism. Use level triggered epoll mechanism.  */
 	ev_port.events = (EPOLLIN | EPOLLPRI | EPOLLERR | EPOLLHUP);
@@ -330,13 +329,10 @@ void *data_looper(void *arg) {
 	jbyte empty_buf[] = { };
 	jbyteArray dataRead;
 
-	/* ev_port refers to serial port fd and ev_exit refers to fd on which we make an event happen explicitly
-	 * so as to signal epoll_wait come out of waiting state. */
-	int epfd = 0;
-	struct epoll_event ev_port;
-	struct epoll_event ev_exit;
-	struct epoll_event events;
-
+	int kq;
+	struct kevent chlist[2];   /* events to monitor */
+	struct kevent evlist[2];   /* events that were triggered */
+	int pipe[2]; /* pipe[0] is reading end, and pipe[1] is writing end. */
 	pthread_mutex_lock(((struct com_thread_params*) arg)->mutex);
 
 	struct com_thread_params* params = (struct com_thread_params*) arg;
@@ -383,64 +379,34 @@ void *data_looper(void *arg) {
 	}
 
 	errno = 0;
-	ret  = eventfd(0, O_NONBLOCK);
+	ret = pipe(pipe);
 	if(ret < 0) {
-		if(DEBUG) fprintf(stderr, "%s %d\n", "NATIVE data_looper() thread failed to create eventfd with error number : -", errno);
+		if(DEBUG) fprintf(stderr, "%s%d\n", "NATIVE data_looper() thread failed in pipe() with error number : -", errno);
+		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE data_looper() thread exiting. Please RETRY registering data listener !");
 		if(DEBUG) fflush(stderr);
 		((struct com_thread_params*) arg)->data_thread_id = 0;
 		((struct com_thread_params*) arg)->data_init_done = negative * errno;
 		pthread_mutex_unlock(((struct com_thread_params*) arg)->mutex);
 		pthread_exit((void *)0);
 	}
-	((struct com_thread_params*) arg)->evfd = ret;  /* Save evfd for cleanup. */
+	((struct com_thread_params*) arg)->evfd = pipe[1];  /* Save evfd for exit and cleanup. */
 
+	/* The kqueue() system call creates a new kernel event queue and returns a file descriptor. */
 	errno = 0;
-	epfd = epoll_create(2);
-	if(epfd < 0) {
-		if(DEBUG) fprintf(stderr, "%s%d\n", "NATIVE data_looper() thread failed in epoll_create() with error number : -", errno);
+	kq = kqueue();
+	if(kq < 0) {
+		if(DEBUG) fprintf(stderr, "%s%d\n", "NATIVE data_looper() thread failed in kevent() for adding serial port with error number : -", errno);
 		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE data_looper() thread exiting. Please RETRY registering data listener !");
 		if(DEBUG) fflush(stderr);
-		close(((struct com_thread_params*) arg)->evfd);
-		((struct com_thread_params*) arg)->data_thread_id = 0;
-		((struct com_thread_params*) arg)->data_init_done = negative * errno;
-		pthread_mutex_unlock(((struct com_thread_params*) arg)->mutex);
-		pthread_exit((void *)0);
-	}
-	((struct com_thread_params*) arg)->epfd = epfd;  /* Save epfd for cleanup. */
-
-	/* add serial port to epoll wait mechanism. Use level triggered epoll mechanism.  */
-	ev_port.events = (EPOLLIN | EPOLLPRI | EPOLLERR | EPOLLHUP);
-	ev_port.data.fd = fd;
-	errno = 0;
-	ret = epoll_ctl(epfd, EPOLL_CTL_ADD, fd, &ev_port);
-	if(ret < 0) {
-		if(DEBUG) fprintf(stderr, "%s%d\n", "NATIVE data_looper() thread failed in epoll_ctl() for adding serial port with error number : -", errno);
-		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE data_looper() thread exiting. Please RETRY registering data listener !");
-		if(DEBUG) fflush(stderr);
-		close(epfd);
-		close(((struct com_thread_params*) arg)->evfd);
 		((struct com_thread_params*) arg)->data_thread_id = 0;
 		((struct com_thread_params*) arg)->data_init_done = negative * errno;
 		pthread_mutex_unlock(((struct com_thread_params*) arg)->mutex);
 		pthread_exit((void *)0);
 	}
 
-	/* add our thread exit signal fd to epoll wait mechanism. */
-	ev_exit.events = (EPOLLIN | EPOLLPRI | EPOLLERR | EPOLLHUP);
-	ev_exit.data.fd = ((struct com_thread_params*) arg)->evfd;
-	errno = 0;
-	ret = epoll_ctl(epfd, EPOLL_CTL_ADD, ((struct com_thread_params*) arg)->evfd, &ev_exit);
-	if(ret < 0) {
-		if(DEBUG) fprintf(stderr, "%s%d\n", "NATIVE data_looper() thread failed in epoll_ctl() for adding exit event evfd with error number : -", errno);
-		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE data_looper() thread exiting. Please RETRY registering data listener !");
-		if(DEBUG) fflush(stderr);
-		close(epfd);
-		close(((struct com_thread_params*) arg)->evfd);
-		((struct com_thread_params*) arg)->data_thread_id = 0;
-		((struct com_thread_params*) arg)->data_init_done = negative * errno;
-		pthread_mutex_unlock(((struct com_thread_params*) arg)->mutex);
-		pthread_exit((void *)0);
-	}
+	/* Initialize what changes to be monitor on which fd. */
+	EV_SET(&chlist[0], fd, EVFILT_READ, EV_ADD , 0, 0, NULL);
+	EV_SET(&chlist[1], pipe[0], EVFILT_READ, EV_ADD , 0, 0, NULL);
 
 	/* indicate success to caller so it can return success to java layer */
 	((struct com_thread_params*) arg)->data_init_done = 1;
@@ -450,7 +416,7 @@ void *data_looper(void *arg) {
 	while(1) {
 
 		errno = 0;
-		ret = epoll_wait(epfd, &events, 4, -1);
+		ret = kevent(kq, chlist, 2, evlist, 2, NULL);
 		if(ret < 0) {
 			/* for error just restart looping. */
 			continue;
@@ -458,13 +424,19 @@ void *data_looper(void *arg) {
 
 		/* check if thread should exit due to un-registration of listener. */
 		if(1 == ((struct com_thread_params*) arg)->data_thread_exit) {
-			close(epfd);
-			close(((struct com_thread_params*) arg)->evfd);
+			close(kq);
 			((struct com_thread_params*) arg)->data_thread_id = 0;
 			pthread_exit((void *)0);
 		}
 
-		if((events.events & EPOLLIN) && !(events.events & EPOLLERR)) {
+
+		if(DEBUG) fprintf(stderr, "%s  %d  %d\n", "======", evlist[0].flags, evlist[1].flags);
+		if(DEBUG) fflush(stderr);
+
+
+
+
+		if((evlist[0].ident == fd) && (evlist[0].flags & EVFILT_READ)) {
 			/* input event happened, no error occurred, we have data to read on file descriptor. */
 			do {
 				errno = 0;
