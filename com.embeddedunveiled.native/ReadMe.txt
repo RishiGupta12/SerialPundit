@@ -1,12 +1,12 @@
 ========================================================================
 
-Windows : windows_serial folder contains native shared library developed in visual studio.
+windows_serial folder : contains native shared library developed in visual studio.
 
-Linux : linux_serial directory contains eclipse CDT project using gcc toolchain.
+linux_serial folder : contains eclipse CDT project using gcc toolchain for Linux platform.
 
-Mac OS x : macOS_serial directory contains eclipse CDT project using gcc/xcode/os x toolchain.
+macOS_serial : contains eclipse CDT project using /macosx gcc toolchain for Apple Mac book.
 
-The linux and mac share common header file interface to java layer.
+Note that the linux and mac share common header file interface to java layer.
 
 ========================================================================
 
