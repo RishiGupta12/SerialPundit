@@ -27,7 +27,7 @@ public class Test17 {
 		
 		try {
 			// open and configure port that will listen data
-			handle = scm.openComPort("/dev/ttyUSB1", true, true, false);
+			handle = scm.openComPort("/dev/cu.usbserial-A70362A3", true, true, false);
 			scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
 			scm.configureComPortControl(handle, FLOWCONTROL.NONE, 'x', 'x', false, false);
 			
@@ -35,7 +35,7 @@ public class Test17 {
 			System.out.println("1" + scm.registerDataListener(handle, dataListener));
 			
 			// open and configure port which will send data
-			long handle1 = scm.openComPort("/dev/ttyUSB0", true, true, false);
+			long handle1 = scm.openComPort("/dev/cu.usbserial-A602RDCH", true, true, false);
 			scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
 			scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
 			
