@@ -100,7 +100,7 @@
 #include "unix_like_serial_lib.h"
 
 /* Common interface with java layer for supported OS types. */
-#include "../com_embeddedunveiled_serial_SerialComJNINativeInterface.h"
+#include "../../com_embeddedunveiled_serial_SerialComJNINativeInterface.h"
 
 
 #undef  UART_NATIVE_LIB_VERSION

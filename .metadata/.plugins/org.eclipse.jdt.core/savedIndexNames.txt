@@ -1,14 +1,4 @@
 INDEX VERSION 1.127+/home/r/ws-host-uart/serial-com-manager/.metadata/.plugins/org.eclipse.jdt.core
-3582537049.index
-3996496665.index
 487595418.index
-2057268091.index
-2044989656.index
-1685924360.index
-3235027583.index
-1447798028.index
-12989538.index
-191572883.index
-4226403065.index
-3679294721.index
-3088524185.index
+829050018.index
+3241873100.index
