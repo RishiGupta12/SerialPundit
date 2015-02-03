@@ -40,7 +40,7 @@ public class Test18 {
 			Thread.sleep(1000);
 			scm.setDTR(handle1, true);
 			Thread.sleep(1000);
-			scm.setRTS(handle1, false);
+			scm.setRTS(handle1, true);
 			Thread.sleep(1000);
 			scm.setDTR(handle1, false);
 			Thread.sleep(1000);
