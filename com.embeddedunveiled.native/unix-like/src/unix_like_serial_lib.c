@@ -231,7 +231,7 @@ void *data_looper(void *arg) {
 
 		errno = 0;
 		ret = epoll_wait(epfd, &events, 4, -1);
-		if(ret < 0) {
+		if(ret <= 0) {
 			/* for error just restart looping. */
 			continue;
 		}
@@ -332,7 +332,7 @@ void *data_looper(void *arg) {
 	int kq;
 	struct kevent chlist[2];   /* events to monitor */
 	struct kevent evlist[2];   /* events that were triggered */
-	int pipe[2]; /* pipe[0] is reading end, and pipe[1] is writing end. */
+	int pipe1[2]; /* pipe1[0] is reading end, and pipe1[1] is writing end. */
 	pthread_mutex_lock(((struct com_thread_params*) arg)->mutex);
 
 	struct com_thread_params* params = (struct com_thread_params*) arg;
@@ -379,7 +379,7 @@ void *data_looper(void *arg) {
 	}
 
 	errno = 0;
-	ret = pipe(pipe);
+	ret = pipe(pipe1);
 	if(ret < 0) {
 		if(DEBUG) fprintf(stderr, "%s%d\n", "NATIVE data_looper() thread failed in pipe() with error number : -", errno);
 		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE data_looper() thread exiting. Please RETRY registering data listener !");
@@ -389,7 +389,7 @@ void *data_looper(void *arg) {
 		pthread_mutex_unlock(((struct com_thread_params*) arg)->mutex);
 		pthread_exit((void *)0);
 	}
-	((struct com_thread_params*) arg)->evfd = pipe[1];  /* Save evfd for exit and cleanup. */
+	((struct com_thread_params*) arg)->evfd = pipe1[1];  /* Save writing end of pipe for exit and cleanup. */
 
 	/* The kqueue() system call creates a new kernel event queue and returns a file descriptor. */
 	errno = 0;
@@ -400,13 +400,14 @@ void *data_looper(void *arg) {
 		if(DEBUG) fflush(stderr);
 		((struct com_thread_params*) arg)->data_thread_id = 0;
 		((struct com_thread_params*) arg)->data_init_done = negative * errno;
+		close(pipe1);
 		pthread_mutex_unlock(((struct com_thread_params*) arg)->mutex);
 		pthread_exit((void *)0);
 	}
 
 	/* Initialize what changes to be monitor on which fd. */
 	EV_SET(&chlist[0], fd, EVFILT_READ, EV_ADD , 0, 0, NULL);
-	EV_SET(&chlist[1], pipe[0], EVFILT_READ, EV_ADD , 0, 0, NULL);
+	EV_SET(&chlist[1], pipe1[0], EVFILT_READ, EV_ADD , 0, 0, NULL);
 
 	/* indicate success to caller so it can return success to java layer */
 	((struct com_thread_params*) arg)->data_init_done = 1;
@@ -417,24 +418,22 @@ void *data_looper(void *arg) {
 
 		errno = 0;
 		ret = kevent(kq, chlist, 2, evlist, 2, NULL);
-		if(ret < 0) {
+		if(ret <= 0) {
 			/* for error just restart looping. */
 			continue;
 		}
 
-		/* check if thread should exit due to un-registration of listener. */
-		if(1 == ((struct com_thread_params*) arg)->data_thread_exit) {
-			close(kq);
-			((struct com_thread_params*) arg)->data_thread_id = 0;
-			pthread_exit((void *)0);
+		/* Depending upon how many events has happened, pipe1[0] fd can be at 1st or 2nd
+		 * index in evlist array. */
+		if((evlist[0].ident == pipe1[0]) || (evlist[1].ident == pipe1[0])) {
+			/* check if thread should exit due to un-registration of listener. */
+			if(1 == ((struct com_thread_params*) arg)->data_thread_exit) {
+				close(kq);
+				close(pipe1);
+				((struct com_thread_params*) arg)->data_thread_id = 0;
+				pthread_exit((void *)0);
+			}
 		}
-
-
-		if(DEBUG) fprintf(stderr, "%s  %d  %d\n", "======", evlist[0].flags, evlist[1].flags);
-		if(DEBUG) fflush(stderr);
-
-
-
 
 		if((evlist[0].ident == fd) && (evlist[0].flags & EVFILT_READ)) {
 			/* input event happened, no error occurred, we have data to read on file descriptor. */
@@ -586,7 +585,7 @@ void *event_looper(void *arg) {
 		/*TODO when the user removes port on which this thread was calling this ioctl, this thread keep giving
 		 * error -5 and keep looping in this ioctl. */
 		errno = 0;
-		ret = ioctl(fd, TIOCMIWAIT, TIOCM_CD | TIOCM_RNG | TIOCM_DSR | TIOCM_CTS);
+		//ret = ioctl(fd, TIOCMIWAIT, TIOCM_CD | TIOCM_RNG | TIOCM_DSR | TIOCM_CTS);
 		if(ret < 0) {
 			if(DEBUG) fprintf(stderr, "%s%d\n", "NATIVE event_looper() failed in ioctl TIOCMIWAIT with error number : -", errno);
 			if(DEBUG) fflush(stderr);
@@ -602,10 +601,10 @@ void *event_looper(void *arg) {
 			continue;
 		}
 
-		cts = (lines_status & TIOCM_CTS)  ? 1 : 0;
-		dsr = (lines_status & TIOCM_DSR)  ? 1 : 0;
-		dcd = (lines_status & TIOCM_CD)   ? 1 : 0;
-		ri  = (lines_status & TIOCM_RI)   ? 1 : 0;
+		cts = (lines_status & TIOCM_CTS) ? 1 : 0;
+		dsr = (lines_status & TIOCM_DSR) ? 1 : 0;
+		dcd = (lines_status & TIOCM_CD)  ? 1 : 0;
+		ri  = (lines_status & TIOCM_RI)  ? 1 : 0;
 
 		if(cts) {
 			event = event | CTS;

@@ -100,7 +100,7 @@
 #include "unix_like_serial_lib.h"
 
 /* Common interface with java layer for supported OS types. */
-#include "../../com_embeddedunveiled_serial_SerialComJNINativeInterface.h"
+#include "../com_embeddedunveiled_serial_SerialComJNINativeInterface.h"
 
 
 #undef  UART_NATIVE_LIB_VERSION
@@ -1572,8 +1572,6 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 	void *status;
 #if defined (__linux__)
 	uint64_t value = 1;
-#elif defined (__APPLE__) || defined (__SunOS)
-	int value = 1;
 #endif
 
 	pthread_mutex_lock(&mutex);
@@ -1595,7 +1593,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 	 * so thread come out of waiting on fd and can check thread_exit flag. */
 	ret = write(ptr->evfd, &value, sizeof(value));
 #elif defined (__APPLE__) || defined (__SunOS)
-	ret = write(ptr->evfd, &value, sizeof(value));
+	ret = write(ptr->evfd, "E", strlen("E"));
 #endif
 
 	/* Join the thread to check its exit status. */
