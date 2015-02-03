@@ -413,7 +413,7 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInter
 
 	/* Control options :
 	 * CREAD and CLOCAL are enabled to make sure that the caller program does not become the owner of the
-	 * port subject to sporatic job control and hang-up signals, and also that the serial interface driver
+	 * port subject to sporadic job control and hang-up signals, and also that the serial interface driver
 	 * will read incoming bytes. CLOCAL results in ignoring modem status lines while CREAD enables receiving
 	 * data. CRTSCTS indicates no hardware flow control. */
 	settings.c_cflag &= ~CRTSCTS;                                   /* Not is POSIX, requires _BSD_SOURCE */
@@ -428,16 +428,25 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInter
 	settings.c_cc[VTIME] = 0;
 
 	/* Input options :
-	 * IGNBRK : Ignore break conditions, INLCR : Don't Map NL to CR, ICRNL : Don't Map CR to NL */
+	 * IMAXBEL : ring bell on input queue full, IGNBRK : Ignore break conditions, BRKINT : map BREAK to SIGINTR,
+	 * PARMRK : mark parity and framing errors, ISTRIP : strip 8th bit off chars, INLCR : Don't Map NL to CR,
+	 * IGNCR : ignore CR, ICRNL : Don't Map CR to NL, IXON : enable output flow control */
 	settings.c_iflag &= ~(IMAXBEL | IGNBRK | BRKINT | PARMRK | ISTRIP | INLCR | IGNCR | ICRNL | IXON);
 #ifdef IUCLC
-    settings.c_iflag &= ~IUCLC;
+    settings.c_iflag &= ~IUCLC;  /* translate upper case to lower case */
 #endif
 
 	/* Output options :
-	 * OPOST : No output processing, ONLCR : Don't convert line feeds */
-	settings.c_oflag &= ~OPOST;
-	settings.c_oflag &= ~ONLCR;
+	 * OPOST : No output processing, ONLCR : Don't convert line feeds , OXTABS : expand tabs to spaces,
+	 * OCRNL : map CR to NL, ONOCR : No CR output at column 0, ONLRET : NL performs CR function.*/
+	settings.c_oflag &= ~(OPOST | ONLCR | OCRNL | ONOCR | ONLRET);
+#ifdef OXTABS
+    settings.c_oflag &= ~OXTABS;  /* expand tabs to spaces */
+#endif
+#ifdef ONOEOT
+    settings.c_oflag &= ~ONOEOT;  /* discard EOT's `^D' on output */
+#endif
+
 
 	/* Line options :
 	 * Non-canonical mode is enabled. Do not echo. */

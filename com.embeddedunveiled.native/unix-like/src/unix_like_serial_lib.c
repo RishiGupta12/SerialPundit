@@ -40,7 +40,7 @@
 #include <linux/serial.h>
 #include <linux/ioctl.h>
 #include <sys/eventfd.h>    /* Linux eventfd for event notification. */
-#include <sys/epoll.h>		 /* epoll feature of Linux	              */
+#include <sys/epoll.h>      /* epoll feature of Linux	              */
 #include <signal.h>
 #endif
 
@@ -258,7 +258,8 @@ void *data_looper(void *arg) {
 		if(DEBUG) fflush(stderr);
 		((struct com_thread_params*) arg)->data_thread_id = 0;
 		((struct com_thread_params*) arg)->data_init_done = negative * errno;
-		close(pipe1);
+		close(pipe1[0]);
+		close(pipe1[1]);
 		pthread_mutex_unlock(((struct com_thread_params*) arg)->mutex);
 		pthread_exit((void *)0);
 	}
@@ -311,7 +312,8 @@ void *data_looper(void *arg) {
 		/* check if thread should exit due to un-registration of listener. */
 		if(1 == ((struct com_thread_params*) arg)->data_thread_exit) {
 			close(kq);
-			close(pipe1);
+			close(pipe1[0]);
+			close(pipe1[1]);
 			((struct com_thread_params*) arg)->data_thread_id = 0;
 			pthread_exit((void *)0);
 		}
@@ -393,7 +395,8 @@ void *data_looper(void *arg) {
 }
 
 /* This thread wait for a serial event to occur and enqueues it in event queue managed by java layer. */
-/* TIOCMWAIT RETURNS -EIO IF DEVICE FROM USB PORT HAS BEEN REMOVED */
+/* TIOCMWAIT RETURNS -EIO IF DEVICE FROM USB PORT HAS BEEN REMOVED.
+ * TODO FOR APPLE */
 void *event_looper(void *arg) {
 	int ret = 0;
 	struct com_thread_params* params = (struct com_thread_params*) arg;
@@ -408,6 +411,8 @@ void *event_looper(void *arg) {
 	int lines_status = 0;
 	int cts,dsr,dcd,ri = 0;
 	int event = 0;
+	int oldstate = 0;
+	int newstate = 0;
 
 	pthread_mutex_lock(((struct com_thread_params*) arg)->mutex);
 
@@ -469,6 +474,7 @@ void *event_looper(void *arg) {
 		ri = 0;
 		event = 0;
 
+#if defined (__linux__)
 		/* When the user removes port on which this thread was calling this ioctl, this thread keep giving
 		 * error -5 and keep looping in this ioctl for Linux. */
 		errno = 0;
@@ -478,6 +484,10 @@ void *event_looper(void *arg) {
 			if(DEBUG) fflush(stderr);
 			continue;
 		}
+#endif
+#if defined (__APPLE__)
+		usleep(500000);
+#endif
 
 		/* Something happened on status line so get it. */
 		errno = 0;
@@ -506,15 +516,28 @@ void *event_looper(void *arg) {
 			event = event | RI;
 		}
 
+#if defined (__linux__)
 		if(DEBUG) fprintf(stderr, "%s %d\n", "NATIVE event_looper() sending bit mapped events ", event);
 		if(DEBUG) fflush(stderr);
-
 		/* Pass this to java layer inserting event in event queue. */
 		(*env)->CallVoidMethod(env, looper, mid, event);
 		if((*env)->ExceptionOccurred(env)) {
 			LOGE(env);
 		}
-
+#endif
+#if defined (__APPLE__)
+		newstate = event;
+		if(newstate != oldstate) {
+			if(DEBUG) fprintf(stderr, "%s %d\n", "NATIVE event_looper() sending bit mapped events ", event);
+			if(DEBUG) fflush(stderr);
+			/* Pass this to java layer inserting event in event queue. */
+			(*env)->CallVoidMethod(env, looper, mid, event);
+			if((*env)->ExceptionOccurred(env)) {
+				LOGE(env);
+			}
+			oldstate = newstate;
+		}
+#endif
 	} /* Go back to loop again waiting for event to happen. */
 
 	return ((void *)0);
