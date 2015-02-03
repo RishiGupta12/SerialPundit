@@ -128,6 +128,10 @@ struct com_thread_params fd_looper_info[MAX_NUM_THREADS] = { {0} };
 /* Used to protect global data from concurrent access. */
 pthread_mutex_t mutex;
 
+/* Holds information for port monitor facility. */
+int port_monitor_index = 0;
+struct port_info port_monitor_info[MAX_NUM_THREADS] = { {0} };
+
 /* For Solaris, we maintain an array which will list all ports that have been opened. Now if somebody tries to open already
  * opened port claiming to be exclusive owner, we will deny the request, except for root user. */
 #ifdef __SunOS
@@ -1779,18 +1783,95 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
  * Method:    registerPortMonitorListener
  * Signature: (JLcom/embeddedunveiled/serial/IPortMonitor;)I
  *
- * This is currently not supported for Solaris.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_registerPortMonitorListener(JNIEnv *env, jobject obj, jlong fd, jstring portName, jobject listener) {
 	int ret = -1;
 	int negative = -1;
+	pthread_attr_t attr;
+	pthread_t thread_id = 0;
+	void *arg;
+	struct port_info params;
 
-#if defined (__linux__)
-#endif
+	pthread_mutex_lock(&mutex);
 
-#if defined (__APPLE__)
-#endif
+	jobject portListener = (*env)->NewGlobalRef(env, listener);
+	if(portListener == NULL) {
+		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE registerPortMonitorListener() could not create global reference for listener object.");
+		if(DEBUG) fflush(stderr);
+		pthread_mutex_unlock(&mutex);
+		return -240;
+	}
 
+	params.jvm = jvm;
+	params.portName = (*env)->GetStringUTFChars(env, portName, NULL);
+	params.fd = fd;
+	params.port_listener= portListener;
+	params.thread_exit = 0;
+	params.mutex = &mutex;
+	port_monitor_info[port_monitor_index] = params;
+	arg = &port_monitor_info[port_monitor_index];
+
+	pthread_attr_init(&attr);
+	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
+	errno = 0;
+	ret = pthread_create(&thread_id, NULL, &port_monitor, arg);
+	if(ret < 0) {
+		if(DEBUG) fprintf(stderr, "%s %d\n", "NATIVE setUpDataLooperThread() failed to create native data looper thread with error number : -", errno);
+		if(DEBUG) fflush(stderr);
+		pthread_mutex_unlock(&mutex);
+		return (negative * errno);
+	}
+
+	/* Save the data thread id which will be used when listener is unregistered. */
+	((struct port_info*) arg)->thread_id = thread_id;
+
+	port_monitor_index++;
+	pthread_mutex_unlock(&mutex);
+
+	return 0;
+}
+
+/*
+ * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
+ * Method:    unregisterPortMonitorListener
+ * Signature: (J)I
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_unregisterPortMonitorListener(JNIEnv *env, jobject obj, jlong fd) {
+	int ret = -1;
+	int negative = -1;
+	int x = -1;
+	struct port_info *ptr;
+	ptr = port_monitor_info;
+	pthread_t thread_id = 0;
+	void *status;
+
+	pthread_mutex_lock(&mutex);
+
+	/* Find the event thread serving this file descriptor. */
+	for (x=0; x < MAX_NUM_THREADS; x++) {
+		if(ptr->fd == fd) {
+			thread_id = ptr->thread_id;
+			break;
+		}
+		ptr++;
+	}
+
+	/* Set the flag that will be checked by thread to check for exit condition. */
+	ptr->thread_exit = 1;
+
+	/* Join the thread (waits for the thread specified to terminate). */
+	ret = pthread_join(thread_id, &status);
+	if(ret != 0) {
+		if(DEBUG) fprintf(stderr, "%s \n", "native port monitor thread failed to join !");
+		if(DEBUG) fflush(stderr);
+		pthread_mutex_unlock(&mutex);
+		return (negative * ret);
+	}
+
+	ptr->thread_id = 0;    /* Reset thread id field. */
+	ptr->fd = -1;
+
+	pthread_mutex_unlock(&mutex);
 	return 0;
 }
 

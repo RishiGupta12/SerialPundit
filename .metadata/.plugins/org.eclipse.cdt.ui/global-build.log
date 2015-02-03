@@ -3787,3 +3787,1433 @@ make: Nothing to be done for `all'.
 15:59:46 **** Incremental Build of configuration Debug for project linux_serial ****
 make all 
 make: Nothing to be done for `all'.
+16:46:50 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+Building file: ../src/unix_like_serial.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial.d" -MT"src/unix_like_serial.d" -o "src/unix_like_serial.o" "../src/unix_like_serial.c"
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_openComPort’:
+../src/unix_like_serial.c:402:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_writeBytes’:
+../src/unix_like_serial.c:668:2: warning: implicit declaration of function ‘tcdrain’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_clearPortIOBuffers’:
+../src/unix_like_serial.c:1262:3: warning: implicit declaration of function ‘tcflush’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_registerPortMonitorListener’:
+../src/unix_like_serial.c:1786:6: warning: unused variable ‘negative’ [-Wunused-variable]
+../src/unix_like_serial.c:1785:6: warning: unused variable ‘ret’ [-Wunused-variable]
+Finished building: ../src/unix_like_serial.c
+ 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:480:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial_lib.c:414:6: warning: unused variable ‘newstate’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:413:6: warning: unused variable ‘oldstate’ [-Wunused-variable]
+../src/unix_like_serial_lib.c: In function ‘port_monitor’:
+../src/unix_like_serial_lib.c:553:35: error: ‘struct com_thread_params’ has no member named ‘port_listener’
+../src/unix_like_serial_lib.c:565:8: error: expected expression before ‘)’ token
+../src/unix_like_serial_lib.c:600:48: error: ‘mid’ undeclared (first use in this function)
+../src/unix_like_serial_lib.c:600:48: note: each undeclared identifier is reported only once for each function it appears in
+../src/unix_like_serial_lib.c: At top level:
+../src/unix_like_serial_lib.c:612:1: error: expected identifier or ‘(’ before ‘}’ token
+make: *** [src/unix_like_serial_lib.o] Error 1
+16:47:00 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:480:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial_lib.c:414:6: warning: unused variable ‘newstate’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:413:6: warning: unused variable ‘oldstate’ [-Wunused-variable]
+../src/unix_like_serial_lib.c: In function ‘port_monitor’:
+../src/unix_like_serial_lib.c:553:35: error: ‘struct com_thread_params’ has no member named ‘port_listener’
+../src/unix_like_serial_lib.c:600:48: error: ‘mid’ undeclared (first use in this function)
+../src/unix_like_serial_lib.c:600:48: note: each undeclared identifier is reported only once for each function it appears in
+../src/unix_like_serial_lib.c: At top level:
+../src/unix_like_serial_lib.c:612:1: error: expected identifier or ‘(’ before ‘}’ token
+make: *** [src/unix_like_serial_lib.o] Error 1
+17:02:04 **** Clean-only build of configuration Debug for project linux_serial ****
+make clean 
+rm -rf  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o  ./src/unix_like_serial.d ./src/unix_like_serial_lib.d  linux_1.0.0_x86_64.so
+ 
+17:02:05 **** Build of configuration Debug for project linux_serial ****
+make all 
+Building file: ../src/unix_like_serial.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial.d" -MT"src/unix_like_serial.d" -o "src/unix_like_serial.o" "../src/unix_like_serial.c"
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_openComPort’:
+../src/unix_like_serial.c:402:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_writeBytes’:
+../src/unix_like_serial.c:668:2: warning: implicit declaration of function ‘tcdrain’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_clearPortIOBuffers’:
+../src/unix_like_serial.c:1262:3: warning: implicit declaration of function ‘tcflush’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_registerPortMonitorListener’:
+../src/unix_like_serial.c:1786:6: warning: unused variable ‘negative’ [-Wunused-variable]
+../src/unix_like_serial.c:1785:6: warning: unused variable ‘ret’ [-Wunused-variable]
+Finished building: ../src/unix_like_serial.c
+ 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:480:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial_lib.c:414:6: warning: unused variable ‘newstate’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:413:6: warning: unused variable ‘oldstate’ [-Wunused-variable]
+../src/unix_like_serial_lib.c: In function ‘port_monitor’:
+../src/unix_like_serial_lib.c:553:35: error: ‘struct com_thread_params’ has no member named ‘port_listener’
+../src/unix_like_serial_lib.c:565:55: error: ‘looper’ undeclared (first use in this function)
+../src/unix_like_serial_lib.c:565:55: note: each undeclared identifier is reported only once for each function it appears in
+../src/unix_like_serial_lib.c: At top level:
+../src/unix_like_serial_lib.c:631:1: error: expected identifier or ‘(’ before ‘}’ token
+make: *** [src/unix_like_serial_lib.o] Error 1
+17:02:09 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:480:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial_lib.c:414:6: warning: unused variable ‘newstate’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:413:6: warning: unused variable ‘oldstate’ [-Wunused-variable]
+../src/unix_like_serial_lib.c: In function ‘port_monitor’:
+../src/unix_like_serial_lib.c:553:35: error: ‘struct com_thread_params’ has no member named ‘port_listener’
+../src/unix_like_serial_lib.c:565:55: error: ‘looper’ undeclared (first use in this function)
+../src/unix_like_serial_lib.c:565:55: note: each undeclared identifier is reported only once for each function it appears in
+../src/unix_like_serial_lib.c: At top level:
+../src/unix_like_serial_lib.c:631:1: error: expected identifier or ‘(’ before ‘}’ token
+make: *** [src/unix_like_serial_lib.o] Error 1
+17:03:13 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:480:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial_lib.c:414:6: warning: unused variable ‘newstate’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:413:6: warning: unused variable ‘oldstate’ [-Wunused-variable]
+../src/unix_like_serial_lib.c: At top level:
+../src/unix_like_serial_lib.c:631:1: error: expected identifier or ‘(’ before ‘}’ token
+make: *** [src/unix_like_serial_lib.o] Error 1
+17:03:31 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:480:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial_lib.c:414:6: warning: unused variable ‘newstate’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:413:6: warning: unused variable ‘oldstate’ [-Wunused-variable]
+Finished building: ../src/unix_like_serial_lib.c
+ 
+Building target: linux_1.0.0_x86_64.so
+Invoking: GCC C Linker
+gcc -m64 -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   
+Finished building target: linux_1.0.0_x86_64.so
+ 
+17:09:21 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:480:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial_lib.c:414:6: warning: unused variable ‘newstate’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:413:6: warning: unused variable ‘oldstate’ [-Wunused-variable]
+Finished building: ../src/unix_like_serial_lib.c
+ 
+Building target: linux_1.0.0_x86_64.so
+Invoking: GCC C Linker
+gcc -m64 -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   
+Finished building target: linux_1.0.0_x86_64.so
+ 
+17:24:51 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+Building file: ../src/unix_like_serial.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial.d" -MT"src/unix_like_serial.d" -o "src/unix_like_serial.o" "../src/unix_like_serial.c"
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_openComPort’:
+../src/unix_like_serial.c:406:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_writeBytes’:
+../src/unix_like_serial.c:672:2: warning: implicit declaration of function ‘tcdrain’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_clearPortIOBuffers’:
+../src/unix_like_serial.c:1266:3: warning: implicit declaration of function ‘tcflush’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_registerPortMonitorListener’:
+../src/unix_like_serial.c:1816:42: error: ‘port_monitor’ undeclared (first use in this function)
+../src/unix_like_serial.c:1816:42: note: each undeclared identifier is reported only once for each function it appears in
+make: *** [src/unix_like_serial.o] Error 1
+17:25:43 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+Building file: ../src/unix_like_serial.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial.d" -MT"src/unix_like_serial.d" -o "src/unix_like_serial.o" "../src/unix_like_serial.c"
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_openComPort’:
+../src/unix_like_serial.c:406:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_writeBytes’:
+../src/unix_like_serial.c:672:2: warning: implicit declaration of function ‘tcdrain’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_clearPortIOBuffers’:
+../src/unix_like_serial.c:1266:3: warning: implicit declaration of function ‘tcflush’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial.c
+ 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:480:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial_lib.c:414:6: warning: unused variable ‘newstate’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:413:6: warning: unused variable ‘oldstate’ [-Wunused-variable]
+Finished building: ../src/unix_like_serial_lib.c
+ 
+Building target: linux_1.0.0_x86_64.so
+Invoking: GCC C Linker
+gcc -m64 -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   
+Finished building target: linux_1.0.0_x86_64.so
+ 
+17:25:46 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+17:25:57 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+17:26:10 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+17:26:14 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+17:27:31 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:480:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial_lib.c:414:6: warning: unused variable ‘newstate’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:413:6: warning: unused variable ‘oldstate’ [-Wunused-variable]
+Finished building: ../src/unix_like_serial_lib.c
+ 
+Building target: linux_1.0.0_x86_64.so
+Invoking: GCC C Linker
+gcc -m64 -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   
+Finished building target: linux_1.0.0_x86_64.so
+ 
+17:27:34 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+17:27:53 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+17:29:20 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:480:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial_lib.c:414:6: warning: unused variable ‘newstate’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:413:6: warning: unused variable ‘oldstate’ [-Wunused-variable]
+../src/unix_like_serial_lib.c: In function ‘port_monitor’:
+../src/unix_like_serial_lib.c:552:6: warning: unused variable ‘fd’ [-Wunused-variable]
+Finished building: ../src/unix_like_serial_lib.c
+ 
+Building target: linux_1.0.0_x86_64.so
+Invoking: GCC C Linker
+gcc -m64 -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   
+Finished building target: linux_1.0.0_x86_64.so
+ 
+17:29:22 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+17:29:37 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+17:29:41 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+17:29:55 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+17:30:31 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:480:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial_lib.c:414:6: warning: unused variable ‘newstate’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:413:6: warning: unused variable ‘oldstate’ [-Wunused-variable]
+../src/unix_like_serial_lib.c: In function ‘port_monitor’:
+../src/unix_like_serial_lib.c:552:6: warning: unused variable ‘fd’ [-Wunused-variable]
+Finished building: ../src/unix_like_serial_lib.c
+ 
+Building target: linux_1.0.0_x86_64.so
+Invoking: GCC C Linker
+gcc -m64 -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   
+Finished building target: linux_1.0.0_x86_64.so
+ 
+17:30:33 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+17:32:20 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:480:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial_lib.c:414:6: warning: unused variable ‘newstate’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:413:6: warning: unused variable ‘oldstate’ [-Wunused-variable]
+../src/unix_like_serial_lib.c: In function ‘port_monitor’:
+../src/unix_like_serial_lib.c:552:6: warning: unused variable ‘fd’ [-Wunused-variable]
+Finished building: ../src/unix_like_serial_lib.c
+ 
+Building target: linux_1.0.0_x86_64.so
+Invoking: GCC C Linker
+gcc -m64 -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   
+Finished building target: linux_1.0.0_x86_64.so
+ 
+17:32:22 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+17:32:39 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+17:33:11 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+17:33:55 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:480:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial_lib.c:414:6: warning: unused variable ‘newstate’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:413:6: warning: unused variable ‘oldstate’ [-Wunused-variable]
+../src/unix_like_serial_lib.c: In function ‘port_monitor’:
+../src/unix_like_serial_lib.c:552:6: warning: unused variable ‘fd’ [-Wunused-variable]
+Finished building: ../src/unix_like_serial_lib.c
+ 
+Building target: linux_1.0.0_x86_64.so
+Invoking: GCC C Linker
+gcc -m64 -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   
+Finished building target: linux_1.0.0_x86_64.so
+ 
+17:33:57 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+17:34:00 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+17:34:01 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+17:34:17 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+17:36:31 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+17:36:37 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+17:36:47 **** Clean-only build of configuration Debug for project linux_serial ****
+make clean 
+rm -rf  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o  ./src/unix_like_serial.d ./src/unix_like_serial_lib.d  linux_1.0.0_x86_64.so
+ 
+17:36:47 **** Build of configuration Debug for project linux_serial ****
+make all 
+Building file: ../src/unix_like_serial.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial.d" -MT"src/unix_like_serial.d" -o "src/unix_like_serial.o" "../src/unix_like_serial.c"
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_openComPort’:
+../src/unix_like_serial.c:406:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_writeBytes’:
+../src/unix_like_serial.c:672:2: warning: implicit declaration of function ‘tcdrain’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_clearPortIOBuffers’:
+../src/unix_like_serial.c:1266:3: warning: implicit declaration of function ‘tcflush’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial.c
+ 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:480:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial_lib.c:414:6: warning: unused variable ‘newstate’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:413:6: warning: unused variable ‘oldstate’ [-Wunused-variable]
+../src/unix_like_serial_lib.c: In function ‘port_monitor’:
+../src/unix_like_serial_lib.c:552:6: warning: unused variable ‘fd’ [-Wunused-variable]
+Finished building: ../src/unix_like_serial_lib.c
+ 
+Building target: linux_1.0.0_x86_64.so
+Invoking: GCC C Linker
+gcc -m64 -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   
+Finished building target: linux_1.0.0_x86_64.so
+ 
+17:41:41 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+17:41:53 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+17:42:44 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+17:43:02 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+17:43:46 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+17:43:49 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+17:45:58 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+Building file: ../src/unix_like_serial.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial.d" -MT"src/unix_like_serial.d" -o "src/unix_like_serial.o" "../src/unix_like_serial.c"
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_openComPort’:
+../src/unix_like_serial.c:406:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_writeBytes’:
+../src/unix_like_serial.c:672:2: warning: implicit declaration of function ‘tcdrain’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_clearPortIOBuffers’:
+../src/unix_like_serial.c:1266:3: warning: implicit declaration of function ‘tcflush’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial.c
+ 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:480:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial_lib.c:414:6: warning: unused variable ‘newstate’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:413:6: warning: unused variable ‘oldstate’ [-Wunused-variable]
+../src/unix_like_serial_lib.c: In function ‘port_monitor’:
+../src/unix_like_serial_lib.c:552:20: error: ‘struct port_info’ has no member named ‘fd’
+../src/unix_like_serial_lib.c:586:3: warning: passing argument 1 of ‘stat’ from incompatible pointer type [enabled by default]
+/usr/include/x86_64-linux-gnu/sys/stat.h:211:12: note: expected ‘const char * __restrict__’ but argument is of type ‘jstring’
+../src/unix_like_serial_lib.c:552:6: warning: unused variable ‘fd’ [-Wunused-variable]
+make: *** [src/unix_like_serial_lib.o] Error 1
+17:46:11 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:480:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial_lib.c:414:6: warning: unused variable ‘newstate’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:413:6: warning: unused variable ‘oldstate’ [-Wunused-variable]
+../src/unix_like_serial_lib.c: In function ‘port_monitor’:
+../src/unix_like_serial_lib.c:585:3: warning: passing argument 1 of ‘stat’ from incompatible pointer type [enabled by default]
+/usr/include/x86_64-linux-gnu/sys/stat.h:211:12: note: expected ‘const char * __restrict__’ but argument is of type ‘jstring’
+Finished building: ../src/unix_like_serial_lib.c
+ 
+Building target: linux_1.0.0_x86_64.so
+Invoking: GCC C Linker
+gcc -m64 -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   
+Finished building target: linux_1.0.0_x86_64.so
+ 
+17:46:16 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+17:46:20 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+17:46:24 **** Clean-only build of configuration Debug for project linux_serial ****
+make clean 
+rm -rf  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o  ./src/unix_like_serial.d ./src/unix_like_serial_lib.d  linux_1.0.0_x86_64.so
+ 
+17:46:24 **** Build of configuration Debug for project linux_serial ****
+make all 
+Building file: ../src/unix_like_serial.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial.d" -MT"src/unix_like_serial.d" -o "src/unix_like_serial.o" "../src/unix_like_serial.c"
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_openComPort’:
+../src/unix_like_serial.c:406:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_writeBytes’:
+../src/unix_like_serial.c:672:2: warning: implicit declaration of function ‘tcdrain’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_clearPortIOBuffers’:
+../src/unix_like_serial.c:1266:3: warning: implicit declaration of function ‘tcflush’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial.c
+ 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:480:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial_lib.c:414:6: warning: unused variable ‘newstate’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:413:6: warning: unused variable ‘oldstate’ [-Wunused-variable]
+../src/unix_like_serial_lib.c: In function ‘port_monitor’:
+../src/unix_like_serial_lib.c:585:3: warning: passing argument 1 of ‘stat’ from incompatible pointer type [enabled by default]
+/usr/include/x86_64-linux-gnu/sys/stat.h:211:12: note: expected ‘const char * __restrict__’ but argument is of type ‘jstring’
+Finished building: ../src/unix_like_serial_lib.c
+ 
+Building target: linux_1.0.0_x86_64.so
+Invoking: GCC C Linker
+gcc -m64 -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   
+Finished building target: linux_1.0.0_x86_64.so
+ 
+17:47:31 **** Clean-only build of configuration Debug for project linux_serial ****
+make clean 
+rm -rf  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o  ./src/unix_like_serial.d ./src/unix_like_serial_lib.d  linux_1.0.0_x86_64.so
+ 
+17:47:31 **** Build of configuration Debug for project linux_serial ****
+make all 
+Building file: ../src/unix_like_serial.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial.d" -MT"src/unix_like_serial.d" -o "src/unix_like_serial.o" "../src/unix_like_serial.c"
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_openComPort’:
+../src/unix_like_serial.c:406:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_writeBytes’:
+../src/unix_like_serial.c:672:2: warning: implicit declaration of function ‘tcdrain’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_clearPortIOBuffers’:
+../src/unix_like_serial.c:1266:3: warning: implicit declaration of function ‘tcflush’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial.c
+ 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:480:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial_lib.c:414:6: warning: unused variable ‘newstate’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:413:6: warning: unused variable ‘oldstate’ [-Wunused-variable]
+../src/unix_like_serial_lib.c: In function ‘port_monitor’:
+../src/unix_like_serial_lib.c:586:3: warning: passing argument 1 of ‘stat’ from incompatible pointer type [enabled by default]
+/usr/include/x86_64-linux-gnu/sys/stat.h:211:12: note: expected ‘const char * __restrict__’ but argument is of type ‘jstring’
+Finished building: ../src/unix_like_serial_lib.c
+ 
+Building target: linux_1.0.0_x86_64.so
+Invoking: GCC C Linker
+gcc -m64 -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   
+Finished building target: linux_1.0.0_x86_64.so
+ 
+17:48:23 **** Clean-only build of configuration Debug for project linux_serial ****
+make clean 
+rm -rf  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o  ./src/unix_like_serial.d ./src/unix_like_serial_lib.d  linux_1.0.0_x86_64.so
+ 
+17:48:23 **** Build of configuration Debug for project linux_serial ****
+make all 
+Building file: ../src/unix_like_serial.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial.d" -MT"src/unix_like_serial.d" -o "src/unix_like_serial.o" "../src/unix_like_serial.c"
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_openComPort’:
+../src/unix_like_serial.c:406:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_writeBytes’:
+../src/unix_like_serial.c:672:2: warning: implicit declaration of function ‘tcdrain’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_clearPortIOBuffers’:
+../src/unix_like_serial.c:1266:3: warning: implicit declaration of function ‘tcflush’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial.c
+ 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:482:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial_lib.c: In function ‘port_monitor’:
+../src/unix_like_serial_lib.c:588:3: warning: passing argument 1 of ‘stat’ from incompatible pointer type [enabled by default]
+/usr/include/x86_64-linux-gnu/sys/stat.h:211:12: note: expected ‘const char * __restrict__’ but argument is of type ‘jstring’
+Finished building: ../src/unix_like_serial_lib.c
+ 
+Building target: linux_1.0.0_x86_64.so
+Invoking: GCC C Linker
+gcc -m64 -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   
+Finished building target: linux_1.0.0_x86_64.so
+ 
+17:49:10 **** Clean-only build of configuration Debug for project linux_serial ****
+make clean 
+rm -rf  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o  ./src/unix_like_serial.d ./src/unix_like_serial_lib.d  linux_1.0.0_x86_64.so
+ 
+17:49:10 **** Build of configuration Debug for project linux_serial ****
+make all 
+Building file: ../src/unix_like_serial.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial.d" -MT"src/unix_like_serial.d" -o "src/unix_like_serial.o" "../src/unix_like_serial.c"
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_openComPort’:
+../src/unix_like_serial.c:406:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_writeBytes’:
+../src/unix_like_serial.c:672:2: warning: implicit declaration of function ‘tcdrain’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_clearPortIOBuffers’:
+../src/unix_like_serial.c:1266:3: warning: implicit declaration of function ‘tcflush’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial.c
+ 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:482:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial_lib.c: In function ‘port_monitor’:
+../src/unix_like_serial_lib.c:588:3: warning: passing argument 1 of ‘stat’ from incompatible pointer type [enabled by default]
+/usr/include/x86_64-linux-gnu/sys/stat.h:211:12: note: expected ‘const char * __restrict__’ but argument is of type ‘struct _jobject **’
+Finished building: ../src/unix_like_serial_lib.c
+ 
+Building target: linux_1.0.0_x86_64.so
+Invoking: GCC C Linker
+gcc -m64 -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   
+Finished building target: linux_1.0.0_x86_64.so
+ 
+17:49:17 **** Clean-only build of configuration Debug for project linux_serial ****
+make clean 
+rm -rf  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o  ./src/unix_like_serial.d ./src/unix_like_serial_lib.d  linux_1.0.0_x86_64.so
+ 
+17:49:17 **** Build of configuration Debug for project linux_serial ****
+make all 
+Building file: ../src/unix_like_serial.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial.d" -MT"src/unix_like_serial.d" -o "src/unix_like_serial.o" "../src/unix_like_serial.c"
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_openComPort’:
+../src/unix_like_serial.c:406:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_writeBytes’:
+../src/unix_like_serial.c:672:2: warning: implicit declaration of function ‘tcdrain’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_clearPortIOBuffers’:
+../src/unix_like_serial.c:1266:3: warning: implicit declaration of function ‘tcflush’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial.c
+ 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:482:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial_lib.c: In function ‘port_monitor’:
+../src/unix_like_serial_lib.c:588:3: warning: passing argument 1 of ‘stat’ from incompatible pointer type [enabled by default]
+/usr/include/x86_64-linux-gnu/sys/stat.h:211:12: note: expected ‘const char * __restrict__’ but argument is of type ‘struct _jobject **’
+Finished building: ../src/unix_like_serial_lib.c
+ 
+Building target: linux_1.0.0_x86_64.so
+Invoking: GCC C Linker
+gcc -m64 -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   
+Finished building target: linux_1.0.0_x86_64.so
+ 
+17:50:18 **** Clean-only build of configuration Debug for project linux_serial ****
+make clean 
+rm -rf  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o  ./src/unix_like_serial.d ./src/unix_like_serial_lib.d  linux_1.0.0_x86_64.so
+ 
+17:50:19 **** Build of configuration Debug for project linux_serial ****
+make all 
+Building file: ../src/unix_like_serial.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial.d" -MT"src/unix_like_serial.d" -o "src/unix_like_serial.o" "../src/unix_like_serial.c"
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_openComPort’:
+../src/unix_like_serial.c:406:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_writeBytes’:
+../src/unix_like_serial.c:672:2: warning: implicit declaration of function ‘tcdrain’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_clearPortIOBuffers’:
+../src/unix_like_serial.c:1266:3: warning: implicit declaration of function ‘tcflush’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial.c
+ 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:482:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial_lib.c: In function ‘port_monitor’:
+../src/unix_like_serial_lib.c:555:21: warning: initialization from incompatible pointer type [enabled by default]
+../src/unix_like_serial_lib.c:588:3: warning: passing argument 1 of ‘stat’ from incompatible pointer type [enabled by default]
+/usr/include/x86_64-linux-gnu/sys/stat.h:211:12: note: expected ‘const char * __restrict__’ but argument is of type ‘jstring’
+Finished building: ../src/unix_like_serial_lib.c
+ 
+Building target: linux_1.0.0_x86_64.so
+Invoking: GCC C Linker
+gcc -m64 -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   
+Finished building target: linux_1.0.0_x86_64.so
+ 
+17:50:37 **** Clean-only build of configuration Debug for project linux_serial ****
+make clean 
+rm -rf  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o  ./src/unix_like_serial.d ./src/unix_like_serial_lib.d  linux_1.0.0_x86_64.so
+ 
+17:50:37 **** Build of configuration Debug for project linux_serial ****
+make all 
+Building file: ../src/unix_like_serial.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial.d" -MT"src/unix_like_serial.d" -o "src/unix_like_serial.o" "../src/unix_like_serial.c"
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_openComPort’:
+../src/unix_like_serial.c:406:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_writeBytes’:
+../src/unix_like_serial.c:672:2: warning: implicit declaration of function ‘tcdrain’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_clearPortIOBuffers’:
+../src/unix_like_serial.c:1266:3: warning: implicit declaration of function ‘tcflush’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial.c
+ 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:482:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial_lib.c
+ 
+Building target: linux_1.0.0_x86_64.so
+Invoking: GCC C Linker
+gcc -m64 -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   
+Finished building target: linux_1.0.0_x86_64.so
+ 
+17:51:08 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+17:51:24 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+17:52:42 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:482:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial_lib.c
+ 
+Building target: linux_1.0.0_x86_64.so
+Invoking: GCC C Linker
+gcc -m64 -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   
+Finished building target: linux_1.0.0_x86_64.so
+ 
+17:52:45 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+17:52:59 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+17:56:18 **** Clean-only build of configuration Debug for project linux_serial ****
+make clean 
+rm -rf  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o  ./src/unix_like_serial.d ./src/unix_like_serial_lib.d  linux_1.0.0_x86_64.so
+ 
+17:56:18 **** Build of configuration Debug for project linux_serial ****
+make all 
+Building file: ../src/unix_like_serial.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial.d" -MT"src/unix_like_serial.d" -o "src/unix_like_serial.o" "../src/unix_like_serial.c"
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_openComPort’:
+../src/unix_like_serial.c:406:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_writeBytes’:
+../src/unix_like_serial.c:672:2: warning: implicit declaration of function ‘tcdrain’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_clearPortIOBuffers’:
+../src/unix_like_serial.c:1266:3: warning: implicit declaration of function ‘tcflush’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial.c
+ 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:482:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial_lib.c: In function ‘port_monitor’:
+../src/unix_like_serial_lib.c:627:41: error: ‘portName’ undeclared (first use in this function)
+../src/unix_like_serial_lib.c:627:41: note: each undeclared identifier is reported only once for each function it appears in
+make: *** [src/unix_like_serial_lib.o] Error 1
+17:56:47 **** Clean-only build of configuration Debug for project linux_serial ****
+make clean 
+rm -rf  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o  ./src/unix_like_serial.d ./src/unix_like_serial_lib.d  linux_1.0.0_x86_64.so
+ 
+17:56:48 **** Build of configuration Debug for project linux_serial ****
+make all 
+Building file: ../src/unix_like_serial.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial.d" -MT"src/unix_like_serial.d" -o "src/unix_like_serial.o" "../src/unix_like_serial.c"
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_openComPort’:
+../src/unix_like_serial.c:406:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_writeBytes’:
+../src/unix_like_serial.c:672:2: warning: implicit declaration of function ‘tcdrain’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_clearPortIOBuffers’:
+../src/unix_like_serial.c:1266:3: warning: implicit declaration of function ‘tcflush’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial.c
+ 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:482:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial_lib.c
+ 
+Building target: linux_1.0.0_x86_64.so
+Invoking: GCC C Linker
+gcc -m64 -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   
+Finished building target: linux_1.0.0_x86_64.so
+ 
+17:56:50 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+17:57:04 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+17:59:31 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:482:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial_lib.c
+ 
+Building target: linux_1.0.0_x86_64.so
+Invoking: GCC C Linker
+gcc -m64 -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   
+Finished building target: linux_1.0.0_x86_64.so
+ 
+17:59:42 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+17:59:56 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+18:00:47 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:482:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial_lib.c
+ 
+Building target: linux_1.0.0_x86_64.so
+Invoking: GCC C Linker
+gcc -m64 -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   
+Finished building target: linux_1.0.0_x86_64.so
+ 
+18:01:03 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+18:18:49 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+Building file: ../src/unix_like_serial.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial.d" -MT"src/unix_like_serial.d" -o "src/unix_like_serial.o" "../src/unix_like_serial.c"
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_openComPort’:
+../src/unix_like_serial.c:406:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_writeBytes’:
+../src/unix_like_serial.c:672:2: warning: implicit declaration of function ‘tcdrain’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_clearPortIOBuffers’:
+../src/unix_like_serial.c:1266:3: warning: implicit declaration of function ‘tcflush’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial.c
+ 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:482:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial_lib.c
+ 
+Building target: linux_1.0.0_x86_64.so
+Invoking: GCC C Linker
+gcc -m64 -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   
+Finished building target: linux_1.0.0_x86_64.so
+ 
+18:19:13 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+18:37:08 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+Building file: ../src/unix_like_serial.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial.d" -MT"src/unix_like_serial.d" -o "src/unix_like_serial.o" "../src/unix_like_serial.c"
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_openComPort’:
+../src/unix_like_serial.c:406:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_writeBytes’:
+../src/unix_like_serial.c:672:2: warning: implicit declaration of function ‘tcdrain’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_clearPortIOBuffers’:
+../src/unix_like_serial.c:1266:3: warning: implicit declaration of function ‘tcflush’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_unregisterPortMonitorListener’:
+../src/unix_like_serial.c:1842:8: warning: unused variable ‘status’ [-Wunused-variable]
+../src/unix_like_serial.c:1838:6: warning: unused variable ‘negative’ [-Wunused-variable]
+../src/unix_like_serial.c:1837:6: warning: unused variable ‘ret’ [-Wunused-variable]
+Finished building: ../src/unix_like_serial.c
+ 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:482:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial_lib.c
+ 
+Building target: linux_1.0.0_x86_64.so
+Invoking: GCC C Linker
+gcc -m64 -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   
+Finished building target: linux_1.0.0_x86_64.so
+ 
+18:40:46 **** Clean-only build of configuration Debug for project linux_serial ****
+make clean 
+rm -rf  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o  ./src/unix_like_serial.d ./src/unix_like_serial_lib.d  linux_1.0.0_x86_64.so
+ 
+18:40:46 **** Build of configuration Debug for project linux_serial ****
+make all 
+Building file: ../src/unix_like_serial.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial.d" -MT"src/unix_like_serial.d" -o "src/unix_like_serial.o" "../src/unix_like_serial.c"
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_openComPort’:
+../src/unix_like_serial.c:406:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_writeBytes’:
+../src/unix_like_serial.c:672:2: warning: implicit declaration of function ‘tcdrain’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_clearPortIOBuffers’:
+../src/unix_like_serial.c:1266:3: warning: implicit declaration of function ‘tcflush’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial.c
+ 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:482:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial_lib.c
+ 
+Building target: linux_1.0.0_x86_64.so
+Invoking: GCC C Linker
+gcc -m64 -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   
+Finished building target: linux_1.0.0_x86_64.so
+ 
+18:41:44 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+18:41:47 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+18:42:51 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+18:43:59 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+18:45:21 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:482:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial_lib.c
+ 
+Building target: linux_1.0.0_x86_64.so
+Invoking: GCC C Linker
+gcc -m64 -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   
+Finished building target: linux_1.0.0_x86_64.so
+ 
+18:45:23 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+18:45:37 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+18:45:56 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+18:46:33 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:482:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial_lib.c
+ 
+Building target: linux_1.0.0_x86_64.so
+Invoking: GCC C Linker
+gcc -m64 -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   
+Finished building target: linux_1.0.0_x86_64.so
+ 
+18:46:35 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+18:46:49 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+18:47:56 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:482:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial_lib.c: In function ‘port_monitor’:
+../src/unix_like_serial_lib.c:590:22: warning: initialization discards ‘const’ qualifier from pointer target type [enabled by default]
+Finished building: ../src/unix_like_serial_lib.c
+ 
+Building target: linux_1.0.0_x86_64.so
+Invoking: GCC C Linker
+gcc -m64 -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   
+Finished building target: linux_1.0.0_x86_64.so
+ 
+18:48:13 **** Clean-only build of configuration Debug for project linux_serial ****
+make clean 
+rm -rf  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o  ./src/unix_like_serial.d ./src/unix_like_serial_lib.d  linux_1.0.0_x86_64.so
+ 
+18:48:13 **** Build of configuration Debug for project linux_serial ****
+make all 
+Building file: ../src/unix_like_serial.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial.d" -MT"src/unix_like_serial.d" -o "src/unix_like_serial.o" "../src/unix_like_serial.c"
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_openComPort’:
+../src/unix_like_serial.c:406:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_writeBytes’:
+../src/unix_like_serial.c:672:2: warning: implicit declaration of function ‘tcdrain’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_clearPortIOBuffers’:
+../src/unix_like_serial.c:1266:3: warning: implicit declaration of function ‘tcflush’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial.c
+ 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:482:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial_lib.c: In function ‘port_monitor’:
+../src/unix_like_serial_lib.c:590:22: warning: initialization discards ‘const’ qualifier from pointer target type [enabled by default]
+Finished building: ../src/unix_like_serial_lib.c
+ 
+Building target: linux_1.0.0_x86_64.so
+Invoking: GCC C Linker
+gcc -m64 -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   
+Finished building target: linux_1.0.0_x86_64.so
+ 
+18:48:20 **** Clean-only build of configuration Debug for project linux_serial ****
+make clean 
+rm -rf  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o  ./src/unix_like_serial.d ./src/unix_like_serial_lib.d  linux_1.0.0_x86_64.so
+ 
+18:48:20 **** Build of configuration Debug for project linux_serial ****
+make all 
+Building file: ../src/unix_like_serial.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial.d" -MT"src/unix_like_serial.d" -o "src/unix_like_serial.o" "../src/unix_like_serial.c"
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_openComPort’:
+../src/unix_like_serial.c:406:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_writeBytes’:
+../src/unix_like_serial.c:672:2: warning: implicit declaration of function ‘tcdrain’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_clearPortIOBuffers’:
+../src/unix_like_serial.c:1266:3: warning: implicit declaration of function ‘tcflush’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial.c
+ 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:482:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial_lib.c
+ 
+Building target: linux_1.0.0_x86_64.so
+Invoking: GCC C Linker
+gcc -m64 -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   
+Finished building target: linux_1.0.0_x86_64.so
+ 
+18:48:33 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+18:50:26 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:482:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial_lib.c
+ 
+Building target: linux_1.0.0_x86_64.so
+Invoking: GCC C Linker
+gcc -m64 -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   
+Finished building target: linux_1.0.0_x86_64.so
+ 
+18:50:37 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+18:55:55 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+Building file: ../src/unix_like_serial.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial.d" -MT"src/unix_like_serial.d" -o "src/unix_like_serial.o" "../src/unix_like_serial.c"
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_openComPort’:
+../src/unix_like_serial.c:406:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_writeBytes’:
+../src/unix_like_serial.c:672:2: warning: implicit declaration of function ‘tcdrain’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_clearPortIOBuffers’:
+../src/unix_like_serial.c:1266:3: warning: implicit declaration of function ‘tcflush’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial.c
+ 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:482:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial_lib.c: In function ‘port_monitor’:
+../src/unix_like_serial_lib.c:556:10: warning: unused variable ‘portnamestr’ [-Wunused-variable]
+Finished building: ../src/unix_like_serial_lib.c
+ 
+Building target: linux_1.0.0_x86_64.so
+Invoking: GCC C Linker
+gcc -m64 -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   
+Finished building target: linux_1.0.0_x86_64.so
+ 
+18:56:17 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+18:58:59 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+Building file: ../src/unix_like_serial.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial.d" -MT"src/unix_like_serial.d" -o "src/unix_like_serial.o" "../src/unix_like_serial.c"
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_openComPort’:
+../src/unix_like_serial.c:406:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_writeBytes’:
+../src/unix_like_serial.c:672:2: warning: implicit declaration of function ‘tcdrain’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_clearPortIOBuffers’:
+../src/unix_like_serial.c:1266:3: warning: implicit declaration of function ‘tcflush’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial.c
+ 
+Building target: linux_1.0.0_x86_64.so
+Invoking: GCC C Linker
+gcc -m64 -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   
+Finished building target: linux_1.0.0_x86_64.so
+ 
+18:59:20 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+19:00:30 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+Building file: ../src/unix_like_serial.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial.d" -MT"src/unix_like_serial.d" -o "src/unix_like_serial.o" "../src/unix_like_serial.c"
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_openComPort’:
+../src/unix_like_serial.c:406:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_writeBytes’:
+../src/unix_like_serial.c:672:2: warning: implicit declaration of function ‘tcdrain’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_clearPortIOBuffers’:
+../src/unix_like_serial.c:1266:3: warning: implicit declaration of function ‘tcflush’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial.c
+ 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:482:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial_lib.c: In function ‘port_monitor’:
+../src/unix_like_serial_lib.c:560:2: warning: format ‘%s’ expects argument of type ‘char *’, but argument 3 has type ‘jstring’ [-Wformat]
+Finished building: ../src/unix_like_serial_lib.c
+ 
+Building target: linux_1.0.0_x86_64.so
+Invoking: GCC C Linker
+gcc -m64 -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   
+Finished building target: linux_1.0.0_x86_64.so
+ 
+19:01:02 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+19:02:43 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:482:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial_lib.c
+ 
+Building target: linux_1.0.0_x86_64.so
+Invoking: GCC C Linker
+gcc -m64 -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   
+Finished building target: linux_1.0.0_x86_64.so
+ 
+19:02:44 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+19:02:46 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+19:02:59 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+19:03:39 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+19:06:46 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:482:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial_lib.c: In function ‘port_monitor’:
+../src/unix_like_serial_lib.c:603:23: warning: passing argument 1 of ‘stat’ makes pointer from integer without a cast [enabled by default]
+/usr/include/x86_64-linux-gnu/sys/stat.h:211:12: note: expected ‘const char * __restrict__’ but argument is of type ‘int’
+../src/unix_like_serial_lib.c:556:10: warning: unused variable ‘portnamestr’ [-Wunused-variable]
+Finished building: ../src/unix_like_serial_lib.c
+ 
+Building target: linux_1.0.0_x86_64.so
+Invoking: GCC C Linker
+gcc -m64 -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   
+Finished building target: linux_1.0.0_x86_64.so
+ 
+19:07:07 **** Clean-only build of configuration Debug for project linux_serial ****
+make clean 
+rm -rf  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o  ./src/unix_like_serial.d ./src/unix_like_serial_lib.d  linux_1.0.0_x86_64.so
+ 
+19:07:08 **** Build of configuration Debug for project linux_serial ****
+make all 
+Building file: ../src/unix_like_serial.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial.d" -MT"src/unix_like_serial.d" -o "src/unix_like_serial.o" "../src/unix_like_serial.c"
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_openComPort’:
+../src/unix_like_serial.c:406:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_writeBytes’:
+../src/unix_like_serial.c:672:2: warning: implicit declaration of function ‘tcdrain’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_clearPortIOBuffers’:
+../src/unix_like_serial.c:1266:3: warning: implicit declaration of function ‘tcflush’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial.c
+ 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:482:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial_lib.c: In function ‘port_monitor’:
+../src/unix_like_serial_lib.c:556:10: warning: unused variable ‘portnamestr’ [-Wunused-variable]
+Finished building: ../src/unix_like_serial_lib.c
+ 
+Building target: linux_1.0.0_x86_64.so
+Invoking: GCC C Linker
+gcc -m64 -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   
+Finished building target: linux_1.0.0_x86_64.so
+ 
+19:07:13 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+19:07:28 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+19:13:51 **** Clean-only build of configuration Debug for project linux_serial ****
+make clean 
+rm -rf  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o  ./src/unix_like_serial.d ./src/unix_like_serial_lib.d  linux_1.0.0_x86_64.so
+ 
+19:13:51 **** Build of configuration Debug for project linux_serial ****
+make all 
+Building file: ../src/unix_like_serial.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial.d" -MT"src/unix_like_serial.d" -o "src/unix_like_serial.o" "../src/unix_like_serial.c"
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_openComPort’:
+../src/unix_like_serial.c:406:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_writeBytes’:
+../src/unix_like_serial.c:672:2: warning: implicit declaration of function ‘tcdrain’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_clearPortIOBuffers’:
+../src/unix_like_serial.c:1266:3: warning: implicit declaration of function ‘tcflush’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_registerPortMonitorListener’:
+../src/unix_like_serial.c:1806:18: warning: assignment discards ‘const’ qualifier from pointer target type [enabled by default]
+Finished building: ../src/unix_like_serial.c
+ 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:482:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial_lib.c
+ 
+Building target: linux_1.0.0_x86_64.so
+Invoking: GCC C Linker
+gcc -m64 -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   
+Finished building target: linux_1.0.0_x86_64.so
+ 
+19:14:26 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+Building file: ../src/unix_like_serial.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial.d" -MT"src/unix_like_serial.d" -o "src/unix_like_serial.o" "../src/unix_like_serial.c"
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_openComPort’:
+../src/unix_like_serial.c:406:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_writeBytes’:
+../src/unix_like_serial.c:672:2: warning: implicit declaration of function ‘tcdrain’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_clearPortIOBuffers’:
+../src/unix_like_serial.c:1266:3: warning: implicit declaration of function ‘tcflush’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_registerPortMonitorListener’:
+../src/unix_like_serial.c:1806:18: warning: assignment discards ‘const’ qualifier from pointer target type [enabled by default]
+Finished building: ../src/unix_like_serial.c
+ 
+Building target: linux_1.0.0_x86_64.so
+Invoking: GCC C Linker
+gcc -m64 -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   
+Finished building target: linux_1.0.0_x86_64.so
+ 
+19:14:31 **** Clean-only build of configuration Debug for project linux_serial ****
+make clean 
+rm -rf  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o  ./src/unix_like_serial.d ./src/unix_like_serial_lib.d  linux_1.0.0_x86_64.so
+ 
+19:14:31 **** Build of configuration Debug for project linux_serial ****
+make all 
+Building file: ../src/unix_like_serial.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial.d" -MT"src/unix_like_serial.d" -o "src/unix_like_serial.o" "../src/unix_like_serial.c"
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_openComPort’:
+../src/unix_like_serial.c:406:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_writeBytes’:
+../src/unix_like_serial.c:672:2: warning: implicit declaration of function ‘tcdrain’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_clearPortIOBuffers’:
+../src/unix_like_serial.c:1266:3: warning: implicit declaration of function ‘tcflush’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_registerPortMonitorListener’:
+../src/unix_like_serial.c:1806:18: warning: assignment discards ‘const’ qualifier from pointer target type [enabled by default]
+Finished building: ../src/unix_like_serial.c
+ 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:482:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial_lib.c
+ 
+Building target: linux_1.0.0_x86_64.so
+Invoking: GCC C Linker
+gcc -m64 -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   
+Finished building target: linux_1.0.0_x86_64.so
+ 
+19:14:44 **** Clean-only build of configuration Debug for project linux_serial ****
+make clean 
+rm -rf  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o  ./src/unix_like_serial.d ./src/unix_like_serial_lib.d  linux_1.0.0_x86_64.so
+ 
+19:14:44 **** Build of configuration Debug for project linux_serial ****
+make all 
+Building file: ../src/unix_like_serial.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial.d" -MT"src/unix_like_serial.d" -o "src/unix_like_serial.o" "../src/unix_like_serial.c"
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_openComPort’:
+../src/unix_like_serial.c:406:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_writeBytes’:
+../src/unix_like_serial.c:672:2: warning: implicit declaration of function ‘tcdrain’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_clearPortIOBuffers’:
+../src/unix_like_serial.c:1266:3: warning: implicit declaration of function ‘tcflush’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_registerPortMonitorListener’:
+../src/unix_like_serial.c:1806:18: warning: assignment discards ‘const’ qualifier from pointer target type [enabled by default]
+Finished building: ../src/unix_like_serial.c
+ 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:482:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial_lib.c
+ 
+Building target: linux_1.0.0_x86_64.so
+Invoking: GCC C Linker
+gcc -m64 -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   
+Finished building target: linux_1.0.0_x86_64.so
+ 
+19:15:03 **** Clean-only build of configuration Debug for project linux_serial ****
+make clean 
+rm -rf  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o  ./src/unix_like_serial.d ./src/unix_like_serial_lib.d  linux_1.0.0_x86_64.so
+ 
+19:15:03 **** Build of configuration Debug for project linux_serial ****
+make all 
+Building file: ../src/unix_like_serial.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial.d" -MT"src/unix_like_serial.d" -o "src/unix_like_serial.o" "../src/unix_like_serial.c"
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_openComPort’:
+../src/unix_like_serial.c:406:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_writeBytes’:
+../src/unix_like_serial.c:672:2: warning: implicit declaration of function ‘tcdrain’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_clearPortIOBuffers’:
+../src/unix_like_serial.c:1266:3: warning: implicit declaration of function ‘tcflush’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial.c
+ 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:482:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial_lib.c
+ 
+Building target: linux_1.0.0_x86_64.so
+Invoking: GCC C Linker
+gcc -m64 -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   
+Finished building target: linux_1.0.0_x86_64.so
+ 
+19:15:07 **** Clean-only build of configuration Debug for project linux_serial ****
+make clean 
+rm -rf  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o  ./src/unix_like_serial.d ./src/unix_like_serial_lib.d  linux_1.0.0_x86_64.so
+ 
+19:15:07 **** Build of configuration Debug for project linux_serial ****
+make all 
+Building file: ../src/unix_like_serial.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial.d" -MT"src/unix_like_serial.d" -o "src/unix_like_serial.o" "../src/unix_like_serial.c"
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_openComPort’:
+../src/unix_like_serial.c:406:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_writeBytes’:
+../src/unix_like_serial.c:672:2: warning: implicit declaration of function ‘tcdrain’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_clearPortIOBuffers’:
+../src/unix_like_serial.c:1266:3: warning: implicit declaration of function ‘tcflush’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial.c
+ 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:482:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial_lib.c
+ 
+Building target: linux_1.0.0_x86_64.so
+Invoking: GCC C Linker
+gcc -m64 -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   
+Finished building target: linux_1.0.0_x86_64.so
+ 
+19:15:21 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+19:15:48 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+19:17:11 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:482:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial_lib.c
+ 
+Building target: linux_1.0.0_x86_64.so
+Invoking: GCC C Linker
+gcc -m64 -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   
+Finished building target: linux_1.0.0_x86_64.so
+ 
+19:17:22 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+19:17:37 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+19:17:57 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+19:18:11 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+19:19:22 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+19:19:59 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+19:20:20 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+19:21:22 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+19:21:40 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+19:23:49 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+Building file: ../src/unix_like_serial.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial.d" -MT"src/unix_like_serial.d" -o "src/unix_like_serial.o" "../src/unix_like_serial.c"
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_openComPort’:
+../src/unix_like_serial.c:406:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_writeBytes’:
+../src/unix_like_serial.c:672:2: warning: implicit declaration of function ‘tcdrain’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_clearPortIOBuffers’:
+../src/unix_like_serial.c:1266:3: warning: implicit declaration of function ‘tcflush’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial.c
+ 
+Building target: linux_1.0.0_x86_64.so
+Invoking: GCC C Linker
+gcc -m64 -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   
+Finished building target: linux_1.0.0_x86_64.so
+ 
+19:24:06 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+19:24:26 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+19:24:37 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+19:25:09 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.

@@ -1207,8 +1207,7 @@ public final class SerialComManager {
 	}
 	
 	/**
-	 * <p>This will create a native thread that will invoke given listener whenever given port is removed.
-	 * This is currently not supported for Solaris.</p>
+	 * <p>This will create a native thread that will invoke given listener whenever specified port is removed.</p>
 	 * 
 	 * @param handle
 	 * @return true on success false otherwise
@@ -1235,7 +1234,36 @@ public final class SerialComManager {
 			throw new SerialComException("registerPortMonitorListener()", mErrMapper.getMappedError(ret));
 		}
 		
-		return false;
+		return true;
+	}
+	
+	/**
+	 * <p>This will remove listener which gets invoked when port is removed.</p>
+	 * 
+	 * @param handle
+	 * @return true on success false otherwise
+	 * @throws SerialComException
+	 */
+	public boolean unregisterPortMonitorListener(long handle) throws SerialComException {
+		boolean handlefound = false;
+		int ret = 0;
+		
+		for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
+			if(mInfo.containsHandle(handle)) {
+				handlefound = true;
+				break;
+			}
+		}
+		if(handlefound == false) {
+			throw new SerialComException("unregisterPortMonitorListener()", SerialComErrorMapper.ERR_WRONG_HANDLE);
+		}
+		
+		ret = mNativeInterface.unregisterPortMonitorListener(handle);
+		if(ret < 0) {
+			throw new SerialComException("unregisterPortMonitorListener()", mErrMapper.getMappedError(ret));
+		}
+		
+		return true;
 	}
 
 	/**

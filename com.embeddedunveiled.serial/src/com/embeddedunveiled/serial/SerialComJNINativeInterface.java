@@ -155,7 +155,7 @@ public final class SerialComJNINativeInterface {
 		        	}
 		        }
 			}
-		} else {
+		}else {
 			throw new SerialComException("loadNativeLibrary()", SerialComErrorMapper.ERR_UNABLE_TO_DETECT_OS_TYPE);
 		}
 	}
@@ -166,6 +166,7 @@ public final class SerialComJNINativeInterface {
 	
 	public native String[] getSerialPortNames();
 	public native int registerPortMonitorListener(long handle, String portName, IPortMonitor portMonitor);
+	public native int unregisterPortMonitorListener(long handle);
 	
 	public native long openComPort(String portName, boolean enableRead, boolean enableWrite, boolean exclusiveOwner);
 	public native int closeComPort(long handle);

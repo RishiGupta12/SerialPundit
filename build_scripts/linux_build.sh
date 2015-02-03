@@ -9,11 +9,9 @@
 # Modify these variables/path as per your system
 ################################################
 
-PROJECT_ROOT_DIR_PATH="/home/r/Desktop/serial-com-manager"
+PROJECT_ROOT_DIR_PATH="/home/r/ws-host-uart/serial-com-manager"
 JDK_INCLUDE_DIR="/home/r/packages/jdk1.7.0_75/include"
 JNI_HEADER_FILE_PATH="/home/r/packages/jdk1.7.0_75/include/jni.h"
-
-javah -jni -d $PROJECT_ROOT_DIR_PATH/com.embeddedunveiled.native -classpath /home/r/Desktop/serial-com-manager/com.embeddedunveiled.serial/src com.embeddedunveiled.serial.SerialComJNINativeInterface
 
 # Do not modify anything after this line
 ################################################
@@ -36,10 +34,10 @@ i="_x86.so"
 javah -jni -d $PROJECT_ROOT_DIR_PATH/com.embeddedunveiled.native -classpath $PROJECT_ROOT_DIR_PATH/com.embeddedunveiled.serial/src com.embeddedunveiled.serial.SerialComJNINativeInterface
 
 # Building file: unix_like_serial.c
-gcc -I$JDK_INCLUDE_DIR -include$JNI_HEADER_FILE_PATH -O0 -g3 -Wall -c -fmessage-length=0 -fPIC -m64 -pthread -o $PROJECT_ROOT_DIR_PATH/scripts_output/unix_like_serial_64.o $PROJECT_ROOT_DIR_PATH/com.embeddedunveiled.native/unix-like/src/unix_like_serial.c
+gcc -I$JDK_INCLUDE_DIR -include$JNI_HEADER_FILE_PATH -O0 -g3 -Wall -c -fmessage-length=0 -fPIC -m64 -pthread -o $PROJECT_ROOT_DIR_PATH/scripts_output/unix_like_serial_64.o $PROJECT_ROOT_DIR_PATH/com.embeddedunveiled.native/linux_serial/src/unix_like_serial.c
 
 # Building file: unix_like_serial_lib.c
-gcc -I$JDK_INCLUDE_DIR -include$JNI_HEADER_FILE_PATH -O0 -g3 -Wall -c -fmessage-length=0 -fPIC -m64 -pthread -o $PROJECT_ROOT_DIR_PATH/scripts_output/unix_like_serial_lib_64.o $PROJECT_ROOT_DIR_PATH/com.embeddedunveiled.native/unix-like/src/unix_like_serial_lib.c
+gcc -I$JDK_INCLUDE_DIR -include$JNI_HEADER_FILE_PATH -O0 -g3 -Wall -c -fmessage-length=0 -fPIC -m64 -pthread -o $PROJECT_ROOT_DIR_PATH/scripts_output/unix_like_serial_lib_64.o $PROJECT_ROOT_DIR_PATH/com.embeddedunveiled.native/linux_serial/src/unix_like_serial_lib.c
 
 # Building target: linux_X.X.X_x86_64.so
 gcc -shared -m64 -o $PROJECT_ROOT_DIR_PATH/scripts_output/$g$LIB_VERSION$h $PROJECT_ROOT_DIR_PATH/scripts_output/unix_like_serial_64.o $PROJECT_ROOT_DIR_PATH/scripts_output/unix_like_serial_lib_64.o -lpthread
@@ -54,10 +52,10 @@ rm $PROJECT_ROOT_DIR_PATH/scripts_output/unix_like_serial_64.o
 fi
 
 # Building file: unix_like_serial.c
-gcc -I$JDK_INCLUDE_DIR -include$JNI_HEADER_FILE_PATH -O0 -g3 -Wall -c -fmessage-length=0 -fPIC -m32 -lpthread -o $PROJECT_ROOT_DIR_PATH/scripts_output/unix_like_serial_32.o $PROJECT_ROOT_DIR_PATH/com.embeddedunveiled.native/unix-like/src/unix_like_serial.c
+gcc -I$JDK_INCLUDE_DIR -include$JNI_HEADER_FILE_PATH -O0 -g3 -Wall -c -fmessage-length=0 -fPIC -m32 -lpthread -o $PROJECT_ROOT_DIR_PATH/scripts_output/unix_like_serial_32.o $PROJECT_ROOT_DIR_PATH/com.embeddedunveiled.native/linux_serial/src/unix_like_serial.c
 
 # Building file: unix_like_serial_lib.c
-gcc -I$JDK_INCLUDE_DIR -include$JNI_HEADER_FILE_PATH -O0 -g3 -Wall -c -fmessage-length=0 -fPIC -m32 -lpthread -o $PROJECT_ROOT_DIR_PATH/scripts_output/unix_like_serial_lib_32.o $PROJECT_ROOT_DIR_PATH/com.embeddedunveiled.native/unix-like/src/unix_like_serial_lib.c
+gcc -I$JDK_INCLUDE_DIR -include$JNI_HEADER_FILE_PATH -O0 -g3 -Wall -c -fmessage-length=0 -fPIC -m32 -lpthread -o $PROJECT_ROOT_DIR_PATH/scripts_output/unix_like_serial_lib_32.o $PROJECT_ROOT_DIR_PATH/com.embeddedunveiled.native/linux_serial/src/unix_like_serial_lib.c
 
 # Building target: linux_X.X.X_x86_64.so
 gcc -shared -m32 -o $PROJECT_ROOT_DIR_PATH/scripts_output/$g$LIB_VERSION$i $PROJECT_ROOT_DIR_PATH/scripts_output/unix_like_serial_32.o $PROJECT_ROOT_DIR_PATH/scripts_output/unix_like_serial_lib_32.o -lpthread
@@ -88,12 +86,12 @@ if [ -f $PROJECT_ROOT_DIR_PATH/com.embeddedunveiled.native/windows_serial/Debug/
 cp $PROJECT_ROOT_DIR_PATH/com.embeddedunveiled.native/windows_serial/Debug/$a$LIB_VERSION$c $PROJECT_ROOT_DIR_PATH/com.embeddedunveiled.serial/libs
 fi
 
-if [ -f $PROJECT_ROOT_DIR_PATH/com.embeddedunveiled.native/unix-like/Debug/$d$LIB_VERSION$e  ]; then
-cp $PROJECT_ROOT_DIR_PATH/com.embeddedunveiled.native/unix-like/Debug/$d$LIB_VERSION$e $PROJECT_ROOT_DIR_PATH/com.embeddedunveiled.serial/libs
+if [ -f $PROJECT_ROOT_DIR_PATH/com.embeddedunveiled.native/linux_serial/Debug/$d$LIB_VERSION$e  ]; then
+cp $PROJECT_ROOT_DIR_PATH/com.embeddedunveiled.native/linux_serial/Debug/$d$LIB_VERSION$e $PROJECT_ROOT_DIR_PATH/com.embeddedunveiled.serial/libs
 fi
 
-if [ -f $PROJECT_ROOT_DIR_PATH/com.embeddedunveiled.native/unix-like/Debug/$d$LIB_VERSION$f ]; then
-cp $PROJECT_ROOT_DIR_PATH/com.embeddedunveiled.native/unix-like/Debug/$d$LIB_VERSION$f $PROJECT_ROOT_DIR_PATH/com.embeddedunveiled.serial/libs
+if [ -f $PROJECT_ROOT_DIR_PATH/com.embeddedunveiled.native/linux_serial/Debug/$d$LIB_VERSION$f ]; then
+cp $PROJECT_ROOT_DIR_PATH/com.embeddedunveiled.native/linux_serial/Debug/$d$LIB_VERSION$f $PROJECT_ROOT_DIR_PATH/com.embeddedunveiled.serial/libs
 fi
 
 # Build java source files and place class files in bin folder

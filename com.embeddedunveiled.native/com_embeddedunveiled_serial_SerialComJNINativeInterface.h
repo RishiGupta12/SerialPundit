@@ -49,6 +49,14 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 
 /*
  * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
+ * Method:    unregisterPortMonitorListener
+ * Signature: (J)I
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_unregisterPortMonitorListener
+  (JNIEnv *, jobject, jlong);
+
+/*
+ * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
  * Method:    openComPort
  * Signature: (Ljava/lang/String;ZZZ)J
  */
