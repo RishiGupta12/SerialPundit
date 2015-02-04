@@ -23,7 +23,7 @@ public class Test21 {
 		portWatcher pw = new portWatcher();
 		
 		try {
-			handle = scm.openComPort("/dev/ttyUSB0", true, true, false);
+			handle = scm.openComPort("COM52", true, true, true);
 			scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
 			scm.configureComPortControl(handle, FLOWCONTROL.SOFTWARE, '$', '#', false, false);
 			scm.registerPortMonitorListener(handle, pw);

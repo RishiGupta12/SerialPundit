@@ -59,6 +59,7 @@
 extern void LOGE(JNIEnv *env);
 extern int serial_delay(unsigned usecs);
 extern unsigned WINAPI event_data_looper(LPVOID lpParam);
+extern unsigned WINAPI port_monitor(LPVOID lpParam);
 int setupLooperThread(JNIEnv *env, jobject obj, jlong handle, jobject looper_obj_ref, int data_enabled, int event_enabled);
 
 #define DEBUG 1
@@ -77,6 +78,10 @@ JavaVM *jvm;
 * save the location of parameters passed to it and update the index to be used next time. */
 int dtp_index = 0;
 struct looper_thread_params handle_looper_info[MAX_NUM_THREADS] = { 0 };
+
+/* Holds information for port monitor facility. */
+int port_monitor_index = 0;
+struct port_info port_monitor_info[MAX_NUM_THREADS] = { { 0 } };
 
 /* The threads of a single process can use a critical section object for mutual-exclusion synchronization.
  * Used to protect global data from concurrent access. */
@@ -1481,6 +1486,7 @@ int setupLooperThread(JNIEnv *env, jobject obj, jlong handle, jobject looper_obj
 	if(looper_ref == NULL) {
 		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE setupLooperThread() failed to create global reference for looper object !");
 		if(DEBUG) fflush(stderr);
+		LeaveCriticalSection(&csmutex);
 		return -240;
 	}
 
@@ -1494,6 +1500,7 @@ int setupLooperThread(JNIEnv *env, jobject obj, jlong handle, jobject looper_obj
 	params.csmutex = &csmutex;           /* Same mutex is shared across all the threads. */
 	params.wait_event_handles[0] = 0;
 	params.wait_event_handles[1] = 0;
+	params.init_done = 0;
 
 	/* We have prepared data to be passed to thread, so create reference and pass it. */
 	handle_looper_info[dtp_index] = params;
@@ -1511,6 +1518,7 @@ int setupLooperThread(JNIEnv *env, jobject obj, jlong handle, jobject looper_obj
 		if(DEBUG) fprintf(stderr, "%s%d\n", "NATIVE setupLooperThread() failed to create looper thread with error number : -", errno);
 		if(DEBUG) fprintf(stderr, "%s \n", "PLEASE TRY AGAIN !");
 		if(DEBUG) fflush(stderr);
+		LeaveCriticalSection(&csmutex);
 		return -240;
 	}
 
@@ -1521,7 +1529,15 @@ int setupLooperThread(JNIEnv *env, jobject obj, jlong handle, jobject looper_obj
 	dtp_index++;
 
 	LeaveCriticalSection(&csmutex);
-	return 0;
+
+	/* let thread initialize completely and then return success. */
+	while (0 == ((struct looper_thread_params*) arg)->init_done) {
+		if(1 == ((struct looper_thread_params*) arg)->init_done) {
+			return 0; /* success */
+		}else {
+			return ((struct looper_thread_params*) arg)->init_done;  /* error */
+		}
+	}
 }
 
 /*
@@ -1554,6 +1570,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 		if(DEBUG) fprintf(stderr, "%s %ld\n", "NATIVE GetCommMask() failed in destroyDataLooperThread() with error number : ", errorVal);
 		if(DEBUG) fflush(stderr);
 		ClearCommError(hComm, &error_type, &com_stat);
+		LeaveCriticalSection(&csmutex);
 		return 0; /* For unrecoverable errors we would like to exit and try again. */
 	}
 
@@ -1587,6 +1604,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 		errorVal = GetLastError();
 		if(DEBUG) fprintf(stderr, "%s %ld\n", "NATIVE destroyDataLooperThread() failed in SetEvent() with error number : ", errorVal);
 		if(DEBUG) fflush(stderr);
+		return -240;
 	}
 
 	return 0;
@@ -1637,10 +1655,99 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 		ret = SetEvent(ptr->wait_event_handles[0]);
 		if(ret == 0) {
 			errorVal = GetLastError();
-			if (DEBUG) fprintf(stderr, "%s %ld\n", "NATIVE destroyEventLooperThread() failed in SetEvent() with error number : ", errorVal);
-			if (DEBUG) fflush(stderr);
+			if(DEBUG) fprintf(stderr, "%s %ld\n", "NATIVE destroyEventLooperThread() failed in SetEvent() with error number : ", errorVal);
+			if(DEBUG) fflush(stderr);
+			return -240;
 		}
 	}
 
+
+
+	return 0;
+}
+
+/*
+* Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
+* Method:    registerPortMonitorListener
+* Signature: (JLcom/embeddedunveiled/serial/IPortMonitor;)I
+*
+*/
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_registerPortMonitorListener(JNIEnv *env, jobject obj, jlong handle, jstring portName, jobject listener) {
+	HANDLE hComm = (HANDLE)handle;
+	HANDLE thread_handle;
+	struct port_info params;
+	unsigned thread_id;
+	DWORD errorVal = 0;
+	void *arg;
+
+	EnterCriticalSection(&csmutex);
+
+	jobject portListener = (*env)->NewGlobalRef(env, listener);
+	if(portListener == NULL) {
+		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE registerPortMonitorListener() could not create global reference for listener object.");
+		if(DEBUG) fflush(stderr);
+		LeaveCriticalSection(&csmutex);
+		return -240;
+	}
+
+	params.jvm = jvm;
+	params.portName = (*env)->GetStringUTFChars(env, portName, NULL);
+	params.hComm = hComm;
+	params.port_listener = portListener;
+	params.thread_exit = 0;
+	params.csmutex = &csmutex;
+	port_monitor_info[port_monitor_index] = params;
+	arg = &port_monitor_info[port_monitor_index];
+
+	/* Managed thread creation. The _beginthreadex initializes Certain CRT (C Run-Time) internals that ensures that other C functions will
+	work exactly as expected. */
+	thread_handle = (HANDLE)_beginthreadex(NULL,   /* default security attributes */
+		0,                              /* use default stack size      */
+		&port_monitor,             /* thread function name        */
+		arg,                            /* argument to thread function */
+		0,                              /* start thread immediately    */
+		&thread_id);                    /* thread identifier           */
+	if(thread_handle == 0) {
+		if(DEBUG) fprintf(stderr, "%s%d\n", "NATIVE registerPortMonitorListener() failed to create monitor thread with error number : -", errno);
+		if(DEBUG) fprintf(stderr, "%s \n", "PLEASE TRY AGAIN !");
+		if(DEBUG) fflush(stderr);
+		LeaveCriticalSection(&csmutex);
+		return -240;
+	}
+
+	/* Save the data thread handle which will be used when listener is unregistered. */
+	((struct port_info*) arg)->hComm = hComm;
+
+	port_monitor_index++;
+	LeaveCriticalSection(&csmutex);
+
+	return 0;
+}
+
+/*
+* Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
+* Method:    unregisterPortMonitorListener
+* Signature: (J)I
+*/
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_unregisterPortMonitorListener(JNIEnv *env, jobject obj, jlong handle) {
+	int ret = -1;
+	int negative = -1;
+	int x = -1;
+	HANDLE hComm = (HANDLE)handle;
+	struct port_info *ptr;
+	ptr = port_monitor_info;
+
+	EnterCriticalSection(&csmutex);
+
+	/* Find the event thread serving this file descriptor. */
+	for (x = 0; x < MAX_NUM_THREADS; x++) {
+		if(ptr->hComm == hComm) {
+			ptr->thread_exit = 1; /* Set the flag that will be checked by thread to check for exit condition. */
+			break;
+		}
+		ptr++;
+	}
+
+	LeaveCriticalSection(&csmutex);
 	return 0;
 }

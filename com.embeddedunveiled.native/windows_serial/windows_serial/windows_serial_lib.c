@@ -29,8 +29,6 @@
 
 #define DEBUG 1
 
-#define MAX_NUM_THREADS 1024
-
 /* Do not let any exception propagate. Handle and clear it. */
 void LOGE(JNIEnv *env) {
 	(*env)->ExceptionDescribe(env);
@@ -76,6 +74,9 @@ unsigned __stdcall event_data_looper(void* arg) {
 	if((*jvm)->AttachCurrentThread(jvm, &env1, NULL) != JNI_OK) {
 		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE event_data_looper() thread failed to attach itself to JVM.");
 		if(DEBUG) fflush(stderr);
+		((struct looper_thread_params*) arg)->init_done = -240;
+		((struct looper_thread_params*) arg)->thread_handle = 0;
+		return 0;
 	}
 	env = (JNIEnv*) env1;
 
@@ -86,6 +87,7 @@ unsigned __stdcall event_data_looper(void* arg) {
 		if(DEBUG) fflush(stderr);
 		EnterCriticalSection(((struct looper_thread_params*) arg)->csmutex);
 		CloseHandle(((struct looper_thread_params*) arg)->thread_handle);
+		((struct looper_thread_params*) arg)->init_done = -240;
 		((struct looper_thread_params*) arg)->thread_handle = 0;
 		LeaveCriticalSection(((struct looper_thread_params*) arg)->csmutex);
 		return 0;   /* For unrecoverable errors we would like to exit and try again. */
@@ -101,6 +103,7 @@ unsigned __stdcall event_data_looper(void* arg) {
 		if(DEBUG) fflush(stderr);
 		EnterCriticalSection(((struct looper_thread_params*) arg)->csmutex);
 		CloseHandle(((struct looper_thread_params*) arg)->thread_handle);
+		((struct looper_thread_params*) arg)->init_done = -240;
 		((struct looper_thread_params*) arg)->thread_handle = 0;
 		LeaveCriticalSection(((struct looper_thread_params*) arg)->csmutex);
 		return 0; /* For unrecoverable errors we would like to exit and try again. */
@@ -116,6 +119,7 @@ unsigned __stdcall event_data_looper(void* arg) {
 		if(DEBUG) fflush(stderr);
 		EnterCriticalSection(((struct looper_thread_params*) arg)->csmutex);
 		CloseHandle(((struct looper_thread_params*) arg)->thread_handle);
+		((struct looper_thread_params*) arg)->init_done = -240;
 		((struct looper_thread_params*) arg)->thread_handle = 0;
 		LeaveCriticalSection(((struct looper_thread_params*) arg)->csmutex);
 		return 0; /* For unrecoverable errors we would like to exit and try again. */
@@ -138,6 +142,7 @@ unsigned __stdcall event_data_looper(void* arg) {
 		ClearCommError(hComm, &error_type, &com_stat);
 		EnterCriticalSection(((struct looper_thread_params*) arg)->csmutex);
 		CloseHandle(((struct looper_thread_params*) arg)->thread_handle);
+		((struct looper_thread_params*) arg)->init_done = -240;
 		((struct looper_thread_params*) arg)->thread_handle = 0;
 		LeaveCriticalSection(((struct looper_thread_params*) arg)->csmutex);
 		return 0; /* For unrecoverable errors we would like to exit and try again. */
@@ -149,10 +154,14 @@ unsigned __stdcall event_data_looper(void* arg) {
 		if (DEBUG) fflush(stderr);
 		EnterCriticalSection(((struct looper_thread_params*) arg)->csmutex);
 		CloseHandle(((struct looper_thread_params*) arg)->thread_handle);
+		((struct looper_thread_params*) arg)->init_done = -240;
 		((struct looper_thread_params*) arg)->thread_handle = 0;
 		LeaveCriticalSection(((struct looper_thread_params*) arg)->csmutex);
 		return 0;
 	}
+
+	/* indicate success to caller so it can return success to java layer */
+	((struct looper_thread_params*) arg)->init_done = 1;
 
 	/* This keep looping forever until listener is unregistered, waiting for data or event and passing it to java layer which put it in the queue. */
 	while(1) {
@@ -311,6 +320,67 @@ unsigned __stdcall event_data_looper(void* arg) {
 			}
 		}
 	} /* Go back to loop again waiting for a control event or data event to occur using WAITCOMMEVENT(). */
+
+	return 0;
+}
+
+/* This thread keep polling for the physical existence of a port/file/device. When port removal is detected, this
+* informs java listener and exit. */
+unsigned __stdcall port_monitor(void *arg) {
+	struct port_info* params = (struct port_info*) arg;
+	JavaVM *jvm = (*params).jvm;
+	jobject port_listener = (*params).port_listener;
+	int lines_status = 0;
+	int ret = 0;
+
+	void* env1;
+	JNIEnv* env;
+	if((*jvm)->AttachCurrentThread(jvm, &env1, NULL) != JNI_OK) {
+		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE event_looper() thread failed to attach itself to JVM.");
+		if(DEBUG) fflush(stderr);
+	}
+	env = (JNIEnv*)env1;
+
+	jclass portListener = (*env)->GetObjectClass(env, port_listener);
+	if(portListener == NULL) {
+		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread could not get class of object of type IPortMonitor !");
+		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread exiting. Please RETRY registering port listener !");
+		if(DEBUG) fflush(stderr);
+		return 0;
+	}
+
+	jmethodID mid = (*env)->GetMethodID(env, portListener, "onPortRemovedEvent", "()V");
+	if((*env)->ExceptionOccurred(env)) {
+		LOGE(env);
+	}
+	if(mid == NULL) {
+		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread failed to retrieve method id of method onPortRemovedEvent !");
+		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread exiting. Please RETRY registering data listener !");
+		if(DEBUG) fflush(stderr);
+		return 0;
+	}
+
+	while (1) {
+		if(1 == ((struct port_info*) arg)->thread_exit) {
+			return 0;
+		}
+
+		ret = GetCommModemStatus(((struct port_info*) arg)->hComm, &lines_status);
+		if(ret == 0) {
+			DWORD errorVal = GetLastError();
+			/* if (DEBUG) fprintf(stderr, "%s %ld\n", "NATIVE event_data_looper() failed in SetCommMask() with error number : ", errorVal);
+			if (DEBUG) fflush(stderr); */
+			(*env)->CallVoidMethod(env, port_listener, mid, 0);
+			if((*env)->ExceptionOccurred(env)) {
+				LOGE(env);
+			}
+			break;
+		}
+
+		Sleep(750); /* 750 milliseocnds */
+		if (DEBUG) fprintf(stderr, "%s \n", "NAT!");
+		if (DEBUG) fflush(stderr);
+	}
 
 	return 0;
 }

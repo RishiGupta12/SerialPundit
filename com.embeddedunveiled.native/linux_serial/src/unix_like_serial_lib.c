@@ -87,8 +87,6 @@ int serial_delay(unsigned milliSeconds) {
 /* This handler is invoked whenever application unregisters event listener. */
 void exit_signal_handler(int signal_number) {
 	if(signal_number == SIGUSR1) {
-		if(DEBUG) fprintf(stderr, "%s\n", "SIGUSR1 RECEIVED");
-		if(DEBUG) fflush(stderr);
 		pthread_exit((void *)0);
 	}else {
 		if(DEBUG) fprintf(stderr, "%s %d\n", "UNKNOWN SIGNAL", signal_number);

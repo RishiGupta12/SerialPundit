@@ -24,6 +24,8 @@
 #include <jni.h>
 #include <windows.h>
 
+#define MAX_NUM_THREADS 1024
+
 /* Structure representing data that is passed to each data looper thread
  * with info corresponding to that file descriptor. */
 struct looper_thread_params {
@@ -36,6 +38,16 @@ struct looper_thread_params {
 	int thread_exit;
 	CRITICAL_SECTION *csmutex;
 	HANDLE wait_event_handles[2];
+	int init_done;
+};
+
+struct port_info {
+	JavaVM *jvm;
+	const char *portName;
+	HANDLE hComm;
+	int thread_exit;
+	jobject port_listener;
+	CRITICAL_SECTION *csmutex;
 };
 
 /* ERROR MAPPING FROM WINDOWS TO JAVA LAYER

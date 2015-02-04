@@ -46,7 +46,6 @@ struct port_info {
 	int thread_exit;
 	jobject port_listener;
 	pthread_t thread_id;
-	pthread_t port_monitor_thread_id;
 	pthread_mutex_t *mutex;
 };
 
