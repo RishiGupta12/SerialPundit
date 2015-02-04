@@ -39,11 +39,22 @@ struct com_thread_params {
 	int event_init_done;    /* indicates event thread has been successfully initialized or not; 0 is default 1 is success, otherwise error number as set by thread */
 };
 
+struct port_info {
+	JavaVM *jvm;
+	const char *portName;
+	int fd;
+	int thread_exit;
+	jobject port_listener;
+	pthread_t thread_id;
+	pthread_mutex_t *mutex;
+};
+
 /* function prototypes */
 extern void LOGE(JNIEnv *env);
-extern int serial_delay(unsigned usecs);
 extern void *data_looper(void *params);
 extern void *event_looper(void *params);
+extern void *port_monitor(void *params);
+extern int serial_delay(unsigned usecs);
 
 #endif /* UNIX_LIKE_SERIAL_LIB_H_ */
 

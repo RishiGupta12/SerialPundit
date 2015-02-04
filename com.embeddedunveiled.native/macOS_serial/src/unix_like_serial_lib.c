@@ -87,8 +87,6 @@ int serial_delay(unsigned milliSeconds) {
 /* This handler is invoked whenever application unregisters event listener. */
 void exit_signal_handler(int signal_number) {
 	if(signal_number == SIGUSR1) {
-		if(DEBUG) fprintf(stderr, "%s\n", "SIGUSR1 RECEIVED");
-		if(DEBUG) fflush(stderr);
 		pthread_exit((void *)0);
 	}else {
 		if(DEBUG) fprintf(stderr, "%s %d\n", "UNKNOWN SIGNAL", signal_number);
@@ -410,8 +408,10 @@ void *event_looper(void *arg) {
 	int lines_status = 0;
 	int cts,dsr,dcd,ri = 0;
 	int event = 0;
+#if defined (__APPLE__)
 	int oldstate = 0;
 	int newstate = 0;
+#endif
 
 	pthread_mutex_lock(((struct com_thread_params*) arg)->mutex);
 
@@ -541,6 +541,90 @@ void *event_looper(void *arg) {
 		}
 #endif
 	} /* Go back to loop again waiting for event to happen. */
+
+	return ((void *)0);
+}
+
+/* This thread keep polling for the physical existence of a port/file/device. When port removal is detected, this
+ * informs java listener and exit. */
+void *port_monitor(void *arg) {
+	struct port_info* params = (struct port_info*) arg;
+	JavaVM *jvm = (*params).jvm;
+	jobject port_listener = (*params).port_listener;
+	struct stat st;
+	int ret = 0;
+
+	void* env1;
+	JNIEnv* env;
+	if((*jvm)->AttachCurrentThread(jvm, &env1, NULL) != JNI_OK) {
+		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE event_looper() thread failed to attach itself to JVM.");
+		if(DEBUG) fflush(stderr);
+	}
+	env = (JNIEnv*) env1;
+
+	jclass portListener = (*env)->GetObjectClass(env, port_listener);
+	if(portListener == NULL) {
+		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread could not get class of object of type IPortMonitor !");
+		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread exiting. Please RETRY registering port listener !");
+		if(DEBUG) fflush(stderr);
+		pthread_exit((void *)0);
+	}
+
+	jmethodID mid = (*env)->GetMethodID(env, portListener, "onPortRemovedEvent", "()V");
+	if((*env)->ExceptionOccurred(env)) {
+		LOGE(env);
+	}
+	if(mid == NULL) {
+		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread failed to retrieve method id of method onPortRemovedEvent !");
+		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread exiting. Please RETRY registering data listener !");
+		if(DEBUG) fflush(stderr);
+		pthread_exit((void *)0);
+	}
+
+	while(1) {
+		if(1 == ((struct port_info*) arg)->thread_exit) {
+			pthread_exit((void *)0);
+		}
+
+		errno = 0;
+		ret = stat((*params).portName, &st);
+		if(ret == 0) {
+			usleep(750000); /* port exist and is in perfect condition, simply delay next check. */
+			if(1 == ((struct port_info*) arg)->thread_exit) {
+				pthread_exit((void *)0);
+			}
+		}else {
+			if(errno == EACCES) {
+				if(DEBUG) fprintf(stderr, "%s %d\n", "NATIVE port_monitor does not have permission to stat port error : ", errno);
+				if(DEBUG) fflush(stderr);
+			}else if(errno == ELOOP) {
+				if(DEBUG) fprintf(stderr, "%s %d\n", "NATIVE port_monitor encountered too many symbolic links while traversing the path error : ", errno);
+				if(DEBUG) fflush(stderr);
+			}else if(errno == ENAMETOOLONG) {
+				if(DEBUG) fprintf(stderr, "%s %d\n", "NATIVE port_monitor path is too long error : ", errno);
+				if(DEBUG) fflush(stderr);
+			}else if(errno == ENOMEM) {
+				if(DEBUG) fprintf(stderr, "%s %d\n", "NATIVE port_monitor Out of memory (i.e., kernel memory) error : ", errno);
+				if(DEBUG) fflush(stderr);
+			}else if(errno == ENOTDIR) {
+				if(DEBUG) fprintf(stderr, "%s %d\n", "NATIVE port_monitor a component of the path prefix of path is not a directory error : ", errno);
+				if(DEBUG) fflush(stderr);
+			}else if(errno == EOVERFLOW) {
+				if(DEBUG) fprintf(stderr, "%s %d\n", "NATIVE port_monitor improper data size handling/definition error : ", errno);
+				if(DEBUG) fflush(stderr);
+			}else if(errno == EFAULT) {
+				if(DEBUG) fprintf(stderr, "%s %d\n", "NATIVE port_monitor bad address error : ", errno);
+				if(DEBUG) fflush(stderr);
+			}else {
+				/* either bad fd or can not stat, inform listener in java layer. */
+				(*env)->CallVoidMethod(env, port_listener, mid, 0);
+				if((*env)->ExceptionOccurred(env)) {
+					LOGE(env);
+				}
+				break;
+			}
+		}
+	}
 
 	return ((void *)0);
 }
