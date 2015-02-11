@@ -918,9 +918,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 	/* Clear IO buffers after applying new valid settings to make port in 100% sane condition. */
 #if defined (__linux__)
 	ioctl(fd, TCFLSH, TCIOFLUSH);
-	ioctl(fd, TCFLSH, TCIOFLUSH);
 #elif defined (__APPLE__) || defined (__SunOS)
-	tcflush(fd, TCIOFLUSH);
 	tcflush(fd, TCIOFLUSH);
 #endif
 
@@ -1027,6 +1025,13 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 		if(DEBUG) fflush(stderr);
 		return (negative * errno);
 	}
+#endif
+
+	/* Clear IO buffers after applying new valid settings to make port in 100% sane condition. */
+#if defined (__linux__)
+	ioctl(fd, TCFLSH, TCIOFLUSH);
+#elif defined (__APPLE__) || defined (__SunOS)
+	tcflush(fd, TCIOFLUSH);
 #endif
 
 	return 0;
