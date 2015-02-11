@@ -29,6 +29,7 @@
 * Thread programming          : http://msdn.microsoft.com/en-us/library/windows/desktop/ms682453(v=vs.85).aspx
 * Examples at msdn            : http://msdn.microsoft.com/en-us/library/windows/desktop/bb540534(v=vs.85).aspx
 * Synchronization Functions   : http://msdn.microsoft.com/en-us/library/windows/desktop/ms686360(v=vs.85).aspx
+* IOCTL requests              : https://msdn.microsoft.com/en-us/library/windows/hardware/ff547466(v=vs.85).aspx
 *
 * - When printing error number (using fprintf()), number returned by Windows OS is printed as it is by this library.
 * - windows header files are in include directory of MinGW tool chain.
@@ -323,18 +324,18 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInter
 	dcb.fBinary = TRUE;                    /* Windows does not support non-binary mode transfers, so this member must be TRUE. */
 	dcb.fOutxCtsFlow = FALSE;
 	dcb.fOutxDsrFlow = FALSE;
-	dcb.fDtrControl = DTR_CONTROL_DISABLE;
+	dcb.fDtrControl = DTR_CONTROL_ENABLE;
 	dcb.fDsrSensitivity = FALSE;
-	dcb.fTXContinueOnXoff = TRUE;
+	dcb.fTXContinueOnXoff = FALSE;
 	dcb.fOutX = FALSE;
 	dcb.fInX = FALSE;
 	dcb.fErrorChar = FALSE;
-	dcb.fRtsControl = RTS_CONTROL_DISABLE;
+	dcb.fRtsControl = RTS_CONTROL_ENABLE;
 	dcb.fAbortOnError = FALSE;
-	dcb.XonLim = 1;
-	dcb.XoffLim = 1;
-	dcb.XonChar = 0x11;      /* Default value */
-	dcb.XoffChar = 0X13;     /* Default value */
+	dcb.XonLim = 2048;
+	dcb.XoffLim = 2048;
+	dcb.XonChar = (CHAR) 0x11;      /* DC1, CTRL-Q, Default value */
+	dcb.XoffChar = (CHAR) 0X13;     /* DC3, CTRL-S, Default value */
 	dcb.fNull = FALSE;       /* Do not discard when null bytes are received. */
 	ret = SetCommState(hComm, &dcb);
 	if(ret == 0) {
@@ -392,6 +393,15 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 		errorVal = GetLastError();
 		if(DEBUG) fprintf(stderr, "%s%ld\n", "NATIVE FlushFileBuffers() in closeComPort() failed to flush data with error number : ", errorVal);
 		if(DEBUG) fflush(stderr);
+	}
+
+	/* Release DTR line. */
+	ret = EscapeCommFunction(hComm, CLRDTR);
+	if (ret == 0) {
+		errorVal = GetLastError();
+		if (DEBUG) fprintf(stderr, "%s %ld\n", "NATIVE EscapeCommFunction() in closeComPort() failed with error number : ", errorVal);
+		if (DEBUG) fflush(stderr);
+		return -240;
 	}
 
 	/* Close the port. */
@@ -705,43 +715,50 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 		return -240;
 	}
 
-	/* Set flow control. */
+	/* Set flow control. Details can be found here https://msdn.microsoft.com/en-us/library/ff802693.aspx */
 	if(flowctrl == 1) {                          /* No flow control. */
 		dcb.fOutX = FALSE;
 		dcb.fInX = FALSE;
 		dcb.fOutxCtsFlow = FALSE;
 		dcb.fOutxDsrFlow = FALSE;
 		dcb.fDsrSensitivity = FALSE;
-		dcb.fOutxCtsFlow = FALSE;
-		dcb.fOutxDsrFlow = FALSE;
 		dcb.fDtrControl = DTR_CONTROL_DISABLE;
 		dcb.fRtsControl = RTS_CONTROL_DISABLE;
-	}else if (flowctrl == 2) {                   /* Hardware flow control. */
+	}else if(flowctrl == 2) {                    /* Hardware flow control. */
 		dcb.fOutX = FALSE;
 		dcb.fInX = FALSE;
 		dcb.fOutxCtsFlow = TRUE;
 		dcb.fOutxDsrFlow = TRUE;
 		dcb.fDsrSensitivity = TRUE;
-		dcb.fRtsControl = RTS_CONTROL_HANDSHAKE;
-		dcb.fDtrControl = DTR_CONTROL_HANDSHAKE;
-	}else if (flowctrl == 3) {                  /* Software flow control. */
+		dcb.fRtsControl = RTS_CONTROL_ENABLE;
+		dcb.fDtrControl = DTR_CONTROL_ENABLE;
+	}else if(flowctrl == 3) {                    /* Software flow control. */
 		dcb.fOutX = TRUE;
 		dcb.fInX = TRUE;
 		dcb.fOutxCtsFlow = FALSE;
 		dcb.fOutxDsrFlow = FALSE;
 		dcb.fDsrSensitivity = FALSE;
-		dcb.fDtrControl = DTR_CONTROL_DISABLE;
-		dcb.fRtsControl = RTS_CONTROL_DISABLE;
-		dcb.XonChar = (char) xon;
-		dcb.XoffChar = (char) xoff;
+		dcb.fDtrControl = DTR_CONTROL_ENABLE;
+		dcb.fRtsControl = RTS_CONTROL_ENABLE;
+		dcb.XonChar = (CHAR) xon;
+		dcb.XoffChar = (CHAR) xoff;
 		dcb.XonLim = 2048;
-		dcb.XoffLim = 512;
+		dcb.XoffLim = 2048;
 	}
 
-	/* Set parity and frame error. */
+	ret = SetCommState(hComm, &dcb);
+	if(ret == 0) {
+		errorVal = GetLastError(); 
+		if(DEBUG) fprintf(stderr, "%s %ld\n", "NATIVE SetCommState() in configureComPortControl() failed with error number : ", errorVal);
+		if(DEBUG) fflush(stderr);
+		if(errorVal == ERROR_INVALID_PARAMETER) {
+			return (negative * EINVAL);
+		}
+		return -240;
+	}
 
-
-	/* Set buffer overrun error. */
+	/* Flush old garbage values in IO port buffer for this port. */
+	PurgeComm(hComm, PURGE_RXCLEAR | PURGE_TXCLEAR);
 
 	return 0;
 }

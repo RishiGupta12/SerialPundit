@@ -231,7 +231,7 @@ unsigned __stdcall event_data_looper(void* arg) {
 
 		/* Check it is data or control event and enqueue in appropriate queue in java layer with the help of java method. */
 		if(eventOccurred == TRUE) {
-			if((mask_applied & EV_RXCHAR) && (events_mask & EV_RXCHAR)) {
+			if(events_mask & EV_RXCHAR) {
 				/* A data event has occured and application has registered listener for data also, so send data to application. */
 				memset(&overlapped, 0, sizeof(overlapped));
 				overlapped.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
@@ -269,10 +269,8 @@ unsigned __stdcall event_data_looper(void* arg) {
 
 				CloseHandle(overlapped.hEvent);
 			}
-
-			if((mask_applied & EV_CTS) || (mask_applied & EV_DSR) || (mask_applied & EV_RLSD) || (mask_applied & EV_RING)) {
-				/* application has registered listener for control event, so send it if occured. */
-				if((events_mask & EV_CTS) || (events_mask & EV_DSR) || (events_mask & EV_RLSD) || (events_mask & EV_RING)) {
+			
+			if((events_mask & EV_CTS) || (events_mask & EV_DSR) || (events_mask & EV_RLSD) || (events_mask & EV_RING)) {
 					/* waitcommevent says control event has occured, so we get it. */
 					lines_status = 0;
 					cts = 0;
@@ -309,14 +307,13 @@ unsigned __stdcall event_data_looper(void* arg) {
 
 					if(cts || dsr || dcd || ri) {
 						/* It is control event(s), so enqueue it in event queue. */
-						if(DEBUG) fprintf(stderr, "%s %d\n", "NATIVE event_data_looper() sending bit mapped events ", event);
-						if(DEBUG) fflush(stderr);
+						/* if(DEBUG) fprintf(stderr, "%s %d\n", "NATIVE event_data_looper() sending bit mapped events ", event);
+						if(DEBUG) fflush(stderr); */
 						(*env)->CallVoidMethod(env, looper, event_mid, event);
 						if((*env)->ExceptionOccurred(env)) {
 							LOGE(env);
 						}
 					}
-				}
 			}
 		}
 	} /* Go back to loop again waiting for a control event or data event to occur using WAITCOMMEVENT(). */
