@@ -89,8 +89,6 @@ void exit_signal_handler(int signal_number) {
 	if(signal_number == SIGUSR1) {
 		pthread_exit((void *)0);
 	}else {
-		if(DEBUG) fprintf(stderr, "%s %d\n", "UNKNOWN SIGNAL", signal_number);
-		if(DEBUG) fflush(stderr);
 	}
 }
 
@@ -291,7 +289,6 @@ void *data_looper(void *arg) {
 	}
 
 #endif
-
 #if defined (__linux__)
 	if((events[0].data.fd == evfd) || (events[1].data.fd == evfd)) {
 		/* check if thread should exit due to un-registration of listener. */
@@ -386,7 +383,6 @@ void *data_looper(void *arg) {
 				LOGE(env);
 			}
 		}
-
 	} /* Go back to loop again waiting for the data, available to read. */
 
 	return ((void *)0);
@@ -421,6 +417,10 @@ void *event_looper(void *arg) {
 	if((*jvm)->AttachCurrentThread(jvm, &env1, NULL) != JNI_OK) {
 		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE event_looper() thread failed to attach itself to JVM.");
 		if(DEBUG) fflush(stderr);
+		((struct com_thread_params*) arg)->event_thread_id = 0;
+		((struct com_thread_params*) arg)->event_init_done = -240;
+		pthread_mutex_unlock(((struct com_thread_params*) arg)->mutex);
+		pthread_exit((void *)0);
 	}
 	env = (JNIEnv*) env1;
 
@@ -477,18 +477,16 @@ void *event_looper(void *arg) {
 		/* When the user removes port on which this thread was calling this ioctl, this thread keep giving
 		 * error -5 and keep looping in this ioctl for Linux. */
 		errno = 0;
-		ret = ioctl(fd, TIOCMIWAIT, TIOCM_CD | TIOCM_RNG | TIOCM_DSR | TIOCM_CTS);
+		ret = ioctl(fd, TIOCMIWAIT, TIOCM_DSR | TIOCM_CTS | TIOCM_CD | TIOCM_RNG);
 		if(ret < 0) {
 			if(DEBUG) fprintf(stderr, "%s%d\n", "NATIVE event_looper() failed in ioctl TIOCMIWAIT with error number : -", errno);
 			if(DEBUG) fflush(stderr);
 			continue;
 		}
+
 #endif
 #if defined (__APPLE__)
 		usleep(500000);
-		if(DEBUG) fprintf(stderr, "%s%d\n", "ji",lines_status);
-		if(DEBUG) fflush(stderr);
-
 #endif
 
 		/* Something happened on status line so get it. */
@@ -630,3 +628,4 @@ void *port_monitor(void *arg) {
 }
 
 #endif /* End compiling for Unix-like OS. */
+

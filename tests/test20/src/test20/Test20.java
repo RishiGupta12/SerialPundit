@@ -12,69 +12,64 @@ import com.embeddedunveiled.serial.SerialComDataEvent;
 class Data0 implements ISerialComDataListener{
 	@Override
 	public void onNewSerialDataAvailable(SerialComDataEvent data) {
-		System.out.println("0 Read from serial port : " + new String(data.getDataBytes()));
+		System.out.println("Sender got from receiver : " + new String(data.getDataBytes()));
 	}
 }
 
 class Data1 implements ISerialComDataListener{
 	@Override
 	public void onNewSerialDataAvailable(SerialComDataEvent data) {
-		System.out.println("1 Read from serial port : " + new String(data.getDataBytes()));
+		System.out.println("Receiver got from sender : " + new String(data.getDataBytes()));
 	}
 }
 
 public class Test20 {
 	public static void main(String[] args) {
 		
-		long handle = 0;
-		SerialComManager scm = new SerialComManager();
+		byte[] XON  = new byte[] {(byte) 0x24};   // ASCII value of $ character is 0x24
+		byte[] XOFF = new byte[] {(byte) 0x23};   // ASCII value of # character is 0x23
 		
-		// instantiate class which is will implement ISerialComDataListener interface
-		Data0 dataListener0 = new Data0();
-		Data1 dataListener1 = new Data1();
+		SerialComManager scm = new SerialComManager();
+		Data1 receiver = new Data1();
+		Data0 sender = new Data0();
 		
 		try {
 			// open and configure port that will listen data
-			handle = scm.openComPort("/dev/ttyUSB0", true, true, false);
-			scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
-			scm.configureComPortControl(handle, FLOWCONTROL.SOFTWARE, '$', '#', false, false);
-			scm.registerDataListener(handle, dataListener0);
+			long receiverHandle = scm.openComPort("/dev/ttyUSB0", true, true, true);
+			scm.configureComPortData(receiverHandle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
+			scm.configureComPortControl(receiverHandle, FLOWCONTROL.SOFTWARE, '$', '#', false, false);
+
+			scm.registerDataListener(receiverHandle, receiver);
 			
 			// open and configure port which will send data
-			long handle1 = scm.openComPort("/dev/ttyUSB1", true, true, false);
-			scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
-			scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, '$', '#', false, false);
-			scm.registerDataListener(handle1, dataListener1);
+			long senderHandle = scm.openComPort("/dev/ttyUSB1", true, true, true);
+			scm.configureComPortData(senderHandle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
+			scm.configureComPortControl(senderHandle, FLOWCONTROL.SOFTWARE, '$', '#', false, false);
+			scm.registerDataListener(senderHandle, sender);
 			
-			scm.writeString(handle, "$", 0);
-			scm.writeString(handle1, "$", 0);
+			// Step 1
+			scm.writeString(senderHandle, "str1", 0);
+			scm.writeString(receiverHandle, "str2", 0);
+			Thread.sleep(1000);
 			
-			scm.writeString(handle, "a#b", 0);
-			scm.writeString(handle1, "c#d", 0);
+			// Step 2
+			scm.writeBytes(receiverHandle, XOFF, 0);
+			Thread.sleep(200);
 			
-//			scm.writeString(handle, "$", 0);
-//			scm.writeString(handle1, "$", 0);
+			// Step 3
+			scm.writeString(senderHandle, "str3", 0);
 			
-			scm.writeString(handle, "e", 0);
-			scm.writeString(handle1, "f", 0);
+			// Step 4
+			Thread.sleep(4000);
 			
-			scm.writeString(handle, "\n", 0);
-			scm.writeString(handle1, "\n", 0);
+			// Step 5
+			scm.writeBytes(receiverHandle, XON, 0);
+			Thread.sleep(100000);
 			
-			scm.writeString(handle, "a$b", 0);
-			scm.writeString(handle1, "c$d", 0);
-			
-			scm.writeString(handle, "e$f", 0);
-			scm.writeString(handle1, "g$h", 0);
-
-
-			Thread.sleep(2000);
-			// close the port releasing handle
-			scm.unregisterDataListener(dataListener0);
-			scm.unregisterDataListener(dataListener1);
-			scm.closeComPort(handle);
-			scm.closeComPort(handle1);
-			
+			scm.unregisterDataListener(sender);
+			scm.unregisterDataListener(receiver);
+			scm.closeComPort(receiverHandle);
+			scm.closeComPort(senderHandle);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

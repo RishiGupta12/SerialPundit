@@ -185,7 +185,7 @@ public final class SerialComManager {
 	}
 
 	/**
-	 * Gives library versions of java and native modules.
+	 * <p>Gives library versions of java and native modules.</p>
 	 * 
 	 * @return Java and C library versions implementing this library.
 	 */
@@ -328,9 +328,9 @@ public final class SerialComManager {
 	}
 
 	/**
-	 * This method writes bytes from the specified byte type buffer. To make read and write take as less time as possible,
+	 * <p>This method writes bytes from the specified byte type buffer. To make read and write take as less time as possible,
 	 * we do not check whether port has been opened and configured or not. If the method returns false, the application
-	 * should try to re-send bytes. The data has been transmitted out of serial port when this method returns.
+	 * should try to re-send bytes. The data has been transmitted out of serial port when this method returns.</p>
 	 * 
 	 * @param handle handle of the opened port on which to write bytes
 	 * @param buffer byte type buffer containing bytes to be written to port
@@ -347,8 +347,8 @@ public final class SerialComManager {
 	}
 
 	/**
-	 * This method writes a single byte to the specified port. The data has been transmitted out of serial port when 
-	 * this method returns.
+	 * <p>This method writes a single byte to the specified port. The data has been transmitted out of serial port when 
+	 * this method returns.</p>
 	 * 
 	 * @param handle handle of the opened port on which to write byte
 	 * @param value byte to be written to port
@@ -359,8 +359,8 @@ public final class SerialComManager {
 	}
 
 	/**
-	 * This method writes a string to the specified port. The library internally converts string to byte buffer. 
-	 * The data has been transmitted out of serial port when this method returns.
+	 * <p>This method writes a string to the specified port. The library internally converts string to byte buffer. 
+	 * The data has been transmitted out of serial port when this method returns.</p>
 	 * 
 	 * @param handle handle of the opened port on which to write byte
 	 * @param data the string to be send to port
@@ -372,8 +372,8 @@ public final class SerialComManager {
 	}
 
 	/**
-	 * This method writes a string to the specified port. The library internally converts string to byte buffer. 
-	 * The data has been transmitted out of serial port when this method returns.
+	 * <p>This method writes a string to the specified port. The library internally converts string to byte buffer. 
+	 * The data has been transmitted out of serial port when this method returns.</p>
 	 * 
 	 * @param handle handle of the opened port on which to write byte
 	 * @param data the string to be send to port
@@ -385,17 +385,17 @@ public final class SerialComManager {
 	}
 
 	/** 
-	 * Different CPU and OS will have different endianness. It is therefore we handle the endianness conversion 
+	 * <p>Different CPU and OS will have different endianness. It is therefore we handle the endianness conversion 
 	 * as per the user request. If the given integer is in range −32,768 to 32,767, only two bytes will be needed.
 	 * In such case user might like to send only 2 bytes to serial port. On the other hand user might be implementing
 	 * some custom protocol so that the data must be 4 bytes (irrespective of its range) in order to be interpreted 
 	 * correctly by the receiver terminal. This method assumes that integer value can be represented by 32 or less
-	 * number of bits. On x86_64 architecture, loss of precision will occur if the integer value is of more than 32 bit.
+	 * number of bits. On x86_64 architecture, loss of precision will occur if the integer value is of more than 32 bit.</p>
 	 * 
 	 * <p>The data has been transmitted out of serial port when this method returns.</p>
 	 * 
-	 * In java numbers are represented in 2's complement, so number 650 whose binary representation is 0000001010001010
-	 * is printed byte by byte, then will be printed as 1 and -118, because 10001010 in 2's complement is negative number.
+	 * <p>In java numbers are represented in 2's complement, so number 650 whose binary representation is 0000001010001010
+	 * is printed byte by byte, then will be printed as 1 and -118, because 10001010 in 2's complement is negative number.</p>
 	 * 
 	 * @param handle handle of the opened port on which to write byte
 	 * @param data an integer number to be sent to port
@@ -435,8 +435,8 @@ public final class SerialComManager {
 	}
 
 	/** 
-	 * This method send an array of integers on the specified port. The data has been transmitted out of serial 
-	 * port when this method returns.
+	 * <p>This method send an array of integers on the specified port. The data has been transmitted out of serial 
+	 * port when this method returns.</p>
 	 * 
 	 * @param handle handle of the opened port on which to write byte
 	 * @param buffer an array of integers to be sent to port
@@ -500,9 +500,9 @@ public final class SerialComManager {
 	}
 
 	/** 
-	 * Read specified number of bytes from serial port. If any error is encountered then native library put
+	 * <p>Read specified number of bytes from serial port. If any error is encountered then native library put
 	 * that negative error number at 0th index of byte buffer. We do not validate arguments supplied to serve as
-	 * fast as possible to the caller. Application can call this method even when they have registered a listener.
+	 * fast as possible to the caller. Application can call this method even when they have registered a listener.</p>
 	 * 
 	 * <p>Note that, we do not prevent caller from reading port even if he has registered a event listener for
 	 * specified port. There may be cases where caller wants to read asynchronously outside the listener. It is callers
@@ -533,8 +533,8 @@ public final class SerialComManager {
 	}
 
 	/**
-	 * This method is for user to read input data as string and the method handles the conversion from bytes to string.
-	 * Caller has more finer control over the byte operation
+	 * <p>This method is for user to read input data as string and the method handles the conversion from bytes to string.
+	 * Caller has more finer control over the byte operation.</p>
 	 * 
 	 * @param handle of port from which to read bytes
 	 * @param byteCount number of bytes to read from this port
@@ -547,7 +547,7 @@ public final class SerialComManager {
 	}
 	
 	/**
-	 * This method is for user to read input data as string and the method handles the conversion from bytes to string.
+	 * <p>This method is for user to read input data as string and the method handles the conversion from bytes to string.</p>
 	 * 
 	 * @param handle of port from which to read bytes
 	 * @throws SerialComException if it is unable to read bytes from port
@@ -558,10 +558,10 @@ public final class SerialComManager {
 	}
 
 	/**
-	 * This method configures the rate at which communication will occur and the format of data frame. Note that, most of the DTE/DCE (hardware)
+	 * <p>This method configures the rate at which communication will occur and the format of data frame. Note that, most of the DTE/DCE (hardware)
 	 * does not support different baud rates for transmission and reception and therefore we take only single value applicable to both transmission and
 	 * reception. Further, all the hardware and OS does not support all the baud rates (maximum change in signal per second). It is the applications 
-	 * responsibility to consider these factors when writing portable software.
+	 * responsibility to consider these factors when writing portable software.</p>
 	 * 
 	 * <p>If parity is enabled, the parity bit will be removed from frame before passing it library.</p>
 	 * 
@@ -618,8 +618,8 @@ public final class SerialComManager {
 	}
 	
 	/**
-	 * This method configures the way data communication will be controlled between DTE and DCE. This specifies flow control and actions that will
-	 * be taken when an error is encountered in communication.
+	 * <p>This method configures the way data communication will be controlled between DTE and DCE. This specifies flow control and actions that will
+	 * be taken when an error is encountered in communication.</p>
 	 * 
 	 * @param handle of opened port to which this configuration applies to
 	 * @param flowctrl flow control, how data flow will be controlled (refer FLOWCONTROL enum for this)
@@ -652,17 +652,17 @@ public final class SerialComManager {
 	}
 	
 	/**
-	 * This method gives currently applicable settings associated with particular serial port.
-	 * The values are bit mask so that application can manipulate them to get required information.
+	 * <p>This method gives currently applicable settings associated with particular serial port.
+	 * The values are bit mask so that application can manipulate them to get required information.</p>
 	 * 
 	 * <p>For Linux the order is : c_iflag, c_oflag, c_cflag, c_lflag, c_line, c_cc[0], c_cc[1], c_cc[2], c_cc[3]
 	 * c_cc[4], c_cc[5], c_cc[6], c_cc[7], c_cc[8], c_cc[9], c_cc[10], c_cc[11], c_cc[12], c_cc[13], c_cc[14],
 	 * c_cc[15], c_cc[16], c_ispeed and c_ospeed.</p>
 	 * 
-	 * For Windows the order is :DCBlength, BaudRate, fBinary, fParity, fOutxCtsFlow, fOutxDsrFlow, fDtrControl,
+	 * <p>For Windows the order is :DCBlength, BaudRate, fBinary, fParity, fOutxCtsFlow, fOutxDsrFlow, fDtrControl,
 	 * fDsrSensitivity, fTXContinueOnXoff, fOutX, fInX, fErrorChar, fNull, fRtsControl, fAbortOnError, fDummy2,
 	 * wReserved, XonLim, XoffLim, ByteSize, Parity, StopBits, XonChar, XoffChar, ErrorChar, StopBits, EvtChar,
-	 * wReserved1.
+	 * wReserved1.</p>
 	 * 
 	 * @param handle of the opened port
 	 * @throws SerialComException if invalid handle is passed or an error occurs while reading current settings
@@ -708,12 +708,10 @@ public final class SerialComManager {
 	 * −3 to −15 volts with respect to the ground/common pin; consequently, the range between −3 to +3 volts is not a 
 	 * valid RS-232 level.</p>
 	 * 
-	 * <p>For data lines (TxD, RxD and their secondary channel equivalents) logic one is defined as a negative voltage, the 
-	 * signal condition is called "mark". Logic zero is positive and the signal condition is termed "space".</p>
+	 * <p>In asserted condition, voltage at pin number 7 (RTS signal) will be greater than 3 volts. Voltage 5.0 volts
+	 * was observed when using USB-UART converter http://www.amazon.in/Bafo-USB-Serial-Converter-DB9/dp/B002SCRCDG.</p>
 	 * 
-	 * <p>Control signals have the opposite polarity: the asserted or active state is positive voltage and the de-asserted 
-	 * or inactive state is negative voltage. Examples of control lines include request to send (RTS), clear to send (CTS), 
-	 * data terminal ready (DTR), and data set ready (DSR).</p>
+	 * <p>On some hardware IC, signals may be active low and therefore for actual voltage datasheet should be consulted.<p>
 	 * 
 	 * @param handle of the opened port
 	 * @param enabled if true RTS will be asserted and vice-versa

@@ -36,25 +36,30 @@ public class Test6 {
 			scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
 			scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
 			
-			Thread.sleep(1000);
-			scm.setDTR(handle1, true);
-			Thread.sleep(1000);
-			scm.setRTS(handle1, true);
-			Thread.sleep(1000);
+			Thread.sleep(100);
 			scm.setDTR(handle1, false);
-			Thread.sleep(1000);
+			Thread.sleep(200);
 			scm.setRTS(handle1, false);
-			Thread.sleep(1000);
+			
+			Thread.sleep(200);
 			scm.setDTR(handle1, true);
-			Thread.sleep(1000);
+			Thread.sleep(200);
 			scm.setRTS(handle1, true);
-			Thread.sleep(1000);
+			Thread.sleep(200);
+			
+			scm.setDTR(handle1, false);
+			Thread.sleep(200);
+			scm.setRTS(handle1, false);
+			Thread.sleep(200);
+			
+			scm.setDTR(handle1, true);
+			Thread.sleep(200);
+			scm.setRTS(handle1, true);
+			Thread.sleep(200);
 
 			// unregister data listener
 			scm.unregisterLineEventListener(eventListener);
-			Thread.sleep(1000);
-
-			// close the port releasing handle
+			Thread.sleep(200);
 			scm.closeComPort(handle);
 			scm.closeComPort(handle1);
 		} catch (Exception e) {

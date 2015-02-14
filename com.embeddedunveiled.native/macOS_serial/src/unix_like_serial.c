@@ -425,17 +425,19 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInter
 	settings.c_cflag &= ~PARENB;
 	settings.c_cflag &= ~CSTOPB;
 	settings.c_cflag |= (CS8 | CREAD | CLOCAL);
+	settings.c_cflag |= HUPCL;
 
 	/* Control characters :
 	 * Return immediately if no data is available on read() call and no time out value. */
-	settings.c_cc[VMIN] = 0;
-	settings.c_cc[VTIME] = 0;
+	settings.c_cc[VMIN] = 1;
+	settings.c_cc[VTIME] = 5;
 
 	/* Input options :
 	 * IMAXBEL : ring bell on input queue full, IGNBRK : Ignore break conditions, BRKINT : map BREAK to SIGINTR,
 	 * PARMRK : mark parity and framing errors, ISTRIP : strip 8th bit off chars, INLCR : Don't Map NL to CR,
 	 * IGNCR : ignore CR, ICRNL : Don't Map CR to NL, IXON : enable output flow control */
-	settings.c_iflag &= ~(IMAXBEL | IGNBRK | BRKINT | PARMRK | ISTRIP | INLCR | IGNCR | ICRNL | IXON);
+	settings.c_iflag &= ~(BRKINT | PARMRK | ISTRIP | INLCR | IGNCR | ICRNL | IXON | IXOFF | IXANY | INPCK | IGNPAR);
+	settings.c_iflag |= IGNBRK;
 #ifdef IUCLC
     settings.c_iflag &= ~IUCLC;  /* translate upper case to lower case */
 #endif
@@ -454,10 +456,10 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInter
 
 	/* Line options :
 	 * Non-canonical mode is enabled. Do not echo. */
-	settings.c_lflag &= ~(ECHO | ECHONL | ICANON | ISIG | IEXTEN);
+	settings.c_lflag &= ~(ECHO | ECHOE | ECHOK | ECHONL | ECHOCTL | ECHOPRT | ECHOKE | ICANON | ISIG | IEXTEN);
 
 #if defined (__linux__)
-	/* Line discipline : */
+	/* Line discipline */
 	settings.c_line = 0;
 #endif
 
@@ -581,13 +583,13 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINative
 				dataRead = (*env)->NewByteArray(env, index + ret);
 				(*env)->SetByteArrayRegion(env, dataRead, 0, index + ret, final_buf);
 				return dataRead;
-			} else {
+			}else {
 				/* Pass the successful read to java layer straight away. */
 				dataRead = (*env)->NewByteArray(env, ret);
 				(*env)->SetByteArrayRegion(env, dataRead, 0, ret, buffer);
 				return dataRead;
 			}
-		} else if (ret > 0 && errno == EINTR) {
+		}else if(ret > 0 && errno == EINTR) {
 			/* This indicates, there is data to read, however, we got interrupted before we finish reading
 			 * all of the available data. So we need to save this partial data and get back to read remaining. */
 			for(i = index; i < ret; i++) {
@@ -596,23 +598,23 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINative
 			index = ret;
 			partialData = 1;
 			continue;
-		} else if(ret < 0) {
+		}else if(ret < 0) {
 			if(errno == EAGAIN || errno == EWOULDBLOCK) {
 				/* This indicates, there was no data to read. Therefore just return null. */
 				dataRead = (*env)->NewByteArray(env, sizeof(empty_buf));
 				(*env)->SetByteArrayRegion(env, dataRead, 0, sizeof(empty_buf), empty_buf);
 				return dataRead;
-			} else if(errno != EINTR) {
+			}else if(errno != EINTR) {
 				/* This indicates, irrespective of, there was data to read or not, we got an error during operation. */
 				/* Can we handle this condition more gracefully. */
 				if(DEBUG) fprintf(stderr, "%s%d\n", "Native readBytes() failed to read data with error number : -", errno);
 				if(DEBUG) fflush(stderr);
 				break;
-			} else if (errno == EINTR) {
+			}else if(errno == EINTR) {
 				/* This indicates that we should retry as we are just interrupted by a signal. */
 				continue;
 			}
-		} else if (ret == 0) {
+		}else if(ret == 0) {
 			/* This indicates, there was no data to read or EOF. */
 			dataRead = (*env)->NewByteArray(env, sizeof(empty_buf));
 			(*env)->SetByteArrayRegion(env, dataRead, 0, sizeof(empty_buf), empty_buf);
@@ -852,7 +854,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 	/* Set stop bits. If CSTOPB is not set one stop bit is used. Otherwise two stop bits are used. */
 	if(stopBits == 1) {
 		currentconfig.c_cflag &= ~CSTOPB; /* one stop bit used if user set 1 stop bit */
-	} else {
+	}else {
 		currentconfig.c_cflag |= CSTOPB;  /* two stop bits used if user set 1.5 or 2 stop bits */
 	}
 
@@ -937,7 +939,6 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
  * received by the TTY from the device restarts the output that has been suspended.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_configureComPortControl(JNIEnv *env, jobject obj, jlong fd, jint flowctrl, jchar xon, jchar xoff, jboolean ParFraError, jboolean overFlowErr) {
-
 	jint ret = 0;
 	jint negative = -1;
 
@@ -965,36 +966,39 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 
 	/* Set flow control. The CRTSCTS for Solaris enables outbound hardware flow control if set, while for Linux and Mac enables both inbound and outbound. */
 	if(flowctrl == 1) {
-		currentconfig.c_cflag &= ~CRTSCTS;                  /* No flow control. */
-	} else if(flowctrl == 2) {                             /* Hardware flow control. */
-		currentconfig.c_iflag &= ~(IXON | IXOFF | IXANY);
-		currentconfig.c_cflag &= HUPCL;                     /* Disconnect the line when the last process closes the device. Infers drop DTR. */
+		currentconfig.c_cflag &= ~CRTSCTS;                  /* NO FLOE CONTROL. */
+	}else if(flowctrl == 2) {                              /* HARDWARE FLOW CONTROL on both tx and rx data. */
+		currentconfig.c_iflag &= ~(IXON | IXOFF);           /* software xon-xoff character disabled. */
+		currentconfig.c_cflag |= CLOCAL;                    /* CLOCAL ignores only the CD signal line. */
 		currentconfig.c_cflag |= CRTSCTS;                   /* Specifying hardware flow control. */
-		currentconfig.c_cflag &= ~CLOCAL;
-	} else if(flowctrl == 3) {
-		currentconfig.c_cflag &= ~CRTSCTS;
-		currentconfig.c_iflag |= (IXON | IXOFF);    /* Software flow control on both tx and rx data. */
+	}else if(flowctrl == 3) {                              /* SOFTWARE FLOW CONTROL on both tx and rx data. */
+		currentconfig.c_cflag &= ~CRTSCTS;                  /* hardware rts-cts disabled. */
+		currentconfig.c_iflag |= (IXON | IXOFF);            /* software xon-xoff chararcter enabled. */
 		currentconfig.c_cc[VSTART] = xon;                   /* The value of the XON character for both transmission and reception. */
 		currentconfig.c_cc[VSTOP] = xoff;                   /* The value of the XOFF character for both transmission and reception. */
+	}else {
 	}
 
 	/* Set parity and frame error. */
 	if(ParFraError == JNI_TRUE) {
 		/* First check if user has enabled parity checking or not. */
-		if( ! ((currentconfig.c_cflag & PARENB) == PARENB) ) {
-			if(DEBUG) fprintf(stderr, "%s\n", "Parity checking is not enabled first via configureComPortData method");
+		if(!((currentconfig.c_cflag & PARENB) == PARENB)) {
+			if(DEBUG) fprintf(stderr, "%s\n", "Parity checking is not enabled first via configureComPortData method.");
 			if(DEBUG) fflush(stderr);
-			return -1;
+			return -242;
 		}
 
 		/* Mark the character as containing an error. This will cause a character containing a parity or framing error to be
 		 * replaced by a three character sequence consisting of the erroneous character preceded by \377 and \000. A legitimate
 		 * received \377 will be replaced by a pair of \377s.*/
-		currentconfig.c_iflag |= (PARMRK);
 		currentconfig.c_iflag &= ~IGNPAR;
-	} else {
+		currentconfig.c_iflag |=  PARMRK;
+	}else {
 		/* Ignore the character containing an error. Any received characters containing parity errors will be silently dropped. */
-		currentconfig.c_iflag |= (IGNPAR);
+		currentconfig.c_iflag |=  IGNPAR;
+		currentconfig.c_iflag |=  PARMRK;
+
+		currentconfig.c_iflag &= ~IGNPAR;
 		currentconfig.c_iflag &= ~PARMRK;
 	}
 
@@ -1003,7 +1007,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 	 * Additional data is lost.  If MAXBEL is not set, the BEL character is not sent but the data is lost anyhow. */
 	if(overFlowErr == JNI_TRUE) {
 		currentconfig.c_iflag |= IMAXBEL;
-	} else {
+	}else {
 		currentconfig.c_iflag &= ~IMAXBEL;
 	}
 
@@ -1057,10 +1061,9 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 	}
 
 	if(enabled == JNI_TRUE) {
-		status &= ~TIOCM_RTS;
-
-	}else {
 		status |= TIOCM_RTS;
+	}else {
+		status &= ~TIOCM_RTS;
 	}
 
 	/* Update RTS line. */
@@ -1094,9 +1097,9 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 	}
 
 	if(enabled == JNI_TRUE) {
-		status &= ~TIOCM_DTR;
-	} else {
 		status |= TIOCM_DTR;
+	}else {
+		status &= ~TIOCM_DTR;
 	}
 
 	errno = 0;
@@ -1881,3 +1884,4 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 }
 
 #endif /* End compiling for Unix-like OS. */
+

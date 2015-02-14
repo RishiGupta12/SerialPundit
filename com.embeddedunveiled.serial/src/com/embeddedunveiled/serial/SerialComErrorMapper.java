@@ -198,6 +198,9 @@ public final class SerialComErrorMapper {
 			case -241:
 				exceptionType = new String("Exclusive ownership is not supported for Solaris as of now. !");
 				break;
+			case -242:
+				exceptionType = new String("Enable parity in configureComPortData() for parity/frame error checking to work. !");
+				break;
 			default:
 				// This means some we were not able to figure out.
 				exceptionType = new String("Unknown exception occured !");

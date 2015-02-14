@@ -81,6 +81,7 @@ public class Test22 {
 
 			scm.unregisterDataListener(DTE1);
 			scm.unregisterDataListener(DCE1);
+			scm.unregisterLineEventListener(eventListener);
 			scm.closeComPort(DTE);
 			scm.closeComPort(DCE);
 		} catch (Exception e) {
