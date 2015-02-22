@@ -965,12 +965,32 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 #endif
 
 	/* Set flow control. The CRTSCTS for Solaris enables outbound hardware flow control if set, while for Linux and Mac enables both inbound and outbound. */
-	if(flowctrl == 1) {
-		currentconfig.c_cflag &= ~CRTSCTS;                  /* NO FLOE CONTROL. */
+	if(flowctrl == 1) {                                    /* NO FLOW CONTROL. */
+		currentconfig.c_iflag &= ~(IXON | IXOFF);
+#if defined (__linux__)
+		currentconfig.c_cflag &= ~CRTSCTS;
+#endif
+#if defined (__APPLE__)
+		currentconfig.c_cflag &= ~CRTS_IFLOW;
+		currentconfig.c_cflag &= ~CCTS_OFLOW;
+#endif
+#if defined (__SunOS)
+		currentconfig.c_cflag &= ~CRTSXOFF;
+		currentconfig.c_cflag &= ~CRTSCTS;
+#endif
 	}else if(flowctrl == 2) {                              /* HARDWARE FLOW CONTROL on both tx and rx data. */
 		currentconfig.c_iflag &= ~(IXON | IXOFF);           /* software xon-xoff character disabled. */
-		currentconfig.c_cflag |= CLOCAL;                    /* CLOCAL ignores only the CD signal line. */
+#if defined (__linux__)
 		currentconfig.c_cflag |= CRTSCTS;                   /* Specifying hardware flow control. */
+#endif
+#if defined (__APPLE__)
+		currentconfig.c_cflag |= CRTS_IFLOW;
+		currentconfig.c_cflag |= CCTS_OFLOW;
+#endif
+#if defined (__SunOS)
+		currentconfig.c_cflag |= CRTSXOFF;
+		currentconfig.c_cflag |= CRTSCTS;
+#endif
 	}else if(flowctrl == 3) {                              /* SOFTWARE FLOW CONTROL on both tx and rx data. */
 		currentconfig.c_cflag &= ~CRTSCTS;                  /* hardware rts-cts disabled. */
 		currentconfig.c_iflag |= (IXON | IXOFF);            /* software xon-xoff chararcter enabled. */
@@ -1845,6 +1865,54 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
  * Signature: (J)I
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_unregisterPortMonitorListener(JNIEnv *env, jobject obj, jlong fd) {
+#if defined (__linux__)
+	int ret = -1;
+	int negative = -1;
+	int x = -1;
+	struct port_info *ptr;
+	ptr = port_monitor_info;
+	pthread_t thread_id = 0;
+	void *status;
+
+	pthread_mutex_lock(&mutex);
+
+	/* Find the event thread serving this file descriptor. */
+	for (x=0; x < MAX_NUM_THREADS; x++) {
+		if(ptr->fd == fd) {
+			thread_id = ptr->thread_id;
+			break;
+		}
+		ptr++;
+	}
+
+	/* Set the flag that will be checked by thread to check for exit condition. */
+	ptr->thread_exit = 1;
+
+	/* send signal to event thread. */
+	ret = pthread_kill(thread_id, SIGUSR1);
+	if(ret != 0) {
+		if(DEBUG) fprintf(stderr, "%s %d\n", "NATIVE unregisterPortMonitorListener() failed to terminate monitor thread with error number : -", ret);
+		if(DEBUG) fflush(stderr);
+		pthread_mutex_unlock(&mutex);
+		return (negative * ret);
+	}
+
+	/* Join the thread (waits for the thread specified to terminate). */
+	ret = pthread_join(thread_id, &status);
+	if(ret != 0) {
+		if(DEBUG) fprintf(stderr, "%s \n", "native port monitor thread failed to join !");
+		if(DEBUG) fflush(stderr);
+		pthread_mutex_unlock(&mutex);
+		return (negative * ret);
+	}
+
+	ptr->thread_id = 0;    /* Reset thread id field. */
+	ptr->fd = -1;
+
+	pthread_mutex_unlock(&mutex);
+	return 0;
+#endif
+#if defined (__APPLE__) || defined (__SunOS)
 	int ret = -1;
 	int negative = -1;
 	int x = -1;
@@ -1881,6 +1949,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 
 	pthread_mutex_unlock(&mutex);
 	return 0;
+#endif
 }
 
 #endif /* End compiling for Unix-like OS. */

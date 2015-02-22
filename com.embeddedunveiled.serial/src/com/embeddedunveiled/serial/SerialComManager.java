@@ -782,7 +782,7 @@ public final class SerialComManager {
 	
 	/**
 	 * <p>This method destroys complete java and native looper subsystem associated with this particular data listener. This has no
-	 * effect on event looper subsystem.</p>
+	 * effect on event looper subsystem. This method returns only after native thread has been terminated successfully.</p>
 	 * 
 	 * @param dataListener instance of class which implemented ISerialComDataListener interface
 	 * @throws SerialComException if null value is passed in dataListener field
@@ -1205,7 +1205,8 @@ public final class SerialComManager {
 	}
 	
 	/**
-	 * <p>This will create a native thread that will invoke given listener whenever specified port is removed.</p>
+	 * <p>This registers a listener who will be invoked whenever a port has been plugged or un-plugged in system.
+	 * Initially, the port has to be present into system, as that is only when we will be able to open it.</p>
 	 * 
 	 * @param handle
 	 * @return true on success false otherwise
@@ -1236,7 +1237,7 @@ public final class SerialComManager {
 	}
 	
 	/**
-	 * <p>This will remove listener which gets invoked when port is removed.</p>
+	 * <p>This unregisters listener and terminate native thread used for monitoring hot plugging of port.</p>
 	 * 
 	 * @param handle
 	 * @return true on success false otherwise

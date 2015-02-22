@@ -7981,3 +7981,841 @@ make: Nothing to be done for `all'.
 11:26:06 **** Incremental Build of configuration Debug for project linux_serial ****
 make all 
 make: Nothing to be done for `all'.
+16:29:13 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:482:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial_lib.c: In function ‘port_monitor’:
+../src/unix_like_serial_lib.c:558:6: error: redeclaration of ‘ret’ with no linkage
+../src/unix_like_serial_lib.c:555:6: note: previous definition of ‘ret’ was here
+../src/unix_like_serial_lib.c:570:17: warning: unused variable ‘SUBSYSTEM_USB_SERIAL’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:569:17: warning: unused variable ‘SUBSYSTEM_USB_DEVICE’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:568:17: warning: unused variable ‘SUBSYSTEM_BLUETOOTH’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:567:17: warning: unused variable ‘SUBSYSTEM_PCI’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:566:17: warning: unused variable ‘SUBSYSTEM_NET’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:565:17: warning: unused variable ‘SUBSYSTEM_TTY’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:554:14: warning: unused variable ‘st’ [-Wunused-variable]
+make: *** [src/unix_like_serial_lib.o] Error 1
+16:29:32 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:482:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial_lib.c: In function ‘port_monitor’:
+../src/unix_like_serial_lib.c:569:17: warning: unused variable ‘SUBSYSTEM_USB_SERIAL’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:568:17: warning: unused variable ‘SUBSYSTEM_USB_DEVICE’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:567:17: warning: unused variable ‘SUBSYSTEM_BLUETOOTH’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:566:17: warning: unused variable ‘SUBSYSTEM_PCI’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:565:17: warning: unused variable ‘SUBSYSTEM_NET’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:564:17: warning: unused variable ‘SUBSYSTEM_TTY’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:554:14: warning: unused variable ‘st’ [-Wunused-variable]
+Finished building: ../src/unix_like_serial_lib.c
+ 
+Building target: linux_1.0.0_x86_64.so
+Invoking: GCC C Linker
+gcc -m64 -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   
+Finished building target: linux_1.0.0_x86_64.so
+ 
+16:31:42 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+16:31:52 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+16:31:58 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+16:32:47 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+Building file: ../src/unix_like_serial.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -ludev -m64 -fPIC -MMD -MP -MF"src/unix_like_serial.d" -MT"src/unix_like_serial.d" -o "src/unix_like_serial.o" "../src/unix_like_serial.c"
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_openComPort’:
+../src/unix_like_serial.c:406:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_writeBytes’:
+../src/unix_like_serial.c:674:2: warning: implicit declaration of function ‘tcdrain’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_clearPortIOBuffers’:
+../src/unix_like_serial.c:1274:3: warning: implicit declaration of function ‘tcflush’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial.c
+ 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -ludev -m64 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:482:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial_lib.c: In function ‘port_monitor’:
+../src/unix_like_serial_lib.c:569:17: warning: unused variable ‘SUBSYSTEM_USB_SERIAL’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:568:17: warning: unused variable ‘SUBSYSTEM_USB_DEVICE’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:567:17: warning: unused variable ‘SUBSYSTEM_BLUETOOTH’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:566:17: warning: unused variable ‘SUBSYSTEM_PCI’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:565:17: warning: unused variable ‘SUBSYSTEM_NET’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:564:17: warning: unused variable ‘SUBSYSTEM_TTY’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:554:14: warning: unused variable ‘st’ [-Wunused-variable]
+Finished building: ../src/unix_like_serial_lib.c
+ 
+Building target: linux_1.0.0_x86_64.so
+Invoking: GCC C Linker
+gcc -m64 -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   
+Finished building target: linux_1.0.0_x86_64.so
+ 
+16:33:03 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+16:33:43 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+Building target: linux_1.0.0_x86_64.so
+Invoking: GCC C Linker
+gcc -ludev -m64 -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   
+Finished building target: linux_1.0.0_x86_64.so
+ 
+16:33:47 **** Clean-only build of configuration Debug for project linux_serial ****
+make clean 
+rm -rf  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o  ./src/unix_like_serial.d ./src/unix_like_serial_lib.d  linux_1.0.0_x86_64.so
+ 
+16:33:47 **** Build of configuration Debug for project linux_serial ****
+make all 
+Building file: ../src/unix_like_serial.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -ludev -m64 -fPIC -MMD -MP -MF"src/unix_like_serial.d" -MT"src/unix_like_serial.d" -o "src/unix_like_serial.o" "../src/unix_like_serial.c"
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_openComPort’:
+../src/unix_like_serial.c:406:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_writeBytes’:
+../src/unix_like_serial.c:674:2: warning: implicit declaration of function ‘tcdrain’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_clearPortIOBuffers’:
+../src/unix_like_serial.c:1274:3: warning: implicit declaration of function ‘tcflush’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial.c
+ 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -ludev -m64 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:482:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial_lib.c: In function ‘port_monitor’:
+../src/unix_like_serial_lib.c:569:17: warning: unused variable ‘SUBSYSTEM_USB_SERIAL’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:568:17: warning: unused variable ‘SUBSYSTEM_USB_DEVICE’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:567:17: warning: unused variable ‘SUBSYSTEM_BLUETOOTH’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:566:17: warning: unused variable ‘SUBSYSTEM_PCI’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:565:17: warning: unused variable ‘SUBSYSTEM_NET’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:564:17: warning: unused variable ‘SUBSYSTEM_TTY’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:554:14: warning: unused variable ‘st’ [-Wunused-variable]
+Finished building: ../src/unix_like_serial_lib.c
+ 
+Building target: linux_1.0.0_x86_64.so
+Invoking: GCC C Linker
+gcc -ludev -m64 -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   
+Finished building target: linux_1.0.0_x86_64.so
+ 
+16:33:49 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+16:34:05 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+16:34:11 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+16:34:46 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+16:38:45 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+Building target: linux_1.0.0_x86_64.so
+Invoking: GCC C Linker
+gcc -m64 -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   -lludev
+/usr/bin/ld: cannot find -lludev
+collect2: ld returned 1 exit status
+make: *** [linux_1.0.0_x86_64.so] Error 1
+16:39:06 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+Building target: linux_1.0.0_x86_64.so
+Invoking: GCC C Linker
+gcc -m64 -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   -ludev
+Finished building target: linux_1.0.0_x86_64.so
+ 
+16:39:24 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+16:39:53 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+Building file: ../src/unix_like_serial.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial.d" -MT"src/unix_like_serial.d" -o "src/unix_like_serial.o" "../src/unix_like_serial.c"
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_openComPort’:
+../src/unix_like_serial.c:406:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_writeBytes’:
+../src/unix_like_serial.c:674:2: warning: implicit declaration of function ‘tcdrain’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_clearPortIOBuffers’:
+../src/unix_like_serial.c:1274:3: warning: implicit declaration of function ‘tcflush’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial.c
+ 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:482:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial_lib.c: In function ‘port_monitor’:
+../src/unix_like_serial_lib.c:569:17: warning: unused variable ‘SUBSYSTEM_USB_SERIAL’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:568:17: warning: unused variable ‘SUBSYSTEM_USB_DEVICE’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:567:17: warning: unused variable ‘SUBSYSTEM_BLUETOOTH’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:566:17: warning: unused variable ‘SUBSYSTEM_PCI’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:565:17: warning: unused variable ‘SUBSYSTEM_NET’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:564:17: warning: unused variable ‘SUBSYSTEM_TTY’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:554:14: warning: unused variable ‘st’ [-Wunused-variable]
+Finished building: ../src/unix_like_serial_lib.c
+ 
+Building target: linux_1.0.0_x86_64.so
+Invoking: GCC C Linker
+gcc -m64 -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   -ludev
+Finished building target: linux_1.0.0_x86_64.so
+ 
+16:40:20 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+16:41:08 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:482:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial_lib.c: In function ‘port_monitor’:
+../src/unix_like_serial_lib.c:569:17: warning: unused variable ‘SUBSYSTEM_USB_SERIAL’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:568:17: warning: unused variable ‘SUBSYSTEM_USB_DEVICE’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:567:17: warning: unused variable ‘SUBSYSTEM_BLUETOOTH’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:566:17: warning: unused variable ‘SUBSYSTEM_PCI’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:565:17: warning: unused variable ‘SUBSYSTEM_NET’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:564:17: warning: unused variable ‘SUBSYSTEM_TTY’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:554:14: warning: unused variable ‘st’ [-Wunused-variable]
+../src/unix_like_serial_lib.c: At top level:
+../src/unix_like_serial_lib.c:670:2: error: expected identifier or ‘(’ before ‘return’
+../src/unix_like_serial_lib.c:671:1: error: expected identifier or ‘(’ before ‘}’ token
+make: *** [src/unix_like_serial_lib.o] Error 1
+16:41:30 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:482:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial_lib.c: In function ‘port_monitor’:
+../src/unix_like_serial_lib.c:569:17: warning: unused variable ‘SUBSYSTEM_USB_SERIAL’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:568:17: warning: unused variable ‘SUBSYSTEM_USB_DEVICE’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:567:17: warning: unused variable ‘SUBSYSTEM_BLUETOOTH’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:566:17: warning: unused variable ‘SUBSYSTEM_PCI’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:565:17: warning: unused variable ‘SUBSYSTEM_NET’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:564:17: warning: unused variable ‘SUBSYSTEM_TTY’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:554:14: warning: unused variable ‘st’ [-Wunused-variable]
+Finished building: ../src/unix_like_serial_lib.c
+ 
+Building target: linux_1.0.0_x86_64.so
+Invoking: GCC C Linker
+gcc -m64 -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   -ludev
+Finished building target: linux_1.0.0_x86_64.so
+ 
+16:42:45 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+16:49:42 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:482:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial_lib.c: In function ‘port_monitor’:
+../src/unix_like_serial_lib.c:569:17: warning: unused variable ‘SUBSYSTEM_USB_SERIAL’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:568:17: warning: unused variable ‘SUBSYSTEM_USB_DEVICE’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:567:17: warning: unused variable ‘SUBSYSTEM_BLUETOOTH’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:566:17: warning: unused variable ‘SUBSYSTEM_PCI’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:565:17: warning: unused variable ‘SUBSYSTEM_NET’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:564:17: warning: unused variable ‘SUBSYSTEM_TTY’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:554:14: warning: unused variable ‘st’ [-Wunused-variable]
+Finished building: ../src/unix_like_serial_lib.c
+ 
+Building target: linux_1.0.0_x86_64.so
+Invoking: GCC C Linker
+gcc -m64 -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   -ludev
+Finished building target: linux_1.0.0_x86_64.so
+ 
+16:50:05 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+16:50:20 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+16:53:58 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:482:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial_lib.c: In function ‘port_monitor’:
+../src/unix_like_serial_lib.c:570:17: warning: unused variable ‘SUBSYSTEM_USB_SERIAL’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:569:17: warning: unused variable ‘SUBSYSTEM_USB_DEVICE’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:568:17: warning: unused variable ‘SUBSYSTEM_BLUETOOTH’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:567:17: warning: unused variable ‘SUBSYSTEM_PCI’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:566:17: warning: unused variable ‘SUBSYSTEM_NET’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:565:17: warning: unused variable ‘SUBSYSTEM_TTY’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:554:14: warning: unused variable ‘st’ [-Wunused-variable]
+Finished building: ../src/unix_like_serial_lib.c
+ 
+Building target: linux_1.0.0_x86_64.so
+Invoking: GCC C Linker
+gcc -m64 -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   -ludev
+Finished building target: linux_1.0.0_x86_64.so
+ 
+16:54:00 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+16:54:17 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+17:43:59 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:482:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial_lib.c: In function ‘port_monitor’:
+../src/unix_like_serial_lib.c:570:17: warning: unused variable ‘SUBSYSTEM_USB_SERIAL’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:569:17: warning: unused variable ‘SUBSYSTEM_USB_DEVICE’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:568:17: warning: unused variable ‘SUBSYSTEM_BLUETOOTH’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:567:17: warning: unused variable ‘SUBSYSTEM_PCI’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:566:17: warning: unused variable ‘SUBSYSTEM_NET’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:565:17: warning: unused variable ‘SUBSYSTEM_TTY’ [-Wunused-variable]
+Finished building: ../src/unix_like_serial_lib.c
+ 
+Building target: linux_1.0.0_x86_64.so
+Invoking: GCC C Linker
+gcc -m64 -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   -ludev
+Finished building target: linux_1.0.0_x86_64.so
+ 
+17:44:09 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+17:44:12 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+17:44:34 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+17:44:40 **** Clean-only build of configuration Debug for project linux_serial ****
+make clean 
+rm -rf  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o  ./src/unix_like_serial.d ./src/unix_like_serial_lib.d  linux_1.0.0_x86_64.so
+ 
+17:44:40 **** Build of configuration Debug for project linux_serial ****
+make all 
+Building file: ../src/unix_like_serial.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial.d" -MT"src/unix_like_serial.d" -o "src/unix_like_serial.o" "../src/unix_like_serial.c"
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_openComPort’:
+../src/unix_like_serial.c:406:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_writeBytes’:
+../src/unix_like_serial.c:674:2: warning: implicit declaration of function ‘tcdrain’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_clearPortIOBuffers’:
+../src/unix_like_serial.c:1274:3: warning: implicit declaration of function ‘tcflush’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial.c
+ 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:482:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial_lib.c: In function ‘port_monitor’:
+../src/unix_like_serial_lib.c:570:17: warning: unused variable ‘SUBSYSTEM_USB_SERIAL’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:569:17: warning: unused variable ‘SUBSYSTEM_USB_DEVICE’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:568:17: warning: unused variable ‘SUBSYSTEM_BLUETOOTH’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:567:17: warning: unused variable ‘SUBSYSTEM_PCI’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:566:17: warning: unused variable ‘SUBSYSTEM_NET’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:565:17: warning: unused variable ‘SUBSYSTEM_TTY’ [-Wunused-variable]
+Finished building: ../src/unix_like_serial_lib.c
+ 
+Building target: linux_1.0.0_x86_64.so
+Invoking: GCC C Linker
+gcc -m64 -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   -ludev
+Finished building target: linux_1.0.0_x86_64.so
+ 
+17:44:43 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+17:45:00 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+17:45:28 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+17:47:42 **** Clean-only build of configuration Debug for project linux_serial ****
+make clean 
+rm -rf  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o  ./src/unix_like_serial.d ./src/unix_like_serial_lib.d  linux_1.0.0_x86_64.so
+ 
+17:47:42 **** Build of configuration Debug for project linux_serial ****
+make all 
+Building file: ../src/unix_like_serial.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial.d" -MT"src/unix_like_serial.d" -o "src/unix_like_serial.o" "../src/unix_like_serial.c"
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_openComPort’:
+../src/unix_like_serial.c:406:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_writeBytes’:
+../src/unix_like_serial.c:674:2: warning: implicit declaration of function ‘tcdrain’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_clearPortIOBuffers’:
+../src/unix_like_serial.c:1274:3: warning: implicit declaration of function ‘tcflush’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial.c
+ 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:482:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial_lib.c: In function ‘port_monitor’:
+../src/unix_like_serial_lib.c:570:17: warning: unused variable ‘SUBSYSTEM_USB_SERIAL’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:569:17: warning: unused variable ‘SUBSYSTEM_USB_DEVICE’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:568:17: warning: unused variable ‘SUBSYSTEM_BLUETOOTH’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:567:17: warning: unused variable ‘SUBSYSTEM_PCI’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:566:17: warning: unused variable ‘SUBSYSTEM_NET’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:565:17: warning: unused variable ‘SUBSYSTEM_TTY’ [-Wunused-variable]
+Finished building: ../src/unix_like_serial_lib.c
+ 
+Building target: linux_1.0.0_x86_64.so
+Invoking: GCC C Linker
+gcc -m64 -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   -ludev
+Finished building target: linux_1.0.0_x86_64.so
+ 
+17:47:52 **** Clean-only build of configuration Debug for project linux_serial ****
+make clean 
+rm -rf  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o  ./src/unix_like_serial.d ./src/unix_like_serial_lib.d  linux_1.0.0_x86_64.so
+ 
+17:47:53 **** Build of configuration Debug for project linux_serial ****
+make all 
+Building file: ../src/unix_like_serial.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial.d" -MT"src/unix_like_serial.d" -o "src/unix_like_serial.o" "../src/unix_like_serial.c"
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_openComPort’:
+../src/unix_like_serial.c:406:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_writeBytes’:
+../src/unix_like_serial.c:674:2: warning: implicit declaration of function ‘tcdrain’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_clearPortIOBuffers’:
+../src/unix_like_serial.c:1274:3: warning: implicit declaration of function ‘tcflush’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial.c
+ 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:482:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial_lib.c: In function ‘port_monitor’:
+../src/unix_like_serial_lib.c:570:17: warning: unused variable ‘SUBSYSTEM_USB_SERIAL’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:569:17: warning: unused variable ‘SUBSYSTEM_USB_DEVICE’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:568:17: warning: unused variable ‘SUBSYSTEM_BLUETOOTH’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:567:17: warning: unused variable ‘SUBSYSTEM_PCI’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:566:17: warning: unused variable ‘SUBSYSTEM_NET’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:565:17: warning: unused variable ‘SUBSYSTEM_TTY’ [-Wunused-variable]
+Finished building: ../src/unix_like_serial_lib.c
+ 
+Building target: linux_1.0.0_x86_64.so
+Invoking: GCC C Linker
+gcc -m64 -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   -ludev
+Finished building target: linux_1.0.0_x86_64.so
+ 
+17:48:03 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+17:48:59 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+17:49:09 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+17:49:13 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+17:50:16 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:482:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial_lib.c: In function ‘port_monitor’:
+../src/unix_like_serial_lib.c:570:17: warning: unused variable ‘SUBSYSTEM_USB_SERIAL’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:569:17: warning: unused variable ‘SUBSYSTEM_USB_DEVICE’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:568:17: warning: unused variable ‘SUBSYSTEM_BLUETOOTH’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:567:17: warning: unused variable ‘SUBSYSTEM_PCI’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:566:17: warning: unused variable ‘SUBSYSTEM_NET’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:565:17: warning: unused variable ‘SUBSYSTEM_TTY’ [-Wunused-variable]
+Finished building: ../src/unix_like_serial_lib.c
+ 
+Building target: linux_1.0.0_x86_64.so
+Invoking: GCC C Linker
+gcc -m64 -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   -ludev
+Finished building target: linux_1.0.0_x86_64.so
+ 
+17:50:33 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+17:53:06 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:482:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial_lib.c: In function ‘port_monitor’:
+../src/unix_like_serial_lib.c:570:17: warning: unused variable ‘SUBSYSTEM_USB_SERIAL’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:569:17: warning: unused variable ‘SUBSYSTEM_USB_DEVICE’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:568:17: warning: unused variable ‘SUBSYSTEM_BLUETOOTH’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:567:17: warning: unused variable ‘SUBSYSTEM_PCI’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:566:17: warning: unused variable ‘SUBSYSTEM_NET’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:565:17: warning: unused variable ‘SUBSYSTEM_TTY’ [-Wunused-variable]
+../src/unix_like_serial_lib.c: At top level:
+../src/unix_like_serial_lib.c:710:2: error: expected identifier or ‘(’ before ‘return’
+../src/unix_like_serial_lib.c:711:1: error: expected identifier or ‘(’ before ‘}’ token
+make: *** [src/unix_like_serial_lib.o] Error 1
+17:53:13 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:482:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial_lib.c: In function ‘port_monitor’:
+../src/unix_like_serial_lib.c:570:17: warning: unused variable ‘SUBSYSTEM_USB_SERIAL’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:569:17: warning: unused variable ‘SUBSYSTEM_USB_DEVICE’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:568:17: warning: unused variable ‘SUBSYSTEM_BLUETOOTH’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:567:17: warning: unused variable ‘SUBSYSTEM_PCI’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:566:17: warning: unused variable ‘SUBSYSTEM_NET’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:565:17: warning: unused variable ‘SUBSYSTEM_TTY’ [-Wunused-variable]
+Finished building: ../src/unix_like_serial_lib.c
+ 
+Building target: linux_1.0.0_x86_64.so
+Invoking: GCC C Linker
+gcc -m64 -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   -ludev
+Finished building target: linux_1.0.0_x86_64.so
+ 
+17:55:24 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:482:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial_lib.c: In function ‘port_monitor’:
+../src/unix_like_serial_lib.c:571:17: warning: unused variable ‘SUBSYSTEM_USB_SERIAL’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:570:17: warning: unused variable ‘SUBSYSTEM_USB_DEVICE’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:569:17: warning: unused variable ‘SUBSYSTEM_BLUETOOTH’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:568:17: warning: unused variable ‘SUBSYSTEM_PCI’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:567:17: warning: unused variable ‘SUBSYSTEM_NET’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:566:17: warning: unused variable ‘SUBSYSTEM_TTY’ [-Wunused-variable]
+Finished building: ../src/unix_like_serial_lib.c
+ 
+Building target: linux_1.0.0_x86_64.so
+Invoking: GCC C Linker
+gcc -m64 -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   -ludev
+Finished building target: linux_1.0.0_x86_64.so
+ 
+17:55:43 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+17:58:54 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:482:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial_lib.c: In function ‘port_monitor’:
+../src/unix_like_serial_lib.c:571:17: warning: unused variable ‘SUBSYSTEM_USB_SERIAL’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:570:17: warning: unused variable ‘SUBSYSTEM_USB_DEVICE’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:569:17: warning: unused variable ‘SUBSYSTEM_BLUETOOTH’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:568:17: warning: unused variable ‘SUBSYSTEM_PCI’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:567:17: warning: unused variable ‘SUBSYSTEM_NET’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:566:17: warning: unused variable ‘SUBSYSTEM_TTY’ [-Wunused-variable]
+../src/unix_like_serial_lib.c: At top level:
+../src/unix_like_serial_lib.c:709:2: error: expected identifier or ‘(’ before ‘return’
+../src/unix_like_serial_lib.c:710:1: error: expected identifier or ‘(’ before ‘}’ token
+make: *** [src/unix_like_serial_lib.o] Error 1
+17:59:10 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:482:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial_lib.c: In function ‘port_monitor’:
+../src/unix_like_serial_lib.c:571:17: warning: unused variable ‘SUBSYSTEM_USB_SERIAL’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:570:17: warning: unused variable ‘SUBSYSTEM_USB_DEVICE’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:569:17: warning: unused variable ‘SUBSYSTEM_BLUETOOTH’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:568:17: warning: unused variable ‘SUBSYSTEM_PCI’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:567:17: warning: unused variable ‘SUBSYSTEM_NET’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:566:17: warning: unused variable ‘SUBSYSTEM_TTY’ [-Wunused-variable]
+Finished building: ../src/unix_like_serial_lib.c
+ 
+Building target: linux_1.0.0_x86_64.so
+Invoking: GCC C Linker
+gcc -m64 -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   -ludev
+Finished building target: linux_1.0.0_x86_64.so
+ 
+17:59:25 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+18:00:27 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:482:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial_lib.c: In function ‘port_monitor’:
+../src/unix_like_serial_lib.c:571:17: warning: unused variable ‘SUBSYSTEM_USB_SERIAL’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:570:17: warning: unused variable ‘SUBSYSTEM_USB_DEVICE’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:569:17: warning: unused variable ‘SUBSYSTEM_BLUETOOTH’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:568:17: warning: unused variable ‘SUBSYSTEM_PCI’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:567:17: warning: unused variable ‘SUBSYSTEM_NET’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:566:17: warning: unused variable ‘SUBSYSTEM_TTY’ [-Wunused-variable]
+Finished building: ../src/unix_like_serial_lib.c
+ 
+Building target: linux_1.0.0_x86_64.so
+Invoking: GCC C Linker
+gcc -m64 -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   -ludev
+Finished building target: linux_1.0.0_x86_64.so
+ 
+18:03:44 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:482:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial_lib.c: In function ‘port_monitor’:
+../src/unix_like_serial_lib.c:571:17: warning: unused variable ‘SUBSYSTEM_USB_SERIAL’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:570:17: warning: unused variable ‘SUBSYSTEM_USB_DEVICE’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:569:17: warning: unused variable ‘SUBSYSTEM_BLUETOOTH’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:568:17: warning: unused variable ‘SUBSYSTEM_PCI’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:567:17: warning: unused variable ‘SUBSYSTEM_NET’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:566:17: warning: unused variable ‘SUBSYSTEM_TTY’ [-Wunused-variable]
+Finished building: ../src/unix_like_serial_lib.c
+ 
+Building target: linux_1.0.0_x86_64.so
+Invoking: GCC C Linker
+gcc -m64 -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   -ludev
+Finished building target: linux_1.0.0_x86_64.so
+ 
+18:03:57 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+18:05:49 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+18:05:54 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+18:06:00 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+18:06:36 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:482:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial_lib.c: In function ‘port_monitor’:
+../src/unix_like_serial_lib.c:571:17: warning: unused variable ‘SUBSYSTEM_USB_SERIAL’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:570:17: warning: unused variable ‘SUBSYSTEM_USB_DEVICE’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:569:17: warning: unused variable ‘SUBSYSTEM_BLUETOOTH’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:568:17: warning: unused variable ‘SUBSYSTEM_PCI’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:567:17: warning: unused variable ‘SUBSYSTEM_NET’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:566:17: warning: unused variable ‘SUBSYSTEM_TTY’ [-Wunused-variable]
+Finished building: ../src/unix_like_serial_lib.c
+ 
+Building target: linux_1.0.0_x86_64.so
+Invoking: GCC C Linker
+gcc -m64 -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   -ludev
+Finished building target: linux_1.0.0_x86_64.so
+ 
+18:07:31 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+18:07:36 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+18:21:57 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:482:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial_lib.c: In function ‘port_monitor’:
+../src/unix_like_serial_lib.c:571:17: warning: unused variable ‘SUBSYSTEM_USB_SERIAL’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:570:17: warning: unused variable ‘SUBSYSTEM_USB_DEVICE’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:569:17: warning: unused variable ‘SUBSYSTEM_BLUETOOTH’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:568:17: warning: unused variable ‘SUBSYSTEM_PCI’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:567:17: warning: unused variable ‘SUBSYSTEM_NET’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:566:17: warning: unused variable ‘SUBSYSTEM_TTY’ [-Wunused-variable]
+Finished building: ../src/unix_like_serial_lib.c
+ 
+Building target: linux_1.0.0_x86_64.so
+Invoking: GCC C Linker
+gcc -m64 -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   -ludev
+Finished building target: linux_1.0.0_x86_64.so
+ 
+18:27:43 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+Building file: ../src/unix_like_serial.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial.d" -MT"src/unix_like_serial.d" -o "src/unix_like_serial.o" "../src/unix_like_serial.c"
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_openComPort’:
+../src/unix_like_serial.c:406:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_writeBytes’:
+../src/unix_like_serial.c:674:2: warning: implicit declaration of function ‘tcdrain’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_clearPortIOBuffers’:
+../src/unix_like_serial.c:1274:3: warning: implicit declaration of function ‘tcflush’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial.c
+ 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:492:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial_lib.c: In function ‘port_monitor’:
+../src/unix_like_serial_lib.c:581:17: warning: unused variable ‘SUBSYSTEM_USB_SERIAL’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:580:17: warning: unused variable ‘SUBSYSTEM_USB_DEVICE’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:579:17: warning: unused variable ‘SUBSYSTEM_BLUETOOTH’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:578:17: warning: unused variable ‘SUBSYSTEM_PCI’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:577:17: warning: unused variable ‘SUBSYSTEM_NET’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:576:17: warning: unused variable ‘SUBSYSTEM_TTY’ [-Wunused-variable]
+Finished building: ../src/unix_like_serial_lib.c
+ 
+Building target: linux_1.0.0_x86_64.so
+Invoking: GCC C Linker
+gcc -m64 -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   -ludev
+Finished building target: linux_1.0.0_x86_64.so
+ 
+18:27:59 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+18:28:38 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+18:33:19 **** Clean-only build of configuration Debug for project linux_serial ****
+make clean 
+rm -rf  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o  ./src/unix_like_serial.d ./src/unix_like_serial_lib.d  linux_1.0.0_x86_64.so
+ 
+18:33:19 **** Build of configuration Debug for project linux_serial ****
+make all 
+Building file: ../src/unix_like_serial.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial.d" -MT"src/unix_like_serial.d" -o "src/unix_like_serial.o" "../src/unix_like_serial.c"
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_openComPort’:
+../src/unix_like_serial.c:406:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_writeBytes’:
+../src/unix_like_serial.c:674:2: warning: implicit declaration of function ‘tcdrain’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_clearPortIOBuffers’:
+../src/unix_like_serial.c:1274:3: warning: implicit declaration of function ‘tcflush’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial.c
+ 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:488:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial_lib.c: In function ‘port_monitor’:
+../src/unix_like_serial_lib.c:576:17: warning: unused variable ‘SUBSYSTEM_USB_SERIAL’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:575:17: warning: unused variable ‘SUBSYSTEM_USB_DEVICE’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:574:17: warning: unused variable ‘SUBSYSTEM_BLUETOOTH’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:573:17: warning: unused variable ‘SUBSYSTEM_NET’ [-Wunused-variable]
+../src/unix_like_serial_lib.c:572:17: warning: unused variable ‘SUBSYSTEM_TTY’ [-Wunused-variable]
+Finished building: ../src/unix_like_serial_lib.c
+ 
+Building target: linux_1.0.0_x86_64.so
+Invoking: GCC C Linker
+gcc -m64 -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   -ludev
+Finished building target: linux_1.0.0_x86_64.so
+ 
+18:44:12 **** Clean-only build of configuration Debug for project linux_serial ****
+make clean 
+rm -rf  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o  ./src/unix_like_serial.d ./src/unix_like_serial_lib.d  linux_1.0.0_x86_64.so
+ 
+18:44:13 **** Build of configuration Debug for project linux_serial ****
+make all 
+Building file: ../src/unix_like_serial.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial.d" -MT"src/unix_like_serial.d" -o "src/unix_like_serial.o" "../src/unix_like_serial.c"
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_openComPort’:
+../src/unix_like_serial.c:406:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_writeBytes’:
+../src/unix_like_serial.c:674:2: warning: implicit declaration of function ‘tcdrain’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_clearPortIOBuffers’:
+../src/unix_like_serial.c:1274:3: warning: implicit declaration of function ‘tcflush’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial.c
+ 
+Building file: ../src/unix_like_serial_lib.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial_lib.d" -MT"src/unix_like_serial_lib.d" -o "src/unix_like_serial_lib.o" "../src/unix_like_serial_lib.c"
+../src/unix_like_serial_lib.c: In function ‘event_looper’:
+../src/unix_like_serial_lib.c:481:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial_lib.c
+ 
+Building target: linux_1.0.0_x86_64.so
+Invoking: GCC C Linker
+gcc -m64 -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   -ludev
+Finished building target: linux_1.0.0_x86_64.so
+ 
+18:44:18 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+18:46:23 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+19:09:25 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+Building file: ../src/unix_like_serial.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial.d" -MT"src/unix_like_serial.d" -o "src/unix_like_serial.o" "../src/unix_like_serial.c"
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_openComPort’:
+../src/unix_like_serial.c:406:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_writeBytes’:
+../src/unix_like_serial.c:674:2: warning: implicit declaration of function ‘tcdrain’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_clearPortIOBuffers’:
+../src/unix_like_serial.c:1294:3: warning: implicit declaration of function ‘tcflush’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial.c
+ 
+Building target: linux_1.0.0_x86_64.so
+Invoking: GCC C Linker
+gcc -m64 -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   -ludev
+Finished building target: linux_1.0.0_x86_64.so
+ 
+19:09:49 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+19:10:09 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+19:10:31 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+19:11:40 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+19:13:36 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+19:14:52 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+19:15:27 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+19:16:16 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+19:17:13 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.

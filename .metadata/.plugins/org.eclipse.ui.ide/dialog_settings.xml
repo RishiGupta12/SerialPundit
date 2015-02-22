@@ -7,20 +7,20 @@
 		<list key="WizardProjectsImportPage.STORE_DIRECTORIES">
 			<item value="/home/r/ws-host-uart/serial-com-manager/tests/test24"/>
 			<item value="/home/r/ws-host-uart/serial-com-manager/tests/test23"/>
-			<item value="/home/r/ws-host-uart/serial-com-manager/UIUI"/>
-			<item value="/home/r/ws-host-uart/serial-com-manager/tests/test10"/>
-			<item value="/home/r/ws-host-uart/serial-com-manager/tests/test6"/>
+			<item value="/home/r/ws-host-uart/serial-com-manager/tests/test22"/>
+			<item value="/home/r/ws-host-uart/serial-com-manager/tests/test21"/>
+			<item value="/home/r/ws-host-uart/serial-com-manager/tests/test20"/>
 		</list>
 		<list key="WizardProjectsImportPage.STORE_ARCHIVES">
 			<item value=""/>
 		</list>
 	</section>
 	<section name="CleanDialogSettings">
-		<item value="573" key="DIALOG_WIDTH"/>
+		<item value="575" key="DIALOG_WIDTH"/>
 		<item value="true" key="BUILD_NOW"/>
 		<item value="true" key="BUILD_ALL"/>
 		<item value="262" key="DIALOG_Y_ORIGIN"/>
-		<item value="580" key="DIALOG_HEIGHT"/>
+		<item value="609" key="DIALOG_HEIGHT"/>
 		<item value="711" key="DIALOG_X_ORIGIN"/>
 		<item value="false" key="TOGGLE_SELECTED"/>
 	</section>

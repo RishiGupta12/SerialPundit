@@ -44,6 +44,9 @@
 							<tool id="cdt.managedbuild.tool.gnu.c.linker.so.debug.1381829878" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.so.debug">
 								<option defaultValue="true" id="gnu.c.link.so.debug.option.shared.1886790284" name="Shared (-shared)" superClass="gnu.c.link.so.debug.option.shared" valueType="boolean"/>
 								<option id="gnu.c.link.option.ldflags.1883208316" name="Linker flags" superClass="gnu.c.link.option.ldflags" value="-m64" valueType="string"/>
+								<option id="gnu.c.link.option.libs.547137747" name="Libraries (-l)" superClass="gnu.c.link.option.libs" valueType="libs">
+									<listOptionValue builtIn="false" value="udev"/>
+								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.c.linker.input.911433777" superClass="cdt.managedbuild.tool.gnu.c.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
 									<additionalInput kind="additionalinput" paths="$(LIBS)"/>

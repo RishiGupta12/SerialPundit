@@ -42,6 +42,8 @@
 #include <sys/eventfd.h>    /* Linux eventfd for event notification. */
 #include <sys/epoll.h>      /* epoll feature of Linux	              */
 #include <signal.h>
+#include <libudev.h>
+#include <locale.h>
 #endif
 
 #if defined (__APPLE__)
@@ -82,14 +84,6 @@ int serial_delay(unsigned milliSeconds) {
 	t.tv_nsec = 0;
 	pselect(1, 0, 0, 0, &t, 0);
 	return 0;
-}
-
-/* This handler is invoked whenever application unregisters event listener. */
-void exit_signal_handler(int signal_number) {
-	if(signal_number == SIGUSR1) {
-		pthread_exit((void *)0);
-	}else {
-	}
 }
 
 /* This thread wait for data to be available on fd and enqueues it in data queue managed by java layer.
@@ -388,6 +382,13 @@ void *data_looper(void *arg) {
 	return ((void *)0);
 }
 
+/* This handler is invoked whenever application unregisters event listener. */
+void exit_signal_handler(int signal_number) {
+	if(signal_number == SIGUSR1) {
+		pthread_exit((void *)0);
+	}
+}
+
 /* This thread wait for a serial event to occur and enqueues it in event queue managed by java layer. */
 /* TIOCMWAIT RETURNS -EIO IF DEVICE FROM USB PORT HAS BEEN REMOVED */
 void *event_looper(void *arg) {
@@ -543,9 +544,183 @@ void *event_looper(void *arg) {
 	return ((void *)0);
 }
 
+/* This handler is invoked whenever application unregisters port monitor listener. */
+void exitMonitor_signal_handler(int signal_number) {
+	if(signal_number == SIGUSR1) {
+		pthread_exit((void *)0);
+	}
+}
+
 /* This thread keep polling for the physical existence of a port/file/device. When port removal is detected, this
- * informs java listener and exit. */
+ * informs java listener and exit. We need to ensure that stat() itself does not fail.
+ * It has been assumed that till this thread has initialized, port will not be unplugged from system. */
 void *port_monitor(void *arg) {
+#if defined (__linux__)
+	struct port_info* params = (struct port_info*) arg;
+	JavaVM *jvm = (*params).jvm;
+	jobject port_listener = (*params).port_listener;
+	struct stat st;
+	int ret = 0;
+	int fd;
+	fd_set fds;
+	struct udev *udev;
+	struct udev_device *device;
+   	struct udev_monitor *monitor;
+   	const char *action;
+
+   	/* we have tried to cover all possibilities for hot plug devices. */
+   	const char *SUBSYSTEM_USB = "usb";
+   	const char *DEVICE_TYPE_USB = "usb_device";
+
+	void* env1;
+	JNIEnv* env;
+	if((*jvm)->AttachCurrentThread(jvm, &env1, NULL) != JNI_OK) {
+		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE event_looper() thread failed to attach itself to JVM.");
+		if(DEBUG) fflush(stderr);
+	}
+	env = (JNIEnv*) env1;
+
+	jclass portListener = (*env)->GetObjectClass(env, port_listener);
+	if(portListener == NULL) {
+		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread could not get class of object of type IPortMonitor !");
+		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread exiting. Please RETRY registering port listener !");
+		if(DEBUG) fflush(stderr);
+		pthread_exit((void *)0);
+	}
+
+	jmethodID mid = (*env)->GetMethodID(env, portListener, "onPortMonitorEvent", "(I)V");
+	if((*env)->ExceptionOccurred(env)) {
+		LOGE(env);
+	}
+	if(mid == NULL) {
+		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread failed to retrieve method id of method onPortRemovedEvent !");
+		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread exiting. Please RETRY registering data listener !");
+		if(DEBUG) fflush(stderr);
+		pthread_exit((void *)0);
+	}
+
+	/* Create the udev object */
+	udev = udev_new();
+	if(!udev) {
+		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread failed to create udev object !");
+		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread exiting. Please RETRY registering data listener !");
+		if(DEBUG) fflush(stderr);
+		pthread_exit((void *)0);
+	}
+
+	/* Create new udev monitor and connect to a specified event source. Applications should usually not
+	   connect directly to the "kernel" events, because the devices might not be usable at that time,
+	   before udev has configured them, and created device nodes. Accessing devices at the same time as
+	   udev, might result in unpredictable behavior. The "udev" events are sent out after udev has
+	   finished its event processing, all rules have been processed, and needed device nodes are created. */
+	monitor = udev_monitor_new_from_netlink(udev, "udev");
+    if(monitor == NULL) {
+    	if(DEBUG) fprintf(stderr, "%s %d\n", "NATIVE port_monitor failed to create udev monitor with error ", ret);
+    	if(DEBUG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread exiting. Please RETRY registering data listener !");
+    	if(DEBUG) fflush(stderr);
+    	pthread_exit((void *)0);
+    }
+
+	/* This filter is efficiently executed inside the kernel, and libudev subscribers will
+	   usually not be woken up for devices which do not match. The filter must be installed
+	   before the monitor is switched to listening mode. */
+    ret = udev_monitor_filter_add_match_subsystem_devtype(monitor, SUBSYSTEM_USB, DEVICE_TYPE_USB);
+    if(ret != 0) {
+    	if(DEBUG) fprintf(stderr, "%s %d\n", "NATIVE port_monitor failed to install filter for udev with error ", ret);
+    	if(DEBUG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread exiting. Please RETRY registering data listener !");
+    	if(DEBUG) fflush(stderr);
+    	pthread_exit((void *)0);
+    }
+
+	/* Binds the udev_monitor socket to the event source. */
+    ret = udev_monitor_enable_receiving(monitor);
+    if(ret != 0) {
+    	if(DEBUG) fprintf(stderr, "%s %d\n", "NATIVE port_monitor failed to bind udev socket to monitor with error ", ret);
+    	if(DEBUG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread exiting. Please RETRY registering data listener !");
+    	if(DEBUG) fflush(stderr);
+    	pthread_exit((void *)0);
+    }
+
+	/* Retrieve the socket file descriptor associated with the monitor. This fd will get passed to select(). */
+	fd = udev_monitor_get_fd(monitor);
+	FD_ZERO(&fds);
+	FD_SET(fd, &fds);
+
+	/* Install signal handler that will be invoked to indicate that the thread should exit. */
+    if(signal(SIGUSR1, exitMonitor_signal_handler) == SIG_ERR) {
+    	if(DEBUG) fprintf(stderr, "%s\n", "Unable to create handler for thread exit !");
+    	if(DEBUG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread exiting. Please RETRY registering data listener !");
+        if(DEBUG) fflush(stderr);
+		pthread_exit((void *)0);
+    }
+
+	while(1) {
+		ret = select(fd+1, &fds, NULL, NULL, NULL);
+
+		/* Check if our file descriptor has received data. */
+		if(ret > 0 && FD_ISSET(fd, &fds)) {
+			device = udev_monitor_receive_device(monitor);
+			if(device) {
+				action = udev_device_get_action(device);
+				serial_delay(500);  /* let udev execute udev rules completely (500 milliseconds delay). */
+
+				/* Based on use case and more robust design, notification for plugging port will be
+				 * developed. As of now we just notify app that some device has been added to system.
+				 * In Linux, port name will change, for example at the time of registering this listener
+				 * if it was ttyUSB0, then after re-insertion, it will be ttyUSB1. */
+				if(strcmp("add", action) == 0) {
+					(*env)->CallVoidMethod(env, port_listener, mid, 1); /* arg 1 represent device add action */
+					if((*env)->ExceptionOccurred(env)) {
+						LOGE(env);
+					}
+				}
+
+				errno = 0;
+				ret = stat((*params).portName, &st);
+				if(ret == 0) {
+				}else {
+					if(errno == EACCES) {
+						if(DEBUG) fprintf(stderr, "%s %d\n", "NATIVE port_monitor does not have permission to stat port error : ", errno);
+						if(DEBUG) fflush(stderr);
+					}else if(errno == ELOOP) {
+						if(DEBUG) fprintf(stderr, "%s %d\n", "NATIVE port_monitor encountered too many symbolic links while traversing the path error : ", errno);
+						if(DEBUG) fflush(stderr);
+					}else if(errno == ENAMETOOLONG) {
+						if(DEBUG) fprintf(stderr, "%s %d\n", "NATIVE port_monitor path is too long error : ", errno);
+						if(DEBUG) fflush(stderr);
+					}else if(errno == ENOMEM) {
+						if(DEBUG) fprintf(stderr, "%s %d\n", "NATIVE port_monitor Out of memory (i.e., kernel memory) error : ", errno);
+						if(DEBUG) fflush(stderr);
+					}else if(errno == ENOTDIR) {
+						if(DEBUG) fprintf(stderr, "%s %d\n", "NATIVE port_monitor a component of the path prefix of path is not a directory error : ", errno);
+						if(DEBUG) fflush(stderr);
+					}else if(errno == EOVERFLOW) {
+						if(DEBUG) fprintf(stderr, "%s %d\n", "NATIVE port_monitor improper data size handling/definition error : ", errno);
+						if(DEBUG) fflush(stderr);
+					}else if(errno == EFAULT) {
+						if(DEBUG) fprintf(stderr, "%s %d\n", "NATIVE port_monitor bad address error : ", errno);
+						if(DEBUG) fflush(stderr);
+					}else {
+						if(strcmp("remove", action) == 0) {
+							(*env)->CallVoidMethod(env, port_listener, mid, 2); /* arg 2 represent device remove action */
+							if((*env)->ExceptionOccurred(env)) {
+								LOGE(env);
+							}
+						}
+					}
+				}
+
+				udev_device_unref(device);
+				if(1 == ((struct port_info*) arg)->thread_exit) {
+					pthread_exit((void *)0);
+				}
+			}
+		}
+	}
+
+	return ((void *)0);
+#endif
+#if defined (__APPLE__) || defined (__SunOS)
 	struct port_info* params = (struct port_info*) arg;
 	JavaVM *jvm = (*params).jvm;
 	jobject port_listener = (*params).port_listener;
@@ -625,6 +800,7 @@ void *port_monitor(void *arg) {
 	}
 
 	return ((void *)0);
+#endif
 }
 
 #endif /* End compiling for Unix-like OS. */

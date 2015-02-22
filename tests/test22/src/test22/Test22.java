@@ -52,7 +52,7 @@ public class Test22 {
 			scm.registerDataListener(DTE, DTE1);
 			scm.setRTS(DTE, true);
 
-			Thread.sleep(100000);
+			Thread.sleep(100);
 			
 			// DCE terminal
 			long DCE = scm.openComPort("/dev/ttyUSB1", true, true, false);
@@ -66,7 +66,7 @@ public class Test22 {
 			Thread.sleep(100);
 			scm.setRTS(DTE, true);
 			scm.setRTS(DCE, true);
-			Thread.sleep(100000);
+			Thread.sleep(100);
 			
 			// Step 1
 			scm.writeString(DTE, "str1", 0);
@@ -78,11 +78,11 @@ public class Test22 {
 			scm.writeString(DCE, "str2", 0);
 			Thread.sleep(100);
 			
-			// Step 2 dte says to dce dont send data i m full
+			// Step 2 dte says to dce don't send data i am full
 			scm.setRTS(DTE, false);
-			Thread.sleep(1000); // give delay so that senddata gets updated
+			Thread.sleep(1000); // give delay so that send data gets updated
 			
-			// Step 3 dce will receive event CTS and will sto sending data.
+			// Step 3 dce will receive event CTS and will start sending data.
 			if(senddata == true) {
 				scm.writeString(DCE, "str3", 0);
 			}else {

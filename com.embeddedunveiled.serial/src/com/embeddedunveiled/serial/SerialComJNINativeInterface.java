@@ -163,8 +163,8 @@ public final class SerialComJNINativeInterface {
 	public native int initNativeLib();
 	public native String getNativeLibraryVersion();
 	public native boolean debug(boolean enableDebug);
-	
 	public native String[] getSerialPortNames();
+	
 	public native int registerPortMonitorListener(long handle, String portName, IPortMonitor portMonitor);
 	public native int unregisterPortMonitorListener(long handle);
 	
@@ -196,5 +196,4 @@ public final class SerialComJNINativeInterface {
 	public native int[] getByteCount(long handle);
 	public native int clearPortIOBuffers(long handle, boolean rxPortbuf, boolean txPortbuf);
 	public native int setMinDataLength(long handle, int numOfBytes);
-
 }

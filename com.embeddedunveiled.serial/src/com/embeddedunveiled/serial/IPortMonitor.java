@@ -19,10 +19,10 @@
 package com.embeddedunveiled.serial;
 
 /**
- * <p>Whenever an opened port has been removed, native layer will call this method
- * of the registered listener.</p>
+ * <p>Whenever a serial device is plugged or unplugged from system, this method will
+ * be called by native layer. </p>
  */
 
 public interface IPortMonitor {
-	public abstract void onPortRemovedEvent();
+	public abstract void onPortMonitorEvent(int event);
 }
