@@ -59,4 +59,3 @@ extern int serial_delay(unsigned usecs);
 #endif /* UNIX_LIKE_SERIAL_LIB_H_ */
 
 #endif /* end compiling for Unix-like OS */
-

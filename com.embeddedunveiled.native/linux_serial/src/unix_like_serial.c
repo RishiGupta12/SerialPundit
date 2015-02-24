@@ -419,13 +419,18 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInter
 	 * CREAD and CLOCAL are enabled to make sure that the caller program does not become the owner of the
 	 * port subject to sporadic job control and hang-up signals, and also that the serial interface driver
 	 * will read incoming bytes. CLOCAL results in ignoring modem status lines while CREAD enables receiving
-	 * data. CRTSCTS indicates no hardware flow control. */
+	 * data. CRTSCTS indicates no hardware flow control. Note that CLOCAL need always be set to prevent
+	 * undesired effects of SIGNUP SIGNAL.
+	 */
 	settings.c_cflag &= ~CRTSCTS;                                   /* Not is POSIX, requires _BSD_SOURCE */
 	settings.c_cflag &= ~CSIZE;
 	settings.c_cflag &= ~PARENB;
 	settings.c_cflag &= ~CSTOPB;
 	settings.c_cflag |= (CS8 | CREAD | CLOCAL);
 	settings.c_cflag |= HUPCL;
+#if defined (__APPLE__)
+	settings.c_cflag &= ~MDMBUF;   /* flow control output via Carrier */
+#endif
 
 	/* Control characters :
 	 * Return immediately if no data is available on read() call and no time out value. */

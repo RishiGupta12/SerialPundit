@@ -57,8 +57,13 @@ public class Test22 {
 			scm.configureComPortControl(DCE, FLOWCONTROL.HARDWARE, 'X', 'X', false, false);
 			scm.registerDataListener(DCE, DCE1);
 			Thread.sleep(20);
-			scm.registerLineEventListener(DCE, eventListener);
+			
+			// in windows DTR need to be set, while it can be ommited for linux
+			scm.setDTR(DTE, true);
+			scm.setDTR(DCE, true);
 
+			scm.registerLineEventListener(DCE, eventListener);
+			
 			// Step 1
 			scm.writeString(DTE, "str1", 0);
 			if(senddata == true) {
@@ -77,7 +82,7 @@ public class Test22 {
 				System.out.println("seems like DTE is full");
 			}
 			
-			Thread.sleep(100000);
+			Thread.sleep(2000);
 
 			scm.unregisterDataListener(DTE1);
 			scm.unregisterDataListener(DCE1);

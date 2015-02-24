@@ -804,4 +804,3 @@ void *port_monitor(void *arg) {
 }
 
 #endif /* End compiling for Unix-like OS. */
-

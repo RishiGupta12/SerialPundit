@@ -72,16 +72,6 @@
 		<item value="/home/r/ws-host-uart/serial-com-manager/com.embeddedunveiled.serial/javadoc.xml" key="antpath"/>
 		<item value="true" key="fromStandard"/>
 		<section name="projects">
-			<section name="test21">
-				<item value="/home/r/ws-host-uart/serial-com-manager/tests/test21/doc" key="destdir"/>
-				<item value="/home/r/ws-host-uart/serial-com-manager/tests/test21/javadoc.xml" key="antpath"/>
-				<item value="" key="href"/>
-			</section>
-			<section name="test20">
-				<item value="/home/r/ws-host-uart/serial-com-manager/tests/test20/doc" key="destdir"/>
-				<item value="/home/r/ws-host-uart/serial-com-manager/tests/test20/javadoc.xml" key="antpath"/>
-				<item value="" key="href"/>
-			</section>
 			<section name="linux_serial">
 				<item value="/home/r/ws-host-uart/serial-com-manager/com.embeddedunveiled.native/linux_serial/doc" key="destdir"/>
 				<item value="/home/r/ws-host-uart/serial-com-manager/com.embeddedunveiled.native/linux_serial/javadoc.xml" key="antpath"/>

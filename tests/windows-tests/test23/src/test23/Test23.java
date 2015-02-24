@@ -12,11 +12,11 @@ public class Test23 {
 		SerialComManager scm = new SerialComManager();
 		
 		try {
-			long DTE = scm.openComPort("/dev/ttyUSB0", true, true, false);
+			long DTE = scm.openComPort("COM51", true, true, true);
 			scm.configureComPortData(DTE, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B9600, 0);
 			scm.configureComPortControl(DTE, FLOWCONTROL.HARDWARE, 'x', 'x', false, true);
 			
-			long DTE1 = scm.openComPort("/dev/ttyUSB1", true, true, false);
+			long DTE1 = scm.openComPort("COM52", true, true, true);
 			scm.configureComPortData(DTE1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B9600, 0);
 			scm.configureComPortControl(DTE1, FLOWCONTROL.HARDWARE, 'x', 'x', false, true);
 			
@@ -53,7 +53,7 @@ public class Test23 {
 			Thread.sleep(100);
 			scm.writeString(DTE1, "str1", 0);
 			
-			Thread.sleep(100000);
+			Thread.sleep(100);
 			scm.closeComPort(DTE);
 			scm.closeComPort(DTE1);
 		} catch (Exception e) {

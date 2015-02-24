@@ -346,7 +346,7 @@ unsigned __stdcall port_monitor(void *arg) {
 		return 0;
 	}
 
-	jmethodID mid = (*env)->GetMethodID(env, portListener, "onPortRemovedEvent", "()V");
+	jmethodID mid = (*env)->GetMethodID(env, portListener, "onPortMonitorEvent", "(I)V");
 	if((*env)->ExceptionOccurred(env)) {
 		LOGE(env);
 	}
@@ -365,9 +365,7 @@ unsigned __stdcall port_monitor(void *arg) {
 		ret = GetCommModemStatus(((struct port_info*) arg)->hComm, &lines_status);
 		if(ret == 0) {
 			DWORD errorVal = GetLastError();
-			/* if (DEBUG) fprintf(stderr, "%s %ld\n", "NATIVE event_data_looper() failed in SetCommMask() with error number : ", errorVal);
-			if (DEBUG) fflush(stderr); */
-			(*env)->CallVoidMethod(env, port_listener, mid, 0);
+			(*env)->CallVoidMethod(env, port_listener, mid, 2);  /* arg 2 represent device remove action */
 			if((*env)->ExceptionOccurred(env)) {
 				LOGE(env);
 			}
@@ -375,8 +373,6 @@ unsigned __stdcall port_monitor(void *arg) {
 		}
 
 		Sleep(750); /* 750 milliseocnds */
-		if (DEBUG) fprintf(stderr, "%s \n", "NAT!");
-		if (DEBUG) fflush(stderr);
 	}
 
 	return 0;

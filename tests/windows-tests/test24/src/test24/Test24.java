@@ -42,13 +42,13 @@ public class Test24 {
 		
 		try {
 			// DTE terminal
-			long DTE = scm.openComPort("/dev/ttyUSB0", true, true, false);
+			long DTE = scm.openComPort("COM51", true, true, true);
 			scm.configureComPortData(DTE, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B9600, 0);
 			scm.configureComPortControl(DTE, FLOWCONTROL.NONE, 'x', 'x', false, false);
 			scm.registerDataListener(DTE, DTE1);
 			
 			// DCE terminal
-			long DCE = scm.openComPort("/dev/ttyUSB1", true, true, false);
+			long DCE = scm.openComPort("COM52", true, true, true);
 			scm.configureComPortData(DCE, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B9600, 0);
 			scm.configureComPortControl(DCE, FLOWCONTROL.NONE, 'x', 'x', false, false);
 			scm.registerDataListener(DCE, DCE1);

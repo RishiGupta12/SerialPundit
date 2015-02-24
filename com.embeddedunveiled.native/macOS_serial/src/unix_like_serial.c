@@ -419,13 +419,18 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInter
 	 * CREAD and CLOCAL are enabled to make sure that the caller program does not become the owner of the
 	 * port subject to sporadic job control and hang-up signals, and also that the serial interface driver
 	 * will read incoming bytes. CLOCAL results in ignoring modem status lines while CREAD enables receiving
-	 * data. CRTSCTS indicates no hardware flow control. */
+	 * data. CRTSCTS indicates no hardware flow control. Note that CLOCAL need always be set to prevent
+	 * undesired effects of SIGNUP SIGNAL.
+	 */
 	settings.c_cflag &= ~CRTSCTS;                                   /* Not is POSIX, requires _BSD_SOURCE */
 	settings.c_cflag &= ~CSIZE;
 	settings.c_cflag &= ~PARENB;
 	settings.c_cflag &= ~CSTOPB;
 	settings.c_cflag |= (CS8 | CREAD | CLOCAL);
 	settings.c_cflag |= HUPCL;
+#if defined (__APPLE__)
+	settings.c_cflag &= ~MDMBUF;   /* flow control output via Carrier */
+#endif
 
 	/* Control characters :
 	 * Return immediately if no data is available on read() call and no time out value. */
@@ -965,12 +970,32 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 #endif
 
 	/* Set flow control. The CRTSCTS for Solaris enables outbound hardware flow control if set, while for Linux and Mac enables both inbound and outbound. */
-	if(flowctrl == 1) {
-		currentconfig.c_cflag &= ~CRTSCTS;                  /* NO FLOE CONTROL. */
+	if(flowctrl == 1) {                                    /* NO FLOW CONTROL. */
+		currentconfig.c_iflag &= ~(IXON | IXOFF);
+#if defined (__linux__)
+		currentconfig.c_cflag &= ~CRTSCTS;
+#endif
+#if defined (__APPLE__)
+		currentconfig.c_cflag &= ~CRTS_IFLOW;
+		currentconfig.c_cflag &= ~CCTS_OFLOW;
+#endif
+#if defined (__SunOS)
+		currentconfig.c_cflag &= ~CRTSXOFF;
+		currentconfig.c_cflag &= ~CRTSCTS;
+#endif
 	}else if(flowctrl == 2) {                              /* HARDWARE FLOW CONTROL on both tx and rx data. */
 		currentconfig.c_iflag &= ~(IXON | IXOFF);           /* software xon-xoff character disabled. */
-		currentconfig.c_cflag |= CLOCAL;                    /* CLOCAL ignores only the CD signal line. */
+#if defined (__linux__)
 		currentconfig.c_cflag |= CRTSCTS;                   /* Specifying hardware flow control. */
+#endif
+#if defined (__APPLE__)
+		currentconfig.c_cflag |= CRTS_IFLOW;
+		currentconfig.c_cflag |= CCTS_OFLOW;
+#endif
+#if defined (__SunOS)
+		currentconfig.c_cflag |= CRTSXOFF;
+		currentconfig.c_cflag |= CRTSCTS;
+#endif
 	}else if(flowctrl == 3) {                              /* SOFTWARE FLOW CONTROL on both tx and rx data. */
 		currentconfig.c_cflag &= ~CRTSCTS;                  /* hardware rts-cts disabled. */
 		currentconfig.c_iflag |= (IXON | IXOFF);            /* software xon-xoff chararcter enabled. */

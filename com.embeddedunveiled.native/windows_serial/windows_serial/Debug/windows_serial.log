@@ -1,4 +1,4 @@
-﻿Build started 2/11/2015 5:45:56 PM.
+﻿Build started 2/24/2015 11:31:48 AM.
      1>Project "D:\SERIAL\serial-com-manager\com.embeddedunveiled.native\windows_serial\windows_serial\windows_serial.vcxproj" on node 2 (Rebuild target(s)).
      1>ClCompile:
          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /I"C:\Program Files\Java\jdk1.8.0_25\include" /I"C:\Program Files\Java\jdk1.8.0_25\include\win32" /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D WIN32 /D _DEBUG /D _WINDOWS /D _USRDLL /D WINDOWS_SERIAL_EXPORTS /D _WINDLL /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Yc"stdafx.h" /Fp"Debug\windows_1.0.0_x86.pch" /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TC /analyze- /errorReport:prompt stdafx.c
@@ -19,4 +19,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:01.03
+Time Elapsed 00:00:03.68

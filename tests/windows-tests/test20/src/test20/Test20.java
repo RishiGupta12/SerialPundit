@@ -64,7 +64,7 @@ public class Test20 {
 			
 			// Step 5
 			scm.writeBytes(receiverHandle, XON, 0);
-			Thread.sleep(100000);
+			Thread.sleep(1000);
 			
 			scm.unregisterDataListener(sender);
 			scm.unregisterDataListener(receiver);

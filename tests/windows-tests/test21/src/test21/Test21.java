@@ -8,44 +8,30 @@ import com.embeddedunveiled.serial.SerialComManager.FLOWCONTROL;
 import com.embeddedunveiled.serial.SerialComManager.PARITY;
 import com.embeddedunveiled.serial.SerialComManager.STOPBITS;
 
-class portWatcher implements IPortMonitor{
+// event 2 indicates port removal, 1 indicates additional of port
+class portWatcher implements IPortMonitor {
 	@Override
-	public void onPortRemovedEvent() {	
-		System.out.println("PORT REMOVED");
+	public void onPortMonitorEvent(int event) {
+		System.out.println("==" + event);
 	}
 }
 
 public class Test21 {
 	public static void main(String[] args) {
 		
-		long handle = 0;
 		SerialComManager scm = new SerialComManager();
 		portWatcher pw = new portWatcher();
 		
 		try {
-			handle = scm.openComPort("COM52", true, true, true);
+			long handle = scm.openComPort("COM52", true, true, true);
 			scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
-			scm.configureComPortControl(handle, FLOWCONTROL.SOFTWARE, '$', '#', false, false);
+			scm.configureComPortControl(handle, FLOWCONTROL.NONE, '$', '$', false, false);
 			scm.registerPortMonitorListener(handle, pw);
 			
-			Thread.sleep(500);
+			Thread.sleep(5000);
+			
 			scm.unregisterPortMonitorListener(handle);
-			
-			Thread.sleep(500);
-			scm.registerPortMonitorListener(handle, pw);
-			
-			Thread.sleep(500);
-			scm.unregisterPortMonitorListener(handle);
-			
-			Thread.sleep(500);
-			scm.registerPortMonitorListener(handle, pw);
-			
-			while(true);
-			
-//			Thread.sleep(500);
-//			scm.unregisterPortMonitorListener(handle);
-//			
-//			scm.closeComPort(handle);
+			scm.closeComPort(handle);
 			
 		} catch (Exception e) {
 			e.printStackTrace();
