@@ -553,7 +553,8 @@ void exitMonitor_signal_handler(int signal_number) {
 
 /* This thread keep polling for the physical existence of a port/file/device. When port removal is detected, this
  * informs java listener and exit. We need to ensure that stat() itself does not fail.
- * It has been assumed that till this thread has initialized, port will not be unplugged from system. */
+ * It has been assumed that till this thread has initialized, port will not be unplugged from system.
+ * Link against libudev which provides a set of functions for accessing the udev database and querying sysfs. */
 void *port_monitor(void *arg) {
 #if defined (__linux__)
 	struct port_info* params = (struct port_info*) arg;
@@ -663,6 +664,7 @@ void *port_monitor(void *arg) {
 			if(device) {
 				action = udev_device_get_action(device);
 				serial_delay(500);  /* let udev execute udev rules completely (500 milliseconds delay). */
+				udev_device_unref(device);
 
 				/* Based on use case and more robust design, notification for plugging port will be
 				 * developed. As of now we just notify app that some device has been added to system.
@@ -673,52 +675,52 @@ void *port_monitor(void *arg) {
 					if((*env)->ExceptionOccurred(env)) {
 						LOGE(env);
 					}
-				}
-
-				errno = 0;
-				ret = stat((*params).portName, &st);
-				if(ret == 0) {
-				}else {
-					if(errno == EACCES) {
-						if(DEBUG) fprintf(stderr, "%s %d\n", "NATIVE port_monitor does not have permission to stat port error : ", errno);
-						if(DEBUG) fflush(stderr);
-					}else if(errno == ELOOP) {
-						if(DEBUG) fprintf(stderr, "%s %d\n", "NATIVE port_monitor encountered too many symbolic links while traversing the path error : ", errno);
-						if(DEBUG) fflush(stderr);
-					}else if(errno == ENAMETOOLONG) {
-						if(DEBUG) fprintf(stderr, "%s %d\n", "NATIVE port_monitor path is too long error : ", errno);
-						if(DEBUG) fflush(stderr);
-					}else if(errno == ENOMEM) {
-						if(DEBUG) fprintf(stderr, "%s %d\n", "NATIVE port_monitor Out of memory (i.e., kernel memory) error : ", errno);
-						if(DEBUG) fflush(stderr);
-					}else if(errno == ENOTDIR) {
-						if(DEBUG) fprintf(stderr, "%s %d\n", "NATIVE port_monitor a component of the path prefix of path is not a directory error : ", errno);
-						if(DEBUG) fflush(stderr);
-					}else if(errno == EOVERFLOW) {
-						if(DEBUG) fprintf(stderr, "%s %d\n", "NATIVE port_monitor improper data size handling/definition error : ", errno);
-						if(DEBUG) fflush(stderr);
-					}else if(errno == EFAULT) {
-						if(DEBUG) fprintf(stderr, "%s %d\n", "NATIVE port_monitor bad address error : ", errno);
-						if(DEBUG) fflush(stderr);
+				}else if(strcmp("remove", action) == 0) {
+					errno = 0;
+					ret = stat((*params).portName, &st);
+					if(ret == 0) {
 					}else {
-						if(strcmp("remove", action) == 0) {
+						if(errno == EACCES) {
+							if(DEBUG) fprintf(stderr, "%s %d\n", "NATIVE port_monitor does not have permission to stat port error : ", errno);
+							if(DEBUG) fflush(stderr);
+						}else if(errno == ELOOP) {
+							if(DEBUG) fprintf(stderr, "%s %d\n", "NATIVE port_monitor encountered too many symbolic links while traversing the path error : ", errno);
+							if(DEBUG) fflush(stderr);
+						}else if(errno == ENAMETOOLONG) {
+							if(DEBUG) fprintf(stderr, "%s %d\n", "NATIVE port_monitor path is too long error : ", errno);
+							if(DEBUG) fflush(stderr);
+						}else if(errno == ENOMEM) {
+							if(DEBUG) fprintf(stderr, "%s %d\n", "NATIVE port_monitor Out of memory (i.e., kernel memory) error : ", errno);
+							if(DEBUG) fflush(stderr);
+						}else if(errno == ENOTDIR) {
+							if(DEBUG) fprintf(stderr, "%s %d\n", "NATIVE port_monitor a component of the path prefix of path is not a directory error : ", errno);
+							if(DEBUG) fflush(stderr);
+						}else if(errno == EOVERFLOW) {
+							if(DEBUG) fprintf(stderr, "%s %d\n", "NATIVE port_monitor improper data size handling/definition error : ", errno);
+							if(DEBUG) fflush(stderr);
+						}else if(errno == EFAULT) {
+							if(DEBUG) fprintf(stderr, "%s %d\n", "NATIVE port_monitor bad address error : ", errno);
+							if(DEBUG) fflush(stderr);
+						}else {
 							(*env)->CallVoidMethod(env, port_listener, mid, 2); /* arg 2 represent device remove action */
 							if((*env)->ExceptionOccurred(env)) {
 								LOGE(env);
 							}
 						}
 					}
+				}else {
+					/* neither add nor remove action, do nothing. */
 				}
+			}
 
-				udev_device_unref(device);
-				if(1 == ((struct port_info*) arg)->thread_exit) {
-					pthread_exit((void *)0);
-				}
+			/* Check if thread should exit. */
+			if(1 == ((struct port_info*) arg)->thread_exit) {
+				pthread_exit((void *)0);
 			}
 		}
 	}
 
-	return ((void *)0);
+    return ((void *)0);
 #endif
 #if defined (__APPLE__) || defined (__SunOS)
 	struct port_info* params = (struct port_info*) arg;
@@ -743,7 +745,7 @@ void *port_monitor(void *arg) {
 		pthread_exit((void *)0);
 	}
 
-	jmethodID mid = (*env)->GetMethodID(env, portListener, "onPortRemovedEvent", "()V");
+	jmethodID mid = (*env)->GetMethodID(env, portListener, "onPortMonitorEvent", "(I)V");
 	if((*env)->ExceptionOccurred(env)) {
 		LOGE(env);
 	}
@@ -790,7 +792,7 @@ void *port_monitor(void *arg) {
 				if(DEBUG) fflush(stderr);
 			}else {
 				/* either bad fd or can not stat, inform listener in java layer. */
-				(*env)->CallVoidMethod(env, port_listener, mid, 0);
+				(*env)->CallVoidMethod(env, port_listener, mid, 2);
 				if((*env)->ExceptionOccurred(env)) {
 					LOGE(env);
 				}

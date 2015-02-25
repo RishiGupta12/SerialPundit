@@ -40,7 +40,7 @@ gcc -I$JDK_INCLUDE_DIR -include$JNI_HEADER_FILE_PATH -O0 -g3 -Wall -c -fmessage-
 gcc -I$JDK_INCLUDE_DIR -include$JNI_HEADER_FILE_PATH -O0 -g3 -Wall -c -fmessage-length=0 -fPIC -m64 -pthread -o $PROJECT_ROOT_DIR_PATH/scripts_output/unix_like_serial_lib_64.o $PROJECT_ROOT_DIR_PATH/com.embeddedunveiled.native/linux_serial/src/unix_like_serial_lib.c
 
 # Building target: linux_X.X.X_x86_64.so
-gcc -shared -m64 -o $PROJECT_ROOT_DIR_PATH/scripts_output/$g$LIB_VERSION$h $PROJECT_ROOT_DIR_PATH/scripts_output/unix_like_serial_64.o $PROJECT_ROOT_DIR_PATH/scripts_output/unix_like_serial_lib_64.o -lpthread
+gcc -shared -m64 -ludev -o $PROJECT_ROOT_DIR_PATH/scripts_output/$g$LIB_VERSION$h $PROJECT_ROOT_DIR_PATH/scripts_output/unix_like_serial_64.o $PROJECT_ROOT_DIR_PATH/scripts_output/unix_like_serial_lib_64.o -lpthread
 
 # Clean up
 if [ -f $PROJECT_ROOT_DIR_PATH/scripts_output/unix_like_serial_lib_64.o  ]; then
@@ -58,7 +58,7 @@ gcc -I$JDK_INCLUDE_DIR -include$JNI_HEADER_FILE_PATH -O0 -g3 -Wall -c -fmessage-
 gcc -I$JDK_INCLUDE_DIR -include$JNI_HEADER_FILE_PATH -O0 -g3 -Wall -c -fmessage-length=0 -fPIC -m32 -lpthread -o $PROJECT_ROOT_DIR_PATH/scripts_output/unix_like_serial_lib_32.o $PROJECT_ROOT_DIR_PATH/com.embeddedunveiled.native/linux_serial/src/unix_like_serial_lib.c
 
 # Building target: linux_X.X.X_x86_64.so
-gcc -shared -m32 -o $PROJECT_ROOT_DIR_PATH/scripts_output/$g$LIB_VERSION$i $PROJECT_ROOT_DIR_PATH/scripts_output/unix_like_serial_32.o $PROJECT_ROOT_DIR_PATH/scripts_output/unix_like_serial_lib_32.o -lpthread
+gcc -shared -m32 -ludev -o $PROJECT_ROOT_DIR_PATH/scripts_output/$g$LIB_VERSION$i $PROJECT_ROOT_DIR_PATH/scripts_output/unix_like_serial_32.o $PROJECT_ROOT_DIR_PATH/scripts_output/unix_like_serial_lib_32.o -lpthread
 
 # Clean up
 if [ -f $PROJECT_ROOT_DIR_PATH/scripts_output/unix_like_serial_lib_32.o  ]; then

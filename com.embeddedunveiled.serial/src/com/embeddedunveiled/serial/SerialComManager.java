@@ -747,6 +747,8 @@ public final class SerialComManager {
 	 * it is made available from native data collection and dispatching subsystem.
 	 * Note that listener will start receiving new data, even before this method returns.</p>
 	 * 
+	 * <p>Application (listener) should implement ISerialComDataListener and override onNewSerialDataAvailable method.</p>
+	 * 
 	 * @param handle of the port opened
 	 * @param dataListener instance of class which implements ISerialComDataListener interface
 	 * @throws SerialComException if invalid handle passed, handle is null or data listener already exist for this handle
@@ -845,6 +847,8 @@ public final class SerialComManager {
 	/**
 	 * <p>This method associate a event looper with the given listener. This looper will keep delivering new event whenever
 	 * it is made available from native event collection and dispatching subsystem.</p>
+	 * 
+	 * <p>Application (listener) should implement ISerialComEventListener and override onNewSerialEvent method.</p>
 	 * 
 	 * <p>By default all four events are dispatched to listener. However, application can mask events through setEventsMask()
 	 * method. In current implementation, native code sends all the events irrespective of mask and we actually filter
@@ -1206,7 +1210,10 @@ public final class SerialComManager {
 	
 	/**
 	 * <p>This registers a listener who will be invoked whenever a port has been plugged or un-plugged in system.
-	 * Initially, the port has to be present into system, as that is only when we will be able to open it.</p>
+	 * Initially, the port has to be present into system, as that is only when we will be able to open port.</p>
+	 * 
+	 * <p>Application must implement IPortMonitor interface and override onPortMonitorEvent method. An event value
+	 * 1 represents addition of device while event value 2 represents removal (unplugging) of device from system.</p>
 	 * 
 	 * @param handle
 	 * @return true on success false otherwise

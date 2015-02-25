@@ -435,7 +435,7 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInter
 	/* Control characters :
 	 * Return immediately if no data is available on read() call and no time out value. */
 	settings.c_cc[VMIN] = 1;
-	settings.c_cc[VTIME] = 5;
+	settings.c_cc[VTIME] = 1;
 
 	/* Input options :
 	 * IMAXBEL : ring bell on input queue full, IGNBRK : Ignore break conditions, BRKINT : map BREAK to SIGINTR,
@@ -976,6 +976,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 		currentconfig.c_cflag &= ~CRTSCTS;
 #endif
 #if defined (__APPLE__)
+		currentconfig.c_cflag &= ~CRTSCTS;
 		currentconfig.c_cflag &= ~CRTS_IFLOW;
 		currentconfig.c_cflag &= ~CCTS_OFLOW;
 #endif
@@ -989,6 +990,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 		currentconfig.c_cflag |= CRTSCTS;                   /* Specifying hardware flow control. */
 #endif
 #if defined (__APPLE__)
+		currentconfig.c_cflag |= CRTSCTS;
 		currentconfig.c_cflag |= CRTS_IFLOW;
 		currentconfig.c_cflag |= CCTS_OFLOW;
 #endif
