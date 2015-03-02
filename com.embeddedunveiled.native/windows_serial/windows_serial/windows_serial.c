@@ -30,6 +30,7 @@
 * Examples at msdn            : http://msdn.microsoft.com/en-us/library/windows/desktop/bb540534(v=vs.85).aspx
 * Synchronization Functions   : http://msdn.microsoft.com/en-us/library/windows/desktop/ms686360(v=vs.85).aspx
 * IOCTL requests              : https://msdn.microsoft.com/en-us/library/windows/hardware/ff547466(v=vs.85).aspx
+* Hot plug                    : https://msdn.microsoft.com/en-us/library/ms644928(VS.85).aspx
 *
 * - When printing error number (using fprintf()), number returned by Windows OS is printed as it is by this library.
 * - windows header files are in include directory of MinGW tool chain.
@@ -67,9 +68,6 @@ int setupLooperThread(JNIEnv *env, jobject obj, jlong handle, jobject looper_obj
 
 #undef  UART_NATIVE_LIB_VERSION
 #define UART_NATIVE_LIB_VERSION "1.0.0"
-
-/* This is the maximum number of threads and hence data listeners instance we support. */
-#define MAX_NUM_THREADS 1024
 
 /* Reference to JVM shared among all the threads within a process. */
 JavaVM *jvm;
@@ -1555,6 +1553,8 @@ int setupLooperThread(JNIEnv *env, jobject obj, jlong handle, jobject looper_obj
 			return ((struct looper_thread_params*) arg)->init_done;  /* error */
 		}
 	}
+
+	return 0;
 }
 
 /*
@@ -1710,20 +1710,22 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 	params.jvm = jvm;
 	params.portName = (*env)->GetStringUTFChars(env, portName, NULL);
 	params.hComm = hComm;
+	params.wait_handle = 0;
 	params.port_listener = portListener;
 	params.thread_exit = 0;
 	params.csmutex = &csmutex;
+	params.info = &port_monitor_info[0];
 	port_monitor_info[port_monitor_index] = params;
 	arg = &port_monitor_info[port_monitor_index];
 
 	/* Managed thread creation. The _beginthreadex initializes Certain CRT (C Run-Time) internals that ensures that other C functions will
 	work exactly as expected. */
 	thread_handle = (HANDLE)_beginthreadex(NULL,   /* default security attributes */
-		0,                              /* use default stack size      */
-		&port_monitor,             /* thread function name        */
-		arg,                            /* argument to thread function */
-		0,                              /* start thread immediately    */
-		&thread_id);                    /* thread identifier           */
+		0,                                         /* use default stack size      */
+		&port_monitor,                             /* thread function name        */
+		arg,                                       /* argument to thread function */
+		0,                                         /* start thread immediately    */
+		&thread_id);                               /* thread identifier           */
 	if(thread_handle == 0) {
 		if(DEBUG) fprintf(stderr, "%s%d\n", "NATIVE registerPortMonitorListener() failed to create monitor thread with error number : -", errno);
 		if(DEBUG) fprintf(stderr, "%s \n", "PLEASE TRY AGAIN !");
@@ -1750,6 +1752,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 	int ret = -1;
 	int negative = -1;
 	int x = -1;
+	DWORD errorVal;
 	HANDLE hComm = (HANDLE)handle;
 	struct port_info *ptr;
 	ptr = port_monitor_info;
@@ -1763,6 +1766,14 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 			break;
 		}
 		ptr++;
+	}
+
+	ret = PostMessage(ptr->window_handle, 0x0100, 0, 0);
+	if(ret == 0) {
+		errorVal = GetLastError();
+		if (DEBUG) fprintf(stderr, "%s %ld\n", "NATIVE unregisterPortMonitorListener() failed in PostMessage() with error number : ", errorVal);
+		if (DEBUG) fflush(stderr);
+		return -240;
 	}
 
 	LeaveCriticalSection(&csmutex);

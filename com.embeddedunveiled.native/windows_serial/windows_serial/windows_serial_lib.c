@@ -21,13 +21,20 @@
  * and that the thread is responsible for cleaning them before exiting. */
 
 #include "stdafx.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <tchar.h>
 #include <jni.h>
 #include <windows.h>
 #include <process.h>
-#include <tchar.h>
+#include <dbt.h>
 #include "windows_serial_lib.h"
 
 #define DEBUG 1
+
+/* access to global shared information */
+struct port_info *port_monitor_info_ptr = NULL;
 
 /* Do not let any exception propagate. Handle and clear it. */
 void LOGE(JNIEnv *env) {
@@ -321,58 +328,224 @@ unsigned __stdcall event_data_looper(void* arg) {
 	return 0;
 }
 
+/* Callback which will be invoked by operating system whenever device is removed or added into system. */
+LRESULT CALLBACK event_message_handler(HWND window_handle, UINT msg, WPARAM event, LPARAM event_data) {
+	LRESULT l_ret = 1;
+	/* PDEV_BROADCAST_DEVICEINTERFACE pbdi; */
+	PDEV_BROADCAST_HDR pbhdr = (PDEV_BROADCAST_HDR)event_data;
+	int x = 0;
+	struct port_info *ptr;
+	JNIEnv* env;
+	int lines_status = 0;
+	int ret = 0;
+	int handle_found = 0;
+
+	switch (msg) {
+		case WM_DEVICECHANGE :
+			if(event == DBT_DEVICEARRIVAL) {
+				if(pbhdr->dbch_devicetype == DBT_DEVTYP_DEVICEINTERFACE) {
+					 /* pbdi = (PDEV_BROADCAST_DEVICEINTERFACE)pbhdr;
+					   _tprintf(TEXT("%s\n"), pbdi->dbcc_name);
+					   if (DEBUG) fflush(stdout); */
+					ptr = port_monitor_info_ptr;
+					for (x = 0; x < MAX_NUM_THREADS; x++) {
+						if(ptr->window_handle == window_handle) {
+							handle_found = 1;
+						}
+					}
+					if(handle_found == 1) {
+						env = ptr->env;
+						(*env)->CallVoidMethod(env, ptr->port_listener, ptr->port_monitor_mid, 1); /* 1 represents addition of device */
+						if ((*env)->ExceptionOccurred(env)) {
+							LOGE(env);
+						}
+						handle_found = 0;
+					}
+				}
+			}else if(event == DBT_DEVICEREMOVECOMPLETE) {
+				if(pbhdr->dbch_devicetype == DBT_DEVTYP_DEVICEINTERFACE) {
+					ptr = port_monitor_info_ptr;
+					for (x = 0; x < MAX_NUM_THREADS; x++) {
+						if(ptr->window_handle == window_handle) {
+							handle_found = 1;
+						}
+					}
+					if(handle_found == 1) {
+						ret = GetCommModemStatus(ptr->hComm, &lines_status);
+						if(ret == 0) {
+							env = ptr->env;
+							(*env)->CallVoidMethod(env, ptr->port_listener, ptr->port_monitor_mid, 2); /* 2 represents device is un-plugged */
+							if ((*env)->ExceptionOccurred(env)) {
+								LOGE(env);
+							}
+						}
+						handle_found = 0;
+					}
+				}
+			}else {
+			}
+			break;
+		case WM_CLOSE :
+			break;
+		case WM_DESTROY :
+			PostQuitMessage(0); /* PostQuitMessage posts the WM_QUIT message to the currently executing thread. */
+			break;
+		default :
+			l_ret = DefWindowProc(window_handle, msg, event, event_data);
+	}
+
+	return l_ret;
+}
+
 /* This thread keep polling for the physical existence of a port/file/device. When port removal is detected, this
-* informs java listener and exit. */
+ * informs java listener and exit. Associate the handler with a class, that class with a window and register that
+ * window with notification system. */
 unsigned __stdcall port_monitor(void *arg) {
+	int lines_status = 0;
+	int ret = 0;
+	int i = 0;
+	void* env1;
+	JNIEnv* env;
+	HDEVNOTIFY notification_handle = NULL;
+	DEV_BROADCAST_DEVICEINTERFACE dbch;
+	HWND window_handle;
+	WNDCLASSEX wndClass = { 0 };
+	ATOM atom;
+	LPCTSTR window_class_name = TEXT("a");
+	HINSTANCE hInstance;
+	MSG msg;
+	BOOL b_ret;
+	DWORD errorVal;
 	struct port_info* params = (struct port_info*) arg;
 	JavaVM *jvm = (*params).jvm;
 	jobject port_listener = (*params).port_listener;
-	int lines_status = 0;
-	int ret = 0;
 
-	void* env1;
-	JNIEnv* env;
+	port_monitor_info_ptr = (*params).info;
+
+	/* Plug and Play (PnP) devices are typically associated with two different GUIDs, a device interface GUID,
+	   and a device class GUID. A device class GUID defines a broad category of devices. When you look in the 
+	   Windows Device Manager, it is ordered by the type of devices. Each of those devices is a device class and
+	   each of those classes is identified by a device class GUID. A device interface GUID specifies a particular
+	   input/output interface contract. Every instance of the device interface GUID is expected to support the
+	   same basic set of inputs/outputs. The device interface GUID is what the device driver will register and
+	   enable or disabled based on the PnP state. Some more UID are given below.
+	   	//Human Interface Device Class GUID
+		{ 0x4d1e55b2, 0xf16f, 0x11Cf, { 0x88, 0xcb, 0x00, 0x11, 0x11, 0x00, 0x00, 0x30 } },
+		// FTDI_D2XX_Device Class GUID
+		{ 0x219d0508, 0x57a8, 0x4ff5, { 0x97, 0xa1, 0xbd, 0x86, 0x58, 0x7c, 0x6c, 0x7e } },
+		// FTDI_VCP_Device Class GUID
+		{ 0x86e0d1e0L, 0x8089, 0x11d0, { 0x9c, 0xe4, 0x08, 0x00, 0x3e, 0x30, 0x1f, 0x73 } }, */
+	static const GUID GuidInterfaceList[] = {
+		// USB Raw Device Interface Class GUID, Product ID of device BEFORE it is programmed
+		{ 0xa5dcbf10, 0x6530, 0x11d2, { 0x90, 0x1f, 0x00, 0xc0, 0x4f, 0xb9, 0x51, 0xed } },
+	};
+
 	if((*jvm)->AttachCurrentThread(jvm, &env1, NULL) != JNI_OK) {
 		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE event_looper() thread failed to attach itself to JVM.");
 		if(DEBUG) fflush(stderr);
 	}
 	env = (JNIEnv*)env1;
 
-	jclass portListener = (*env)->GetObjectClass(env, port_listener);
-	if(portListener == NULL) {
+	jclass port_monitor_class = (*env)->GetObjectClass(env, port_listener);
+	if(port_monitor_class == NULL) {
 		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread could not get class of object of type IPortMonitor !");
-		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread exiting. Please RETRY registering port listener !");
+		if (DEBUG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread exiting.  Please RETRY registering port monitor listener !");
 		if(DEBUG) fflush(stderr);
 		return 0;
 	}
 
-	jmethodID mid = (*env)->GetMethodID(env, portListener, "onPortMonitorEvent", "(I)V");
+	jmethodID port_monitor_mid = (*env)->GetMethodID(env, port_monitor_class, "onPortMonitorEvent", "(I)V");
 	if((*env)->ExceptionOccurred(env)) {
 		LOGE(env);
 	}
-	if(mid == NULL) {
+	if(port_monitor_mid == NULL) {
 		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread failed to retrieve method id of method onPortRemovedEvent !");
-		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread exiting. Please RETRY registering data listener !");
+		if (DEBUG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread exiting.  Please RETRY registering port monitor listener !");
 		if(DEBUG) fflush(stderr);
 		return 0;
 	}
 
-	while (1) {
-		if(1 == ((struct port_info*) arg)->thread_exit) {
+	hInstance = (HINSTANCE)(GetModuleHandle(NULL));
+	wndClass.cbSize = sizeof(WNDCLASSEX);
+	wndClass.style = 0;
+	wndClass.lpfnWndProc = (WNDPROC)(event_message_handler);
+	wndClass.cbClsExtra = 0;
+	wndClass.cbWndExtra = 0;
+	wndClass.hInstance = hInstance;
+	wndClass.hIcon = NULL;
+	wndClass.hCursor = NULL;
+	wndClass.hbrBackground = NULL;
+	wndClass.lpszMenuName = NULL;
+	wndClass.lpszClassName = window_class_name;
+	wndClass.hIconSm = NULL;
+
+	/* Registers a window class for subsequent use in calls to the CreateWindow or CreateWindowEx function.  */
+	atom = RegisterClassEx(&wndClass);
+	if(atom == 0) {
+		if (DEBUG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread failed to register class with system !");
+		if (DEBUG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread exiting. Please RETRY registering port monitor listener !");
+		if (DEBUG) fflush(stderr);
+	}
+
+	/* Create message only window.  Windows will deliver messages to this window. */
+	window_handle = CreateWindowEx(WS_EX_TOPMOST, window_class_name, TEXT("b"), 0, 0, 0, 0, 0, HWND_MESSAGE, 0, 0, 0);
+	if(window_handle == NULL) {
+		if (DEBUG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread failed to create message only window !");
+		if (DEBUG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread exiting. Please RETRY registering port monitor listener !");
+		if (DEBUG) fflush(stderr);
+		UnregisterClass(wndClass.lpszClassName, hInstance);
+		return 0;
+	}
+
+	/* Register with the system to receive device notifications. */
+	ZeroMemory(&dbch, sizeof(dbch));
+	dbch.dbcc_size = sizeof(dbch);
+	dbch.dbcc_devicetype = DBT_DEVTYP_DEVICEINTERFACE;
+	for (i = 0; i < sizeof(GuidInterfaceList); i++) {
+		dbch.dbcc_classguid = GuidInterfaceList[i];
+		dbch.dbcc_name[0] = '\0';
+		notification_handle = RegisterDeviceNotification(window_handle,                 /* events recipient window */
+														 &dbch,                         /* type of device for which notification will be sent */
+														 DEVICE_NOTIFY_WINDOW_HANDLE);  /* type of recipient handle */
+		if(notification_handle == NULL) {
+			if (DEBUG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread failed to register device notfication with system !");
+			if (DEBUG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread exiting. Please RETRY registering port monitor listener !");
+			if (DEBUG) fflush(stderr);
+			DestroyWindow(window_handle);
+			UnregisterClass(wndClass.lpszClassName, hInstance);
 			return 0;
 		}
+	}
 
-		ret = GetCommModemStatus(((struct port_info*) arg)->hComm, &lines_status);
-		if(ret == 0) {
-			DWORD errorVal = GetLastError();
-			(*env)->CallVoidMethod(env, port_listener, mid, 2);  /* arg 2 represent device remove action */
-			if((*env)->ExceptionOccurred(env)) {
-				LOGE(env);
+	/* Save so that callback function can use them. */
+	((struct port_info*) arg)->env = env;
+	((struct port_info*) arg)->port_monitor_class = port_monitor_class;
+	((struct port_info*) arg)->port_monitor_mid = port_monitor_mid;
+	((struct port_info*) arg)->window_handle = window_handle;
+
+	while (1) {
+		/* block until there is a message in the queue. */
+		b_ret = GetMessage(&msg, NULL, 0, 0);
+		if(b_ret > 0) {
+			if(1 == ((struct port_info*) arg)->thread_exit) {
+				UnregisterDeviceNotification(notification_handle);
+				DestroyWindow(window_handle);
+				UnregisterClass(wndClass.lpszClassName, hInstance);
+				break;
 			}
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}else if(b_ret == 0) {
+			/* WM_QUIT, so clean up */
+			UnregisterDeviceNotification(notification_handle);
+			DestroyWindow(window_handle);
+			UnregisterClass(wndClass.lpszClassName, hInstance);
 			break;
+		}else {
+			errorVal = GetLastError();
+			if (DEBUG) fprintf(stderr, "%s %ld\n", "NATIVE port_monitor() failed to retrieve message for event with error number : ", errorVal);
+			if (DEBUG) fflush(stderr);
 		}
-
-		Sleep(750); /* 750 milliseocnds */
 	}
 
 	return 0;

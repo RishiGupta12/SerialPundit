@@ -24,6 +24,7 @@
 #include <jni.h>
 #include <windows.h>
 
+/* This is the maximum number of threads and hence data listeners instance we support. */
 #define MAX_NUM_THREADS 1024
 
 /* Structure representing data that is passed to each data looper thread
@@ -45,9 +46,15 @@ struct port_info {
 	JavaVM *jvm;
 	const char *portName;
 	HANDLE hComm;
+	HANDLE wait_handle;
 	int thread_exit;
 	jobject port_listener;
 	CRITICAL_SECTION *csmutex;
+	HWND window_handle;
+	JNIEnv* env;
+	jclass port_monitor_class;
+	jmethodID port_monitor_mid;
+	struct port_info *info;
 };
 
 /* ERROR MAPPING FROM WINDOWS TO JAVA LAYER

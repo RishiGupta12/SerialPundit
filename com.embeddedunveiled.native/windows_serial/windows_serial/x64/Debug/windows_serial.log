@@ -1,22 +1,21 @@
-﻿Build started 2/24/2015 11:32:29 AM.
-     1>Project "D:\SERIAL\serial-com-manager\com.embeddedunveiled.native\windows_serial\windows_serial\windows_serial.vcxproj" on node 2 (Rebuild target(s)).
+﻿Build started 3/2/2015 3:23:15 PM.
+     1>Project "D:\SERIAL\serial-com-manager-master\serial-com-manager-master\com.embeddedunveiled.native\windows_serial\windows_serial\windows_serial.vcxproj" on node 2 (Rebuild target(s)).
      1>ClCompile:
          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\CL.exe /c /I"C:\Program Files\Java\jdk1.8.0_25\include" /I"C:\Program Files\Java\jdk1.8.0_25\include\win32" /Zi /nologo /W3 /WX- /sdl /Od /D WIN32 /D _DEBUG /D _WINDOWS /D _USRDLL /D WINDOWS_SERIAL_EXPORTS /D _WINDLL /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Yc"stdafx.h" /Fp"x64\Debug\windows_1.0.0_x86_64.pch" /Fo"x64\Debug\\" /Fd"x64\Debug\vc120.pdb" /Gd /TC /errorReport:prompt stdafx.c
          stdafx.c
          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\CL.exe /c /I"C:\Program Files\Java\jdk1.8.0_25\include" /I"C:\Program Files\Java\jdk1.8.0_25\include\win32" /Zi /nologo /W3 /WX- /sdl /Od /D WIN32 /D _DEBUG /D _WINDOWS /D _USRDLL /D WINDOWS_SERIAL_EXPORTS /D _WINDLL /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Yu"stdafx.h" /Fp"x64\Debug\windows_1.0.0_x86_64.pch" /Fo"x64\Debug\\" /Fd"x64\Debug\vc120.pdb" /Gd /TC /errorReport:prompt windows_serial.c windows_serial_lib.c
          windows_serial_lib.c
          windows_serial.c
-     1>windows_serial.c(204): warning C4133: 'function' : incompatible types - from 'LPBYTE' to 'LPWSTR'
+     1>windows_serial.c(202): warning C4133: 'function' : incompatible types - from 'LPBYTE' to 'LPWSTR'
          Generating Code...
-     1>d:\serial\serial-com-manager\com.embeddedunveiled.native\windows_serial\windows_serial\windows_serial.c(1558): warning C4715: 'setupLooperThread' : not all control paths return a value
        Link:
-         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\link.exe /ERRORREPORT:PROMPT /OUT:"D:\SERIAL\serial-com-manager\com.embeddedunveiled.native\windows_serial\x64\Debug\windows_1.0.0_x86_64.dll" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"D:\SERIAL\serial-com-manager\com.embeddedunveiled.native\windows_serial\x64\Debug\windows_1.0.0_x86_64.pdb" /SUBSYSTEM:WINDOWS /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"D:\SERIAL\serial-com-manager\com.embeddedunveiled.native\windows_serial\x64\Debug\windows_1.0.0_x86_64.lib" /MACHINE:X64 /DLL x64\Debug\stdafx.obj
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\link.exe /ERRORREPORT:PROMPT /OUT:"D:\SERIAL\serial-com-manager-master\serial-com-manager-master\com.embeddedunveiled.native\windows_serial\x64\Debug\windows_1.0.0_x86_64.dll" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"D:\SERIAL\serial-com-manager-master\serial-com-manager-master\com.embeddedunveiled.native\windows_serial\x64\Debug\windows_1.0.0_x86_64.pdb" /SUBSYSTEM:WINDOWS /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"D:\SERIAL\serial-com-manager-master\serial-com-manager-master\com.embeddedunveiled.native\windows_serial\x64\Debug\windows_1.0.0_x86_64.lib" /MACHINE:X64 /DLL x64\Debug\stdafx.obj
          x64\Debug\windows_serial.obj
          x64\Debug\windows_serial_lib.obj
-            Creating library D:\SERIAL\serial-com-manager\com.embeddedunveiled.native\windows_serial\x64\Debug\windows_1.0.0_x86_64.lib and object D:\SERIAL\serial-com-manager\com.embeddedunveiled.native\windows_serial\x64\Debug\windows_1.0.0_x86_64.exp
-         windows_serial.vcxproj -> D:\SERIAL\serial-com-manager\com.embeddedunveiled.native\windows_serial\x64\Debug\windows_1.0.0_x86_64.dll
-     1>Done Building Project "D:\SERIAL\serial-com-manager\com.embeddedunveiled.native\windows_serial\windows_serial\windows_serial.vcxproj" (Rebuild target(s)).
+            Creating library D:\SERIAL\serial-com-manager-master\serial-com-manager-master\com.embeddedunveiled.native\windows_serial\x64\Debug\windows_1.0.0_x86_64.lib and object D:\SERIAL\serial-com-manager-master\serial-com-manager-master\com.embeddedunveiled.native\windows_serial\x64\Debug\windows_1.0.0_x86_64.exp
+         windows_serial.vcxproj -> D:\SERIAL\serial-com-manager-master\serial-com-manager-master\com.embeddedunveiled.native\windows_serial\x64\Debug\windows_1.0.0_x86_64.dll
+     1>Done Building Project "D:\SERIAL\serial-com-manager-master\serial-com-manager-master\com.embeddedunveiled.native\windows_serial\windows_serial\windows_serial.vcxproj" (Rebuild target(s)).
 
 Build succeeded.
 
-Time Elapsed 00:00:01.91
+Time Elapsed 00:00:02.98
