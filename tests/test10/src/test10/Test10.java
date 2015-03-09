@@ -21,7 +21,24 @@ class Data implements ISerialComDataListener{
 public class Test10 {
 	public static void main(String[] args) {
 		
-		long handle = 0;
+		String PORT = null;
+		String PORT1 = null;
+		int osType = SerialComManager.getOSType();
+		if(osType == SerialComManager.OS_LINUX) {
+			PORT = "/dev/ttyUSB0";
+			PORT1 = "/dev/ttyUSB1";
+		}else if(osType == SerialComManager.OS_WINDOWS) {
+			PORT = "COM51";
+			PORT = "COM52";
+		}else if(osType == SerialComManager.OS_MAC_OS_X) {
+			PORT = "/dev/cu.usbserial-A70362A3";
+			PORT = "/dev/cu.usbserial-A602RDCH";
+		}else if(osType == SerialComManager.OS_SOLARIS) {
+			PORT = null;
+			PORT1 = null;
+		}else{
+		}
+		
 		SerialComManager scm = new SerialComManager();
 		
 		// instantiate class which is will implement ISerialComDataListener interface
@@ -29,7 +46,7 @@ public class Test10 {
 		
 		try {
 			// open and configure port that will listen data
-			handle = scm.openComPort("/dev/ttyUSB1", true, true, false);
+			long handle = scm.openComPort(PORT, true, true, true);
 			scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
 			scm.configureComPortControl(handle, FLOWCONTROL.NONE, 'x', 'x', false, false);
 			
@@ -37,7 +54,7 @@ public class Test10 {
 			scm.registerDataListener(handle, dataListener);
 			
 			// open and configure port which will send data
-			long handle1 = scm.openComPort("/dev/ttyUSB0", true, true, false);
+			long handle1 = scm.openComPort(PORT1, true, true, true);
 			scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
 			scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
 			scm.writeString(handle1, "test string", 0);

@@ -18,9 +18,11 @@
 
 package com.embeddedunveiled.serial;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 
 /**
  * This class load native library and is an interface between java and native modules.
@@ -87,7 +89,7 @@ public final class SerialComJNINativeInterface {
 		if(osType > 0) {
 			if(workingDir.exists() && workingDir.isDirectory()){
 				if(SerialComManager.osArch.equals("i386") || SerialComManager.osArch.equals("i486") || SerialComManager.osArch.equals("i586") || 
-						SerialComManager.osArch.equals("i686") || SerialComManager.osArch.equals("x86") || SerialComManager.osArch.equals("Sparc")) {
+						SerialComManager.osArch.equals("i686") || SerialComManager.osArch.equals("x86") || SerialComManager.osArch.equals("sparc")) {
 					if(osType == SerialComManager.OS_LINUX) {
 						libNameOnly = "linux_"   + SerialComManager.JAVA_LIB_VERSION + "_x86.so";
 					}else if(osType == SerialComManager.OS_WINDOWS) {
@@ -97,8 +99,8 @@ public final class SerialComJNINativeInterface {
 					}else if(osType == SerialComManager.OS_SOLARIS) {
 						libNameOnly = "solaris_" + SerialComManager.JAVA_LIB_VERSION + "_x86.so";
 					}
-				}else if(SerialComManager.osArch.equals("amd64") || SerialComManager.osArch.equals("x86_64") || SerialComManager.osArch.equals("amd64 em64t x86_64") || SerialComManager.osArch.equals("x86-64") ||
-						SerialComManager.osArch.equals("Sparcv9")) {
+				}else if(SerialComManager.osArch.equals("amd64") || SerialComManager.osArch.equals("x86_64") || SerialComManager.osArch.equals("amd64 em64t x86_64") 
+						|| SerialComManager.osArch.equals("x86-64") || SerialComManager.osArch.equals("sparcv9")) {
 					if(osType == SerialComManager.OS_LINUX) {
 						libNameOnly = "linux_"   + SerialComManager.JAVA_LIB_VERSION + "_x86_64.so";
 					}else if(osType == SerialComManager.OS_WINDOWS) {
@@ -108,6 +110,29 @@ public final class SerialComJNINativeInterface {
 					}else if(osType == SerialComManager.OS_SOLARIS) {
 						libNameOnly = "solaris_" + SerialComManager.JAVA_LIB_VERSION + "_x86_64.so";
 					}
+				}else if(SerialComManager.osArch.startsWith("arm")) {
+					libNameOnly = "linux_" + SerialComManager.JAVA_LIB_VERSION + "_armel.so";
+					if(SerialComManager.javaLibPath.contains("gnueabihf") || SerialComManager.javaLibPath.contains("armhf")) {
+						libNameOnly = "linux_" + SerialComManager.JAVA_LIB_VERSION + "_armhf.so";
+					}else {
+						try {
+							// take decision based on JVM binary's format
+							Process p = Runtime.getRuntime().exec("readelf -A " + System.getProperty("java.home") + "/bin/java");
+		                    BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
+		                    String buffer = "";
+		                    while((buffer = reader.readLine()) != null && !buffer.isEmpty()){
+		                        if(buffer.toLowerCase().contains("tag_abi_vfp_args")){
+		                        	libNameOnly = "linux_" + SerialComManager.JAVA_LIB_VERSION + "_armhf.so";
+		                            break;
+		                        }
+		                    }
+		                    reader.close();
+						} catch (Exception e) {
+							if(SerialComManager.DEBUG) e.printStackTrace();
+						}
+					}
+				}else {
+					if(SerialComManager.DEBUG) System.out.println("Unable to determine OS/CPU architecture. Please send your architecture, so that we can add support for it.");
 				}
 		        
 		        // Get the library from jar file and extract it in our workingTmp directory

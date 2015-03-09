@@ -148,10 +148,11 @@ public final class SerialComManager {
 
 	/** These properties are used to load OS specific native library. */
 	public static final String osName = System.getProperty("os.name");
-	public static final String osArch = System.getProperty("os.arch");
+	public static final String osArch = System.getProperty("os.arch").toLowerCase();
 	public static final String userHome = System.getProperty("user.home");
 	public static final String javaTmpDir = System.getProperty("java.io.tmpdir");
 	public static final String fileSeparator = System.getProperty("file.separator");
+	public static final String javaLibPath = System.getProperty("java.library.path").toLowerCase();
 	
 	/** Maintain integrity and consistency among all operations, therefore synchronise them for
 	 *  making structural changes. This array can be sorted array if scaled to large scale. */
@@ -201,8 +202,9 @@ public final class SerialComManager {
 	}
 
 	/**
-	 * For internal use.
-	 * @return platform OS type, the library is running on (for internal use only). 
+	 * <p>Gives operating system type as identified by this library. To interpret return integer see constants defined by this class. </p>
+	 * 
+	 * @return Operating system type as identified by this library. 
 	 */
 	public static int getOSType() {
 		return osType;

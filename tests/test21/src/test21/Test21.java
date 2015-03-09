@@ -19,11 +19,24 @@ class portWatcher implements IPortMonitor{
 public class Test21 {
 	public static void main(String[] args) {
 		
+		String PORT = null;
+		int osType = SerialComManager.getOSType();
+		if(osType == SerialComManager.OS_LINUX) {
+			PORT = "/dev/ttyUSB0";
+		}else if(osType == SerialComManager.OS_WINDOWS) {
+			PORT = "COM51";
+		}else if(osType == SerialComManager.OS_MAC_OS_X) {
+			PORT = "/dev/cu.usbserial-A70362A3";
+		}else if(osType == SerialComManager.OS_SOLARIS) {
+			PORT = null;
+		}else{
+		}
+		
 		SerialComManager scm = new SerialComManager();
 		portWatcher pw = new portWatcher();
 		
 		try {
-			long handle = scm.openComPort("/dev/ttyUSB0", true, true, false);
+			long handle = scm.openComPort(PORT, true, true, true);
 			scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
 			scm.configureComPortControl(handle, FLOWCONTROL.NONE, '$', '$', false, false);
 			scm.registerPortMonitorListener(handle, pw);

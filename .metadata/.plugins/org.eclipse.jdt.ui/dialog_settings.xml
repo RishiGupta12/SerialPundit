@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <section name="Workbench">
-	<item value="/home/r/Desktop" key="org.eclipse.jdt.ui.lastextjar"/>
+	<item value="/home/r/ws-host-uart/serial-com-manager/prebuilt_artifact" key="org.eclipse.jdt.ui.lastextjar"/>
 	<item value="/home/r/ws-host-uart/serial-com-manager/tests" key="org.eclipse.jdt.ui.last.external.project"/>
 	<section name="OptionalMessageDialog.hide.">
 		<item value="true" key="org.eclipse.jdt.ui.typecomment.deprecated"/>
@@ -39,6 +39,8 @@
 		<item value="false" key="jarOptionsWizardPage.STORE_USE_SRC_FOLDERS"/>
 		<item value="" key="jarOptionsWizardPage.DESCRIPTION_LOCATION"/>
 		<list key="JarPackageWizardPage.DESTINATION_NAMES_ID">
+			<item value="/home/r/ws-host-uart/serial-com-manager/prebuilt_artifact/scm-1.0.0.jar"/>
+			<item value="/home/r/Desktop/scm-1.0.0.jar"/>
 			<item value="/home/r/Desktop/scm.jar"/>
 		</list>
 	</section>
@@ -72,9 +74,14 @@
 		<item value="/home/r/ws-host-uart/serial-com-manager/com.embeddedunveiled.serial/javadoc.xml" key="antpath"/>
 		<item value="true" key="fromStandard"/>
 		<section name="projects">
-			<section name="linux_serial">
-				<item value="/home/r/ws-host-uart/serial-com-manager/com.embeddedunveiled.native/linux_serial/doc" key="destdir"/>
-				<item value="/home/r/ws-host-uart/serial-com-manager/com.embeddedunveiled.native/linux_serial/javadoc.xml" key="antpath"/>
+			<section name="test1">
+				<item value="/home/r/ws-host-uart/serial-com-manager/tests/test1/doc" key="destdir"/>
+				<item value="/home/r/ws-host-uart/serial-com-manager/tests/test1/javadoc.xml" key="antpath"/>
+				<item value="" key="href"/>
+			</section>
+			<section name="test21">
+				<item value="/home/r/ws-host-uart/serial-com-manager/tests/test21/doc" key="destdir"/>
+				<item value="/home/r/ws-host-uart/serial-com-manager/tests/test21/javadoc.xml" key="antpath"/>
 				<item value="" key="href"/>
 			</section>
 			<section name="com.embeddedunveiled.serial">
@@ -85,10 +92,10 @@
 		</section>
 	</section>
 	<section name="JavadocWizardDialog">
-		<item value="706" key="DIALOG_WIDTH"/>
+		<item value="708" key="DIALOG_WIDTH"/>
 		<item value="131" key="DIALOG_Y_ORIGIN"/>
 		<item value="577" key="DIALOG_X_ORIGIN"/>
-		<item value="675" key="DIALOG_HEIGHT"/>
+		<item value="704" key="DIALOG_HEIGHT"/>
 		<item value="1|Ubuntu|11.0|0|GTK|1|" key="DIALOG_FONT_NAME"/>
 	</section>
 	<section name="WorkingSetModelAwareSelectionDialog">

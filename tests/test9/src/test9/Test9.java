@@ -10,11 +10,23 @@ import com.embeddedunveiled.serial.SerialComManager.STOPBITS;
 public class Test9 {
 	public static void main(String[] args) {
 		
-		long handle = 0;
+		String PORT = null;
+		int osType = SerialComManager.getOSType();
+		if(osType == SerialComManager.OS_LINUX) {
+			PORT = "/dev/ttyUSB0";
+		}else if(osType == SerialComManager.OS_WINDOWS) {
+			PORT = "COM51";
+		}else if(osType == SerialComManager.OS_MAC_OS_X) {
+			PORT = "/dev/cu.usbserial-A70362A3";
+		}else if(osType == SerialComManager.OS_SOLARIS) {
+			PORT = null;
+		}else{
+		}
+		
 		SerialComManager scm = new SerialComManager();
 		
 		try {
-			handle = scm.openComPort("/dev/ttyUSB0", true, true, false);
+			long handle = scm.openComPort(PORT, true, true, true);
 			scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
 			scm.configureComPortControl(handle, FLOWCONTROL.NONE, 'x', 'x', false, false);
 			

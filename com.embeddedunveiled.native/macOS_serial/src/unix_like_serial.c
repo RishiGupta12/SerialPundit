@@ -29,6 +29,9 @@
  * For Mac OS:
  * https://developer.apple.com/library/mac/documentation/DeviceDrivers/Conceptual/WorkingWSerial/WWSerial_SerialDevs/SerialDevices.html
  * https://developer.apple.com/library/mac/documentation/Darwin/Reference/ManPages/man4/termios.4.html
+ * https://developer.apple.com/library/mac/documentation/Cocoa/Conceptual/Multithreading/RunLoopManagement/RunLoopManagement.html
+ * https://developer.apple.com/library/mac/documentation/CoreFoundation/Reference/CFRunLoopRef/index.html
+ * https://developer.apple.com/library/mac/documentation/DeviceDrivers/Conceptual/AccessingHardware/AccessingHardware.pdf
  *
  * For Solaris:
  * http://docs.oracle.com/cd/E36784_01/html/E36884/termio-7i.html#REFMAN7termio-7i
@@ -1838,11 +1841,14 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 	}
 
 	params.jvm = jvm;
-	params.portName = (*env)->GetStringUTFChars(env, portName, NULL);
+	params.port_name = (*env)->GetStringUTFChars(env, portName, NULL);
 	params.fd = fd;
 	params.port_listener= portListener;
 	params.thread_exit = 0;
 	params.mutex = &mutex;
+#if defined (__APPLE__)
+	params.data = &port_monitor_info[port_monitor_index];
+#endif
 	port_monitor_info[port_monitor_index] = params;
 	arg = &port_monitor_info[port_monitor_index];
 

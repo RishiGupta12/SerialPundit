@@ -39,6 +39,24 @@ public class Test22 {
 	
 	public static void main(String[] args) {
 		
+		String PORT = null;
+		String PORT1 = null;
+		int osType = SerialComManager.getOSType();
+		if(osType == SerialComManager.OS_LINUX) {
+			PORT = "/dev/ttyUSB0";
+			PORT1 = "/dev/ttyUSB1";
+		}else if(osType == SerialComManager.OS_WINDOWS) {
+			PORT = "COM51";
+			PORT = "COM52";
+		}else if(osType == SerialComManager.OS_MAC_OS_X) {
+			PORT = "/dev/cu.usbserial-A70362A3";
+			PORT = "/dev/cu.usbserial-A602RDCH";
+		}else if(osType == SerialComManager.OS_SOLARIS) {
+			PORT = null;
+			PORT1 = null;
+		}else{
+		}
+		
 		SerialComManager scm = new SerialComManager();
 		Data1 DTE1 = new Data1();
 		Data0 DCE1 = new Data0();
@@ -46,7 +64,7 @@ public class Test22 {
 		
 		try {
 			// DTE terminal
-			long DTE = scm.openComPort("/dev/ttyUSB0", true, true, false);
+			long DTE = scm.openComPort(PORT, true, true, true);
 			scm.configureComPortData(DTE, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B9600, 0);
 			scm.configureComPortControl(DTE, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
 			scm.registerDataListener(DTE, DTE1);
@@ -55,7 +73,7 @@ public class Test22 {
 			Thread.sleep(100);
 			
 			// DCE terminal
-			long DCE = scm.openComPort("/dev/ttyUSB1", true, true, false);
+			long DCE = scm.openComPort(PORT1, true, true, true);
 			scm.configureComPortData(DCE, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B9600, 0);
 			scm.configureComPortControl(DCE, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
 			scm.registerDataListener(DCE, DCE1);

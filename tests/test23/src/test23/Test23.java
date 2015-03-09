@@ -9,14 +9,33 @@ import com.embeddedunveiled.serial.SerialComManager.STOPBITS;
 
 public class Test23 {
 	public static void main(String[] args) {
+		
+		String PORT = null;
+		String PORT1 = null;
+		int osType = SerialComManager.getOSType();
+		if(osType == SerialComManager.OS_LINUX) {
+			PORT = "/dev/ttyUSB0";
+			PORT1 = "/dev/ttyUSB1";
+		}else if(osType == SerialComManager.OS_WINDOWS) {
+			PORT = "COM51";
+			PORT = "COM52";
+		}else if(osType == SerialComManager.OS_MAC_OS_X) {
+			PORT = "/dev/cu.usbserial-A70362A3";
+			PORT = "/dev/cu.usbserial-A602RDCH";
+		}else if(osType == SerialComManager.OS_SOLARIS) {
+			PORT = null;
+			PORT1 = null;
+		}else{
+		}
+		
 		SerialComManager scm = new SerialComManager();
 		
 		try {
-			long DTE = scm.openComPort("/dev/ttyUSB0", true, true, false);
+			long DTE = scm.openComPort(PORT, true, true, true);
 			scm.configureComPortData(DTE, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B9600, 0);
 			scm.configureComPortControl(DTE, FLOWCONTROL.HARDWARE, 'x', 'x', false, true);
 			
-			long DTE1 = scm.openComPort("/dev/ttyUSB1", true, true, false);
+			long DTE1 = scm.openComPort(PORT1, true, true, true);
 			scm.configureComPortData(DTE1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B9600, 0);
 			scm.configureComPortControl(DTE1, FLOWCONTROL.HARDWARE, 'x', 'x', false, true);
 			

@@ -12605,3 +12605,594 @@ java.lang.ClassCastException: org.eclipse.osgi.internal.framework.EquinoxConfigu
 	at org.eclipse.m2e.logback.configuration.LogPlugin$1.run(LogPlugin.java:62)
 	at java.util.TimerThread.mainLoop(Timer.java:555)
 	at java.util.TimerThread.run(Timer.java:505)
+!SESSION 2015-03-04 16:16:02.720 -----------------------------------------------
+eclipse.buildId=4.4.1.M20140925-0400
+java.version=1.7.0_75
+java.vendor=Oracle Corporation
+BootLoader constants: OS=linux, ARCH=x86_64, WS=gtk, NL=en_IN
+Framework arguments:  -product org.eclipse.epp.package.java.product
+Command-line arguments:  -os linux -ws gtk -arch x86_64 -clean -product org.eclipse.epp.package.java.product
+
+!ENTRY org.eclipse.m2e.logback.configuration 2 0 2015-03-04 16:16:19.402
+!MESSAGE Exception while setting up logging:org.eclipse.osgi.internal.framework.EquinoxConfiguration$1 cannot be cast to java.lang.String
+!STACK 0
+java.lang.ClassCastException: org.eclipse.osgi.internal.framework.EquinoxConfiguration$1 cannot be cast to java.lang.String
+	at org.eclipse.m2e.logback.configuration.LogHelper.logJavaProperties(LogHelper.java:26)
+	at org.eclipse.m2e.logback.configuration.LogPlugin.loadConfiguration(LogPlugin.java:189)
+	at org.eclipse.m2e.logback.configuration.LogPlugin.configureLogback(LogPlugin.java:144)
+	at org.eclipse.m2e.logback.configuration.LogPlugin.access$2(LogPlugin.java:107)
+	at org.eclipse.m2e.logback.configuration.LogPlugin$1.run(LogPlugin.java:62)
+	at java.util.TimerThread.mainLoop(Timer.java:555)
+	at java.util.TimerThread.run(Timer.java:505)
+
+!ENTRY org.eclipse.jface 2 0 2015-03-04 16:17:30.331
+!MESSAGE Keybinding conflicts occurred.  They may interfere with normal accelerator operation.
+!SUBENTRY 1 org.eclipse.jface 2 0 2015-03-04 16:17:30.331
+!MESSAGE A conflict occurred for ALT+CTRL+I:
+Binding(ALT+CTRL+I,
+	ParameterizedCommand(Command(org.eclipse.cdt.ui.edit.open.include.browser,Open Include Browser,
+		Open an include browser on the selected element,
+		Category(org.eclipse.ui.category.navigate,Navigate,null,true),
+		org.eclipse.ui.internal.WorkbenchHandlerServiceHandler@32bd70e,
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.cdt.ui.cEditorScope,,,system)
+Binding(ALT+CTRL+I,
+	ParameterizedCommand(Command(org.eclipse.cdt.ui.edit.open.include.browser,Open Include Browser,
+		Open an include browser on the selected element,
+		Category(org.eclipse.ui.category.navigate,Navigate,null,true),
+		org.eclipse.ui.internal.WorkbenchHandlerServiceHandler@32bd70e,
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.cdt.ui.cViewScope,,,system)
+!SUBENTRY 1 org.eclipse.jface 2 0 2015-03-04 16:17:30.331
+!MESSAGE A conflict occurred for ALT+SHIFT+R:
+Binding(ALT+SHIFT+R,
+	ParameterizedCommand(Command(org.eclipse.cdt.ui.edit.text.rename.element,Rename - Refactoring ,
+		Rename the selected element,
+		Category(org.eclipse.cdt.ui.category.refactoring,Refactor - C++,C/C++ Refactorings,true),
+		org.eclipse.ui.internal.WorkbenchHandlerServiceHandler@3333d9c2,
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.cdt.ui.cEditorScope,,,system)
+Binding(ALT+SHIFT+R,
+	ParameterizedCommand(Command(org.eclipse.cdt.ui.edit.text.rename.element,Rename - Refactoring ,
+		Rename the selected element,
+		Category(org.eclipse.cdt.ui.category.refactoring,Refactor - C++,C/C++ Refactorings,true),
+		org.eclipse.ui.internal.WorkbenchHandlerServiceHandler@3333d9c2,
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.cdt.ui.cViewScope,,,system)
+Binding(ALT+SHIFT+R,
+	ParameterizedCommand(Command(org.eclipse.jdt.ui.edit.text.java.rename.element,Rename - Refactoring ,
+		Rename the selected element,
+		Category(org.eclipse.jdt.ui.category.refactoring,Refactor - Java,Java Refactoring Actions,true),
+		org.eclipse.ui.internal.WorkbenchHandlerServiceHandler@111d69d1,
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.ui.contexts.window,,,system)
+!SUBENTRY 1 org.eclipse.jface 2 0 2015-03-04 16:17:30.331
+!MESSAGE A conflict occurred for F3:
+Binding(F3,
+	ParameterizedCommand(Command(org.eclipse.cdt.ui.edit.opendecl,Open Declaration,
+		Open an editor on the selected element's declaration(s),
+		Category(org.eclipse.cdt.ui.category.source,Source,Source commands,true),
+		org.eclipse.ui.internal.WorkbenchHandlerServiceHandler@220e211e,
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.cdt.ui.cEditorScope,,,system)
+Binding(F3,
+	ParameterizedCommand(Command(org.eclipse.cdt.ui.edit.opendecl,Open Declaration,
+		Open an editor on the selected element's declaration(s),
+		Category(org.eclipse.cdt.ui.category.source,Source,Source commands,true),
+		org.eclipse.ui.internal.WorkbenchHandlerServiceHandler@220e211e,
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.cdt.ui.cViewScope,,,system)
+Binding(F3,
+	ParameterizedCommand(Command(org.eclipse.jdt.ui.edit.text.java.open.editor,Open Declaration,
+		Open an editor on the selected element,
+		Category(org.eclipse.ui.category.navigate,Navigate,null,true),
+		org.eclipse.ui.internal.WorkbenchHandlerServiceHandler@4da04a09,
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.ui.contexts.window,,,system)
+!SUBENTRY 1 org.eclipse.jface 2 0 2015-03-04 16:17:30.331
+!MESSAGE A conflict occurred for CTRL+SHIFT+T:
+Binding(CTRL+SHIFT+T,
+	ParameterizedCommand(Command(org.eclipse.cdt.ui.navigate.opentype,Open Element,
+		Open an element in an Editor,
+		Category(org.eclipse.cdt.ui.category.source,Source,Source commands,true),
+		org.eclipse.ui.internal.WorkbenchHandlerServiceHandler@565cbcaf,
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.cdt.ui.cEditorScope,,,system)
+Binding(CTRL+SHIFT+T,
+	ParameterizedCommand(Command(org.eclipse.cdt.ui.navigate.opentype,Open Element,
+		Open an element in an Editor,
+		Category(org.eclipse.cdt.ui.category.source,Source,Source commands,true),
+		org.eclipse.ui.internal.WorkbenchHandlerServiceHandler@565cbcaf,
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.cdt.ui.cViewScope,,,system)
+Binding(CTRL+SHIFT+T,
+	ParameterizedCommand(Command(org.eclipse.jdt.ui.navigate.open.type,Open Type,
+		Open a type in a Java editor,
+		Category(org.eclipse.ui.category.navigate,Navigate,null,true),
+		org.eclipse.ui.internal.WorkbenchHandlerServiceHandler@6267b174,
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.ui.contexts.window,,,system)
+!SUBENTRY 1 org.eclipse.jface 2 0 2015-03-04 16:17:30.331
+!MESSAGE A conflict occurred for F4:
+Binding(F4,
+	ParameterizedCommand(Command(org.eclipse.cdt.ui.edit.open.type.hierarchy,Open Type Hierarchy,
+		Open a type hierarchy on the selected element,
+		Category(org.eclipse.ui.category.navigate,Navigate,null,true),
+		org.eclipse.ui.internal.WorkbenchHandlerServiceHandler@5b36925,
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.cdt.ui.cEditorScope,,,system)
+Binding(F4,
+	ParameterizedCommand(Command(org.eclipse.cdt.ui.edit.open.type.hierarchy,Open Type Hierarchy,
+		Open a type hierarchy on the selected element,
+		Category(org.eclipse.ui.category.navigate,Navigate,null,true),
+		org.eclipse.ui.internal.WorkbenchHandlerServiceHandler@5b36925,
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.cdt.ui.cViewScope,,,system)
+Binding(F4,
+	ParameterizedCommand(Command(org.eclipse.jdt.ui.edit.text.java.open.type.hierarchy,Open Type Hierarchy,
+		Open a type hierarchy on the selected element,
+		Category(org.eclipse.ui.category.navigate,Navigate,null,true),
+		org.eclipse.ui.internal.WorkbenchHandlerServiceHandler@45bbff0f,
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.ui.contexts.window,,,system)
+!SUBENTRY 1 org.eclipse.jface 2 0 2015-03-04 16:17:30.331
+!MESSAGE A conflict occurred for CTRL+G:
+Binding(CTRL+G,
+	ParameterizedCommand(Command(org.eclipse.cdt.ui.search.finddecl,Declaration,
+		Search for declarations of the selected element in the workspace,
+		Category(org.eclipse.cdt.ui.category.source,Source,Source commands,true),
+		org.eclipse.ui.internal.WorkbenchHandlerServiceHandler@3966558d,
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.cdt.ui.cEditorScope,,,system)
+Binding(CTRL+G,
+	ParameterizedCommand(Command(org.eclipse.cdt.ui.search.finddecl,Declaration,
+		Search for declarations of the selected element in the workspace,
+		Category(org.eclipse.cdt.ui.category.source,Source,Source commands,true),
+		org.eclipse.ui.internal.WorkbenchHandlerServiceHandler@3966558d,
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.cdt.ui.cViewScope,,,system)
+Binding(CTRL+G,
+	ParameterizedCommand(Command(org.eclipse.jdt.ui.edit.text.java.search.declarations.in.workspace,Declaration in Workspace,
+		Search for declarations of the selected element in the workspace,
+		Category(org.eclipse.search.ui.category.search,Search,Search command category,true),
+		org.eclipse.ui.internal.WorkbenchHandlerServiceHandler@6d7ab96b,
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.ui.contexts.window,,,system)
+!SUBENTRY 1 org.eclipse.jface 2 0 2015-03-04 16:17:30.331
+!MESSAGE A conflict occurred for CTRL+SHIFT+G:
+Binding(CTRL+SHIFT+G,
+	ParameterizedCommand(Command(org.eclipse.cdt.ui.search.findrefs,References,
+		Search for references to the selected element in the workspace,
+		Category(org.eclipse.cdt.ui.category.source,Source,Source commands,true),
+		org.eclipse.ui.internal.WorkbenchHandlerServiceHandler@142357f4,
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.cdt.ui.cEditorScope,,,system)
+Binding(CTRL+SHIFT+G,
+	ParameterizedCommand(Command(org.eclipse.cdt.ui.search.findrefs,References,
+		Search for references to the selected element in the workspace,
+		Category(org.eclipse.cdt.ui.category.source,Source,Source commands,true),
+		org.eclipse.ui.internal.WorkbenchHandlerServiceHandler@142357f4,
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.cdt.ui.cViewScope,,,system)
+Binding(CTRL+SHIFT+G,
+	ParameterizedCommand(Command(org.eclipse.jdt.ui.edit.text.java.search.references.in.workspace,References in Workspace,
+		Search for references to the selected element in the workspace,
+		Category(org.eclipse.search.ui.category.search,Search,Search command category,true),
+		org.eclipse.ui.internal.WorkbenchHandlerServiceHandler@1c635e80,
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.ui.contexts.window,,,system)
+!SUBENTRY 1 org.eclipse.jface 2 0 2015-03-04 16:17:30.331
+!MESSAGE A conflict occurred for ALT+CTRL+H:
+Binding(ALT+CTRL+H,
+	ParameterizedCommand(Command(org.eclipse.cdt.ui.edit.open.call.hierarchy,Open Call Hierarchy,
+		Open the call hierarchy for the selected element,
+		Category(org.eclipse.ui.category.navigate,Navigate,null,true),
+		org.eclipse.ui.internal.WorkbenchHandlerServiceHandler@3fd1340f,
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.cdt.ui.cEditorScope,,,system)
+Binding(ALT+CTRL+H,
+	ParameterizedCommand(Command(org.eclipse.cdt.ui.edit.open.call.hierarchy,Open Call Hierarchy,
+		Open the call hierarchy for the selected element,
+		Category(org.eclipse.ui.category.navigate,Navigate,null,true),
+		org.eclipse.ui.internal.WorkbenchHandlerServiceHandler@3fd1340f,
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.cdt.ui.cViewScope,,,system)
+Binding(ALT+CTRL+H,
+	ParameterizedCommand(Command(org.eclipse.jdt.ui.edit.text.java.open.call.hierarchy,Open Call Hierarchy,
+		Open a call hierarchy on the selected element,
+		Category(org.eclipse.ui.category.navigate,Navigate,null,true),
+		org.eclipse.ui.internal.WorkbenchHandlerServiceHandler@3fb0e584,
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.ui.contexts.window,,,system)
+!SUBENTRY 1 org.eclipse.jface 2 0 2015-03-04 16:17:30.331
+!MESSAGE A conflict occurred for CTRL+SHIFT+H:
+Binding(CTRL+SHIFT+H,
+	ParameterizedCommand(Command(org.eclipse.cdt.ui.navigate.open.type.in.hierarchy,Open Type in Hierarchy,
+		Open a type in the type hierarchy view,
+		Category(org.eclipse.ui.category.navigate,Navigate,null,true),
+		org.eclipse.ui.internal.WorkbenchHandlerServiceHandler@76ac5dc6,
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.cdt.ui.cEditorScope,,,system)
+Binding(CTRL+SHIFT+H,
+	ParameterizedCommand(Command(org.eclipse.cdt.ui.navigate.open.type.in.hierarchy,Open Type in Hierarchy,
+		Open a type in the type hierarchy view,
+		Category(org.eclipse.ui.category.navigate,Navigate,null,true),
+		org.eclipse.ui.internal.WorkbenchHandlerServiceHandler@76ac5dc6,
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.cdt.ui.cViewScope,,,system)
+Binding(CTRL+SHIFT+H,
+	ParameterizedCommand(Command(org.eclipse.jdt.ui.navigate.open.type.in.hierarchy,Open Type in Hierarchy,
+		Open a type in the type hierarchy view,
+		Category(org.eclipse.ui.category.navigate,Navigate,null,true),
+		org.eclipse.ui.internal.WorkbenchHandlerServiceHandler@2e40af08,
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.ui.contexts.window,,,system)
+!SESSION 2015-03-05 14:43:56.597 -----------------------------------------------
+eclipse.buildId=4.4.1.M20140925-0400
+java.version=1.7.0_75
+java.vendor=Oracle Corporation
+BootLoader constants: OS=linux, ARCH=x86_64, WS=gtk, NL=en_IN
+Framework arguments:  -product org.eclipse.epp.package.java.product
+Command-line arguments:  -os linux -ws gtk -arch x86_64 -clean -product org.eclipse.epp.package.java.product
+
+!ENTRY org.eclipse.m2e.logback.configuration 2 0 2015-03-05 14:44:14.431
+!MESSAGE Exception while setting up logging:org.eclipse.osgi.internal.framework.EquinoxConfiguration$1 cannot be cast to java.lang.String
+!STACK 0
+java.lang.ClassCastException: org.eclipse.osgi.internal.framework.EquinoxConfiguration$1 cannot be cast to java.lang.String
+	at org.eclipse.m2e.logback.configuration.LogHelper.logJavaProperties(LogHelper.java:26)
+	at org.eclipse.m2e.logback.configuration.LogPlugin.loadConfiguration(LogPlugin.java:189)
+	at org.eclipse.m2e.logback.configuration.LogPlugin.configureLogback(LogPlugin.java:144)
+	at org.eclipse.m2e.logback.configuration.LogPlugin.access$2(LogPlugin.java:107)
+	at org.eclipse.m2e.logback.configuration.LogPlugin$1.run(LogPlugin.java:62)
+	at java.util.TimerThread.mainLoop(Timer.java:555)
+	at java.util.TimerThread.run(Timer.java:505)
+
+!ENTRY org.eclipse.jface 2 0 2015-03-05 14:44:46.348
+!MESSAGE Keybinding conflicts occurred.  They may interfere with normal accelerator operation.
+!SUBENTRY 1 org.eclipse.jface 2 0 2015-03-05 14:44:46.348
+!MESSAGE A conflict occurred for ALT+CTRL+I:
+Binding(ALT+CTRL+I,
+	ParameterizedCommand(Command(org.eclipse.cdt.ui.edit.open.include.browser,Open Include Browser,
+		Open an include browser on the selected element,
+		Category(org.eclipse.ui.category.navigate,Navigate,null,true),
+		org.eclipse.ui.internal.WorkbenchHandlerServiceHandler@77a83226,
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.cdt.ui.cEditorScope,,,system)
+Binding(ALT+CTRL+I,
+	ParameterizedCommand(Command(org.eclipse.cdt.ui.edit.open.include.browser,Open Include Browser,
+		Open an include browser on the selected element,
+		Category(org.eclipse.ui.category.navigate,Navigate,null,true),
+		org.eclipse.ui.internal.WorkbenchHandlerServiceHandler@77a83226,
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.cdt.ui.cViewScope,,,system)
+!SUBENTRY 1 org.eclipse.jface 2 0 2015-03-05 14:44:46.348
+!MESSAGE A conflict occurred for ALT+SHIFT+R:
+Binding(ALT+SHIFT+R,
+	ParameterizedCommand(Command(org.eclipse.cdt.ui.edit.text.rename.element,Rename - Refactoring ,
+		Rename the selected element,
+		Category(org.eclipse.cdt.ui.category.refactoring,Refactor - C++,C/C++ Refactorings,true),
+		org.eclipse.ui.internal.WorkbenchHandlerServiceHandler@43749a29,
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.cdt.ui.cEditorScope,,,system)
+Binding(ALT+SHIFT+R,
+	ParameterizedCommand(Command(org.eclipse.cdt.ui.edit.text.rename.element,Rename - Refactoring ,
+		Rename the selected element,
+		Category(org.eclipse.cdt.ui.category.refactoring,Refactor - C++,C/C++ Refactorings,true),
+		org.eclipse.ui.internal.WorkbenchHandlerServiceHandler@43749a29,
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.cdt.ui.cViewScope,,,system)
+Binding(ALT+SHIFT+R,
+	ParameterizedCommand(Command(org.eclipse.jdt.ui.edit.text.java.rename.element,Rename - Refactoring ,
+		Rename the selected element,
+		Category(org.eclipse.jdt.ui.category.refactoring,Refactor - Java,Java Refactoring Actions,true),
+		org.eclipse.ui.internal.WorkbenchHandlerServiceHandler@1c351c58,
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.ui.contexts.window,,,system)
+!SUBENTRY 1 org.eclipse.jface 2 0 2015-03-05 14:44:46.348
+!MESSAGE A conflict occurred for F3:
+Binding(F3,
+	ParameterizedCommand(Command(org.eclipse.cdt.ui.edit.opendecl,Open Declaration,
+		Open an editor on the selected element's declaration(s),
+		Category(org.eclipse.cdt.ui.category.source,Source,Source commands,true),
+		org.eclipse.ui.internal.WorkbenchHandlerServiceHandler@62d7e3df,
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.cdt.ui.cEditorScope,,,system)
+Binding(F3,
+	ParameterizedCommand(Command(org.eclipse.cdt.ui.edit.opendecl,Open Declaration,
+		Open an editor on the selected element's declaration(s),
+		Category(org.eclipse.cdt.ui.category.source,Source,Source commands,true),
+		org.eclipse.ui.internal.WorkbenchHandlerServiceHandler@62d7e3df,
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.cdt.ui.cViewScope,,,system)
+Binding(F3,
+	ParameterizedCommand(Command(org.eclipse.jdt.ui.edit.text.java.open.editor,Open Declaration,
+		Open an editor on the selected element,
+		Category(org.eclipse.ui.category.navigate,Navigate,null,true),
+		org.eclipse.ui.internal.WorkbenchHandlerServiceHandler@4bb1782b,
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.ui.contexts.window,,,system)
+!SUBENTRY 1 org.eclipse.jface 2 0 2015-03-05 14:44:46.348
+!MESSAGE A conflict occurred for CTRL+SHIFT+T:
+Binding(CTRL+SHIFT+T,
+	ParameterizedCommand(Command(org.eclipse.cdt.ui.navigate.opentype,Open Element,
+		Open an element in an Editor,
+		Category(org.eclipse.cdt.ui.category.source,Source,Source commands,true),
+		org.eclipse.ui.internal.WorkbenchHandlerServiceHandler@704875df,
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.cdt.ui.cEditorScope,,,system)
+Binding(CTRL+SHIFT+T,
+	ParameterizedCommand(Command(org.eclipse.cdt.ui.navigate.opentype,Open Element,
+		Open an element in an Editor,
+		Category(org.eclipse.cdt.ui.category.source,Source,Source commands,true),
+		org.eclipse.ui.internal.WorkbenchHandlerServiceHandler@704875df,
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.cdt.ui.cViewScope,,,system)
+Binding(CTRL+SHIFT+T,
+	ParameterizedCommand(Command(org.eclipse.jdt.ui.navigate.open.type,Open Type,
+		Open a type in a Java editor,
+		Category(org.eclipse.ui.category.navigate,Navigate,null,true),
+		org.eclipse.ui.internal.WorkbenchHandlerServiceHandler@2532bd10,
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.ui.contexts.window,,,system)
+!SUBENTRY 1 org.eclipse.jface 2 0 2015-03-05 14:44:46.348
+!MESSAGE A conflict occurred for F4:
+Binding(F4,
+	ParameterizedCommand(Command(org.eclipse.cdt.ui.edit.open.type.hierarchy,Open Type Hierarchy,
+		Open a type hierarchy on the selected element,
+		Category(org.eclipse.ui.category.navigate,Navigate,null,true),
+		org.eclipse.ui.internal.WorkbenchHandlerServiceHandler@261a7884,
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.cdt.ui.cEditorScope,,,system)
+Binding(F4,
+	ParameterizedCommand(Command(org.eclipse.cdt.ui.edit.open.type.hierarchy,Open Type Hierarchy,
+		Open a type hierarchy on the selected element,
+		Category(org.eclipse.ui.category.navigate,Navigate,null,true),
+		org.eclipse.ui.internal.WorkbenchHandlerServiceHandler@261a7884,
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.cdt.ui.cViewScope,,,system)
+Binding(F4,
+	ParameterizedCommand(Command(org.eclipse.jdt.ui.edit.text.java.open.type.hierarchy,Open Type Hierarchy,
+		Open a type hierarchy on the selected element,
+		Category(org.eclipse.ui.category.navigate,Navigate,null,true),
+		org.eclipse.ui.internal.WorkbenchHandlerServiceHandler@13de35a7,
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.ui.contexts.window,,,system)
+!SUBENTRY 1 org.eclipse.jface 2 0 2015-03-05 14:44:46.348
+!MESSAGE A conflict occurred for CTRL+G:
+Binding(CTRL+G,
+	ParameterizedCommand(Command(org.eclipse.cdt.ui.search.finddecl,Declaration,
+		Search for declarations of the selected element in the workspace,
+		Category(org.eclipse.cdt.ui.category.source,Source,Source commands,true),
+		org.eclipse.ui.internal.WorkbenchHandlerServiceHandler@61947121,
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.cdt.ui.cEditorScope,,,system)
+Binding(CTRL+G,
+	ParameterizedCommand(Command(org.eclipse.cdt.ui.search.finddecl,Declaration,
+		Search for declarations of the selected element in the workspace,
+		Category(org.eclipse.cdt.ui.category.source,Source,Source commands,true),
+		org.eclipse.ui.internal.WorkbenchHandlerServiceHandler@61947121,
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.cdt.ui.cViewScope,,,system)
+Binding(CTRL+G,
+	ParameterizedCommand(Command(org.eclipse.jdt.ui.edit.text.java.search.declarations.in.workspace,Declaration in Workspace,
+		Search for declarations of the selected element in the workspace,
+		Category(org.eclipse.search.ui.category.search,Search,Search command category,true),
+		org.eclipse.ui.internal.WorkbenchHandlerServiceHandler@588f5f93,
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.ui.contexts.window,,,system)
+!SUBENTRY 1 org.eclipse.jface 2 0 2015-03-05 14:44:46.348
+!MESSAGE A conflict occurred for CTRL+SHIFT+G:
+Binding(CTRL+SHIFT+G,
+	ParameterizedCommand(Command(org.eclipse.cdt.ui.search.findrefs,References,
+		Search for references to the selected element in the workspace,
+		Category(org.eclipse.cdt.ui.category.source,Source,Source commands,true),
+		org.eclipse.ui.internal.WorkbenchHandlerServiceHandler@2ccbd951,
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.cdt.ui.cEditorScope,,,system)
+Binding(CTRL+SHIFT+G,
+	ParameterizedCommand(Command(org.eclipse.cdt.ui.search.findrefs,References,
+		Search for references to the selected element in the workspace,
+		Category(org.eclipse.cdt.ui.category.source,Source,Source commands,true),
+		org.eclipse.ui.internal.WorkbenchHandlerServiceHandler@2ccbd951,
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.cdt.ui.cViewScope,,,system)
+Binding(CTRL+SHIFT+G,
+	ParameterizedCommand(Command(org.eclipse.jdt.ui.edit.text.java.search.references.in.workspace,References in Workspace,
+		Search for references to the selected element in the workspace,
+		Category(org.eclipse.search.ui.category.search,Search,Search command category,true),
+		org.eclipse.ui.internal.WorkbenchHandlerServiceHandler@7b286bd0,
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.ui.contexts.window,,,system)
+!SUBENTRY 1 org.eclipse.jface 2 0 2015-03-05 14:44:46.349
+!MESSAGE A conflict occurred for ALT+CTRL+H:
+Binding(ALT+CTRL+H,
+	ParameterizedCommand(Command(org.eclipse.cdt.ui.edit.open.call.hierarchy,Open Call Hierarchy,
+		Open the call hierarchy for the selected element,
+		Category(org.eclipse.ui.category.navigate,Navigate,null,true),
+		org.eclipse.ui.internal.WorkbenchHandlerServiceHandler@1abe63db,
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.cdt.ui.cEditorScope,,,system)
+Binding(ALT+CTRL+H,
+	ParameterizedCommand(Command(org.eclipse.cdt.ui.edit.open.call.hierarchy,Open Call Hierarchy,
+		Open the call hierarchy for the selected element,
+		Category(org.eclipse.ui.category.navigate,Navigate,null,true),
+		org.eclipse.ui.internal.WorkbenchHandlerServiceHandler@1abe63db,
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.cdt.ui.cViewScope,,,system)
+Binding(ALT+CTRL+H,
+	ParameterizedCommand(Command(org.eclipse.jdt.ui.edit.text.java.open.call.hierarchy,Open Call Hierarchy,
+		Open a call hierarchy on the selected element,
+		Category(org.eclipse.ui.category.navigate,Navigate,null,true),
+		org.eclipse.ui.internal.WorkbenchHandlerServiceHandler@498dcc94,
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.ui.contexts.window,,,system)
+!SUBENTRY 1 org.eclipse.jface 2 0 2015-03-05 14:44:46.349
+!MESSAGE A conflict occurred for CTRL+SHIFT+H:
+Binding(CTRL+SHIFT+H,
+	ParameterizedCommand(Command(org.eclipse.cdt.ui.navigate.open.type.in.hierarchy,Open Type in Hierarchy,
+		Open a type in the type hierarchy view,
+		Category(org.eclipse.ui.category.navigate,Navigate,null,true),
+		org.eclipse.ui.internal.WorkbenchHandlerServiceHandler@7c722e45,
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.cdt.ui.cEditorScope,,,system)
+Binding(CTRL+SHIFT+H,
+	ParameterizedCommand(Command(org.eclipse.cdt.ui.navigate.open.type.in.hierarchy,Open Type in Hierarchy,
+		Open a type in the type hierarchy view,
+		Category(org.eclipse.ui.category.navigate,Navigate,null,true),
+		org.eclipse.ui.internal.WorkbenchHandlerServiceHandler@7c722e45,
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.cdt.ui.cViewScope,,,system)
+Binding(CTRL+SHIFT+H,
+	ParameterizedCommand(Command(org.eclipse.jdt.ui.navigate.open.type.in.hierarchy,Open Type in Hierarchy,
+		Open a type in the type hierarchy view,
+		Category(org.eclipse.ui.category.navigate,Navigate,null,true),
+		org.eclipse.ui.internal.WorkbenchHandlerServiceHandler@2c3bf3d7,
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.ui.contexts.window,,,system)
+!SESSION 2015-03-06 12:24:53.331 -----------------------------------------------
+eclipse.buildId=4.4.1.M20140925-0400
+java.version=1.7.0_75
+java.vendor=Oracle Corporation
+BootLoader constants: OS=linux, ARCH=x86_64, WS=gtk, NL=en_IN
+Framework arguments:  -product org.eclipse.epp.package.java.product
+Command-line arguments:  -os linux -ws gtk -arch x86_64 -clean -product org.eclipse.epp.package.java.product
+
+!ENTRY org.eclipse.m2e.logback.configuration 2 0 2015-03-06 12:25:11.814
+!MESSAGE Exception while setting up logging:org.eclipse.osgi.internal.framework.EquinoxConfiguration$1 cannot be cast to java.lang.String
+!STACK 0
+java.lang.ClassCastException: org.eclipse.osgi.internal.framework.EquinoxConfiguration$1 cannot be cast to java.lang.String
+	at org.eclipse.m2e.logback.configuration.LogHelper.logJavaProperties(LogHelper.java:26)
+	at org.eclipse.m2e.logback.configuration.LogPlugin.loadConfiguration(LogPlugin.java:189)
+	at org.eclipse.m2e.logback.configuration.LogPlugin.configureLogback(LogPlugin.java:144)
+	at org.eclipse.m2e.logback.configuration.LogPlugin.access$2(LogPlugin.java:107)
+	at org.eclipse.m2e.logback.configuration.LogPlugin$1.run(LogPlugin.java:62)
+	at java.util.TimerThread.mainLoop(Timer.java:555)
+	at java.util.TimerThread.run(Timer.java:505)
+!SESSION 2015-03-06 15:01:41.572 -----------------------------------------------
+eclipse.buildId=4.4.1.M20140925-0400
+java.version=1.7.0_75
+java.vendor=Oracle Corporation
+BootLoader constants: OS=linux, ARCH=x86_64, WS=gtk, NL=en_IN
+Framework arguments:  -product org.eclipse.epp.package.java.product
+Command-line arguments:  -os linux -ws gtk -arch x86_64 -clean -product org.eclipse.epp.package.java.product
+
+!ENTRY org.eclipse.m2e.logback.configuration 2 0 2015-03-06 15:01:54.824
+!MESSAGE Exception while setting up logging:org.eclipse.osgi.internal.framework.EquinoxConfiguration$1 cannot be cast to java.lang.String
+!STACK 0
+java.lang.ClassCastException: org.eclipse.osgi.internal.framework.EquinoxConfiguration$1 cannot be cast to java.lang.String
+	at org.eclipse.m2e.logback.configuration.LogHelper.logJavaProperties(LogHelper.java:26)
+	at org.eclipse.m2e.logback.configuration.LogPlugin.loadConfiguration(LogPlugin.java:189)
+	at org.eclipse.m2e.logback.configuration.LogPlugin.configureLogback(LogPlugin.java:144)
+	at org.eclipse.m2e.logback.configuration.LogPlugin.access$2(LogPlugin.java:107)
+	at org.eclipse.m2e.logback.configuration.LogPlugin$1.run(LogPlugin.java:62)
+	at java.util.TimerThread.mainLoop(Timer.java:555)
+	at java.util.TimerThread.run(Timer.java:505)
+!SESSION 2015-03-06 15:05:04.501 -----------------------------------------------
+eclipse.buildId=4.4.1.M20140925-0400
+java.version=1.7.0_75
+java.vendor=Oracle Corporation
+BootLoader constants: OS=linux, ARCH=x86_64, WS=gtk, NL=en_IN
+Framework arguments:  -product org.eclipse.epp.package.java.product
+Command-line arguments:  -os linux -ws gtk -arch x86_64 -clean -product org.eclipse.epp.package.java.product
+
+!ENTRY org.eclipse.m2e.logback.configuration 2 0 2015-03-06 15:05:11.158
+!MESSAGE Exception while setting up logging:org.eclipse.osgi.internal.framework.EquinoxConfiguration$1 cannot be cast to java.lang.String
+!STACK 0
+java.lang.ClassCastException: org.eclipse.osgi.internal.framework.EquinoxConfiguration$1 cannot be cast to java.lang.String
+	at org.eclipse.m2e.logback.configuration.LogHelper.logJavaProperties(LogHelper.java:26)
+	at org.eclipse.m2e.logback.configuration.LogPlugin.loadConfiguration(LogPlugin.java:189)
+	at org.eclipse.m2e.logback.configuration.LogPlugin.configureLogback(LogPlugin.java:144)
+	at org.eclipse.m2e.logback.configuration.LogPlugin.access$2(LogPlugin.java:107)
+	at org.eclipse.m2e.logback.configuration.LogPlugin$1.run(LogPlugin.java:62)
+	at java.util.TimerThread.mainLoop(Timer.java:555)
+	at java.util.TimerThread.run(Timer.java:505)
+!SESSION 2015-03-07 09:22:56.772 -----------------------------------------------
+eclipse.buildId=4.4.1.M20140925-0400
+java.version=1.7.0_75
+java.vendor=Oracle Corporation
+BootLoader constants: OS=linux, ARCH=x86_64, WS=gtk, NL=en_IN
+Framework arguments:  -product org.eclipse.epp.package.java.product
+Command-line arguments:  -os linux -ws gtk -arch x86_64 -clean -product org.eclipse.epp.package.java.product
+
+!ENTRY org.eclipse.m2e.logback.configuration 2 0 2015-03-07 09:23:15.189
+!MESSAGE Exception while setting up logging:org.eclipse.osgi.internal.framework.EquinoxConfiguration$1 cannot be cast to java.lang.String
+!STACK 0
+java.lang.ClassCastException: org.eclipse.osgi.internal.framework.EquinoxConfiguration$1 cannot be cast to java.lang.String
+	at org.eclipse.m2e.logback.configuration.LogHelper.logJavaProperties(LogHelper.java:26)
+	at org.eclipse.m2e.logback.configuration.LogPlugin.loadConfiguration(LogPlugin.java:189)
+	at org.eclipse.m2e.logback.configuration.LogPlugin.configureLogback(LogPlugin.java:144)
+	at org.eclipse.m2e.logback.configuration.LogPlugin.access$2(LogPlugin.java:107)
+	at org.eclipse.m2e.logback.configuration.LogPlugin$1.run(LogPlugin.java:62)
+	at java.util.TimerThread.mainLoop(Timer.java:555)
+	at java.util.TimerThread.run(Timer.java:505)
+!SESSION 2015-03-07 11:14:36.298 -----------------------------------------------
+eclipse.buildId=4.4.1.M20140925-0400
+java.version=1.7.0_75
+java.vendor=Oracle Corporation
+BootLoader constants: OS=linux, ARCH=x86_64, WS=gtk, NL=en_IN
+Framework arguments:  -product org.eclipse.epp.package.java.product
+Command-line arguments:  -os linux -ws gtk -arch x86_64 -clean -product org.eclipse.epp.package.java.product
+
+!ENTRY org.eclipse.m2e.logback.configuration 2 0 2015-03-07 11:14:44.738
+!MESSAGE Exception while setting up logging:org.eclipse.osgi.internal.framework.EquinoxConfiguration$1 cannot be cast to java.lang.String
+!STACK 0
+java.lang.ClassCastException: org.eclipse.osgi.internal.framework.EquinoxConfiguration$1 cannot be cast to java.lang.String
+	at org.eclipse.m2e.logback.configuration.LogHelper.logJavaProperties(LogHelper.java:26)
+	at org.eclipse.m2e.logback.configuration.LogPlugin.loadConfiguration(LogPlugin.java:189)
+	at org.eclipse.m2e.logback.configuration.LogPlugin.configureLogback(LogPlugin.java:144)
+	at org.eclipse.m2e.logback.configuration.LogPlugin.access$2(LogPlugin.java:107)
+	at org.eclipse.m2e.logback.configuration.LogPlugin$1.run(LogPlugin.java:62)
+	at java.util.TimerThread.mainLoop(Timer.java:555)
+	at java.util.TimerThread.run(Timer.java:505)

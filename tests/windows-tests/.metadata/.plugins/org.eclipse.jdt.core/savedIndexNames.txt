@@ -1,6 +1,0 @@
-INDEX VERSION 1.127+D:\serial-com-manager\tests\.metadata\.plugins\org.eclipse.jdt.core
-410703731.index
-1599156109.index
-1921913783.index
-2250130128.index
-521605994.index

@@ -1843,6 +1843,9 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 	params.port_listener= portListener;
 	params.thread_exit = 0;
 	params.mutex = &mutex;
+#if defined (__APPLE__)
+	params.data = &port_monitor_info[port_monitor_index];
+#endif
 	port_monitor_info[port_monitor_index] = params;
 	arg = &port_monitor_info[port_monitor_index];
 

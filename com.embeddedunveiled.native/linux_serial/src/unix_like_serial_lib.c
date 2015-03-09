@@ -58,6 +58,7 @@
 #include <IOKit/serial/ioss.h>
 #include <IOKit/IOBSD.h>
 #include <sys/event.h>
+#include <IOKit/IOMessage.h>
 #endif
 
 #if defined (__SunOS)
@@ -487,7 +488,7 @@ void *event_looper(void *arg) {
 
 #endif
 #if defined (__APPLE__)
-		usleep(500000);
+		usleep(500000); /* 0.5 seconds */
 #endif
 
 		/* Something happened on status line so get it. */
@@ -551,37 +552,104 @@ void exitMonitor_signal_handler(int signal_number) {
 	}
 }
 
+#if defined (__APPLE__)
+
+/* Callback associated with run loop which will be invoked whenever a device is removed from system. */
+void device_removed(void *refCon, io_service_t service, natural_t messageType, void *messageArgument) {
+	kern_return_t kr;
+	driver_ref* driver_reference = (driver_ref*) refCon;
+
+	if(DEBUG) fprintf(stderr, "%s \n", "22");
+	if(DEBUG) fflush(stderr);
+
+	if(messageType == kIOMessageServiceIsTerminated) {
+		/* Remove the driver state change notification. */
+		kr = IOObjectRelease(driver_reference->notification);
+
+		/* Release our reference to the driver object. */
+		IOObjectRelease(driver_reference->service);
+
+		/* Release structure that holds the driver connection. */
+		free(driver_reference);
+	}
+}
+
+/* Callback associated with run loop which will be invoked whenever a device is added into system. */
+void device_added(void *refCon, io_iterator_t iterator) {
+	io_service_t service = 0;
+	kern_return_t kr;
+
+	if(DEBUG) fprintf(stderr, "%s \n", "11");
+	if(DEBUG) fflush(stderr);
+
+	/* Iterate over all matching objects. */
+	while ((service = IOIteratorNext(iterator)) != 0) {
+
+		/* create arguments to be passed to call back. */
+		driver_ref* driver_reference = (driver_ref*) malloc(sizeof(driver_ref));
+
+		/* pass common global info */
+		driver_reference->data = refCon->data;
+
+		/* Save the io_service_t for this driver instance. */
+		driver_reference->service = service;
+
+		/* Install a callback to receive notification of driver state changes. */
+		kr = IOServiceAddInterestNotification(refCon->notification_port,
+											  service,                            /* driver object */
+											  kIOGeneralInterest,
+											  device_removed,                     /* callback */
+											  driver_reference,                   /* refCon passed to device_removed callback */
+											  &driver_reference->notification);
+	}
+}
+
+#endif
+
 /* This thread keep polling for the physical existence of a port/file/device. When port removal is detected, this
  * informs java listener and exit. We need to ensure that stat() itself does not fail.
  * It has been assumed that till this thread has initialized, port will not be unplugged from system.
  * Link against libudev which provides a set of functions for accessing the udev database and querying sysfs. */
 void *port_monitor(void *arg) {
-#if defined (__linux__)
+
 	struct port_info* params = (struct port_info*) arg;
 	JavaVM *jvm = (*params).jvm;
 	jobject port_listener = (*params).port_listener;
 	struct stat st;
 	int ret = 0;
 	int fd;
+	void* env1;
+	JNIEnv* env;
+	jclass portListener;
+	jmethodID mid;
+
+#if defined (__linux__)
 	fd_set fds;
 	struct udev *udev;
 	struct udev_device *device;
    	struct udev_monitor *monitor;
    	const char *action;
-
-   	/* we have tried to cover all possibilities for hot plug devices. */
    	const char *SUBSYSTEM_USB = "usb";
    	const char *DEVICE_TYPE_USB = "usb_device";
+#endif
+#if defined (__APPLE__)
+   	CFDictionaryRef matching_dictionary = NULL;
+   	io_iterator_t iter = 0;
+   	CFRunLoopSourceRef run_loop_source;
+   	kern_return_t kr;
+#endif
+#if defined (__SunOS)
+#endif
 
-	void* env1;
-	JNIEnv* env;
 	if((*jvm)->AttachCurrentThread(jvm, &env1, NULL) != JNI_OK) {
 		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE event_looper() thread failed to attach itself to JVM.");
+		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread exiting. Please RETRY registering port listener !");
 		if(DEBUG) fflush(stderr);
+		pthread_exit((void *)0);
 	}
 	env = (JNIEnv*) env1;
 
-	jclass portListener = (*env)->GetObjectClass(env, port_listener);
+	portListener = (*env)->GetObjectClass(env, port_listener);
 	if(portListener == NULL) {
 		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread could not get class of object of type IPortMonitor !");
 		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread exiting. Please RETRY registering port listener !");
@@ -589,22 +657,23 @@ void *port_monitor(void *arg) {
 		pthread_exit((void *)0);
 	}
 
-	jmethodID mid = (*env)->GetMethodID(env, portListener, "onPortMonitorEvent", "(I)V");
+	mid = (*env)->GetMethodID(env, portListener, "onPortMonitorEvent", "(I)V");
 	if((*env)->ExceptionOccurred(env)) {
 		LOGE(env);
 	}
 	if(mid == NULL) {
 		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread failed to retrieve method id of method onPortRemovedEvent !");
-		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread exiting. Please RETRY registering data listener !");
+		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread exiting. Please RETRY registering port listener !");
 		if(DEBUG) fflush(stderr);
 		pthread_exit((void *)0);
 	}
 
+#if defined (__linux__)
 	/* Create the udev object */
 	udev = udev_new();
 	if(!udev) {
 		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread failed to create udev object !");
-		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread exiting. Please RETRY registering data listener !");
+		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread exiting. Please RETRY registering port listener !");
 		if(DEBUG) fflush(stderr);
 		pthread_exit((void *)0);
 	}
@@ -617,7 +686,7 @@ void *port_monitor(void *arg) {
 	monitor = udev_monitor_new_from_netlink(udev, "udev");
     if(monitor == NULL) {
     	if(DEBUG) fprintf(stderr, "%s %d\n", "NATIVE port_monitor failed to create udev monitor with error ", ret);
-    	if(DEBUG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread exiting. Please RETRY registering data listener !");
+    	if(DEBUG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread exiting. Please RETRY registering port listener !");
     	if(DEBUG) fflush(stderr);
     	pthread_exit((void *)0);
     }
@@ -628,7 +697,7 @@ void *port_monitor(void *arg) {
     ret = udev_monitor_filter_add_match_subsystem_devtype(monitor, SUBSYSTEM_USB, DEVICE_TYPE_USB);
     if(ret != 0) {
     	if(DEBUG) fprintf(stderr, "%s %d\n", "NATIVE port_monitor failed to install filter for udev with error ", ret);
-    	if(DEBUG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread exiting. Please RETRY registering data listener !");
+    	if(DEBUG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread exiting. Please RETRY registering port listener !");
     	if(DEBUG) fflush(stderr);
     	pthread_exit((void *)0);
     }
@@ -637,7 +706,7 @@ void *port_monitor(void *arg) {
     ret = udev_monitor_enable_receiving(monitor);
     if(ret != 0) {
     	if(DEBUG) fprintf(stderr, "%s %d\n", "NATIVE port_monitor failed to bind udev socket to monitor with error ", ret);
-    	if(DEBUG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread exiting. Please RETRY registering data listener !");
+    	if(DEBUG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread exiting. Please RETRY registering port listener !");
     	if(DEBUG) fflush(stderr);
     	pthread_exit((void *)0);
     }
@@ -650,7 +719,7 @@ void *port_monitor(void *arg) {
 	/* Install signal handler that will be invoked to indicate that the thread should exit. */
     if(signal(SIGUSR1, exitMonitor_signal_handler) == SIG_ERR) {
     	if(DEBUG) fprintf(stderr, "%s\n", "Unable to create handler for thread exit !");
-    	if(DEBUG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread exiting. Please RETRY registering data listener !");
+    	if(DEBUG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread exiting. Please RETRY registering port listener !");
         if(DEBUG) fflush(stderr);
 		pthread_exit((void *)0);
     }
@@ -722,86 +791,48 @@ void *port_monitor(void *arg) {
 
     return ((void *)0);
 #endif
-#if defined (__APPLE__) || defined (__SunOS)
-	struct port_info* params = (struct port_info*) arg;
-	JavaVM *jvm = (*params).jvm;
-	jobject port_listener = (*params).port_listener;
-	struct stat st;
-	int ret = 0;
 
-	void* env1;
-	JNIEnv* env;
-	if((*jvm)->AttachCurrentThread(jvm, &env1, NULL) != JNI_OK) {
-		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE event_looper() thread failed to attach itself to JVM.");
-		if(DEBUG) fflush(stderr);
-	}
-	env = (JNIEnv*) env1;
+#if defined (__APPLE__)
 
-	jclass portListener = (*env)->GetObjectClass(env, port_listener);
-	if(portListener == NULL) {
-		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread could not get class of object of type IPortMonitor !");
-		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread exiting. Please RETRY registering port listener !");
-		if(DEBUG) fflush(stderr);
-		pthread_exit((void *)0);
-	}
+    /* Create a matching dictionary that will find any USB device.
+     * Interested in instances of class IOUSBDevice and its subclasses. */
+    matching_dictionary = IOServiceMatching(kIOUSBDeviceClassName);
+    if(matching_dictionary == NULL) {
+    	if(DEBUG) fprintf(stderr, "%s %d\n", "NATIVE port_monitor failed to create matching dictionary !");
+    	if(DEBUG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread exiting. Please RETRY registering port listener !");
+    	if(DEBUG) fflush(stderr);
+    	pthread_exit((void *)0);
+    }
 
-	jmethodID mid = (*env)->GetMethodID(env, portListener, "onPortMonitorEvent", "(I)V");
-	if((*env)->ExceptionOccurred(env)) {
-		LOGE(env);
-	}
-	if(mid == NULL) {
-		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread failed to retrieve method id of method onPortRemovedEvent !");
-		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread exiting. Please RETRY registering data listener !");
-		if(DEBUG) fflush(stderr);
-		pthread_exit((void *)0);
-	}
+    /* Create a notification object for receiving IOKit notifications of new devices or state changes. */
+    ((struct port_info*) arg)->notification_port = IONotificationPortCreate(kIOMasterPortDefault);
 
-	while(1) {
-		if(1 == ((struct port_info*) arg)->thread_exit) {
-			pthread_exit((void *)0);
-		}
+    /* CFRunLoopSource to be used to listen for notifications. */
+    run_loop_source = IONotificationPortGetRunLoopSource(((struct port_info*) arg)->notification_port);
 
-		errno = 0;
-		ret = stat((*params).portName, &st);
-		if(ret == 0) {
-			usleep(750000); /* port exist and is in perfect condition, simply delay next check. */
-			if(1 == ((struct port_info*) arg)->thread_exit) {
-				pthread_exit((void *)0);
-			}
-		}else {
-			if(errno == EACCES) {
-				if(DEBUG) fprintf(stderr, "%s %d\n", "NATIVE port_monitor does not have permission to stat port error : ", errno);
-				if(DEBUG) fflush(stderr);
-			}else if(errno == ELOOP) {
-				if(DEBUG) fprintf(stderr, "%s %d\n", "NATIVE port_monitor encountered too many symbolic links while traversing the path error : ", errno);
-				if(DEBUG) fflush(stderr);
-			}else if(errno == ENAMETOOLONG) {
-				if(DEBUG) fprintf(stderr, "%s %d\n", "NATIVE port_monitor path is too long error : ", errno);
-				if(DEBUG) fflush(stderr);
-			}else if(errno == ENOMEM) {
-				if(DEBUG) fprintf(stderr, "%s %d\n", "NATIVE port_monitor Out of memory (i.e., kernel memory) error : ", errno);
-				if(DEBUG) fflush(stderr);
-			}else if(errno == ENOTDIR) {
-				if(DEBUG) fprintf(stderr, "%s %d\n", "NATIVE port_monitor a component of the path prefix of path is not a directory error : ", errno);
-				if(DEBUG) fflush(stderr);
-			}else if(errno == EOVERFLOW) {
-				if(DEBUG) fprintf(stderr, "%s %d\n", "NATIVE port_monitor improper data size handling/definition error : ", errno);
-				if(DEBUG) fflush(stderr);
-			}else if(errno == EFAULT) {
-				if(DEBUG) fprintf(stderr, "%s %d\n", "NATIVE port_monitor bad address error : ", errno);
-				if(DEBUG) fflush(stderr);
-			}else {
-				/* either bad fd or can not stat, inform listener in java layer. */
-				(*env)->CallVoidMethod(env, port_listener, mid, 2);
-				if((*env)->ExceptionOccurred(env)) {
-					LOGE(env);
-				}
-				break;
-			}
-		}
-	}
+    /* Adds a CFRunLoopSource object to a run loop mode. */
+    CFRunLoopAddSource(CFRunLoopGetCurrent(), run_loop_source, kCFRunLoopDefaultMode);
 
-	return ((void *)0);
+    /* Look up registered IOService objects that match a matching dictionary, and install a notification request of new IOServices that match.
+     * It associates the matching dictionary with the notification port (and run loop source), allocates and returns an iterator object.
+     * The kIOFirstMatchNotification is delivered when an IOService has had all matching drivers in the kernel probed and started, but only
+     * once per IOService instance. Some IOService's may be re-registered when their state is changed.*/
+    kr = IOServiceAddMatchingNotification(((struct port_info*) arg)->notification_port, kIOFirstMatchNotification, matching_dictionary, device_added, ((struct port_info*) arg)->data, &iter);
+
+    /* Iterate once to get already-present devices and arm the notification. */
+    device_added(((struct port_info*) arg)->data, iter);
+
+    /* Start the run loop to begin receiving notifications. */
+    CFRunLoopRun();
+
+    /* We should never get here.. */
+    if(DEBUG) fprintf(stderr, "Unexpectedly returned from CFRunLoopRun(). Something went wrong !\n")
+	if(DEBUG) fflush(stderr);
+    return ((void *)0);
+
+#endif
+
+#if defined (__SunOS)
 #endif
 }
 

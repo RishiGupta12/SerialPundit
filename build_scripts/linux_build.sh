@@ -6,15 +6,18 @@
 # - build java source files and place class files in bin folder
 # - export artifact scm.jar in scripts_output folder
 
-# Modify these variables/path as per your system
-################################################
+# Modify PATH as per your system
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 PROJECT_ROOT_DIR_PATH="/home/r/ws-host-uart/serial-com-manager"
 JDK_INCLUDE_DIR="/home/r/packages/jdk1.7.0_75/include"
 JNI_HEADER_FILE_PATH="/home/r/packages/jdk1.7.0_75/include/jni.h"
 
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Do not modify anything after this line
-################################################
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+set -e
 
 echo "~~~~~~~~~ Build starts.....wait for message Build completed. ~~~~~~~~~~~~~~~~~~~~"
 echo "  "
@@ -29,6 +32,8 @@ f="_x86.dylib"
 g="linux_"
 h="_x86_64.so"
 i="_x86.so"
+j="scm"
+k="jar"
 
 # Generating header file
 javah -jni -d $PROJECT_ROOT_DIR_PATH/com.embeddedunveiled.native -classpath $PROJECT_ROOT_DIR_PATH/com.embeddedunveiled.serial/src com.embeddedunveiled.serial.SerialComJNINativeInterface
@@ -98,7 +103,7 @@ fi
 javac -d $PROJECT_ROOT_DIR_PATH/com.embeddedunveiled.serial/bin $PROJECT_ROOT_DIR_PATH/com.embeddedunveiled.serial/src/com/embeddedunveiled/serial/*.java
 
 # Export artifact scm.jar
-jar cf $PROJECT_ROOT_DIR_PATH/scripts_output/scm.jar -C $PROJECT_ROOT_DIR_PATH/com.embeddedunveiled.serial/bin com -C $PROJECT_ROOT_DIR_PATH/com.embeddedunveiled.serial libs
+jar cf $PROJECT_ROOT_DIR_PATH/scripts_output/$j$LIB_VERSION$k -C $PROJECT_ROOT_DIR_PATH/com.embeddedunveiled.serial/bin com -C $PROJECT_ROOT_DIR_PATH/com.embeddedunveiled.serial libs
 
 echo "  "
 echo "~~~~~~~~~~ Build completed. Jar file is in scripts_output folder. ~~~~~~~~~~"
