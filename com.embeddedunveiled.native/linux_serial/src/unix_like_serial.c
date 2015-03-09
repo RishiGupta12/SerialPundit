@@ -1878,7 +1878,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
  * Signature: (J)I
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_unregisterPortMonitorListener(JNIEnv *env, jobject obj, jlong fd) {
-#if defined (__linux__)
+#if defined (__linux__) || defined (__APPLE__)
 	int ret = -1;
 	int negative = -1;
 	int x = -1;
@@ -1925,43 +1925,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 	pthread_mutex_unlock(&mutex);
 	return 0;
 #endif
-#if defined (__APPLE__) || defined (__SunOS)
-	int ret = -1;
-	int negative = -1;
-	int x = -1;
-	struct port_info *ptr;
-	ptr = port_monitor_info;
-	pthread_t thread_id = 0;
-	void *status;
-
-	pthread_mutex_lock(&mutex);
-
-	/* Find the event thread serving this file descriptor. */
-	for (x=0; x < MAX_NUM_THREADS; x++) {
-		if(ptr->fd == fd) {
-			thread_id = ptr->thread_id;
-			break;
-		}
-		ptr++;
-	}
-
-	/* Set the flag that will be checked by thread to check for exit condition. */
-	ptr->thread_exit = 1;
-
-	/* Join the thread (waits for the thread specified to terminate). */
-	ret = pthread_join(thread_id, &status);
-	if(ret != 0) {
-		if(DEBUG) fprintf(stderr, "%s \n", "native port monitor thread failed to join !");
-		if(DEBUG) fflush(stderr);
-		pthread_mutex_unlock(&mutex);
-		return (negative * ret);
-	}
-
-	ptr->thread_id = 0;    /* Reset thread id field. */
-	ptr->fd = -1;
-
-	pthread_mutex_unlock(&mutex);
-	return 0;
+#if defined (__SunOS)
 #endif
 }
 
