@@ -47,7 +47,7 @@
 #if defined (__linux__)
 	struct port_info {
 		JavaVM *jvm;
-		const char *portName;
+		const char *port_name;
 		int fd;
 		int thread_exit;
 		jobject port_listener;
@@ -57,14 +57,17 @@
 #elif defined (__APPLE__)
 	struct port_info {
 		JavaVM *jvm;
-		const char *portName;
+		JNIEnv* env;
+		const char *port_name;
 		int fd;
 		int thread_exit;
 		jobject port_listener;
+		jmethodID mid;
 		pthread_t thread_id;
 		pthread_mutex_t *mutex;
 		struct port_info *data;
 		IONotificationPortRef notification_port;
+		int tempVal;
 	};
 
 	/* Structure to hold reference to driver and subscribed notification. */
@@ -87,3 +90,4 @@ extern int serial_delay(unsigned usecs);
 #endif /* UNIX_LIKE_SERIAL_LIB_H_ */
 
 #endif /* end compiling for Unix-like OS */
+

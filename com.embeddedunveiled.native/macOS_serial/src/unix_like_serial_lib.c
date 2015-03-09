@@ -73,6 +73,12 @@
 
 #define DEBUG 1
 
+#if defined (__APPLE__)
+/* Holds information for port monitor facility. */
+int pm_index = 0;
+struct driver_ref* pm_info[2048] = {0};
+#endif
+
 /* Do not let any exception propagate. Handle and clear it. */
 void LOGE(JNIEnv *env) {
 	(*env)->ExceptionDescribe(env);
@@ -546,10 +552,36 @@ void *event_looper(void *arg) {
 	return ((void *)0);
 }
 
-/* This handler is invoked whenever application unregisters port monitor listener. */
+/* This handler is invoked whenever application unregisters port monitor listener.
+ * In future this function may be replaced with some new mechanism. */
 void exitMonitor_signal_handler(int signal_number) {
 	if(signal_number == SIGUSR1) {
+#if defined (__linux__)
 		pthread_exit((void *)0);
+#endif
+#if defined (__APPLE__)
+		int x=0;
+		struct driver_ref* ptr;
+		pthread_t tid  = pthread_self();
+		for (x=0; x < 2048; x++) {
+			ptr = pm_info[x];
+			if(pm_info[x] == 0) {
+				continue;
+			}
+			if((*ptr->data).thread_id == tid) {
+
+				/* Remove the driver state change notification. */
+				IOObjectRelease(ptr->notification);
+				/* Release our reference to the driver object. */
+				IOObjectRelease(ptr->service);
+				/* Release structure that holds the driver connection. */
+				free(ptr);
+			}
+			pm_info[x] = 0;
+		}
+
+		pthread_exit((void *)0);
+#endif
 	}
 }
 
@@ -560,8 +592,7 @@ void exitMonitor_signal_handler(int signal_number) {
 void device_removed(void *refCon, io_service_t service, natural_t messageType, void *messageArgument) {
 	int ret = 0;
 	struct stat st;
-	kern_return_t kr;
-	driver_ref* driver_reference = (driver_ref*) refCon;
+	struct driver_ref* driver_reference = (struct driver_ref*) refCon;
 
 	if(messageType == kIOMessageServiceIsTerminated) {
 		errno = 0;
@@ -599,15 +630,6 @@ void device_removed(void *refCon, io_service_t service, natural_t messageType, v
 				}
 			}
 		}
-
-		/* Remove the driver state change notification. */
-		kr = IOObjectRelease(driver_reference->notification);
-
-		/* Release our reference to the driver object. */
-		IOObjectRelease(driver_reference->service);
-
-		/* Release structure that holds the driver connection. */
-		free(driver_reference);
 	}
 }
 
@@ -618,6 +640,7 @@ void device_removed(void *refCon, io_service_t service, natural_t messageType, v
 void device_added(void *refCon, io_iterator_t iterator) {
 	io_service_t service = 0;
 	kern_return_t kr;
+	struct driver_ref dref;
 
 	/* call the application */
 	if(((struct port_info*) refCon)->tempVal != 0) {
@@ -636,7 +659,7 @@ void device_added(void *refCon, io_iterator_t iterator) {
 	while ((service = IOIteratorNext(iterator)) != 0) {
 
 		/* create arguments to be passed to call back. */
-		driver_ref* driver_reference = (driver_ref*) malloc(sizeof(driver_ref));
+		struct driver_ref *driver_reference = (struct driver_ref *) malloc(sizeof(dref));
 
 		/* pass common global info */
 		driver_reference->data = ((struct port_info*) refCon)->data;
@@ -651,6 +674,10 @@ void device_added(void *refCon, io_iterator_t iterator) {
 											  device_removed,                     /* callback */
 											  driver_reference,                   /* refCon passed to device_removed callback */
 											  &driver_reference->notification);
+
+		/* update global data which will be used when unregistering listener. */
+		pm_info[pm_index] = driver_reference;
+		pm_index++;
 	}
 }
 
@@ -665,15 +692,15 @@ void *port_monitor(void *arg) {
 	struct port_info* params = (struct port_info*) arg;
 	JavaVM *jvm = (*params).jvm;
 	jobject port_listener = (*params).port_listener;
-	struct stat st;
-	int ret = 0;
-	int fd;
 	void* env1;
 	JNIEnv* env;
 	jclass portListener;
 	jmethodID mid;
 
 #if defined (__linux__)
+	struct stat st;
+	int ret = 0;
+	int fd;
 	fd_set fds;
 	struct udev *udev;
 	struct udev_device *device;
@@ -848,6 +875,14 @@ void *port_monitor(void *arg) {
     ((struct port_info*) arg)->port_listener = port_listener;
     ((struct port_info*) arg)->mid = mid;
     ((struct port_info*) arg)->tempVal = 0;
+
+	/* Install signal handler that will be invoked to indicate that the thread should exit. */
+    if(signal(SIGUSR1, exitMonitor_signal_handler) == SIG_ERR) {
+    	if(DEBUG) fprintf(stderr, "%s\n", "Unable to create handler for thread's exit !");
+    	if(DEBUG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread exiting. Please RETRY registering port listener !");
+        if(DEBUG) fflush(stderr);
+		pthread_exit((void *)0);
+    }
 
     /* Create a matching dictionary that will find any USB device.
      * Interested in instances of class IOUSBDevice and its subclasses. kIOUSBDeviceClassName */

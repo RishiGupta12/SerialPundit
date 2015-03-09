@@ -48,17 +48,18 @@
 
 #if defined (__APPLE__)
 #include <termios.h>
-#include <sys/ioctl.h>
 #include <paths.h>
+#include <sys/ioctl.h>
 #include <sysexits.h>
 #include <sys/param.h>
+#include <sys/event.h>
 #include <CoreFoundation/CoreFoundation.h>
 #include <IOKit/IOKitLib.h>
 #include <IOKit/serial/IOSerialKeys.h>
 #include <IOKit/serial/ioss.h>
 #include <IOKit/IOBSD.h>
-#include <sys/event.h>
 #include <IOKit/IOMessage.h>
+#include <IOKit/usb/IOUSBLib.h>
 #endif
 
 #if defined (__SunOS)
@@ -554,15 +555,51 @@ void exitMonitor_signal_handler(int signal_number) {
 
 #if defined (__APPLE__)
 
-/* Callback associated with run loop which will be invoked whenever a device is removed from system. */
+/* Callback associated with run loop which will be invoked whenever a device is removed from system.
+ * In order to keep our device removal detection independent from system, we used stat on file path. */
 void device_removed(void *refCon, io_service_t service, natural_t messageType, void *messageArgument) {
+	int ret = 0;
+	struct stat st;
 	kern_return_t kr;
 	driver_ref* driver_reference = (driver_ref*) refCon;
 
-	if(DEBUG) fprintf(stderr, "%s \n", "22");
-	if(DEBUG) fflush(stderr);
-
 	if(messageType == kIOMessageServiceIsTerminated) {
+		errno = 0;
+		ret = stat((*driver_reference->data).port_name, &st);
+		if(ret == 0) {
+		}else {
+			if(errno == EACCES) {
+				if(DEBUG) fprintf(stderr, "%s %d\n", "NATIVE port_monitor does not have permission to stat port error : ", errno);
+				if(DEBUG) fflush(stderr);
+			}else if(errno == ELOOP) {
+				if(DEBUG) fprintf(stderr, "%s %d\n", "NATIVE port_monitor encountered too many symbolic links while traversing the path error : ", errno);
+				if(DEBUG) fflush(stderr);
+			}else if(errno == ENAMETOOLONG) {
+				if(DEBUG) fprintf(stderr, "%s %d\n", "NATIVE port_monitor path is too long error : ", errno);
+				if(DEBUG) fflush(stderr);
+			}else if(errno == ENOMEM) {
+				if(DEBUG) fprintf(stderr, "%s %d\n", "NATIVE port_monitor Out of memory (i.e., kernel memory) error : ", errno);
+				if(DEBUG) fflush(stderr);
+			}else if(errno == ENOTDIR) {
+				if(DEBUG) fprintf(stderr, "%s %d\n", "NATIVE port_monitor a component of the path prefix of path is not a directory error : ", errno);
+				if(DEBUG) fflush(stderr);
+			}else if(errno == EOVERFLOW) {
+				if(DEBUG) fprintf(stderr, "%s %d\n", "NATIVE port_monitor improper data size handling/definition error : ", errno);
+				if(DEBUG) fflush(stderr);
+			}else if(errno == EFAULT) {
+				if(DEBUG) fprintf(stderr, "%s %d\n", "NATIVE port_monitor bad address error : ", errno);
+				if(DEBUG) fflush(stderr);
+			}else {
+				JNIEnv* env = (*driver_reference->data).env;
+				jclass port_listener = (*driver_reference->data).port_listener;
+				jmethodID mid = (*driver_reference->data).mid;
+				(*env)->CallVoidMethod(env, port_listener, mid, 2); /* arg 2 represent device remove action */
+				if((*env)->ExceptionOccurred(env)) {
+					LOGE(env);
+				}
+			}
+		}
+
 		/* Remove the driver state change notification. */
 		kr = IOObjectRelease(driver_reference->notification);
 
@@ -574,13 +611,26 @@ void device_removed(void *refCon, io_service_t service, natural_t messageType, v
 	}
 }
 
-/* Callback associated with run loop which will be invoked whenever a device is added into system. */
+/* Callback associated with run loop which will be invoked whenever a device is added into system.
+ * When program starts, we manually call this function, and therefore addition of device event
+ * gets sent to application. To prevent this, on very first run we detect value of tempVal
+ * and y pass notification. */
 void device_added(void *refCon, io_iterator_t iterator) {
 	io_service_t service = 0;
 	kern_return_t kr;
 
-	if(DEBUG) fprintf(stderr, "%s \n", "11");
-	if(DEBUG) fflush(stderr);
+	/* call the application */
+	if(((struct port_info*) refCon)->tempVal != 0) {
+		JNIEnv* env = ((struct port_info*) refCon)->env;
+		jclass port_listener = ((struct port_info*) refCon)->port_listener;
+		jmethodID mid = ((struct port_info*) refCon)->mid;
+		(*env)->CallVoidMethod(env, port_listener, mid, 1);  /* arg 1 represent device added into system */
+		if((*env)->ExceptionOccurred(env)) {
+			LOGE(env);
+		}
+	}else {
+		((struct port_info*) refCon)->tempVal = 1;
+	}
 
 	/* Iterate over all matching objects. */
 	while ((service = IOIteratorNext(iterator)) != 0) {
@@ -589,13 +639,13 @@ void device_added(void *refCon, io_iterator_t iterator) {
 		driver_ref* driver_reference = (driver_ref*) malloc(sizeof(driver_ref));
 
 		/* pass common global info */
-		driver_reference->data = refCon->data;
+		driver_reference->data = ((struct port_info*) refCon)->data;
 
 		/* Save the io_service_t for this driver instance. */
 		driver_reference->service = service;
 
 		/* Install a callback to receive notification of driver state changes. */
-		kr = IOServiceAddInterestNotification(refCon->notification_port,
+		kr = IOServiceAddInterestNotification(((struct port_info*) refCon)->notification_port,
 											  service,                            /* driver object */
 											  kIOGeneralInterest,
 											  device_removed,                     /* callback */
@@ -794,11 +844,16 @@ void *port_monitor(void *arg) {
 
 #if defined (__APPLE__)
 
+    ((struct port_info*) arg)->env = env;
+    ((struct port_info*) arg)->port_listener = port_listener;
+    ((struct port_info*) arg)->mid = mid;
+    ((struct port_info*) arg)->tempVal = 0;
+
     /* Create a matching dictionary that will find any USB device.
-     * Interested in instances of class IOUSBDevice and its subclasses. */
-    matching_dictionary = IOServiceMatching(kIOUSBDeviceClassName);
+     * Interested in instances of class IOUSBDevice and its subclasses. kIOUSBDeviceClassName */
+    matching_dictionary = IOServiceMatching("IOUSBDevice");
     if(matching_dictionary == NULL) {
-    	if(DEBUG) fprintf(stderr, "%s %d\n", "NATIVE port_monitor failed to create matching dictionary !");
+    	if(DEBUG) fprintf(stderr, "%s \n", "NATIVE port_monitor failed to create matching dictionary !");
     	if(DEBUG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread exiting. Please RETRY registering port listener !");
     	if(DEBUG) fflush(stderr);
     	pthread_exit((void *)0);
@@ -826,7 +881,7 @@ void *port_monitor(void *arg) {
     CFRunLoopRun();
 
     /* We should never get here.. */
-    if(DEBUG) fprintf(stderr, "Unexpectedly returned from CFRunLoopRun(). Something went wrong !\n")
+    if(DEBUG) fprintf(stderr, "Unexpectedly returned from CFRunLoopRun(). Something went wrong !\n");
 	if(DEBUG) fflush(stderr);
     return ((void *)0);
 
@@ -837,3 +892,4 @@ void *port_monitor(void *arg) {
 }
 
 #endif /* End compiling for Unix-like OS. */
+

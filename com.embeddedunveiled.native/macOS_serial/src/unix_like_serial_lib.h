@@ -71,11 +71,11 @@
 	};
 
 	/* Structure to hold reference to driver and subscribed notification. */
-	typedef struct {
+	struct driver_ref {
 		io_service_t service;
 		io_object_t notification;
 		struct port_info *data;
-	} driver_ref;
+	};
 
 #elif defined (__SunOS)
 #endif
