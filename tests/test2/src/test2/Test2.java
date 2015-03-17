@@ -10,6 +10,9 @@ import com.embeddedunveiled.serial.SerialComManager.STOPBITS;
 public class Test2 {
 	public static void main(String[] args) {
 		
+		// get serial communication manager instance
+		SerialComManager scm = new SerialComManager();
+		
 		String PORT = null;
 		int osType = SerialComManager.getOSType();
 		if(osType == SerialComManager.OS_LINUX) {
@@ -22,9 +25,6 @@ public class Test2 {
 			PORT = null;
 		}else{
 		}
-		
-		// get serial communication manager instance
-		SerialComManager scm = new SerialComManager();
 		
 		try {
 			// try opening serial port for read and write without exclusive ownership

@@ -10,6 +10,8 @@ import com.embeddedunveiled.serial.SerialComManager.STOPBITS;
 public class Test5 {
 	public static void main(String[] args) {
 		
+		SerialComManager scm = new SerialComManager();
+		
 		String PORT = null;
 		int osType = SerialComManager.getOSType();
 		if(osType == SerialComManager.OS_LINUX) {
@@ -23,7 +25,6 @@ public class Test5 {
 		}else{
 		}
 		
-		SerialComManager scm = new SerialComManager();
 		try {
 			long handle = scm.openComPort(PORT, true, true, true);
 			scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);

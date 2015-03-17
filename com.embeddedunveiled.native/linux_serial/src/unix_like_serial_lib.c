@@ -705,7 +705,7 @@ void *port_monitor(void *arg) {
 	struct udev *udev;
 	struct udev_device *device;
    	struct udev_monitor *monitor;
-   	const char *action;
+   	char action[32];
    	const char *SUBSYSTEM_USB = "usb";
    	const char *DEVICE_TYPE_USB = "usb_device";
 #endif
@@ -716,6 +716,7 @@ void *port_monitor(void *arg) {
    	kern_return_t kr;
 #endif
 #if defined (__SunOS)
+   	/* TODO */
 #endif
 
 	if((*jvm)->AttachCurrentThread(jvm, &env1, NULL) != JNI_OK) {
@@ -804,26 +805,27 @@ void *port_monitor(void *arg) {
 	while(1) {
 		ret = select(fd+1, &fds, NULL, NULL, NULL);
 
-		/* Check if our file descriptor has received data. */
-		if(ret > 0 && FD_ISSET(fd, &fds)) {
+		/* Check no error occured, and udev file descriptor indicates event. */
+		if((ret > 0) && FD_ISSET(fd, &fds)) {
 			device = udev_monitor_receive_device(monitor);
 			if(device) {
-				action = udev_device_get_action(device);
+				memset(action, '\0', sizeof(action));
+				strcpy(action, udev_device_get_action(device));
 				serial_delay(500);  /* let udev execute udev rules completely (500 milliseconds delay). */
 				udev_device_unref(device);
 
 				/* Based on use case and more robust design, notification for plugging port will be
-				 * developed. As of now we just notify app that some device has been added to system.
+				 * developed in future. As of now we just notify app that some device has been added to system.
 				 * In Linux, port name will change, for example at the time of registering this listener
 				 * if it was ttyUSB0, then after re-insertion, it will be ttyUSB1. */
-				if(strcmp("add", action) == 0) {
+				if(strcmp(action, "add") == 0) {
 					(*env)->CallVoidMethod(env, port_listener, mid, 1); /* arg 1 represent device add action */
 					if((*env)->ExceptionOccurred(env)) {
 						LOGE(env);
 					}
-				}else if(strcmp("remove", action) == 0) {
+				}else if(strcmp(action, "remove") == 0) {
 					errno = 0;
-					ret = stat((*params).portName, &st);
+					ret = stat((*params).port_name, &st);
 					if(ret == 0) {
 					}else {
 						if(errno == EACCES) {
@@ -857,11 +859,6 @@ void *port_monitor(void *arg) {
 				}else {
 					/* neither add nor remove action, do nothing. */
 				}
-			}
-
-			/* Check if thread should exit. */
-			if(1 == ((struct port_info*) arg)->thread_exit) {
-				pthread_exit((void *)0);
 			}
 		}
 	}

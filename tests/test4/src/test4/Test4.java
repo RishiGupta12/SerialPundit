@@ -12,6 +12,8 @@ import com.embeddedunveiled.serial.SerialComManager.STOPBITS;
 public class Test4 {
 	public static void main(String[] args) {
 		
+		SerialComManager scm = new SerialComManager();
+		
 		String PORT = null;
 		int osType = SerialComManager.getOSType();
 		if(osType == SerialComManager.OS_LINUX) {
@@ -24,8 +26,6 @@ public class Test4 {
 			PORT = null;
 		}else{
 		}
-		
-		SerialComManager scm = new SerialComManager();
 		
 		try {
 			// open and configure port that will listen event

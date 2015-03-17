@@ -26,6 +26,8 @@ class Data1 implements ISerialComDataListener{
 public class Test20 {
 	public static void main(String[] args) {
 		
+		SerialComManager scm = new SerialComManager();
+		
 		String PORT = null;
 		String PORT1 = null;
 		int osType = SerialComManager.getOSType();
@@ -47,7 +49,6 @@ public class Test20 {
 		byte[] XON  = new byte[] {(byte) 0x24};   // ASCII value of $ character is 0x24
 		byte[] XOFF = new byte[] {(byte) 0x23};   // ASCII value of # character is 0x23
 		
-		SerialComManager scm = new SerialComManager();
 		Data1 receiver = new Data1();
 		Data0 sender = new Data0();
 		

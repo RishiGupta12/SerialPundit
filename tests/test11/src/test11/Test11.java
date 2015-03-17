@@ -12,6 +12,8 @@ import com.embeddedunveiled.serial.SerialComManager.STOPBITS;
 public class Test11 {
 	public static void main(String[] args) {
 		
+		SerialComManager scm = new SerialComManager();
+		
 		String PORT = null;
 		String PORT1 = null;
 		int osType = SerialComManager.getOSType();
@@ -29,8 +31,6 @@ public class Test11 {
 			PORT1 = null;
 		}else{
 		}
-		
-		SerialComManager scm = new SerialComManager();
 		
 		try {
 			// open and configure port that will listen data

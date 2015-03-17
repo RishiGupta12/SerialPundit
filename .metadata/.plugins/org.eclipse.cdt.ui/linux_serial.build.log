@@ -1,11 +1,6 @@
-13:10:54 **** Incremental Build of configuration Debug for project linux_serial ****
+15:16:38 **** Incremental Build of configuration Debug for project linux_serial ****
 make all 
-Building target: linux_1.0.0_x86_64.so
-Invoking: GCC C Linker
-gcc -m64 -ludev -shared -o "linux_1.0.0_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   
-/usr/bin/ld: cannot find -ludev
-collect2: ld returned 1 exit status
-make: *** [linux_1.0.0_x86_64.so] Error 1
+make: Nothing to be done for `all'.
 
-13:10:54 Build Finished (took 59ms)
+15:16:38 Build Finished (took 58ms)
 

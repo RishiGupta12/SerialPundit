@@ -18,6 +18,8 @@ class EventListener implements ISerialComEventListener{
 public class Test16 {
 	public static void main(String[] args) {
 		
+		SerialComManager scm = new SerialComManager();
+		
 		String PORT = null;
 		String PORT1 = null;
 		int osType = SerialComManager.getOSType();
@@ -35,8 +37,6 @@ public class Test16 {
 			PORT1 = null;
 		}else{
 		}
-		
-		SerialComManager scm = new SerialComManager();
 		
 		// instantiate class which is will implement ISerialComEventListener interface
 		EventListener eventListener = new EventListener();

@@ -1566,12 +1566,6 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 		params.mutex = &mutex;
 		params.data_init_done = 0;
 		params.event_init_done = 0;
-
-		/* Create and save eventfd which will be used when listener is unregistered. */
-#if defined (__APPLE__) || defined (__SunOS)
-		/*TODO evfd for apple and sun*/
-#endif
-
 		fd_looper_info[dtp_index] = params;
 		arg = &fd_looper_info[dtp_index];
 	}

@@ -39,6 +39,8 @@ public class Test22 {
 	
 	public static void main(String[] args) {
 		
+		SerialComManager scm = new SerialComManager();
+		
 		String PORT = null;
 		String PORT1 = null;
 		int osType = SerialComManager.getOSType();
@@ -57,7 +59,6 @@ public class Test22 {
 		}else{
 		}
 		
-		SerialComManager scm = new SerialComManager();
 		Data1 DTE1 = new Data1();
 		Data0 DCE1 = new Data0();
 		EventListener eventListener = new EventListener();

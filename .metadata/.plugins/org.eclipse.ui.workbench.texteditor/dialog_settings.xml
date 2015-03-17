@@ -13,16 +13,16 @@
 		<item value="false" key="isRegEx"/>
 		<item value="false" key="incremental"/>
 		<item value="false" key="wholeword"/>
-		<item value="" key="selection"/>
+		<item value="udev_device_get_action" key="selection"/>
 		<list key="findhistory">
+			<item value="udev_device_ref "/>
+			<item value="port_name"/>
 			<item value="portMonitorData"/>
 			<item value="matchingDict"/>
 			<item value="vmin"/>
 			<item value="delay"/>
 			<item value="sleep"/>
 			<item value="setrts"/>
-			<item value="setdtr"/>
-			<item value="hupcl"/>
 		</list>
 		<list key="replacehistory">
 		</list>

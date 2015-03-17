@@ -19,6 +19,8 @@ class portWatcher implements IPortMonitor{
 public class Test21 {
 	public static void main(String[] args) {
 		
+		SerialComManager scm = new SerialComManager();
+		
 		String PORT = null;
 		int osType = SerialComManager.getOSType();
 		if(osType == SerialComManager.OS_LINUX) {
@@ -32,7 +34,6 @@ public class Test21 {
 		}else{
 		}
 		
-		SerialComManager scm = new SerialComManager();
 		portWatcher pw = new portWatcher();
 		
 		try {
@@ -41,11 +42,10 @@ public class Test21 {
 			scm.configureComPortControl(handle, FLOWCONTROL.NONE, '$', '$', false, false);
 			scm.registerPortMonitorListener(handle, pw);
 			
-			Thread.sleep(5000);
+			Thread.sleep(50000);
 			
 			scm.unregisterPortMonitorListener(handle);
 			scm.closeComPort(handle);
-			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

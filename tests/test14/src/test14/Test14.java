@@ -19,6 +19,8 @@ class Data implements ISerialComDataListener{
 public class Test14 {
 	public static void main(String[] args) {
 		
+		SerialComManager scm = new SerialComManager();
+		
 		String PORT = null;
 		String PORT1 = null;
 		int osType = SerialComManager.getOSType();
@@ -36,8 +38,6 @@ public class Test14 {
 			PORT1 = null;
 		}else{
 		}
-		
-		SerialComManager scm = new SerialComManager();
 		
 		// instantiate class which is will implement ISerialComDataListener interface
 		Data dataListener = new Data();

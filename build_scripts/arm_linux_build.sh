@@ -40,11 +40,9 @@ j="scm"
 k="jar"
 
 # <~~~~ Generating header file ~~~>
-
 javah -jni -d $PROJECT_ROOT_DIR_PATH/com.embeddedunveiled.native -classpath $PROJECT_ROOT_DIR_PATH/com.embeddedunveiled.serial/src com.embeddedunveiled.serial.SerialComJNINativeInterface
 
 # <~~~~~~~~~~~~~~~ Build for armel ~~~~~~~~~~~~~~~>
-
 # Building file: unix_like_serial.c
 arm-linux-gnueabi-gcc-4.6 -I$JDK_INCLUDE_DIR -include$JNI_HEADER_FILE_PATH -O0 -g3 -Wall -c -fmessage-length=0 -fPIC -pthread -o $PROJECT_ROOT_DIR_PATH/scripts_output/arm_linux_serial_el.o $PROJECT_ROOT_DIR_PATH/com.embeddedunveiled.native/linux_serial/src/unix_like_serial.c
 
@@ -52,7 +50,7 @@ arm-linux-gnueabi-gcc-4.6 -I$JDK_INCLUDE_DIR -include$JNI_HEADER_FILE_PATH -O0 -
 arm-linux-gnueabi-gcc-4.6 -I$JDK_INCLUDE_DIR -include$JNI_HEADER_FILE_PATH -O0 -g3 -Wall -c -fmessage-length=0 -fPIC -pthread -o $PROJECT_ROOT_DIR_PATH/scripts_output/arm_linux_serial_lib_el.o $PROJECT_ROOT_DIR_PATH/com.embeddedunveiled.native/linux_serial/src/unix_like_serial_lib.c
 
 # Building target: linux_X.X.X_x86_64.so
-arm-linux-gnueabi-gcc-4.6 -shared -ludev -o $PROJECT_ROOT_DIR_PATH/scripts_output/$g$LIB_VERSION$h $PROJECT_ROOT_DIR_PATH/scripts_output/arm_linux_serial_el.o $PROJECT_ROOT_DIR_PATH/scripts_output/arm_linux_serial_lib_el.o -lpthread
+arm-linux-gnueabi-gcc-4.6 -shared -o $PROJECT_ROOT_DIR_PATH/scripts_output/$g$LIB_VERSION$h $PROJECT_ROOT_DIR_PATH/scripts_output/arm_linux_serial_el.o $PROJECT_ROOT_DIR_PATH/scripts_output/arm_linux_serial_lib_el.o -lpthread -ludev
 
 # Clean up
 if [ -f $PROJECT_ROOT_DIR_PATH/scripts_output/arm_linux_serial_lib_el.o  ]; then
@@ -64,7 +62,6 @@ rm $PROJECT_ROOT_DIR_PATH/scripts_output/arm_linux_serial_el.o
 fi
 
 # <~~~~~~~~~~~~~~~ Build for armhf ~~~~~~~~~~~~~~~>
-
 # Building file: unix_like_serial.c
 arm-linux-gnueabihf-gcc-4.6 -I$JDK_INCLUDE_DIR -include$JNI_HEADER_FILE_PATH -O0 -g3 -Wall -c -fmessage-length=0 -fPIC -lpthread -o $PROJECT_ROOT_DIR_PATH/scripts_output/arm_linux_serial_hf.o $PROJECT_ROOT_DIR_PATH/com.embeddedunveiled.native/linux_serial/src/unix_like_serial.c
 
@@ -72,7 +69,7 @@ arm-linux-gnueabihf-gcc-4.6 -I$JDK_INCLUDE_DIR -include$JNI_HEADER_FILE_PATH -O0
 arm-linux-gnueabihf-gcc-4.6 -I$JDK_INCLUDE_DIR -include$JNI_HEADER_FILE_PATH -O0 -g3 -Wall -c -fmessage-length=0 -fPIC -lpthread -o $PROJECT_ROOT_DIR_PATH/scripts_output/arm_linux_serial_lib_hf.o $PROJECT_ROOT_DIR_PATH/com.embeddedunveiled.native/linux_serial/src/unix_like_serial_lib.c
 
 # Building target: linux_X.X.X_x86_64.so
-arm-linux-gnueabihf-gcc-4.6 -shared -ludev -o $PROJECT_ROOT_DIR_PATH/scripts_output/$g$LIB_VERSION$i $PROJECT_ROOT_DIR_PATH/scripts_output/arm_linux_serial_hf.o $PROJECT_ROOT_DIR_PATH/scripts_output/arm_linux_serial_lib_el.o -lpthread
+arm-linux-gnueabihf-gcc-4.6 -shared -o $PROJECT_ROOT_DIR_PATH/scripts_output/$g$LIB_VERSION$i $PROJECT_ROOT_DIR_PATH/scripts_output/arm_linux_serial_hf.o $PROJECT_ROOT_DIR_PATH/scripts_output/arm_linux_serial_lib_el.o -lpthread -ludev
 
 # Clean up
 if [ -f $PROJECT_ROOT_DIR_PATH/scripts_output/unix_like_serial_lib_32.o  ]; then
@@ -84,7 +81,6 @@ rm $PROJECT_ROOT_DIR_PATH/scripts_output/unix_like_serial_32.o
 fi
 
 # <~~~~~ Copy all shared libraries in libs folder that will be packaged in jar ~~~~>
-
 if [ -f $PROJECT_ROOT_DIR_PATH/scripts_output/$g$LIB_VERSION$h  ]; then
 cp $PROJECT_ROOT_DIR_PATH/scripts_output/$g$LIB_VERSION$h $PROJECT_ROOT_DIR_PATH/com.embeddedunveiled.serial/libs
 fi
@@ -110,11 +106,9 @@ cp $PROJECT_ROOT_DIR_PATH/com.embeddedunveiled.native/linux_serial/Debug/$d$LIB_
 fi
 
 # <~~~~~ Build java source files and place class files in bin folder ~~~~>
-
 javac -d $PROJECT_ROOT_DIR_PATH/com.embeddedunveiled.serial/bin $PROJECT_ROOT_DIR_PATH/com.embeddedunveiled.serial/src/com/embeddedunveiled/serial/*.java
 
 # <~~~~~ Export artifact scm.jar ~~~~>
-
 jar cf $PROJECT_ROOT_DIR_PATH/scripts_output/$j$LIB_VERSION$k -C $PROJECT_ROOT_DIR_PATH/com.embeddedunveiled.serial/bin com -C $PROJECT_ROOT_DIR_PATH/com.embeddedunveiled.serial libs
 
 echo "  "
