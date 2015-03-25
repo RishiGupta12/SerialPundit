@@ -1,2 +1,2 @@
-v1.0.0 (03 Feb 2015)
-  * Initial release.
+v1.0.0 (25 Mar 2015)
+  * Initial stable release.
