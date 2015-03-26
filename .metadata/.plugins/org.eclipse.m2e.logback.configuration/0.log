@@ -176,3 +176,4 @@
 2015-03-25 18:35:53,716 [Worker-5] INFO  o.e.m.c.i.e.AbstractTransferListenerAdapter - Downloading http://repo.maven.apache.org/maven2/ch/qos/logback/logback-classic/1.1.2/logback-classic-1.1.2.jar
 2015-03-25 18:35:55,528 [Worker-5] INFO  o.e.m.c.i.e.AbstractTransferListenerAdapter - Downloaded http://repo.maven.apache.org/maven2/ch/qos/logback/logback-classic/1.1.2/logback-classic-1.1.2.jar
 2015-03-25 18:35:59,070 [Worker-5] INFO  o.e.m.c.i.l.LifecycleMappingFactory - Using org.eclipse.m2e.jdt.JarLifecycleMapping lifecycle mapping for MavenProject: com.embeddedunveiled:scm:1.0.0 @ /home/r/ws-host-uart/serial-com-manager/com.embeddedunveiled.serial/pom.xml.
+2015-03-26 17:27:17,128 [Worker-5] INFO  o.e.m.c.i.l.LifecycleMappingFactory - Using org.eclipse.m2e.jdt.JarLifecycleMapping lifecycle mapping for MavenProject: com.embeddedunveiled:scm:1.0.0 @ /home/r/ws-host-uart/serial-com-manager/com.embeddedunveiled.serial/pom.xml.
