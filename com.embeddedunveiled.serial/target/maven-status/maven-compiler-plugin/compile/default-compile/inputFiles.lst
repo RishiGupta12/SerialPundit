@@ -1,0 +1,13 @@
+/home/r/ws-host-uart/serial-com-manager/com.embeddedunveiled.serial/src/com/embeddedunveiled/serial/SerialComLineEvent.java
+/home/r/ws-host-uart/serial-com-manager/com.embeddedunveiled.serial/src/com/embeddedunveiled/serial/SerialComDataEvent.java
+/home/r/ws-host-uart/serial-com-manager/com.embeddedunveiled.serial/src/com/embeddedunveiled/serial/ISerialComEventListener.java
+/home/r/ws-host-uart/serial-com-manager/com.embeddedunveiled.serial/src/com/embeddedunveiled/serial/SerialComPortsList.java
+/home/r/ws-host-uart/serial-com-manager/com.embeddedunveiled.serial/src/com/embeddedunveiled/serial/ISerialComDataListener.java
+/home/r/ws-host-uart/serial-com-manager/com.embeddedunveiled.serial/src/com/embeddedunveiled/serial/SerialComLooper.java
+/home/r/ws-host-uart/serial-com-manager/com.embeddedunveiled.serial/src/com/embeddedunveiled/serial/SerialComPortHandleInfo.java
+/home/r/ws-host-uart/serial-com-manager/com.embeddedunveiled.serial/src/com/embeddedunveiled/serial/SerialComException.java
+/home/r/ws-host-uart/serial-com-manager/com.embeddedunveiled.serial/src/com/embeddedunveiled/serial/SerialComJNINativeInterface.java
+/home/r/ws-host-uart/serial-com-manager/com.embeddedunveiled.serial/src/com/embeddedunveiled/serial/SerialComCompletionDispatcher.java
+/home/r/ws-host-uart/serial-com-manager/com.embeddedunveiled.serial/src/com/embeddedunveiled/serial/SerialComErrorMapper.java
+/home/r/ws-host-uart/serial-com-manager/com.embeddedunveiled.serial/src/com/embeddedunveiled/serial/SerialComManager.java
+/home/r/ws-host-uart/serial-com-manager/com.embeddedunveiled.serial/src/com/embeddedunveiled/serial/IPortMonitor.java
