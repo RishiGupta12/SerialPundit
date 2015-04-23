@@ -1,6 +1,5 @@
 /**
  * Author : Rishi Gupta
- * Email  : gupt21@gmail.com
  * 
  * This file is part of 'serial communication manager' library.
  *
@@ -19,7 +18,7 @@
 package com.embeddedunveiled.serial;
 
 /**
- * This interface represents Completion handler in our proactor design pattern.
+ * <p>This interface represents Completion handler in our proactor design pattern.</p>
  * 
  * <p>The class implementing this interface is expected to override onNewSerialEvent() method.
  * This method gets called from the looper thread associated with the corresponding listener (handler).</p>

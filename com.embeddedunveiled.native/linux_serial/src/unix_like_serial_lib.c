@@ -1,6 +1,5 @@
 /***************************************************************************************************
  * Author : Rishi Gupta
- * Email  : gupt21@gmail.com
  *
  * This file is part of 'serial communication manager' library.
  *
@@ -147,6 +146,8 @@ void *data_looper(void *arg) {
 	}
 
 	env = (JNIEnv*) env1;
+	/* Local references are valid for the duration of a native method call.
+	   They are freed automatically after the native method returns. */
 	jclass SerialComLooper = (*env)->GetObjectClass(env, looper);
 	if(SerialComLooper == NULL) {
 		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE data_looper() thread could not get class of object of type looper !");
@@ -279,6 +280,8 @@ void *data_looper(void *arg) {
 	ret = epoll_wait(epfd, events, MAXEVENTS, -1);
 	if(ret <= 0) {
 		/* for error just restart looping. */
+		if(DEBUG) fprintf(stderr, "%s %d \n", "epoll_wait failed wait for data with error number : ", errno);
+		if(DEBUG) fflush(stderr);
 		continue;
 	}
 #endif
@@ -287,6 +290,8 @@ void *data_looper(void *arg) {
 	ret = kevent(kq, chlist, 2, evlist, 2, NULL);
 	if(ret <= 0) {
 		/* for error just restart looping. */
+		if(DEBUG) fprintf(stderr, "%s %d \n", "kevent failed to wait for data with error number : ", errno);
+		if(DEBUG) fflush(stderr);
 		continue;
 	}
 
@@ -372,7 +377,7 @@ void *data_looper(void *arg) {
 						continue;
 					}
 				}else if (ret == 0) {
-					/* This indicates, there was no data to read or EOF. */
+					/* This indicates, EOF or port has been removed from system. */
 					dataRead = (*env)->NewByteArray(env, sizeof(empty_buf));
 					(*env)->SetByteArrayRegion(env, dataRead, 0, sizeof(empty_buf), empty_buf);
 					break;

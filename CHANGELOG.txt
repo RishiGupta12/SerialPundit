@@ -1,2 +1,17 @@
+
+v1.0.1 (TODO)
+	- update version number from 1.0.0 to 1.0.1
+	- removed limitation on how many times data/event listeners can be registered/unregistered for a port
+	- add stress and stability tests
+	- delete info about port/handle from global arraylist in java layer
+	- log message is emitted if data/event listener fails to wait for data/event
+	- native write returns error if port is removed and write method is called
+	- scm can find maximum 1024 serial ports attached to system
+	- Javadocs updated
+	- Java Input and Output byte stream support implemented
+	  1. read/write is now also aligned with Java Input and Output byte stream
+	  2. SerialComException now extends IOException instead of Exception
+	  3. write method now throws SerialComException when any error occurs
+
 v1.0.0 (25 Mar 2015)
-  * Initial stable release.
+	- Initial stable release.

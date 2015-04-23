@@ -1,0 +1,97 @@
+#
+# A fatal error has been detected by the Java Runtime Environment:
+#
+#  SIGBUS (0x7) at pc=0x00007f0df28c4f38, pid=30000, tid=139698712344320
+#
+# JRE version: Java(TM) SE Runtime Environment (7.0_75-b13) (build 1.7.0_75-b13)
+# Java VM: Java HotSpot(TM) 64-Bit Server VM (24.75-b04 mixed mode linux-amd64 compressed oops)
+# Problematic frame:
+# 
+[error occurred during error reporting (printing problematic frame), id 0x7]
+
+# Failed to write core dump. Core dumps have been disabled. To enable core dumping, try "ulimit -c unlimited" before starting Java again
+#
+# If you would like to submit a bug report, please visit:
+#   http://bugreport.sun.com/bugreport/crash.jsp
+# The crash happened outside the Java Virtual Machine in native code.
+# See problematic frame for where to report the bug.
+#
+
+---------------  T H R E A D  ---------------
+
+Current thread (0x00007f0e1c00a000):  JavaThread "main" [_thread_in_native, id=30002, stack(0x00007f0e240ff000,0x00007f0e24200000)]
+
+siginfo:si_signo=SIGBUS: si_errno=0, si_code=2 (BUS_ADRERR), si_addr=0x00007f0df28c4f38
+
+Registers:
+RAX=0xffffffffffffffff, RBX=0x0000000000000005, RCX=0xffffffffffffffa0, RDX=0x000000000000000b
+RSP=0x00007f0e241fd860, RBP=0x00007f0e241fe8f0, RSI=0x00007f0e241fe4d0, RDI=0x0000000000000000
+R8 =0x00007f0e241fe918, R9 =0x00000000de943d50, R10=0x00007f0e19064a2c, R11=0x0000000000000000
+R12=0x0000000000000000, R13=0x00007f0e19068d90, R14=0x00007f0e241fe9a8, R15=0x00007f0e1c00a000
+RIP=0x00007f0df28c4f38, EFLAGS=0x0000000000010286, CSGSFS=0x0000000000000033, ERR=0x0000000000000014
+  TRAPNO=0x000000000000000e
+
+Top of Stack: (sp=0x00007f0e241fd860)
+0x00007f0e241fd860:   00007f0e241fd8c0 00007f0e241fe918
+0x00007f0e241fd870:   00000400241fe950 0000000000000005
+0x00007f0e241fd880:   00007f0e241fe900 00007f0e1c00a1e8
+0x00007f0e241fd890:   ffffffffffffffff 00007f0e241fe610
+0x00007f0e241fd8a0:   00007f0e1c073d30 0000000000000032
+0x00007f0e241fd8b0:   00007f0e19069003 00007f0e19069003
+0x00007f0e241fd8c0:   00000000ffffffff ffffffffffffffff
+0x00007f0e241fd8d0:   00007f0e1c00a818 00007f0e00000091
+0x00007f0e241fd8e0:   00007f0e19068d90 00007f0e1c00a840
+0x00007f0e241fd8f0:   00007f0e1c0067b0 00007f0e19069b10
+0x00007f0e241fd900:   00007f0e19069003 00007f0e1c007210
+0x00007f0e241fd910:   00007f0e241fe660 00007f0e2304b182
+0x00007f0e241fd920:   00007f0e241fda80 00007f0e1c00a000
+0x00007f0e241fd930:   00007f0e1c00a000 00007f0e19068d90
+0x00007f0e241fd940:   00007f0e1c00a410 00007f0e1c00a420
+0x00007f0e241fd950:   00007f0e1c00a7f8 00000000000003d8
+0x00007f0e241fd960:   00007f0e19069008 00000000000003d8
+0x00007f0e241fd970:   00007f0e1c00a7f8 00007f0e1c00a420
+0x00007f0e241fd980:   00007f0e241fe950 00007f0e19069008
+0x00007f0e241fd990:   00007f0e19068d90 00007f0e00000000
+0x00007f0e241fd9a0:   00000000d7d11bb0 00007f0e241fe950
+0x00007f0e241fd9b0:   00007f0e1c00a000 00007f0e190004e7
+0x00007f0e241fd9c0:   00007f0e2350d5b0 0000000000000000
+0x00007f0e241fd9d0:   fffffffffffc44b6 00007f0e241fe280
+0x00007f0e241fd9e0:   000000000000000f 00007f0e22fae300
+0x00007f0e241fd9f0:   00007f0e23046b90 0000000000000000
+0x00007f0e241fda00:   00007f0e2350d5b0 0000000000000000
+0x00007f0e241fda10:   fffffffffffc44b6 00007f0e241fe280
+0x00007f0e241fda20:   000000000000000f 00007f0e22fae300
+0x00007f0e241fda30:   00007f0e23046b90 000000000001d06c
+0x00007f0e241fda40:   00007f0e241fda80 00007f0e1c00a820
+0x00007f0e241fda50:   00007f0e241fda70 00007f0e1c0d5e80 
+
+Instructions: (pc=0x00007f0df28c4f38)
+0x00007f0df28c4f18:   00 00 00 48 8b 85 88 ef ff ff 48 8d 8d e0 fb ff
+0x00007f0df28c4f28:   ff ba 00 04 00 00 48 89 ce 89 c7 e8 48 f0 ff ff
+0x00007f0df28c4f38:   48 89 85 a0 ef ff ff 48 83 bd a0 ef ff ff 00 0f
+0x00007f0df28c4f48:   8e 69 01 00 00 e8 1e ef ff ff 8b 00 85 c0 0f 85 
+
+Register to memory mapping:
+
+RAX=0xffffffffffffffff is an unknown value
+RBX=0x0000000000000005 is an unknown value
+RCX=0xffffffffffffffa0 is an unknown value
+RDX=0x000000000000000b is an unknown value
+RSP=0x00007f0e241fd860 is pointing into the stack for thread: 0x00007f0e1c00a000
+RBP=0x00007f0e241fe8f0 is pointing into the stack for thread: 0x00007f0e1c00a000
+RSI=0x00007f0e241fe4d0 is pointing into the stack for thread: 0x00007f0e1c00a000
+RDI=0x0000000000000000 is an unknown value
+R8 =0x00007f0e241fe918 is pointing into the stack for thread: 0x00007f0e1c00a000
+R9 =0x00000000de943d50 is an oop
+com.embeddedunveiled.serial.SerialComReadStatus 
+ - klass: 'com/embeddedunveiled/serial/SerialComReadStatus'
+R10=0x00007f0e19064a2c is at entry_point+76 in (nmethod*)0x00007f0e19064850
+R11=0x0000000000000000 is an unknown value
+R12=0x0000000000000000 is an unknown value
+R13=0x00007f0e19068d90 is at entry_point+-432 in (nmethod*)0x00007f0e19068d90
+R14=0x00007f0e241fe9a8 is pointing into the stack for thread: 0x00007f0e1c00a000
+R15=0x00007f0e1c00a000 is a thread
+
+
+Stack: [0x00007f0e240ff000,0x00007f0e24200000],  sp=0x00007f0e241fd860,  free space=1018k
+Native frames: (J=compiled Java code, j=interpreted, Vv=VM code, C=native code)

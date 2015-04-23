@@ -1,6 +1,5 @@
 /***************************************************************************************************
  * Author : Rishi Gupta
- * Email  : gupt21@gmail.com
  *
  * This file is part of 'serial communication manager' library.
  *

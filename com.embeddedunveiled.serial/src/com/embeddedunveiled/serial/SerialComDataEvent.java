@@ -1,6 +1,5 @@
 /**
  * Author : Rishi Gupta
- * Email  : gupt21@gmail.com
  * 
  * This file is part of 'serial communication manager' library.
  *
@@ -19,8 +18,8 @@
 package com.embeddedunveiled.serial;
 
 /**
- * This class encapsulate data received from serial port. Application can call getDataBytes() method
- * on an instance of this class to retrieve data.
+ * <p>This class encapsulate data received from serial port. Application can call getDataBytes() method
+ * on an instance of this class to retrieve data.</p>
  */
 
 public final class SerialComDataEvent {

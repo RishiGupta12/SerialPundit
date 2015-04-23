@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.embeddedunveiled</groupId>
   <artifactId>scm</artifactId>
-  <version>1.0.0</version>
+  <version>1.0.1</version>
   <packaging>jar</packaging>
   <name>serial communication manager</name>
   <description>serial communication in java</description>

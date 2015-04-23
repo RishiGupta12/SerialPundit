@@ -9,7 +9,7 @@
 # Modify PATH as per your system
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-PROJECT_ROOT_DIR_PATH="/home/r/ws-host-uart/serial-com-manager"
+PROJECT_ROOT_DIR_PATH="/home/r/ws-host-uart/serial-communication-manager"
 JDK_INCLUDE_DIR="/home/r/packages/jdk1.7.0_75/include"
 JNI_HEADER_FILE_PATH="/home/r/packages/jdk1.7.0_75/include/jni.h"
 
@@ -35,8 +35,13 @@ i="_x86.so"
 j="scm"
 k="jar"
 
+# Build java source files and place class files in bin folder
+javac -d $PROJECT_ROOT_DIR_PATH/com.embeddedunveiled.serial/bin $PROJECT_ROOT_DIR_PATH/com.embeddedunveiled.serial/src/com/embeddedunveiled/serial/*.java
+echo "javac done"
+
 # Generating header file
 javah -jni -d $PROJECT_ROOT_DIR_PATH/com.embeddedunveiled.native -classpath $PROJECT_ROOT_DIR_PATH/com.embeddedunveiled.serial/src com.embeddedunveiled.serial.SerialComJNINativeInterface
+echo "javah done"
 
 # Building file: unix_like_serial.c
 gcc -I$JDK_INCLUDE_DIR -include$JNI_HEADER_FILE_PATH -O0 -g3 -Wall -c -fmessage-length=0 -fPIC -m64 -pthread -o $PROJECT_ROOT_DIR_PATH/scripts_output/unix_like_serial_64.o $PROJECT_ROOT_DIR_PATH/com.embeddedunveiled.native/linux_serial/src/unix_like_serial.c
@@ -99,11 +104,11 @@ if [ -f $PROJECT_ROOT_DIR_PATH/com.embeddedunveiled.native/linux_serial/Debug/$d
 cp $PROJECT_ROOT_DIR_PATH/com.embeddedunveiled.native/linux_serial/Debug/$d$LIB_VERSION$f $PROJECT_ROOT_DIR_PATH/com.embeddedunveiled.serial/libs
 fi
 
-# Build java source files and place class files in bin folder
-javac -d $PROJECT_ROOT_DIR_PATH/com.embeddedunveiled.serial/bin $PROJECT_ROOT_DIR_PATH/com.embeddedunveiled.serial/src/com/embeddedunveiled/serial/*.java
+echo "gcc done"
 
 # Export artifact scm.jar
 jar cf $PROJECT_ROOT_DIR_PATH/scripts_output/$j$LIB_VERSION$k -C $PROJECT_ROOT_DIR_PATH/com.embeddedunveiled.serial/bin com -C $PROJECT_ROOT_DIR_PATH/com.embeddedunveiled.serial libs
+echo "jar done"
 
 echo "  "
 echo "~~~~~~~~~~ Build completed. Jar file is in scripts_output folder. ~~~~~~~~~~"

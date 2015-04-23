@@ -1,6 +1,5 @@
 /**
  * Author : Rishi Gupta
- * Email  : gupt21@gmail.com
  * 
  * This file is part of 'serial communication manager' library.
  *
@@ -26,7 +25,7 @@ import java.util.TreeSet;
 import java.util.regex.Pattern;
 
 /**
- * This class arranges serial port names found in the system in alphanumeric order.
+ * <p>This class arranges serial port names found in the system in alphanumeric order.</p>
  */
 
 public final class SerialComPortsList {

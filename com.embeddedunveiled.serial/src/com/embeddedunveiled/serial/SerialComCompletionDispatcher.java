@@ -1,6 +1,5 @@
 /**
  * Author : Rishi Gupta
- * Email  : gupt21@gmail.com
  * 
  * This file is part of 'serial communication manager' library.
  *
@@ -123,6 +122,7 @@ public final class SerialComCompletionDispatcher {
 	 * @param eventListener listener for which looper has to be set up
 	 * @param mHandleInfo Reference to SerialComPortHandleInfo object associated with given handle
 	 * @return true on success
+	 * @throws SerialComException if error occurs
 	 */
 	
 	public boolean setUpEventLooper(long handle, SerialComPortHandleInfo mHandleInfo, ISerialComEventListener eventListener) throws SerialComException {

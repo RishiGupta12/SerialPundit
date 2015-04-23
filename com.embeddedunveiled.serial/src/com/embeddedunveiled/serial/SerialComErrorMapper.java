@@ -1,6 +1,5 @@
 /**
  * Author : Rishi Gupta
- * Email  : gupt21@gmail.com
  * 
  * This file is part of 'serial communication manager' library.
  *
@@ -19,33 +18,41 @@
 package com.embeddedunveiled.serial;
 
 /**
- * This class gives consistent error in java layer mapping OS specific error numbers.
+ * <p>This class gives consistent error in java layer mapping OS specific error numbers.</p>
  */
 
 public final class SerialComErrorMapper {
 	
-	public static final String ERR_UNABLE_TO_DETECT_OS_TYPE = "Unable to detect Operating System !";
-	public static final String ERR_NULL_POINTER_FOR_PORT_OPENING = "Name of the port to open is not passed !";
-	public static final String ERR_WRONG_HANDLE = "Wrong port handle passed for the requested operations !";
-	public static final String ERR_LISTENER_ALREADY_EXIST = "Event listener already exist. Only one listener allowed !";
-	public static final String ERR_DATA_LISTENER_ALREADY_EXIST = "Data listener already exist. Only one listener allowed !";
-	public static final String ERR_NULL_POINTER_FOR_LISTENER = "The listener can not be null !";
-	public static final String ERR_WRONG_LISTENER_PASSED = "This listener is not registered !";
-	public static final String ERR_UNABLE_TO_WRITE = "Unable to copy native library in tmp directory. Probably insufficient permissions !";
-	public static final String ERR_PORT_NAME_NULL = "Port name can not be null !";
-	public static final String ERR_INVALID_DATA_LENGTH = "Number of bytes should be positive value !";
-	public static final String ERR_WIN_OWNERSHIP = "Windows does not allow port sharing. The exclusiveOwnerShip must be true !";
-	public static final String ERR_CLOSE_WITHOUT_UNREG_DATA = "Closing port without unregistering data listener is not allowed. !";
-	public static final String ERR_CLOSE_WITHOUT_UNREG_EVENT = "Closing port without unregistering event listener is not allowed. !";
+	public static final String ERR_UNABLE_TO_DETECT_OS_TYPE = "Unable to detect Operating System";
+	public static final String ERR_NULL_POINTER_FOR_PORT_OPENING = "Name of the port to open is not passed";
+	public static final String ERR_WRONG_HANDLE = "Wrong port handle passed for the requested operations";
+	public static final String ERR_LISTENER_ALREADY_EXIST = "Event listener already exist. Only one listener allowed";
+	public static final String ERR_DATA_LISTENER_ALREADY_EXIST = "Data listener already exist. Only one listener allowed";
+	public static final String ERR_NULL_POINTER_FOR_LISTENER = "The listener can not be null";
+	public static final String ERR_WRONG_LISTENER_PASSED = "This listener is not registered";
+	public static final String ERR_UNABLE_TO_WRITE = "Unable to copy native library in tmp directory. Probably insufficient permissions";
+	public static final String ERR_PORT_NAME_NULL = "Port name can not be null";
+	public static final String ERR_INVALID_DATA_LENGTH = "Number of bytes should be positive value";
+	public static final String ERR_WIN_OWNERSHIP = "Windows does not allow port sharing. The exclusiveOwnerShip must be true";
+	public static final String ERR_CLOSE_WITHOUT_UNREG_DATA = "Closing port without unregistering data listener is not allowed";
+	public static final String ERR_CLOSE_WITHOUT_UNREG_EVENT = "Closing port without unregistering event listener is not allowed";
+	public static final String ERR_WRITE_NULL_DATA_PASSED = "Null data buffer passed to write operation";
+	public static final String ERR_WRITE_INDEX_VIOLATION = "Index violation detected";
+	public static final String ERR_NOT_A_FILE = "Seems like either file does not exist or not a file";
+	public static final String ERR_TIMEOUT_RECEIVER_CONNECT = "Timedout while waiting for receiver to initiate connection setup";
+	public static final String ERR_MAX_RETRY_REACHED = "Maximum number of retries reached while sending same data block";
+	public static final String ERR_KNOWN_ERROR_OCCURED = "Unknown error occured";
+	public static final String ERR_TIMEOUT_ACKNOWLEDGE_BLOCK = "Timedout while waiting for block reception acknowledgement from receiver";
+	public static final String ERR_TIMEOUT_ACKNOWLEDGE_EOT = "Timedout while waiting for EOT reception acknowledgement from receiver";
 	
 	public SerialComErrorMapper() {
 	}
 	
 	/**
-	 * Error numbers and their meaning is taken from Linux standard just to make it easier for developer. If an error occurs in
+	 * <p>Error numbers and their meaning is taken from Linux standard just to make it easier for developer. If an error occurs in
 	 * POSIX/BSD compatible native library, these error numbers have one-to-one correspondence. However, in case of windows, native
 	 * library may map windows error number to their corresponding number given below. This gives user a consistent behaviour
-	 * of java library throwing exactly same exception/error irrespective of which OS platform the library is running on.
+	 * of java library throwing exactly same exception/error irrespective of which OS platform the library is running on.</p>
 	 */
 	public String getMappedError(long errorNumber) {
 		String exceptionType = null;

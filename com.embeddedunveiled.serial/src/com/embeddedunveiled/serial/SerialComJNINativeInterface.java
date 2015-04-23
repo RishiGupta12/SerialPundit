@@ -1,6 +1,5 @@
 /**
  * Author : Rishi Gupta
- * Email  : gupt21@gmail.com
  * 
  * This file is part of 'serial communication manager' library.
  *
@@ -25,7 +24,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 
 /**
- * This class load native library and is an interface between java and native modules.
+ * <p>This class load native library and is an interface between java and native modules.</p>
  */
 
 public final class SerialComJNINativeInterface {
@@ -190,13 +189,13 @@ public final class SerialComJNINativeInterface {
 	public native boolean debug(boolean enableDebug);
 	public native String[] getSerialPortNames();
 	
-	public native int registerPortMonitorListener(long handle, String portName, IPortMonitor portMonitor);
+	public native int registerPortMonitorListener(long handle, String portName, ISerialComPortMonitor portMonitor);
 	public native int unregisterPortMonitorListener(long handle);
 	
 	public native long openComPort(String portName, boolean enableRead, boolean enableWrite, boolean exclusiveOwner);
 	public native int closeComPort(long handle);
 	
-	public native byte[] readBytes(long handle, int byteCount);
+	public native byte[] readBytes(long handle, int byteCount, SerialComReadStatus retStatus);
 	public native int writeBytes(long handle, byte[] buffer, int delay);
 	
 	public native int configureComPortData(long handle, int dataBits, int stopBits, int parity, int baudRateTranslated, int custBaudTranslated);
