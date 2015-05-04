@@ -30,10 +30,10 @@ public class Test15 {
 			PORT1 = "/dev/ttyUSB1";
 		}else if(osType == SerialComManager.OS_WINDOWS) {
 			PORT = "COM51";
-			PORT = "COM52";
+			PORT1 = "COM52";
 		}else if(osType == SerialComManager.OS_MAC_OS_X) {
 			PORT = "/dev/cu.usbserial-A70362A3";
-			PORT = "/dev/cu.usbserial-A602RDCH";
+			PORT1 = "/dev/cu.usbserial-A602RDCH";
 		}else if(osType == SerialComManager.OS_SOLARIS) {
 			PORT = null;
 			PORT1 = null;

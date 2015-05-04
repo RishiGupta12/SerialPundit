@@ -1,6 +1,6 @@
 
 Please suggest :
 
-- more test and use cases you would like to test against this library
+- More test and use cases we should test against this library
 
-- environments and settings
+- Environments and settings like virtual machine etc

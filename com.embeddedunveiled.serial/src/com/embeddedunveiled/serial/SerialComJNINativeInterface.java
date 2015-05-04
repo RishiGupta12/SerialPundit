@@ -24,7 +24,13 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 
 /**
- * <p>This class load native library and is an interface between java and native modules.</p>
+ * <p>This class load native library and is an interface between java and native shared library.</p>
+ * <p>1. Extract from jar.</p>
+ * <p>2. Locate in user specific temp folder.</p>
+ * <p>3. Try to load native shared library.</p>
+ * <p>4. Try to link functions. </p>
+ * 
+ * <p>Try to minimize transition from Java to JNI whenever possible for performance reason.</p>
  */
 
 public final class SerialComJNINativeInterface {
@@ -40,7 +46,7 @@ public final class SerialComJNINativeInterface {
 	}
 	
 	public SerialComJNINativeInterface() {
-		/* After native library has been loaded, initialise it. */
+		/* After native library has been loaded, initialize it. */
 		initNativeLib();
 	}
 

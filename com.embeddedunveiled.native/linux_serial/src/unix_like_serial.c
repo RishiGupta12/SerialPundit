@@ -569,6 +569,11 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
  *
  * We modify status field of SerialComReadStatus object if read fails due to any error, EOF is reached or port is removed
  * from system.
+ *
+ * 1. If data is read from serial port and no error occurs, return array of bytes
+ * 2. If there is no data to read from serial port and no error occurs, return NULL
+ * 3. If EOF is encountered, return NULL and set status variable to 2
+ * 4. If error occurs for whatever reason, return NULL and set status variable to Linux/Mac specific error number
  */
 JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_readBytes(JNIEnv *env, jobject obj, jlong fd, jint count, jobject status) {
 	int i = -1;
@@ -618,7 +623,6 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINative
 				continue;
 			}else {
 				/* This indicates, irrespective of, there was data to read or not, we got an error during operation. */
-				/* Can we handle this condition more gracefully. */
 				jclass statusClass = (*env)->GetObjectClass(env, status);
 				if(statusClass == NULL) {
 					if(DEBUG) fprintf(stderr, "%s \n", "NATIVE readBytes() could not get class of object of type SerialComReadStatus !");

@@ -9,7 +9,7 @@
 						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/macOS_serial"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/tet/Debug"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/macOS_serial/Debug"/>
-						<entry flags="RESOLVED" kind="libraryFile" name="mac_1.0.0_x86.dylib" srcPrefixMapping="" srcRootPath=""/>
+						<entry flags="RESOLVED" kind="libraryFile" name="mac_1.0.1_x86.dylib" srcPrefixMapping="" srcRootPath=""/>
 					</externalSetting>
 				</externalSettings>
 				<extensions>
@@ -22,7 +22,7 @@
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-				<configuration artifactExtension="" artifactName="mac_1.0.0_x86.dylib" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.sharedLib" buildProperties="org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug,org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.sharedLib" cleanCommand="rm -rf" description="" id="cdt.managedbuild.config.macosx.so.debug.259703518" name="Debug" parent="cdt.managedbuild.config.macosx.so.debug">
+				<configuration artifactExtension="" artifactName="mac_1.0.1_x86.dylib" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.sharedLib" buildProperties="org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug,org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.sharedLib" cleanCommand="rm -rf" description="" id="cdt.managedbuild.config.macosx.so.debug.259703518" name="Debug" parent="cdt.managedbuild.config.macosx.so.debug">
 					<folderInfo id="cdt.managedbuild.config.macosx.so.debug.259703518." name="/" resourcePath="">
 						<toolChain id="cdt.managedbuild.toolchain.gnu.macosx.so.debug.1029705695" name="MacOSX GCC" superClass="cdt.managedbuild.toolchain.gnu.macosx.so.debug">
 							<targetPlatform id="cdt.managedbuild.target.gnu.platform.macosx.so.debug.420804333" name="Debug Platform" superClass="cdt.managedbuild.target.gnu.platform.macosx.so.debug"/>
@@ -143,6 +143,13 @@
 		</scannerConfigBuildInfo>
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
-	<storageModule moduleId="refreshScope"/>
+	<storageModule moduleId="refreshScope" versionNumber="2">
+		<configuration configurationName="Release">
+			<resource resourceType="PROJECT" workspacePath="/macOS_serial"/>
+		</configuration>
+		<configuration configurationName="Debug">
+			<resource resourceType="PROJECT" workspacePath="/macOS_serial"/>
+		</configuration>
+	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
 </cproject>

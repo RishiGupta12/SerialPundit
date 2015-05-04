@@ -1,28 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <section name="Workbench">
 	<section name="org.eclipse.ui.texteditor.FindReplaceDialog_dialogBounds">
-		<item value="313" key="DIALOG_WIDTH"/>
+		<item value="315" key="DIALOG_WIDTH"/>
 		<item value="152" key="DIALOG_Y_ORIGIN"/>
+		<item value="448" key="DIALOG_HEIGHT"/>
 		<item value="1362" key="DIALOG_X_ORIGIN"/>
-		<item value="419" key="DIALOG_HEIGHT"/>
 		<item value="1|Ubuntu|11.0|0|GTK|1|" key="DIALOG_FONT_NAME"/>
 	</section>
 	<section name="org.eclipse.ui.texteditor.FindReplaceDialog">
 		<item value="true" key="wrap"/>
-		<item value="false" key="casesensitive"/>
 		<item value="false" key="isRegEx"/>
+		<item value="false" key="casesensitive"/>
 		<item value="false" key="incremental"/>
 		<item value="false" key="wholeword"/>
-		<item value="System" key="selection"/>
+		<item value="TODO" key="selection"/>
 		<list key="findhistory">
+			<item value="todo"/>
+			<item value="block"/>
+			<item value="WAITNAK"/>
+			<item value="fileToSend"/>
 			<item value="system"/>
 			<item value=".out"/>
 			<item value="out"/>
 			<item value="waitnak"/>
-			<item value="state: 1"/>
-			<item value="blockIndex"/>
 		</list>
 		<list key="replacehistory">
+			<item value="CONNECT"/>
+			<item value="fileToProcess"/>
 		</list>
 	</section>
 </section>

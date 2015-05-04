@@ -17,9 +17,12 @@
 
 package com.embeddedunveiled.serial;
 
-import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 
 /**
@@ -27,41 +30,44 @@ import java.io.IOException;
  */
 public final class SerialComXModem {
 	
-	private static final byte SOH = 0x01; // Start of header byteacter
-	private static final byte EOT = 0x04; // End-of-transmission byteacter
-	private static final byte ACK = 0x06; // Acknowledge byteacter
-	private static final byte NAK = 0x15; // Negative-acknowledge byteacter
-	private static final byte SUB = 0x1A; // Substitute/CTRL-Z
+	private static final byte SOH = 0x01; // Start of header character
+	private static final byte EOT = 0x04; // End-of-transmission character
+	private static final byte ACK = 0x06; // Acknowledge byte character
+	private static final byte NAK = 0x15; // Negative-acknowledge character
+	private static final byte SUB = 0x1A; // Substitute/CTRL+Z
 		
 	private SerialComManager scm = null;
 	private long handle = 0;
-	private File fileToSend = null;
+	private File fileToProcess = null;
 	
 	private int blockNumber = -1;
 	private byte[] block = new byte[132];       // 132 bytes xmodem block/packet
 	private BufferedInputStream inStream = null;
+	private BufferedOutputStream outStream = null;
 	private boolean noMoreData = false;
 	
 	
 	/**
+	 * <p>The constructor, joins instance of this class to the instance of scm.</p>
+	 * 
 	 * @param scm SerialComManager instance associated with this handle
 	 * @param handle of the port on which file is to be sent
-	 * @param fileToSend File instance representing file to be sent
+	 * @param fileToProcess File instance representing file to be sent
 	 */
-	public SerialComXModem(SerialComManager scm, long handle, File fileToSend) {
+	public SerialComXModem(SerialComManager scm, long handle, File fileToProcess) {
 		this.scm = scm;
 		this.handle = handle;
-		this.fileToSend = fileToSend;
+		this.fileToProcess = fileToProcess;
 	}
 
 	/**
 	 * <p>For internal use only.</p>
-	 * <p>Represents actions to execute in state machine to implement xmodem protocol.</p>
+	 * <p>Represents actions to execute in state machine to implement xmodem protocol for sending files.</p>
 	 */
 	public boolean sendFileX() throws SecurityException, IOException, SerialComException {
 		
 		// Finite state machine
-		final int WAITNAK = 0;
+		final int CONNECT = 0;
 		final int BEGINSEND = 1;
 		final int WAITACK = 2;
 		final int RESEND = 3;
@@ -74,16 +80,16 @@ public final class SerialComXModem {
 		String errMsg = null;
 		int retryCount = 0;
 		int state = -1;
-		byte[] data = new byte[512];
+		byte[] data = null;
 		long responseWaitTimeOut = 0;
 		long eotAckWaitTimeOutValue = 0;
 		
-		inStream = new BufferedInputStream(new FileInputStream(fileToSend));
-		state = WAITNAK;
+		inStream = new BufferedInputStream(new FileInputStream(fileToProcess));
+		state = CONNECT;
 		
 		while(true) {
 			switch(state) {
-				case WAITNAK:
+				case CONNECT:
 					responseWaitTimeOut = System.currentTimeMillis() + 60000;
 					while(nakReceived != true) {
 						try {
@@ -94,6 +100,9 @@ public final class SerialComXModem {
 						}
 						
 						if(data.length > 0) {
+							/* Instead of purging receive buffer and then waiting for NAK, receive all data because
+							 * this approach might be faster. The other side might have opened first time and may 
+							 * have flushed garbage data. So receive buffer may contain garbage + NAK character. */
 							for(int x=0; x < data.length; x++) {
 								if(NAK == data[x]) {
 									nakReceived = true;
@@ -162,8 +171,7 @@ public final class SerialComXModem {
 						}
 						
 						/* if data received process it. if long timeout occurred abort otherwise retry reading from serial port.
-						 * if nothing
-						 */
+						 * if nothing received at all abort. */
 						if(data.length > 0) {
 							break;
 						}else {
@@ -261,7 +269,7 @@ public final class SerialComXModem {
 		block[1] = (byte) blockNumber;
 		block[2] = (byte) ~blockNumber;
 		
-		for(x=x+3; x<128+3; x++) {
+		for(x=x+3; x<128+4; x++) {
 			data = inStream.read();
 			if(data < 0) {
 				if(x != 3) {
@@ -282,5 +290,191 @@ public final class SerialComXModem {
 			blockChecksum = (byte)blockChecksum + block[x];
 		}
 		block[131] = (byte) (blockChecksum % 256);
+	}
+	
+	/**
+	 * <p>For internal use only.</p>
+	 * <p>Represents actions to execute in state machine to implement xmodem protocol for receiving files.</p>
+	 * 
+	 * @throws SerialComException
+	 * @throws FileNotFoundException 
+	 */
+	public boolean receiveFileX() throws SerialComException, FileNotFoundException, IOException {
+		
+		// Finite state machine
+		final int CONNECT = 0;
+		final int RECEIVEDATA = 1;
+		final int VERIFY = 2;
+		final int REPLY = 3;
+		final int ABORT = 4;
+		
+		int a = 0;
+		int x = 0;
+		int z = 0;
+		int retryCount = 0;
+		int state = -1;
+		int blockNumber = 1; //TODO CHK VALID BLK NO
+		int blockChecksum = -1;
+		int bufferIndex = 0;
+		boolean readComplete = false;
+		boolean firstBlock = false;
+		boolean isCorrupted = false;
+		boolean rxDone = false;
+		byte[] block = new byte[132];
+		byte[] data = null;
+		String errMsg = null;
+		
+		outStream = new BufferedOutputStream(new FileOutputStream(fileToProcess));
+		
+		// Clear receive buffer before start
+		try {
+			scm.clearPortIOBuffers(handle, true, false);
+		} catch (SerialComException e) {
+			outStream.close();
+			throw e;
+		}
+		
+		state = CONNECT;
+		while(true) {
+			System.out.println("state : " + state);
+			switch(state) {
+				case CONNECT:
+					if(retryCount > 10) {
+						state = ABORT;
+						errMsg = SerialComErrorMapper.ERR_TIMEOUT_TRANSMITTER_CONNECT;
+						break;
+					}
+					
+					try {
+						scm.writeSingleByte(handle, NAK); // send NAK to begin tx
+						firstBlock = true;
+						state = RECEIVEDATA;
+					} catch (SerialComException exp) {
+						outStream.close();
+						throw exp;
+					}
+					break;
+				case RECEIVEDATA:
+					if(firstBlock == false) {
+				     // TODO
+					}else {
+						/* If anything is not received from port with in 10 seconds (i.e. transmitter has not started sending data)
+						 * go back to CONNECT state to send NAK again otherwise as data is received goto REPLY or VERIFY state
+						 * based on EOT or data received. */
+						for(a=0; a<34; a++) {
+							try {
+								Thread.sleep(300); // 300*34 = 10.2 seconds
+							} catch (InterruptedException e) {
+							}
+							
+							try {
+								data = scm.readBytes(handle);
+								System.out.println("length : " + data.length);
+							} catch (SerialComException exp) {
+								outStream.close();
+								throw exp;
+							}
+							
+							if(data.length > 0) {
+								retryCount = 0;                  // reset retry count
+								if(data[0] == EOT){            // transmitter sent EOT as very first data !
+									state = REPLY;
+									isCorrupted = false;
+									rxDone = true;
+									break;
+								}else {
+									if(data.length == 132) {   // complete block read
+										for(int i=0; i < 132; i++) {
+											block[i] = data[i];
+										}
+										state = VERIFY;
+										break;
+									}else {                     // partial block read
+										readComplete = false;
+										bufferIndex = data.length;
+										for(int d=0; d < bufferIndex; d++) {
+											block[d] = data[d];
+										}
+										while(true) {
+											try {
+												Thread.sleep(50);
+											} catch (InterruptedException e) {
+											}
+											
+											try {
+												z = 0;
+												data = scm.readBytes(handle);
+												if(data.length > 0) {
+													for(bufferIndex = bufferIndex + 0; bufferIndex < data.length; bufferIndex++) {
+														block[bufferIndex] = data[z];
+														z++;
+													}
+													if(bufferIndex > 131) {
+														firstBlock = false;
+														break;
+													}
+												}
+											} catch (SerialComException exp) {
+												outStream.close();
+												throw exp;
+											}
+										}
+									}
+								}
+							}
+						}
+						
+						if(a > 33){
+							state = CONNECT;
+							retryCount++;
+						}
+						
+					}
+					break;
+				case VERIFY:
+					blockChecksum = 0;
+					isCorrupted = false;
+					// verify block number
+					if(block[1] != ~block[2]){
+						isCorrupted = true;
+						state = REPLY;
+						break;
+					}
+					// verify checksum
+					for(x=3; x<131; x++) {
+						blockChecksum = (byte)blockChecksum + block[x];
+					}
+					blockChecksum = (byte) (blockChecksum % 256);
+					if(blockChecksum != block[131]){
+						isCorrupted = true;
+						state = REPLY;
+					}
+					state = REPLY;
+					break;
+				case REPLY:
+					try {
+						if(isCorrupted == false) {
+							scm.writeSingleByte(handle, ACK);
+						}else {
+							scm.writeSingleByte(handle, NAK);
+						}
+					} catch (SerialComException exp) {
+						outStream.close();
+						throw exp;
+					}
+					if(rxDone == false) {
+						state = RECEIVEDATA;
+					}else {
+						outStream.close();
+						return true; // file reception successfully finished, let us go back home
+					}
+					break;
+				case ABORT:
+					/* if ioexception occurs, control will not reach here instead exception would have been
+					 * thrown already. */
+					outStream.close();
+					throw new SerialComTimeOutException("receiveFile()", errMsg);
+			}
+		}
 	}
 }

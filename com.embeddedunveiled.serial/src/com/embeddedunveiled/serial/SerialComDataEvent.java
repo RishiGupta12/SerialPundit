@@ -21,7 +21,6 @@ package com.embeddedunveiled.serial;
  * <p>This class encapsulate data received from serial port. Application can call getDataBytes() method
  * on an instance of this class to retrieve data.</p>
  */
-
 public final class SerialComDataEvent {
 	
 	private byte[] mData = null;
@@ -30,6 +29,9 @@ public final class SerialComDataEvent {
     	this.mData = data;
     }
     
+    /**
+     * <p>This method return array of bytes which represents data bytes read from serial port.</p>
+     */
     public byte[] getDataBytes() {
     	return mData;
     }

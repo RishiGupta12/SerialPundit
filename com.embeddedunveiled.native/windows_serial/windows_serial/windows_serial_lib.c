@@ -1,6 +1,5 @@
 /***************************************************************************************************
  * Author : Rishi Gupta
- * Email  : gupt21@gmail.com
  *
  * This file is part of 'serial communication manager' library.
  *
@@ -59,6 +58,7 @@ unsigned __stdcall event_data_looper(void* arg) {
 	OVERLAPPED overlapped;
 	BOOL eventOccurred = FALSE;
 	DWORD dwEvent;
+	int error_count = 0;
 
 	int CTS =  0x01;  // 0000001
 	int DSR =  0x02;  // 0000010
@@ -87,6 +87,8 @@ unsigned __stdcall event_data_looper(void* arg) {
 	}
 	env = (JNIEnv*) env1;
 
+	/* Local references are valid for the duration of a native method call.
+	They are freed automatically after the native method returns. */
 	jclass SerialComLooper = (*env)->GetObjectClass(env, looper);
 	if(SerialComLooper == NULL) {
 		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE event_data_looper() thread could not get class of object of type looper !");
@@ -131,7 +133,23 @@ unsigned __stdcall event_data_looper(void* arg) {
 		LeaveCriticalSection(((struct looper_thread_params*) arg)->csmutex);
 		return 0; /* For unrecoverable errors we would like to exit and try again. */
 	}
-	
+
+	jmethodID mide = (*env)->GetMethodID(env, SerialComLooper, "insertInDataErrorQueue", "(I)V");
+	if ((*env)->ExceptionOccurred(env)) {
+		LOGE(env);
+	}
+	if(mide == NULL) {
+		if (DEBUG) fprintf(stderr, "%s \n", "NATIVE event_data_looper() thread failed to retrieve method id of method insertInDataErrorQueue in class SerialComLooper !");
+		if (DEBUG) fprintf(stderr, "%s \n", "NATIVE event_data_looper() thread exiting. Please RETRY registering listener !");
+		if (DEBUG) fflush(stderr);
+		EnterCriticalSection(((struct looper_thread_params*) arg)->csmutex);
+		CloseHandle(((struct looper_thread_params*) arg)->thread_handle);
+		((struct looper_thread_params*) arg)->init_done = -240;
+		((struct looper_thread_params*) arg)->thread_handle = 0;
+		LeaveCriticalSection(((struct looper_thread_params*) arg)->csmutex);
+		return 0; /* For unrecoverable errors we would like to exit and try again. */
+	}
+
 	/* Set the event mask this thread will wait for. */
 	if(data_enabled == 1) {
 		/* A character was received and placed in the input buffer. */
@@ -193,15 +211,17 @@ unsigned __stdcall event_data_looper(void* arg) {
 		/* If the overlapped operation cannot be completed immediately, the function returns FALSE and the GetLastError function returns ERROR_IO_PENDING,
 		   indicating that the operation is executing in the background. When this happens, the system sets the hEvent member of the OVERLAPPED structure
 		   to the not-signaled state before WaitCommEvent returns, and then it sets it to the signaled state when one of the specified events or an error 
-		   occurs.
+		   occurs. */
 
-		   Note that sometimes if port is physically removed from system while listener thread is still alive, system may become slow or hang. This need
-		   more testing and clarification from Windows OS perspective. */
+		if (DEBUG) fprintf(stderr, "rishi : %ld\n", ((struct looper_thread_params*) arg)->data_enabled);
+		if (DEBUG) fflush(stderr);
+		
+
 		ret = WaitCommEvent(hComm, &events_mask, &overlapped);
 		if(ret == 0) {
 			errorVal = GetLastError();
-			ClearCommError(hComm, &error_type, &com_stat);
 			if(errorVal == ERROR_IO_PENDING) {
+				error_count = 0;  /* reset error_count */
 				dwEvent = WaitForMultipleObjects(2, ((struct looper_thread_params*) arg)->wait_event_handles, FALSE, INFINITE);
 				switch (dwEvent) {
 					case WAIT_OBJECT_0 + 0:
@@ -228,6 +248,16 @@ unsigned __stdcall event_data_looper(void* arg) {
 						if(DEBUG) fflush(stderr);
 				}
 			}else {
+				if(((struct looper_thread_params*) arg)->data_enabled == 1) {
+					error_count++;
+					if(error_count > 25) {
+						(*env)->CallVoidMethod(env, looper, mide, errorVal);
+						if((*env)->ExceptionOccurred(env)) {
+							LOGE(env);
+						}
+						error_count = 0; /* reset error_count */
+					}
+				}
 				continue;
 			}
 		}else {
@@ -256,7 +286,6 @@ unsigned __stdcall event_data_looper(void* arg) {
 					}
 				}else {
 					errorVal = GetLastError();
-					ClearCommError(hComm, &error_type, &com_stat);
 					if(errorVal == ERROR_IO_PENDING) {
 						if(WaitForSingleObject(overlapped.hEvent, INFINITE) == WAIT_OBJECT_0) {
 							if (GetOverlappedResult(hComm, &overlapped, &num_of_bytes_read, FALSE)) {

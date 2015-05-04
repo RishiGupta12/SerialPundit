@@ -18,9 +18,20 @@
 package com.embeddedunveiled.serial;
 
 /**
- * <p>Whenever a serial device is plugged or unplugged from system, this method will
- * be called by native layer.</p>
+ * <p>This interface need to be implemented by class who wants to monitor serial port.</p>
  */
 public interface ISerialComPortMonitor {
+	
+	/** 
+	 * <p>Whenever a serial device is plugged or unplugged from system, onPortMonitorEvent() method will
+	 * be called by native layer.</p>
+	 * 
+	 * <p>The event 2 indicates port removal, 1 indicates additional of port.</p>
+	 * 
+	 * <p>Note that port removal event indicates that the port for which this monitor was registered has
+	 * been removed physically from system. However, port addition event is fired every time a serial port
+	 * is plugged into system.</p>
+	 */
 	public abstract void onPortMonitorEvent(int event);
+	
 }

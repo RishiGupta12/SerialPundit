@@ -31,6 +31,8 @@ public final class SerialComLooper {
 	
 	private final boolean DEBUG = true;
 	private final int MAX_NUM_EVENTS = 5000;
+	private SerialComJNINativeInterface mNativeInterface = null;
+	private SerialComErrorMapper mErrMapper = null;
 	
 	private BlockingQueue<SerialComDataEvent> mDataQueue = new ArrayBlockingQueue<SerialComDataEvent>(MAX_NUM_EVENTS);
 	private ISerialComDataListener mDataListener = null;
@@ -38,6 +40,11 @@ public final class SerialComLooper {
 	private Thread mDataLooperThread = null;
 	private AtomicBoolean deliverDataEvent = new AtomicBoolean(true);
 	private AtomicBoolean exitDataThread = new AtomicBoolean(false);
+	
+	private BlockingQueue<Integer> mDataErrorQueue = new ArrayBlockingQueue<Integer>(MAX_NUM_EVENTS);
+	private Object mDataErrorLock = new Object();
+	private Thread mDataErrorLooperThread = null;
+	private AtomicBoolean exitDataErrorThread = new AtomicBoolean(false);
 	
 	private BlockingQueue<SerialComLineEvent> mEventQueue = new ArrayBlockingQueue<SerialComLineEvent>(MAX_NUM_EVENTS);
 	private ISerialComEventListener mEventListener = null;
@@ -48,9 +55,6 @@ public final class SerialComLooper {
 	private int appliedMask = SerialComManager.CTS | SerialComManager.DSR | SerialComManager.DCD | SerialComManager.RI;
 	private int oldLineState = 0;
 	private int newLineState = 0;
-	
-	private SerialComJNINativeInterface mNativeInterface = null;
-	private SerialComErrorMapper mErrMapper = null;
 	
 	/**
 	 * <p>This class runs in as a different thread context and keep looping over data queue, delivering 
@@ -81,6 +85,34 @@ public final class SerialComLooper {
 				}
 			}
 			exitDataThread.set(false); // Reset exit flag
+		}
+	}
+	
+	/**
+	 * <p>This class runs in as a different thread context and keep looping over data error queue, delivering 
+	 * error event to the intended registered listener (error data handler) one by one. The rate of delivery of
+	 * new error event is directly proportional to how fast listener finishes his job and let us return.</p>
+	 */
+	class DataErrorLooper implements Runnable {
+		@Override
+		public void run() {
+			while(true) {
+				synchronized(mDataErrorLock) {
+					try {
+						mDataListener.onDataListenerError(mDataErrorQueue.take());
+						if(deliverDataEvent.get() == false) {
+							mDataErrorLock.wait();
+						}
+					} catch (InterruptedException e) {
+						if(exitDataErrorThread.get() == true) {
+							break;
+						}else {
+							if(DEBUG) e.printStackTrace();
+						}
+					}
+				}
+			}
+			exitDataErrorThread.set(false); // Reset exit flag
 		}
 	}
 	
@@ -145,6 +177,20 @@ public final class SerialComLooper {
 			}
 		oldLineState = newLineState;
 	}
+	
+	/**
+	 * <p>This method insert error info in error queue which will be later delivered to application.</p>
+	 */
+	public void insertInDataErrorQueue(int newData) {
+        if(mDataErrorQueue.remainingCapacity() == 0) {
+        	mDataErrorQueue.poll();
+        }
+        try {
+        	mDataErrorQueue.offer(newData);
+		} catch (Exception e) {
+			if(DEBUG) e.printStackTrace();
+		}
+	}
 
 	/**
 	 * <p>Start the thread to loop over data queue. </p>
@@ -154,6 +200,8 @@ public final class SerialComLooper {
 			mDataListener = dataListener;
 			mDataLooperThread = new Thread(new DataLooper(), "DataLooper for handle " + handle + " and port " + portName);
 			mDataLooperThread.start();
+			mDataErrorLooperThread = new Thread(new DataErrorLooper(), "DataErrorLooper for handle " + handle + " and port " + portName);
+			mDataErrorLooperThread.start();
 		} catch (Exception e) {
 			if(DEBUG) e.printStackTrace();
 		}
@@ -190,7 +238,9 @@ public final class SerialComLooper {
 	public void stopDataLooper() {
 		try {
 			exitDataThread.set(true);
+			exitDataErrorThread.set(true);
 			mDataLooperThread.interrupt();
+			mDataErrorLooperThread.interrupt();
 		} catch (Exception e) {
 			if(DEBUG) e.printStackTrace();
 		}
@@ -222,6 +272,7 @@ public final class SerialComLooper {
 	public void resume() {
 		deliverDataEvent.set(true);
 		mDataLock.notify();
+		mDataErrorLock.notify();
 	}
 
 	/**

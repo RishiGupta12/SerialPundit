@@ -30,9 +30,9 @@ import java.util.List;
  */
 public final class SerialComManager {
 
-	public static boolean DEBUG = true;
 	public static final String JAVA_LIB_VERSION = "1.0.1";
 
+	public static boolean DEBUG = true;
 	private static int osType = -1;
 	public static final int OS_LINUX    = 1;
 	public static final int OS_WINDOWS  = 2;
@@ -345,7 +345,7 @@ public final class SerialComManager {
 			throw new SerialComException("closeComPort()",  mErrMapper.getMappedError(ret));
 		}
 		
-		/* delete info about this port/handle from arraylist */
+		/* delete info about this port/handle from global arraylist */
 		mPortHandleInfo.remove(mHandleInfo);
 		
 		return true;
@@ -354,8 +354,11 @@ public final class SerialComManager {
 	/**
 	 * <p>This method writes bytes from the specified byte type buffer. If the method returns false, the application
 	 * should try to re-send bytes. The data has been transmitted out of serial port when this method returns.</p>
+	 * 
 	 * <p>If large amount of data need to be written, consider breaking it into chunks of data of size for example
 	 * 2KB each.</p>
+	 * 
+	 * <p>Writing empty buffer i.e. zero length array is not allowed.</p>
 	 * 
 	 * @param handle handle of the opened port on which to write bytes
 	 * @param buffer byte type buffer containing bytes to be written to port
@@ -561,9 +564,17 @@ public final class SerialComManager {
 	 * where caller wants to read asynchronously outside the listener. It is callers responsibility to manage 
 	 * complexity associated with this use case.</p>
 	 * 
-	 * @param handle of port from which to read bytes
+	 * <p>1. If data is read from serial port, array of bytes containing data is returned.</p>
+	 * <p>2. If there was no data in serial port to read, empty array is returned.</p>
+	 * <p>3. If EOF encountered, null is returned.</p>
+	 * <p>4. If an error occurs exception will be thrown.</p>
+	 * 
+	 * <p>Note that on Linux systems EOF is received if USB-UART converter is physically removed from system. It is due to
+	 * this reason developers are advised not to use EOF i.e. null value in their application design.</p>
+	 * 
+	 * @param handle of the port from which to read bytes
 	 * @param byteCount number of bytes to read from this port
-	 * @return array of bytes read from port, empty array of bytes if there was no data in serial port, null if EOF encountered or port removed from system
+	 * @return array of bytes, empty array (zero length), null if EOF encountered as described.
 	 * @throws SerialComException - if an I/O error occurs.
 	 */
 	public byte[] readBytes(long handle, int byteCount) throws SerialComException {
@@ -590,10 +601,12 @@ public final class SerialComManager {
 	}
 
 	/** 
-	 * <p>If user does not specify any count, library read DEFAULT_READBYTECOUNT bytes as default value.</p>
+	 * <p>If user does not specify any count, library try to read DEFAULT_READBYTECOUNT (1024 bytes) bytes as default value.</p>
 	 * 
-	 * @param handle of port from which to read bytes
-	 * @return array of bytes read from port, empty array of bytes if there was no data in serial port, null if EOF encountered or port removed from system
+	 * <p>It has same effect as readBytes(handle, 1024)</p>
+	 * 
+	 * @param handle of the port from which to read bytes
+	 * @return array of bytes read from port, empty array of bytes if there was no data in serial port, null if EOF encountered
 	 * @throws SerialComException - if an I/O error occurs.
 	 */
 	public byte[] readBytes(long handle) throws SerialComException {
@@ -606,7 +619,7 @@ public final class SerialComManager {
 	 * 
 	 * @param handle of port from which to read bytes
 	 * @param byteCount number of bytes to read from this port
-	 * @return string constructed from data read from serial port, empty string if there was no data on serial port, null if EOF or port is removed from system
+	 * @return string constructed from data read from serial port, empty string if there was no data on serial port, null if EOF
 	 * @throws SerialComException - if an I/O error occurs.
 	 */
 	public String readString(long handle, int byteCount) throws SerialComException {
@@ -620,12 +633,25 @@ public final class SerialComManager {
 	/**
 	 * <p>This method is for user to read input data as string and the method handles the conversion from bytes to string.</p>
 	 * 
-	 * @param handle of port from which to read bytes
-	 * @return string constructed from data read from serial port, empty string if there was no data on serial port, null if EOF or port is removed from system
+	 * @param handle of the port from which to read bytes
+	 * @return string constructed from data read from serial port, empty string if there was no data on serial port, null if EOF is read
 	 * @throws SerialComException - if an I/O error occurs.
 	 */
 	public String readString(long handle) throws SerialComException {
 		return readString(handle, DEFAULT_READBYTECOUNT);
+	}
+	
+	/** 
+	 * <p>This is a utility method to read a single byte from serial port.</p>
+	 * 
+	 * <p>Its effect is same as readBytes(handle, 1)</p>
+	 * 
+	 * @param handle of the port from which to read bytes
+	 * @return 1 byte data read from port, empty array (zero length) if there was no data in serial port, null if EOF encountered
+	 * @throws SerialComException - if an I/O error occurs.
+	 */
+	public byte[] readSingleByte(long handle) throws SerialComException {
+		return readBytes(handle, 1);
 	}
 
 	/**
@@ -819,6 +845,8 @@ public final class SerialComManager {
 	 * Note that listener will start receiving new data, even before this method returns.</p>
 	 * 
 	 * <p>Application (listener) should implement ISerialComDataListener and override onNewSerialDataAvailable method.</p>
+	 * 
+	 * <p>The scm library can manage upto 1024 listeners corresponding to 1024 port handles.</p>
 	 * 
 	 * @param handle of the port opened
 	 * @param dataListener instance of class which implements ISerialComDataListener interface
@@ -1350,6 +1378,16 @@ public final class SerialComManager {
 	}
 	
 	/**
+	 * <p>Enable printing debugging messages and stack trace for development and debugging purpose.</p>
+	 * 
+	 * @param enable if true debugging messages will be printed on console otherwise not
+	 */
+	public void enableDebugging(boolean enable) {
+		mNativeInterface.debug(enable);
+		SerialComManager.DEBUG = enable;
+	}
+	
+	/**
 	 * <p>TODO</p>
 	 * 
 	 * <p>Application should carefully examine that before calling this method input and output buffer does not have any pending
@@ -1390,16 +1428,49 @@ public final class SerialComManager {
 		
 		return result;
 	}
-
+	
 	/**
-	 * <p>Enable printing debugging messages and stack trace for development and debugging purpose.</p>
+	 * <p>TODO</p>
 	 * 
-	 * @param enable if true debugging messages will be printed on console otherwise not
+	 * <p>Application should carefully examine that before calling this method input and output buffer does not have any pending
+	 * data. As scm flushes data out of serial port upon every write operation, so output buffer will not have any pending data.
+	 * However input data is completely dependent how application read data.</p>
+	 * 
+	 * @param handle of the port on which file is to be sent
+	 * @param fileToReceive File instance representing file to be sent
+	 * @param fTxProto file transfer protocol to use for communication over serial port
+	 * @return true on success false otherwise
+	 * @throws SerialComException - if invalid handle is passed
+	 * @throws SecurityException - If a security manager exists and its SecurityManager.checkRead(java.lang.String) method denies read access to the file
+	 * @throws FileNotFoundException - if the file does not exist, is a directory rather than a regular file, or for some other reason cannot be opened for reading.
+	 * @throws SerialComTimeOutException - if timeout occurs as per file transfer protocol
+	 * @throws IOException - if error occurs while reading data from file to be sent
 	 */
-	public void enableDebugging(boolean enable) {
-		mNativeInterface.debug(enable);
-		SerialComManager.DEBUG = enable;
+	public boolean receiveFile(long handle, java.io.File fileToReceive, FILETXPROTO fTxProto) throws SerialComException,
+								SecurityException, FileNotFoundException, SerialComTimeOutException, IOException {
+		int protocol = 0;
+		boolean handlefound = false;
+		boolean result = false;
+		
+		for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
+			if(mInfo.containsHandle(handle)) {
+				handlefound = true;
+				break;
+			}
+		}
+		if(handlefound == false) {
+			throw new SerialComException("receiveFile()", SerialComErrorMapper.ERR_WRONG_HANDLE);
+		}
+		
+		protocol = fTxProto.getValue();
+		if(protocol == 1){
+			SerialComXModem xmodem = new SerialComXModem(this, handle, fileToReceive);
+			result = xmodem.receiveFileX();
+		}
+		
+		return result;
 	}
+
 }
 
 

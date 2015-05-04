@@ -40,11 +40,12 @@ public final class SerialComErrorMapper {
 	public static final String ERR_WRITE_INDEX_VIOLATION = "Index violation detected";
 	public static final String ERR_NOT_A_FILE = "Seems like either file does not exist or not a file";
 	public static final String ERR_TIMEOUT_RECEIVER_CONNECT = "Timedout while waiting for receiver to initiate connection setup";
+	public static final String ERR_TIMEOUT_TRANSMITTER_CONNECT = "Timedout while trying to connect to transmitter";
 	public static final String ERR_MAX_RETRY_REACHED = "Maximum number of retries reached while sending same data block";
 	public static final String ERR_KNOWN_ERROR_OCCURED = "Unknown error occured";
 	public static final String ERR_TIMEOUT_ACKNOWLEDGE_BLOCK = "Timedout while waiting for block reception acknowledgement from receiver";
 	public static final String ERR_TIMEOUT_ACKNOWLEDGE_EOT = "Timedout while waiting for EOT reception acknowledgement from receiver";
-	
+
 	public SerialComErrorMapper() {
 	}
 	

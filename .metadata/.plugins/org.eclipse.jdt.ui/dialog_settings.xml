@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <section name="Workbench">
+	<item value="/home/r/Desktop" key="org.eclipse.jdt.ui.lastextjar"/>
 	<section name="org.eclipse.jdt.internal.ui.packageview.PackageExplorerPart">
 		<item value="true" key="group_libraries"/>
 		<item value="false" key="linkWithEditor"/>
@@ -10,6 +11,9 @@
 	<section name="completion_proposal_size">
 	</section>
 	<section name="JavaElementSearchActions">
+	</section>
+	<section name="BuildPathsPropertyPage">
+		<item value="2" key="pageIndex"/>
 	</section>
 	<section name="JarPackageWizard">
 		<item value="true" key="JarPackageWizardPage.INCLUDE_DIRECTORY_ENTRIES"/>
@@ -46,7 +50,7 @@
 		<item value="public" key="access"/>
 		<item value="true" key="version"/>
 		<item value="false" key="nodeprecated"/>
-		<item value="/home/r/ws-host-uart/serial-communication-manager/com.embeddedunveiled.serial/doc" key="destdir"/>
+		<item value="/home/r/ws-host-uart/serial-communication-manager/javadoc" key="destdir"/>
 		<item value="true" key="author"/>
 		<item value="" key="docletname"/>
 		<item value="1.6" key="source"/>
@@ -56,12 +60,17 @@
 		<item value="/home/r/ws-host-uart/serial-communication-manager/com.embeddedunveiled.serial/javadoc.xml" key="antpath"/>
 		<item value="true" key="fromStandard"/>
 		<section name="projects">
+			<section name="com.embeddedunveiled.serial">
+				<item value="/home/r/ws-host-uart/serial-communication-manager/javadoc" key="destdir"/>
+				<item value="/home/r/ws-host-uart/serial-communication-manager/com.embeddedunveiled.serial/javadoc.xml" key="antpath"/>
+				<item value="" key="href"/>
+			</section>
 		</section>
 	</section>
 	<section name="JavadocWizardDialog">
-		<item value="702" key="DIALOG_WIDTH"/>
+		<item value="704" key="DIALOG_WIDTH"/>
 		<item value="131" key="DIALOG_Y_ORIGIN"/>
-		<item value="617" key="DIALOG_HEIGHT"/>
+		<item value="646" key="DIALOG_HEIGHT"/>
 		<item value="577" key="DIALOG_X_ORIGIN"/>
 		<item value="1|Ubuntu|11.0|0|GTK|1|" key="DIALOG_FONT_NAME"/>
 	</section>

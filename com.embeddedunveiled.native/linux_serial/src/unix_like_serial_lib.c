@@ -100,6 +100,7 @@ void *data_looper(void *arg) {
 	int negative = -1;
 	int index = 0;
 	int partialData = -1;
+	int errorCount = 0;
 	ssize_t ret = -1;
 	jbyte buffer[1024];
 	jbyte final_buf[1024 * 3]; 	  /* Sufficient enough to deal with consecutive multiple partial reads. */
@@ -165,6 +166,20 @@ void *data_looper(void *arg) {
 	}
 	if(mid == NULL) {
 		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE data_looper() thread failed to retrieve method id of method insertInDataQueue in class SerialComLooper !");
+		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE data_looper() thread exiting. Please RETRY registering data listener !");
+		if(DEBUG) fflush(stderr);
+		((struct com_thread_params*) arg)->data_thread_id = 0;
+		((struct com_thread_params*) arg)->data_init_done = -240;
+		pthread_mutex_unlock(((struct com_thread_params*) arg)->mutex);
+		pthread_exit((void *)0);
+	}
+
+	jmethodID mide = (*env)->GetMethodID(env, SerialComLooper, "insertInDataErrorQueue", "(I)V");
+	if((*env)->ExceptionOccurred(env)) {
+		LOGE(env);
+	}
+	if(mide == NULL) {
+		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE data_looper() thread failed to retrieve method id of method insertInDataErrorQueue in class SerialComLooper !");
 		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE data_looper() thread exiting. Please RETRY registering data listener !");
 		if(DEBUG) fflush(stderr);
 		((struct com_thread_params*) arg)->data_thread_id = 0;
@@ -276,57 +291,52 @@ void *data_looper(void *arg) {
 	while(1) {
 
 #if defined (__linux__)
-	errno = 0;
-	ret = epoll_wait(epfd, events, MAXEVENTS, -1);
-	if(ret <= 0) {
-		/* for error just restart looping. */
-		if(DEBUG) fprintf(stderr, "%s %d \n", "epoll_wait failed wait for data with error number : ", errno);
-		if(DEBUG) fflush(stderr);
-		continue;
-	}
+		errno = 0;
+		ret = epoll_wait(epfd, events, MAXEVENTS, -1);
+		if(ret <= 0) {
+			/* for error (unlikely to happen) just restart looping. */
+			continue;
+		}
 #endif
 #if defined (__APPLE__)
-	errno = 0;
-	ret = kevent(kq, chlist, 2, evlist, 2, NULL);
-	if(ret <= 0) {
-		/* for error just restart looping. */
-		if(DEBUG) fprintf(stderr, "%s %d \n", "kevent failed to wait for data with error number : ", errno);
-		if(DEBUG) fflush(stderr);
-		continue;
-	}
-
+		errno = 0;
+		ret = kevent(kq, chlist, 2, evlist, 2, NULL);
+		if(ret <= 0) {
+			/* for error (unlikely to happen) just restart looping. */
+			continue;
+		}
 #endif
 #if defined (__linux__)
-	if((events[0].data.fd == evfd) || (events[1].data.fd == evfd)) {
-		/* check if thread should exit due to un-registration of listener. */
-		if(1 == ((struct com_thread_params*) arg)->data_thread_exit) {
-			close(epfd);
-			close(((struct com_thread_params*) arg)->evfd);
-			((struct com_thread_params*) arg)->data_thread_id = 0;
-			pthread_exit((void *)0);
+		if((events[0].data.fd == evfd) || (events[1].data.fd == evfd)) {
+			/* check if thread should exit due to un-registration of listener. */
+			if(1 == ((struct com_thread_params*) arg)->data_thread_exit) {
+				close(epfd);
+				close(((struct com_thread_params*) arg)->evfd);
+				((struct com_thread_params*) arg)->data_thread_id = 0;
+				pthread_exit((void *)0);
+			}
 		}
-	}
 #endif
 #if defined (__APPLE__)
-	/* Depending upon how many events has happened, pipe1[0] fd can be at 1st or 2nd
-	 * index in evlist array. */
-	if((evlist[0].ident == pipe1[0]) || (evlist[1].ident == pipe1[0])) {
-		/* check if thread should exit due to un-registration of listener. */
-		if(1 == ((struct com_thread_params*) arg)->data_thread_exit) {
-			close(kq);
-			close(pipe1[0]);
-			close(pipe1[1]);
-			((struct com_thread_params*) arg)->data_thread_id = 0;
-			pthread_exit((void *)0);
+		/* Depending upon how many events has happened, pipe1[0] fd can be at 1st or 2nd
+		 * index in evlist array. */
+		if((evlist[0].ident == pipe1[0]) || (evlist[1].ident == pipe1[0])) {
+			/* check if thread should exit due to un-registration of listener. */
+			if(1 == ((struct com_thread_params*) arg)->data_thread_exit) {
+				close(kq);
+				close(pipe1[0]);
+				close(pipe1[1]);
+				((struct com_thread_params*) arg)->data_thread_id = 0;
+				pthread_exit((void *)0);
+			}
 		}
-	}
 #endif
 
 #if defined (__linux__)
-	if((events[0].events & EPOLLIN) && !(events[0].events & EPOLLERR)) {
+		if((events[0].events & EPOLLIN) && !(events[0].events & EPOLLERR)) {
 #endif
 #if defined (__APPLE__)
-	if((evlist[0].ident == fd) && (evlist[0].flags & EVFILT_READ)) {
+		if((evlist[0].ident == fd) && !(evlist[0].flags & EV_ERROR)) {
 #endif
 			/* input event happened, no error occurred, we have data to read on file descriptor. */
 			do {
@@ -366,17 +376,25 @@ void *data_looper(void *arg) {
 					}else if(errno != EINTR) {
 						/* This indicates, irrespective of, there was data to read or not, we got an error during operation. */
 						/* Can we handle this condition more gracefully. */
-						if(DEBUG) fprintf(stderr, "%s%d\n", "Native readBytes() failed to read data with error number : -", errno);
-						if(DEBUG) fflush(stderr);
-
+#if defined (__APPLE__)
+						errorCount++;
+						/* minimize JNI transition by setting threshold for when application will be called. */
+						if(errorCount == 100) {
+							(*env)->CallVoidMethod(env, looper, mide, evlist[0].data);
+							if((*env)->ExceptionOccurred(env)) {
+								LOGE(env);
+							}
+							errorCount = 0; // reset error count
+						}
+#endif
 						dataRead = (*env)->NewByteArray(env, sizeof(empty_buf));
 						(*env)->SetByteArrayRegion(env, dataRead, 0, sizeof(empty_buf), empty_buf);
 						break;
-					}else if (errno == EINTR) {
+					}else if(errno == EINTR) {
 						/* This indicates that we should retry as we are just interrupted by a signal. */
 						continue;
 					}
-				}else if (ret == 0) {
+				}else if(ret == 0) {
 					/* This indicates, EOF or port has been removed from system. */
 					dataRead = (*env)->NewByteArray(env, sizeof(empty_buf));
 					(*env)->SetByteArrayRegion(env, dataRead, 0, sizeof(empty_buf), empty_buf);
@@ -389,8 +407,37 @@ void *data_looper(void *arg) {
 			if((*env)->ExceptionOccurred(env)) {
 				LOGE(env);
 			}
+		}else {
+#if defined (__linux__)
+			if(events[0].events & (EPOLLERR|EPOLLHUP)) {
+				errorCount++;
+				/* minimize JNI transition by setting threshold for when application will be called. */
+				if(errorCount == 100) {
+					(*env)->CallVoidMethod(env, looper, mide, events[0].events);
+					if((*env)->ExceptionOccurred(env)) {
+						LOGE(env);
+					}
+					errorCount = 0; // reset error count
+				}
+			}
+#endif
+#if defined (__APPLE__)
+			if(evlist[0].flags & EV_ERROR) {
+				errorCount++;
+				/* minimize JNI transition by setting threshold for when application will be called. */
+				if(errorCount == 100) {
+					(*env)->CallVoidMethod(env, looper, mide, evlist[0].data);
+					if((*env)->ExceptionOccurred(env)) {
+						LOGE(env);
+					}
+					errorCount = 0; // reset error count
+				}
+			}
+#endif
+#if defined (__SunOS)
+#endif
 		}
-	} /* Go back to loop again waiting for the data, available to read. */
+	} /* Go back to loop (while loop) again waiting for the data, available to read. */
 
 	return ((void *)0);
 }
@@ -574,13 +621,9 @@ void exitMonitor_signal_handler(int signal_number) {
 				continue;
 			}
 			if((*ptr->data).thread_id == tid) {
-
-				/* Remove the driver state change notification. */
-				IOObjectRelease(ptr->notification);
-				/* Release our reference to the driver object. */
-				IOObjectRelease(ptr->service);
-				/* Release structure that holds the driver connection. */
-				free(ptr);
+				IOObjectRelease(ptr->notification); /* Remove the driver state change notification.        */
+				IOObjectRelease(ptr->service);      /* Release our reference to the driver object.         */
+				free(ptr);                          /* Release structure that holds the driver connection. */
 			}
 			pm_info[x] = 0;
 		}
@@ -721,7 +764,7 @@ void *port_monitor(void *arg) {
    	kern_return_t kr;
 #endif
 #if defined (__SunOS)
-   	/* TODO */
+   	/* TODO solaris */
 #endif
 
 	if((*jvm)->AttachCurrentThread(jvm, &env1, NULL) != JNI_OK) {

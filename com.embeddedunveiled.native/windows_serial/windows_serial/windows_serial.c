@@ -1,6 +1,5 @@
 /************************************************************************************************************
 * Author : Rishi Gupta
-* Email  : gupt21@gmail.com
 *
 * This file is part of 'serial communication manager' library.
 *
@@ -32,6 +31,7 @@
 * IOCTL requests              : https://msdn.microsoft.com/en-us/library/windows/hardware/ff547466(v=vs.85).aspx
 * Hot plug                    : https://msdn.microsoft.com/en-us/library/ms644928(VS.85).aspx
 *
+* - Minimize transition from Java to JNI whenever possible for performance reason.
 * - When printing error number (using fprintf()), number returned by Windows OS is printed as it is by this library.
 * - windows header files are in include directory of MinGW tool chain.
 * - toolchain integration and concepts :
@@ -62,12 +62,12 @@ extern void LOGE(JNIEnv *env);
 extern int serial_delay(unsigned usecs);
 extern unsigned WINAPI event_data_looper(LPVOID lpParam);
 extern unsigned WINAPI port_monitor(LPVOID lpParam);
-int setupLooperThread(JNIEnv *env, jobject obj, jlong handle, jobject looper_obj_ref, int data_enabled, int event_enabled);
+int setupLooperThread(JNIEnv *env, jobject obj, jlong handle, jobject looper_obj_ref, int data_enabled, int event_enabled, int global_index, int new_dtp_index);
 
 #define DEBUG 1
 
 #undef  UART_NATIVE_LIB_VERSION
-#define UART_NATIVE_LIB_VERSION "1.0.0"
+#define UART_NATIVE_LIB_VERSION "1.0.1"
 
 /* Reference to JVM shared among all the threads within a process. */
 JavaVM *jvm;
@@ -130,7 +130,10 @@ JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInt
 * Signature: ()[Ljava/lang/String;
 *
 * This returns serial style ports known to system at this moment. This information is gleaned by reading windows registry for serial ports.
-* Use registry editor to see available serial ports; HKEY_LOCAL_MACHINE->HARDWARE->DEVICEMAP->SERIALCOMM
+* Use registry editor to see available serial ports; HKEY_LOCAL_MACHINE->HARDWARE->DEVICEMAP->SERIALCOMM.
+* 
+* In Linux/Mac where predefined fixed size array is used, maximum upto 1024 port scan be found and reported by this library. However in 
+* Windows there is no such limitation.
 */
 JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_getSerialPortNames(JNIEnv *env, jobject obj) {
 	LONG result = 0;
@@ -418,9 +421,13 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
 * Method:    readBytes
 * Signature: (JI)[B
-*
+* 
+* 1. If data is read from serial port and no error occurs, return array of bytes
+* 2. If there is no data to read from serial port and no error occurs, return NULL
+* 3. If EOF is encountered, return NULL and set status variable to 2
+* 4. If error occurs for whatever reason, return NULL and set status variable to Windows specific error number
 */
-JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_readBytes(JNIEnv *env, jobject obj, jlong handle, jint count) {
+JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_readBytes(JNIEnv *env, jobject obj, jlong handle, jint count, jobject status) {
 	jint ret = 0;
 	jint negative = -1;
 	HANDLE hComm = (HANDLE)handle;
@@ -429,6 +436,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINative
 	DWORD num_of_bytes_read;
 	OVERLAPPED overlapped;
 	jbyteArray data_read;
+	DWORD wait_status;
 
 	/* Only hEvent member need to be initialled and others can be left 0. */
 	memset(&overlapped, 0, sizeof(overlapped));
@@ -440,42 +448,158 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINative
 	}
 
 	ret = ReadFile(hComm, data_buf, 1024, &num_of_bytes_read, &overlapped);
+
 	if(ret == 0) {
 		errorVal = GetLastError();
 		if(errorVal == ERROR_IO_PENDING) {
-			if(WaitForSingleObject(overlapped.hEvent, 10) == WAIT_OBJECT_0) {
+
+			wait_status = WaitForSingleObject(overlapped.hEvent, 10);
+
+			if(wait_status == WAIT_OBJECT_0) {
+
 				ret = GetOverlappedResult(hComm, &overlapped, &num_of_bytes_read, FALSE);
-				if(ret == 0) {
+
+				if(ret > 0) {
+					/* return data read from serial port */
+					data_read = (*env)->NewByteArray(env, num_of_bytes_read);
+					(*env)->SetByteArrayRegion(env, data_read, 0, num_of_bytes_read, data_buf);
+					CloseHandle(overlapped.hEvent);
+					return data_read;
+				}else if(ret == 0) {
 					errorVal = GetLastError();
-					if(DEBUG) fprintf(stderr, "%s %ld\n", "NATIVE GetOverlappedResult() in readBytes() failed with error number : ", errorVal);
-					if(DEBUG) fflush(stderr);
+					if(errorVal == ERROR_HANDLE_EOF) {
+						/* This indicates EOF. */
+						jclass statusClass = (*env)->GetObjectClass(env, status);
+						if (statusClass == NULL) {
+							if (DEBUG) fprintf(stderr, "%s \n", "NATIVE readBytes() could not get class of object of type SerialComReadStatus !");
+							if (DEBUG) fflush(stderr);
+							return NULL;
+						}
+
+						jfieldID status_fid = (*env)->GetFieldID(env, statusClass, "status", "I");
+						if (status_fid == NULL) {
+							if (DEBUG) fprintf(stderr, "%s \n", "NATIVE readBytes() failed to retrieve field id of field status in class SerialComReadStatus !");
+							if (DEBUG) fflush(stderr);
+							return NULL;
+						}
+						if ((*env)->ExceptionOccurred(env)) {
+							LOGE(env);
+						}
+
+						(*env)->SetIntField(env, status, status_fid, 2); // 2 indicates EOF
+						CloseHandle(overlapped.hEvent);
+						return NULL;
+					}else {
+						/* This indicates error. */
+						jclass statusClass = (*env)->GetObjectClass(env, status);
+						if (statusClass == NULL) {
+							if (DEBUG) fprintf(stderr, "%s \n", "NATIVE readBytes() could not get class of object of type SerialComReadStatus !");
+							if (DEBUG) fflush(stderr);
+							return NULL;
+						}
+
+						jfieldID status_fid = (*env)->GetFieldID(env, statusClass, "status", "I");
+						if (status_fid == NULL) {
+							if (DEBUG) fprintf(stderr, "%s \n", "NATIVE readBytes() failed to retrieve field id of field status in class SerialComReadStatus !");
+							if (DEBUG) fflush(stderr);
+							return NULL;
+						}
+						if ((*env)->ExceptionOccurred(env)) {
+							LOGE(env);
+						}
+
+						if ((errorVal == ERROR_INVALID_USER_BUFFER) || (errorVal == ERROR_NOT_ENOUGH_MEMORY)) {
+							errorVal = ETOOMANYOP;
+						}
+						else if ((errorVal == ERROR_NOT_ENOUGH_QUOTA) || (errorVal == ERROR_INSUFFICIENT_BUFFER)) {
+							errorVal = ENOMEM;
+						}
+						else if (errorVal == ERROR_OPERATION_ABORTED) {
+							errorVal = ECANCELED;
+						}
+
+						(*env)->SetIntField(env, status, status_fid, (negative*errorVal));
+						CloseHandle(overlapped.hEvent);
+						return NULL;
+					}
+				}else {
+				}
+			}else if(wait_status == WAIT_FAILED) {
+				/* This indicates error. */
+				errorVal = GetLastError();
+				jclass statusClass = (*env)->GetObjectClass(env, status);
+				if(statusClass == NULL) {
+					if (DEBUG) fprintf(stderr, "%s \n", "NATIVE readBytes() could not get class of object of type SerialComReadStatus !");
+					if (DEBUG) fflush(stderr);
 					return NULL;
 				}
+
+				jfieldID status_fid = (*env)->GetFieldID(env, statusClass, "status", "I");
+				if(status_fid == NULL) {
+					if (DEBUG) fprintf(stderr, "%s \n", "NATIVE readBytes() failed to retrieve field id of field status in class SerialComReadStatus !");
+					if (DEBUG) fflush(stderr);
+					return NULL;
+				}
+				if((*env)->ExceptionOccurred(env)) {
+					LOGE(env);
+				}
+
+				if((errorVal == ERROR_INVALID_USER_BUFFER) || (errorVal == ERROR_NOT_ENOUGH_MEMORY)) {
+					errorVal = ETOOMANYOP;
+				}
+				else if((errorVal == ERROR_NOT_ENOUGH_QUOTA) || (errorVal == ERROR_INSUFFICIENT_BUFFER)) {
+					errorVal = ENOMEM;
+				}
+				else if(errorVal == ERROR_OPERATION_ABORTED) {
+					errorVal = ECANCELED;
+				}
+
+				(*env)->SetIntField(env, status, status_fid, (negative*errorVal));
+				CloseHandle(overlapped.hEvent);
+				return NULL;
+			}else {
 			}
-		}else if((errorVal == ERROR_INVALID_USER_BUFFER) || (errorVal == ERROR_NOT_ENOUGH_MEMORY)) {
-			if(DEBUG) fprintf(stderr, "%s\n", "NATIVE CreateEvent() in ReadFile() failed with error ETOOMANYOP !");
-			if(DEBUG) fflush(stderr);
-			return NULL;
-		}else if((errorVal == ERROR_NOT_ENOUGH_QUOTA) || (errorVal == ERROR_INSUFFICIENT_BUFFER)) {
-			if(DEBUG) fprintf(stderr, "%s\n", "NATIVE CreateEvent() in ReadFile() failed with error ENOMEM !");
-			if(DEBUG) fflush(stderr);
-			return NULL;
-		}else if(errorVal == ERROR_OPERATION_ABORTED) {
-			if(DEBUG) fprintf(stderr, "%s\n", "NATIVE CreateEvent() in ReadFile() failed with error ECANCELED !");
-			if(DEBUG) fflush(stderr);
-			return NULL;
 		}else {
-			if(DEBUG) fprintf(stderr, "%s %ld\n", "NATIVE ReadFile() in readBytes() failed with error number : ", errorVal);
-			if(DEBUG) fflush(stderr);
+			/* This indicates error. */
+			jclass statusClass = (*env)->GetObjectClass(env, status);
+			if(statusClass == NULL) {
+				if(DEBUG) fprintf(stderr, "%s \n", "NATIVE readBytes() could not get class of object of type SerialComReadStatus !");
+				if(DEBUG) fflush(stderr);
+				return NULL;
+			}
+
+			jfieldID status_fid = (*env)->GetFieldID(env, statusClass, "status", "I");
+			if(status_fid == NULL) {
+				if (DEBUG) fprintf(stderr, "%s \n", "NATIVE readBytes() failed to retrieve field id of field status in class SerialComReadStatus !");
+				if (DEBUG) fflush(stderr);
+				return NULL;
+			}
+			if((*env)->ExceptionOccurred(env)) {
+				LOGE(env);
+			}
+
+			if((errorVal == ERROR_INVALID_USER_BUFFER) || (errorVal == ERROR_NOT_ENOUGH_MEMORY)) {
+				errorVal = ETOOMANYOP;
+			}else if((errorVal == ERROR_NOT_ENOUGH_QUOTA) || (errorVal == ERROR_INSUFFICIENT_BUFFER)) {
+				errorVal = ENOMEM;
+			}else if(errorVal == ERROR_OPERATION_ABORTED) {
+				errorVal = ECANCELED;
+			}
+
+			(*env)->SetIntField(env, status, status_fid, (negative*errorVal));
+			CloseHandle(overlapped.hEvent);
 			return NULL;
 		}
+	}else if(ret > 0) {
+		data_read = (*env)->NewByteArray(env, num_of_bytes_read);
+		(*env)->SetByteArrayRegion(env, data_read, 0, num_of_bytes_read, data_buf);
+		CloseHandle(overlapped.hEvent);
+		return data_read;
+	}else {
 	}
 
-	data_read = (*env)->NewByteArray(env, num_of_bytes_read);
-	(*env)->SetByteArrayRegion(env, data_read, 0, num_of_bytes_read, data_buf);
 	CloseHandle(overlapped.hEvent);
-
-	return data_read;
+	return NULL;
 }
 
 /*
@@ -765,6 +889,8 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
 * Method:    setRTS
 * Signature: (JZ)I
+*
+* Set the RTS signal high or low as requested by application.
 */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_setRTS(JNIEnv *env, jobject obj, jlong handle, jboolean enabled) {
 	jint ret = 0;
@@ -793,6 +919,8 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
 * Method:    setDTR
 * Signature: (JZ)I
+*
+* Set the DTR signal high or low as requested by application.
 */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_setDTR(JNIEnv *env, jobject obj, jlong handle, jboolean enabled) {
 	jint ret = 0;
@@ -1332,7 +1460,7 @@ JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeI
 * Method:    sendBreak
 * Signature: (JI)I
 *
-* The duration is in milliseconds.
+* The duration is in milliseconds. This applies break condition as per EIA232 standard.
 */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_sendBreak(JNIEnv *env, jobject obj, jlong handle, jint duration) {
 	jint ret = -1;
@@ -1365,7 +1493,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 * Method:    getInterruptCount
 * Signature: (J)I
 *
-* Not supported on windows. Return 0 for all indexes.
+* This is not supported by Windows OS itself. Return 0 for all indexes.
 */
 JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_getInterruptCount(JNIEnv *env, jobject obj, jlong handle) {
 	jint count_info[12] = { 0 };
@@ -1387,10 +1515,11 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 	return -1;
 }
 
-/*
+/* 
 * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
 * Method:    setUpDataLooperThread
 * Signature: (JLcom/embeddedunveiled/serial/SerialComLooper;)I
+* 
 * Both setUpDataLooperThread() and setUpEventLooperThread() call same function setupLooperThread().
 */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_setUpDataLooperThread(JNIEnv *env, jobject obj, jlong handle, jobject looper) {
@@ -1407,6 +1536,8 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 	DWORD error_type = 0;
 	COMSTAT com_stat;
 	DWORD errorVal;
+	int global_index = dtp_index;
+	int new_dtp_index = 1;
 
 	for (x = 0; x < MAX_NUM_THREADS; x++) {
 		if(ptr->hComm == hComm) {
@@ -1429,9 +1560,22 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 			ClearCommError(hComm, &error_type, &com_stat);
 			return -240;
 		}
+
+		/* set data_enabled flag */
+		ptr->data_enabled = 1;
 	}else {
 		/* Not found in our records, so we create the thread. */
-		return setupLooperThread(env, obj, handle, looper, 1, 0);
+		ptr = handle_looper_info;
+		for (x = 0; x < MAX_NUM_THREADS; x++) {
+			if(ptr->hComm == (HANDLE)-1) {
+				global_index = x;
+				new_dtp_index = 0;
+				break;
+			}
+			ptr++;
+		}
+		/* new_dtp_index is 0 if we reuse existing index otherwise 1. */
+		return setupLooperThread(env, obj, handle, looper, 1, 0, global_index, new_dtp_index);
 	}
 
 	return 0;
@@ -1457,6 +1601,8 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 	DWORD error_type = 0;
 	COMSTAT com_stat;
 	DWORD errorVal;
+	int global_index = dtp_index;
+	int new_dtp_index = 1;
 
 	for(x = 0; x < MAX_NUM_THREADS; x++) {
 		if(ptr->hComm == hComm) {
@@ -1479,15 +1625,27 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 			ClearCommError(hComm, &error_type, &com_stat);
 			return -240;
 		}
+		/* set event_enabled flag */
+		ptr->event_enabled = 1;
 	}else {
 		/* Not found in our records, so we create the thread. */
-		return setupLooperThread(env, obj, handle, looper, 0, 1);
+		ptr = handle_looper_info;
+		for (x = 0; x < MAX_NUM_THREADS; x++) {
+			if (ptr->hComm == (HANDLE)-1) {
+				global_index = x;
+				new_dtp_index = 0;
+				break;
+			}
+			ptr++;
+		}
+		/* new_dtp_index is 0 if we reuse existing index otherwise 1. */
+		return setupLooperThread(env, obj, handle, looper, 0, 1, global_index, new_dtp_index);
 	}
 
 	return 0;
 }
 
-int setupLooperThread(JNIEnv *env, jobject obj, jlong handle, jobject looper_obj_ref, int data_enabled, int event_enabled) {
+int setupLooperThread(JNIEnv *env, jobject obj, jlong handle, jobject looper_obj_ref, int data_enabled, int event_enabled, int global_index, int new_dtp_index) {
 	HANDLE hComm = (HANDLE)handle;
 	HANDLE thread_handle;
 	struct looper_thread_params params;
@@ -1518,8 +1676,8 @@ int setupLooperThread(JNIEnv *env, jobject obj, jlong handle, jobject looper_obj
 	params.init_done = 0;
 
 	/* We have prepared data to be passed to thread, so create reference and pass it. */
-	handle_looper_info[dtp_index] = params;
-	void *arg = &handle_looper_info[dtp_index];
+	handle_looper_info[global_index] = params;
+	void *arg = &handle_looper_info[global_index];
 
 	/* Managed thread creation. The _beginthreadex initializes Certain CRT (C Run-Time) internals that ensures that other C functions will
 	   work exactly as expected. */
@@ -1540,8 +1698,10 @@ int setupLooperThread(JNIEnv *env, jobject obj, jlong handle, jobject looper_obj
 	/* Save the thread handle which will be used when listener is unregistered. */
 	((struct looper_thread_params*) arg)->thread_handle = thread_handle;
 
-	/* update address where data parameters for next thread will be stored. */
-	dtp_index++;
+	if(new_dtp_index) {
+		/* update address where data parameters for next thread will be stored. */
+		dtp_index++;
+	}
 
 	LeaveCriticalSection(&csmutex);
 
@@ -1577,6 +1737,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 	DWORD event_mask = 0;
 	DWORD errorVal;
 	struct looper_thread_params *ptr;
+	int reset_hComm_field = 0;
 
 	/* handle_looper_info is global array holding all the information. */
 	ptr = handle_looper_info;
@@ -1604,11 +1765,23 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 			ClearCommError(hComm, &error_type, &com_stat);
 			return -240;
 		}
+		/* unset data_enabled flag */
+		ptr = handle_looper_info;
+		for (x = 0; x < MAX_NUM_THREADS; x++) {
+			if (ptr->hComm == hComm) {
+				ptr->data_enabled = 0;
+				break;
+			}
+			ptr++;
+		}
 	}else {
 		/* Destroy thread as event listener does not exist and user wish to unregister data listener also. */
 		for (x = 0; x < MAX_NUM_THREADS; x++) {
 			if(ptr->hComm == hComm) {
 				ptr->thread_exit = 1;
+				reset_hComm_field = 1;
+				ptr->data_enabled = 0;
+				ptr->event_enabled = 0;
 				break;
 			}
 			ptr++;
@@ -1622,6 +1795,11 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 		if(DEBUG) fprintf(stderr, "%s %ld\n", "NATIVE destroyDataLooperThread() failed in SetEvent() with error number : ", errorVal);
 		if(DEBUG) fflush(stderr);
 		return -240;
+	}
+
+	/* If neither data nor event thread exist for this file descriptor remove entry for it from global array. */
+	if(reset_hComm_field) {
+		ptr->hComm = (HANDLE)-1;
 	}
 
 	return 0;
@@ -1644,6 +1822,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 	struct looper_thread_params *ptr;
 	ptr = handle_looper_info;
 	DWORD errorVal = 0;
+	int reset_hComm_field = 0;
 
 	if((b & event_mask) == 1) {
 		/* Data listener exist, so just tell thread to wait for data events only. */
@@ -1658,11 +1837,23 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 			ClearCommError(hComm, &error_type, &com_stat);
 			return -240;
 		}
+		/* unset event_enabled flag */
+		ptr = handle_looper_info;
+		for (x = 0; x < MAX_NUM_THREADS; x++) {
+			if (ptr->hComm == hComm) {
+				ptr->event_enabled = 0;
+				break;
+			}
+			ptr++;
+		}
 	}else {
 		/* Destroy thread as data listener does not exist and user wish to unregister event listener also. */
 		for (x = 0; x < MAX_NUM_THREADS; x++) {
 			if(ptr->hComm == hComm) {
 				ptr->thread_exit = 1;
+				reset_hComm_field = 1;
+				ptr->data_enabled = 0;
+				ptr->event_enabled = 0;
 				break;
 			}
 			ptr++;
@@ -1678,7 +1869,10 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 		}
 	}
 
-
+	/* If neither data nor event thread exist for this file descriptor remove entry for it from global array. */
+	if(reset_hComm_field) {
+		ptr->hComm = (HANDLE)-1;
+	}
 
 	return 0;
 }

@@ -17,15 +17,20 @@ public class Test34 {
 		SerialComManager scm = new SerialComManager();
 		
 		String PORT = null;
+		String PORT1 = null;
 		int osType = SerialComManager.getOSType();
 		if(osType == SerialComManager.OS_LINUX) {
 			PORT = "/dev/ttyUSB0";
+			PORT1 = "/dev/ttyUSB1";
 		}else if(osType == SerialComManager.OS_WINDOWS) {
 			PORT = "COM51";
+			PORT1 = "COM52";
 		}else if(osType == SerialComManager.OS_MAC_OS_X) {
 			PORT = "/dev/cu.usbserial-A70362A3";
+			PORT1 = "/dev/cu.usbserial-A602RDCH";
 		}else if(osType == SerialComManager.OS_SOLARIS) {
 			PORT = null;
+			PORT1 = null;
 		}else{
 		}
 		
