@@ -1388,6 +1388,29 @@ public final class SerialComManager {
 	}
 	
 	/**
+	 * <p>This method gives the port name with which given handle is associated. If the given handle is
+	 * unknown to scm, null is returned. The port is known to scm if it was opened using scm.</p>
+	 * 
+	 * @param handle for which the port name is to be found
+	 * @return port name if port found or null if not found
+	 */
+	public String getPortName(long handle) {
+		String portName = null;
+		
+		for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
+			if(mInfo.containsHandle(handle)) {
+				portName = mInfo.getOpenedPortName();
+				break;
+			}
+		}
+		if(portName == null) {
+			return null;
+		}
+		
+		return portName;
+	}
+	
+	/**
 	 * <p>TODO</p>
 	 * 
 	 * <p>Application should carefully examine that before calling this method input and output buffer does not have any pending
