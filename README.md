@@ -6,15 +6,19 @@ Serial communication manager (SCM)
 The 'serial communication manager (scm)' is a java library designed and developed to exchange data on serial port. It supports RS-232 control signals handshaking, monitoring and has been ported to Linux, MAC, Solaris and Windows operating system. It is consistent, portable, efficient, reliable, testable, extensible, modifiable, scalable library.
 
 ##Features
-- Notification whenever a serial port is removed from system
-- Linux, Windows, Mac OS, Solaris OS supported
+- Notification whenever a serial port is added/removed from system
+- Linux, Windows, Mac OSX operating systems support
+- ARM platform support (Embedded SE Java)
+- Access to EIA232 standard DTR, CD, CTS, RTS and DSR signals
+- Hardware and software flow-control options
+- Custom baud rate setting support
 - Both 32 and 64 bit library support
+- Concurrent event driven non-blocking I/O
 - Both poll based and listener based data read supported
-- Concurrent event driven non-blocking I/O operations
-- Leverages OS specific facilities
-- Find what all serial style ports are present in system reliably
-- Extensive error handling and reliable operations support
+- Find what all serial style ports are present in system 
+- Extensive error detection and handling for reliable operations
 - Fully documented and tested both java and native code
+- Support for fault tolerant and recoverable application design
 
 ##Getting started
 
