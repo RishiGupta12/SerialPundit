@@ -36,11 +36,10 @@ import com.embeddedunveiled.serial.SerialComManager.STOPBITS;
 public class Example {
 	public static void main(String[] args) {
 	
-		long handle = 0;
-		SerialComManager scm = new SerialComManager();
-		
 		try {
-			handle = scm.openComPort("/dev/ttyUSB1", true, true, false);
+			SerialComManager scm = new SerialComManager();
+			
+			long handle = scm.openComPort("/dev/ttyUSB1", true, true, false);
 			scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
 			scm.configureComPortControl(handle, FLOWCONTROL.NONE, 'x', 'x', false, false);
 			scm.writeString(handle, "testing hello", 0) == true);
