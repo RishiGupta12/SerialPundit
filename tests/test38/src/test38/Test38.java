@@ -32,8 +32,6 @@ import com.embeddedunveiled.serial.SerialComManager.FILETXPROTO;
 public class Test38 {
 	public static void main(String[] args) {
 		
-		SerialComManager scm = new SerialComManager();
-		
 		String PORT = null;
 		String PORT1 = null;
 		int osType = SerialComManager.getOSType();
@@ -53,6 +51,8 @@ public class Test38 {
 		}
 		
 		try {
+			SerialComManager scm = new SerialComManager();
+			
 			long handle = scm.openComPort(PORT, true, true, true);
 			scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B2400, 0);
 			scm.configureComPortControl(handle, FLOWCONTROL.NONE, 'x', 'x', false, false);

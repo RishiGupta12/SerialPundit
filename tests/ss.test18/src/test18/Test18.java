@@ -41,6 +41,12 @@ class DataListener implements ISerialComDataListener{
 	public void onNewSerialDataAvailable(SerialComDataEvent data) {
 		System.out.println("Read from serial port : " + new String(data.getDataBytes()) + "\n");
 	}
+
+	@Override
+	public void onDataListenerError(int arg0) {
+		// TODO Auto-generated method stub
+		
+	}
 }
 
 /* - Custom baud rate setting
@@ -48,11 +54,7 @@ class DataListener implements ISerialComDataListener{
    - when listener is registered, arrayblockingqueue object allocation occurs in java heap space */
 public class Test18 {
 	public static void main(String[] args) {
-		
-		SerialComManager scm = new SerialComManager();
-		EventListener eventListener = new EventListener();
-		DataListener dataListener = new DataListener();
-		
+				
 		String PORT = null;
 		String PORT1 = null;
 		int osType = SerialComManager.getOSType();
@@ -72,6 +74,10 @@ public class Test18 {
 		}
 		
 		try {
+				SerialComManager scm = new SerialComManager();
+		EventListener eventListener = new EventListener();
+		DataListener dataListener = new DataListener();
+		
 			long handle = scm.openComPort(PORT, true, true, true);
 			scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.BCUSTOM, 512000);
 			scm.configureComPortControl(handle, FLOWCONTROL.NONE, 'x', 'x', false, false);

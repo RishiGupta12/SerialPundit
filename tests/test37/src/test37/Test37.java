@@ -15,7 +15,7 @@
  * along with serial communication manager. If not, see <http://www.gnu.org/licenses/>.
  */
  
- package test37;
+package test37;
 
 import java.io.File;
 import com.embeddedunveiled.serial.SerialComManager;
@@ -30,8 +30,6 @@ import com.embeddedunveiled.serial.SerialComManager.FILETXPROTO;
 // Test .txt, .doc, .pdf, .jpg, .mp3 file transfer
 public class Test37 {
 	public static void main(String[] args) {
-		
-		SerialComManager scm = new SerialComManager();
 		
 		String PORT = null;
 		String PORT1 = null;
@@ -52,24 +50,28 @@ public class Test37 {
 		}
 		
 		try {
+			SerialComManager scm = new SerialComManager();
+			
 			long handle = scm.openComPort(PORT, true, true, true);
 			scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
 			scm.configureComPortControl(handle, FLOWCONTROL.NONE, 'x', 'x', false, false);
 			
 			scm.sendFile(handle, new File("/home/r/ws-host-uart/development/ftptest/a.txt"), FILETXPROTO.XMODEM);
 			
-//			Thread.sleep(2);
-//			
-//			scm.sendFile(handle, new File("/home/r/ws-host-uart/development/ftptest/a.pdf"), FILETXPROTO.XMODEM);
-//			
-//			Thread.sleep(2);
-//			
-//			scm.sendFile(handle, new File("/home/r/ws-host-uart/development/ftptest/a.jpg"), FILETXPROTO.XMODEM);
-//			
-//			Thread.sleep(2);
-//			
-//			scm.sendFile(handle, new File("/home/r/ws-host-uart/development/ftptest/a.doc"), FILETXPROTO.XMODEM);
+			Thread.sleep(20);
+			
+			scm.sendFile(handle, new File("/home/r/ws-host-uart/development/ftptest/a.pdf"), FILETXPROTO.XMODEM);
+			
+			Thread.sleep(20);
+			
+			scm.sendFile(handle, new File("/home/r/ws-host-uart/development/ftptest/a.jpg"), FILETXPROTO.XMODEM);
+			
+			Thread.sleep(20);
+			
+			scm.sendFile(handle, new File("/home/r/ws-host-uart/development/ftptest/a.doc"), FILETXPROTO.XMODEM);
 
+			Thread.sleep(20);
+			
 			scm.closeComPort(handle);
 		} catch (Exception e) {
 			e.printStackTrace();

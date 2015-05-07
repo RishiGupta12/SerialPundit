@@ -71,9 +71,7 @@ public class Test39 {
 				+ "Files were transferred one packet at a time. When received, the packet's checksum was calculated by the receiver and compared to the one received from the sender at the end of the packet."
 				+ "Files were transferred one packet at a time. When received, the packet's checksum was calculated by the receiver and compared to the one received from the sender at the end of the packet.";
 		
-		SerialComManager scm = new SerialComManager();
-		DataListener dataListener = new DataListener();
-		
+
 		String PORT = null;
 		String PORT1 = null;
 		int osType = SerialComManager.getOSType();
@@ -93,6 +91,11 @@ public class Test39 {
 		}
 		
 		try {
+		
+		
+				SerialComManager scm = new SerialComManager();
+		DataListener dataListener = new DataListener();
+		
 			long handle = scm.openComPort(PORT, true, true, true);
 			scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
 			scm.configureComPortControl(handle, FLOWCONTROL.NONE, 'x', 'x', false, false);

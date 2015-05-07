@@ -16,7 +16,7 @@
  */
  
  
- package test15;
+package test15;
 
 import com.embeddedunveiled.serial.SerialComManager;
 import com.embeddedunveiled.serial.SerialComManager.BAUDRATE;
@@ -38,8 +38,6 @@ class EventListener implements ISerialComEventListener{
 public class Test15 {
 	public static void main(String[] args) {
 		
-		SerialComManager scm = new SerialComManager();
-		
 		String PORT = null;
 		String PORT1 = null;
 		int osType = SerialComManager.getOSType();
@@ -58,10 +56,12 @@ public class Test15 {
 		}else{
 		}
 		
-		// instantiate class which is will implement ISerialComEventListener interface
-		EventListener eventListener = new EventListener();
-		
 		try {
+			SerialComManager scm = new SerialComManager();
+			
+			// instantiate class which is will implement ISerialComEventListener interface
+			EventListener eventListener = new EventListener();
+			
 			long handle = scm.openComPort(PORT, true, true, true);
 			scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
 			scm.configureComPortControl(handle, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);

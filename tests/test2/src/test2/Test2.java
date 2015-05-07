@@ -24,11 +24,8 @@ import com.embeddedunveiled.serial.SerialComManager.FLOWCONTROL;
 import com.embeddedunveiled.serial.SerialComManager.PARITY;
 import com.embeddedunveiled.serial.SerialComManager.STOPBITS;
 
-public class Test2 {
+public final class Test2 {
 	public static void main(String[] args) {
-		
-		// get serial communication manager instance
-		SerialComManager scm = new SerialComManager();
 		
 		String PORT = null;
 		int osType = SerialComManager.getOSType();
@@ -44,6 +41,10 @@ public class Test2 {
 		}
 		
 		try {
+		
+					// get serial communication manager instance
+		SerialComManager scm = new SerialComManager();
+		
 			// try opening serial port for read and write without exclusive ownership
 			long handle = scm.openComPort(PORT, true, true, true);
 			

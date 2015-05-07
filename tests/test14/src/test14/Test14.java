@@ -15,7 +15,7 @@
  * along with serial communication manager. If not, see <http://www.gnu.org/licenses/>.
  */
  
- package test14;
+package test14;
 
 import com.embeddedunveiled.serial.SerialComManager;
 import com.embeddedunveiled.serial.SerialComManager.BAUDRATE;
@@ -36,8 +36,6 @@ class Data implements ISerialComDataListener{
 public class Test14 {
 	public static void main(String[] args) {
 		
-		SerialComManager scm = new SerialComManager();
-		
 		String PORT = null;
 		String PORT1 = null;
 		int osType = SerialComManager.getOSType();
@@ -56,10 +54,14 @@ public class Test14 {
 		}else{
 		}
 		
-		// instantiate class which is will implement ISerialComDataListener interface
-		Data dataListener = new Data();
+
 		
 		try {
+			SerialComManager scm = new SerialComManager();
+			
+			// instantiate class which is will implement ISerialComDataListener interface
+			Data dataListener = new Data();
+			
 			// open and configure port that will listen data
 			long handle = scm.openComPort(PORT, true, true, true);
 			scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);

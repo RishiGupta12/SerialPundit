@@ -16,7 +16,7 @@
  */
  
  
- package test22;
+package test22;
 
 import com.embeddedunveiled.serial.ISerialComEventListener;
 import com.embeddedunveiled.serial.SerialComLineEvent;
@@ -57,8 +57,6 @@ public class Test22 {
 	
 	public static void main(String[] args) {
 		
-		SerialComManager scm = new SerialComManager();
-		
 		String PORT = null;
 		String PORT1 = null;
 		int osType = SerialComManager.getOSType();
@@ -79,9 +77,12 @@ public class Test22 {
 		
 		Data1 DTE1 = new Data1();
 		Data0 DCE1 = new Data0();
-		EventListener eventListener = new EventListener();
 		
 		try {
+			SerialComManager scm = new SerialComManager();
+			
+			EventListener eventListener = new EventListener();
+			
 			// DTE terminal
 			long DTE = scm.openComPort(PORT, true, true, true);
 			scm.configureComPortData(DTE, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B9600, 0);

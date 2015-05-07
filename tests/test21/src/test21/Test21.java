@@ -16,7 +16,7 @@
  */
  
  
- package test21;
+package test21;
 
 import com.embeddedunveiled.serial.IPortMonitor;
 import com.embeddedunveiled.serial.SerialComManager;
@@ -37,8 +37,6 @@ class portWatcher implements IPortMonitor{
 public class Test21 {
 	public static void main(String[] args) {
 		
-		SerialComManager scm = new SerialComManager();
-		
 		String PORT = null;
 		int osType = SerialComManager.getOSType();
 		if(osType == SerialComManager.OS_LINUX) {
@@ -52,9 +50,11 @@ public class Test21 {
 		}else{
 		}
 		
-		portWatcher pw = new portWatcher();
-		
 		try {
+			SerialComManager scm = new SerialComManager();
+			
+			portWatcher pw = new portWatcher();
+			
 			long handle = scm.openComPort(PORT, true, true, true);
 			scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
 			scm.configureComPortControl(handle, FLOWCONTROL.NONE, '$', '$', false, false);

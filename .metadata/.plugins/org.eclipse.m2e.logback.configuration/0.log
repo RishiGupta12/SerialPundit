@@ -420,3 +420,7 @@
 2015-05-05 11:18:50,891 [ModalContext] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 6 resources
 2015-05-05 11:18:50,896 [ModalContext] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
 2015-05-05 11:18:50,896 [ModalContext] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory /home/r/ws-host-uart/serial-communication-manager/com.embeddedunveiled.serial/src/test/resources
+2015-05-07 18:02:30,945 [Worker-1] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2015-05-07 18:02:30,950 [Worker-1] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 0 resource
+2015-05-07 18:02:30,952 [Worker-1] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2015-05-07 18:02:30,952 [Worker-1] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory /home/r/ws-host-uart/serial-communication-manager/com.embeddedunveiled.serial/src/test/resources

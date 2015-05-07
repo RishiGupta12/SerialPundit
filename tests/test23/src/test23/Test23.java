@@ -27,8 +27,6 @@ import com.embeddedunveiled.serial.SerialComManager.STOPBITS;
 public class Test23 {
 	public static void main(String[] args) {
 		
-		SerialComManager scm = new SerialComManager();
-		
 		String PORT = null;
 		String PORT1 = null;
 		int osType = SerialComManager.getOSType();
@@ -48,6 +46,9 @@ public class Test23 {
 		}
 		
 		try {
+		
+			SerialComManager scm = new SerialComManager();
+			
 			long DTE = scm.openComPort(PORT, true, true, true);
 			scm.configureComPortData(DTE, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B9600, 0);
 			scm.configureComPortControl(DTE, FLOWCONTROL.HARDWARE, 'x', 'x', false, true);

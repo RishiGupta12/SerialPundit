@@ -22,8 +22,6 @@ import com.embeddedunveiled.serial.SerialComManager;
 public class Test19 {
 	public static void main(String[] args) {
 		
-		SerialComManager scm = new SerialComManager();
-		
 		String PORT = null;
 		String PORT1 = null;
 		int osType = SerialComManager.getOSType();
@@ -46,6 +44,8 @@ public class Test19 {
 		long handle = 0;
 		for(x=0; x<5000; x++) {
 			try {
+			
+			SerialComManager scm = new SerialComManager();
 				handle = scm.openComPort(PORT, true, true, true);
 				System.out.println("open status :" + handle + " at " + "x== " + x);
 				System.out.println("close status :" + scm.closeComPort(handle));

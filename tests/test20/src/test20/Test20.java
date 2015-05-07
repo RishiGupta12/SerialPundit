@@ -15,7 +15,7 @@
  * along with serial communication manager. If not, see <http://www.gnu.org/licenses/>.
  */
  
- package test20;
+package test20;
 
 import com.embeddedunveiled.serial.SerialComManager;
 import com.embeddedunveiled.serial.SerialComManager.BAUDRATE;
@@ -43,8 +43,6 @@ class Data1 implements ISerialComDataListener{
 public class Test20 {
 	public static void main(String[] args) {
 		
-		SerialComManager scm = new SerialComManager();
-		
 		String PORT = null;
 		String PORT1 = null;
 		int osType = SerialComManager.getOSType();
@@ -70,6 +68,8 @@ public class Test20 {
 		Data0 sender = new Data0();
 		
 		try {
+			SerialComManager scm = new SerialComManager();
+			
 			// open and configure port that will listen data
 			long receiverHandle = scm.openComPort(PORT, true, true, true);
 			scm.configureComPortData(receiverHandle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);

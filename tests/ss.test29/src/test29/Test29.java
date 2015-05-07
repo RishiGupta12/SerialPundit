@@ -47,10 +47,6 @@ class DataListener implements ISerialComDataListener{
 public class Test29 {
 	public static void main(String[] args) {
 		
-		SerialComManager scm = new SerialComManager();
-		EventListener eventListener = new EventListener();
-		DataListener dataListener = new DataListener();
-		
 		String PORT = null;
 		String PORT1 = null;
 		int osType = SerialComManager.getOSType();
@@ -70,6 +66,11 @@ public class Test29 {
 		}
 		
 		try {
+		
+				SerialComManager scm = new SerialComManager();
+		EventListener eventListener = new EventListener();
+		DataListener dataListener = new DataListener();
+		
 			long handle = scm.openComPort(PORT, true, true, true);
 			scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B9600, 0);
 			scm.configureComPortControl(handle, FLOWCONTROL.NONE, 'x', 'x', false, false);
