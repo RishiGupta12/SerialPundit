@@ -418,15 +418,18 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 }
 
 /*
-* Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
-* Method:    readBytes
-* Signature: (JI)[B
-* 
-* 1. If data is read from serial port and no error occurs, return array of bytes
-* 2. If there is no data to read from serial port and no error occurs, return NULL
-* 3. If EOF is encountered, return NULL and set status variable to 2
-* 4. If error occurs for whatever reason, return NULL and set status variable to Windows specific error number
-*/
+ * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
+ * Method:    readBytes
+ * Signature: (JI)[B
+ *
+ * Default number of bytes to read is set to 1024 in java layer. To maintain performance, we extract field ID
+ * (object that carries error details) only when error occurs.
+ * 
+ * 1. If data is read from serial port and no error occurs, return array of bytes
+ * 2. If there is no data to read from serial port and no error occurs, return NULL
+ * 3. If EOF is encountered, return NULL and set status variable to 2
+ * 4. If error occurs for whatever reason, return NULL and set status variable to Windows specific error number
+ */
 JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_readBytes(JNIEnv *env, jobject obj, jlong handle, jint count, jobject status) {
 	jint ret = 0;
 	jint negative = -1;
@@ -447,7 +450,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINative
 		return NULL;
 	}
 
-	ret = ReadFile(hComm, data_buf, 1024, &num_of_bytes_read, &overlapped);
+	ret = ReadFile(hComm, data_buf, count, &num_of_bytes_read, &overlapped);
 
 	if(ret == 0) {
 		errorVal = GetLastError();

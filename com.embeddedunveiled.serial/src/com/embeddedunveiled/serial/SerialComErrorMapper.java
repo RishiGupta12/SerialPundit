@@ -29,6 +29,7 @@ public final class SerialComErrorMapper {
 	public static final String ERR_LISTENER_ALREADY_EXIST = "Event listener already exist. Only one listener allowed";
 	public static final String ERR_DATA_LISTENER_ALREADY_EXIST = "Data listener already exist. Only one listener allowed";
 	public static final String ERR_NULL_POINTER_FOR_LISTENER = "The listener can not be null";
+	public static final String ERR_NULL_POINTER_FOR_MONITOR = "The monitor can not be null";
 	public static final String ERR_WRONG_LISTENER_PASSED = "This listener is not registered";
 	public static final String ERR_UNABLE_TO_WRITE = "Unable to copy native library in tmp directory. Probably insufficient permissions";
 	public static final String ERR_PORT_NAME_NULL = "Port name can not be null";

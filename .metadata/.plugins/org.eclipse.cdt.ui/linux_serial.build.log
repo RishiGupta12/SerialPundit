@@ -1,10 +1,6 @@
-16:21:55 **** Incremental Build of configuration Debug for project linux_serial ****
+16:16:16 **** Incremental Build of configuration Debug for project linux_serial ****
 make all 
-Building target: linux_1.0.1_x86.so
-Invoking: GCC C Linker
-gcc -m32 -shared -o "linux_1.0.1_x86.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   -lpthread -ludev
-Finished building target: linux_1.0.1_x86.so
- 
+make: Nothing to be done for `all'.
 
-16:21:56 Build Finished (took 106ms)
+16:16:16 Build Finished (took 57ms)
 

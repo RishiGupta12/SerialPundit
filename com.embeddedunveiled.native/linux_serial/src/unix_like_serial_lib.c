@@ -215,7 +215,8 @@ void *data_looper(void *arg) {
 		pthread_exit((void *)0);
 	}
 
-	/* add serial port to epoll wait mechanism. Use level triggered epoll mechanism.  */
+	/* add serial port to epoll wait mechanism. Use level triggered (returned immediately if there is data in read buffer)
+	 * epoll mechanism.  */
 	ev_port.events = (EPOLLIN | EPOLLPRI | EPOLLERR | EPOLLHUP);
 	ev_port.data.fd = fd;
 	errno = 0;

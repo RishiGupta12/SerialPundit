@@ -1,23 +1,25 @@
 
 v1.0.2 (TODO)
-	- New API getPortName() to find port name
-	- Test added/updated
+	- new API getPortName() to find port name added
+	- new tests added/updated
+	- replaced NullPointerException with IllegalArgumentException where required
+	- replaced SerialComException IllegalStateException in closeComPort() where required
 
 v1.0.1 (05 May 2015)
-	- Update version number from 1.0.0 to 1.0.1
-	- Added more functional tests, stress and stability tests
-	- The scm can now find upto 1024 serial ports present in system
-	- Native write function returns error if port is removed from system
-	- Read/write methods now detect and report more types of error
-	- New utility method writeBytes(long handle, byte[] buffer) added
-	- New method onDataListenerError(int errorNum) added in interface ISerialComDataListener
+	- update version number from 1.0.0 to 1.0.1
+	- added more functional tests, stress and stability tests
+	- scm can now find upto 1024 serial ports present in system
+	- native write function returns error if port is removed from system
+	- read/write methods now detect and report more types of error
+	- new utility method writeBytes(long handle, byte[] buffer) added
+	- new method onDataListenerError(int errorNum) added in interface ISerialComDataListener
 	- more comprehensive debug error reporting added
 	- SerialComException now extends IOException instead of Exception
-	- Javadocs and source code comments updated
-	- Write method now throws SerialComException when any error occurs
-	- Removed limitation on how many times data/event listeners can be registered/unregistered for same port
-	- Delete info about port/handle from global arraylist in java layer when port is closed
-	- Build script for Linux updated for correct execution sequence
+	- javadocs and source code comments updated
+	- write method now throws SerialComException when any error occurs
+	- removed limitation on how many times data/event listeners can be registered/unregistered for same port
+	- delete info about port/handle from global arraylist in java layer when port is closed
+	- build script for Linux updated for correct execution sequence
 
 v1.0.0 (25 Mar 2015)
 	- Initial stable release.

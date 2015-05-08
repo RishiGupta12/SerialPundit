@@ -267,11 +267,11 @@ public final class SerialComManager {
 	 * @param exclusiveOwnerShip application wants to become exclusive owner of this port or not
 	 * @return handle of the port successfully opened
 	 * @throws SerialComException - if null argument is passed, if both enableWrite and enableRead are false
-	 * @throws NullPointerException - if portName is null
+	 * @throws IllegalArgumentException - if portName is null
 	 */
 	public long openComPort(String portName, boolean enableRead, boolean enableWrite, boolean exclusiveOwnerShip) throws SerialComException {
 		if(portName == null) {
-			throw new NullPointerException("openComPort(), " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_PORT_OPENING);
+			throw new IllegalArgumentException("openComPort(), " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_PORT_OPENING);
 		}
 		
 		if((enableRead == false) && (enableWrite == false)) {
@@ -314,6 +314,7 @@ public final class SerialComManager {
 	 * @param handle of the port to be closed
 	 * @return Return true on success in closing the port false otherwise
 	 * @throws SerialComException - if invalid handle is passed or when it fails in closing the port
+	 * @throws IllegalStateException - if application tries to close port while data/event listener exist
 	 */
 	public boolean closeComPort(long handle) throws SerialComException {
 		boolean handlefound = false;
@@ -333,10 +334,10 @@ public final class SerialComManager {
 		
 		if(mHandleInfo.getDataListener() != null) {
 			/* Proper clean up requires that, native thread should be destroyed before closing port. */
-			throw new SerialComException("closeComPort()", SerialComErrorMapper.ERR_CLOSE_WITHOUT_UNREG_DATA);
+			throw new IllegalStateException("closeComPort() " + SerialComErrorMapper.ERR_CLOSE_WITHOUT_UNREG_DATA);
 		}
 		if(mHandleInfo.getEventListener() != null) {
-			throw new SerialComException("closeComPort()", SerialComErrorMapper.ERR_CLOSE_WITHOUT_UNREG_EVENT);
+			throw new IllegalStateException("closeComPort() " + SerialComErrorMapper.ERR_CLOSE_WITHOUT_UNREG_EVENT);
 		}
 		
 		int ret = mNativeInterface.closeComPort(handle);
@@ -365,11 +366,11 @@ public final class SerialComManager {
 	 * @param delay interval to be maintained between writing two consecutive bytes
 	 * @return true on success, false on failure or if empty buffer is passed
 	 * @throws SerialComException - if an I/O error occurs.
-	 * @throws NullPointerException - if buffer is null
+	 * @throws IllegalArgumentException - if buffer is null
 	 */
 	public boolean writeBytes(long handle, byte[] buffer, int delay) throws SerialComException {
 		if(buffer == null) {
-			throw new NullPointerException("write, " + SerialComErrorMapper.ERR_WRITE_NULL_DATA_PASSED);
+			throw new IllegalArgumentException("writeBytes(), " + SerialComErrorMapper.ERR_WRITE_NULL_DATA_PASSED);
 		}
 		if(buffer.length == 0) {
 			return false;
@@ -391,7 +392,7 @@ public final class SerialComManager {
 	 * @param buffer byte type buffer containing bytes to be written to port
 	 * @return true on success, false on failure or if empty buffer is passed
 	 * @throws SerialComException - if an I/O error occurs.
-	 * @throws NullPointerException - if buffer is null
+	 * @throws IllegalArgumentException - if buffer is null
 	 */
 	public boolean writeBytes(long handle, byte[] buffer) throws SerialComException {
 		return writeBytes(handle, buffer, 0);
@@ -419,8 +420,12 @@ public final class SerialComManager {
 	 * @param delay interval between two successive bytes while sending string
 	 * @return true on success false otherwise
 	 * @throws SerialComException - if an I/O error occurs.
+	 * @throws IllegalArgumentException - if data is null
 	 */
 	public boolean writeString(long handle, String data, int delay) throws SerialComException {
+		if(data == null) {
+			throw new IllegalArgumentException("writeString(), " + SerialComErrorMapper.ERR_WRITE_NULL_DATA_PASSED);
+		}
 		return writeBytes(handle, data.getBytes(), delay);
 	}
 
@@ -433,8 +438,12 @@ public final class SerialComManager {
 	 * @param charset the character set into which given string will be encoded
 	 * @return true on success false otherwise
 	 * @throws SerialComException - if an I/O error occurs.
+	 * @throws IllegalArgumentException - if data is null
 	 */
 	public boolean writeString(long handle, String data, Charset charset, int delay) throws UnsupportedEncodingException, SerialComException {
+		if(data == null) {
+			throw new IllegalArgumentException("writeString(), " + SerialComErrorMapper.ERR_WRITE_NULL_DATA_PASSED);
+		}
 		return writeBytes(handle, data.getBytes(charset), delay);
 	}
 
@@ -852,15 +861,15 @@ public final class SerialComManager {
 	 * @param dataListener instance of class which implements ISerialComDataListener interface
 	 * @return true on success false otherwise
 	 * @throws SerialComException - if invalid handle passed, handle is null or data listener already exist for this handle
-	 * @throws NullPointerException - if dataListener is null 
+	 * @throws IllegalArgumentException - if dataListener is null 
 	 */
 	public boolean registerDataListener(long handle, ISerialComDataListener dataListener) throws SerialComException {
 		
 		boolean handlefound = false;
 		SerialComPortHandleInfo mHandleInfo = null;
 		
-		if (dataListener == null) {
-			throw new NullPointerException("registerDataListener(), " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_LISTENER);
+		if(dataListener == null) {
+			throw new IllegalArgumentException("registerDataListener(), " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_LISTENER);
 		}
 		
 		for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
@@ -889,11 +898,11 @@ public final class SerialComManager {
 	 * @param dataListener instance of class which implemented ISerialComDataListener interface
 	 * @return true on success false otherwise
 	 * @throws SerialComException - if null value is passed in dataListener field
-	 * @throws NullPointerException - if dataListener is null 
+	 * @throws IllegalArgumentException - if dataListener is null 
 	 */
 	public boolean unregisterDataListener(ISerialComDataListener dataListener) throws SerialComException {
 		if(dataListener == null) {
-			throw new NullPointerException("unregisterDataListener(), " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_LISTENER);
+			throw new IllegalArgumentException("unregisterDataListener(), " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_LISTENER);
 		}
 		
 		if(mEventCompletionDispatcher.destroyDataLooper(dataListener)) {
@@ -906,7 +915,7 @@ public final class SerialComManager {
 	/**
 	 * <p>By default, the data listener will be called for every single byte available. This may not be optimal in case
 	 * of data, but may be critical in case data actually is part of some custom protocol. So, applications can
-	 * dynamically change the behaviour of 'calling data listener' based on the amount of data availability.</p>
+	 * dynamically change the behavior of 'calling data listener' based on the amount of data availability.</p>
 	 * 
 	 * <p>Note: (1) If the port has been opened by more than one user, all the users will be affected by this method.
 	 * (2) This is not supported on Windows OS</p>
@@ -915,7 +924,7 @@ public final class SerialComManager {
 	 * @param numOfBytes minimum number of bytes that would have been read from port to pass to listener
 	 * @return true on success false otherwise
 	 * @throws SerialComException - if invalid value for numOfBytes is passed, wrong handle is passed, operation can not be done successfully
-	 * @throws NullPointerException - if numOfBytes is less than 0
+	 * @throws IllegalArgumentException - if numOfBytes is less than 0
 	 */
 	public boolean setMinDataLength(long handle, int numOfBytes) throws SerialComException {
 		
@@ -924,8 +933,8 @@ public final class SerialComManager {
 		}
 		
 		boolean handlefound = false;
-		if (numOfBytes < 0) {
-			throw new NullPointerException("setMinDataLength(), " + SerialComErrorMapper.ERR_INVALID_DATA_LENGTH);
+		if(numOfBytes < 0) {
+			throw new IllegalArgumentException("setMinDataLength(), " + SerialComErrorMapper.ERR_INVALID_DATA_LENGTH);
 		}
 		
 		for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
@@ -964,13 +973,14 @@ public final class SerialComManager {
 	 * @param eventListener instance of class which implements ISerialComEventListener interface
 	 * @return true on success false otherwise
 	 * @throws SerialComException - if invalid handle passed, handle is null or event listener already exist for this handle
+	 * @throws IllegalArgumentException - if eventListener is null 
 	 */
 	public boolean registerLineEventListener(long handle, ISerialComEventListener eventListener) throws SerialComException {
 		boolean handlefound = false;
 		SerialComPortHandleInfo mHandleInfo = null;
 		
 		if(eventListener == null) {
-			throw new NullPointerException("registerLineEventListener(), " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_LISTENER);
+			throw new IllegalArgumentException("registerLineEventListener(), " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_LISTENER);
 		}
 		
 		for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
@@ -999,11 +1009,11 @@ public final class SerialComManager {
 	 * @param eventListener instance of class which implemented ISerialComEventListener interface
 	 * @return true on success false otherwise
 	 * @throws SerialComException - if null value is passed in eventListener field
-	 * @throws NullPointerException - if eventListener is null 
+	 * @throws IllegalArgumentException - if eventListener is null 
 	 */
 	public boolean unregisterLineEventListener(ISerialComEventListener eventListener) throws SerialComException {
-		if (eventListener == null) {
-			throw new NullPointerException("unregisterLineEventListener(), " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_LISTENER);
+		if(eventListener == null) {
+			throw new IllegalArgumentException("unregisterLineEventListener(), " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_LISTENER);
 		}
 		if(mEventCompletionDispatcher.destroyEventLooper(eventListener)) {
 			return true;
@@ -1019,11 +1029,11 @@ public final class SerialComManager {
 	 * @param eventListener instance of class which implemented ISerialComEventListener interface
 	 * @return true on success false otherwise
 	 * @throws SerialComException - if null is passed for eventListener field
-	 * @throws NullPointerException - if eventListener is null 
+	 * @throws IllegalArgumentException - if eventListener is null 
 	 */
 	public boolean pauseListeningEvents(ISerialComEventListener eventListener) throws SerialComException {
 		if(eventListener == null) {
-			throw new NullPointerException("pauseListeningEvents(), " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_LISTENER);
+			throw new IllegalArgumentException("pauseListeningEvents(), " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_LISTENER);
 
 		}
 		if(mEventCompletionDispatcher.pauseListeningEvents(eventListener)) {
@@ -1042,11 +1052,11 @@ public final class SerialComManager {
 	 * @param eventListener is an instance of class which implements ISerialComEventListener
 	 * @return true on success false otherwise
 	 * @throws SerialComException - if error occurs
-	 * @throws NullPointerException - if eventListener is null 
+	 * @throws IllegalArgumentException - if eventListener is null 
 	 */
 	public boolean resumeListeningEvents(ISerialComEventListener eventListener) throws SerialComException {
 		if(eventListener == null) {
-			throw new NullPointerException("pauseListeningEvents(), " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_LISTENER);
+			throw new IllegalArgumentException("pauseListeningEvents(), " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_LISTENER);
 
 		}
 		if(mEventCompletionDispatcher.resumeListeningEvents(eventListener)) {
@@ -1064,6 +1074,7 @@ public final class SerialComManager {
 	 * @param eventListener instance of class which implemented ISerialComEventListener interface
 	 * @return true on success false otherwise
 	 * @throws SerialComException - if null is passed for listener field or invalid listener is passed
+	 * @throws IllegalArgumentException - if eventListener is null
 	 */
 	public boolean setEventsMask(ISerialComEventListener eventListener, int newMask) throws SerialComException {
 		
@@ -1071,7 +1082,7 @@ public final class SerialComManager {
 		ISerialComEventListener mEventListener = null;
 		
 		if(eventListener == null) {
-			throw new NullPointerException("setEventsMask(), " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_LISTENER);
+			throw new IllegalArgumentException("setEventsMask(), " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_LISTENER);
 		}
 
 		for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
@@ -1096,6 +1107,7 @@ public final class SerialComManager {
 	 * @param eventListener instance of class which implemented ISerialComEventListener interface
 	 * @return an integer containing bit fields representing mask
 	 * @throws SerialComException - if null or wrong listener is passed
+	 * @throws IllegalArgumentException - if eventListener is null
 	 */
 	public int getEventsMask(ISerialComEventListener eventListener) throws SerialComException {
 		
@@ -1103,10 +1115,9 @@ public final class SerialComManager {
 		ISerialComEventListener mEventListener = null;
 		
 		if(eventListener == null) {
-			throw new NullPointerException("getEventsMask(), " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_LISTENER);
+			throw new IllegalArgumentException("getEventsMask(), " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_LISTENER);
 		}
 		
-
 		for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
 			if(mInfo.containsEventListener(eventListener)) {
 				looper = mInfo.getLooper();
@@ -1323,11 +1334,16 @@ public final class SerialComManager {
 	 * @param handle which will be monitored
 	 * @return true on success false otherwise
 	 * @throws SerialComException - if invalid handle is passed or registration fails due to some reason
+	 * @throws IllegalArgumentException - if portMonitor is null
 	 */
 	public boolean registerPortMonitorListener(long handle, ISerialComPortMonitor portMonitor) throws SerialComException {
 		boolean handlefound = false;
 		String portName = null;
 		int ret = 0;
+		
+		if(portMonitor == null) {
+			throw new IllegalArgumentException("registerPortMonitorListener(), " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_MONITOR);
+		}
 		
 		for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
 			if(mInfo.containsHandle(handle)) {
@@ -1493,8 +1509,38 @@ public final class SerialComManager {
 		
 		return result;
 	}
+	
+	/**
+	 * <p>This method writes bytes from the specified byte type buffer. If the method returns false, the application
+	 * should try to re-send bytes. The data has been transmitted out of serial port when this method returns.</p>
+	 * 
+	 * <p>This method may be used for Internet of things applications, large data transfer, implementing userspace drivers,
+	 * quick prototyping of Wifi/BT modules connected to UART port.</p>
+	 * 
+	 * @param handle handle of the opened port on which to write bytes
+	 * @param buffer byte type buffer containing bytes to be written to port
+	 * @param delay interval to be maintained between writing two consecutive bytes
+	 * @return true on success, false on failure or if empty buffer is passed
+	 * @throws SerialComException - if an I/O error occurs.
+	 * @throws NullPointerException - if buffer is null
+	 */
+	public boolean writeBytesBulk(long handle, byte[] buffer, int delay) throws SerialComException {
+		if(buffer == null) {
+			throw new NullPointerException("write, " + SerialComErrorMapper.ERR_WRITE_NULL_DATA_PASSED);
+		}
+		if(buffer.length == 0) {
+			return false;
+		}
+		int ret = mNativeInterface.writeBytes(handle, buffer, delay);
+		if(ret < 0) {
+			throw new SerialComException("write",  mErrMapper.getMappedError(ret));
+		}
+		return true;
+	}
 
 }
+
+
 
 
 
