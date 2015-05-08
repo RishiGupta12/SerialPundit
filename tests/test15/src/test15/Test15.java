@@ -14,8 +14,8 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with serial communication manager. If not, see <http://www.gnu.org/licenses/>.
  */
- 
- 
+
+
 package test15;
 
 import com.embeddedunveiled.serial.SerialComManager;
@@ -37,46 +37,45 @@ class EventListener implements ISerialComEventListener{
 
 public class Test15 {
 	public static void main(String[] args) {
-		
-		String PORT = null;
-		String PORT1 = null;
-		int osType = SerialComManager.getOSType();
-		if(osType == SerialComManager.OS_LINUX) {
-			PORT = "/dev/ttyUSB0";
-			PORT1 = "/dev/ttyUSB1";
-		}else if(osType == SerialComManager.OS_WINDOWS) {
-			PORT = "COM51";
-			PORT1 = "COM52";
-		}else if(osType == SerialComManager.OS_MAC_OS_X) {
-			PORT = "/dev/cu.usbserial-A70362A3";
-			PORT1 = "/dev/cu.usbserial-A602RDCH";
-		}else if(osType == SerialComManager.OS_SOLARIS) {
-			PORT = null;
-			PORT1 = null;
-		}else{
-		}
-		
 		try {
 			SerialComManager scm = new SerialComManager();
-			
+
+			String PORT = null;
+			String PORT1 = null;
+			int osType = SerialComManager.getOSType();
+			if(osType == SerialComManager.OS_LINUX) {
+				PORT = "/dev/ttyUSB0";
+				PORT1 = "/dev/ttyUSB1";
+			}else if(osType == SerialComManager.OS_WINDOWS) {
+				PORT = "COM51";
+				PORT1 = "COM52";
+			}else if(osType == SerialComManager.OS_MAC_OS_X) {
+				PORT = "/dev/cu.usbserial-A70362A3";
+				PORT1 = "/dev/cu.usbserial-A602RDCH";
+			}else if(osType == SerialComManager.OS_SOLARIS) {
+				PORT = null;
+				PORT1 = null;
+			}else{
+			}
+
 			// instantiate class which is will implement ISerialComEventListener interface
 			EventListener eventListener = new EventListener();
-			
+
 			long handle = scm.openComPort(PORT, true, true, true);
 			scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
 			scm.configureComPortControl(handle, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
 			scm.registerLineEventListener(handle, eventListener);
-			
+
 			long handle1 = scm.openComPort(PORT1, true, true, true);
 			scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
 			scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
-			
+
 			// both event will be called
 			Thread.sleep(1000);
 			scm.setRTS(handle1, false);
 			Thread.sleep(1000);
 			scm.setDTR(handle1, false);
-			
+
 			// mask CTS, so only changes to CTS line will be reported.
 			scm.setEventsMask(eventListener, SerialComManager.CTS);
 			Thread.sleep(1000);
@@ -87,9 +86,9 @@ public class Test15 {
 			scm.setRTS(handle1, false);
 			Thread.sleep(1000);
 			scm.setDTR(handle1, false);
-			
+
 			while(true);
-			
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

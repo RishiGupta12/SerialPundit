@@ -14,8 +14,8 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with serial communication manager. If not, see <http://www.gnu.org/licenses/>.
  */
- 
- package test30;
+
+package test30;
 
 import com.embeddedunveiled.serial.ISerialComDataListener;
 import com.embeddedunveiled.serial.SerialComDataEvent;
@@ -41,60 +41,71 @@ class DataListener implements ISerialComDataListener{
 	public void onNewSerialDataAvailable(SerialComDataEvent data) {
 		System.out.println("Read from serial port : " + new String(data.getDataBytes()) + "\n");
 	}
+
+	@Override
+	public void onDataListenerError(int arg0) {
+	}
 }
 
 /* maximum 4*1024 bytes can be written in one go */
 public class Test30 {
 	public static void main(String[] args) {
-		
-		String PORT = null;
-		String PORT1 = null;
-		int osType = SerialComManager.getOSType();
-		if(osType == SerialComManager.OS_LINUX) {
-			PORT = "/dev/ttyUSB0";
-			PORT1 = "/dev/ttyUSB1";
-		}else if(osType == SerialComManager.OS_WINDOWS) {
-			PORT = "COM51";
-			PORT1 = "COM52";
-		}else if(osType == SerialComManager.OS_MAC_OS_X) {
-			PORT = "/dev/cu.usbserial-A70362A3";
-			PORT1 = "/dev/cu.usbserial-A602RDCH";
-		}else if(osType == SerialComManager.OS_SOLARIS) {
-			PORT = null;
-			PORT1 = null;
-		}else{
-		}
-		
-		int x = 0;
-		byte[] data = new byte[4*1024];
-		for(x=0; x<data.length; x++ ) {
-			data[x] = (byte) 'a';
-		}
-		
 		try {
-		
-				SerialComManager scm = new SerialComManager();
-		EventListener eventListener = new EventListener();
-		DataListener dataListener = new DataListener();
-		
+			SerialComManager scm = new SerialComManager();
+			EventListener eventListener = new EventListener();
+			DataListener dataListener = new DataListener();
+
+			String PORT = null;
+			String PORT1 = null;
+			int osType = SerialComManager.getOSType();
+			if(osType == SerialComManager.OS_LINUX) {
+				PORT = "/dev/ttyUSB0";
+				PORT1 = "/dev/ttyUSB1";
+			}else if(osType == SerialComManager.OS_WINDOWS) {
+				PORT = "COM51";
+				PORT1 = "COM52";
+			}else if(osType == SerialComManager.OS_MAC_OS_X) {
+				PORT = "/dev/cu.usbserial-A70362A3";
+				PORT1 = "/dev/cu.usbserial-A602RDCH";
+			}else if(osType == SerialComManager.OS_SOLARIS) {
+				PORT = null;
+				PORT1 = null;
+			}else{
+			}
+
+			int x = 0;
+			byte[] data = new byte[4096];
+			for(x=0; x<data.length; x++ ) {
+				data[x] = (byte) 'a';
+			}
+
 			long handle = scm.openComPort(PORT, true, true, true);
 			scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
 			scm.configureComPortControl(handle, FLOWCONTROL.NONE, 'x', 'x', false, false);
-			
+
 			long handle1 = scm.openComPort(PORT1, true, true, true);
 			scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
 			scm.configureComPortControl(handle, FLOWCONTROL.NONE, 'x', 'x', false, false);
+
+			scm.writeBytes(handle, data, 0);
+			Thread.sleep(50);
+			
+			String str = scm.readString(handle1);
+			System.out.println("data length read : " + str.length());
+			String str1 = scm.readString(handle1);
+			System.out.println("data length read : " + str1.length());
+			String str2 = scm.readString(handle1);
+			System.out.println("data length read : " + str2.length());
+			String str3 = scm.readString(handle1);
+			System.out.println("data length read : " + str3.length());
 			
 			scm.writeBytes(handle, data, 0);
+			Thread.sleep(50);
 			
-			Thread.sleep(100);
-			
-			System.out.println("done : " + scm.readString(handle1));
-			scm.readString(handle1);
+			String str4 = scm.readString(handle1, 2000);
+			System.out.println("data length read : " + str.length());
 
 			scm.closeComPort(handle);
-			
-			System.out.println("done");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

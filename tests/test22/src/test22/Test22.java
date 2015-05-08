@@ -14,8 +14,8 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with serial communication manager. If not, see <http://www.gnu.org/licenses/>.
  */
- 
- 
+
+
 package test22;
 
 import com.embeddedunveiled.serial.ISerialComEventListener;
@@ -34,12 +34,20 @@ class Data0 implements ISerialComDataListener{
 	public void onNewSerialDataAvailable(SerialComDataEvent data) {
 		System.out.println("DCE GOT FROM DTE : " + new String(data.getDataBytes()));
 	}
+
+	@Override
+	public void onDataListenerError(int arg0) {
+	}
 }
 
 class Data1 implements ISerialComDataListener{
 	@Override
 	public void onNewSerialDataAvailable(SerialComDataEvent data) {
 		System.out.println("DTE GOT FROM DCE : " + new String(data.getDataBytes()));
+	}
+	
+	@Override
+	public void onDataListenerError(int arg0) {
 	}
 }
 
@@ -52,37 +60,35 @@ class EventListener extends Test22 implements ISerialComEventListener {
 }
 
 public class Test22 {
-	
+
 	static boolean senddata = true;
-	
+
 	public static void main(String[] args) {
-		
-		String PORT = null;
-		String PORT1 = null;
-		int osType = SerialComManager.getOSType();
-		if(osType == SerialComManager.OS_LINUX) {
-			PORT = "/dev/ttyUSB0";
-			PORT1 = "/dev/ttyUSB1";
-		}else if(osType == SerialComManager.OS_WINDOWS) {
-			PORT = "COM51";
-			PORT1 = "COM52";
-		}else if(osType == SerialComManager.OS_MAC_OS_X) {
-			PORT = "/dev/cu.usbserial-A70362A3";
-			PORT1 = "/dev/cu.usbserial-A602RDCH";
-		}else if(osType == SerialComManager.OS_SOLARIS) {
-			PORT = null;
-			PORT1 = null;
-		}else{
-		}
-		
-		Data1 DTE1 = new Data1();
-		Data0 DCE1 = new Data0();
-		
 		try {
 			SerialComManager scm = new SerialComManager();
-			
 			EventListener eventListener = new EventListener();
-			
+
+			String PORT = null;
+			String PORT1 = null;
+			int osType = SerialComManager.getOSType();
+			if(osType == SerialComManager.OS_LINUX) {
+				PORT = "/dev/ttyUSB0";
+				PORT1 = "/dev/ttyUSB1";
+			}else if(osType == SerialComManager.OS_WINDOWS) {
+				PORT = "COM51";
+				PORT1 = "COM52";
+			}else if(osType == SerialComManager.OS_MAC_OS_X) {
+				PORT = "/dev/cu.usbserial-A70362A3";
+				PORT1 = "/dev/cu.usbserial-A602RDCH";
+			}else if(osType == SerialComManager.OS_SOLARIS) {
+				PORT = null;
+				PORT1 = null;
+			}else{
+			}
+
+			Data1 DTE1 = new Data1();
+			Data0 DCE1 = new Data0();
+
 			// DTE terminal
 			long DTE = scm.openComPort(PORT, true, true, true);
 			scm.configureComPortData(DTE, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B9600, 0);
@@ -91,21 +97,21 @@ public class Test22 {
 			scm.setRTS(DTE, true);
 
 			Thread.sleep(100);
-			
+
 			// DCE terminal
 			long DCE = scm.openComPort(PORT1, true, true, true);
 			scm.configureComPortData(DCE, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B9600, 0);
 			scm.configureComPortControl(DCE, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
 			scm.registerDataListener(DCE, DCE1);
 			scm.registerLineEventListener(DCE, eventListener);
-			
+
 			scm.setDTR(DTE, true);
 			scm.setDTR(DCE, true);
 			Thread.sleep(100);
 			scm.setRTS(DTE, true);
 			scm.setRTS(DCE, true);
 			Thread.sleep(100);
-			
+
 			// Step 1
 			scm.writeString(DTE, "str1", 0);
 			Thread.sleep(100);
@@ -115,18 +121,18 @@ public class Test22 {
 			Thread.sleep(100);
 			scm.writeString(DCE, "str2", 0);
 			Thread.sleep(100);
-			
+
 			// Step 2 dte says to dce don't send data i am full
 			scm.setRTS(DTE, false);
 			Thread.sleep(1000); // give delay so that send data gets updated
-			
+
 			// Step 3 dce will receive event CTS and will start sending data.
 			if(senddata == true) {
 				scm.writeString(DCE, "str3", 0);
 			}else {
 				System.out.println("seems like DTE is full");
 			}
-			
+
 			Thread.sleep(1000);
 			scm.unregisterDataListener(DTE1);
 			scm.unregisterDataListener(DCE1);

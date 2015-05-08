@@ -14,8 +14,8 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with serial communication manager. If not, see <http://www.gnu.org/licenses/>.
  */
- 
- 
+
+
 package test9;
 
 import com.embeddedunveiled.serial.SerialComManager;
@@ -27,33 +27,31 @@ import com.embeddedunveiled.serial.SerialComManager.STOPBITS;
 
 public class Test9 {
 	public static void main(String[] args) {
-		
-		String PORT = null;
-		int osType = SerialComManager.getOSType();
-		if(osType == SerialComManager.OS_LINUX) {
-			PORT = "/dev/ttyUSB0";
-		}else if(osType == SerialComManager.OS_WINDOWS) {
-			PORT = "COM51";
-		}else if(osType == SerialComManager.OS_MAC_OS_X) {
-			PORT = "/dev/cu.usbserial-A70362A3";
-		}else if(osType == SerialComManager.OS_SOLARIS) {
-			PORT = null;
-		}else{
-		}
-		
 		try {
 			SerialComManager scm = new SerialComManager();
-			
+
+			String PORT = null;
+			int osType = SerialComManager.getOSType();
+			if(osType == SerialComManager.OS_LINUX) {
+				PORT = "/dev/ttyUSB0";
+			}else if(osType == SerialComManager.OS_WINDOWS) {
+				PORT = "COM51";
+			}else if(osType == SerialComManager.OS_MAC_OS_X) {
+				PORT = "/dev/cu.usbserial-A70362A3";
+			}else if(osType == SerialComManager.OS_SOLARIS) {
+				PORT = null;
+			}else{
+			}
+
 			long handle = scm.openComPort(PORT, true, true, true);
 			scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
 			scm.configureComPortControl(handle, FLOWCONTROL.NONE, 'x', 'x', false, false);
-			
+
 			// 2000 milli seconds
 			scm.sendBreak(handle, 2000);
-			
+
 			// close the port releasing handle
 			scm.closeComPort(handle);
-			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

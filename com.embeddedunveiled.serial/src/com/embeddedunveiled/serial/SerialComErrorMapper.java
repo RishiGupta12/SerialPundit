@@ -22,9 +22,9 @@ package com.embeddedunveiled.serial;
  */
 
 public final class SerialComErrorMapper {
-	
+	public static final String ERR_SCM_DOES_NOT_INSTANTIATED = "SerialComManager class has to be instantiated first.";
 	public static final String ERR_UNABLE_TO_DETECT_OS_TYPE = "Unable to detect Operating System";
-	public static final String ERR_NULL_POINTER_FOR_PORT_OPENING = "Name of the port to open is not passed";
+	public static final String ERR_PORT_NAME_FOR_PORT_OPENING = "Name of the port to open is not passed";
 	public static final String ERR_WRONG_HANDLE = "Wrong port handle passed for the requested operations";
 	public static final String ERR_LISTENER_ALREADY_EXIST = "Event listener already exist. Only one listener allowed";
 	public static final String ERR_DATA_LISTENER_ALREADY_EXIST = "Data listener already exist. Only one listener allowed";

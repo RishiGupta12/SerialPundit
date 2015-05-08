@@ -587,7 +587,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINative
 
 	do {
 		errno = 0;
-		ret = read(fd, buffer, sizeof(buffer));
+		ret = read(fd, buffer, sizeof(buffer)); /*TODO count is of no use */
 
 		if(ret > 0 && errno == 0) {
 			/* This indicates we got success and have read data. */
@@ -1805,8 +1805,6 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 	}else {
 		/* update address where parameters for next thread will be stored. */
 		dtp_index++;
-		if(DEBUG) fprintf(stderr, "%s %d\n", "--: ", dtp_index);
-		if(DEBUG) fflush(stderr);
 	}
 
 	pthread_mutex_unlock(&mutex);

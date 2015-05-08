@@ -31,27 +31,26 @@ import com.embeddedunveiled.serial.SerialComManager.FILETXPROTO;
 // Test .txt, .doc, .pdf, .jpg, .mp3 file transfer
 public class Test38 {
 	public static void main(String[] args) {
-		
-		String PORT = null;
-		String PORT1 = null;
-		int osType = SerialComManager.getOSType();
-		if(osType == SerialComManager.OS_LINUX) {
-			PORT = "/dev/ttyUSB0";
-			PORT1 = "/dev/ttyUSB1";
-		}else if(osType == SerialComManager.OS_WINDOWS) {
-			PORT = "COM51";
-			PORT1 = "COM52";
-		}else if(osType == SerialComManager.OS_MAC_OS_X) {
-			PORT = "/dev/cu.usbserial-A70362A3";
-			PORT1 = "/dev/cu.usbserial-A602RDCH";
-		}else if(osType == SerialComManager.OS_SOLARIS) {
-			PORT = null;
-			PORT1 = null;
-		}else{
-		}
-		
 		try {
 			SerialComManager scm = new SerialComManager();
+			
+			String PORT = null;
+			String PORT1 = null;
+			int osType = SerialComManager.getOSType();
+			if(osType == SerialComManager.OS_LINUX) {
+				PORT = "/dev/ttyUSB0";
+				PORT1 = "/dev/ttyUSB1";
+			}else if(osType == SerialComManager.OS_WINDOWS) {
+				PORT = "COM51";
+				PORT1 = "COM52";
+			}else if(osType == SerialComManager.OS_MAC_OS_X) {
+				PORT = "/dev/cu.usbserial-A70362A3";
+				PORT1 = "/dev/cu.usbserial-A602RDCH";
+			}else if(osType == SerialComManager.OS_SOLARIS) {
+				PORT = null;
+				PORT1 = null;
+			}else{
+			}
 			
 			long handle = scm.openComPort(PORT, true, true, true);
 			scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B2400, 0);

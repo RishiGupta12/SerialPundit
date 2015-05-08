@@ -2,8 +2,8 @@
 <section name="Workbench">
 	<section name="org.eclipse.ui.texteditor.FindReplaceDialog_dialogBounds">
 		<item value="315" key="DIALOG_WIDTH"/>
-		<item value="152" key="DIALOG_Y_ORIGIN"/>
-		<item value="1362" key="DIALOG_X_ORIGIN"/>
+		<item value="387" key="DIALOG_Y_ORIGIN"/>
+		<item value="1413" key="DIALOG_X_ORIGIN"/>
 		<item value="448" key="DIALOG_HEIGHT"/>
 		<item value="1|Ubuntu|11.0|0|GTK|1|" key="DIALOG_FONT_NAME"/>
 	</section>
@@ -13,16 +13,16 @@
 		<item value="false" key="isRegEx"/>
 		<item value="false" key="incremental"/>
 		<item value="false" key="wholeword"/>
-		<item value="" key="selection"/>
+		<item value="--:" key="selection"/>
 		<list key="findhistory">
+			<item value="--:"/>
+			<item value="IllegalArgumentException"/>
 			<item value="LONG_MAX"/>
 			<item value="level"/>
 			<item value="todo"/>
 			<item value="block"/>
 			<item value="WAITNAK"/>
 			<item value="fileToSend"/>
-			<item value="system"/>
-			<item value=".out"/>
 		</list>
 		<list key="replacehistory">
 			<item value="CONNECT"/>

@@ -4,4 +4,5 @@
 <fullyQualifiedTypeName name="com.embeddedunveiled.serial.SerialComException"/>
 <fullyQualifiedTypeName name="java.io.BufferedOutputStream"/>
 <fullyQualifiedTypeName name="java.io.FileOutputStream"/>
+<fullyQualifiedTypeName name="com.sun.xml.internal.ws.wsdl.writer.document.Port"/>
 </qualifiedTypeNameHistroy>

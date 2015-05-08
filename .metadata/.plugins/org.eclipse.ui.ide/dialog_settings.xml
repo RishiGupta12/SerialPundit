@@ -5,11 +5,11 @@
 		<item value="false" key="WizardProjectsImportPage.STORE_COPY_PROJECT_ID"/>
 		<item value="false" key="WizardProjectsImportPage.STORE_NESTED_PROJECTS"/>
 		<list key="WizardProjectsImportPage.STORE_DIRECTORIES">
-			<item value="/home/r/ws-host-uart/serial-communication-manager/com.embeddedunveiled.native/linux_serial"/>
-			<item value="/home/r/ws-host-uart/serial-communication-manager/tests/ss.test18"/>
 			<item value="/home/r/ws-host-uart/serial-communication-manager/tests/test40"/>
 			<item value="/home/r/ws-host-uart/serial-communication-manager/tests/ss.test39"/>
+			<item value="/home/r/ws-host-uart/serial-communication-manager/tests/ss.test36"/>
 			<item value="/home/r/ws-host-uart/serial-communication-manager/tests/ss.test35"/>
+			<item value="/home/r/ws-host-uart/serial-communication-manager/tests/ss.test34"/>
 		</list>
 		<list key="WizardProjectsImportPage.STORE_ARCHIVES">
 			<item value=""/>

@@ -216,11 +216,15 @@ public final class SerialComManager {
 	}
 
 	/**
-	 * <p>Gives operating system type as identified by this library. To interpret return integer see constants defined by this class. </p>
+	 * <p>Gives operating system type as identified by this library. To interpret return integer see constants defined
+	 * SerialComManager class. </p>
 	 * 
-	 * @return Operating system type as identified by this library. 
+	 * @return Operating system type as identified by the scm library. 
 	 */
-	public static int getOSType() {
+	public static int getOSType() throws IllegalStateException {
+		if(osType == -1) {
+			throw new IllegalStateException("getOSType() " + SerialComErrorMapper.ERR_SCM_DOES_NOT_INSTANTIATED);
+		}
 		return osType;
 	}
 
@@ -271,9 +275,12 @@ public final class SerialComManager {
 	 */
 	public long openComPort(String portName, boolean enableRead, boolean enableWrite, boolean exclusiveOwnerShip) throws SerialComException {
 		if(portName == null) {
-			throw new IllegalArgumentException("openComPort(), " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_PORT_OPENING);
+			throw new IllegalArgumentException("openComPort(), " + SerialComErrorMapper.ERR_PORT_NAME_FOR_PORT_OPENING);
 		}
-		
+		portName = portName.trim();
+		if(portName.length() == 0) {
+			throw new IllegalArgumentException("openComPort(), " + SerialComErrorMapper.ERR_PORT_NAME_FOR_PORT_OPENING);
+		}
 		if((enableRead == false) && (enableWrite == false)) {
 			throw new SerialComException(portName, "openComPort()",  "Enable read, write or both.");
 		}
@@ -623,7 +630,7 @@ public final class SerialComManager {
 	}
 
 	/**
-	 * <p>This method is for user to read input data as string and the method handles the conversion from bytes to string.
+	 * <p>This method reads data from serial port and converts data read from bytes to string.
 	 * Caller has more finer control over the byte operation.</p>
 	 * 
 	 * @param handle of port from which to read bytes
@@ -640,7 +647,8 @@ public final class SerialComManager {
 	}
 	
 	/**
-	 * <p>This method is for user to read input data as string and the method handles the conversion from bytes to string.</p>
+	 * <p>This method reads data from serial port and converts data read from bytes to string.</p>
+	 * <p>Note that the length of string read using this method can not be greater than DEFAULT_READBYTECOUNT (1024).</p>
 	 * 
 	 * @param handle of the port from which to read bytes
 	 * @return string constructed from data read from serial port, empty string if there was no data on serial port, null if EOF is read

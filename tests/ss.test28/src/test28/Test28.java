@@ -14,8 +14,8 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with serial communication manager. If not, see <http://www.gnu.org/licenses/>.
  */
- 
- package test28;
+
+package test28;
 
 import com.embeddedunveiled.serial.SerialComManager;
 import com.embeddedunveiled.serial.SerialComManager.BAUDRATE;
@@ -29,48 +29,39 @@ import com.embeddedunveiled.serial.SerialComManager.STOPBITS;
  */
 public class Test28 {
 	public static void main(String[] args) {
-		
-		String PORT = null;
-		String PORT1 = null;
-		int osType = SerialComManager.getOSType();
-		if(osType == SerialComManager.OS_LINUX) {
-			PORT = "/dev/ttyUSB0";
-			PORT1 = "/dev/ttyUSB1";
-		}else if(osType == SerialComManager.OS_WINDOWS) {
-			PORT = "COM51";
-			PORT1 = "COM52";
-		}else if(osType == SerialComManager.OS_MAC_OS_X) {
-			PORT = "/dev/cu.usbserial-A70362A3";
-			PORT1 = "/dev/cu.usbserial-A602RDCH";
-		}else if(osType == SerialComManager.OS_SOLARIS) {
-			PORT = null;
-			PORT1 = null;
-		}else{
-		}
-		
 		long handle1 = 0;
 		long handle = 0;
-		try {
 		
-				SerialComManager scm = new SerialComManager();
-		SerialComManager scm1 = new SerialComManager();
-			
+		try {
+			SerialComManager scm = new SerialComManager();
+			SerialComManager scm1 = new SerialComManager();
+
+			String PORT = null;
+			String PORT1 = null;
+			int osType = SerialComManager.getOSType();
+			if(osType == SerialComManager.OS_LINUX) {
+				PORT = "/dev/ttyUSB0";
+				PORT1 = "/dev/ttyUSB1";
+			}else if(osType == SerialComManager.OS_WINDOWS) {
+				PORT = "COM51";
+				PORT1 = "COM52";
+			}else if(osType == SerialComManager.OS_MAC_OS_X) {
+				PORT = "/dev/cu.usbserial-A70362A3";
+				PORT1 = "/dev/cu.usbserial-A602RDCH";
+			}else if(osType == SerialComManager.OS_SOLARIS) {
+				PORT = null;
+				PORT1 = null;
+			}else{
+			}
+
 			handle = scm.openComPort(PORT, true, true, true);
 			scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B9600, 0);
 			scm.configureComPortControl(handle, FLOWCONTROL.NONE, 'x', 'x', false, false);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		
-		try {	
+	
 			handle1 = scm1.openComPort(PORT1, true, true, true);
 			scm1.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B9600, 0);
 			scm1.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		
-		try {
+
 			scm.writeString(handle, "testing4", 0);
 			scm1.writeString(handle1, "testing3", 0);
 			System.out.println("data read is : " + scm.readString(handle));
