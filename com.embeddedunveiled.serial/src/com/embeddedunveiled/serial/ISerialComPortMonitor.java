@@ -21,7 +21,7 @@ package com.embeddedunveiled.serial;
  * <p>This interface need to be implemented by class who wants to monitor serial port.</p>
  */
 public interface ISerialComPortMonitor {
-	
+
 	/** 
 	 * <p>Whenever a serial device is plugged or unplugged from system, onPortMonitorEvent() method will
 	 * be called by native layer.</p>
@@ -33,5 +33,5 @@ public interface ISerialComPortMonitor {
 	 * is plugged into system.</p>
 	 */
 	public abstract void onPortMonitorEvent(int event);
-	
+
 }

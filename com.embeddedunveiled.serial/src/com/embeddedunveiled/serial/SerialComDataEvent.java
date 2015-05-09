@@ -22,17 +22,17 @@ package com.embeddedunveiled.serial;
  * on an instance of this class to retrieve data.</p>
  */
 public final class SerialComDataEvent {
-	
+
 	private byte[] mData = null;
 
-    public SerialComDataEvent(byte[] data){
-    	this.mData = data;
-    }
-    
-    /**
-     * <p>This method return array of bytes which represents data bytes read from serial port.</p>
-     */
-    public byte[] getDataBytes() {
-    	return mData;
-    }
+	public SerialComDataEvent(byte[] data){
+		this.mData = data;
+	}
+
+	/**
+	 * <p>This method return array of bytes which represents data bytes read from serial port.</p>
+	 */
+	public byte[] getDataBytes() {
+		return mData;
+	}
 }

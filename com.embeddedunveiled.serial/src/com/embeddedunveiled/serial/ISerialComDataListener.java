@@ -21,7 +21,7 @@ package com.embeddedunveiled.serial;
  * <p>This interface represents Completion handler in our proactor design pattern.</p>
  */
 public interface ISerialComDataListener {
-	
+
 	/**
 	 * <p>The class implementing this interface is expected to override onNewSerialDataAvailable() method.
 	 * This method gets called from the looper thread associated with the corresponding listener (handler).</p>
@@ -33,7 +33,7 @@ public interface ISerialComDataListener {
 	 * using available setMinDataLength() API for Linux.</p>
 	 */
 	public abstract void onNewSerialDataAvailable(SerialComDataEvent dataEvent);
-	
+
 	/**
 	 * <p>This methods helps in creating fault-tolerant and recoverable application design in case
 	 * unexpected situations like serial port removal, bug encountered in OS or driver during operation
@@ -44,5 +44,5 @@ public interface ISerialComDataListener {
 	 * administrator so that he can take appropriate actions to recover from situation.</p>
 	 */
 	public abstract void onDataListenerError(int errorNum);
-	
+
 }

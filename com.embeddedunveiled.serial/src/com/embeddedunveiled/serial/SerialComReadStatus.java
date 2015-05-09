@@ -22,9 +22,9 @@ package com.embeddedunveiled.serial;
  * of this class.</p>
  */
 public final class SerialComReadStatus {
-	
+
 	int status = 1; // package-private access
-	
+
 	public SerialComReadStatus(int status) {
 		this.status = status;
 	}

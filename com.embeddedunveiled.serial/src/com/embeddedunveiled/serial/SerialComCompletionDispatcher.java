@@ -32,17 +32,17 @@ import java.util.List;
  * A looper can have none or only one event looper at any instant of time.
  */
 public final class SerialComCompletionDispatcher {
-	
+
 	private SerialComJNINativeInterface mNativeInterface = null;
 	private SerialComErrorMapper mErrMapper = null;
 	private List<SerialComPortHandleInfo> mPortHandleInfo = null;
-	
+
 	public SerialComCompletionDispatcher(SerialComJNINativeInterface nativeInterface, SerialComErrorMapper errMapper, List<SerialComPortHandleInfo> portHandleInfo) {
 		this.mNativeInterface = nativeInterface;
 		this.mErrMapper = errMapper;
 		this.mPortHandleInfo = portHandleInfo;
 	}
-	
+
 	/**
 	 * <p>This method creates data looper thread and initialise subsystem for data event passing. </p>
 	 * 
@@ -51,30 +51,30 @@ public final class SerialComCompletionDispatcher {
 	 * @return true on success
 	 * @throws SerialComException if not able to complete requested operation
 	 */
-	
+
 	public boolean setUpDataLooper(long handle, SerialComPortHandleInfo mHandleInfo, ISerialComDataListener dataListener) throws SerialComException {
-		
+
 		SerialComLooper looper = mHandleInfo.getLooper();
-		
+
 		// Create looper for this handle and listener, if it does not exist.
 		if(looper == null) {
 			looper = new SerialComLooper(mNativeInterface, mErrMapper);
 			mHandleInfo.setLooper(looper);
 		}
-		
+
 		looper.startDataLooper(handle, dataListener, mHandleInfo.getOpenedPortName());
 		mHandleInfo.setDataListener(dataListener);
-		
+
 		int ret = mNativeInterface.setUpDataLooperThread(handle, looper);
 		if(ret < 0) {
 			looper.stopDataLooper();
 			mHandleInfo.setDataListener(null);
 			throw new SerialComException("setUpDataLooper()", mErrMapper.getMappedError(ret));
 		}
-		
+
 		return true;
 	}
-	
+
 	/**
 	 * <p>Check if we have handler corresponding to this listener and take actions accordingly.</p>
 	 * 
@@ -85,7 +85,7 @@ public final class SerialComCompletionDispatcher {
 	public boolean destroyDataLooper(ISerialComDataListener dataListener) throws SerialComException {
 		long handle = -1;
 		SerialComPortHandleInfo mHandleInfo = null;
-		
+
 		for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
 			if(mInfo.getDataListener() ==  dataListener) {
 				handle = mInfo.getPortHandle();
@@ -96,27 +96,27 @@ public final class SerialComCompletionDispatcher {
 		if(handle == -1) {
 			throw new SerialComException("destroyDataLooper()", SerialComErrorMapper.ERR_WRONG_LISTENER_PASSED);
 		}
-		
+
 		// We got valid handle so destroy native threads for this listener.
 		int ret = mNativeInterface.destroyDataLooperThread(handle);
 		if(ret < 0) {
 			throw new SerialComException("destroyDataLooper()", mErrMapper.getMappedError(ret));
 		}
-		
+
 		// Remove data listener from information object about this handle.
 		mHandleInfo.setDataListener(null);
-		
+
 		// Destroy data looper thread.
 		mHandleInfo.getLooper().stopDataLooper();
-		
+
 		// If neither data nor event listener exist, looper object should be destroyed.
 		if((mHandleInfo.getEventListener() == null) && (mHandleInfo.getDataListener() == null)) {
 			mHandleInfo.setLooper(null);
 		}
-		
+
 		return true;
 	}
-	
+
 	/**
 	 * 
 	 * @param eventListener listener for which looper has to be set up
@@ -124,30 +124,30 @@ public final class SerialComCompletionDispatcher {
 	 * @return true on success
 	 * @throws SerialComException if error occurs
 	 */
-	
+
 	public boolean setUpEventLooper(long handle, SerialComPortHandleInfo mHandleInfo, ISerialComEventListener eventListener) throws SerialComException {
-		
+
 		SerialComLooper looper = mHandleInfo.getLooper();
-		
+
 		// Create looper for this handle and listener, if it does not exist.
 		if(looper == null) {
 			looper = new SerialComLooper(mNativeInterface, mErrMapper);
 			mHandleInfo.setLooper(looper);
 		}
-		
+
 		looper.startEventLooper(handle, eventListener, mHandleInfo.getOpenedPortName());
 		mHandleInfo.setEventListener(eventListener);
-		
+
 		int ret = mNativeInterface.setUpEventLooperThread(handle, looper);
 		if(ret < 0) {
 			looper.stopEventLooper();
 			mHandleInfo.setEventListener(null);
 			throw new SerialComException("setUpEventLooper()", mErrMapper.getMappedError(ret));
 		}
-		
+
 		return true;
 	}
-	
+
 	/**
 	 * Check if we have handler corresponding to this listener and take actions accordingly.
 	 * 
@@ -158,7 +158,7 @@ public final class SerialComCompletionDispatcher {
 	public boolean destroyEventLooper(ISerialComEventListener eventListener) throws SerialComException {
 		long handle = -1;
 		SerialComPortHandleInfo mHandleInfo = null;
-		
+
 		for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
 			if(mInfo.getEventListener() ==  eventListener) {
 				handle = mInfo.getPortHandle();
@@ -169,24 +169,24 @@ public final class SerialComCompletionDispatcher {
 		if(handle == -1) {
 			throw new SerialComException(" destroyEventLooper()", SerialComErrorMapper.ERR_WRONG_LISTENER_PASSED);
 		}
-		
+
 		// We got valid handle so destroy native threads for this listener.
 		int ret = mNativeInterface.destroyEventLooperThread(handle);
 		if(ret < 0) {
 			throw new SerialComException("destroyDataLooper()", mErrMapper.getMappedError(ret));
 		}
-		
+
 		// Remove event listener from information object about this handle.
 		mHandleInfo.setEventListener(null);
-		
+
 		// If neither data nor event listener exist, looper object should be destroyed.
 		if((mHandleInfo.getEventListener() == null) && (mHandleInfo.getDataListener() == null)) {
 			mHandleInfo.setLooper(null);
 		}
-		
+
 		return true;
 	}
-	
+
 	/**
 	 * <p>Check if we have handler corresponding to this listener and take actions accordingly.</p>
 	 * 
@@ -204,7 +204,7 @@ public final class SerialComCompletionDispatcher {
 				break;
 			}
 		}
-		
+
 		if(handle != -1) {
 			// We got a valid handle, so pause native threads for this listener first.
 			int ret = mNativeInterface.pauseListeningEvents(handle);
@@ -218,7 +218,7 @@ public final class SerialComCompletionDispatcher {
 			throw new SerialComException("pauseListeningEvents()", SerialComErrorMapper.ERR_WRONG_LISTENER_PASSED);
 		}
 	}
-	
+
 	/**
 	 * Check if we have handler corresponding to this listener and take actions accordingly.
 	 * 
@@ -236,11 +236,11 @@ public final class SerialComCompletionDispatcher {
 				break;
 			}
 		}
-		
+
 		if(handle != -1) {
 			// We got valid handle, so resume looper first.
 			looper.resume();
-			
+
 			// now resume native subsystem.
 			int ret = mNativeInterface.resumeListeningEvents(handle);
 			if(ret > 0) {
@@ -252,5 +252,5 @@ public final class SerialComCompletionDispatcher {
 			throw new SerialComException("resumeListeningEvents()", SerialComErrorMapper.ERR_WRONG_LISTENER_PASSED);
 		}
 	}
-	
+
 }

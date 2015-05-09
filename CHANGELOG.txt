@@ -1,6 +1,7 @@
 
 v1.0.2 (TODO release date)
 	- new API getPortName() to find port name added
+	- added checking for invalid argument in receiveFile() and sendFile()
 	- getOsType() now throws IllegalStateException
 	- new tests added/updated
 	- replaced NullPointerException with IllegalArgumentException where required

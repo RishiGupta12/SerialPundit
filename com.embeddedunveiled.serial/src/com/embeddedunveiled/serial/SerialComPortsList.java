@@ -29,80 +29,80 @@ import java.util.regex.Pattern;
  */
 
 public final class SerialComPortsList {
-	
+
 	private static final Pattern Sol_regExpPattern = Pattern.compile("[0-9]*|[a-z]*");
 	private static final String Sol_search_path = "/dev/term/";
 	private SerialComJNINativeInterface mNativeInterface = null;
-   
-    private static final Comparator<String> comparator = new Comparator<String>() {
 
-        @Override
-        public int compare(String valueA, String valueB) {
+	private static final Comparator<String> comparator = new Comparator<String>() {
 
-            if(valueA.equalsIgnoreCase(valueB)){
-                return valueA.compareTo(valueB);
-            }
+		@Override
+		public int compare(String valueA, String valueB) {
 
-            int minLength = Math.min(valueA.length(), valueB.length());
-            int shiftA = 0;
-            int shiftB = 0;
+			if(valueA.equalsIgnoreCase(valueB)){
+				return valueA.compareTo(valueB);
+			}
 
-            for(int i = 0; i < minLength; i++){
-                char charA = valueA.charAt(i - shiftA);
-                char charB = valueB.charAt(i - shiftB);
-                if(charA != charB){
-                    if(Character.isDigit(charA) && Character.isDigit(charB)){
-                        int[] resultsA = getNumberAndLastIndex(valueA, i - shiftA);
-                        int[] resultsB = getNumberAndLastIndex(valueB, i - shiftB);
+			int minLength = Math.min(valueA.length(), valueB.length());
+			int shiftA = 0;
+			int shiftB = 0;
 
-                        if(resultsA[0] != resultsB[0]){
-                            return resultsA[0] - resultsB[0];
-                        }
-                        if(valueA.length() < valueB.length()){
-                            i = resultsA[1];
-                            shiftB = resultsA[1] - resultsB[1];
-                        }else {
-                            i = resultsB[1];
-                            shiftA = resultsB[1] - resultsA[1];
-                        }
-                    }else {
-                        if(Character.toLowerCase(charA) - Character.toLowerCase(charB) != 0){
-                            return Character.toLowerCase(charA) - Character.toLowerCase(charB);
-                        }
-                    }
-                }
-            }
-            return valueA.compareToIgnoreCase(valueB);
-        }
+			for(int i = 0; i < minLength; i++){
+				char charA = valueA.charAt(i - shiftA);
+				char charB = valueB.charAt(i - shiftB);
+				if(charA != charB){
+					if(Character.isDigit(charA) && Character.isDigit(charB)){
+						int[] resultsA = getNumberAndLastIndex(valueA, i - shiftA);
+						int[] resultsB = getNumberAndLastIndex(valueB, i - shiftB);
 
-        private int[] getNumberAndLastIndex(String str, int startIndex) {
-            String numVal = "";
-            int[] val = {-1, startIndex};
-            
-            for(int i = startIndex; i < str.length(); i++){
-                val[1] = i;
-                char c = str.charAt(i);
-                if(Character.isDigit(c)){
-                    numVal += c;
-                }else {
-                    break;
-                }
-            }
-            
-            try {
-                val[0] = Integer.valueOf(numVal);
-            } catch (Exception e) {
-                //Do nothing
-            }
-            return val;
-        }
-    };
+						if(resultsA[0] != resultsB[0]){
+							return resultsA[0] - resultsB[0];
+						}
+						if(valueA.length() < valueB.length()){
+							i = resultsA[1];
+							shiftB = resultsA[1] - resultsB[1];
+						}else {
+							i = resultsB[1];
+							shiftA = resultsB[1] - resultsA[1];
+						}
+					}else {
+						if(Character.toLowerCase(charA) - Character.toLowerCase(charB) != 0){
+							return Character.toLowerCase(charA) - Character.toLowerCase(charB);
+						}
+					}
+				}
+			}
+			return valueA.compareToIgnoreCase(valueB);
+		}
 
-    /* Constructor */
+		private int[] getNumberAndLastIndex(String str, int startIndex) {
+			String numVal = "";
+			int[] val = {-1, startIndex};
+
+			for(int i = startIndex; i < str.length(); i++){
+				val[1] = i;
+				char c = str.charAt(i);
+				if(Character.isDigit(c)){
+					numVal += c;
+				}else {
+					break;
+				}
+			}
+
+			try {
+				val[0] = Integer.valueOf(numVal);
+			} catch (Exception e) {
+				//Do nothing
+			}
+			return val;
+		}
+	};
+
+	/* Constructor */
 	public SerialComPortsList(SerialComJNINativeInterface nativeInterface) {
 		this.mNativeInterface = nativeInterface;
 	}
-	
+
 	/**
 	 * <p>This methods find all ports known to system at this instant.</p>
 	 * <p>For Linux, Windows and Mac OS, ports are found with the help of OS specific facilities/API.</p>
@@ -116,11 +116,11 @@ public final class SerialComPortsList {
 			ArrayList<String> portsIdentified = new ArrayList<String>();
 			String[] ports = mNativeInterface.getSerialPortNames();
 			if(ports != null) {
-		        for(String portName : ports){
-		        	portsIdentified.add(portName);
-		        }
-		        Collections.sort(portsIdentified, comparator);
-		        return portsIdentified.toArray(new String[portsIdentified.size()]);
+				for(String portName : ports){
+					portsIdentified.add(portName);
+				}
+				Collections.sort(portsIdentified, comparator);
+				return portsIdentified.toArray(new String[portsIdentified.size()]);
 			}
 			return new String[]{};
 		} else {

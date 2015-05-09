@@ -24,10 +24,10 @@ import java.io.OutputStream;
  * <p>This class represents an output stream of bytes that gets sent over to serial port for transmission.</p>
  */
 class SerialComOutputStream extends OutputStream {
-	
+
 	private SerialComManager scm = null;
 	private long handle = 0;
-	
+
 	public SerialComOutputStream(SerialComManager scm, long handle) {
 		this.scm = scm;
 		this.handle = handle;
@@ -46,7 +46,7 @@ class SerialComOutputStream extends OutputStream {
 			throw new IOException(e);
 		}
 	}
-	
+
 	/**
 	 * <p>Writes data.length bytes from the specified byte array to this output stream.</p>
 	 * @param byte type array of data to be written to serial port
@@ -60,7 +60,7 @@ class SerialComOutputStream extends OutputStream {
 			throw new IOException(e);
 		}
 	}
-	
+
 	/**
 	 * <p>Writes len bytes from the specified byte array starting at offset off to this output stream.</p>
 	 * <p>If b is null, a NullPointerException is thrown.</p>
@@ -79,7 +79,7 @@ class SerialComOutputStream extends OutputStream {
 		if((off < 0) || (len < 0) || ((off+len) < data.length)) {
 			throw new IndexOutOfBoundsException("write(), " + SerialComErrorMapper.ERR_WRITE_INDEX_VIOLATION);
 		}
-		
+
 		byte[] buf = new byte[len];
 		System.arraycopy(data, off, buf, 0, len);
 		try {
@@ -88,7 +88,7 @@ class SerialComOutputStream extends OutputStream {
 			throw new IOException(e);
 		}
 	}
-	
+
 	/**
 	 * <p>The flush method of OutputStream does nothing. Kept in source code just to specify developer
 	 * about behaviour of this library when flush is called.</p>
@@ -102,15 +102,15 @@ class SerialComOutputStream extends OutputStream {
  * <p>This class represents an input stream of bytes that gets sent over to serial port for transmission.</p>
  */
 class SerialComInputStream extends InputStream {
-	
+
 	private SerialComManager scm = null;
 	private long handle = 0;
-	
+
 	public SerialComInputStream(SerialComManager scm, long handle) {
 		this.scm = scm;
 		this.handle = handle;
 	}
-	
+
 	/**
 	 * <p>Returns an estimate of the minimum number of bytes that can be read from this input stream
 	 * without blocking by the next invocation of a method for this input stream.</p>
@@ -127,7 +127,7 @@ class SerialComInputStream extends InputStream {
 		}
 		return numBytesAvailable[0];
 	}
-	
+
 	/**
 	 * <p>scm does not support mark and reset of input stream. If required, it can be developed at application level.</p>
 	 * @return always returns false
@@ -161,12 +161,12 @@ class SerialComInputStream extends InputStream {
 		} catch (SerialComException e) {
 			throw new IOException(e);
 		}
-		
+
 		return x;
 	}
-	
 
-	
+
+
 	/**
 	 * <p>scm does not support skip. If required, it can be developed at application level.</p>
 	 * @param number of bytes to skip
@@ -182,12 +182,12 @@ class SerialComInputStream extends InputStream {
  * <p>Note that scm is non-blocking I/O.</p>
  */
 public final class SerialComByteStream {
-	
+
 	private SerialComManager scm = null;
 	private long handle = 0;
 	private SerialComOutputStream outStream = null;
 	private SerialComInputStream inStream = null;
-	
+
 	/**
 	 * 
 	 */
@@ -195,7 +195,7 @@ public final class SerialComByteStream {
 		this.scm = scm;
 		this.handle = handle;
 	}
-	
+
 	public SerialComOutputStream getSerialComOutputStream() {
 		if(outStream == null) {
 			outStream = new SerialComOutputStream(scm, handle);

@@ -38,7 +38,7 @@ public final class SerialComManager {
 	public static final int OS_WINDOWS  = 2;
 	public static final int OS_SOLARIS  = 3;
 	public static final int OS_MAC_OS_X = 4;
-	
+
 	public static final int DEFAULT_READBYTECOUNT = 1024;
 
 	/** Pre-defined constants for baud rate values. */
@@ -49,7 +49,7 @@ public final class SerialComManager {
 		B460800(460800), B500000(500000), B576000(576000), B921600(921600), B1000000(1000000), B1152000(1152000),
 		B1500000(1500000),B2000000(2000000), B2500000(2500000), B3000000(3000000), B3500000(3500000), B4000000(4000000),
 		BCUSTOM(251);
-		
+
 		private int value;
 		private BAUDRATE(int value) {
 			this.value = value;	
@@ -58,11 +58,11 @@ public final class SerialComManager {
 			return this.value;
 		}
 	}
-	
+
 	/** Pre-defined constants for number of data bits in a serial frame. */
 	public enum DATABITS {
 		DB_5(5), DB_6(6), DB_7(7), DB_8(8);
-		
+
 		private int value;
 		private DATABITS(int value) {
 			this.value = value;	
@@ -76,7 +76,7 @@ public final class SerialComManager {
 	// SB_1_5(4) is 1.5 stop bits.
 	public enum STOPBITS {
 		SB_1(1), SB_1_5(4), SB_2(2);
-		
+
 		private int value;
 		private STOPBITS(int value) {
 			this.value = value;	
@@ -89,7 +89,7 @@ public final class SerialComManager {
 	/** Pre-defined constants for enabling type of parity in a serial frame. */
 	public enum PARITY {
 		P_NONE(1), P_ODD(2), P_EVEN(3), P_MARK(4), P_SPACE(5);
-		
+
 		private int value;
 		private PARITY(int value) {
 			this.value = value;	
@@ -98,11 +98,11 @@ public final class SerialComManager {
 			return this.value;
 		}
 	}
-	
+
 	/** Pre-defined constants for controlling data flow between DTE and DCE. */
 	public enum FLOWCONTROL {
 		NONE(1), HARDWARE(2), SOFTWARE(3);
-		
+
 		private int value;
 		private FLOWCONTROL(int value) {
 			this.value = value;	
@@ -111,11 +111,11 @@ public final class SerialComManager {
 			return this.value;
 		}
 	}
-	
+
 	/** Pre-defined constants for defining endianness of data to be sent over serial port. */
 	public enum ENDIAN {
 		E_LITTLE(1), E_BIG(2), E_DEFAULT(3);
-		
+
 		private int value;
 		private ENDIAN(int value) {
 			this.value = value;	
@@ -124,11 +124,11 @@ public final class SerialComManager {
 			return this.value;
 		}
 	}
-	
+
 	/** Pre-defined constants for defining number of bytes given data can be represented in. */
 	public enum NUMOFBYTES {
 		NUM_2(2), NUM_4(4);
-		
+
 		private int value;
 		private NUMOFBYTES(int value) {
 			this.value = value;	
@@ -137,11 +137,11 @@ public final class SerialComManager {
 			return this.value;
 		}
 	}
-	
+
 	/** Pre-defined constants for defining file transfer protocol to use. */
 	public enum FILETXPROTO {
 		XMODEM(1);
-		
+
 		private int value;
 		private FILETXPROTO(int value) {
 			this.value = value;	
@@ -150,7 +150,7 @@ public final class SerialComManager {
 			return this.value;
 		}
 	}
-	
+
 	/** Mask bits for UART control lines. */
 	public static final int CTS =  0x01;  // 0000001
 	public static final int DSR =  0x02;  // 0000010
@@ -167,7 +167,7 @@ public final class SerialComManager {
 	public static final String javaTmpDir = System.getProperty("java.io.tmpdir");
 	public static final String fileSeparator = System.getProperty("file.separator");
 	public static final String javaLibPath = System.getProperty("java.library.path").toLowerCase();
-	
+
 	/** Maintain integrity and consistency among all operations, therefore synchronize them for
 	 *  making structural changes. This array can be sorted array if scaled to large scale. */
 	private ArrayList<SerialComPortHandleInfo> handleInfo = new ArrayList<SerialComPortHandleInfo>();
@@ -192,7 +192,7 @@ public final class SerialComManager {
 		}else if(osNameMatch.contains("mac os") || osNameMatch.contains("macos") || osNameMatch.contains("darwin")) {
 			osType = OS_MAC_OS_X;
 		}
-		
+
 		mErrMapper = new SerialComErrorMapper();
 		mNativeInterface = new SerialComJNINativeInterface();
 		mSerialComPortList = new SerialComPortsList(mNativeInterface);
@@ -284,7 +284,7 @@ public final class SerialComManager {
 		if((enableRead == false) && (enableWrite == false)) {
 			throw new SerialComException(portName, "openComPort()",  "Enable read, write or both.");
 		}
-		
+
 		/* Try to reduce transitions from java to jni layer if possible */
 		if(exclusiveOwnerShip == true) {
 			for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
@@ -294,7 +294,7 @@ public final class SerialComManager {
 				}
 			}
 		}
-		
+
 		// For windows COM port can not be shared, so throw exception
 		if(getOSType() == OS_WINDOWS) {
 			if(exclusiveOwnerShip == false) {
@@ -306,12 +306,12 @@ public final class SerialComManager {
 		if(handle < 0) {
 			throw new SerialComException(portName, "openComPort()",  mErrMapper.getMappedError(handle));
 		}
-		
+
 		boolean added = mPortHandleInfo.add(new SerialComPortHandleInfo(portName, handle, null, null, null));
 		if(added != true) {
 			System.out.println("Could not append information associated with port while opening port.");
 		}
-		
+
 		return handle;
 	}
 
@@ -326,7 +326,7 @@ public final class SerialComManager {
 	public boolean closeComPort(long handle) throws SerialComException {
 		boolean handlefound = false;
 		SerialComPortHandleInfo mHandleInfo = null;
-		
+
 		for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
 			if(mInfo.containsHandle(handle)) {
 				handlefound = true;
@@ -334,11 +334,11 @@ public final class SerialComManager {
 				break;
 			}
 		}
-		
+
 		if(handlefound == false) {
 			throw new SerialComException("closeComPort()", SerialComErrorMapper.ERR_WRONG_HANDLE);
 		}
-		
+
 		if(mHandleInfo.getDataListener() != null) {
 			/* Proper clean up requires that, native thread should be destroyed before closing port. */
 			throw new IllegalStateException("closeComPort() " + SerialComErrorMapper.ERR_CLOSE_WITHOUT_UNREG_DATA);
@@ -346,16 +346,16 @@ public final class SerialComManager {
 		if(mHandleInfo.getEventListener() != null) {
 			throw new IllegalStateException("closeComPort() " + SerialComErrorMapper.ERR_CLOSE_WITHOUT_UNREG_EVENT);
 		}
-		
+
 		int ret = mNativeInterface.closeComPort(handle);
 		// native close() returns 0 on success
 		if(ret != 0) {
 			throw new SerialComException("closeComPort()",  mErrMapper.getMappedError(ret));
 		}
-		
+
 		/* delete info about this port/handle from global arraylist */
 		mPortHandleInfo.remove(mHandleInfo);
-		
+
 		return true;
 	}
 
@@ -388,7 +388,7 @@ public final class SerialComManager {
 		}
 		return true;
 	}
-	
+
 	/**
 	 * <p>Utility method to call writeBytes without delay between successive bytes.</p>
 	 * <p>The writeBytes(handle, buffer) method for class SerialComManager has the same effect
@@ -477,7 +477,7 @@ public final class SerialComManager {
 	 */
 	public boolean writeSingleInt(long handle, int data, int delay, ENDIAN endianness, NUMOFBYTES numOfBytes) throws SerialComException {
 		byte[] buffer = null;
-		
+
 		if(numOfBytes.getValue() == 2) {             // conversion to two bytes data
 			buffer = new byte[2];
 			if(endianness.getValue() == 1) {         // Little endian
@@ -519,7 +519,7 @@ public final class SerialComManager {
 	 */
 	public boolean writeIntArray(long handle, int[] buffer, int delay, ENDIAN endianness, NUMOFBYTES numOfBytes) throws SerialComException {
 		byte[] localBuf = null;
-		
+
 		if(numOfBytes.getValue() == 2) {
 			localBuf = new byte[2 * buffer.length];
 			if(endianness.getValue() == 1) {                 // little endian
@@ -595,14 +595,14 @@ public final class SerialComManager {
 	 */
 	public byte[] readBytes(long handle, int byteCount) throws SerialComException {
 		SerialComReadStatus retStatus = new SerialComReadStatus(1);
-		
+
 		byte[] buffer = mNativeInterface.readBytes(handle, byteCount, retStatus);
-		
+
 		// data read from serial port, pass to application
 		if(buffer != null) {
 			return buffer;
 		}
-		
+
 		// reaching here means JNI layer passed null indicating either no data read or error
 		if(retStatus.status == 1) {
 			return new byte[]{};               // serial port does not have any data
@@ -612,7 +612,7 @@ public final class SerialComManager {
 			throw new SerialComException("reading", mErrMapper.getMappedError(retStatus.status));
 		}else {
 		}
-		
+
 		return null;
 	}
 
@@ -645,7 +645,7 @@ public final class SerialComManager {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * <p>This method reads data from serial port and converts data read from bytes to string.</p>
 	 * <p>Note that the length of string read using this method can not be greater than DEFAULT_READBYTECOUNT (1024).</p>
@@ -657,7 +657,7 @@ public final class SerialComManager {
 	public String readString(long handle) throws SerialComException {
 		return readString(handle, DEFAULT_READBYTECOUNT);
 	}
-	
+
 	/** 
 	 * <p>This is a utility method to read a single byte from serial port.</p>
 	 * 
@@ -702,7 +702,7 @@ public final class SerialComManager {
 		int baudRateTranslated = 0;
 		int custBaudTranslated = 0;
 		int baudRateGiven = baudRate.getValue();
-		
+
 		boolean handlefound = false;
 		for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
 			if(mInfo.containsHandle(handle)) {
@@ -713,7 +713,7 @@ public final class SerialComManager {
 		if(handlefound == false) {
 			throw new SerialComException("configureComPortData()", SerialComErrorMapper.ERR_WRONG_HANDLE);
 		}
-		
+
 		if(baudRateGiven != 251) {
 			baudRateTranslated = baudRateGiven;
 			custBaudTranslated = 0;
@@ -722,15 +722,15 @@ public final class SerialComManager {
 			baudRateTranslated = baudRateGiven;
 			custBaudTranslated = custBaud;
 		}
-		
+
 		int ret = mNativeInterface.configureComPortData(handle, dataBits.getValue(), stopBits.getValue(), parity.getValue(), baudRateTranslated, custBaudTranslated);
 		if(ret < 0) {
 			throw new SerialComException("configureComPortData()", mErrMapper.getMappedError(ret));
 		}
-		
+
 		return true;
 	}
-	
+
 	/**
 	 * <p>This method configures the way data communication will be controlled between DTE and DCE. This specifies flow control and actions that will
 	 * be taken when an error is encountered in communication.</p>
@@ -756,15 +756,15 @@ public final class SerialComManager {
 		if(handlefound == false) {
 			throw new SerialComException("configureComPortControl()", SerialComErrorMapper.ERR_WRONG_HANDLE);
 		}
-		
+
 		int ret = mNativeInterface.configureComPortControl(handle, flowctrl.getValue(), xon, xoff, ParFraError, overFlowErr);
 		if(ret < 0) {
 			throw new SerialComException("configureComPortControl()", mErrMapper.getMappedError(ret));
 		}
-		
+
 		return true;
 	}
-	
+
 	/**
 	 * <p>This method gives currently applicable settings associated with particular serial port.
 	 * The values are bit mask so that application can manipulate them to get required information.</p>
@@ -794,7 +794,7 @@ public final class SerialComManager {
 		if(handlefound == false) {
 			throw new SerialComException("getCurrentConfiguration()", SerialComErrorMapper.ERR_WRONG_HANDLE);
 		}
-		
+
 		if(getOSType() != OS_WINDOWS) {
 			// for unix-like os
 			int[] config = mNativeInterface.getCurrentConfigurationU(handle);
@@ -872,14 +872,14 @@ public final class SerialComManager {
 	 * @throws IllegalArgumentException - if dataListener is null 
 	 */
 	public boolean registerDataListener(long handle, ISerialComDataListener dataListener) throws SerialComException {
-		
+
 		boolean handlefound = false;
 		SerialComPortHandleInfo mHandleInfo = null;
-		
+
 		if(dataListener == null) {
 			throw new IllegalArgumentException("registerDataListener(), " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_LISTENER);
 		}
-		
+
 		for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
 			if(mInfo.containsHandle(handle)) {
 				handlefound = true;
@@ -891,14 +891,14 @@ public final class SerialComManager {
 				break;
 			}
 		}
-		
+
 		if(handlefound == false) {
 			throw new SerialComException("registerDataListener()", SerialComErrorMapper.ERR_WRONG_HANDLE);
 		}
-		
+
 		return mEventCompletionDispatcher.setUpDataLooper(handle, mHandleInfo, dataListener);
 	}
-	
+
 	/**
 	 * <p>This method destroys complete java and native looper subsystem associated with this particular data listener. This has no
 	 * effect on event looper subsystem. This method returns only after native thread has been terminated successfully.</p>
@@ -912,14 +912,14 @@ public final class SerialComManager {
 		if(dataListener == null) {
 			throw new IllegalArgumentException("unregisterDataListener(), " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_LISTENER);
 		}
-		
+
 		if(mEventCompletionDispatcher.destroyDataLooper(dataListener)) {
 			return true;
 		}
-		
+
 		return false;
 	}
-	
+
 	/**
 	 * <p>By default, the data listener will be called for every single byte available. This may not be optimal in case
 	 * of data, but may be critical in case data actually is part of some custom protocol. So, applications can
@@ -935,27 +935,27 @@ public final class SerialComManager {
 	 * @throws IllegalArgumentException - if numOfBytes is less than 0
 	 */
 	public boolean setMinDataLength(long handle, int numOfBytes) throws SerialComException {
-		
+
 		if(getOSType() == OS_WINDOWS) {
 			return false;
 		}
-		
+
 		boolean handlefound = false;
 		if(numOfBytes < 0) {
 			throw new IllegalArgumentException("setMinDataLength(), " + SerialComErrorMapper.ERR_INVALID_DATA_LENGTH);
 		}
-		
+
 		for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
 			if(mInfo.containsHandle(handle)) {
 				handlefound = true;
 				break;
 			}
 		}
-		
+
 		if(handlefound == false) {
 			throw new SerialComException("setMinDataLength()", SerialComErrorMapper.ERR_WRONG_HANDLE);
 		}
-		
+
 		int ret = mNativeInterface.setMinDataLength(handle, numOfBytes);
 		if(ret < 0) {
 			throw new SerialComException("setMinDataLength()",  mErrMapper.getMappedError(ret));
@@ -986,11 +986,11 @@ public final class SerialComManager {
 	public boolean registerLineEventListener(long handle, ISerialComEventListener eventListener) throws SerialComException {
 		boolean handlefound = false;
 		SerialComPortHandleInfo mHandleInfo = null;
-		
+
 		if(eventListener == null) {
 			throw new IllegalArgumentException("registerLineEventListener(), " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_LISTENER);
 		}
-		
+
 		for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
 			if(mInfo.containsHandle(handle)) {
 				handlefound = true;
@@ -1002,14 +1002,14 @@ public final class SerialComManager {
 				break;
 			}
 		}
-		
+
 		if(handlefound == false) {
 			throw new SerialComException("registerLineEventListener()", SerialComErrorMapper.ERR_WRONG_HANDLE);
 		}
-		
+
 		return mEventCompletionDispatcher.setUpEventLooper(handle, mHandleInfo, eventListener);
 	}
-	
+
 	/**
 	 * <p>This method destroys complete java and native looper subsystem associated with this particular event listener. This has no
 	 * effect on data looper subsystem.</p>
@@ -1026,11 +1026,11 @@ public final class SerialComManager {
 		if(mEventCompletionDispatcher.destroyEventLooper(eventListener)) {
 			return true;
 		}
-		
+
 		return false;
 	}
 
-	
+
 	/**
 	 * <p>The user don't need data for some time or he may be managing data more efficiently.</p>
 	 * 
@@ -1047,10 +1047,10 @@ public final class SerialComManager {
 		if(mEventCompletionDispatcher.pauseListeningEvents(eventListener)) {
 			return true;
 		}
-		
+
 		return false;
 	}
-	
+
 	/**
 	 * <p>The user don't need data for some time or he may be managing data more efficiently.
 	 * Note that the native thread will continue to receive events and data, it will pass this data to
@@ -1070,7 +1070,7 @@ public final class SerialComManager {
 		if(mEventCompletionDispatcher.resumeListeningEvents(eventListener)) {
 			return true;
 		}
-		
+
 		return false;
 	}
 
@@ -1085,10 +1085,10 @@ public final class SerialComManager {
 	 * @throws IllegalArgumentException - if eventListener is null
 	 */
 	public boolean setEventsMask(ISerialComEventListener eventListener, int newMask) throws SerialComException {
-		
+
 		SerialComLooper looper = null;
 		ISerialComEventListener mEventListener = null;
-		
+
 		if(eventListener == null) {
 			throw new IllegalArgumentException("setEventsMask(), " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_LISTENER);
 		}
@@ -1100,7 +1100,7 @@ public final class SerialComManager {
 				break;
 			}
 		}
-		
+
 		if(looper != null && mEventListener != null) {
 			looper.setEventsMask(newMask);
 			return true;
@@ -1118,14 +1118,14 @@ public final class SerialComManager {
 	 * @throws IllegalArgumentException - if eventListener is null
 	 */
 	public int getEventsMask(ISerialComEventListener eventListener) throws SerialComException {
-		
+
 		SerialComLooper looper = null;
 		ISerialComEventListener mEventListener = null;
-		
+
 		if(eventListener == null) {
 			throw new IllegalArgumentException("getEventsMask(), " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_LISTENER);
 		}
-		
+
 		for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
 			if(mInfo.containsEventListener(eventListener)) {
 				looper = mInfo.getLooper();
@@ -1133,7 +1133,7 @@ public final class SerialComManager {
 				break;
 			}
 		}
-		
+
 		if(looper != null && mEventListener != null) {
 			return looper.getEventsMask();
 		}else {
@@ -1165,17 +1165,17 @@ public final class SerialComManager {
 		if(handlefound == false) {
 			throw new SerialComException("clearPortIOBuffers()", SerialComErrorMapper.ERR_WRONG_HANDLE);
 		}
-		
+
 		if(clearRxPort == true || clearTxPort == true) {
 			int ret = mNativeInterface.clearPortIOBuffers(handle, clearRxPort, clearTxPort);
 			if(ret < 0) {
 				throw new SerialComException("clearPortIOBuffers()", mErrMapper.getMappedError(ret));
 			}
 		}
-		
+
 		return true;
 	}
-	
+
 	/**
 	 * <p>Assert a break condition on the specified port for the duration expressed in milliseconds.
 	 * If the line is held in the logic low condition (space in UART jargon) for longer than a character 
@@ -1204,15 +1204,15 @@ public final class SerialComManager {
 		if(handlefound == false) {
 			throw new SerialComException("sendBreak()", SerialComErrorMapper.ERR_WRONG_HANDLE);
 		}
-		
+
 		int ret = mNativeInterface.sendBreak(handle, duration);
 		if(ret < 0) {
 			throw new SerialComException("sendBreak()", mErrMapper.getMappedError(ret));
 		}
-		
+
 		return true;
 	}
-	
+
 	/**
 	 * <p>This method gives the number of serial line interrupts that have occurred. The interrupt count is in following
 	 * order in array beginning from index 0 and ending with 11th index :
@@ -1230,7 +1230,7 @@ public final class SerialComManager {
 		boolean handlefound = false;
 		int[] ret = null;
 		int[] interruptsCount = new int[11];
-		
+
 		for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
 			if(mInfo.containsHandle(handle)) {
 				handlefound = true;
@@ -1240,19 +1240,19 @@ public final class SerialComManager {
 		if(handlefound == false) {
 			throw new SerialComException("getInterruptCount()", SerialComErrorMapper.ERR_WRONG_HANDLE);
 		}
-		
+
 		ret = mNativeInterface.getInterruptCount(handle);
 		if(ret[0] < 0) {
 			throw new SerialComException("getInterruptCount()", mErrMapper.getMappedError(ret[0]));
 		}
-		
+
 		for(x=0; x<11; x++) {
 			interruptsCount[x] = ret[x];
 		}
-		
+
 		return interruptsCount;
 	}
-	
+
 	/**
 	 * <p>Gives status of serial port's control lines as supported by underlying operating system.</p>
 	 * 
@@ -1270,7 +1270,7 @@ public final class SerialComManager {
 		boolean handlefound = false;
 		int[] ret = null;
 		int[] status = {0,0,0,0,0,0,0};
-		
+
 		for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
 			if(mInfo.containsHandle(handle)) {
 				handlefound = true;
@@ -1280,19 +1280,19 @@ public final class SerialComManager {
 		if(handlefound == false) {
 			throw new SerialComException("getLinesStatus()", SerialComErrorMapper.ERR_WRONG_HANDLE);
 		}
-		
+
 		ret = mNativeInterface.getLinesStatus(handle);
 		if(ret[0] < 0) {
 			throw new SerialComException("getLinesStatus()", mErrMapper.getMappedError(ret[0]));
 		}
-		
+
 		for(x=0; x<7; x++) {
 			status[x] = ret[x+1];
 		}
-		
+
 		return status;
 	}
-	
+
 	/**
 	 * <p>Get number of bytes in input and output port buffers used by operating system for instance tty buffers
 	 * in Unix like systems. Sequence of data in array is : Input count, Output count.</p>
@@ -1309,7 +1309,7 @@ public final class SerialComManager {
 		boolean handlefound = false;
 		int[] ret = null;
 		int[] numBytesInfo = {0,0};
-		
+
 		for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
 			if(mInfo.containsHandle(handle)) {
 				handlefound = true;
@@ -1319,19 +1319,19 @@ public final class SerialComManager {
 		if(handlefound == false) {
 			throw new SerialComException("getByteCountInPortIOBuffer()", SerialComErrorMapper.ERR_WRONG_HANDLE);
 		}
-		
+
 		// sequence returned : ret[0]=error info, ret[1]=byte count in input buffer, ret[2]=byte count in output buffer
 		ret = mNativeInterface.getByteCount(handle);
 		if(ret[0] < 0) {
 			throw new SerialComException("getByteCountInPortIOBuffer()", mErrMapper.getMappedError(ret[0]));
 		}
-		
+
 		numBytesInfo[0] = ret[1];  // Input buffer count
 		numBytesInfo[1] = ret[2];  // Output buffer count
-		
+
 		return numBytesInfo;
 	}
-	
+
 	/**
 	 * <p>This registers a listener who will be invoked whenever a port has been plugged or un-plugged in system.
 	 * Initially, the port has to be present into system, as that is only when we will be able to open port.</p>
@@ -1348,11 +1348,11 @@ public final class SerialComManager {
 		boolean handlefound = false;
 		String portName = null;
 		int ret = 0;
-		
+
 		if(portMonitor == null) {
 			throw new IllegalArgumentException("registerPortMonitorListener(), " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_MONITOR);
 		}
-		
+
 		for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
 			if(mInfo.containsHandle(handle)) {
 				portName = mInfo.getOpenedPortName();
@@ -1363,15 +1363,15 @@ public final class SerialComManager {
 		if(handlefound == false) {
 			throw new SerialComException("registerPortMonitorListener()", SerialComErrorMapper.ERR_WRONG_HANDLE);
 		}
-		
+
 		ret = mNativeInterface.registerPortMonitorListener(handle, portName, portMonitor);
 		if(ret < 0) {
 			throw new SerialComException("registerPortMonitorListener()", mErrMapper.getMappedError(ret));
 		}
-		
+
 		return true;
 	}
-	
+
 	/**
 	 * <p>This unregisters listener and terminate native thread used for monitoring hot plugging of port.</p>
 	 * 
@@ -1382,7 +1382,7 @@ public final class SerialComManager {
 	public boolean unregisterPortMonitorListener(long handle) throws SerialComException {
 		boolean handlefound = false;
 		int ret = 0;
-		
+
 		for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
 			if(mInfo.containsHandle(handle)) {
 				handlefound = true;
@@ -1392,15 +1392,15 @@ public final class SerialComManager {
 		if(handlefound == false) {
 			throw new SerialComException("unregisterPortMonitorListener()", SerialComErrorMapper.ERR_WRONG_HANDLE);
 		}
-		
+
 		ret = mNativeInterface.unregisterPortMonitorListener(handle);
 		if(ret < 0) {
 			throw new SerialComException("unregisterPortMonitorListener()", mErrMapper.getMappedError(ret));
 		}
-		
+
 		return true;
 	}
-	
+
 	/**
 	 * <p>Enable printing debugging messages and stack trace for development and debugging purpose.</p>
 	 * 
@@ -1410,7 +1410,7 @@ public final class SerialComManager {
 		mNativeInterface.debug(enable);
 		SerialComManager.DEBUG = enable;
 	}
-	
+
 	/**
 	 * <p>This method gives the port name with which given handle is associated. If the given handle is
 	 * unknown to scm, null is returned. The port is known to scm if it was opened using scm.</p>
@@ -1420,7 +1420,7 @@ public final class SerialComManager {
 	 */
 	public String getPortName(long handle) {
 		String portName = null;
-		
+
 		for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
 			if(mInfo.containsHandle(handle)) {
 				portName = mInfo.getOpenedPortName();
@@ -1430,10 +1430,10 @@ public final class SerialComManager {
 		if(portName == null) {
 			return null;
 		}
-		
+
 		return portName;
 	}
-	
+
 	/**
 	 * <p>TODO</p>
 	 * 
@@ -1450,13 +1450,14 @@ public final class SerialComManager {
 	 * @throws FileNotFoundException - if the file does not exist, is a directory rather than a regular file, or for some other reason cannot be opened for reading.
 	 * @throws SerialComTimeOutException - if timeout occurs as per file transfer protocol
 	 * @throws IOException - if error occurs while reading data from file to be sent
+	 * @throws IllegalArgumentException - if fileToSend is null
 	 */
 	public boolean sendFile(long handle, java.io.File fileToSend, FILETXPROTO fTxProto) throws SerialComException,
-								SecurityException, FileNotFoundException, SerialComTimeOutException, IOException {
+	SecurityException, FileNotFoundException, SerialComTimeOutException, IOException {
 		int protocol = 0;
 		boolean handlefound = false;
 		boolean result = false;
-		
+
 		for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
 			if(mInfo.containsHandle(handle)) {
 				handlefound = true;
@@ -1467,15 +1468,19 @@ public final class SerialComManager {
 			throw new SerialComException("sendFile()", SerialComErrorMapper.ERR_WRONG_HANDLE);
 		}
 		
+		if(fileToSend == null) {
+			throw new IllegalArgumentException("sendFile()" + SerialComErrorMapper.ERR_NULL_POINTER_FOR_FILE_SEND);
+		}
+
 		protocol = fTxProto.getValue();
 		if(protocol == 1){
 			SerialComXModem xmodem = new SerialComXModem(this, handle, fileToSend);
 			result = xmodem.sendFileX();
 		}
-		
+
 		return result;
 	}
-	
+
 	/**
 	 * <p>TODO</p>
 	 * 
@@ -1492,13 +1497,14 @@ public final class SerialComManager {
 	 * @throws FileNotFoundException - if the file does not exist, is a directory rather than a regular file, or for some other reason cannot be opened for reading.
 	 * @throws SerialComTimeOutException - if timeout occurs as per file transfer protocol
 	 * @throws IOException - if error occurs while reading data from file to be sent
+	 * @throws IllegalArgumentException - if fileToReceive is null
 	 */
 	public boolean receiveFile(long handle, java.io.File fileToReceive, FILETXPROTO fTxProto) throws SerialComException,
-								SecurityException, FileNotFoundException, SerialComTimeOutException, IOException {
+	SecurityException, FileNotFoundException, SerialComTimeOutException, IOException {
 		int protocol = 0;
 		boolean handlefound = false;
 		boolean result = false;
-		
+
 		for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
 			if(mInfo.containsHandle(handle)) {
 				handlefound = true;
@@ -1508,38 +1514,41 @@ public final class SerialComManager {
 		if(handlefound == false) {
 			throw new SerialComException("receiveFile()", SerialComErrorMapper.ERR_WRONG_HANDLE);
 		}
+
+		if(fileToReceive == null) {
+			throw new IllegalArgumentException("receiveFile()" + SerialComErrorMapper.ERR_NULL_POINTER_FOR_FILE_RECEIVE);
+		}
 		
 		protocol = fTxProto.getValue();
 		if(protocol == 1){
 			SerialComXModem xmodem = new SerialComXModem(this, handle, fileToReceive);
 			result = xmodem.receiveFileX();
 		}
-		
+
 		return result;
 	}
-	
+
 	/**
 	 * <p>This method writes bytes from the specified byte type buffer. If the method returns false, the application
 	 * should try to re-send bytes. The data has been transmitted out of serial port when this method returns.</p>
 	 * 
 	 * <p>This method may be used for Internet of things applications, large data transfer, implementing userspace drivers,
-	 * quick prototyping of Wifi/BT modules connected to UART port.</p>
+	 * middleware frameworks, quick prototyping of Wifi/BT modules connected to UART port.</p>
 	 * 
 	 * @param handle handle of the opened port on which to write bytes
 	 * @param buffer byte type buffer containing bytes to be written to port
-	 * @param delay interval to be maintained between writing two consecutive bytes
 	 * @return true on success, false on failure or if empty buffer is passed
 	 * @throws SerialComException - if an I/O error occurs.
-	 * @throws NullPointerException - if buffer is null
+	 * @throws IllegalArgumentException - if buffer is null
 	 */
-	public boolean writeBytesBulk(long handle, byte[] buffer, int delay) throws SerialComException {
+	public boolean writeBytesBulk(long handle, byte[] buffer) throws SerialComException {
 		if(buffer == null) {
-			throw new NullPointerException("write, " + SerialComErrorMapper.ERR_WRITE_NULL_DATA_PASSED);
+			throw new IllegalArgumentException("writeBytesBulk(), " + SerialComErrorMapper.ERR_WRITE_NULL_DATA_PASSED);
 		}
 		if(buffer.length == 0) {
 			return false;
 		}
-		int ret = mNativeInterface.writeBytes(handle, buffer, delay);
+		int ret = mNativeInterface.writeBytes(handle, buffer, 0);
 		if(ret < 0) {
 			throw new SerialComException("write",  mErrMapper.getMappedError(ret));
 		}

@@ -17,7 +17,8 @@ The 'serial communication manager (abbreviated as scm)' is an easy to use java l
 - Both poll based and listener based data read supported
 - Find what all serial style ports are present in system 
 - Extensive error detection and handling for reliable operations
-- Fully documented and tested both java and native code
+- Functional, stress, stability, unit tested
+- Fully documented both Java and C code
 - Support for fault tolerant and recoverable application design
 
 ##Getting started

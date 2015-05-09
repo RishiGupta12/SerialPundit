@@ -27,7 +27,7 @@ public final class SerialComPortHandleInfo {
 	private SerialComLooper mLooper = null;
 	private ISerialComEventListener mEventListener = null;
 	private ISerialComDataListener mDataListener = null;
-	
+
 	public SerialComPortHandleInfo(String portName, long handle, SerialComLooper looper, ISerialComDataListener dataListener, ISerialComEventListener eventListener) {
 		this.mOpenedPortName = portName;
 		this.mPortHandle     = handle;
@@ -105,7 +105,7 @@ public final class SerialComPortHandleInfo {
 		}
 		return false;
 	}
-	
+
 	/** <p>Data Listener associated with this port, info and manipulation.</p> */	
 	public ISerialComDataListener getDataListener() {
 		return mDataListener;
@@ -115,7 +115,7 @@ public final class SerialComPortHandleInfo {
 	public void setDataListener(ISerialComDataListener dataListener) {
 		this.mDataListener  = dataListener;
 	}
-	
+
 	/** <p> Check if there already exist a data listener for this handle. </p> */
 	public boolean containsDataListener(ISerialComDataListener dataListener) {
 		if(dataListener == mDataListener) {

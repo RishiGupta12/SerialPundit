@@ -28,34 +28,34 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * his job and let us return.</p>
  */
 public final class SerialComLooper {
-	
+
 	private final boolean DEBUG = true;
 	private final int MAX_NUM_EVENTS = 5000;
 	private SerialComJNINativeInterface mNativeInterface = null;
 	private SerialComErrorMapper mErrMapper = null;
-	
+
 	private BlockingQueue<SerialComDataEvent> mDataQueue = new ArrayBlockingQueue<SerialComDataEvent>(MAX_NUM_EVENTS);
 	private ISerialComDataListener mDataListener = null;
 	private Object mDataLock = new Object();
 	private Thread mDataLooperThread = null;
 	private AtomicBoolean deliverDataEvent = new AtomicBoolean(true);
 	private AtomicBoolean exitDataThread = new AtomicBoolean(false);
-	
+
 	private BlockingQueue<Integer> mDataErrorQueue = new ArrayBlockingQueue<Integer>(MAX_NUM_EVENTS);
 	private Object mDataErrorLock = new Object();
 	private Thread mDataErrorLooperThread = null;
 	private AtomicBoolean exitDataErrorThread = new AtomicBoolean(false);
-	
+
 	private BlockingQueue<SerialComLineEvent> mEventQueue = new ArrayBlockingQueue<SerialComLineEvent>(MAX_NUM_EVENTS);
 	private ISerialComEventListener mEventListener = null;
 	private Object mEventLock = new Object();
 	private Thread mEventLooperThread = null;
 	private AtomicBoolean exitEventThread = new AtomicBoolean(false);
-	
+
 	private int appliedMask = SerialComManager.CTS | SerialComManager.DSR | SerialComManager.DCD | SerialComManager.RI;
 	private int oldLineState = 0;
 	private int newLineState = 0;
-	
+
 	/**
 	 * <p>This class runs in as a different thread context and keep looping over data queue, delivering 
 	 * data to the intended registered listener (data handler) one by one. The rate of delivery of
@@ -87,7 +87,7 @@ public final class SerialComLooper {
 			exitDataThread.set(false); // Reset exit flag
 		}
 	}
-	
+
 	/**
 	 * <p>This class runs in as a different thread context and keep looping over data error queue, delivering 
 	 * error event to the intended registered listener (error data handler) one by one. The rate of delivery of
@@ -115,7 +115,7 @@ public final class SerialComLooper {
 			exitDataErrorThread.set(false); // Reset exit flag
 		}
 	}
-	
+
 	/**
 	 * <p>This class runs in as a different thread context and keep looping over event queue, delivering 
 	 * events to the intended registered listener (event handler) one by one. The rate of delivery of
@@ -140,53 +140,53 @@ public final class SerialComLooper {
 			exitEventThread.set(false); // Reset exit flag
 		}
 	}
-	
+
 	/* Constructor */
 	public SerialComLooper(SerialComJNINativeInterface nativeInterface, SerialComErrorMapper errMapper) { 
 		mNativeInterface = nativeInterface;
 		mErrMapper = errMapper;
 	}
-	
+
 	/**
 	 * <p>This method is called from native code to pass data bytes.</p>
 	 */
 	public void insertInDataQueue(byte[] newData) {
-        if(mDataQueue.remainingCapacity() == 0) {
-        	mDataQueue.poll();
-        }
-        try {
+		if(mDataQueue.remainingCapacity() == 0) {
+			mDataQueue.poll();
+		}
+		try {
 			mDataQueue.offer(new SerialComDataEvent(newData));
 		} catch (Exception e) {
 			if(DEBUG) e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * <p>Native side detects the change in status of lines, get the new line status and call this method. Based on the
 	 * mask this method determines whether this event should be sent to application or not.</p>
 	 */
 	public void insertInEventQueue(int newEvent) {
 		newLineState = newEvent & appliedMask;
-	        if(mEventQueue.remainingCapacity() == 0) {
-	        	mEventQueue.poll();
-	        }
-	        try {
-				mEventQueue.offer(new SerialComLineEvent(oldLineState, newLineState));
-			} catch (Exception e) {
-				if(DEBUG) e.printStackTrace();
-			}
+		if(mEventQueue.remainingCapacity() == 0) {
+			mEventQueue.poll();
+		}
+		try {
+			mEventQueue.offer(new SerialComLineEvent(oldLineState, newLineState));
+		} catch (Exception e) {
+			if(DEBUG) e.printStackTrace();
+		}
 		oldLineState = newLineState;
 	}
-	
+
 	/**
 	 * <p>This method insert error info in error queue which will be later delivered to application.</p>
 	 */
 	public void insertInDataErrorQueue(int newData) {
-        if(mDataErrorQueue.remainingCapacity() == 0) {
-        	mDataErrorQueue.poll();
-        }
-        try {
-        	mDataErrorQueue.offer(newData);
+		if(mDataErrorQueue.remainingCapacity() == 0) {
+			mDataErrorQueue.poll();
+		}
+		try {
+			mDataErrorQueue.offer(newData);
 		} catch (Exception e) {
 			if(DEBUG) e.printStackTrace();
 		}
@@ -222,7 +222,7 @@ public final class SerialComLooper {
 			// Bit mask CTS | DSR | DCD | RI
 			state = linestate[1] | linestate[2] | linestate[3] | linestate[4];
 			oldLineState = state & appliedMask;
-			
+
 			mEventListener = eventListener;
 			mEventLooperThread = new Thread(new EventLooper(), "EventLooper for handle " + handle + " and port " + portName);
 			mEventLooperThread.start();
@@ -230,7 +230,7 @@ public final class SerialComLooper {
 			if(DEBUG) e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * <p>Set the flag to indicate that the thread is supposed to run to completion and exit.
 	 * Interrupt the thread so that take() method can come out of blocked sleep state.</p>
@@ -258,14 +258,14 @@ public final class SerialComLooper {
 			if(DEBUG) e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * <p>Looper thread refrains from sending new data to the data listener.</p>
 	 */
 	public void pause() {
 		deliverDataEvent.set(false);
 	}
-	
+
 	/**
 	 * <p>Looper starts sending new data again to the data listener.</p>
 	 */

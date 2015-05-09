@@ -34,7 +34,7 @@ import java.io.InputStreamReader;
  */
 
 public final class SerialComJNINativeInterface {
-	
+
 	/* Static blocks are executed only once, irrespective of the fact, how many times,
 	 * this class has been instantiated. Also they are called before invoking constructors. */
 	static {
@@ -44,7 +44,7 @@ public final class SerialComJNINativeInterface {
 			if(SerialComManager.DEBUG) e.printStackTrace();
 		}
 	}
-	
+
 	public SerialComJNINativeInterface() {
 		/* After native library has been loaded, initialize it. */
 		initNativeLib();
@@ -54,16 +54,16 @@ public final class SerialComJNINativeInterface {
 	 * OS/User specific tmp directory and load from here.
 	 * http://docs.oracle.com/javase/7/docs/api/ */
 	private static void loadNativeLibrary() throws SerialComException {
-		
+
 		File tmpDir = null;
 		File workingDir = null;
 		String libNameOnly = null;
-		
-        boolean readyToLoad = false;
-        File libFile = null;
-        InputStream input = null;
-        FileOutputStream output = null;
-		
+
+		boolean readyToLoad = false;
+		File libFile = null;
+		InputStream input = null;
+		FileOutputStream output = null;
+
 		tmpDir = new File(SerialComManager.javaTmpDir);
 		if(!tmpDir.canWrite()) {
 			// we don't have write permission probably, so try using user's home directory 
@@ -72,7 +72,7 @@ public final class SerialComJNINativeInterface {
 				throw new SerialComException("loadNativeLibrary()", SerialComErrorMapper.ERR_UNABLE_TO_WRITE);
 			}
 		}
-		
+
 		/* If the workingTmp directory exist, delete it first and then create. We do not use previously existing 
 		 * directory as some other software might have created it or user might have installed different OS (arch)
 		 * retaining the tmp directory. */
@@ -89,7 +89,7 @@ public final class SerialComJNINativeInterface {
 				if(SerialComManager.DEBUG) e.printStackTrace();
 			}
 		}
-		
+
 		int osType = SerialComManager.getOSType();
 		if(osType > 0) {
 			if(workingDir.exists() && workingDir.isDirectory()){
@@ -123,15 +123,15 @@ public final class SerialComJNINativeInterface {
 						try {
 							// take decision based on JVM binary's format
 							Process p = Runtime.getRuntime().exec("readelf -A " + System.getProperty("java.home") + "/bin/java");
-		                    BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
-		                    String buffer = "";
-		                    while((buffer = reader.readLine()) != null && !buffer.isEmpty()){
-		                        if(buffer.toLowerCase().contains("tag_abi_vfp_args")){
-		                        	libNameOnly = "linux_" + SerialComManager.JAVA_LIB_VERSION + "_armhf.so";
-		                            break;
-		                        }
-		                    }
-		                    reader.close();
+							BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
+							String buffer = "";
+							while((buffer = reader.readLine()) != null && !buffer.isEmpty()){
+								if(buffer.toLowerCase().contains("tag_abi_vfp_args")){
+									libNameOnly = "linux_" + SerialComManager.JAVA_LIB_VERSION + "_armhf.so";
+									break;
+								}
+							}
+							reader.close();
 						} catch (Exception e) {
 							if(SerialComManager.DEBUG) e.printStackTrace();
 						}
@@ -139,89 +139,89 @@ public final class SerialComJNINativeInterface {
 				}else {
 					if(SerialComManager.DEBUG) System.out.println("Unable to determine OS/CPU architecture. Please send your architecture, so that we can add support for it.");
 				}
-		        
-		        // Get the library from jar file and extract it in our workingTmp directory
-		        try {
-		        	libFile = new File(workingDir.getAbsolutePath() + SerialComManager.fileSeparator + libNameOnly);
-		        	input = SerialComJNINativeInterface.class.getResourceAsStream("/libs/" + libNameOnly);
-		        	output = new FileOutputStream(libFile);
-		        	if(input != null) {
-		        		int read;
-		        		byte[] buffer = new byte[4096];
-		        		while((read = input.read(buffer)) != -1){
-		                    output.write(buffer, 0, read);
-		                }
-		            	// Check if we got success or not
-		            	if(libFile != null) {
-			            	if(libFile.exists() && libFile.isFile()){
-			            		readyToLoad = true;
-			            	}else {
-			            		if(SerialComManager.DEBUG) System.out.println("Can not write as stream to libFile !");
-			            	}
-		            	}
-		        	}else {
-		        		if(SerialComManager.DEBUG) System.out.println("Can not extract library file : " + libNameOnly + " from jar file !");
-		        	}
-		        } catch (Exception e) {
-	            	if(SerialComManager.DEBUG) e.printStackTrace();
-		        } finally {
-		        	try {
-			        	output.close();
-		            	input.close();
-		        	} catch (Exception e) {
-		            	if(SerialComManager.DEBUG) e.printStackTrace();
-			        }
-		        }
-		        
-		        /* Try loading the dynamic shared library from the local file system, 
-		         * else tell user something went wrong, he should retry. */
-		        if(readyToLoad == true) {
-		        	try {
-		        		System.load(libFile.toString());
-		        	} catch (UnsatisfiedLinkError e) {
-		        		if(SerialComManager.DEBUG) System.err.println("Failed to load native dynamic shared library.\n" + e);
-		            } catch (Exception e) {
-		        		if(SerialComManager.DEBUG) e.printStackTrace();
-		        	}
-		        }
+
+				// Get the library from jar file and extract it in our workingTmp directory
+				try {
+					libFile = new File(workingDir.getAbsolutePath() + SerialComManager.fileSeparator + libNameOnly);
+					input = SerialComJNINativeInterface.class.getResourceAsStream("/libs/" + libNameOnly);
+					output = new FileOutputStream(libFile);
+					if(input != null) {
+						int read;
+						byte[] buffer = new byte[4096];
+						while((read = input.read(buffer)) != -1){
+							output.write(buffer, 0, read);
+						}
+						// Check if we got success or not
+						if(libFile != null) {
+							if(libFile.exists() && libFile.isFile()){
+								readyToLoad = true;
+							}else {
+								if(SerialComManager.DEBUG) System.out.println("Can not write as stream to libFile !");
+							}
+						}
+					}else {
+						if(SerialComManager.DEBUG) System.out.println("Can not extract library file : " + libNameOnly + " from jar file !");
+					}
+				} catch (Exception e) {
+					if(SerialComManager.DEBUG) e.printStackTrace();
+				} finally {
+					try {
+						output.close();
+						input.close();
+					} catch (Exception e) {
+						if(SerialComManager.DEBUG) e.printStackTrace();
+					}
+				}
+
+				/* Try loading the dynamic shared library from the local file system, 
+				 * else tell user something went wrong, he should retry. */
+				if(readyToLoad == true) {
+					try {
+						System.load(libFile.toString());
+					} catch (UnsatisfiedLinkError e) {
+						if(SerialComManager.DEBUG) System.err.println("Failed to load native dynamic shared library.\n" + e);
+					} catch (Exception e) {
+						if(SerialComManager.DEBUG) e.printStackTrace();
+					}
+				}
 			}
 		}else {
 			throw new SerialComException("loadNativeLibrary()", SerialComErrorMapper.ERR_UNABLE_TO_DETECT_OS_TYPE);
 		}
 	}
-	
+
 	public native int initNativeLib();
 	public native String getNativeLibraryVersion();
 	public native boolean debug(boolean enableDebug);
 	public native String[] getSerialPortNames();
-	
+
 	public native int registerPortMonitorListener(long handle, String portName, ISerialComPortMonitor portMonitor);
 	public native int unregisterPortMonitorListener(long handle);
-	
+
 	public native long openComPort(String portName, boolean enableRead, boolean enableWrite, boolean exclusiveOwner);
 	public native int closeComPort(long handle);
-	
+
 	public native byte[] readBytes(long handle, int byteCount, SerialComReadStatus retStatus);
 	public native int writeBytes(long handle, byte[] buffer, int delay);
-	
+
 	public native int configureComPortData(long handle, int dataBits, int stopBits, int parity, int baudRateTranslated, int custBaudTranslated);
 	public native int configureComPortControl(long handle, int flowctrl, char xon, char xoff, boolean ParFraError, boolean overFlowErr);
 	public native int[] getCurrentConfigurationU(long handle);
 	public native String[] getCurrentConfigurationW(long handle);
-	
+
 	public native int setUpDataLooperThread(long handle, SerialComLooper looper);
 	public native int setUpEventLooperThread(long handle, SerialComLooper looper);
 	public native int destroyDataLooperThread(long handle);
 	public native int destroyEventLooperThread(long handle);
-	
+
 	public native int pauseListeningEvents(long handle);
 	public native int resumeListeningEvents(long handle);
-	
+
 	public native int setRTS(long handle, boolean enabled);
 	public native int setDTR(long handle, boolean enabled);
 	public native int[] getLinesStatus(long handle);
 	public native int[] getInterruptCount(long handle);
-	
+
 	public native int sendBreak(long handle, int duration);
 	public native int[] getByteCount(long handle);
 	public native int clearPortIOBuffers(long handle, boolean rxPortbuf, boolean txPortbuf);

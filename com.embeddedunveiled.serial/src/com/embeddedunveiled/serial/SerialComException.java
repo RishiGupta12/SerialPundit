@@ -19,39 +19,41 @@ package com.embeddedunveiled.serial;
 
 import java.io.IOException;
 
-/** This limit the scope of exceptions in context of serial operation only. */
+/** 
+ * This limit the scope of exceptions in context of serial operation only.
+ */
 public final class SerialComException extends IOException {
 
 	private static final long serialVersionUID = -2454774155396601296L;
-    private String portName;
-    private String methodName;
-    private String exceptionType;
+	private String portName;
+	private String methodName;
+	private String exceptionType;
 
-    public SerialComException(String methodName, String exceptionType) {
-        super(exceptionType + " in method " + methodName);
-        this.methodName = methodName;
-        this.exceptionType = exceptionType;
-    }
-    
-    public SerialComException(String portName, String methodName, String exceptionType) {
-        super(exceptionType + " in method " + methodName + " for port " + portName);
-        this.portName = portName;
-        this.methodName = methodName;
-        this.exceptionType = exceptionType;
-    }
+	public SerialComException(String methodName, String exceptionType) {
+		super(exceptionType + " in method " + methodName);
+		this.methodName = methodName;
+		this.exceptionType = exceptionType;
+	}
 
-    /** Get port in use on which this exception occurred. */
-    public String getPortName() {
-        return portName;
-    }
+	public SerialComException(String portName, String methodName, String exceptionType) {
+		super(exceptionType + " in method " + methodName + " for port " + portName);
+		this.portName = portName;
+		this.methodName = methodName;
+		this.exceptionType = exceptionType;
+	}
 
-    /** Get method name during execution of which the exception occurred. */
-    public String getMethodName() {
-        return methodName;
-    }
+	/** Get port in use on which this exception occurred. */
+	public String getPortName() {
+		return portName;
+	}
 
-    /** Get the specific type of exception. */
-    public String getExceptionType() {
-        return exceptionType;
-    }
+	/** Get method name during execution of which the exception occurred. */
+	public String getMethodName() {
+		return methodName;
+	}
+
+	/** Get the specific type of exception. */
+	public String getExceptionType() {
+		return exceptionType;
+	}
 }
