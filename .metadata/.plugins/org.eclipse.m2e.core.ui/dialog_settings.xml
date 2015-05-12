@@ -14,24 +14,4 @@
 	</section>
 	<section name="org.eclipse.m2e.core.pom.dependencies">
 	</section>
-	<section name="org.eclipse.m2e.core.ui.internal.dialogs.MavenRepositorySearchDialog">
-		<item value="570" key="height"/>
-		<item value="482" key="width"/>
-		<item value="192" key="y"/>
-		<item value="752" key="x"/>
-	</section>
-	<section name="wizardPage">
-		<list key="groupId">
-			<item value="com.embeddedunveiled"/>
-		</list>
-		<list key="name">
-			<item value="serial communication manager"/>
-		</list>
-		<list key="artifactId">
-			<item value="scm"/>
-		</list>
-		<list key="version">
-			<item value="1.0.0"/>
-		</list>
-	</section>
 </section>

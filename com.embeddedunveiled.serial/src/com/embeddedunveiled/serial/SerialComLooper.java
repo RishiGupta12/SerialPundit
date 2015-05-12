@@ -48,7 +48,6 @@ public final class SerialComLooper {
 
 	private BlockingQueue<SerialComLineEvent> mEventQueue = new ArrayBlockingQueue<SerialComLineEvent>(MAX_NUM_EVENTS);
 	private ISerialComEventListener mEventListener = null;
-	private Object mEventLock = new Object();
 	private Thread mEventLooperThread = null;
 	private AtomicBoolean exitEventThread = new AtomicBoolean(false);
 
@@ -125,7 +124,6 @@ public final class SerialComLooper {
 		@Override
 		public void run() {
 			while(true) {
-				synchronized(mEventLock) {
 					try {
 						mEventListener.onNewSerialEvent(mEventQueue.take());
 					} catch (InterruptedException e) {
@@ -135,7 +133,6 @@ public final class SerialComLooper {
 							if(DEBUG) e.printStackTrace();
 						}
 					}
-				}
 			}
 			exitEventThread.set(false); // Reset exit flag
 		}
@@ -260,7 +257,7 @@ public final class SerialComLooper {
 	}
 
 	/**
-	 * <p>Looper thread refrains from sending new data to the data listener.</p>
+	 * <p>Data looper thread refrains from sending new data to the data listener.</p>
 	 */
 	public void pause() {
 		deliverDataEvent.set(false);

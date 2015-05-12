@@ -31,6 +31,7 @@ public final class SerialComDataEvent {
 
 	/**
 	 * <p>This method return array of bytes which represents data bytes read from serial port.</p>
+	 * @return data read from serial port
 	 */
 	public byte[] getDataBytes() {
 		return mData;

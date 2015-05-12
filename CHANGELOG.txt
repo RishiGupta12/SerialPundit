@@ -1,5 +1,5 @@
 
-v1.0.2 (TODO release date)
+v1.0.2 (12 May 2015)
 	- new API getPortName() to find port name added
 	- added checking for invalid argument in receiveFile() and sendFile()
 	- getOsType() now throws IllegalStateException

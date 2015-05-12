@@ -26,10 +26,10 @@ import java.util.List;
  * We first check if a looper exist for given handle or not. If it does not exist we create and start looper thread which loops over data or event 
  * as specified by application. If it exist, we start data or event looper thread as specified by application.</p>
  * 
- * An application can have multiple handles for the same port (if there is no exclusive owner).
- * A handle can have only one looper for delivering data and line events.
- * A looper can have none or only one data looper at any instant of time.
- * A looper can have none or only one event looper at any instant of time.
+ * <p>An application can have multiple handles for the same port (if there is no exclusive owner of port).</p>
+ * <p>A handle can have only one looper for delivering data and line events.</p>
+ * <p>A looper can have none or only one data looper at any instant of time.</p>
+ * <p>A looper can have none or only one event looper at any instant of time.</p>
  */
 public final class SerialComCompletionDispatcher {
 
@@ -44,7 +44,7 @@ public final class SerialComCompletionDispatcher {
 	}
 
 	/**
-	 * <p>This method creates data looper thread and initialise subsystem for data event passing. </p>
+	 * <p>This method creates data looper thread and initialize subsystem for data event passing. </p>
 	 * 
 	 * @param dataListener listener for which looper has to be set up
 	 * @param mHandleInfo Reference to SerialComPortHandleInfo object associated with given handle
@@ -103,11 +103,11 @@ public final class SerialComCompletionDispatcher {
 			throw new SerialComException("destroyDataLooper()", mErrMapper.getMappedError(ret));
 		}
 
-		// Remove data listener from information object about this handle.
-		mHandleInfo.setDataListener(null);
-
 		// Destroy data looper thread.
 		mHandleInfo.getLooper().stopDataLooper();
+		
+		// Remove data listener from information object about this handle.
+		mHandleInfo.setDataListener(null);
 
 		// If neither data nor event listener exist, looper object should be destroyed.
 		if((mHandleInfo.getEventListener() == null) && (mHandleInfo.getDataListener() == null)) {
@@ -118,6 +118,7 @@ public final class SerialComCompletionDispatcher {
 	}
 
 	/**
+	 * <p>This method creates event looper thread and initialize subsystem for line event passing. </p>
 	 * 
 	 * @param eventListener listener for which looper has to be set up
 	 * @param mHandleInfo Reference to SerialComPortHandleInfo object associated with given handle
@@ -149,7 +150,7 @@ public final class SerialComCompletionDispatcher {
 	}
 
 	/**
-	 * Check if we have handler corresponding to this listener and take actions accordingly.
+	 * <p>Check if we have handler corresponding to this listener and take actions accordingly.</p>
 	 * 
 	 * @param eventListener listener for which looper has to be removed
 	 * @return true on success
@@ -175,6 +176,9 @@ public final class SerialComCompletionDispatcher {
 		if(ret < 0) {
 			throw new SerialComException("destroyDataLooper()", mErrMapper.getMappedError(ret));
 		}
+		
+		// Destroy event looper thread.
+		mHandleInfo.getLooper().stopEventLooper();
 
 		// Remove event listener from information object about this handle.
 		mHandleInfo.setEventListener(null);
@@ -220,7 +224,7 @@ public final class SerialComCompletionDispatcher {
 	}
 
 	/**
-	 * Check if we have handler corresponding to this listener and take actions accordingly.
+	 * <p>Check if we have handler corresponding to this listener and take actions accordingly.</p>
 	 * 
 	 * @param listener for which events sending should be resumed
 	 * @return true on success
@@ -252,5 +256,4 @@ public final class SerialComCompletionDispatcher {
 			throw new SerialComException("resumeListeningEvents()", SerialComErrorMapper.ERR_WRONG_LISTENER_PASSED);
 		}
 	}
-
 }

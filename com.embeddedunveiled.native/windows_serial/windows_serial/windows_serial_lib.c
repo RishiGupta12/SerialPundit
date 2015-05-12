@@ -30,7 +30,7 @@
 #include <dbt.h>
 #include "windows_serial_lib.h"
 
-#define DEBUG 1
+#define DBG 1
 
 /* access to global shared information */
 struct port_info *port_monitor_info_ptr = NULL;
@@ -41,7 +41,7 @@ void LOGE(JNIEnv *env) {
 	(*env)->ExceptionClear(env);
 }
 
-/* This thread wait for both data and control event to occur on the specified port. When data is received on port or a control event has
+/* This thread wait for both data and control event both to occur on the specified port. When data is received on port or a control event has
  * occurred, it enqueue this to data or event to corresponding queue. Separate blocking queue for data and events are managed by java layer. */
 unsigned __stdcall event_data_looper(void* arg) {
 	int ret = 0;
@@ -54,7 +54,6 @@ unsigned __stdcall event_data_looper(void* arg) {
 	jbyte data_buf[1024];
 	DWORD num_of_bytes_read;
 	jbyteArray data_read;
-	DWORD count = 0;
 	OVERLAPPED overlapped;
 	BOOL eventOccurred = FALSE;
 	DWORD dwEvent;
@@ -79,43 +78,25 @@ unsigned __stdcall event_data_looper(void* arg) {
 	void* env1;
 	JNIEnv* env;
 	if((*jvm)->AttachCurrentThread(jvm, &env1, NULL) != JNI_OK) {
-		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE event_data_looper() thread failed to attach itself to JVM.");
-		if(DEBUG) fflush(stderr);
+		if(DBG) fprintf(stderr, "%s \n", "NATIVE event_data_looper() thread failed to attach itself to JVM.");
+		if(DBG) fflush(stderr);
 		((struct looper_thread_params*) arg)->init_done = -240;
-		((struct looper_thread_params*) arg)->thread_handle = 0;
 		return 0;
 	}
 	env = (JNIEnv*) env1;
 
-	/* Local references are valid for the duration of a native method call.
-	They are freed automatically after the native method returns. */
+	/* Local references are valid for the duration of a native method call. They are freed automatically after the native method returns. */
 	jclass SerialComLooper = (*env)->GetObjectClass(env, looper);
 	if(SerialComLooper == NULL) {
-		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE event_data_looper() thread could not get class of object of type looper !");
-		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE event_data_looper() thread exiting. Please RETRY registering data listener !");
-		if(DEBUG) fflush(stderr);
+		if(DBG) fprintf(stderr, "%s \n", "NATIVE event_data_looper() thread could not get class of object of type looper !");
+		if(DBG) fprintf(stderr, "%s \n", "NATIVE event_data_looper() thread exiting. Please RETRY registering data listener !");
+		if(DBG) fflush(stderr);
 		EnterCriticalSection(((struct looper_thread_params*) arg)->csmutex);
 		CloseHandle(((struct looper_thread_params*) arg)->thread_handle);
 		((struct looper_thread_params*) arg)->init_done = -240;
-		((struct looper_thread_params*) arg)->thread_handle = 0;
+		(*jvm)->DetachCurrentThread(jvm);
 		LeaveCriticalSection(((struct looper_thread_params*) arg)->csmutex);
 		return 0;   /* For unrecoverable errors we would like to exit and try again. */
-	}
-
-	jmethodID data_mid = (*env)->GetMethodID(env, SerialComLooper, "insertInDataQueue", "([B)V");
-	if((*env)->ExceptionOccurred(env)) {
-		LOGE(env);
-	}
-	if(data_mid == NULL) {
-		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE event_data_looper() thread failed to retrieve method id of method insertInDataQueue in class SerialComLooper !");
-		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE event_data_looper() thread exiting. Please RETRY registering data listener !");
-		if(DEBUG) fflush(stderr);
-		EnterCriticalSection(((struct looper_thread_params*) arg)->csmutex);
-		CloseHandle(((struct looper_thread_params*) arg)->thread_handle);
-		((struct looper_thread_params*) arg)->init_done = -240;
-		((struct looper_thread_params*) arg)->thread_handle = 0;
-		LeaveCriticalSection(((struct looper_thread_params*) arg)->csmutex);
-		return 0; /* For unrecoverable errors we would like to exit and try again. */
 	}
 
 	jmethodID event_mid = (*env)->GetMethodID(env, SerialComLooper, "insertInEventQueue", "(I)V");
@@ -123,29 +104,45 @@ unsigned __stdcall event_data_looper(void* arg) {
 		LOGE(env);
 	}
 	if(event_mid == NULL) {
-		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE event_data_looper() thread failed to retrieve method id of method insertInEventQueue in class SerialComLooper !");
-		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE event_data_looper() thread exiting. Please RETRY registering event listener !");
-		if(DEBUG) fflush(stderr);
+		if(DBG) fprintf(stderr, "%s \n", "NATIVE event_data_looper() thread failed to retrieve method id of method insertInEventQueue in class SerialComLooper !");
+		if(DBG) fprintf(stderr, "%s \n", "NATIVE event_data_looper() thread exiting. Please RETRY registering event listener !");
+		if(DBG) fflush(stderr);
+		EnterCriticalSection(((struct looper_thread_params*) arg)->csmutex);
+		(*jvm)->DetachCurrentThread(jvm);
+		((struct looper_thread_params*) arg)->init_done = -240;
+		LeaveCriticalSection(((struct looper_thread_params*) arg)->csmutex);
+		CloseHandle(((struct looper_thread_params*) arg)->thread_handle);
+		return 0; /* For unrecoverable errors we would like to exit and try again. */
+	}
+
+	jmethodID data_mid = (*env)->GetMethodID(env, SerialComLooper, "insertInDataQueue", "([B)V");
+	if((*env)->ExceptionOccurred(env)) {
+		LOGE(env);
+	}
+	if(data_mid == NULL) {
+		if(DBG) fprintf(stderr, "%s \n", "NATIVE event_data_looper() thread failed to retrieve method id of method insertInDataQueue in class SerialComLooper !");
+		if(DBG) fprintf(stderr, "%s \n", "NATIVE event_data_looper() thread exiting. Please RETRY registering data listener !");
+		if(DBG) fflush(stderr);
 		EnterCriticalSection(((struct looper_thread_params*) arg)->csmutex);
 		CloseHandle(((struct looper_thread_params*) arg)->thread_handle);
 		((struct looper_thread_params*) arg)->init_done = -240;
-		((struct looper_thread_params*) arg)->thread_handle = 0;
+		(*jvm)->DetachCurrentThread(jvm);
 		LeaveCriticalSection(((struct looper_thread_params*) arg)->csmutex);
 		return 0; /* For unrecoverable errors we would like to exit and try again. */
 	}
 
 	jmethodID mide = (*env)->GetMethodID(env, SerialComLooper, "insertInDataErrorQueue", "(I)V");
-	if ((*env)->ExceptionOccurred(env)) {
+	if((*env)->ExceptionOccurred(env)) {
 		LOGE(env);
 	}
 	if(mide == NULL) {
-		if (DEBUG) fprintf(stderr, "%s \n", "NATIVE event_data_looper() thread failed to retrieve method id of method insertInDataErrorQueue in class SerialComLooper !");
-		if (DEBUG) fprintf(stderr, "%s \n", "NATIVE event_data_looper() thread exiting. Please RETRY registering listener !");
-		if (DEBUG) fflush(stderr);
+		if (DBG) fprintf(stderr, "%s \n", "NATIVE event_data_looper() thread failed to retrieve method id of method insertInDataErrorQueue in class SerialComLooper !");
+		if (DBG) fprintf(stderr, "%s \n", "NATIVE event_data_looper() thread exiting. Please RETRY registering listener !");
+		if (DBG) fflush(stderr);
 		EnterCriticalSection(((struct looper_thread_params*) arg)->csmutex);
 		CloseHandle(((struct looper_thread_params*) arg)->thread_handle);
 		((struct looper_thread_params*) arg)->init_done = -240;
-		((struct looper_thread_params*) arg)->thread_handle = 0;
+		(*jvm)->DetachCurrentThread(jvm);
 		LeaveCriticalSection(((struct looper_thread_params*) arg)->csmutex);
 		return 0; /* For unrecoverable errors we would like to exit and try again. */
 	}
@@ -162,25 +159,25 @@ unsigned __stdcall event_data_looper(void* arg) {
 	ret = SetCommMask(hComm, mask_applied);
 	if(ret == 0) {
 		errorVal = GetLastError();
-		if(DEBUG) fprintf(stderr, "%s %ld\n", "NATIVE event_data_looper() failed in SetCommMask() with error number : ", errorVal);
-		if(DEBUG) fflush(stderr);
+		if(DBG) fprintf(stderr, "%s %ld\n", "NATIVE event_data_looper() failed in SetCommMask() with error number : ", errorVal);
+		if(DBG) fflush(stderr);
 		ClearCommError(hComm, &error_type, &com_stat);
 		EnterCriticalSection(((struct looper_thread_params*) arg)->csmutex);
 		CloseHandle(((struct looper_thread_params*) arg)->thread_handle);
 		((struct looper_thread_params*) arg)->init_done = -240;
-		((struct looper_thread_params*) arg)->thread_handle = 0;
+		(*jvm)->DetachCurrentThread(jvm);
 		LeaveCriticalSection(((struct looper_thread_params*) arg)->csmutex);
 		return 0; /* For unrecoverable errors we would like to exit and try again. */
 	}
 
 	((struct looper_thread_params*) arg)->wait_event_handles[0] = CreateEvent(NULL, FALSE, FALSE, NULL);
-	if (((struct looper_thread_params*) arg)->wait_event_handles[0] == NULL) {
-		if (DEBUG) fprintf(stderr, "%s\n", "NATIVE event_data_looper() failed to create thread exit event handle.");
-		if (DEBUG) fflush(stderr);
+	if(((struct looper_thread_params*) arg)->wait_event_handles[0] == NULL) {
+		if(DBG) fprintf(stderr, "%s\n", "NATIVE event_data_looper() failed to create thread exit event handle.");
+		if(DBG) fflush(stderr);
 		EnterCriticalSection(((struct looper_thread_params*) arg)->csmutex);
 		CloseHandle(((struct looper_thread_params*) arg)->thread_handle);
 		((struct looper_thread_params*) arg)->init_done = -240;
-		((struct looper_thread_params*) arg)->thread_handle = 0;
+		(*jvm)->DetachCurrentThread(jvm);
 		LeaveCriticalSection(((struct looper_thread_params*) arg)->csmutex);
 		return 0;
 	}
@@ -192,18 +189,18 @@ unsigned __stdcall event_data_looper(void* arg) {
 	while(1) {
 		eventOccurred = FALSE;
 
-		/* The OVERLAPPED structure is used by the kernel to store progress of the operation.  Only hEvent member need to be initialled and others 
+		/* The OVERLAPPED structure is used by the kernel to store progress of the operation. Only hEvent member need to be initialled and others 
 		   can be left 0. The OVERLAPPED structure must contain a handle to a manual-reset event object.  */
 		memset(&overlapped, 0, sizeof(overlapped));
 		overlapped.hEvent = CreateEvent(NULL, FALSE, FALSE, NULL);   /* auto reset, unnamed event object */
 		if(overlapped.hEvent == NULL) {
-			if(DEBUG) fprintf(stderr, "%s\n", "NATIVE CreateEvent() in event_data_looper() failed creating overlapped event handle !");
-			if(DEBUG) fflush(stderr);
+			if(DBG) fprintf(stderr, "%s\n", "NATIVE CreateEvent() in event_data_looper() failed creating overlapped event handle !");
+			if(DBG) fflush(stderr);
 			EnterCriticalSection(((struct looper_thread_params*) arg)->csmutex);
 			CloseHandle(((struct looper_thread_params*) arg)->thread_handle);
 			((struct looper_thread_params*) arg)->thread_handle = 0;
 			LeaveCriticalSection(((struct looper_thread_params*) arg)->csmutex);
-			return 0;       /* For unrecoverable errors we would like to exit and try again. */
+			continue;
 		}
 
 		((struct looper_thread_params*) arg)->wait_event_handles[1] = overlapped.hEvent;
@@ -212,10 +209,6 @@ unsigned __stdcall event_data_looper(void* arg) {
 		   indicating that the operation is executing in the background. When this happens, the system sets the hEvent member of the OVERLAPPED structure
 		   to the not-signaled state before WaitCommEvent returns, and then it sets it to the signaled state when one of the specified events or an error 
 		   occurs. */
-
-		if (DEBUG) fprintf(stderr, "rishi : %ld\n", ((struct looper_thread_params*) arg)->data_enabled);
-		if (DEBUG) fflush(stderr);
-		
 
 		ret = WaitCommEvent(hComm, &events_mask, &overlapped);
 		if(ret == 0) {
@@ -230,6 +223,7 @@ unsigned __stdcall event_data_looper(void* arg) {
 							EnterCriticalSection(((struct looper_thread_params*) arg)->csmutex);
 							CloseHandle(((struct looper_thread_params*) arg)->thread_handle);
 							((struct looper_thread_params*) arg)->thread_handle = 0;
+							(*jvm)->DetachCurrentThread(jvm);
 							LeaveCriticalSection(((struct looper_thread_params*) arg)->csmutex);
 							CloseHandle(overlapped.hEvent);
 							return 0;
@@ -240,12 +234,12 @@ unsigned __stdcall event_data_looper(void* arg) {
 						eventOccurred = TRUE;
 						break;
 					case WAIT_FAILED:
-						if(DEBUG) fprintf(stderr, "Unexpected WAIT_FAILED in WaitForMultipleObjects() with error : %ld\n", GetLastError());
-						if(DEBUG) fflush(stderr);
+						if(DBG) fprintf(stderr, "Unexpected WAIT_FAILED in WaitForMultipleObjects() with error : %ld\n", GetLastError());
+						if(DBG) fflush(stderr);
 						break;
 					default:
-						if(DEBUG) fprintf(stderr, "Unexpected WaitForMultipleObjects() with error : %ld\n", GetLastError());
-						if(DEBUG) fflush(stderr);
+						if(DBG) fprintf(stderr, "Unexpected WaitForMultipleObjects() with error : %ld\n", GetLastError());
+						if(DBG) fflush(stderr);
 				}
 			}else {
 				if(((struct looper_thread_params*) arg)->data_enabled == 1) {
@@ -298,8 +292,8 @@ unsigned __stdcall event_data_looper(void* arg) {
 							}
 						}
 					}else {
-						if(DEBUG) fprintf(stderr, "ReadFile failed with error : %ld\n", errorVal);
-						if(DEBUG) fflush(stderr);
+						if(DBG) fprintf(stderr, "ReadFile failed with error : %ld\n", errorVal);
+						if(DBG) fflush(stderr);
 					}
 				}
 
@@ -318,8 +312,8 @@ unsigned __stdcall event_data_looper(void* arg) {
 					ret = GetCommModemStatus(hComm, &lines_status);
 					if(ret == 0) {
 						errorVal = GetLastError();
-						if(DEBUG) fprintf(stderr, "%s %ld\n", "NATIVE GetCommModemStatus() in data_event_looper() failed with error number : ", errorVal);
-						if(DEBUG) fflush(stderr);
+						if(DBG) fprintf(stderr, "%s %ld\n", "NATIVE GetCommModemStatus() in data_event_looper() failed with error number : ", errorVal);
+						if(DBG) fflush(stderr);
 						continue;
 					}
 
@@ -343,8 +337,8 @@ unsigned __stdcall event_data_looper(void* arg) {
 
 					if(cts || dsr || dcd || ri) {
 						/* It is control event(s), so enqueue it in event queue. */
-						/* if(DEBUG) fprintf(stderr, "%s %d\n", "NATIVE event_data_looper() sending bit mapped events ", event);
-						if(DEBUG) fflush(stderr); */
+						/* if(DBG) fprintf(stderr, "%s %d\n", "NATIVE event_data_looper() sending bit mapped events ", event);
+						   if(DBG) fflush(stderr); */
 						(*env)->CallVoidMethod(env, looper, event_mid, event);
 						if((*env)->ExceptionOccurred(env)) {
 							LOGE(env);
@@ -375,7 +369,7 @@ LRESULT CALLBACK event_message_handler(HWND window_handle, UINT msg, WPARAM even
 				if(pbhdr->dbch_devicetype == DBT_DEVTYP_DEVICEINTERFACE) {
 					 /* pbdi = (PDEV_BROADCAST_DEVICEINTERFACE)pbhdr;
 					   _tprintf(TEXT("%s\n"), pbdi->dbcc_name);
-					   if (DEBUG) fflush(stdout); */
+					   if (DBG) fflush(stdout); */
 					ptr = port_monitor_info_ptr;
 					for (x = 0; x < MAX_NUM_THREADS; x++) {
 						if(ptr->window_handle == window_handle) {
@@ -470,16 +464,16 @@ unsigned __stdcall port_monitor(void *arg) {
 	};
 
 	if((*jvm)->AttachCurrentThread(jvm, &env1, NULL) != JNI_OK) {
-		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE event_looper() thread failed to attach itself to JVM.");
-		if(DEBUG) fflush(stderr);
+		if(DBG) fprintf(stderr, "%s \n", "NATIVE event_looper() thread failed to attach itself to JVM.");
+		if(DBG) fflush(stderr);
 	}
 	env = (JNIEnv*)env1;
 
 	jclass port_monitor_class = (*env)->GetObjectClass(env, port_listener);
 	if(port_monitor_class == NULL) {
-		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread could not get class of object of type IPortMonitor !");
-		if (DEBUG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread exiting.  Please RETRY registering port monitor listener !");
-		if(DEBUG) fflush(stderr);
+		if(DBG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread could not get class of object of type IPortMonitor !");
+		if(DBG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread exiting.  Please RETRY registering port monitor listener !");
+		if(DBG) fflush(stderr);
 		return 0;
 	}
 
@@ -488,9 +482,9 @@ unsigned __stdcall port_monitor(void *arg) {
 		LOGE(env);
 	}
 	if(port_monitor_mid == NULL) {
-		if(DEBUG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread failed to retrieve method id of method onPortRemovedEvent !");
-		if (DEBUG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread exiting.  Please RETRY registering port monitor listener !");
-		if(DEBUG) fflush(stderr);
+		if(DBG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread failed to retrieve method id of method onPortRemovedEvent !");
+		if(DBG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread exiting.  Please RETRY registering port monitor listener !");
+		if(DBG) fflush(stderr);
 		return 0;
 	}
 
@@ -511,17 +505,17 @@ unsigned __stdcall port_monitor(void *arg) {
 	/* Registers a window class for subsequent use in calls to the CreateWindow or CreateWindowEx function.  */
 	atom = RegisterClassEx(&wndClass);
 	if(atom == 0) {
-		if (DEBUG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread failed to register class with system !");
-		if (DEBUG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread exiting. Please RETRY registering port monitor listener !");
-		if (DEBUG) fflush(stderr);
+		if(DBG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread failed to register class with system !");
+		if(DBG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread exiting. Please RETRY registering port monitor listener !");
+		if(DBG) fflush(stderr);
 	}
 
 	/* Create message only window.  Windows will deliver messages to this window. */
 	window_handle = CreateWindowEx(WS_EX_TOPMOST, window_class_name, TEXT("b"), 0, 0, 0, 0, 0, HWND_MESSAGE, 0, 0, 0);
 	if(window_handle == NULL) {
-		if (DEBUG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread failed to create message only window !");
-		if (DEBUG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread exiting. Please RETRY registering port monitor listener !");
-		if (DEBUG) fflush(stderr);
+		if(DBG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread failed to create message only window !");
+		if(DBG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread exiting. Please RETRY registering port monitor listener !");
+		if(DBG) fflush(stderr);
 		UnregisterClass(wndClass.lpszClassName, hInstance);
 		return 0;
 	}
@@ -537,9 +531,9 @@ unsigned __stdcall port_monitor(void *arg) {
 														 &dbch,                         /* type of device for which notification will be sent */
 														 DEVICE_NOTIFY_WINDOW_HANDLE);  /* type of recipient handle */
 		if(notification_handle == NULL) {
-			if (DEBUG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread failed to register device notfication with system !");
-			if (DEBUG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread exiting. Please RETRY registering port monitor listener !");
-			if (DEBUG) fflush(stderr);
+			if(DBG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread failed to register device notfication with system !");
+			if(DBG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread exiting. Please RETRY registering port monitor listener !");
+			if(DBG) fflush(stderr);
 			DestroyWindow(window_handle);
 			UnregisterClass(wndClass.lpszClassName, hInstance);
 			return 0;
@@ -572,8 +566,8 @@ unsigned __stdcall port_monitor(void *arg) {
 			break;
 		}else {
 			errorVal = GetLastError();
-			if (DEBUG) fprintf(stderr, "%s %ld\n", "NATIVE port_monitor() failed to retrieve message for event with error number : ", errorVal);
-			if (DEBUG) fflush(stderr);
+			if (DBG) fprintf(stderr, "%s %ld\n", "NATIVE port_monitor() failed to retrieve message for event with error number : ", errorVal);
+			if (DBG) fflush(stderr);
 		}
 	}
 

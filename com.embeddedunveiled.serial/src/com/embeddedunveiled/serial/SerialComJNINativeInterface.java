@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.ByteBuffer;
 
 /**
  * <p>This class load native library and is an interface between java and native shared library.</p>
@@ -203,6 +204,7 @@ public final class SerialComJNINativeInterface {
 
 	public native byte[] readBytes(long handle, int byteCount, SerialComReadStatus retStatus);
 	public native int writeBytes(long handle, byte[] buffer, int delay);
+	public native int writeBytesBulk(long handle, ByteBuffer buffer);
 
 	public native int configureComPortData(long handle, int dataBits, int stopBits, int parity, int baudRateTranslated, int custBaudTranslated);
 	public native int configureComPortControl(long handle, int flowctrl, char xon, char xoff, boolean ParFraError, boolean overFlowErr);

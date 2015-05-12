@@ -42,7 +42,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINati
 /*
  * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
  * Method:    registerPortMonitorListener
- * Signature: (JLjava/lang/String;Lcom/embeddedunveiled/serial/IPortMonitor;)I
+ * Signature: (JLjava/lang/String;Lcom/embeddedunveiled/serial/ISerialComPortMonitor;)I
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_registerPortMonitorListener
   (JNIEnv *, jobject, jlong, jstring, jobject);
@@ -86,6 +86,14 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINative
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_writeBytes
   (JNIEnv *, jobject, jlong, jbyteArray, jint);
+
+/*
+ * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
+ * Method:    writeBytesBulk
+ * Signature: (JLjava/nio/ByteBuffer;)I
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_writeBytesBulk
+  (JNIEnv *, jobject, jlong, jobject);
 
 /*
  * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface

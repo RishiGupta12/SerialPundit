@@ -103,14 +103,14 @@ public class Test39 {
 			scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
 
 			System.out.println("register  : " + scm.registerDataListener(handle, dataListener));
-
-			//			while(true) {
+//
+//			//			while(true) {
 			scm.writeString(handle1, "a", 0);
-			//			}
-
-			//			System.out.println("unregister : " + scm.unregisterDataListener(dataListener));
-			//			scm.closeComPort(handle);
-			//			scm.closeComPort(handle1);
+//			//			}
+//
+						System.out.println("unregister : " + scm.unregisterDataListener(dataListener));
+						scm.closeComPort(handle);
+						scm.closeComPort(handle1);
 			while(true);
 		} catch (Exception e) {
 			e.printStackTrace();

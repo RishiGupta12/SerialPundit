@@ -20,6 +20,7 @@ package com.embeddedunveiled.serial;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.ArrayList;
@@ -30,7 +31,7 @@ import java.util.List;
  */
 public final class SerialComManager {
 
-	public static final String JAVA_LIB_VERSION = "1.0.1";
+	public static final String JAVA_LIB_VERSION = "1.0.2";
 
 	public static boolean DEBUG = true;
 	private static int osType = -1;
@@ -174,7 +175,6 @@ public final class SerialComManager {
 	private List<SerialComPortHandleInfo> mPortHandleInfo = Collections.synchronizedList(handleInfo);
 
 	private SerialComJNINativeInterface mNativeInterface = null;
-	private SerialComPortsList mSerialComPortList = null;
 	private SerialComErrorMapper mErrMapper = null;
 	private SerialComCompletionDispatcher mEventCompletionDispatcher = null;
 
@@ -195,7 +195,6 @@ public final class SerialComManager {
 
 		mErrMapper = new SerialComErrorMapper();
 		mNativeInterface = new SerialComJNINativeInterface();
-		mSerialComPortList = new SerialComPortsList(mNativeInterface);
 		mEventCompletionDispatcher = new SerialComCompletionDispatcher(mNativeInterface, mErrMapper, mPortHandleInfo);
 	}
 
@@ -238,15 +237,12 @@ public final class SerialComManager {
 	 * @return Available UART style ports name for windows, full path with name for Unix like OS, returns empty array if no ports found.
 	 */
 	public String[] listAvailableComPorts() {
-		String[] availablePorts = null;
-		if(mSerialComPortList != null) {
-			availablePorts = mSerialComPortList.listAvailableComPorts();
-			if(availablePorts == null) {
-				return new String[]{};
-			}
-			return availablePorts;
+		SerialComPortsList scpl = new SerialComPortsList(this.mNativeInterface);
+		String[] availablePorts = scpl.listAvailableComPorts();
+		if(availablePorts == null) {
+			return new String[]{};
 		}
-		return new String[]{};
+		return availablePorts;
 	}
 
 	/** 
@@ -274,6 +270,7 @@ public final class SerialComManager {
 	 * @throws IllegalArgumentException - if portName is null
 	 */
 	public long openComPort(String portName, boolean enableRead, boolean enableWrite, boolean exclusiveOwnerShip) throws SerialComException {
+		long handle = 0;
 		if(portName == null) {
 			throw new IllegalArgumentException("openComPort(), " + SerialComErrorMapper.ERR_PORT_NAME_FOR_PORT_OPENING);
 		}
@@ -302,14 +299,15 @@ public final class SerialComManager {
 			}
 		}
 
-		long handle = mNativeInterface.openComPort(portName, enableRead, enableWrite, exclusiveOwnerShip);
+		handle = mNativeInterface.openComPort(portName, enableRead, enableWrite, exclusiveOwnerShip);
 		if(handle < 0) {
 			throw new SerialComException(portName, "openComPort()",  mErrMapper.getMappedError(handle));
 		}
 
 		boolean added = mPortHandleInfo.add(new SerialComPortHandleInfo(portName, handle, null, null, null));
 		if(added != true) {
-			System.out.println("Could not append information associated with port while opening port.");
+			closeComPort(handle);
+			throw new SerialComException(portName, "openComPort()",  SerialComErrorMapper.ERR_SCM_NOT_STORE_PORTINFO);
 		}
 
 		return handle;
@@ -587,6 +585,10 @@ public final class SerialComManager {
 	 * 
 	 * <p>Note that on Linux systems EOF is received if USB-UART converter is physically removed from system. It is due to
 	 * this reason developers are advised not to use EOF i.e. null value in their application design.</p>
+	 * 
+	 * <p>The number of bytes to read must be greater than or equal to 1 and less than or equal to 2048 (1 <= byteCount <= 2048).
+	 * This method may return less than the requested number of bytes due to reasons like, there is less data in operating system
+	 * buffer (serial port) or operating system returned less data which is also legal.</p>
 	 * 
 	 * @param handle of the port from which to read bytes
 	 * @param byteCount number of bytes to read from this port
@@ -1541,20 +1543,17 @@ public final class SerialComManager {
 	 * @throws SerialComException - if an I/O error occurs.
 	 * @throws IllegalArgumentException - if buffer is null
 	 */
-	public boolean writeBytesBulk(long handle, byte[] buffer) throws SerialComException {
+	public boolean writeBytesBulk(long handle, ByteBuffer buffer) throws SerialComException {
 		if(buffer == null) {
 			throw new IllegalArgumentException("writeBytesBulk(), " + SerialComErrorMapper.ERR_WRITE_NULL_DATA_PASSED);
 		}
-		if(buffer.length == 0) {
-			return false;
-		}
-		int ret = mNativeInterface.writeBytes(handle, buffer, 0);
+
+		int ret = mNativeInterface.writeBytesBulk(handle, buffer);
 		if(ret < 0) {
-			throw new SerialComException("write",  mErrMapper.getMappedError(ret));
+			throw new SerialComException("writeBytesBulk()",  mErrMapper.getMappedError(ret));
 		}
 		return true;
 	}
-
 }
 
 

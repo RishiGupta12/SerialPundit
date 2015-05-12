@@ -5,4 +5,6 @@
 <fullyQualifiedTypeName name="java.io.BufferedOutputStream"/>
 <fullyQualifiedTypeName name="java.io.FileOutputStream"/>
 <fullyQualifiedTypeName name="com.sun.xml.internal.ws.wsdl.writer.document.Port"/>
+<fullyQualifiedTypeName name="java.nio.ByteBuffer"/>
+<fullyQualifiedTypeName name="com.embeddedunveiled.serial.ISerialComEventListener"/>
 </qualifiedTypeNameHistroy>

@@ -23,31 +23,32 @@ package com.embeddedunveiled.serial;
 
 public final class SerialComErrorMapper {
 	public static final String ERR_SCM_DOES_NOT_INSTANTIATED = "SerialComManager class has to be instantiated first.";
-	public static final String ERR_UNABLE_TO_DETECT_OS_TYPE = "Unable to detect Operating System";
-	public static final String ERR_PORT_NAME_FOR_PORT_OPENING = "Name of the port to open is not passed";
-	public static final String ERR_WRONG_HANDLE = "Wrong port handle passed for the requested operations";
-	public static final String ERR_LISTENER_ALREADY_EXIST = "Event listener already exist. Only one listener allowed";
-	public static final String ERR_DATA_LISTENER_ALREADY_EXIST = "Data listener already exist. Only one listener allowed";
-	public static final String ERR_NULL_POINTER_FOR_LISTENER = "The listener can not be null";
-	public static final String ERR_NULL_POINTER_FOR_MONITOR = "The monitor can not be null";
-	public static final String ERR_NULL_POINTER_FOR_FILE_SEND = "The fileToSend argument can not be null";
-	public static final String ERR_NULL_POINTER_FOR_FILE_RECEIVE = "The fileToReceive argument can not be null";
-	public static final String ERR_WRONG_LISTENER_PASSED = "This listener is not registered";
-	public static final String ERR_UNABLE_TO_WRITE = "Unable to copy native library in tmp directory. Probably insufficient permissions";
-	public static final String ERR_PORT_NAME_NULL = "Port name can not be null";
-	public static final String ERR_INVALID_DATA_LENGTH = "Number of bytes should be positive value";
-	public static final String ERR_WIN_OWNERSHIP = "Windows does not allow port sharing. The exclusiveOwnerShip must be true";
-	public static final String ERR_CLOSE_WITHOUT_UNREG_DATA = "Closing port without unregistering data listener is not allowed";
-	public static final String ERR_CLOSE_WITHOUT_UNREG_EVENT = "Closing port without unregistering event listener is not allowed";
-	public static final String ERR_WRITE_NULL_DATA_PASSED = "Null data buffer passed to write operation";
-	public static final String ERR_WRITE_INDEX_VIOLATION = "Index violation detected";
-	public static final String ERR_NOT_A_FILE = "Seems like either file does not exist or not a file";
-	public static final String ERR_TIMEOUT_RECEIVER_CONNECT = "Timedout while waiting for receiver to initiate connection setup";
-	public static final String ERR_TIMEOUT_TRANSMITTER_CONNECT = "Timedout while trying to connect to transmitter";
-	public static final String ERR_MAX_RETRY_REACHED = "Maximum number of retries reached while sending same data block";
-	public static final String ERR_KNOWN_ERROR_OCCURED = "Unknown error occured";
-	public static final String ERR_TIMEOUT_ACKNOWLEDGE_BLOCK = "Timedout while waiting for block reception acknowledgement from receiver";
-	public static final String ERR_TIMEOUT_ACKNOWLEDGE_EOT = "Timedout while waiting for EOT reception acknowledgement from receiver";
+	public static final String ERR_SCM_NOT_STORE_PORTINFO = "Could not save info about port locally. Please retry opening port.";
+	public static final String ERR_UNABLE_TO_DETECT_OS_TYPE = "Unable to detect Operating System.";
+	public static final String ERR_PORT_NAME_FOR_PORT_OPENING = "Name of the port to open is not passed.";
+	public static final String ERR_WRONG_HANDLE = "Wrong port handle passed for the requested operations.";
+	public static final String ERR_LISTENER_ALREADY_EXIST = "Event listener already exist. Only one listener allowed.";
+	public static final String ERR_DATA_LISTENER_ALREADY_EXIST = "Data listener already exist. Only one listener allowed.";
+	public static final String ERR_NULL_POINTER_FOR_LISTENER = "The listener can not be null.";
+	public static final String ERR_NULL_POINTER_FOR_MONITOR = "The monitor can not be null.";
+	public static final String ERR_NULL_POINTER_FOR_FILE_SEND = "The fileToSend argument can not be null.";
+	public static final String ERR_NULL_POINTER_FOR_FILE_RECEIVE = "The fileToReceive argument can not be null.";
+	public static final String ERR_WRONG_LISTENER_PASSED = "This listener is not registered.";
+	public static final String ERR_UNABLE_TO_WRITE = "Unable to copy native library in tmp directory. Probably insufficient permissions.";
+	public static final String ERR_PORT_NAME_NULL = "Port name can not be null.";
+	public static final String ERR_INVALID_DATA_LENGTH = "Number of bytes should be positive value.";
+	public static final String ERR_WIN_OWNERSHIP = "Windows does not allow port sharing. The exclusiveOwnerShip must be true.";
+	public static final String ERR_CLOSE_WITHOUT_UNREG_DATA = "Closing port without unregistering data listener is not allowed.";
+	public static final String ERR_CLOSE_WITHOUT_UNREG_EVENT = "Closing port without unregistering event listener is not allowed.";
+	public static final String ERR_WRITE_NULL_DATA_PASSED = "Null data buffer passed to write operation.";
+	public static final String ERR_WRITE_INDEX_VIOLATION = "Index violation detected.";
+	public static final String ERR_NOT_A_FILE = "Seems like either file does not exist or not a file.";
+	public static final String ERR_TIMEOUT_RECEIVER_CONNECT = "Timedout while waiting for receiver to initiate connection setup.";
+	public static final String ERR_TIMEOUT_TRANSMITTER_CONNECT = "Timedout while trying to connect to transmitter.";
+	public static final String ERR_MAX_RETRY_REACHED = "Maximum number of retries reached while sending same data block.";
+	public static final String ERR_KNOWN_ERROR_OCCURED = "Unknown error occured.";
+	public static final String ERR_TIMEOUT_ACKNOWLEDGE_BLOCK = "Timedout while waiting for block reception acknowledgement from receiver.";
+	public static final String ERR_TIMEOUT_ACKNOWLEDGE_EOT = "Timedout while waiting for EOT reception acknowledgement from receiver.";
 
 	public SerialComErrorMapper() {
 	}
