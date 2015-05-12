@@ -12,6 +12,9 @@
 	</section>
 	<section name="JavaElementSearchActions">
 	</section>
+	<section name="BuildPathsPropertyPage">
+		<item value="2" key="pageIndex"/>
+	</section>
 	<section name="JarPackageWizard">
 		<item value="true" key="JarPackageWizardPage.INCLUDE_DIRECTORY_ENTRIES"/>
 		<item value="true" key="JarManifestWizardPage.GENERATE_MANIFEST"/>
@@ -24,8 +27,8 @@
 		<item value="true" key="jarOptionsWizardPage.EXPORT_ERRORS"/>
 		<item value="true" key="JarPackageWizardPage.EXPORT_CLASS_FILES"/>
 		<item value="false" key="jarOptionsWizardPage.SAVE_DESCRIPTION"/>
-		<item value="false" key="JarPackageWizardPage.EXPORT_JAVA_FILES"/>
 		<item value="false" key="JarManifestWizardPage.SAVE_MANIFEST"/>
+		<item value="false" key="JarPackageWizardPage.EXPORT_JAVA_FILES"/>
 		<item value="false" key="JarPackageWizardPage.EXPORT_OUTPUT_FOLDER"/>
 		<item value="true" key="JarPackageWizardPage.COMPRESS"/>
 		<item value="true" key="jarOptionsWizardPage.BUILD_IF_NEEDED"/>
@@ -36,9 +39,6 @@
 			<item value="/home/r/Desktop/scm-1.0.1.jar"/>
 			<item value="/home/r/ws-host-uart/serial-communication-manager/prebuilt_artifact/scm-1.0.1.jar"/>
 		</list>
-	</section>
-	<section name="BuildPathsPropertyPage">
-		<item value="2" key="pageIndex"/>
 	</section>
 	<section name="quick_assist_proposal_size">
 	</section>
@@ -79,16 +79,16 @@
 		<section name="projects">
 			<section name="com.embeddedunveiled.serial">
 				<item value="/home/r/ws-host-uart/serial-communication-manager/javadoc" key="destdir"/>
-				<item value="/home/r/ws-host-uart/serial-communication-manager/com.embeddedunveiled.serial/javadoc.xml" key="antpath"/>
 				<item value="" key="href"/>
+				<item value="/home/r/ws-host-uart/serial-communication-manager/com.embeddedunveiled.serial/javadoc.xml" key="antpath"/>
 			</section>
 		</section>
 	</section>
 	<section name="JavadocWizardDialog">
 		<item value="704" key="DIALOG_WIDTH"/>
 		<item value="131" key="DIALOG_Y_ORIGIN"/>
-		<item value="577" key="DIALOG_X_ORIGIN"/>
 		<item value="646" key="DIALOG_HEIGHT"/>
+		<item value="577" key="DIALOG_X_ORIGIN"/>
 		<item value="1|Ubuntu|11.0|0|GTK|1|" key="DIALOG_FONT_NAME"/>
 	</section>
 </section>

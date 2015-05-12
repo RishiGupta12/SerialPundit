@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This class is the entry point to this library.
+ * This class is the root of scm library. The applications should call methods defined in this class only.
  */
 public final class SerialComManager {
 
@@ -191,6 +191,7 @@ public final class SerialComManager {
 			osType = OS_SOLARIS;
 		}else if(osNameMatch.contains("mac os") || osNameMatch.contains("macos") || osNameMatch.contains("darwin")) {
 			osType = OS_MAC_OS_X;
+		}else {
 		}
 
 		mErrMapper = new SerialComErrorMapper();
@@ -279,15 +280,14 @@ public final class SerialComManager {
 			throw new IllegalArgumentException("openComPort(), " + SerialComErrorMapper.ERR_PORT_NAME_FOR_PORT_OPENING);
 		}
 		if((enableRead == false) && (enableWrite == false)) {
-			throw new SerialComException(portName, "openComPort()",  "Enable read, write or both.");
+			throw new SerialComException(portName, "openComPort()",  "Enable at-least read, write or both.");
 		}
 
-		/* Try to reduce transitions from java to jni layer if possible */
+		/* Try to reduce transitions from java to JNI layer as it is possible here by performing check in java layer itself. */
 		if(exclusiveOwnerShip == true) {
 			for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
 				if(mInfo.containsPort(portName)) {
-					System.out.println("The requested port " + portName + " is already opened.");
-					return -1; // let application be not only aware of this but re-think its design
+					throw new SerialComException(portName, "openComPort()", SerialComErrorMapper.ERR_PORT_ALREADY_OPEN);
 				}
 			}
 		}

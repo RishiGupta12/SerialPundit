@@ -22,6 +22,7 @@ package com.embeddedunveiled.serial;
  */
 
 public final class SerialComErrorMapper {
+	public static final String ERR_PORT_ALREADY_OPEN = "The requested port is already opened.";
 	public static final String ERR_SCM_DOES_NOT_INSTANTIATED = "SerialComManager class has to be instantiated first.";
 	public static final String ERR_SCM_NOT_STORE_PORTINFO = "Could not save info about port locally. Please retry opening port.";
 	public static final String ERR_UNABLE_TO_DETECT_OS_TYPE = "Unable to detect Operating System.";
