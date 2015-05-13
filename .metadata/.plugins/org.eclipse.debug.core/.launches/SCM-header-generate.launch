@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<launchConfiguration type="org.eclipse.ui.externaltools.ProgramLaunchConfigurationType">
+<stringAttribute key="org.eclipse.ui.externaltools.ATTR_LOCATION" value="/home/r/packages/jdk1.7.0_75/bin/javah"/>
+<stringAttribute key="org.eclipse.ui.externaltools.ATTR_TOOL_ARGUMENTS" value="-jni -v -d &quot;${workspace_loc}${system_property:file.separator}com.embeddedunveiled.native&quot; ${java_type_name} -classpath ${project_classpath}"/>
+<stringAttribute key="org.eclipse.ui.externaltools.ATTR_WORKING_DIRECTORY" value="${workspace_loc:/com.embeddedunveiled.serial/target/classes}"/>
+</launchConfiguration>

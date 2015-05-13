@@ -64,10 +64,19 @@ public class Test46 {
 			
 			int x = 0;
 			for(x=0; x<10; x++) {
-				scm.writeString(handle1, "qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq", 0);
+				scm.writeString(handle1, "qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq", 0);
 			}
 
+			Thread.sleep(1000); // let data reach physically to port and OS buffer it
 			byte[] data = null;
+			data = scm.readBytes(handle, 0);
+			System.out.println("req nuber of read 0, " + "got " + data.length);
+			data = scm.readBytes(handle, 1);
+			System.out.println("req nuber of read 1, " + "got " + data.length);
+			data = scm.readBytes(handle, 2);
+			System.out.println("req nuber of read 2, " + "got " + data.length);
+			data = scm.readBytes(handle, 3);
+			System.out.println("req nuber of read 3, " + "got " + data.length);
 			data = scm.readBytes(handle, 5);
 			System.out.println("req nuber of read 5, " + "got " + data.length);
 			data = scm.readBytes(handle, 9);
