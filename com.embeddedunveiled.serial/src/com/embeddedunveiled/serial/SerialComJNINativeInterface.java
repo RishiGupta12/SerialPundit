@@ -65,6 +65,7 @@ public final class SerialComJNINativeInterface {
 		InputStream input = null;
 		FileOutputStream output = null;
 
+		// Because we use same directory and file, we will not blow tmp directory out of space.
 		tmpDir = new File(SerialComManager.javaTmpDir);
 		if(!tmpDir.canWrite()) {
 			// we don't have write permission probably, so try using user's home directory 

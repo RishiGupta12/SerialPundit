@@ -190,7 +190,7 @@ void *data_looper(void *arg) {
 
 #if defined (__linux__)
 	errno = 0;
-	ret  = eventfd(0, O_NONBLOCK);
+	ret  = eventfd(0, EFD_NONBLOCK);
 	if(ret < 0) {
 		if(DBG) fprintf(stderr, "%s %d\n", "NATIVE data_looper() thread failed to create eventfd with error number : -", errno);
 		if(DBG) fprintf(stderr, "%s \n", "NATIVE data_looper() thread exiting. Please RETRY registering data listener !");
@@ -296,7 +296,8 @@ void *data_looper(void *arg) {
 		errno = 0;
 		ret = epoll_wait(epfd, events, MAXEVENTS, -1);
 		if(ret <= 0) {
-			/* for error (unlikely to happen) just restart looping. */
+			/* ret < 0 if error occurs, ret = 0 if no fd available for read.
+			 * for error (unlikely to happen) just restart looping. */
 			continue;
 		}
 #endif

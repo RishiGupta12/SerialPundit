@@ -29,11 +29,12 @@ import com.embeddedunveiled.serial.SerialComDataEvent;
 class Data implements ISerialComDataListener{
 	@Override
 	public void onNewSerialDataAvailable(SerialComDataEvent data) {
-		System.out.println("Read from serial port : " + new String(data.getDataBytes()) + "\n");
+		System.out.println("Read from serial port : " + new String(data.getDataBytes()));
 	}
 
 	@Override
 	public void onDataListenerError(int arg0) {
+		System.out.println("onDataListenerError : " + arg0);
 	}
 }
 
@@ -91,8 +92,7 @@ public class Test14 {
 			// close the port releasing handle
 			scm.closeComPort(handle);
 			scm.closeComPort(handle1);
-
-		} catch (Exception e) {
+		}catch (Exception e) {
 			e.printStackTrace();
 		}
 	}

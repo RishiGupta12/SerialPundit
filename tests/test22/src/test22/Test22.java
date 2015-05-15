@@ -18,6 +18,8 @@
 
 package test22;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import com.embeddedunveiled.serial.ISerialComEventListener;
 import com.embeddedunveiled.serial.SerialComLineEvent;
 import com.embeddedunveiled.serial.SerialComManager;
@@ -37,6 +39,7 @@ class Data0 implements ISerialComDataListener{
 
 	@Override
 	public void onDataListenerError(int arg0) {
+		System.out.println("onDataListenerError : " + arg0);
 	}
 }
 
@@ -48,6 +51,7 @@ class Data1 implements ISerialComDataListener{
 	
 	@Override
 	public void onDataListenerError(int arg0) {
+		System.out.println("onDataListenerError : " + arg0);
 	}
 }
 
@@ -55,13 +59,13 @@ class EventListener extends Test22 implements ISerialComEventListener {
 	@Override
 	public void onNewSerialEvent(SerialComLineEvent lineEvent) {
 		System.out.println("eventCTS : " + lineEvent.getCTS());
-		senddata = false;
+		senddata.set(false);
 	}
 }
 
 public class Test22 {
 
-	static boolean senddata = true;
+	protected static AtomicBoolean senddata = new AtomicBoolean(true);
 
 	public static void main(String[] args) {
 		try {
@@ -127,7 +131,7 @@ public class Test22 {
 			Thread.sleep(1000); // give delay so that send data gets updated
 
 			// Step 3 dce will receive event CTS and will start sending data.
-			if(senddata == true) {
+			if(senddata.get() == true) {
 				scm.writeString(DCE, "str3", 0);
 			}else {
 				System.out.println("seems like DTE is full");
@@ -137,9 +141,10 @@ public class Test22 {
 			scm.unregisterDataListener(DTE1);
 			scm.unregisterDataListener(DCE1);
 			scm.unregisterLineEventListener(eventListener);
+			Thread.sleep(200);
 			scm.closeComPort(DTE);
 			scm.closeComPort(DCE);
-		} catch (Exception e) {
+		}catch (Exception e) {
 			e.printStackTrace();
 		}
 	}

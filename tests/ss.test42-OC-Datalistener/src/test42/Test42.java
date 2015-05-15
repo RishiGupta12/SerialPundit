@@ -97,15 +97,44 @@ public class Test42 {
 				
 				// wait till data listener has received all the data
 				while(exit.get() == false) { 
-					Thread.sleep(500);
+					if(osType == SerialComManager.OS_LINUX) {
+						Thread.sleep(250);
+					}else if(osType == SerialComManager.OS_WINDOWS) {
+						Thread.sleep(600);
+					}else if(osType == SerialComManager.OS_MAC_OS_X) {
+						Thread.sleep(500);
+					}else if(osType == SerialComManager.OS_SOLARIS) {
+						Thread.sleep(500);
+					}else{
+					}
 					scm.writeString(handle1, "22222222222222222222", 0);
 				}
 				exit.set(false);                                     // reset flag
-				
+
 				System.out.println("main thread unregister : " + scm.unregisterDataListener(dataListener));
+				if(osType == SerialComManager.OS_LINUX) {
+					Thread.sleep(10);
+				}else if(osType == SerialComManager.OS_WINDOWS) {
+					Thread.sleep(500);
+				}else if(osType == SerialComManager.OS_MAC_OS_X) {
+					Thread.sleep(500);
+				}else if(osType == SerialComManager.OS_SOLARIS) {
+					Thread.sleep(500);
+				}else{
+				}
+				
 				scm.closeComPort(handle);
 				scm.closeComPort(handle1);
-				Thread.sleep(500);
+				if(osType == SerialComManager.OS_LINUX) {
+					Thread.sleep(10);
+				}else if(osType == SerialComManager.OS_WINDOWS) {
+					Thread.sleep(500);
+				}else if(osType == SerialComManager.OS_MAC_OS_X) {
+					Thread.sleep(500);
+				}else if(osType == SerialComManager.OS_SOLARIS) {
+					Thread.sleep(500);
+				}else{
+				}
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

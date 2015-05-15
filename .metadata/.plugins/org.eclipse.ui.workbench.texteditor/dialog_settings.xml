@@ -13,16 +13,16 @@
 		<item value="false" key="isRegEx"/>
 		<item value="false" key="incremental"/>
 		<item value="false" key="wholeword"/>
-		<item value="already opened" key="selection"/>
+		<item value="write" key="selection"/>
 		<list key="findhistory">
+			<item value="write"/>
+			<item value="getbytecoun"/>
+			<item value="getbytes"/>
+			<item value="setrts"/>
 			<item value="already opened"/>
 			<item value="DEBUG"/>
 			<item value="delete"/>
 			<item value="datalooper"/>
-			<item value="jvmm"/>
-			<item value="mEventLock"/>
-			<item value="mDataLock"/>
-			<item value="DeleteGlobalRef"/>
 		</list>
 		<list key="replacehistory">
 			<item value="DBG"/>

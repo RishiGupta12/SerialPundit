@@ -192,6 +192,7 @@ public final class SerialComManager {
 		}else if(osNameMatch.contains("mac os") || osNameMatch.contains("macos") || osNameMatch.contains("darwin")) {
 			osType = OS_MAC_OS_X;
 		}else {
+			//TODO
 		}
 
 		mErrMapper = new SerialComErrorMapper();
@@ -236,8 +237,8 @@ public final class SerialComManager {
 	 * more robust code.</p>
 	 * 
 	 * @return Available UART style ports name for windows, full path with name for Unix like OS, returns empty array if no ports found.
-	 */
-	public String[] listAvailableComPorts() {
+	 */ //TODO
+	public String[] listAvailableComPorts() throws SerialComException {
 		SerialComPortsList scpl = new SerialComPortsList(this.mNativeInterface);
 		String[] availablePorts = scpl.listAvailableComPorts();
 		if(availablePorts == null) {
@@ -365,6 +366,10 @@ public final class SerialComManager {
 	 * 2KB each.</p>
 	 * 
 	 * <p>Writing empty buffer i.e. zero length array is not allowed.</p>
+	 * 
+	 * <p>It should be noted that on Linux system reading from the terminal after a disconnect causes an end-of-file
+	 * condition, and writing causes an EIO error to be returned. The terminal device must be closed and reopened to
+	 * clear the condition.</p>
 	 * 
 	 * @param handle handle of the opened port on which to write bytes
 	 * @param buffer byte type buffer containing bytes to be written to port
@@ -817,7 +822,7 @@ public final class SerialComManager {
 	}
 
 	/**
-	 * <p>This method assert/de-assert RTS line of serial port. Set "true" for asserting signal, false otherwise.</p>
+	 * <p>This method assert/de-assert RTS line of serial port. Set "true" for asserting signal, false otherwise. This changes the state of RTS line electrically.</p>
 	 * 
 	 * <p>The RS-232 standard defines the voltage levels that correspond to logical one and logical zero levels for the data 
 	 * transmission and the control signal lines. Valid signals are either in the range of +3 to +15 volts or the range 
@@ -843,7 +848,7 @@ public final class SerialComManager {
 	}
 
 	/**
-	 * <p>This method assert/de-assert DTR line of serial port. Set "true" for asserting signal, false otherwise.</p>
+	 * <p>This method assert/de-assert DTR line of serial port. Set "true" for asserting signal, false otherwise. This changes the state of RTS line electrically.</p>
 	 * 
 	 * @param handle of the opened port
 	 * @param enabled if true DTR will be asserted and vice-versa
@@ -1300,11 +1305,11 @@ public final class SerialComManager {
 	 * in Unix like systems. Sequence of data in array is : Input count, Output count.</p>
 	 * 
 	 * <p>It should be noted that some chipset specially USB to UART converters might have FIFO buffers in chipset
-	 * itself. For this reason number of bytes reported by this method and actual bytes received might differ.
-	 * This is driver and OS specific scenario.</p>
+	 * itself. For example FT232R has internal buffers controlled by FIFO CONTROLLERS. For this reason this method
+	 * should be tested carefully if application is using USB-UART converters. This is driver and OS specific scenario.</p>
 	 * 
 	 * @param handle of the opened port
-	 * @return array containing number of bytes in input/output buffer
+	 * @return array containing number of bytes in input and output buffer
 	 * @throws SerialComException - if invalid handle is passed or operation can not be completed successfully
 	 */
 	public int[] getByteCountInPortIOBuffer(long handle) throws SerialComException {
