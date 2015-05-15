@@ -36,4 +36,12 @@ public final class SerialComDataEvent {
 	public byte[] getDataBytes() {
 		return mData;
 	}
+	
+	/**
+	 * <p>This method return length of data read from serial port.</p>
+	 * @return length of data read from serial port
+	 */
+	public int getDataBytesLength() {
+		return mData.length;
+	}
 }
