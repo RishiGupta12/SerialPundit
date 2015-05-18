@@ -933,7 +933,7 @@ public final class SerialComManager {
 	 * dynamically change the behavior of 'calling data listener' based on the amount of data availability.</p>
 	 * 
 	 * <p>Note: (1) If the port has been opened by more than one user, all the users will be affected by this method.
-	 * (2) This is not supported on Windows OS</p>
+	 * (2) This is not supported on Windows OS.</p>
 	 * 
 	 * @param handle of the opened port
 	 * @param numOfBytes minimum number of bytes that would have been read from port to pass to listener

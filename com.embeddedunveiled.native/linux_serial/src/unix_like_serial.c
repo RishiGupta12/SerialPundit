@@ -17,32 +17,9 @@
  ***************************************************************************************************/
 
 /* - This file contains native code to communicate with tty-style port in Unix-like operating systems.
- *
- * - These references have been used.
- *
- * For Linux:
- * <KERNEL_SOURCE>/drivers/tty/serial
- * <KERNEL_SOURCE>/include/linux/serial.h, serial_8250.h, serial_core.h
- * <KERNEL_SOURCE>/drivers/usb/serial
- *
- * For Mac OS:
- * https://developer.apple.com/library/mac/documentation/DeviceDrivers/Conceptual/WorkingWSerial/WWSerial_SerialDevs/SerialDevices.html
- * https://developer.apple.com/library/mac/documentation/Darwin/Reference/ManPages/man4/termios.4.html
- * https://developer.apple.com/library/mac/documentation/Cocoa/Conceptual/Multithreading/RunLoopManagement/RunLoopManagement.html
- * https://developer.apple.com/library/mac/documentation/CoreFoundation/Reference/CFRunLoopRef/index.html
- * https://developer.apple.com/library/mac/documentation/DeviceDrivers/Conceptual/AccessingHardware/AccessingHardware.pdf
- *
- * For Solaris:
- * http://docs.oracle.com/cd/E36784_01/html/E36884/termio-7i.html#REFMAN7termio-7i
- * http://docs.oracle.com/cd/E36784_01/html/E36873/termios.h-3head.html
- * http://docs.oracle.com/cd/E36784_01/html/E36874/termios-3c.html
- * http://docs.oracle.com/cd/E36784_01/html/E36884/termiox-7i.html
- *
  * - When printing error number, number returned by OS is printed as it is.
- *
  * - There will be only one instance of this shared library at runtime. So if something goes wrong
- *   it will affect everything, until this library has been unloaded and then loaded again.
- */
+ *   it will affect everything, until this library has been unloaded and then loaded again. */
 
 #if defined (__linux__) || defined (__APPLE__) || defined (__SunOS)
 
@@ -79,6 +56,7 @@
 #include <signal.h>
 #include <sys/uio.h>
 #endif
+
 
 #if defined (__APPLE__)
 #include <termios.h>
@@ -379,10 +357,10 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINati
  * Method:    openComPort
  * Signature: (Ljava/lang/String;ZZZ)J
  *
- * Open and initialise the port because 'termios' settings persist even if port has been closed.
+ * Open and initialize the port because 'termios' settings persist even if port has been closed.
  * We set default settings as; non-canonical mode, 9600 8N1 with no time out and no delay.
  * The terminal settings set here, are to operate in raw-like mode (no characters interpreted).
- * Note that all the bit mask are defined using OCTAL representation of number system.
+ * Note that all the bit mask may have been defined using OCTAL representation of number system.
  *
  */
 JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_openComPort(JNIEnv *env, jobject obj, jstring portName, jboolean enableRead, jboolean enableWrite, jboolean exclusiveOwner) {
@@ -390,14 +368,8 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInter
 	jlong fd = -1;
 	jint negative = -1;
 	jint OPEN_MODE = -1;
+	int n = 0;
 
-#if defined (__linux__)
-	struct termios2 settings = {0};
-#elif defined (__APPLE__) || defined (__SunOS)
-	struct termios settings = {0};
-#endif
-
-	memset(&settings, 0, sizeof(settings));
 	const char* portpath = (*env)->GetStringUTFChars(env, portName, NULL);
 	if(portpath == NULL) {
 		if(DBG) fprintf(stderr, "%s \n", "NATIVE openComPort() failed to create portpath string.");
@@ -413,8 +385,9 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInter
 		OPEN_MODE = O_WRONLY;
 	}
 
+	/* Don't become controlling terminal and do not wait for DCD line. */
 	errno = 0;
-	fd = open(portpath, OPEN_MODE | O_NOCTTY | O_NONBLOCK);
+	fd = open(portpath, OPEN_MODE | O_NDELAY | O_NOCTTY);
 	if(fd < 0) {
 		if(DBG) fprintf(stderr, "%s %d\n", "NATIVE openComPort() failed to open requested port with error number : -", errno);
 		if(DBG) fflush(stderr);
@@ -422,6 +395,10 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInter
 		return (negative * errno);
 	}
 	(*env)->ReleaseStringUTFChars(env, portName, portpath);
+
+	/* Enable blocking I/O behavior. */
+	n = fcntl(fd, F_GETFL, 0);
+	fcntl(fd, F_SETFL, n & ~O_NDELAY);
 
 	/* Make the caller, exclusive owner of this port. This will prevent additional opens except by root-owned process. */
 	if(exclusiveOwner == JNI_TRUE) {
@@ -431,102 +408,15 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInter
 		if(ret < 0) {
 			if(DBG) fprintf(stderr, "%s %d\n", "NATIVE openComPort() failed to become exclusive owner of port with error number : -", errno);
 			if(DBG) fflush(stderr);
+			close(fd);
 			return (negative * errno);
 		}
 #elif defined (__SunOS)
 		/* Exclusive ownership is not supported for Solaris as of now. */
+		close(fd);
 		return -241;
 #endif
 	}
-
-	/* Control options :
-	 * CREAD and CLOCAL are enabled to make sure that the caller program does not become the owner of the
-	 * port subject to sporadic job control and hang-up signals, and also that the serial interface driver
-	 * will read incoming bytes. CLOCAL results in ignoring modem status lines while CREAD enables receiving
-	 * data. CRTSCTS indicates no hardware flow control. Note that CLOCAL need always be set to prevent
-	 * undesired effects of SIGNUP SIGNAL.
-	 */
-	settings.c_cflag &= ~CRTSCTS;                                   /* Not is POSIX, requires _BSD_SOURCE */
-	settings.c_cflag &= ~CSIZE;
-	settings.c_cflag &= ~PARENB;
-	settings.c_cflag &= ~CSTOPB;
-	settings.c_cflag |= (CS8 | CREAD | CLOCAL);
-	settings.c_cflag |= HUPCL;
-#if defined (__APPLE__)
-	settings.c_cflag &= ~MDMBUF;   /* flow control output via Carrier */
-#endif
-
-	/* Control characters :
-	 * Return immediately if no data is available on read() call and no time out value. */
-	settings.c_cc[VMIN] = 1;
-	settings.c_cc[VTIME] = 1;
-
-	/* Input options :
-	 * IMAXBEL : ring bell on input queue full, IGNBRK : Ignore break conditions, BRKINT : map BREAK to SIGINTR,
-	 * PARMRK : mark parity and framing errors, ISTRIP : strip 8th bit off chars, INLCR : Don't Map NL to CR,
-	 * IGNCR : ignore CR, ICRNL : Don't Map CR to NL, IXON : enable output flow control */
-	settings.c_iflag &= ~(BRKINT | PARMRK | ISTRIP | INLCR | IGNCR | ICRNL | IXON | IXOFF | IXANY | INPCK | IGNPAR);
-	settings.c_iflag |= IGNBRK;
-#ifdef IUCLC
-	settings.c_iflag &= ~IUCLC;  /* translate upper case to lower case */
-#endif
-
-	/* Output options :
-	 * OPOST : No output processing, ONLCR : Don't convert line feeds , OXTABS : expand tabs to spaces,
-	 * OCRNL : map CR to NL, ONOCR : No CR output at column 0, ONLRET : NL performs CR function.*/
-	settings.c_oflag &= ~(OPOST | ONLCR | OCRNL | ONOCR | ONLRET);
-#ifdef OXTABS
-	settings.c_oflag &= ~OXTABS;  /* expand tabs to spaces */
-#endif
-#ifdef ONOEOT
-	settings.c_oflag &= ~ONOEOT;  /* discard EOT's `^D' on output */
-#endif
-
-
-	/* Line options :
-	 * Non-canonical mode is enabled. Do not echo. */
-	settings.c_lflag &= ~(ECHO | ECHOE | ECHOK | ECHONL | ECHOCTL | ECHOPRT | ECHOKE | ICANON | ISIG | IEXTEN);
-
-#if defined (__linux__)
-	/* Line discipline */
-	settings.c_line = 0;
-#endif
-
-	/* Set 9600 baud per second as default baud rate and apply settings to specified tty port. */
-#if defined (__linux__)
-	settings.c_ispeed = B9600;
-	settings.c_ospeed = B9600;
-
-	errno = 0;
-	ret = ioctl(fd, TCSETS2, &settings);
-	if(ret < 0) {
-		if(DBG) fprintf(stderr, "%s %d\n", "NATIVE openComPort() failed to set default terminal settings with error number : -", errno);
-		if(DBG) fflush(stderr);
-		return (negative * errno);
-	}
-
-	/* Clear port IO buffers. */
-	ioctl(fd, TCFLSH, TCIOFLUSH);
-
-#elif defined (__APPLE__) || defined (__SunOS)
-	errno = 0;
-	ret = cfsetspeed(&settings, B9600);
-	if(ret < 0) {
-		if(DBG) fprintf(stderr, "%s %d\n", "NATIVE openComPort() failed to set default baud rate setting with error number : -", errno);
-		if(DBG) fflush(stderr);
-		return (negative * errno);
-	}
-
-	errno = 0;
-	ret  = tcsetattr(fd, TCSANOW, &settings);
-	if(ret < 0) {
-		if(DBG) fprintf(stderr, "%s %d\n", "NATIVE openComPort() failed to set default terminal settings with error number : -", errno);
-		if(DBG) fflush(stderr);
-		return (negative * errno);
-	}
-
-	tcflush(fd, TCIOFLUSH);
-#endif
 
 	return fd;
 }
@@ -747,10 +637,10 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 	}else {
 		while(count > 0) {
 			errno = 0;
-			ret = write(fd, &data_buf[index], count);
+			ret = write(fd, &data_buf[index], 1);
 			if(ret < 0) {
-				if((errno == EINTR) || (errno == EAGAIN)) {
-					serial_delay(20); // 20 milliseconds delay
+				if(errno == EINTR) {
+					serial_delay(delay);
 					continue;
 				}else {
 					if(DBG) fprintf(stderr, "%s%d\n", "NATIVE writeBytes() failed to write requested data with error number : -", errno);
@@ -761,6 +651,8 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 			}
 			count -= ret;
 			index = index + ret;
+			tcdrain(fd);         // flush even single byte out of serial port physically
+			serial_delay(delay); // use supplied delay between bytes in milliseconds
 		}
 	}
 
@@ -916,16 +808,16 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 		break;
 		}
 #if defined (__linux__)
-				currentconfig.c_ispeed = baud;
-currentconfig.c_ospeed = baud;
+		currentconfig.c_ispeed = baud;
+		currentconfig.c_ospeed = baud;
 #elif defined (__APPLE__) || defined (__SunOS)
-				errno = 0;
-ret = cfsetspeed(&currentconfig, baud);
-if(ret < 0) {
-	if(DBG) fprintf(stderr, "%s%d\n", "NATIVE configureComPortData() failed to set desired terminal settings with error number : -", errno);
-	if(DBG) fflush(stderr);
-	return (negative * errno);
-}
+		errno = 0;
+		ret = cfsetspeed(&currentconfig, baud);
+		if(ret < 0) {
+			if(DBG) fprintf(stderr, "%s%d\n", "NATIVE configureComPortData() failed to set desired terminal settings with error number : -", errno);
+			if(DBG) fflush(stderr);
+			return (negative * errno);
+		}
 #endif
 	}
 
@@ -1059,9 +951,44 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 	}
 #endif
 
+	/* Output options :
+	 * raw output, no processing at all. */
+	currentconfig.c_oflag = 0;
+
+	/* Line options :
+	 * Non-canonical mode is enabled, echo nothing, deliver no sognals. */
+	currentconfig.c_lflag = 0;
+
+#if defined (__linux__)
+	/* Line discipline */
+	currentconfig.c_line = 0;
+#endif
+
+	/* Control options :
+	 * CREAD and CLOCAL are enabled to make sure that the caller program does not become the owner of the
+	 * port subject to sporadic job control and hang-up signals, and also that the serial interface driver
+	 * will read incoming bytes. CLOCAL results in ignoring modem status lines while CREAD enables receiving
+	 * data.Note that CLOCAL need always be set to prevent undesired effects of SIGNUP SIGNAL. */
+	currentconfig.c_cflag |= (CREAD | CLOCAL);
+
+	/* Input options :
+	 * IMAXBEL : ring bell on input queue full, IGNBRK : Ignore break conditions, BRKINT : map BREAK to SIGINTR,
+	 * PARMRK : mark parity and framing errors, ISTRIP : strip 8th bit off chars, INLCR : Don't Map NL to CR,
+	 * IGNCR : ignore CR, ICRNL : Don't Map CR to NL, IXON : enable output flow control */
+	currentconfig.c_iflag &= ~(BRKINT | PARMRK | ISTRIP | INLCR | IGNCR);
+	currentconfig.c_iflag &= ~(ICRNL | IXON | IXOFF | IXANY | INPCK | IGNPAR);
+	currentconfig.c_iflag |= IGNBRK;
+#ifdef IUCLC
+	currentconfig.c_iflag &= ~IUCLC;  /* translate upper case to lower case */
+#endif
+
+	/* blocking read with 100ms timeout (VTIME *0.1 seconds). */
+	currentconfig.c_cc[VTIME] = 1;
+	currentconfig.c_cc[VMIN] = 0;
+
 	/* Set flow control. The CRTSCTS for Solaris enables outbound hardware flow control if set, while for Linux and Mac enables both inbound and outbound. */
 	if(flowctrl == 1) {                                    /* NO FLOW CONTROL. */
-		currentconfig.c_iflag &= ~(IXON | IXOFF);
+		currentconfig.c_iflag &= ~(IXON | IXOFF | IXANY);
 #if defined (__linux__)
 		currentconfig.c_cflag &= ~CRTSCTS;
 #endif

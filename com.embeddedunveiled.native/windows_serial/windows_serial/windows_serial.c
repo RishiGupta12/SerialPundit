@@ -16,32 +16,6 @@
 *
 *************************************************************************************************************/
 
-/**************************************************************************************************************
-* Native code to communicate with UART-style port in Windows OS
-*
-* More info can be found here :-
-* Data types for Windows API  : http://msdn.microsoft.com/en-us/library/windows/desktop/aa383751(v=vs.85).aspx
-* System Error Codes          : http://msdn.microsoft.com/en-us/library/windows/desktop/ms681382(v=vs.85).aspx
-* Communications Reference    : http://msdn.microsoft.com/en-us/library/aa363195.aspx
-* Serial Communications       : http://msdn.microsoft.com/en-us/library/ff802693.aspx
-* Locking and synchronisation : http://msdn.microsoft.com/en-us/library/windows/desktop/ms686927(v=vs.85).aspx
-* Thread programming          : http://msdn.microsoft.com/en-us/library/windows/desktop/ms682453(v=vs.85).aspx
-* Examples at msdn            : http://msdn.microsoft.com/en-us/library/windows/desktop/bb540534(v=vs.85).aspx
-* Synchronization Functions   : http://msdn.microsoft.com/en-us/library/windows/desktop/ms686360(v=vs.85).aspx
-* IOCTL requests              : https://msdn.microsoft.com/en-us/library/windows/hardware/ff547466(v=vs.85).aspx
-* Hot plug                    : https://msdn.microsoft.com/en-us/library/ms644928(VS.85).aspx
-*
-* - Minimize transition from Java to JNI whenever possible for performance reason.
-* - When printing error number (using fprintf()), number returned by Windows OS is printed as it is by this library.
-* - windows header files are in include directory of MinGW tool chain.
-* - toolchain integration and concepts :
-* http://help.eclipse.org/kepler/index.jsp?topic=%2Forg.eclipse.cdt.doc.user%2Fconcepts%2Fcdt_c_before_you_begin.htm&cp=9_0
-* - sample code by microsoft at code.msdn.microsoft.com
-* https://code.msdn.microsoft.com/windowsdesktop/Serial-Port-Sample-e8accf30/sourcecode?fileId=67164&pathId=1394200469
-* - get details about java on your computer https://www.java.com/en/download/help/win_controlpanel.xml
-* - With Visual C++, STRICT type checking is defined by default.
-***************************************************************************************************************/
-
 /* stdafx.h must come as first include file if you are using precompiled headers and Microsoft compiler. */
 #include "stdafx.h"
 #include <stdio.h>

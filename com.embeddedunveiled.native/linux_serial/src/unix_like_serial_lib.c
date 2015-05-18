@@ -295,6 +295,10 @@ void *data_looper(void *arg) {
 #if defined (__linux__)
 		errno = 0;
 		ret = epoll_wait(epfd, events, MAXEVENTS, -1);
+
+		if(DBG) fprintf(stderr, "%s == %d == %d\n", "epoll : ", 4, 4);
+		if(DBG) fflush(stderr);
+
 		if(ret <= 0) {
 			/* ret < 0 if error occurs, ret = 0 if no fd available for read.
 			 * for error (unlikely to happen) just restart looping. */

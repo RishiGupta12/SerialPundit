@@ -1,14 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <section name="Workbench">
+	<item value="Default C source template" key="LastUsedSourceTemplate"/>
 	<section name="completion_proposal_size">
-	</section>
-	<section name="org.eclipse.cdt.internal.ui.text.QuickOutline">
-		<item value="874" key="org.eclipse.cdt.internal.ui.text.COutlineInformationControlDIALOG_X_ORIGIN"/>
-		<item value="363" key="org.eclipse.cdt.internal.ui.text.COutlineInformationControlDIALOG_HEIGHT"/>
-		<item value="452" key="org.eclipse.cdt.internal.ui.text.COutlineInformationControlDIALOG_Y_ORIGIN"/>
-		<item value="true" key="org.eclipse.cdt.internal.ui.text.COutlineInformationControlDIALOG_USE_PERSISTED_SIZE"/>
-		<item value="396" key="org.eclipse.cdt.internal.ui.text.COutlineInformationControlDIALOG_WIDTH"/>
-		<item value="true" key="org.eclipse.cdt.internal.ui.text.COutlineInformationControlDIALOG_USE_PERSISTED_LOCATION"/>
 	</section>
 	<section name="org.eclipse.cdt.ui.text.hover.CMacroExpansionExploration">
 	</section>

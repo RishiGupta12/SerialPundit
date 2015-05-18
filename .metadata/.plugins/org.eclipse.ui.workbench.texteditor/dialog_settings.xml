@@ -2,32 +2,29 @@
 <section name="Workbench">
 	<section name="org.eclipse.ui.texteditor.FindReplaceDialog_dialogBounds">
 		<item value="315" key="DIALOG_WIDTH"/>
-		<item value="387" key="DIALOG_Y_ORIGIN"/>
-		<item value="1413" key="DIALOG_X_ORIGIN"/>
+		<item value="233" key="DIALOG_Y_ORIGIN"/>
 		<item value="448" key="DIALOG_HEIGHT"/>
+		<item value="1358" key="DIALOG_X_ORIGIN"/>
 		<item value="1|Ubuntu|11.0|0|GTK|1|" key="DIALOG_FONT_NAME"/>
 	</section>
 	<section name="org.eclipse.ui.texteditor.FindReplaceDialog">
 		<item value="true" key="wrap"/>
-		<item value="false" key="casesensitive"/>
 		<item value="false" key="isRegEx"/>
+		<item value="false" key="casesensitive"/>
 		<item value="false" key="incremental"/>
 		<item value="false" key="wholeword"/>
-		<item value="write" key="selection"/>
+		<item value="VMIN" key="selection"/>
 		<list key="findhistory">
-			<item value="write"/>
-			<item value="getbytecoun"/>
-			<item value="getbytes"/>
-			<item value="setrts"/>
-			<item value="already opened"/>
-			<item value="DEBUG"/>
-			<item value="delete"/>
-			<item value="datalooper"/>
+			<item value="VMIN"/>
+			<item value="CLOCAL"/>
+			<item value="c_cflag"/>
+			<item value="poll"/>
+			<item value="pollh"/>
+			<item value="pollhu"/>
+			<item value="pollhup"/>
+			<item value="vmin"/>
 		</list>
 		<list key="replacehistory">
-			<item value="DBG"/>
-			<item value="CONNECT"/>
-			<item value="fileToProcess"/>
 		</list>
 	</section>
 </section>

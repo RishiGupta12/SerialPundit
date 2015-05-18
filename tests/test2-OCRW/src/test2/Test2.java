@@ -31,15 +31,20 @@ public final class Test2 {
 			SerialComManager scm = new SerialComManager();
 
 			String PORT = null;
+			String PORT1 = null;
 			int osType = SerialComManager.getOSType();
 			if(osType == SerialComManager.OS_LINUX) {
 				PORT = "/dev/ttyUSB0";
+				PORT1 = "/dev/ttyUSB1";
 			}else if(osType == SerialComManager.OS_WINDOWS) {
 				PORT = "COM51";
+				PORT1 = "COM52";
 			}else if(osType == SerialComManager.OS_MAC_OS_X) {
 				PORT = "/dev/cu.usbserial-A70362A3";
+				PORT1 = "/dev/cu.usbserial-A602RDCH";
 			}else if(osType == SerialComManager.OS_SOLARIS) {
 				PORT = null;
+				PORT1 = null;
 			}else{
 			}
 
@@ -51,18 +56,62 @@ public final class Test2 {
 
 			// configure line control related parameters
 			scm.configureComPortControl(handle, FLOWCONTROL.NONE, 'x', 'x', false, false);
+			
 
-			// try to send data out of serial port
-			if(scm.writeString(handle, "testing hello", 0) == true) {
-				System.out.println("write success \n");
+			long handle1 = scm.openComPort(PORT1, true, true, true);
+			scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
+			scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+			
+			// test single byte
+			if(scm.writeString(handle, "1", 0) == true) {
+				System.out.println("write success 1 byte");
 			}
+			Thread.sleep(1000);
+			String data = scm.readString(handle1);
+			System.out.println("data read for 1 byte is : " + data);
+			
+			// test 2 byte
+			if(scm.writeString(handle, "22", 0) == true) {
+				System.out.println("write success 2 byte");
+			}
+			Thread.sleep(1000);
+			data = scm.readString(handle1);
+			System.out.println("data read for 2 byte is : " + data);
+			
+			// test 3 byte
+			if(scm.writeString(handle, "333", 0) == true) {
+				System.out.println("write success 3 byte");
+			}
+			Thread.sleep(1000);
+			data = scm.readString(handle1);
+			System.out.println("data read for 3 byte is : " + data);
+			
+			// test 4 byte
+			if(scm.writeString(handle, "4444", 0) == true) {
+				System.out.println("write success 4 byte");
+			}
+			Thread.sleep(1000);
+			data = scm.readString(handle1);
+			System.out.println("data read for 4 byte is : " + data);
+			
+			// test 5 byte
+			if(scm.writeString(handle, "55555", 0) == true) {
+				System.out.println("write success 5 byte");
+			}
+			Thread.sleep(1000);
+			data = scm.readString(handle1);
+			System.out.println("data read for 5 byte is : " + data);
+			
+			// test 10 byte
+			if(scm.writeString(handle, "1000000000", 0) == true) {
+				System.out.println("write success 10 byte");
+			}
+			Thread.sleep(1000);
+			data = scm.readString(handle1);
+			System.out.println("data read for 10 byte is : " + data);
 
-			// try to read data from serial port
-			String data = scm.readString(handle);
-			System.out.println("data read is :" + data);
-
-			// close serial port
 			scm.closeComPort(handle);
+			scm.closeComPort(handle1);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
