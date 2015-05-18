@@ -118,7 +118,7 @@ struct port_info port_monitor_info[MAX_NUM_THREADS] = { {0} };
 struct port_name_owner opened_ports_list[MAX_NUM_THREADS] = { {0} };
 #endif
 
-/* Kept for DBGging and testing only. We do not want to use any JNI/JVM/JAVA specific mechanism.
+/* Kept for Debugging and testing only. We do not want to use any JNI/JVM/JAVA specific mechanism.
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *pvt) {
 	fprintf(stderr, "%s \n", "JNI_OnLoad");
 	fflush(stderr);
@@ -482,10 +482,9 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
  * We modify status field of SerialComReadStatus object if read fails due to any error, EOF is reached or port is removed
  * from system. To maintain performance, we extract field ID (object that carries error details) only when error occurs.
  *
- * 1. If data is read from serial port and no error occurs, return array of bytes
- * 2. If there is no data to read from serial port and no error occurs, return NULL
- * 3. If EOF is encountered, return NULL and set status variable to 2
- * 4. If error occurs for whatever reason, return NULL and set status variable to Linux/Mac specific error number
+ * 1. If data is read from serial port and no error occurs, return array of bytes.
+ * 2. If there is no data to read from serial port and no error occurs, return NULL.
+ * 3. If error occurs for whatever reason, return NULL and set status variable to Linux/Mac specific error number.
  *
  * The number of bytes return can be less than the request number of bytes but can never be greater than the requested
  * number of bytes. This is implemented using total_read variable. Size request should not be more than 2048.
@@ -539,10 +538,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINative
 			partial_data = 1;
 			continue;
 		}else if(ret < 0) {
-			if(errno == EAGAIN || errno == EWOULDBLOCK) {
-				/* This indicates, there was no data to read, return null. */
-				return NULL;
-			}else if(errno == EINTR) {
+			if(errno == EINTR) {
 				/* This indicates that we should retry as we are just interrupted by a signal. */
 				continue;
 			}else {
@@ -570,28 +566,10 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINative
 				return NULL;
 			}
 		}else if(ret == 0) {
-			/* This indicates, EOF or port is removed from system */
-			jclass statusClass = (*env)->GetObjectClass(env, status);
-			if(statusClass == NULL) {
-				if(DBG) fprintf(stderr, "%s \n", "NATIVE readBytes() could not get class of object of type SerialComReadStatus !");
-				if(DBG) fflush(stderr);
-				return NULL;
-			}
-
-			jfieldID status_fid = (*env)->GetFieldID(env, statusClass, "status", "I");
-			if(status_fid == NULL) {
-				if(DBG) fprintf(stderr, "%s \n", "NATIVE readBytes() failed to retrieve field id of field status in class SerialComReadStatus !");
-				if(DBG) fflush(stderr);
-				return NULL;
-			}
-			if((*env)->ExceptionOccurred(env)) {
-				LOGE(env);
-			}
-
-			(*env)->SetIntField(env, status, status_fid, 2); // 2 is custom value we selected to indicate this case
+			/* This indicates, no data on port, EOF or port is removed from system (may be). */
 			return NULL;
 		}else {
-			/* do nothing */
+			/* do nothing, relax :) */
 		}
 	} while(1);
 
@@ -621,8 +599,8 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 			errno = 0;
 			ret = write(fd, &data_buf[index], count);
 			if(ret < 0) {
-				if((errno == EINTR) || (errno == EAGAIN)) {
-					serial_delay(20); // 20 milliseconds delay
+				if(errno == EINTR) {
+					serial_delay(20); // 20 milliseconds delay just to let the cause of signal go away
 					continue;
 				}else {
 					if(DBG) fprintf(stderr, "%s%d\n", "NATIVE writeBytes() failed to write requested data with error number : -", errno);

@@ -575,21 +575,9 @@ public final class SerialComManager {
 	}
 
 	/** 
-	 * <p>Read specified number of bytes from serial port. Returns array of bytes read from port, empty array of bytes
-	 * if there was no data in serial port, null if EOF encountered or port removed from system.</p>
-	 * 
-	 * <p>Application can call this method even when they have registered a listener. Note that, we do not prevent
-	 * caller from reading port even if he has registered a event listener for specified port. There may be cases
-	 * where caller wants to read asynchronously outside the listener. It is callers responsibility to manage 
-	 * complexity associated with this use case.</p>
-	 * 
+	 * <p>Read specified number of bytes from serial port.</p>
 	 * <p>1. If data is read from serial port, array of bytes containing data is returned.</p>
 	 * <p>2. If there was no data in serial port to read, empty array is returned.</p>
-	 * <p>3. If EOF encountered, null is returned.</p>
-	 * <p>4. If an error occurs exception will be thrown.</p>
-	 * 
-	 * <p>Note that on Linux systems EOF is received if USB-UART converter is physically removed from system. It is due to
-	 * this reason developers are advised not to use EOF i.e. null value in their application design.</p>
 	 * 
 	 * <p>The number of bytes to read must be greater than or equal to 1 and less than or equal to 2048 (1 <= byteCount <= 2048).
 	 * This method may return less than the requested number of bytes due to reasons like, there is less data in operating system
@@ -597,7 +585,7 @@ public final class SerialComManager {
 	 * 
 	 * @param handle of the port from which to read bytes
 	 * @param byteCount number of bytes to read from this port
-	 * @return array of bytes, empty array (zero length), null if EOF encountered as described.
+	 * @return array of bytes or empty array (zero length).
 	 * @throws SerialComException - if an I/O error occurs.
 	 */
 	public byte[] readBytes(long handle, int byteCount) throws SerialComException {
@@ -613,9 +601,7 @@ public final class SerialComManager {
 		// reaching here means JNI layer passed null indicating either no data read or error
 		if(retStatus.status == 1) {
 			return new byte[]{};               // serial port does not have any data
-		}else if(retStatus.status == 2) {
-			return null;                       // EOF or port removed
-		}else if(retStatus.status < 0) {       // error occurred
+		}else if(retStatus.status < 0) {
 			throw new SerialComException("reading", mErrMapper.getMappedError(retStatus.status));
 		}else {
 		}

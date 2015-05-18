@@ -424,10 +424,9 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
  * Default number of bytes to read is set to 1024 in java layer. To maintain performance, we extract field ID
  * (object that carries error details) only when error occurs.
  * 
- * 1. If data is read from serial port and no error occurs, return array of bytes
- * 2. If there is no data to read from serial port and no error occurs, return NULL
- * 3. If EOF is encountered, return NULL and set status variable to 2
- * 4. If error occurs for whatever reason, return NULL and set status variable to Windows specific error number
+ * 1. If data is read from serial port and no error occurs, return array of bytes.
+ * 2. If there is no data to read from serial port and no error occurs, return NULL.
+ * 3. If error occurs for whatever reason, return NULL and set status variable to Linux/Mac specific error number.
  * 
  * The number of bytes return can be less than the request number of bytes but can never be greater than the requested
  * number of bytes. This is implemented using total_read variable. 1 <= Size request <= 2048 
@@ -596,6 +595,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINative
 			return NULL;
 		}
 	}else if(ret > 0) {
+		/* This indicates we got success and have read data in first go itself. */
 		data_read = (*env)->NewByteArray(env, num_of_bytes_read);
 		(*env)->SetByteArrayRegion(env, data_read, 0, num_of_bytes_read, data_buf);
 		CloseHandle(overlapped.hEvent);
