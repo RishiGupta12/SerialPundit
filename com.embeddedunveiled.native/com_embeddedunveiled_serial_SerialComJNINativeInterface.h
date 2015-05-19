@@ -34,10 +34,10 @@ JNIEXPORT jboolean JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeIn
 /*
  * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
  * Method:    getSerialPortNames
- * Signature: ()[Ljava/lang/String;
+ * Signature: (Lcom/embeddedunveiled/serial/SerialComRetStatus;)[Ljava/lang/String;
  */
 JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_getSerialPortNames
-  (JNIEnv *, jobject);
+  (JNIEnv *, jobject, jobject);
 
 /*
  * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface

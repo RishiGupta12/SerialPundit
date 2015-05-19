@@ -1304,3 +1304,25 @@ java.util.ConcurrentModificationException
 	at org.eclipse.core.internal.resources.Workspace.build(Workspace.java:405)
 	at org.eclipse.ui.actions.GlobalBuildAction$1.run(GlobalBuildAction.java:180)
 	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:54)
+!SESSION 2015-05-19 09:35:30.419 -----------------------------------------------
+eclipse.buildId=4.4.2.M20150204-1700
+java.version=1.7.0_75
+java.vendor=Oracle Corporation
+BootLoader constants: OS=linux, ARCH=x86_64, WS=gtk, NL=en_IN
+Framework arguments:  -product org.eclipse.epp.package.java.product
+Command-line arguments:  -os linux -ws gtk -arch x86_64 -clean -product org.eclipse.epp.package.java.product
+
+!ENTRY org.eclipse.debug.core 4 120 2015-05-19 11:12:51.234
+!MESSAGE Variable references empty selection: ${java_type_name}
+
+!ENTRY org.eclipse.debug.core 4 120 2015-05-19 11:13:00.574
+!MESSAGE The selected resource does not resolve to a Java element
+
+!ENTRY org.eclipse.debug.core 4 120 2015-05-19 11:15:20.421
+!MESSAGE Variable references empty selection: ${java_type_name}
+
+!ENTRY org.eclipse.debug.core 4 120 2015-05-19 11:15:24.066
+!MESSAGE Variable references empty selection: ${java_type_name}
+
+!ENTRY org.eclipse.debug.core 4 120 2015-05-19 11:15:34.315
+!MESSAGE The selected resource does not resolve to a Java element

@@ -110,11 +110,12 @@ public final class SerialComPortsList {
 	 * 
 	 * @return array of ports found on system
 	 */
-	public String[] listAvailableComPorts() {
+	public String[] listAvailableComPorts(SerialComRetStatus retStatus) {
 		if(SerialComManager.getOSType() != SerialComManager.OS_SOLARIS) {
+			
 			// For Linux, Mac, Windows get list from native library
 			ArrayList<String> portsIdentified = new ArrayList<String>();
-			String[] ports = mNativeInterface.getSerialPortNames();
+			String[] ports = mNativeInterface.getSerialPortNames(retStatus);
 			if(ports != null) {
 				for(String portName : ports){
 					portsIdentified.add(portName);
@@ -122,8 +123,10 @@ public final class SerialComPortsList {
 				Collections.sort(portsIdentified, comparator);
 				return portsIdentified.toArray(new String[portsIdentified.size()]);
 			}
-			return new String[]{};
+			return null;
+			
 		} else {
+			
 			// For Solaris match the pre-known pattern for names
 			String[] portsIdentified = new String[]{};
 			File dir = new File(Sol_search_path);
@@ -139,12 +142,13 @@ public final class SerialComPortsList {
 					}
 					portsIdentified = portsTree.toArray(portsIdentified); // return our findings
 				} else {
-					return new String[]{}; // no ports exist
+					return null; // no ports exist
 				}
 			} else {
-				return new String[]{}; // The look up path directory either does not exist or is not directory
+				return null; // The look up path directory either does not exist or is not directory
 			}
 			return portsIdentified;
+			
 		}
 	}
 }
