@@ -13,16 +13,16 @@
 		<item value="false" key="casesensitive"/>
 		<item value="false" key="incremental"/>
 		<item value="false" key="wholeword"/>
-		<item value="VMIN" key="selection"/>
+		<item value="Rishi" key="selection"/>
 		<list key="findhistory">
+			<item value="rishi"/>
+			<item value="epoll :"/>
+			<item value="deb"/>
+			<item value="debug"/>
+			<item value="debugg"/>
 			<item value="VMIN"/>
 			<item value="CLOCAL"/>
 			<item value="c_cflag"/>
-			<item value="poll"/>
-			<item value="pollh"/>
-			<item value="pollhu"/>
-			<item value="pollhup"/>
-			<item value="vmin"/>
 		</list>
 		<list key="replacehistory">
 		</list>

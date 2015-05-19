@@ -17,8 +17,7 @@
  ***************************************************************************************************/
 
 /* We have tried to follow the philosophy that resources specific to thread should be held by thread
- * and that the thread is responsible for cleaning them before exiting. As appropriate a policy is
- * followed that if listener exist and port is removed, CPU usage does not go very high. */
+ * and that the thread is responsible for cleaning them before exiting. */
 
 #if defined (__linux__) || defined (__APPLE__) || defined (__SunOS)
 
@@ -296,6 +295,10 @@ void *data_looper(void *arg) {
 #if defined (__linux__)
 		errno = 0;
 		ret = epoll_wait(epfd, events, MAXEVENTS, -1);
+
+		if(DBG) fprintf(stderr, "%s == %d == %d\n", "epoll : ", 4, 4);
+		if(DBG) fflush(stderr);
+
 		if(ret <= 0) {
 			/* ret < 0 if error occurs, ret = 0 if no fd available for read.
 			 * for error (unlikely to happen) just restart looping. */

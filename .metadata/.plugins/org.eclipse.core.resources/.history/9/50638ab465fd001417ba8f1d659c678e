@@ -240,8 +240,7 @@ public final class SerialComManager {
 	 */ //TODO
 	public String[] listAvailableComPorts() throws SerialComException {
 		SerialComPortsList scpl = new SerialComPortsList(this.mNativeInterface);
-		SerialComReadStatus retStatus = new SerialComReadStatus(1);
-		String[] availablePorts = scpl.listAvailableComPorts(retStatus);
+		String[] availablePorts = scpl.listAvailableComPorts();
 		if(availablePorts == null) {
 			return new String[]{};
 		}
