@@ -43,6 +43,9 @@ int setupLooperThread(JNIEnv *env, jobject obj, jlong handle, jobject looper_obj
 #undef  UART_NATIVE_LIB_VERSION
 #define UART_NATIVE_LIB_VERSION "1.0.2"
 
+#define CommInQueSize 8192
+#define CommOutQueSize 3072
+
 /* Reference to JVM shared among all the threads within a process. */
 JavaVM *jvm;
 
@@ -320,6 +323,11 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInter
 
 	/* Clear the device's communication error flag if set previously due to any reason. */
 	ClearCommError(hComm, &dwerror, &comstat);
+	
+	/* Set up input/output buffer sizes. Specify the recommended sizes for the internal buffers used
+	   by the driver for the specified device. The device driver receives the recommended buffer sizes,
+	   but is free to use any input and output (I/O) buffering scheme. */
+	SetupComm(hComm, CommInQueSize, CommOutQueSize);
 
 	/* Make sure that the device we are going to operate on, is a valid serial port. */
 	SecureZeroMemory(&dcb, sizeof(DCB));
