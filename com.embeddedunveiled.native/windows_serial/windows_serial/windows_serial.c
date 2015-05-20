@@ -24,6 +24,7 @@
 #include <windows.h>
 #include <process.h>
 #include <tchar.h>
+
 #include <jni.h>
 #include "windows_serial_lib.h"
 
@@ -40,7 +41,7 @@ int setupLooperThread(JNIEnv *env, jobject obj, jlong handle, jobject looper_obj
 #define DBG 1
 
 #undef  UART_NATIVE_LIB_VERSION
-#define UART_NATIVE_LIB_VERSION "1.0.1"
+#define UART_NATIVE_LIB_VERSION "1.0.2"
 
 /* Reference to JVM shared among all the threads within a process. */
 JavaVM *jvm;
@@ -94,7 +95,6 @@ BOOL WINAPI DllMain(HANDLE hModule, DWORD ul_reason_for_call, LPVOID lpReserved)
 */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_initNativeLib(JNIEnv *env, jobject obj) {
 	int ret = 0;
-
 	ret = (*env)->GetJavaVM(env, &jvm);
 	if(ret < 0) {
 		if(DBG) fprintf(stderr, "%s \n", "NATIVE initNativeLib() could not get JVM.");
@@ -104,7 +104,6 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 
 	/* Initialise critical section (does not return any value). TODO DELETE WHEN UNLOADING LIBRARY*/
 	InitializeCriticalSection(&csmutex);
-
 	return 0;
 }
 
@@ -134,7 +133,7 @@ JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInt
 * In Linux/Mac where predefined fixed size array is used, maximum upto 1024 port scan be found and reported by this library. However in 
 * Windows there is no such limitation.
 */
-JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_getSerialPortNames(JNIEnv *env, jobject obj) {
+JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_getSerialPortNames(JNIEnv *env, jobject obj, jobject status) {
 	LONG result = 0;
 	HKEY hKey;
 	TCHAR achClass[MAX_PATH] = TEXT("");  /* buffer for class name       */
@@ -147,7 +146,9 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINati
 	DWORD cbMaxValueData;                 /* longest value data          */
 	DWORD cbSecurityDescriptor;           /* size of security descriptor */
 	FILETIME ftLastWriteTime;             /* last write time             */
-	DWORD i, retCode;
+	DWORD i = 0;
+	DWORD ret_code = 0;
+	int negative = -1;
 	TCHAR nameBuffer[1024];
 	DWORD cchValueName = 1024;
 	TCHAR valueBuffer[1024];
@@ -164,21 +165,37 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINati
 		&hKey);                                   /* variable that receives a handle to the opened key                                  */
 
 	if(result != ERROR_SUCCESS) {
-		if(result == ERROR_FILE_NOT_FOUND) {
-			if(DBG) fprintf(stderr, "%s \n", "NATIVE getSerialPortNames() failed to open registry key with ERROR_FILE_NOT_FOUND !");
-			if(DBG) fflush(stderr);
-		}else if(result == ERROR_ACCESS_DENIED) {
-			if(DBG) fprintf(stderr, "%s \n", "NATIVE getSerialPortNames() failed to open registry key with ERROR_ACCESS_DENIED !");
-			if(DBG) fflush(stderr);
-		}else {
-			if(DBG) fprintf(stderr, "%s %ld \n", "NATIVE getSerialPortNames() failed to open registry key with error number ", result);
-			if(DBG) fflush(stderr);
+		jclass statusClass = (*env)->GetObjectClass(env, status);
+		if (statusClass == NULL) {
+			if (DBG) fprintf(stderr, "%s\n", "NATIVE getSerialPortNames() could not get class of object of type SerialComRetStatus !");
+			if (DBG) fflush(stderr);
+			return NULL;
 		}
-		return NULL; /* Unable to get port's name or no port exist into system etc scenarios. */
+		jfieldID status_fid = (*env)->GetFieldID(env, statusClass, "status", "I");
+		if (status_fid == NULL) {
+			if (DBG) fprintf(stderr, "%s\n", "NATIVE getSerialPortNames() failed to retrieve field id of field status in class SerialComRetStatus !");
+			if (DBG) fflush(stderr);
+			return NULL;
+		}
+		if ((*env)->ExceptionOccurred(env)) {
+			LOGE(env);
+		}
+		ret_code = 240;
+		if(result == ERROR_FILE_NOT_FOUND) {
+			ret_code = ENOENT;
+		}else if (result == ERROR_ACCESS_DENIED) {
+			ret_code = EACCES;
+		}else {
+		}
+		(*env)->SetIntField(env, status, status_fid, (negative*ret_code));
+		if (DBG) fprintf(stderr, "%s %d\n", "NATIVE getSerialPortNames() failed to open registry key with Windows error no : -", result);
+		if (DBG) fflush(stderr);
+		return NULL;
 	}
 
 	/* Count number of values for this key. */
-	retCode = RegQueryInfoKey(  hKey,                    /* key handle                    */
+	result = 0;
+	result = RegQueryInfoKey(  hKey,                     /* key handle                    */
 								achClass,                /* buffer for class name         */
 								&cchClassName,           /* size of class string          */
 								NULL,                    /* reserved                      */
@@ -336,7 +353,7 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInter
 	dcb.XoffLim = 2048;
 	dcb.XonChar = (CHAR) 0x11;      /* DC1, CTRL-Q, Default value */
 	dcb.XoffChar = (CHAR) 0X13;     /* DC3, CTRL-S, Default value */
-	dcb.fNull = FALSE;       /* Do not discard when null bytes are received. */
+	dcb.fNull = FALSE;              /* Do not discard when null bytes are received. */
 	ret = SetCommState(hComm, &dcb);
 	if(ret == 0) {
 		errorVal = GetLastError();
@@ -391,15 +408,15 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 	ret = FlushFileBuffers(hComm);
 	if(ret == 0) {
 		errorVal = GetLastError();
-		if(DBG) fprintf(stderr, "%s%ld\n", "NATIVE FlushFileBuffers() in closeComPort() failed to flush data with error number : ", errorVal);
+		if(DBG) fprintf(stderr, "%s%ld\n", "NATIVE FlushFileBuffers() in closeComPort() failed to flush data with windows error number : ", errorVal);
 		if(DBG) fflush(stderr);
 	}
 
 	/* Release DTR line. */
 	ret = EscapeCommFunction(hComm, CLRDTR);
-	if (ret == 0) {
+	if(ret == 0) {
 		errorVal = GetLastError();
-		if (DBG) fprintf(stderr, "%s %ld\n", "NATIVE EscapeCommFunction() in closeComPort() failed with error number : ", errorVal);
+		if (DBG) fprintf(stderr, "%s %ld\n", "NATIVE EscapeCommFunction() in closeComPort() failed with windows error number : ", errorVal);
 		if (DBG) fflush(stderr);
 		return -240;
 	}
@@ -408,9 +425,14 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 	ret = CloseHandle(hComm);
 	if(ret == 0) {
 		errorVal = GetLastError();
-		if(DBG) fprintf(stderr, "%s %ld\n", "NATIVE CloseHandle() in closeComPort() failed with error number : ", errorVal);
-		if(DBG) fflush(stderr);
-		return -240;
+		if(errorVal == ERROR_INVALID_HANDLE) {
+			/* This is not an error in windows. */
+		}else {
+			if(DBG) fprintf(stderr, "%s %ld\n", "NATIVE CloseHandle() in closeComPort() failed with windows error number : ", errorVal);
+			if(DBG) fflush(stderr);
+			return -240;
+		}
+
 	}
 
 	return 0;
@@ -426,7 +448,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
  * 
  * 1. If data is read from serial port and no error occurs, return array of bytes.
  * 2. If there is no data to read from serial port and no error occurs, return NULL.
- * 3. If error occurs for whatever reason, return NULL and set status variable to Linux/Mac specific error number.
+ * 3. If error occurs for whatever reason, return NULL and set status variable to Windows specific error number.
  * 
  * The number of bytes return can be less than the request number of bytes but can never be greater than the requested
  * number of bytes. This is implemented using total_read variable. 1 <= Size request <= 2048 
@@ -456,11 +478,8 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINative
 	if(ret == 0) {
 		errorVal = GetLastError();
 		if(errorVal == ERROR_IO_PENDING) {
-
-			wait_status = WaitForSingleObject(overlapped.hEvent, 10);
-
+			wait_status = WaitForSingleObject(overlapped.hEvent, 100);
 			if(wait_status == WAIT_OBJECT_0) {
-
 				ret = GetOverlappedResult(hComm, &overlapped, &num_of_bytes_read, FALSE);
 
 				if(ret > 0) {
@@ -469,56 +488,36 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINative
 					(*env)->SetByteArrayRegion(env, data_read, 0, num_of_bytes_read, data_buf);
 					CloseHandle(overlapped.hEvent);
 					return data_read;
-				}else if(ret == 0) {
+				}else if (ret == 0) {
 					errorVal = GetLastError();
-					if(errorVal == ERROR_HANDLE_EOF) {
-						/* This indicates EOF. */
-						jclass statusClass = (*env)->GetObjectClass(env, status);
-						if (statusClass == NULL) {
-							if (DBG) fprintf(stderr, "%s \n", "NATIVE readBytes() could not get class of object of type SerialComReadStatus !");
-							if (DBG) fflush(stderr);
-							return NULL;
-						}
-
-						jfieldID status_fid = (*env)->GetFieldID(env, statusClass, "status", "I");
-						if (status_fid == NULL) {
-							if (DBG) fprintf(stderr, "%s \n", "NATIVE readBytes() failed to retrieve field id of field status in class SerialComReadStatus !");
-							if (DBG) fflush(stderr);
-							return NULL;
-						}
-						if ((*env)->ExceptionOccurred(env)) {
-							LOGE(env);
-						}
-
-						(*env)->SetIntField(env, status, status_fid, 2); // 2 indicates EOF
-						CloseHandle(overlapped.hEvent);
+					if((errorVal == ERROR_HANDLE_EOF) || (errorVal == ERROR_IO_INCOMPLETE)) {
 						return NULL;
 					}else {
 						/* This indicates error. */
 						jclass statusClass = (*env)->GetObjectClass(env, status);
-						if (statusClass == NULL) {
+						if(statusClass == NULL) {
 							if (DBG) fprintf(stderr, "%s \n", "NATIVE readBytes() could not get class of object of type SerialComReadStatus !");
 							if (DBG) fflush(stderr);
 							return NULL;
 						}
 
 						jfieldID status_fid = (*env)->GetFieldID(env, statusClass, "status", "I");
-						if (status_fid == NULL) {
+						if(status_fid == NULL) {
 							if (DBG) fprintf(stderr, "%s \n", "NATIVE readBytes() failed to retrieve field id of field status in class SerialComReadStatus !");
 							if (DBG) fflush(stderr);
 							return NULL;
 						}
-						if ((*env)->ExceptionOccurred(env)) {
+						if((*env)->ExceptionOccurred(env)) {
 							LOGE(env);
 						}
 
-						if ((errorVal == ERROR_INVALID_USER_BUFFER) || (errorVal == ERROR_NOT_ENOUGH_MEMORY)) {
+						if((errorVal == ERROR_INVALID_USER_BUFFER) || (errorVal == ERROR_NOT_ENOUGH_MEMORY)) {
 							errorVal = ETOOMANYOP;
 						}
-						else if ((errorVal == ERROR_NOT_ENOUGH_QUOTA) || (errorVal == ERROR_INSUFFICIENT_BUFFER)) {
+						else if((errorVal == ERROR_NOT_ENOUGH_QUOTA) || (errorVal == ERROR_INSUFFICIENT_BUFFER)) {
 							errorVal = ENOMEM;
 						}
-						else if (errorVal == ERROR_OPERATION_ABORTED) {
+						else if(errorVal == ERROR_OPERATION_ABORTED) {
 							errorVal = ECANCELED;
 						}
 
@@ -532,7 +531,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINative
 				/* This indicates error. */
 				errorVal = GetLastError();
 				jclass statusClass = (*env)->GetObjectClass(env, status);
-				if(statusClass == NULL) {
+				if (statusClass == NULL) {
 					if (DBG) fprintf(stderr, "%s \n", "NATIVE readBytes() could not get class of object of type SerialComReadStatus !");
 					if (DBG) fflush(stderr);
 					return NULL;
@@ -574,8 +573,8 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINative
 
 			jfieldID status_fid = (*env)->GetFieldID(env, statusClass, "status", "I");
 			if(status_fid == NULL) {
-				if (DBG) fprintf(stderr, "%s \n", "NATIVE readBytes() failed to retrieve field id of field status in class SerialComReadStatus !");
-				if (DBG) fflush(stderr);
+				if(DBG) fprintf(stderr, "%s \n", "NATIVE readBytes() failed to retrieve field id of field status in class SerialComReadStatus !");
+				if(DBG) fflush(stderr);
 				return NULL;
 			}
 			if((*env)->ExceptionOccurred(env)) {
@@ -584,9 +583,11 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINative
 
 			if((errorVal == ERROR_INVALID_USER_BUFFER) || (errorVal == ERROR_NOT_ENOUGH_MEMORY)) {
 				errorVal = ETOOMANYOP;
-			}else if((errorVal == ERROR_NOT_ENOUGH_QUOTA) || (errorVal == ERROR_INSUFFICIENT_BUFFER)) {
+			}
+			else if((errorVal == ERROR_NOT_ENOUGH_QUOTA) || (errorVal == ERROR_INSUFFICIENT_BUFFER)) {
 				errorVal = ENOMEM;
-			}else if(errorVal == ERROR_OPERATION_ABORTED) {
+			}
+			else if(errorVal == ERROR_OPERATION_ABORTED) {
 				errorVal = ECANCELED;
 			}
 
@@ -617,14 +618,16 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINative
 */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_writeBytes(JNIEnv *env, jobject obj, jlong handle, jbyteArray buffer, jint delay) {
 	int ret = 0;
+	int status = 0;
 	BOOL result = FALSE;
 	jint negative = -1;
 	DWORD errorVal = 0;
 	HANDLE hComm = (HANDLE)handle;
 	jbyte* data_buf = (*env)->GetByteArrayElements(env, buffer, JNI_FALSE);
-	DWORD byte_count = (*env)->GetArrayLength(env, buffer);
+	DWORD num_bytes_to_write = (*env)->GetArrayLength(env, buffer);
 	DWORD num_of_bytes_written = 0;
 	OVERLAPPED ovWrite = { 0 };
+	int index = 0;
 
 	/* Only hEvent member need to be initialled and others can be left 0. */
 	ovWrite.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
@@ -634,35 +637,74 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 		return -240;
 	}
 
-	result = WriteFile(hComm, data_buf, byte_count, &num_of_bytes_written, &ovWrite);
-	if(result == FALSE) {
-		errorVal = GetLastError();
-		if(errorVal == ERROR_IO_PENDING) {
-			if(WaitForSingleObject(ovWrite.hEvent, INFINITE) == WAIT_OBJECT_0) {
-				ret = GetOverlappedResult(hComm, &ovWrite, &num_of_bytes_written, TRUE);
-				if(ret == 0) {
-					errorVal = GetLastError();
-					if(DBG) fprintf(stderr, "%s %ld\n", "NATIVE GetOverlappedResult() in writeBytes() failed with error number : ", errorVal);
-					if(DBG) fflush(stderr);
-					return -240;
+	if(delay == 0) {
+		// no delay between successive bytes sent
+		result = WriteFile(hComm, data_buf, num_bytes_to_write, &num_of_bytes_written, &ovWrite);
+		if(result == FALSE) {
+			errorVal = GetLastError();
+			if(errorVal == ERROR_IO_PENDING) {
+				if(WaitForSingleObject(ovWrite.hEvent, 3000) == WAIT_OBJECT_0) {
+					ret = GetOverlappedResult(hComm, &ovWrite, &num_of_bytes_written, TRUE);
+					if(ret == 0) {
+						errorVal = GetLastError();
+						if(DBG) fprintf(stderr, "%s %ld\n", "NATIVE GetOverlappedResult() in writeBytes() failed with windows error number : ", errorVal);
+						if(DBG) fflush(stderr);
+						status = -240;
+					}
+				}
+			}else if((errorVal == ERROR_INVALID_USER_BUFFER) || (errorVal == ERROR_NOT_ENOUGH_MEMORY)) {
+				status = negative * ETOOMANYOP;
+			}else if(errorVal == ERROR_NOT_ENOUGH_QUOTA) {
+				status = negative * ENOMEM;
+			}else if(errorVal == ERROR_OPERATION_ABORTED) {
+				status = negative * ECANCELED;
+			}else {
+				if(DBG) fprintf(stderr, "%s %ld\n", "NATIVE WriteFile() in writeBytes() failed with windows error number : ", errorVal);
+				if(DBG) fflush(stderr);
+				status = -240;
+			}
+		}
+	}else {
+		// delay between successive bytes sent
+		while (num_bytes_to_write > 0) {
+			result = WriteFile(hComm, &data_buf[index], 1, &num_of_bytes_written, &ovWrite);
+			if (result == FALSE) {
+				errorVal = GetLastError();
+				if (errorVal == ERROR_IO_PENDING) {
+					if (WaitForSingleObject(ovWrite.hEvent, 3000) == WAIT_OBJECT_0) {
+						ret = GetOverlappedResult(hComm, &ovWrite, &num_of_bytes_written, TRUE);
+						if (ret == 0) {
+							errorVal = GetLastError();
+							if (DBG) fprintf(stderr, "%s %ld\n", "NATIVE GetOverlappedResult() in writeBytes() failed with windows error number : ", errorVal);
+							if (DBG) fflush(stderr);
+							status = -240;
+						}
+					}
+				}
+				else if ((errorVal == ERROR_INVALID_USER_BUFFER) || (errorVal == ERROR_NOT_ENOUGH_MEMORY)) {
+					status = negative * ETOOMANYOP;
+				}
+				else if (errorVal == ERROR_NOT_ENOUGH_QUOTA) {
+					status = negative * ENOMEM;
+				}
+				else if (errorVal == ERROR_OPERATION_ABORTED) {
+					status = negative * ECANCELED;
+				}
+				else {
+					if (DBG) fprintf(stderr, "%s %ld\n", "NATIVE WriteFile() in writeBytes() failed with windows error number : ", errorVal);
+					if (DBG) fflush(stderr);
+					status = -240;
 				}
 			}
-		}else if((errorVal == ERROR_INVALID_USER_BUFFER) || (errorVal == ERROR_NOT_ENOUGH_MEMORY)) {
-			return (negative * ETOOMANYOP);
-		}else if(errorVal == ERROR_NOT_ENOUGH_QUOTA) {
-			return (negative * ENOMEM);
-		}else if(errorVal == ERROR_OPERATION_ABORTED) {
-			return (negative * ECANCELED);
-		}else {
-			if(DBG) fprintf(stderr, "%s %ld\n", "NATIVE WriteFile() in writeBytes() failed with error number : ", errorVal);
-			if(DBG) fflush(stderr);
-			return -240;
+			num_bytes_to_write -= num_of_bytes_written;
+			index = index + num_of_bytes_written;
+			serial_delay(delay); // use supplied delay between bytes in milliseconds
 		}
 	}
 
 	(*env)->ReleaseByteArrayElements(env, buffer, data_buf, 0);
 	CloseHandle(ovWrite.hEvent);
-	return 0;
+	return status;
 }
 
 /*
@@ -1480,7 +1522,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 		return -240;
 	}
 
-	Sleep(duration);
+	serial_delay(duration);
 
 	ret = ClearCommBreak(hComm);
 	if(ret == 0) {
