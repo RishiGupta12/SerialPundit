@@ -392,6 +392,10 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInter
 		CloseHandle(hComm);
 		return -240;
 	}
+	
+	/* Reset communication mask. */
+	SetCommMask(hComm, 0);
+	SetCommMask(hComm, EV_BREAK|EV_CTS|EV_DSR|EV_ERR|EV_RING|EV_RLSD|EV_RXCHAR|EV_RXFLAG|EV_TXEMPTY);
 
 	/* Abort outstanding I/O operations, clear port's I/O buffer (flush old garbage values). */
 	PurgeComm(hComm, PURGE_RXABORT | PURGE_RXCLEAR | PURGE_TXABORT | PURGE_TXCLEAR);
