@@ -523,6 +523,8 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
  *
  * The number of bytes return can be less than the request number of bytes but can never be greater than the requested
  * number of bytes. This is implemented using total_read variable. Size request should not be more than 2048.
+ *
+ * Do not block any signals.
  */
 JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_readBytes(JNIEnv *env, jobject obj, jlong fd, jint count, jobject status) {
 	int i = -1;
@@ -619,7 +621,9 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINative
  * Try writing all data using a loop by handling partial writes. tcdrain() waits until all output written to the object referred to by fd has been transmitted.
  * This is used to make sure that data gets sent out of the serial port physically before write returns.
  * If the number of bytes to be written is 0, then behavior is undefined as per POSIX standard. Therefore we do not allow dummy writes with absolutely no data
- * at all.
+ * at all and this is handled at java layer.
+ *
+ * Do not block any signals.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_writeBytes(JNIEnv *env, jobject obj, jlong fd, jbyteArray buffer, jint delay) {
 	jint ret = -1;
@@ -1440,7 +1444,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
  * counter every time the function is run by the kernel. This ioctl call passes the kernel a pointer to a structure
  * serial_icounter_struct , which should be filled by the tty driver.
  *
- * Not supported on Solaris and Mac OS (will return NULL).
+ * Not supported by Solaris and Mac OS itself (this function will return NULL).
  */
 JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_getInterruptCount(JNIEnv *env, jobject obj, jlong fd) {
 	jint count_info[11] = {0};
@@ -1557,14 +1561,13 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 	pthread_t thread_id = 0;
 	jobject datalooper;
 	struct com_thread_params params;
-	pthread_attr_t attr;
 	void *arg;
 
 	/* we make sure that thread creation, data passing and access to global data is atomic. */
 	pthread_mutex_lock(&mutex);
 
 	/* Check if there is an entry for this fd already in global array. If yes, we will update that with information about data thread.
-	 * Further if there is an unused index we will reuse it. */
+	 * Further if there is an unused index we will re-use it. */
 	for (x=0; x < MAX_NUM_THREADS; x++) {
 		if((ptr->fd == fd) || (ptr->fd == -1)) {
 			if(ptr->fd == fd) {
@@ -1605,14 +1608,15 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 		arg = &fd_looper_info[dtp_index];
 	}
 
-	pthread_attr_init(&attr);
-	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
+	pthread_attr_init(&((struct com_thread_params*) arg)->data_thread_attr);
+	pthread_attr_setdetachstate(&((struct com_thread_params*) arg)->data_thread_attr, PTHREAD_CREATE_JOINABLE);
 	errno = 0;
 	ret = pthread_create(&thread_id, NULL, &data_looper, arg);
 	if(ret < 0) {
 		if(DBG) fprintf(stderr, "%s %d\n", "NATIVE setUpDataLooperThread() failed to create native data looper thread with error number : -", errno);
 		if(DBG) fflush(stderr);
 		(*env)->DeleteGlobalRef(env, datalooper);
+		pthread_attr_destroy(&((struct com_thread_params*) arg)->data_thread_attr);
 		pthread_mutex_unlock(&mutex);
 		return (negative * errno);
 	}
@@ -1629,15 +1633,20 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 
 	pthread_mutex_unlock(&mutex);
 
-	/* let thread initialize completely and then return success. */
+	/* wait till thread initialize completely, then return success. */
 	while(0 == ((struct com_thread_params*) arg)->data_init_done) { }
 
 	if(1 == ((struct com_thread_params*) arg)->data_init_done) {
+		if(DBG) fprintf(stderr, "%s %ld \n", "thread_id==", thread_id);
+		if(DBG) fflush(stderr);
 		return 0; /* success */
 	}else {
+		if(DBG) fprintf(stderr, "%s %d \n", "regrgrg", 5);
+		if(DBG) fflush(stderr);
 		(*env)->DeleteGlobalRef(env, datalooper);
+		pthread_attr_destroy(&((struct com_thread_params*) arg)->data_thread_attr);
 		((struct com_thread_params*) arg)->data_thread_id = 0;
-		return ((struct com_thread_params*) arg)->data_init_done;  /* error */
+		return ((struct com_thread_params*) arg)->data_init_done;  /* data_init_done contains error code */
 	}
 }
 
@@ -1679,6 +1688,8 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 #elif defined (__APPLE__) || defined (__SunOS)
 	ret = write(ptr->evfd, "E", strlen("E"));
 #endif
+	if(DBG) fprintf(stderr, "%s %ld \n", "data_thread_id==", data_thread_id);
+	if(DBG) fflush(stderr);
 
 	/* Join the thread to check its exit status. */
 	ret = pthread_join(data_thread_id, &status);
@@ -1690,6 +1701,11 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 	}
 
 	ptr->data_thread_id = 0;   /* Reset thread id field. */
+	ret = pthread_attr_destroy(&(ptr->data_thread_attr));
+	if(ret != 0) {
+		if(DBG) fprintf(stderr, "%s %d \n", "native data looper thread failed to destroy thread attr object with error -", ret);
+		if(DBG) fflush(stderr);
+	}
 
 	/* If neither data nor event thread exist for this file descriptor remove entry for it from global array.
 	 * Free/delete global reference for looper object as well. */
@@ -1718,7 +1734,6 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 	pthread_t thread_id;
 	struct com_thread_params params;
 	jobject eventlooper;
-	pthread_attr_t attr;
 	void *arg;
 
 	/* we make sure that thread creation, data passing and access to global data is atomic. */
@@ -1767,14 +1782,15 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 		arg = &fd_looper_info[dtp_index];
 	}
 
-	pthread_attr_init(&attr);
-	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
+	pthread_attr_init(&((struct com_thread_params*) arg)->event_thread_attr);
+	pthread_attr_setdetachstate(&((struct com_thread_params*) arg)->event_thread_attr, PTHREAD_CREATE_JOINABLE);
 	errno = 0;
 	ret = pthread_create(&thread_id, NULL, &event_looper, arg);
 	if(ret < 0) {
 		if(DBG) fprintf(stderr, "%s %d\n", "NATIVE setUpEventLooperThread() failed to create native data looper thread with error number : -", errno);
 		if(DBG) fflush(stderr);
 		(*env)->DeleteGlobalRef(env, eventlooper);
+		pthread_attr_destroy(&((struct com_thread_params*) arg)->event_thread_attr);
 		pthread_mutex_unlock(&mutex);
 		return (negative * errno);
 	}
@@ -1798,6 +1814,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 		return 0; /* success */
 	}else {
 		(*env)->DeleteGlobalRef(env, eventlooper);
+		pthread_attr_destroy(&((struct com_thread_params*) arg)->event_thread_attr);
 		((struct com_thread_params*) arg)->event_thread_id = 0;
 		return ((struct com_thread_params*) arg)->event_init_done;  /* error */
 	}
@@ -1851,6 +1868,11 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 	}
 
 	ptr->event_thread_id = 0;    /* Reset thread id field. */
+	ret = pthread_attr_destroy(&(ptr->event_thread_attr));
+	if(ret != 0) {
+		if(DBG) fprintf(stderr, "%s %d \n", "native event looper thread failed to destroy thread attr object with error -", ret);
+		if(DBG) fflush(stderr);
+	}
 
 	/* If neither data nor event thread exist for this file descriptor remove entry for it from global array. */
 	if(ptr->data_thread_id == 0) {

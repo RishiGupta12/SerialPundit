@@ -177,6 +177,8 @@ public final class SerialComManager {
 	private SerialComJNINativeInterface mNativeInterface = null;
 	private SerialComErrorMapper mErrMapper = null;
 	private SerialComCompletionDispatcher mEventCompletionDispatcher = null;
+	
+	private Object lock = new Object();
 
 	/**
 	 * Constructor, initialize various classes and load native libraries. 
@@ -293,32 +295,34 @@ public final class SerialComManager {
 		if((enableRead == false) && (enableWrite == false)) {
 			throw new SerialComException(portName, "openComPort()",  "Enable at-least read, write or both.");
 		}
-
-		/* Try to reduce transitions from java to JNI layer as it is possible here by performing check in java layer itself. */
-		if(exclusiveOwnerShip == true) {
-			for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
-				if(mInfo.containsPort(portName)) {
-					throw new SerialComException(portName, "openComPort()", SerialComErrorMapper.ERR_PORT_ALREADY_OPEN);
-				}
-			}
-		}
-
+		
 		// For windows COM port can not be shared, so throw exception
 		if(getOSType() == OS_WINDOWS) {
 			if(exclusiveOwnerShip == false) {
 				throw new SerialComException(portName, "openComPort()",  SerialComErrorMapper.ERR_WIN_OWNERSHIP);
 			}
 		}
-
-		handle = mNativeInterface.openComPort(portName, enableRead, enableWrite, exclusiveOwnerShip);
-		if(handle < 0) {
-			throw new SerialComException(portName, "openComPort()",  mErrMapper.getMappedError(handle));
-		}
-
-		boolean added = mPortHandleInfo.add(new SerialComPortHandleInfo(portName, handle, null, null, null));
-		if(added != true) {
-			closeComPort(handle);
-			throw new SerialComException(portName, "openComPort()",  SerialComErrorMapper.ERR_SCM_NOT_STORE_PORTINFO);
+		
+		synchronized(lock) {
+			/* Try to reduce transitions from java to JNI layer as it is possible here by performing check in java layer itself. */
+			if(exclusiveOwnerShip == true) {
+				for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
+					if(mInfo.containsPort(portName)) {
+						throw new SerialComException(portName, "openComPort()", SerialComErrorMapper.ERR_PORT_ALREADY_OPEN);
+					}
+				}
+			}
+	
+			handle = mNativeInterface.openComPort(portName, enableRead, enableWrite, exclusiveOwnerShip);
+			if(handle < 0) {
+				throw new SerialComException(portName, "openComPort()",  mErrMapper.getMappedError(handle));
+			}
+	
+			boolean added = mPortHandleInfo.add(new SerialComPortHandleInfo(portName, handle, null, null, null));
+			if(added != true) {
+				closeComPort(handle);
+				throw new SerialComException(portName, "openComPort()",  SerialComErrorMapper.ERR_SCM_NOT_STORE_PORTINFO);
+			}
 		}
 
 		return handle;
@@ -336,34 +340,36 @@ public final class SerialComManager {
 		boolean handlefound = false;
 		SerialComPortHandleInfo mHandleInfo = null;
 
-		for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
-			if(mInfo.containsHandle(handle)) {
-				handlefound = true;
-				mHandleInfo = mInfo;
-				break;
+		synchronized(lock) {
+			for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
+				if(mInfo.containsHandle(handle)) {
+					handlefound = true;
+					mHandleInfo = mInfo;
+					break;
+				}
 			}
+	
+			if(handlefound == false) {
+				throw new SerialComException("closeComPort()", SerialComErrorMapper.ERR_WRONG_HANDLE);
+			}
+	
+			if(mHandleInfo.getDataListener() != null) {
+				/* Proper clean up requires that, native thread should be destroyed before closing port. */
+				throw new IllegalStateException("closeComPort() " + SerialComErrorMapper.ERR_CLOSE_WITHOUT_UNREG_DATA);
+			}
+			if(mHandleInfo.getEventListener() != null) {
+				throw new IllegalStateException("closeComPort() " + SerialComErrorMapper.ERR_CLOSE_WITHOUT_UNREG_EVENT);
+			}
+	
+			int ret = mNativeInterface.closeComPort(handle);
+			// native close() returns 0 on success
+			if(ret != 0) {
+				throw new SerialComException("closeComPort()",  mErrMapper.getMappedError(ret));
+			}
+	
+			/* delete info about this port/handle from global arraylist */
+			mPortHandleInfo.remove(mHandleInfo);
 		}
-
-		if(handlefound == false) {
-			throw new SerialComException("closeComPort()", SerialComErrorMapper.ERR_WRONG_HANDLE);
-		}
-
-		if(mHandleInfo.getDataListener() != null) {
-			/* Proper clean up requires that, native thread should be destroyed before closing port. */
-			throw new IllegalStateException("closeComPort() " + SerialComErrorMapper.ERR_CLOSE_WITHOUT_UNREG_DATA);
-		}
-		if(mHandleInfo.getEventListener() != null) {
-			throw new IllegalStateException("closeComPort() " + SerialComErrorMapper.ERR_CLOSE_WITHOUT_UNREG_EVENT);
-		}
-
-		int ret = mNativeInterface.closeComPort(handle);
-		// native close() returns 0 on success
-		if(ret != 0) {
-			throw new SerialComException("closeComPort()",  mErrMapper.getMappedError(ret));
-		}
-
-		/* delete info about this port/handle from global arraylist */
-		mPortHandleInfo.remove(mHandleInfo);
 
 		return true;
 	}
@@ -882,24 +888,26 @@ public final class SerialComManager {
 		if(dataListener == null) {
 			throw new IllegalArgumentException("registerDataListener(), " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_LISTENER);
 		}
-
-		for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
-			if(mInfo.containsHandle(handle)) {
-				handlefound = true;
-				if(mInfo.getDataListener() != null) {
-					throw new SerialComException("registerDataListener()", SerialComErrorMapper.ERR_DATA_LISTENER_ALREADY_EXIST);
-				}else {
-					mHandleInfo = mInfo;
+		
+		synchronized(lock) {
+			for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
+				if(mInfo.containsHandle(handle)) {
+					handlefound = true;
+					if(mInfo.getDataListener() != null) {
+						throw new SerialComException("registerDataListener()", SerialComErrorMapper.ERR_DATA_LISTENER_ALREADY_EXIST);
+					}else {
+						mHandleInfo = mInfo;
+					}
+					break;
 				}
-				break;
 			}
+	
+			if(handlefound == false) {
+				throw new SerialComException("registerDataListener()", SerialComErrorMapper.ERR_WRONG_HANDLE);
+			}
+	
+			return mEventCompletionDispatcher.setUpDataLooper(handle, mHandleInfo, dataListener);
 		}
-
-		if(handlefound == false) {
-			throw new SerialComException("registerDataListener()", SerialComErrorMapper.ERR_WRONG_HANDLE);
-		}
-
-		return mEventCompletionDispatcher.setUpDataLooper(handle, mHandleInfo, dataListener);
 	}
 
 	/**
@@ -916,8 +924,10 @@ public final class SerialComManager {
 			throw new IllegalArgumentException("unregisterDataListener(), " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_LISTENER);
 		}
 
-		if(mEventCompletionDispatcher.destroyDataLooper(dataListener)) {
-			return true;
+		synchronized(lock) {
+			if(mEventCompletionDispatcher.destroyDataLooper(dataListener)) {
+				return true;
+			}
 		}
 
 		return false;

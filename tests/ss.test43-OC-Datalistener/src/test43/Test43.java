@@ -128,7 +128,7 @@ public class Test43 {
 				scm.closeComPort(handle);
 				scm.closeComPort(handle1);
 				if(osType == SerialComManager.OS_LINUX) {
-					Thread.sleep(100);
+					Thread.sleep(1);
 				}else if(osType == SerialComManager.OS_WINDOWS) {
 					Thread.sleep(500);
 				}else if(osType == SerialComManager.OS_MAC_OS_X) {

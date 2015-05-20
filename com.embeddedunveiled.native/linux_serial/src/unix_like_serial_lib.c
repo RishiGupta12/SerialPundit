@@ -108,7 +108,6 @@ void *data_looper(void *arg) {
 	ssize_t ret = -1;
 	jbyte buffer[1024];
 	jbyte final_buf[1024 * 3]; 	  /* Sufficient enough to deal with consecutive multiple partial reads. */
-	jbyte empty_buf[] = { };
 	jbyteArray dataRead;
 	int data_available = 0;
 

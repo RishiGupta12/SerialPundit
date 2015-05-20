@@ -41,6 +41,8 @@
 		pthread_mutex_t *mutex; /* protect global shared data from synchronous access */
 		int data_init_done;     /* indicates data thread has been successfully initialized or not; 0 is default 1 is success, otherwise error number as set by thread */
 		int event_init_done;    /* indicates event thread has been successfully initialized or not; 0 is default 1 is success, otherwise error number as set by thread */
+		pthread_attr_t data_thread_attr;
+		pthread_attr_t event_thread_attr;
 	};
 
 #if defined (__linux__)

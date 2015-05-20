@@ -1,6 +1,6 @@
-09:47:00 **** Incremental Build of configuration Debug for project linux_serial ****
+17:50:12 **** Incremental Build of configuration Debug for project linux_serial ****
 make all 
 make: Nothing to be done for `all'.
 
-09:47:00 Build Finished (took 57ms)
+17:50:12 Build Finished (took 59ms)
 
