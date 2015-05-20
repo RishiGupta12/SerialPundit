@@ -5,11 +5,11 @@
 		<item value="false" key="WizardProjectsImportPage.STORE_COPY_PROJECT_ID"/>
 		<item value="false" key="WizardProjectsImportPage.STORE_NESTED_PROJECTS"/>
 		<list key="WizardProjectsImportPage.STORE_DIRECTORIES">
+			<item value="/home/r/ws-host-uart/serial-communication-manager/tests/ss.test43-OC-Datalistener"/>
+			<item value="/home/r/ws-host-uart/serial-communication-manager/tests/ss.test42-OC-Datalistener"/>
+			<item value="/home/r/ws-host-uart/development/TECSISA/test3-datalistener"/>
 			<item value="/home/r/ws-host-uart/serial-communication-manager/tests/test1-list-ports"/>
 			<item value="/home/r/ws-host-uart/development/TECSISA/test1-tec"/>
-			<item value="/home/r/ws-host-uart/serial-communication-manager/tests/ss.test31-remove-listener"/>
-			<item value="/home/r/ws-host-uart/serial-communication-manager/tests/test41"/>
-			<item value="/home/r/ws-host-uart/serial-communication-manager/tests/test49-delayInbytes"/>
 		</list>
 		<list key="WizardProjectsImportPage.STORE_ARCHIVES">
 			<item value=""/>

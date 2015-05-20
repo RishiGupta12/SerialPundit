@@ -100,7 +100,7 @@ public class Test43 {
 				// wait till data listener has received all the data
 				while(exit.get() == false) { 
 					if(osType == SerialComManager.OS_LINUX) {
-						Thread.sleep(100);
+						Thread.sleep(1);
 					}else if(osType == SerialComManager.OS_WINDOWS) {
 						Thread.sleep(600);
 					}else if(osType == SerialComManager.OS_MAC_OS_X) {
@@ -115,7 +115,7 @@ public class Test43 {
 				
 				System.out.println("main thread unregister : " + scm.unregisterDataListener(dataListener));
 				if(osType == SerialComManager.OS_LINUX) {
-					Thread.sleep(100);
+//					Thread.sleep(100);
 				}else if(osType == SerialComManager.OS_WINDOWS) {
 					Thread.sleep(500);
 				}else if(osType == SerialComManager.OS_MAC_OS_X) {

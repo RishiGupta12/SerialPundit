@@ -1683,7 +1683,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 	/* Join the thread to check its exit status. */
 	ret = pthread_join(data_thread_id, &status);
 	if(ret != 0) {
-		if(DBG) fprintf(stderr, "%s \n", "native data looper thread failed to join !");
+		if(DBG) fprintf(stderr, "%s %d \n", "native data looper thread failed to join with error -", ret);
 		if(DBG) fflush(stderr);
 		pthread_mutex_unlock(&mutex);
 		return (negative * ret);

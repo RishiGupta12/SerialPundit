@@ -110,6 +110,7 @@ void *data_looper(void *arg) {
 	jbyte final_buf[1024 * 3]; 	  /* Sufficient enough to deal with consecutive multiple partial reads. */
 	jbyte empty_buf[] = { };
 	jbyteArray dataRead;
+	int data_available = 0;
 
 #if defined (__linux__)
 	/* Epoll is used for Linux systems.
@@ -316,7 +317,6 @@ void *data_looper(void *arg) {
 			if(1 == ((struct com_thread_params*) arg)->data_thread_exit) {
 				close(epfd);
 				close(((struct com_thread_params*) arg)->evfd);
-				((struct com_thread_params*) arg)->data_thread_id = 0;
 				ret = (*jvm)->DetachCurrentThread(jvm);
 				if(ret != JNI_OK) {
 					if(DBG) fprintf(stderr, "%s %d\n", "NATIVE data_looper() failed to exit data monitor thread with JNI error ", (int)ret);
@@ -335,7 +335,6 @@ void *data_looper(void *arg) {
 				close(kq);
 				close(pipe1[0]);
 				close(pipe1[1]);
-				((struct com_thread_params*) arg)->data_thread_id = 0;
 				ret = (*jvm)->DetachCurrentThread(jvm);
 				if(ret != JNI_OK) {
 					if(DBG) fprintf(stderr, "%s %d\n", "NATIVE data_looper() failed to exit data monitor thread with JNI error ", (ssize_t)ret);
@@ -354,6 +353,8 @@ void *data_looper(void *arg) {
 #endif
 				/* input event happened, no error occurred, we have data to read on file descriptor. */
 				do {
+
+					data_available = 0;
 					errno = 0;
 					ret = read(fd, buffer, sizeof(buffer));
 					if(ret > 0 && errno == 0) {
@@ -365,11 +366,13 @@ void *data_looper(void *arg) {
 							}
 							dataRead = (*env)->NewByteArray(env, index + ret);
 							(*env)->SetByteArrayRegion(env, dataRead, 0, index + ret, final_buf);
+							data_available = 1;
 							break;
 						}else {
 							/* Pass the successful read to java layer straight away. */
 							dataRead = (*env)->NewByteArray(env, ret);
 							(*env)->SetByteArrayRegion(env, dataRead, 0, ret, buffer);
+							data_available = 1;
 							break;
 						}
 					}else if(ret > 0 && errno == EINTR) {
@@ -382,45 +385,43 @@ void *data_looper(void *arg) {
 						partialData = 1;
 						continue;
 					}else if(ret < 0) {
-						if(errno == EAGAIN || errno == EWOULDBLOCK) {
-							/* This indicates, there was no data to read. Therefore just return null. */
-							dataRead = (*env)->NewByteArray(env, sizeof(empty_buf));
-							(*env)->SetByteArrayRegion(env, dataRead, 0, sizeof(empty_buf), empty_buf);
-							break;
-						}else if(errno != EINTR) {
-							/* This indicates, irrespective of, there was data to read or not, we got an error during operation. */
-							/* Can we handle this condition more gracefully. */
-#if defined (__APPLE__)
-							errorCount++;
-							/* minimize JNI transition by setting threshold for when application will be called. */
-							if(errorCount == 100) {
-								(*env)->CallVoidMethod(env, looper, mide, evlist[0].data);
-								if((*env)->ExceptionOccurred(env)) {
-									LOGE(env);
-								}
-								errorCount = 0; // reset error count
-							}
-#endif
-							dataRead = (*env)->NewByteArray(env, sizeof(empty_buf));
-							(*env)->SetByteArrayRegion(env, dataRead, 0, sizeof(empty_buf), empty_buf);
-							break;
-						}else if(errno == EINTR) {
+						if(errno == EINTR) {
 							/* This indicates that we should retry as we are just interrupted by a signal. */
 							continue;
+						}else {
+							/* This indicates, there was data to read but we got an error during read operation, notify application. */
+#if defined (__linux__)
+							(*env)->CallVoidMethod(env, looper, mide, errno);
+							if((*env)->ExceptionOccurred(env)) {
+								LOGE(env);
+							}
+#endif
+#if defined (__APPLE__)
+							(*env)->CallVoidMethod(env, looper, mide, errno);
+							if((*env)->ExceptionOccurred(env)) {
+								LOGE(env);
+							}
+#endif
+#if defined (__SunOS)
+//TODO solaris
+#endif
+							break;
 						}
 					}else if(ret == 0) {
-						/* This indicates, EOF or port has been removed from system. */
-						dataRead = (*env)->NewByteArray(env, sizeof(empty_buf));
-						(*env)->SetByteArrayRegion(env, dataRead, 0, sizeof(empty_buf), empty_buf);
+						/* Not possible because fd has data as indicated by epoll/kevent. */
 						break;
+					}else {
 					}
 				} while(1);
 
-				/* once we have successfully read the data, let us pass this to java layer. */
-				(*env)->CallVoidMethod(env, looper, mid, dataRead);
-				if((*env)->ExceptionOccurred(env)) {
-					LOGE(env);
+				if(data_available == 1) {
+					/* once we have successfully read the data, let us pass this to java layer. */
+					(*env)->CallVoidMethod(env, looper, mid, dataRead);
+					if((*env)->ExceptionOccurred(env)) {
+						LOGE(env);
+					}
 				}
+
 			}else {
 #if defined (__linux__)
 				if(events[0].events & (EPOLLERR|EPOLLHUP)) {
@@ -449,6 +450,7 @@ void *data_looper(void *arg) {
 				}
 #endif
 #if defined (__SunOS)
+//TODO solaris
 #endif
 			}
 		} /* Go back to loop (while loop) again waiting for the data, available to read. */
@@ -680,7 +682,7 @@ void *data_looper(void *arg) {
 					if(DBG) fprintf(stderr, "%s %d\n", "NATIVE port_monitor path is too long error : ", errno);
 					if(DBG) fflush(stderr);
 				}else if(errno == ENOMEM) {
-					if(DBG) fprintf(stderr, "%s %d\n", "NATIVE port_monitor Out of memory (i.e., kernel memory) error : ", errno);
+					if(DBG) fprintf(stderr, "%s %d\n", "NATIVE port_monitor Out of memory (i.e. kernel memory) error : ", errno);
 					if(DBG) fflush(stderr);
 				}else if(errno == ENOTDIR) {
 					if(DBG) fprintf(stderr, "%s %d\n", "NATIVE port_monitor a component of the path prefix of path is not a directory error : ", errno);
@@ -984,7 +986,7 @@ void *data_looper(void *arg) {
 		/* Start the run loop to begin receiving notifications. */
 		CFRunLoopRun();
 
-		/* We should never get here.. */
+		/* We should never get here. */
 		if(DBG) fprintf(stderr, "Unexpectedly returned from CFRunLoopRun(). Something went wrong !\n");
 		if(DBG) fflush(stderr);
 		return ((void *)0);
