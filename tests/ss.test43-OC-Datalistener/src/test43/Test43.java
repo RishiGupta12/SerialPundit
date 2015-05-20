@@ -59,7 +59,7 @@ public class Test43 {
 		SerialComManager scm = new SerialComManager();
 		
 		int x = 0;
-		for(x=0; x<5000; x++) {
+		for(x=0; x<2; x++) {
 			System.out.println("\n" + "Iteration : " + x);
 			try {
 				DataListener dataListener = new DataListener();

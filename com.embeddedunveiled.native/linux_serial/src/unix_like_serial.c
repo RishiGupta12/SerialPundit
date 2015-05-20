@@ -1621,9 +1621,6 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 		return (negative * errno);
 	}
 
-	/* Save the data thread id which will be used when listener is unregistered. */
-	((struct com_thread_params*) arg)->data_thread_id = thread_id;
-
 	if((entry_found == JNI_TRUE) || (empty_entry_found == JNI_TRUE)) {
 		/* index has been already incremented when data looper thread was created, so do nothing. */
 	}else {
@@ -1637,12 +1634,10 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 	while(0 == ((struct com_thread_params*) arg)->data_init_done) { }
 
 	if(1 == ((struct com_thread_params*) arg)->data_init_done) {
-		if(DBG) fprintf(stderr, "%s %ld \n", "thread_id==", thread_id);
-		if(DBG) fflush(stderr);
+		/* Save the data thread id which will be used when listener is unregistered. */
+		((struct com_thread_params*) arg)->data_thread_id = thread_id;
 		return 0; /* success */
 	}else {
-		if(DBG) fprintf(stderr, "%s %d \n", "regrgrg", 5);
-		if(DBG) fflush(stderr);
 		(*env)->DeleteGlobalRef(env, datalooper);
 		pthread_attr_destroy(&((struct com_thread_params*) arg)->data_thread_attr);
 		((struct com_thread_params*) arg)->data_thread_id = 0;
@@ -1671,8 +1666,12 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 
 	/* Find the data thread serving this file descriptor. */
 	for (x=0; x < MAX_NUM_THREADS; x++) {
+		if(DBG) fprintf(stderr, "%s %ld \n", "ptr value==", ptr->fd);
+		if(DBG) fflush(stderr);
 		if(ptr->fd == fd) {
 			data_thread_id = ptr->data_thread_id;
+			if(DBG) fprintf(stderr, "%s %ld \n", "ptr->data_thread_id==", ptr->data_thread_id);
+			if(DBG) fflush(stderr);
 			break;
 		}
 		ptr++;
@@ -1688,7 +1687,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 #elif defined (__APPLE__) || defined (__SunOS)
 	ret = write(ptr->evfd, "E", strlen("E"));
 #endif
-	if(DBG) fprintf(stderr, "%s %ld \n", "data_thread_id==", data_thread_id);
+	if(DBG) fprintf(stderr, "%s %ld \n", "destroy ptr->data_thread_id ==", ptr->data_thread_id);
 	if(DBG) fflush(stderr);
 
 	/* Join the thread to check its exit status. */

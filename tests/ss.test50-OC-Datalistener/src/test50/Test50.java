@@ -96,23 +96,23 @@ public class Test50 {
 					Thread.sleep(500);
 				}
 				
-				scm.writeString(handle1, "2222", 0); 
-				
-				// wait till data listener has received all the data
-				while(exit.get() == false) { 
-					if(osType == SerialComManager.OS_LINUX) {
-						Thread.sleep(10);
-					}else if(osType == SerialComManager.OS_WINDOWS) {
-						Thread.sleep(600);
-					}else if(osType == SerialComManager.OS_MAC_OS_X) {
-						Thread.sleep(500);
-					}else if(osType == SerialComManager.OS_SOLARIS) {
-						Thread.sleep(500);
-					}else{
-					}
-					scm.writeString(handle1, "2222", 0);
-				}
-				exit.set(false);                                     // reset flag
+//				scm.writeString(handle1, "2222", 0); 
+//				
+//				// wait till data listener has received all the data
+//				while(exit.get() == false) { 
+//					if(osType == SerialComManager.OS_LINUX) {
+//						Thread.sleep(10);
+//					}else if(osType == SerialComManager.OS_WINDOWS) {
+//						Thread.sleep(600);
+//					}else if(osType == SerialComManager.OS_MAC_OS_X) {
+//						Thread.sleep(500);
+//					}else if(osType == SerialComManager.OS_SOLARIS) {
+//						Thread.sleep(500);
+//					}else{
+//					}
+//					scm.writeString(handle1, "2222", 0);
+//				}
+//				exit.set(false);                                     // reset flag
 				
 				System.out.println("main thread unregister : " + scm.unregisterDataListener(dataListener));
 				System.out.println("main thread unregister : " + scm.unregisterDataListener(dataListener1));
