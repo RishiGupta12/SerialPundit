@@ -59,7 +59,7 @@ public class Test43 {
 		SerialComManager scm = new SerialComManager();
 		
 		int x = 0;
-		for(x=0; x<2; x++) {
+		for(x=0; x<5000; x++) {
 			System.out.println("\n" + "Iteration : " + x);
 			try {
 				DataListener dataListener = new DataListener();
@@ -115,7 +115,7 @@ public class Test43 {
 				
 				System.out.println("main thread unregister : " + scm.unregisterDataListener(dataListener));
 				if(osType == SerialComManager.OS_LINUX) {
-//					Thread.sleep(100);
+					Thread.sleep(1);
 				}else if(osType == SerialComManager.OS_WINDOWS) {
 					Thread.sleep(500);
 				}else if(osType == SerialComManager.OS_MAC_OS_X) {

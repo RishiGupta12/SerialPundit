@@ -1584,6 +1584,28 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 	if((entry_found == JNI_TRUE) && (empty_entry_found == JNI_FALSE)) {
 		/* Set up pointer to location which will be passed to thread. */
 		arg = &fd_looper_info[x];
+	}else if((entry_found == JNI_FALSE) && (empty_entry_found == JNI_TRUE)) {
+		/* Set the values, create reference to it to be passed to thread. */
+		datalooper = (*env)->NewGlobalRef(env, looper);
+		if(datalooper == NULL) {
+			if(DBG) fprintf(stderr, "%s \n", "NATIVE setUpDataLooperThread() could not create global reference for looper object.");
+			if(DBG) fflush(stderr);
+			pthread_mutex_unlock(&mutex);
+			return -240;
+		}
+		params.jvm = jvm;
+		params.fd = fd;
+		params.looper = datalooper;
+		params.data_thread_id = 0;
+		params.event_thread_id = 0;
+		params.evfd = 0;
+		params.data_thread_exit = 0;
+		params.event_thread_exit = 0;
+		params.mutex = &mutex;
+		params.data_init_done = 0;
+		params.event_init_done = 0;
+		fd_looper_info[x] = params;
+		arg = &fd_looper_info[x];
 	}else {
 		/* Set the values, create reference to it to be passed to thread. */
 		datalooper = (*env)->NewGlobalRef(env, looper);
@@ -1666,12 +1688,8 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 
 	/* Find the data thread serving this file descriptor. */
 	for (x=0; x < MAX_NUM_THREADS; x++) {
-		if(DBG) fprintf(stderr, "%s %ld \n", "ptr value==", ptr->fd);
-		if(DBG) fflush(stderr);
 		if(ptr->fd == fd) {
 			data_thread_id = ptr->data_thread_id;
-			if(DBG) fprintf(stderr, "%s %ld \n", "ptr->data_thread_id==", ptr->data_thread_id);
-			if(DBG) fflush(stderr);
 			break;
 		}
 		ptr++;
@@ -1687,8 +1705,6 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 #elif defined (__APPLE__) || defined (__SunOS)
 	ret = write(ptr->evfd, "E", strlen("E"));
 #endif
-	if(DBG) fprintf(stderr, "%s %ld \n", "destroy ptr->data_thread_id ==", ptr->data_thread_id);
-	if(DBG) fflush(stderr);
 
 	/* Join the thread to check its exit status. */
 	ret = pthread_join(data_thread_id, &status);
@@ -1756,6 +1772,29 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 	if((entry_found == JNI_TRUE) && (empty_entry_found == JNI_FALSE)) {
 		/* Set up pointer to location which will be passed to thread. */
 		arg = &fd_looper_info[x];
+	}else if((entry_found == JNI_FALSE) && (empty_entry_found == JNI_TRUE)) {
+		/* Set the values, create reference to it to be passed to thread. */
+		eventlooper = (*env)->NewGlobalRef(env, looper);
+		if(eventlooper == NULL) {
+			if(DBG) fprintf(stderr, "%s \n", "NATIVE setUpEventLooperThread() could not create global reference for looper object.");
+			if(DBG) fflush(stderr);
+			pthread_mutex_unlock(&mutex);
+			return -240;
+		}
+
+		params.jvm = jvm;
+		params.fd = fd;
+		params.looper = eventlooper;
+		params.data_thread_id = 0;
+		params.event_thread_id = 0;
+		params.evfd = 0;
+		params.data_thread_exit = 0;
+		params.event_thread_exit = 0;
+		params.mutex = &mutex;
+		params.data_init_done = 0;
+		params.event_init_done = 0;
+		fd_looper_info[x] = params;
+		arg = &fd_looper_info[x];
 	}else {
 		/* Set the values, create reference to it to be passed to thread. */
 		eventlooper = (*env)->NewGlobalRef(env, looper);
@@ -1794,9 +1833,6 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 		return (negative * errno);
 	}
 
-	/* Save the data thread id which will be used when listener is unregistered. */
-	((struct com_thread_params*) arg)->event_thread_id = thread_id;
-
 	if((entry_found == JNI_TRUE) || (empty_entry_found == JNI_TRUE)) {
 		/* index has been already incremented when data looper thread was created, so do nothing. */
 	}else {
@@ -1810,6 +1846,8 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 	while(0 == ((struct com_thread_params*) arg)->event_init_done) { }
 
 	if(1 == ((struct com_thread_params*) arg)->event_init_done) {
+		/* Save the data thread id which will be used when listener is unregistered. */
+		((struct com_thread_params*) arg)->event_thread_id = thread_id;
 		return 0; /* success */
 	}else {
 		(*env)->DeleteGlobalRef(env, eventlooper);
