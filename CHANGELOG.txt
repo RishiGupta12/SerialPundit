@@ -1,5 +1,6 @@
 
 v1.0.3 (TODO RELEASE DATE 12 May 2015)
+	- added byteArrayToHexStr() utility method
 	- listAvailableComPorts() now throws SerialComException
 	- listeners optimized for less memory consumption
 	- read/write method are now more easy to use
@@ -8,6 +9,7 @@ v1.0.3 (TODO RELEASE DATE 12 May 2015)
 	- attempting to open an alreadyed opened port will throw exception (if trying to become exclusive owner)
 	- pass valid thread id to pthread_join() for data listener in linux
 	- destroy pthread_attr_t object upon thread termination
+	- javadocs and source code comments updated
 	
 v1.0.2 (12 May 2015)
 	- new API getPortName() to find port name added

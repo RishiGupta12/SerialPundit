@@ -20,8 +20,13 @@ package test1;
 import com.embeddedunveiled.serial.SerialComManager;
 
 /*
- * Must find hw/sw virtual ports, bluetooth dongle, 3G dongle, port server, USB-UART converter,
- * regular ports etc.
+ * Must find :
+ * - hw/sw virtual ports
+ * - bluetooth dongle and 3G dongle
+ * - port server
+ * - USB-UART converter
+ * - regular ports
+ * - ports connected through USB hub/expander
  */
 public class Test1 {
 	public static void main(String[] args) {

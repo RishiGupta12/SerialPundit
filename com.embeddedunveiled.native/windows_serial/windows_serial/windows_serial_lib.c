@@ -41,6 +41,12 @@ void LOGE(JNIEnv *env) {
 	(*env)->ExceptionClear(env);
 }
 
+/* provide delay whenever required. */
+int serial_delay(unsigned milliSeconds) {
+	Sleep(milliSeconds);
+	return 0;
+}
+
 /* This thread wait for both data and control event both to occur on the specified port. When data is received on port or a control event has
  * occurred, it enqueue this to data or event to corresponding queue. Separate blocking queue for data and events are managed by java layer. */
 unsigned __stdcall event_data_looper(void* arg) {

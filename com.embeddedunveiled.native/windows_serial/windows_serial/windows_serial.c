@@ -33,7 +33,7 @@
 
 /* function prototypes */
 extern void LOGE(JNIEnv *env);
-extern int serial_delay(unsigned usecs);
+extern int serial_delay(unsigned ms);
 extern unsigned WINAPI event_data_looper(LPVOID lpParam);
 extern unsigned WINAPI port_monitor(LPVOID lpParam);
 int setupLooperThread(JNIEnv *env, jobject obj, jlong handle, jobject looper_obj_ref, int data_enabled, int event_enabled, int global_index, int new_dtp_index);

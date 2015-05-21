@@ -234,10 +234,15 @@ public final class SerialComManager {
 
 	/**
 	 * <p>Returns all available UART style ports available on this system, otherwise an empty array of strings, if no serial style port is
-	 * found in the system. Note that the BIOS may ignore UART ports on a PCI card and therefore BIOS settings has to be corrected.</p>
+	 * found in the system.</p>
 	 * 
-	 * <p>Developers must consider using this method to know which ports are valid communications ports before opening them for writing
-	 * more robust code.</p>
+	 * <p>This method to know which ports are valid communications ports before opening them for writing more robust code.</p>
+	 * 
+	 * <p>This should find regular UART ports, hw/sw virtual COM ports, port server, USB-UART converter, bluetooth/3G dongles, 
+	 * ports connected through USB hub/expander etc.</p>
+	 * 
+	 * <p>Note : The BIOS may ignore UART ports on a PCI card and therefore BIOS settings has to be corrected if you modifed
+	 * default BIOS in custom OS.</p>
 	 * 
 	 * @return Available UART style ports name for windows, full path with name for Unix like OS, returns empty array if no ports found.
 	 * @throws SerialComException - if an I/O error occurs.
@@ -261,7 +266,7 @@ public final class SerialComManager {
 	}
 
 	/** 
-	 * <p>This opens a serial port for communication.</p>
+	 * <p>This opens a serial port for communication. If an attempt is made to open a port which is already opened exception in throw.</p>
 	 * 
 	 * <p>For Linux and Mac OS X, if exclusiveOwnerShip is true, before this method return, the caller will either be exclusive owner
 	 * or not. If the caller is successful in becoming exclusive owner than all the attempt to open the same port again will cause
@@ -271,7 +276,9 @@ public final class SerialComManager {
 	 * exclusiveOwnerShip is set to false.</p>
 	 * 
 	 * <p>For Solaris, exclusiveOwnerShip should be set to false as of now.</p>
-	 * <p>If an attempt is made to open a port which is already opened exception in throw.</p>
+	 * 
+	 * <p>DTR acts as a modem on-hook/off-hook control sometimes. By default when port is opened both DTR and RTS are enabled.
+	 * Modern modems are highly flexible in their dependency, working and configurations. Please consult modem manual.</p>
 	 * 
 	 * <p>This method is thread safe.</p>
 	 * 
