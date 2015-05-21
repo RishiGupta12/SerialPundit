@@ -377,12 +377,10 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInter
 		return -240;
 	}
 
-	/* In Windows, timeout related settings needs to be cleared as they might have values from previous applications. */
-	lpCommTimeouts.ReadIntervalTimeout = 1;
-	lpCommTimeouts.ReadTotalTimeoutConstant = 1;
-	lpCommTimeouts.ReadTotalTimeoutMultiplier = 1;
-	lpCommTimeouts.WriteTotalTimeoutConstant = 1;
-	lpCommTimeouts.WriteTotalTimeoutMultiplier = 1;
+	/* Set correct timing parameters that will define how ReadFile and WriteFile functions will behave. */
+	SecureZeroMemory(&lpCommTimeouts, sizeof(COMMTIMEOUTS));
+	lpCommTimeouts.ReadIntervalTimeout = 100;
+	lpCommTimeouts.WriteTotalTimeoutConstant = 1000;
 	ret = SetCommTimeouts(hComm, &lpCommTimeouts);
 	if(ret == 0) {
 		errorVal = GetLastError();
