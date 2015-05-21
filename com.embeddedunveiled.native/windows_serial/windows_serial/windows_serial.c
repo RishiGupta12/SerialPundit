@@ -659,13 +659,16 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 		if(result == FALSE) {
 			errorVal = GetLastError();
 			if(errorVal == ERROR_IO_PENDING) {
-				if(WaitForSingleObject(ovWrite.hEvent, 3000) == WAIT_OBJECT_0) {
+				if(WaitForSingleObject(ovWrite.hEvent, 1000) == WAIT_OBJECT_0) {
 					ret = GetOverlappedResult(hComm, &ovWrite, &num_of_bytes_written, TRUE);
 					if(ret == 0) {
 						errorVal = GetLastError();
 						if(DBG) fprintf(stderr, "%s %ld\n", "NATIVE GetOverlappedResult() in writeBytes() failed with windows error number : ", errorVal);
 						if(DBG) fflush(stderr);
 						status = -240;
+					}else {
+						// success flush all data out of serial port
+						FlushFileBuffers(hComm);
 					}
 				}
 			}else if((errorVal == ERROR_INVALID_USER_BUFFER) || (errorVal == ERROR_NOT_ENOUGH_MEMORY)) {
@@ -684,37 +687,34 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 		// delay between successive bytes sent
 		while (num_bytes_to_write > 0) {
 			result = WriteFile(hComm, &data_buf[index], 1, &num_of_bytes_written, &ovWrite);
-			if (result == FALSE) {
+			if(result == FALSE) {
 				errorVal = GetLastError();
-				if (errorVal == ERROR_IO_PENDING) {
-					if (WaitForSingleObject(ovWrite.hEvent, 3000) == WAIT_OBJECT_0) {
+				if(errorVal == ERROR_IO_PENDING) {
+					if(WaitForSingleObject(ovWrite.hEvent, 1000) == WAIT_OBJECT_0) {
 						ret = GetOverlappedResult(hComm, &ovWrite, &num_of_bytes_written, TRUE);
-						if (ret == 0) {
+						if(ret == 0) {
 							errorVal = GetLastError();
-							if (DBG) fprintf(stderr, "%s %ld\n", "NATIVE GetOverlappedResult() in writeBytes() failed with windows error number : ", errorVal);
-							if (DBG) fflush(stderr);
+							if(DBG) fprintf(stderr, "%s %ld\n", "NATIVE GetOverlappedResult() in writeBytes() failed with windows error number : ", errorVal);
+							if(DBG) fflush(stderr);
 							status = -240;
 						}
 					}
-				}
-				else if ((errorVal == ERROR_INVALID_USER_BUFFER) || (errorVal == ERROR_NOT_ENOUGH_MEMORY)) {
+				}else if((errorVal == ERROR_INVALID_USER_BUFFER) || (errorVal == ERROR_NOT_ENOUGH_MEMORY)) {
 					status = negative * ETOOMANYOP;
-				}
-				else if (errorVal == ERROR_NOT_ENOUGH_QUOTA) {
+				}else if(errorVal == ERROR_NOT_ENOUGH_QUOTA) {
 					status = negative * ENOMEM;
-				}
-				else if (errorVal == ERROR_OPERATION_ABORTED) {
+				}else if(errorVal == ERROR_OPERATION_ABORTED) {
 					status = negative * ECANCELED;
-				}
-				else {
-					if (DBG) fprintf(stderr, "%s %ld\n", "NATIVE WriteFile() in writeBytes() failed with windows error number : ", errorVal);
-					if (DBG) fflush(stderr);
+				}else {
+					if(DBG) fprintf(stderr, "%s %ld\n", "NATIVE WriteFile() in writeBytes() failed with windows error number : ", errorVal);
+					if(DBG) fflush(stderr);
 					status = -240;
 				}
 			}
 			num_bytes_to_write -= num_of_bytes_written;
 			index = index + num_of_bytes_written;
-			serial_delay(delay); // use supplied delay between bytes in milliseconds
+			FlushFileBuffers(hComm);
+			serial_delay(delay - 5); // delay between bytes in milliseconds, compensate for time taken by FlushFileBuffers() by subtracting 5 approx
 		}
 	}
 
