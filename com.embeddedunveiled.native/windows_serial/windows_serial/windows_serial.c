@@ -461,7 +461,9 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
  * 3. If error occurs for whatever reason, return NULL and set status variable to Windows specific error number.
  * 
  * The number of bytes return can be less than the request number of bytes but can never be greater than the requested
- * number of bytes. This is implemented using total_read variable. 1 <= Size request <= 2048 
+ * number of bytes. This is implemented using total_read variable. 1 <= Size request <= 2048.
+ * 
+ * Blocking read with 150ms timeout. If data is available return even before 150ms has passed.
  */
 JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_readBytes(JNIEnv *env, jobject obj, jlong handle, jint count, jobject status) {
 	jint ret = 0;
@@ -488,7 +490,9 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINative
 	if(ret == 0) {
 		errorVal = GetLastError();
 		if(errorVal == ERROR_IO_PENDING) {
-			wait_status = WaitForSingleObject(overlapped.hEvent, 100);
+
+			wait_status = WaitForSingleObject(overlapped.hEvent, 150);
+
 			if(wait_status == WAIT_OBJECT_0) {
 				ret = GetOverlappedResult(hComm, &overlapped, &num_of_bytes_read, FALSE);
 
@@ -508,6 +512,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINative
 						if(statusClass == NULL) {
 							if (DBG) fprintf(stderr, "%s \n", "NATIVE readBytes() could not get class of object of type SerialComReadStatus !");
 							if (DBG) fflush(stderr);
+							CloseHandle(overlapped.hEvent);
 							return NULL;
 						}
 
@@ -515,6 +520,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINative
 						if(status_fid == NULL) {
 							if (DBG) fprintf(stderr, "%s \n", "NATIVE readBytes() failed to retrieve field id of field status in class SerialComReadStatus !");
 							if (DBG) fflush(stderr);
+							CloseHandle(overlapped.hEvent);
 							return NULL;
 						}
 						if((*env)->ExceptionOccurred(env)) {
@@ -523,11 +529,9 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINative
 
 						if((errorVal == ERROR_INVALID_USER_BUFFER) || (errorVal == ERROR_NOT_ENOUGH_MEMORY)) {
 							errorVal = ETOOMANYOP;
-						}
-						else if((errorVal == ERROR_NOT_ENOUGH_QUOTA) || (errorVal == ERROR_INSUFFICIENT_BUFFER)) {
+						}else if((errorVal == ERROR_NOT_ENOUGH_QUOTA) || (errorVal == ERROR_INSUFFICIENT_BUFFER)) {
 							errorVal = ENOMEM;
-						}
-						else if(errorVal == ERROR_OPERATION_ABORTED) {
+						}else if(errorVal == ERROR_OPERATION_ABORTED) {
 							errorVal = ECANCELED;
 						}
 
@@ -541,9 +545,10 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINative
 				/* This indicates error. */
 				errorVal = GetLastError();
 				jclass statusClass = (*env)->GetObjectClass(env, status);
-				if (statusClass == NULL) {
-					if (DBG) fprintf(stderr, "%s \n", "NATIVE readBytes() could not get class of object of type SerialComReadStatus !");
-					if (DBG) fflush(stderr);
+				if(statusClass == NULL) {
+					if(DBG) fprintf(stderr, "%s \n", "NATIVE readBytes() could not get class of object of type SerialComReadStatus !");
+					if(DBG) fflush(stderr);
+					CloseHandle(overlapped.hEvent);
 					return NULL;
 				}
 
@@ -551,6 +556,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINative
 				if(status_fid == NULL) {
 					if (DBG) fprintf(stderr, "%s \n", "NATIVE readBytes() failed to retrieve field id of field status in class SerialComReadStatus !");
 					if (DBG) fflush(stderr);
+					CloseHandle(overlapped.hEvent);
 					return NULL;
 				}
 				if((*env)->ExceptionOccurred(env)) {
@@ -559,12 +565,11 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINative
 
 				if((errorVal == ERROR_INVALID_USER_BUFFER) || (errorVal == ERROR_NOT_ENOUGH_MEMORY)) {
 					errorVal = ETOOMANYOP;
-				}
-				else if((errorVal == ERROR_NOT_ENOUGH_QUOTA) || (errorVal == ERROR_INSUFFICIENT_BUFFER)) {
+				}else if((errorVal == ERROR_NOT_ENOUGH_QUOTA) || (errorVal == ERROR_INSUFFICIENT_BUFFER)) {
 					errorVal = ENOMEM;
-				}
-				else if(errorVal == ERROR_OPERATION_ABORTED) {
+				}else if(errorVal == ERROR_OPERATION_ABORTED) {
 					errorVal = ECANCELED;
+				}else {
 				}
 
 				(*env)->SetIntField(env, status, status_fid, (negative*errorVal));
@@ -578,6 +583,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINative
 			if(statusClass == NULL) {
 				if(DBG) fprintf(stderr, "%s \n", "NATIVE readBytes() could not get class of object of type SerialComReadStatus !");
 				if(DBG) fflush(stderr);
+				CloseHandle(overlapped.hEvent);
 				return NULL;
 			}
 
@@ -585,6 +591,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINative
 			if(status_fid == NULL) {
 				if(DBG) fprintf(stderr, "%s \n", "NATIVE readBytes() failed to retrieve field id of field status in class SerialComReadStatus !");
 				if(DBG) fflush(stderr);
+				CloseHandle(overlapped.hEvent);
 				return NULL;
 			}
 			if((*env)->ExceptionOccurred(env)) {
@@ -593,12 +600,11 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINative
 
 			if((errorVal == ERROR_INVALID_USER_BUFFER) || (errorVal == ERROR_NOT_ENOUGH_MEMORY)) {
 				errorVal = ETOOMANYOP;
-			}
-			else if((errorVal == ERROR_NOT_ENOUGH_QUOTA) || (errorVal == ERROR_INSUFFICIENT_BUFFER)) {
+			}else if((errorVal == ERROR_NOT_ENOUGH_QUOTA) || (errorVal == ERROR_INSUFFICIENT_BUFFER)) {
 				errorVal = ENOMEM;
-			}
-			else if(errorVal == ERROR_OPERATION_ABORTED) {
+			}else if(errorVal == ERROR_OPERATION_ABORTED) {
 				errorVal = ECANCELED;
+			}else {
 			}
 
 			(*env)->SetIntField(env, status, status_fid, (negative*errorVal));
