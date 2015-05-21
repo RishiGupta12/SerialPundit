@@ -433,6 +433,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 
 	/* Close the port. */
 	ret = CloseHandle(hComm);
+
 	if(ret == 0) {
 		errorVal = GetLastError();
 		if(errorVal == ERROR_INVALID_HANDLE) {
@@ -840,8 +841,9 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 		dcb.StopBits = ONESTOPBIT;
 	}else if(stopBits == 4) {
 		dcb.StopBits = ONE5STOPBITS;
-	}else if(stopBits == 2) {
+	}else if (stopBits == 2) {
 		dcb.StopBits = TWOSTOPBITS;
+	}else {
 	}
 
 	/* Set parity */
@@ -857,6 +859,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 		dcb.Parity = MARKPARITY;
 	}else if (parity == 5) {
 		dcb.Parity = SPACEPARITY;
+	}else {
 	}
 
 	ret = SetCommState(hComm, &dcb);
@@ -901,34 +904,31 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 	}
 
 	/* Set flow control. Details can be found here https://msdn.microsoft.com/en-us/library/ff802693.aspx */
+	dcb.fDtrControl = DTR_CONTROL_ENABLE;
+	dcb.fRtsControl = RTS_CONTROL_ENABLE;
 	if(flowctrl == 1) {                          /* No flow control. */
 		dcb.fOutX = FALSE;
 		dcb.fInX = FALSE;
 		dcb.fOutxCtsFlow = FALSE;
 		dcb.fOutxDsrFlow = FALSE;
 		dcb.fDsrSensitivity = FALSE;
-		dcb.fDtrControl = DTR_CONTROL_DISABLE;
-		dcb.fRtsControl = RTS_CONTROL_DISABLE;
 	}else if(flowctrl == 2) {                    /* Hardware flow control. */
 		dcb.fOutX = FALSE;
 		dcb.fInX = FALSE;
 		dcb.fOutxCtsFlow = TRUE;
 		dcb.fOutxDsrFlow = TRUE;
 		dcb.fDsrSensitivity = TRUE;
-		dcb.fRtsControl = RTS_CONTROL_ENABLE;
-		dcb.fDtrControl = DTR_CONTROL_ENABLE;
 	}else if(flowctrl == 3) {                    /* Software flow control. */
 		dcb.fOutX = TRUE;
 		dcb.fInX = TRUE;
 		dcb.fOutxCtsFlow = FALSE;
 		dcb.fOutxDsrFlow = FALSE;
 		dcb.fDsrSensitivity = FALSE;
-		dcb.fDtrControl = DTR_CONTROL_ENABLE;
-		dcb.fRtsControl = RTS_CONTROL_ENABLE;
 		dcb.XonChar = (CHAR) xon;
 		dcb.XoffChar = (CHAR) xoff;
 		dcb.XonLim = 2048;
 		dcb.XoffLim = 2048;
+	}else {
 	}
 
 	ret = SetCommState(hComm, &dcb);
