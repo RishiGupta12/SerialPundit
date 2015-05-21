@@ -260,28 +260,27 @@ public final class SerialComManager {
 	}
 
 	/** 
-	 * <p>Developers are advised to consider using methods like openComPort(), closeComPort() and configureComPort() etc in thread safe
-	 * manner to maintain reliable and consistent operation.</p>
+	 * <p>This opens a serial port for communication.</p>
 	 * 
 	 * <p>For Linux and Mac OS X, if exclusiveOwnerShip is true, before this method return, the caller will either be exclusive owner
 	 * or not. If the caller is successful in becoming exclusive owner than all the attempt to open the same port again will cause
 	 * native code to return error. Note that a root owned process (root user) will still be able to open the port.</p>
 	 * 
-	 * <p>For Windows, the caller has to be exclusive owner as Windows does not allow sharing COM ports as files can be shared.
-	 * An exception is thrown if exclusiveOwnerShip is set to false. The exclusiveOwnerShip must be true for Windows.</p>
-	 * 
-	 * <p>If an attempt is made to open a port who already has an exclusive owner from the same instance of this class -1 is returned.
-	 * However if this attempt is made from different instance, an exception is thrown. </p>
+	 * <p>The exclusiveOwnerShip must be true for Windows as it does not allow sharing COM ports. An exception is thrown if 
+	 * exclusiveOwnerShip is set to false.</p>
 	 * 
 	 * <p>For Solaris, exclusiveOwnerShip should be set to false as of now.</p>
+	 * <p>If an attempt is made to open a port which is already opened exception in throw.</p>
+	 * 
+	 * <p>This method is thread safe.</p>
 	 * 
 	 * @param portName name of the port to be opened for communication
 	 * @param enableRead allows application to read bytes from this port
 	 * @param enableWrite allows application to write bytes to this port
 	 * @param exclusiveOwnerShip application wants to become exclusive owner of this port or not
 	 * @return handle of the port successfully opened
-	 * @throws SerialComException - if null argument is passed, if both enableWrite and enableRead are false
-	 * @throws IllegalArgumentException - if portName is null
+	 * @throws SerialComException - if both enableWrite and enableRead are false, trying to become exclusive owner when port is already opened
+	 * @throws IllegalArgumentException - if portName is null or invalid length
 	 */
 	public long openComPort(String portName, boolean enableRead, boolean enableWrite, boolean exclusiveOwnerShip) throws SerialComException {
 		long handle = 0;
@@ -330,6 +329,7 @@ public final class SerialComManager {
 
 	/**
 	 * <p>Close the serial port. Application should unregister listeners if it has registered any.</p>
+	 * <p>This method is thread safe.</p>
 	 * 
 	 * @param handle of the port to be closed
 	 * @return Return true on success in closing the port false otherwise
@@ -873,6 +873,7 @@ public final class SerialComManager {
 	 * <p>Application (listener) should implement ISerialComDataListener and override onNewSerialDataAvailable method.</p>
 	 * 
 	 * <p>The scm library can manage upto 1024 listeners corresponding to 1024 port handles.</p>
+	 * <p>This method is thread safe.</p>
 	 * 
 	 * @param handle of the port opened
 	 * @param dataListener instance of class which implements ISerialComDataListener interface
@@ -914,6 +915,8 @@ public final class SerialComManager {
 	 * <p>This method destroys complete java and native looper subsystem associated with this particular data listener. This has no
 	 * effect on event looper subsystem. This method returns only after native thread has been terminated successfully.</p>
 	 * 
+	 * <p>This method is thread safe.</p>
+	 * 
 	 * @param dataListener instance of class which implemented ISerialComDataListener interface
 	 * @return true on success false otherwise
 	 * @throws SerialComException - if null value is passed in dataListener field
@@ -934,49 +937,6 @@ public final class SerialComManager {
 	}
 
 	/**
-	 * <p>By default, the data listener will be called for every single byte available. This may not be optimal in case
-	 * of data, but may be critical in case data actually is part of some custom protocol. So, applications can
-	 * dynamically change the behavior of 'calling data listener' based on the amount of data availability.</p>
-	 * 
-	 * <p>Note: (1) If the port has been opened by more than one user, all the users will be affected by this method.
-	 * (2) This is not supported on Windows OS.</p>
-	 * 
-	 * @param handle of the opened port
-	 * @param numOfBytes minimum number of bytes that would have been read from port to pass to listener
-	 * @return true on success false otherwise
-	 * @throws SerialComException - if invalid value for numOfBytes is passed, wrong handle is passed, operation can not be done successfully
-	 * @throws IllegalArgumentException - if numOfBytes is less than 0
-	 */
-	public boolean setMinDataLength(long handle, int numOfBytes) throws SerialComException {
-
-		if(getOSType() == OS_WINDOWS) {
-			return false;
-		}
-
-		boolean handlefound = false;
-		if(numOfBytes < 0) {
-			throw new IllegalArgumentException("setMinDataLength(), " + SerialComErrorMapper.ERR_INVALID_DATA_LENGTH);
-		}
-
-		for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
-			if(mInfo.containsHandle(handle)) {
-				handlefound = true;
-				break;
-			}
-		}
-
-		if(handlefound == false) {
-			throw new SerialComException("setMinDataLength()", SerialComErrorMapper.ERR_WRONG_HANDLE);
-		}
-
-		int ret = mNativeInterface.setMinDataLength(handle, numOfBytes);
-		if(ret < 0) {
-			throw new SerialComException("setMinDataLength()",  mErrMapper.getMappedError(ret));
-		}
-		return true;
-	}
-
-	/**
 	 * <p>This method associate a event looper with the given listener. This looper will keep delivering new event whenever
 	 * it is made available from native event collection and dispatching subsystem.</p>
 	 * 
@@ -989,6 +949,7 @@ public final class SerialComManager {
 	 * 
 	 * <p>Before calling this method, make sure that port has been configured for hardware flow control using configureComPortControl
 	 * method.</p>
+	 * <p>This method is thread safe.</p>
 	 * 
 	 * @param handle of the port opened
 	 * @param eventListener instance of class which implements ISerialComEventListener interface
@@ -1004,28 +965,31 @@ public final class SerialComManager {
 			throw new IllegalArgumentException("registerLineEventListener(), " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_LISTENER);
 		}
 
-		for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
-			if(mInfo.containsHandle(handle)) {
-				handlefound = true;
-				if(mInfo.getEventListener() != null) {
-					throw new SerialComException("registerLineEventListener()", SerialComErrorMapper.ERR_LISTENER_ALREADY_EXIST);
-				}else {
-					mHandleInfo = mInfo;
+		synchronized(lock) {
+			for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
+				if(mInfo.containsHandle(handle)) {
+					handlefound = true;
+					if(mInfo.getEventListener() != null) {
+						throw new SerialComException("registerLineEventListener()", SerialComErrorMapper.ERR_LISTENER_ALREADY_EXIST);
+					}else {
+						mHandleInfo = mInfo;
+					}
+					break;
 				}
-				break;
 			}
+	
+			if(handlefound == false) {
+				throw new SerialComException("registerLineEventListener()", SerialComErrorMapper.ERR_WRONG_HANDLE);
+			}
+	
+			return mEventCompletionDispatcher.setUpEventLooper(handle, mHandleInfo, eventListener);
 		}
-
-		if(handlefound == false) {
-			throw new SerialComException("registerLineEventListener()", SerialComErrorMapper.ERR_WRONG_HANDLE);
-		}
-
-		return mEventCompletionDispatcher.setUpEventLooper(handle, mHandleInfo, eventListener);
 	}
 
 	/**
 	 * <p>This method destroys complete java and native looper subsystem associated with this particular event listener. This has no
 	 * effect on data looper subsystem.</p>
+	 * <p>This method is thread safe.</p>
 	 * 
 	 * @param eventListener instance of class which implemented ISerialComEventListener interface
 	 * @return true on success false otherwise
@@ -1036,8 +1000,10 @@ public final class SerialComManager {
 		if(eventListener == null) {
 			throw new IllegalArgumentException("unregisterLineEventListener(), " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_LISTENER);
 		}
-		if(mEventCompletionDispatcher.destroyEventLooper(eventListener)) {
-			return true;
+		synchronized(lock) {
+			if(mEventCompletionDispatcher.destroyEventLooper(eventListener)) {
+				return true;
+			}
 		}
 
 		return false;
@@ -1085,6 +1051,49 @@ public final class SerialComManager {
 		}
 
 		return false;
+	}
+	
+	/**
+	 * <p>By default, the data listener will be called for every single byte available. This may not be optimal in case
+	 * of data, but may be critical in case data actually is part of some custom protocol. So, applications can
+	 * dynamically change the behavior of 'calling data listener' based on the amount of data availability.</p>
+	 * 
+	 * <p>Note: (1) If the port has been opened by more than one user, all the users will be affected by this method.
+	 * (2) This is not supported on Windows OS.</p>
+	 * 
+	 * @param handle of the opened port
+	 * @param numOfBytes minimum number of bytes that would have been read from port to pass to listener
+	 * @return true on success false otherwise
+	 * @throws SerialComException - if invalid value for numOfBytes is passed, wrong handle is passed, operation can not be done successfully
+	 * @throws IllegalArgumentException - if numOfBytes is less than 0
+	 */
+	public boolean setMinDataLength(long handle, int numOfBytes) throws SerialComException {
+
+		if(getOSType() == OS_WINDOWS) {
+			return false;
+		}
+
+		boolean handlefound = false;
+		if(numOfBytes < 0) {
+			throw new IllegalArgumentException("setMinDataLength(), " + SerialComErrorMapper.ERR_INVALID_DATA_LENGTH);
+		}
+
+		for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
+			if(mInfo.containsHandle(handle)) {
+				handlefound = true;
+				break;
+			}
+		}
+
+		if(handlefound == false) {
+			throw new SerialComException("setMinDataLength()", SerialComErrorMapper.ERR_WRONG_HANDLE);
+		}
+
+		int ret = mNativeInterface.setMinDataLength(handle, numOfBytes);
+		if(ret < 0) {
+			throw new SerialComException("setMinDataLength()",  mErrMapper.getMappedError(ret));
+		}
+		return true;
 	}
 
 	/**

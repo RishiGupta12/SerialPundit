@@ -71,7 +71,7 @@ public class Test14 {
 
 			// register data listener for this port
 			scm.registerDataListener(handle, dataListener);
-			scm.setMinDataLength(handle, 5);
+			scm.setMinDataLength(handle, 6);
 
 			// open and configure port which will send data
 			long handle1 = scm.openComPort(PORT1, true, true, true);
@@ -80,14 +80,19 @@ public class Test14 {
 			scm.writeString(handle1, "test", 0);
 			Thread.sleep(1000);
 
-			// although test string has been transmitted, but listener will not get called because test has only
-			// 4 bytes where as we set minimum length as 5, so let us transmit 1 more byte and listener will
+			// although "test" string (4 bytes) have been transmitted, but listener will not get called because test
+			// has only 4 bytes where as we set minimum length as 5, so let us transmit 1 more byte and listener will
 			// get called.
 			scm.writeString(handle1, "H", 0);
 			Thread.sleep(1000);
 
 			// unregister data listener
 			scm.unregisterDataListener(dataListener);
+			
+			scm.writeString(handle1, "t", 0);
+			Thread.sleep(1000);
+			byte[] data = scm.readBytes(handle);
+			System.out.println("length : " + data.length);
 
 			// close the port releasing handle
 			scm.closeComPort(handle);

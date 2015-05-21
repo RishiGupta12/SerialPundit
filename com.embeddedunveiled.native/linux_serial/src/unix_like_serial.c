@@ -19,7 +19,9 @@
 /* - This file contains native code to communicate with tty-style port in Unix-like operating systems.
  * - When printing error number, number returned by OS is printed as it is.
  * - There will be only one instance of this shared library at runtime. So if something goes wrong
- *   it will affect everything, until this library has been unloaded and then loaded again. */
+ *   it will affect everything, until this library has been unloaded and then loaded again.
+ *
+ *   Sometimes, the JNI does not like some pointer arithmetic so it is avoided wherever possible. */
 
 #if defined (__linux__) || defined (__APPLE__) || defined (__SunOS)
 
@@ -999,7 +1001,8 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 	currentconfig.c_iflag &= ~IUCLC;  /* translate upper case to lower case */
 #endif
 
-	/* blocking read with 100ms timeout (VTIME *0.1 seconds). */
+	/* Blocking read with 100ms timeout (VTIME *0.1 seconds). If caller requested say 20 bytes and there are available
+	 * in OS buffer, then it's returned to the caller immediately and without having VMIN and VTIME participate in any way.*/
 	currentconfig.c_cc[VTIME] = 1;
 	currentconfig.c_cc[VMIN] = 0;
 
