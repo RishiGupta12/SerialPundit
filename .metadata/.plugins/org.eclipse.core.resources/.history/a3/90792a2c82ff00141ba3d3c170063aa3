@@ -1,0 +1,72 @@
+/**
+ * Author : Rishi Gupta
+ * 
+ * This file is part of 'serial communication manager' library.
+ *
+ * The 'serial communication manager' is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by the Free Software 
+ * Foundation, either version 3 of the License, or (at your option) any later version.
+ *
+ * The 'serial communication manager' is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
+ * PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with serial communication manager. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+package test1;
+
+import com.embeddedunveiled.serial.SerialComManager;
+
+/*
+ * Must find hw/sw virtual ports, bluetooth dongle, 3G dongle, port server, USB-UART converter,
+ * regular ports etc.
+ */
+public class Test1 {
+	
+	 private static final String    HEXES        = "0123456789ABCDEF";
+	 
+	public static void main(String[] args) {
+		try {
+			 byte[] raw = {
+			            (byte) 0xd0, (byte) 0x0b, (byte) 0x01, (byte) 0x2a, (byte) 0x63,
+			            (byte) 0x78, (byte) 0x01, (byte) 0x2e, (byte) 0xe3, (byte) 0x6c,
+			            (byte) 0xd2, (byte) 0xb0, (byte) 0x78, (byte) 0x51, (byte) 0x73,
+			            (byte) 0x34, (byte) 0xaf, (byte) 0xbb, (byte) 0xa0, (byte) 0x9f,
+			            (byte) 0xc3, (byte) 0xa9, (byte) 0x00, (byte) 0x1e, (byte) 0xd5,
+			            (byte) 0x4b, (byte) 0x89, (byte) 0xa3, (byte) 0x45, (byte) 0x35,
+			            (byte) 0xd6, (byte) 0x10,
+			        };
+
+			        int N = 77777;
+			        long t;
+
+			        {
+			            t = System.currentTimeMillis();
+			            for (int i = 0; i < N; i++) {
+			                final StringBuilder hex = new StringBuilder(2 * raw.length);
+			                for (final byte b : raw) {
+			                    hex.append(HEXES.charAt((b & 0xF0) >> 4)).append(HEXES.charAt((b & 0x0F)));
+			                }
+			                hex.toString();
+			            }
+			            System.out.println(System.currentTimeMillis() - t); // 50
+			        }
+
+			        {
+			            t = System.currentTimeMillis();
+			            for (int i = 0; i < N; i++) {
+			                StringBuilder hex = new StringBuilder(2 * raw.length);
+			                for (byte b : raw) {
+			                    hex.append(String.format("%02X", b));
+			                }
+			                hex.toString();
+			            }
+			            System.out.println(System.currentTimeMillis() - t); // 2535
+			        }
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+}

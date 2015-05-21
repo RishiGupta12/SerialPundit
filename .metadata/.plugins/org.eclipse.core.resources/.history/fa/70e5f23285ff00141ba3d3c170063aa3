@@ -168,7 +168,6 @@ public final class SerialComManager {
 	public static final String javaTmpDir = System.getProperty("java.io.tmpdir");
 	public static final String fileSeparator = System.getProperty("file.separator");
 	public static final String javaLibPath = System.getProperty("java.library.path").toLowerCase();
-	private static final String HEXNUM = "0123456789ABCDEF";
 
 	/** Maintain integrity and consistency among all operations, therefore synchronize them for
 	 *  making structural changes. This array can be sorted array if scaled to large scale. */
@@ -1577,37 +1576,27 @@ public final class SerialComManager {
 	}
 	
 	/**
-	 * <p>This method creates hex string from byte array. This is useful in bluetooth low energy applications where characteristics
-	 * returned are to be interpreted or for example Internet of things applications where sensor data is getting exchanged.</p>
+	 * <p>This method writes bytes from the specified byte type buffer. If the method returns false, the application
+	 * should try to re-send bytes. The data has been transmitted out of serial port when this method returns.</p>
 	 * 
-	 * @param data byte array to be converted into string
-	 * @param separator to be inserted after each hex value
-	 * @return constructed hex string if data.length > 0 otherwise empty string
-	 * @throws IllegalArgumentException - if data is null
+	 * <p>This method may be used for Internet of things applications, large data transfer, implementing userspace drivers,
+	 * middleware frameworks, quick prototyping of Wifi/BT modules connected to UART port.</p>
+	 * 
+	 * @param handle handle of the opened port on which to write bytes
+	 * @param buffer byte type buffer containing bytes to be written to port
+	 * @return true on success, false on failure or if empty buffer is passed
+	 * @throws SerialComException - if an I/O error occurs.
+	 * @throws IllegalArgumentException - if buffer is null
 	 */
-	public String byteArrayToHexStr(byte[] data, String separator) {
+	public boolean byteArrayToHexStr(byte[] data, String separator) throws SerialComException {
 		if(data == null) {
 			throw new IllegalArgumentException("byteArrayToHexStr(), " + SerialComErrorMapper.ERR_CAN_NOT_BE_NULL);
 		}
 		
 		if(data.length > 0) {
-			if(separator != null) {
-				final StringBuilder sBuilder = new StringBuilder(2 * data.length);
-				for (final byte b : data) {
-					sBuilder.append(HEXNUM.charAt((b & 0xF0) >> 4)).append(HEXNUM.charAt((b & 0x0F)));
-					sBuilder.append(separator);
-				}
-				return sBuilder.toString();
-			}else {
-				final StringBuilder sBuilder = new StringBuilder(2 * data.length);
-				for (final byte b : data) {
-					sBuilder.append(HEXNUM.charAt((b & 0xF0) >> 4)).append(HEXNUM.charAt((b & 0x0F)));
-				}
-				return sBuilder.toString();
-			}
 		}
 
-		return new String();
+		return false;
 	}
 }
 

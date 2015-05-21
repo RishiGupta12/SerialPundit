@@ -15,22 +15,17 @@
  * along with serial communication manager. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package test1;
+package test51;
 
 import com.embeddedunveiled.serial.SerialComManager;
 
-/*
- * Must find hw/sw virtual ports, bluetooth dongle, 3G dongle, port server, USB-UART converter,
- * regular ports etc.
- */
-public class Test1 {
+public class Test51 {
 	public static void main(String[] args) {
 		try {
 			SerialComManager scm = new SerialComManager();
-			String[] ports = scm.listAvailableComPorts();
-			for(String port: ports){
-				System.out.println(port);
-			}
+			String str = null;
+			str = scm.byteArrayToHexStr("HELLO WORLD".getBytes(), ":");
+			System.out.println(str);
 		}catch (Exception e) {
 			e.printStackTrace();
 		}

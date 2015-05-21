@@ -24,13 +24,19 @@ import com.embeddedunveiled.serial.SerialComManager;
  * regular ports etc.
  */
 public class Test1 {
+
+	private static final String    HEXES        = "0123456789ABCDEF";
+
 	public static void main(String[] args) {
 		try {
-			SerialComManager scm = new SerialComManager();
-			String[] ports = scm.listAvailableComPorts();
-			for(String port: ports){
-				System.out.println(port);
+			byte[] raw = "\r\nAT\r\n".getBytes();
+
+			final StringBuilder hex = new StringBuilder(2 * raw.length);
+			for (final byte b : raw) {
+				hex.append(HEXES.charAt((b & 0xF0) >> 4)).append(HEXES.charAt((b & 0x0F)));
 			}
+			System.out.println("-->" + hex.toString());
+
 		}catch (Exception e) {
 			e.printStackTrace();
 		}

@@ -1577,11 +1577,14 @@ public final class SerialComManager {
 	}
 	
 	/**
-	 * <p>This method creates hex string from byte array. This is useful in bluetooth low energy applications where characteristics
-	 * returned are to be interpreted or for example Internet of things applications where sensor data is getting exchanged.</p>
+	 * <p>This method writes bytes from the specified byte type buffer. If the method returns false, the application
+	 * should try to re-send bytes. The data has been transmitted out of serial port when this method returns.</p>
+	 * 
+	 * <p>This method may be used for Internet of things applications, large data transfer, implementing userspace drivers,
+	 * middleware frameworks, quick prototyping of Wifi/BT modules connected to UART port.</p>
 	 * 
 	 * @param data byte array to be converted into string
-	 * @param separator to be inserted after each hex value
+	 * @param separator to be inserted after each byte
 	 * @return constructed hex string if data.length > 0 otherwise empty string
 	 * @throws IllegalArgumentException - if data is null
 	 */

@@ -50,7 +50,6 @@ public final class SerialComErrorMapper {
 	public static final String ERR_KNOWN_ERROR_OCCURED = "Unknown error occured.";
 	public static final String ERR_TIMEOUT_ACKNOWLEDGE_BLOCK = "Timedout while waiting for block reception acknowledgement from receiver.";
 	public static final String ERR_TIMEOUT_ACKNOWLEDGE_EOT = "Timedout while waiting for EOT reception acknowledgement from receiver.";
-	public static final String ERR_CAN_NOT_BE_NULL = "This argument can not be null.";
 
 	public SerialComErrorMapper() {
 	}
