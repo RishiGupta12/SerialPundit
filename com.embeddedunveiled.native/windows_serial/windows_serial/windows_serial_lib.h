@@ -23,6 +23,9 @@
 #include <jni.h>
 #include <windows.h>
 
+/* Error offset added for actual error code reporting by java layer. */
+#define ERR_OFFSET 320
+
 /* This is the maximum number of threads and hence data listeners instance we support. */
 #define MAX_NUM_THREADS 1024
 

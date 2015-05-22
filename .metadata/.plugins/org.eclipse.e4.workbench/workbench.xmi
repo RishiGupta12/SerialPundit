@@ -229,19 +229,13 @@
       <tags>categoryTag:Help</tags>
     </sharedElements>
     <sharedElements xsi:type="advanced:Area" xmi:id="_tsDpoPq4EeSrYaRHTXJMBg" elementId="org.eclipse.ui.editorss" selectedElement="_tsDpofq4EeSrYaRHTXJMBg">
-      <children xsi:type="basic:PartStack" xmi:id="_tsDpofq4EeSrYaRHTXJMBg" elementId="org.eclipse.e4.primaryDataStack" selectedElement="_sBPFUABEEeWg4Pg8bq357w">
+      <children xsi:type="basic:PartStack" xmi:id="_tsDpofq4EeSrYaRHTXJMBg" elementId="org.eclipse.e4.primaryDataStack" selectedElement="_nPU1gABEEeWg4Pg8bq357w">
         <tags>newtablook</tags>
         <tags>org.eclipse.e4.primaryDataStack</tags>
         <tags>EditorStack</tags>
         <tags>active</tags>
         <children xsi:type="basic:Part" xmi:id="_nPU1gABEEeWg4Pg8bq357w" elementId="org.eclipse.e4.ui.compatibility.editor" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.e4.compatibility.CompatibilityEditor" label="SerialComManager.java" iconURI="platform:/plugin/org.eclipse.jdt.ui/icons/full/obj16/jcu_obj.gif" closeable="true">
-          <persistedState key="memento" value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?>&#xA;&lt;editor id=&quot;org.eclipse.jdt.ui.CompilationUnitEditor&quot; name=&quot;SerialComManager.java&quot; partName=&quot;SerialComManager.java&quot; title=&quot;SerialComManager.java&quot; tooltip=&quot;com.embeddedunveiled.serial/src/com/embeddedunveiled/serial/SerialComManager.java&quot;>&#xA;&lt;input factoryID=&quot;org.eclipse.ui.part.FileEditorInputFactory&quot; path=&quot;/com.embeddedunveiled.serial/src/com/embeddedunveiled/serial/SerialComManager.java&quot;/>&#xA;&lt;editorState selectionHorizontalPixel=&quot;0&quot; selectionLength=&quot;0&quot; selectionOffset=&quot;8690&quot; selectionTopPixel=&quot;3793&quot;/>&#xA;&lt;/editor>"/>
-          <tags>Editor</tags>
-          <tags>org.eclipse.jdt.ui.CompilationUnitEditor</tags>
-          <tags>removeOnHide</tags>
-        </children>
-        <children xsi:type="basic:Part" xmi:id="_sBPFUABEEeWg4Pg8bq357w" elementId="org.eclipse.e4.ui.compatibility.editor" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.e4.compatibility.CompatibilityEditor" label="SerialComErrorMapper.java" iconURI="platform:/plugin/org.eclipse.jdt.ui/icons/full/obj16/jcu_obj.gif" closeable="true">
-          <persistedState key="memento" value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?>&#xA;&lt;editor id=&quot;org.eclipse.jdt.ui.CompilationUnitEditor&quot; name=&quot;SerialComErrorMapper.java&quot; partName=&quot;SerialComErrorMapper.java&quot; title=&quot;SerialComErrorMapper.java&quot; tooltip=&quot;com.embeddedunveiled.serial/src/com/embeddedunveiled/serial/SerialComErrorMapper.java&quot;>&#xA;&lt;input factoryID=&quot;org.eclipse.ui.part.FileEditorInputFactory&quot; path=&quot;/com.embeddedunveiled.serial/src/com/embeddedunveiled/serial/SerialComErrorMapper.java&quot;/>&#xA;&lt;editorState selectionHorizontalPixel=&quot;0&quot; selectionLength=&quot;0&quot; selectionOffset=&quot;9854&quot; selectionTopPixel=&quot;3282&quot;/>&#xA;&lt;/editor>"/>
+          <persistedState key="memento" value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?>&#xA;&lt;editor id=&quot;org.eclipse.jdt.ui.CompilationUnitEditor&quot; name=&quot;SerialComManager.java&quot; partName=&quot;SerialComManager.java&quot; title=&quot;SerialComManager.java&quot; tooltip=&quot;com.embeddedunveiled.serial/src/com/embeddedunveiled/serial/SerialComManager.java&quot;>&#xA;&lt;input factoryID=&quot;org.eclipse.ui.part.FileEditorInputFactory&quot; path=&quot;/com.embeddedunveiled.serial/src/com/embeddedunveiled/serial/SerialComManager.java&quot;/>&#xA;&lt;editorState selectionHorizontalPixel=&quot;0&quot; selectionLength=&quot;11&quot; selectionOffset=&quot;49369&quot; selectionTopPixel=&quot;19618&quot;/>&#xA;&lt;/editor>"/>
           <tags>Editor</tags>
           <tags>org.eclipse.jdt.ui.CompilationUnitEditor</tags>
           <tags>removeOnHide</tags>
@@ -390,7 +384,7 @@
       </children>
       <children xsi:type="menu:ToolBar" xmi:id="_tncPYPq4EeSrYaRHTXJMBg" elementId="org.eclipse.ui.workbench.file">
         <tags>Draggable</tags>
-        <children xsi:type="menu:HandledToolItem" xmi:id="_mGkdsABEEeWg4Pg8bq357w" elementId="print" iconURI="platform:/plugin/org.eclipse.ui/icons/full/etool16/print_edit.png" tooltip="Print" enabled="false" command="_tYChcPq4EeSrYaRHTXJMBg"/>
+        <children xsi:type="menu:HandledToolItem" xmi:id="_NA9i0QBSEeWX7I_dV_Mulw" elementId="print" iconURI="platform:/plugin/org.eclipse.ui/icons/full/etool16/print_edit.png" tooltip="Print" enabled="false" command="_tYChcPq4EeSrYaRHTXJMBg"/>
       </children>
       <children xsi:type="menu:ToolBar" xmi:id="_tncPYfq4EeSrYaRHTXJMBg" elementId="additions" toBeRendered="false">
         <tags>toolbarSeparator</tags>
@@ -417,7 +411,7 @@
       </children>
       <children xsi:type="menu:ToolBar" xmi:id="_tnc2cPq4EeSrYaRHTXJMBg" elementId="org.eclipse.ui.workbench.navigate">
         <tags>Draggable</tags>
-        <children xsi:type="menu:HandledToolItem" xmi:id="_mGpWMABEEeWg4Pg8bq357w" elementId="org.eclipse.ui.window.pinEditor" visible="false" iconURI="platform:/plugin/org.eclipse.ui/icons/full/etool16/pin_editor.png" tooltip="Pin Editor" type="Check" command="_tX-QBfq4EeSrYaRHTXJMBg"/>
+        <children xsi:type="menu:HandledToolItem" xmi:id="_NBB0QQBSEeWX7I_dV_Mulw" elementId="org.eclipse.ui.window.pinEditor" visible="false" iconURI="platform:/plugin/org.eclipse.ui/icons/full/etool16/pin_editor.png" tooltip="Pin Editor" type="Check" command="_tX-QBfq4EeSrYaRHTXJMBg"/>
       </children>
       <children xsi:type="menu:ToolBar" xmi:id="_tnc2cfq4EeSrYaRHTXJMBg" elementId="group.editor" toBeRendered="false">
         <tags>toolbarSeparator</tags>

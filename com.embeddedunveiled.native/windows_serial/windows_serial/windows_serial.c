@@ -43,10 +43,12 @@ int setupLooperThread(JNIEnv *env, jobject obj, jlong handle, jobject looper_obj
 #undef  UART_NATIVE_LIB_VERSION
 #define UART_NATIVE_LIB_VERSION "1.0.2"
 
-#define CommInQueSize 8192
-#define CommOutQueSize 3072
+#define CommInBufSize 8192
+#define CommOutBufSize 3072
 
-/* Reference to JVM shared among all the threads within a process. */
+/* Reference to JVM shared among all the threads within a process. It may be unsafe to cache a JNIEnv* instance
+   and keep using it, as it may vary depending on the currently active thread. So save a JavaVM* instance only, 
+   which will never change. */
 JavaVM *jvm;
 
 /* When creating data looper threads, we pass some data to thread. A index in this array, holds pointer to
@@ -183,7 +185,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINati
 		if ((*env)->ExceptionOccurred(env)) {
 			LOGE(env);
 		}
-		ret_code = 240;
+		ret_code = result + ERR_OFFSET;
 		if(result == ERROR_FILE_NOT_FOUND) {
 			ret_code = ENOENT;
 		}else if (result == ERROR_ACCESS_DENIED) {
@@ -239,6 +241,23 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINati
 				}else {
 					if(DBG) fprintf(stderr, "%s%ld \n", "NATIVE getSerialPortNames() failed to read registry value with error number ", result);
 					if(DBG) fflush(stderr);
+					jclass statusClass = (*env)->GetObjectClass(env, status);
+					if (statusClass == NULL) {
+						if (DBG) fprintf(stderr, "%s\n", "NATIVE getSerialPortNames() could not get class of object of type SerialComRetStatus !");
+						if (DBG) fflush(stderr);
+						return NULL;
+					}
+					jfieldID status_fid = (*env)->GetFieldID(env, statusClass, "status", "I");
+					if (status_fid == NULL) {
+						if (DBG) fprintf(stderr, "%s\n", "NATIVE getSerialPortNames() failed to retrieve field id of field status in class SerialComRetStatus !");
+						if (DBG) fflush(stderr);
+						return NULL;
+					}
+					if ((*env)->ExceptionOccurred(env)) {
+						LOGE(env);
+					}
+					ret_code = result + ERR_OFFSET;
+					(*env)->SetIntField(env, status, status_fid, (negative*ret_code));
 					ports_found = NULL;
 					break;
 				}
@@ -258,14 +277,14 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINati
 * Communications ports cannot be shared in the same manner as text files are shared in Windows.
 */
 JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_openComPort(JNIEnv *env, jobject obj, jstring portName, jboolean enableRead, jboolean enableWrite, jboolean exclusiveOwner) {
-	jint ret = 0;
+	int ret = 0;
 	DWORD errorVal;
-	jint negative = -1;
+	int negative = -1;
 	DWORD dwerror = 0;
 	COMSTAT comstat;
 	HANDLE hComm = INVALID_HANDLE_VALUE;
-	jint OPEN_MODE = 0;
-	jint SHARING = 0;
+	int OPEN_MODE = 0;
+	int SHARING = 0;
 	DCB dcb = { 0 };                      /* Device control block for RS-232 serial devices */
 	COMMTIMEOUTS lpCommTimeouts;
 	wchar_t portFullName[512] = { 0 };
@@ -280,13 +299,14 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInter
 	/* To specify a COM port number greater than 9, use the following syntax : "\\.\COMXX". */
 	swprintf_s(portFullName, 512/2, TEXT("\\\\.\\%s"), port);
 
-	/* Access style; read, write or both */
+	/* Access style; read, write or both. None case is handles in java layer itself. */
 	if((enableRead == JNI_TRUE) && (enableWrite == JNI_TRUE)) {
 		OPEN_MODE = GENERIC_READ | GENERIC_WRITE;
 	}else if(enableRead == JNI_TRUE) {
 		OPEN_MODE = GENERIC_READ;
 	}else if(enableWrite == JNI_TRUE) {
 		OPEN_MODE = GENERIC_WRITE;
+	}else {
 	}
 
 	/* Exclusive ownership claim; '0' means no sharing. As per this link sharing has to be 0 means exclusive access.
@@ -317,7 +337,7 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInter
 		}else {
 			if(DBG) fprintf(stderr, "%s %ld\n", "NATIVE CreateFile() in openComPort() failed with error number : ", errorVal);
 			if(DBG) fflush(stderr);
-			return -240;
+			return negative * (errorVal + ERR_OFFSET);
 		}
 	}
 
@@ -327,11 +347,12 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInter
 	/* Set up input/output buffer sizes. Specify the recommended sizes for the internal buffers used
 	   by the driver for the specified device. The device driver receives the recommended buffer sizes,
 	   but is free to use any input and output (I/O) buffering scheme. */
-	SetupComm(hComm, CommInQueSize, CommOutQueSize);
+	SetupComm(hComm, CommInBufSize, CommOutBufSize);
 
 	/* Make sure that the device we are going to operate on, is a valid serial port. */
 	SecureZeroMemory(&dcb, sizeof(DCB));
 	dcb.DCBlength = sizeof(DCB);
+
 	/* Retrieves the current control settings for a specified communications device. */
 	ret = GetCommState(hComm, &dcb);
 	if(ret == 0) {
@@ -374,7 +395,7 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInter
 		fprintf(stderr, "%s %ld\n", "NATIVE SetCommState() in openComPort() failed with error number : ", errorVal);
 		fflush(stderr);
 		CloseHandle(hComm);
-		return -240;
+		return (negative * (errorVal + ERR_OFFSET));
 	}
 
 	/* Set correct timing parameters that will define how ReadFile and WriteFile functions will behave. */
@@ -385,10 +406,10 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInter
 	if(ret == 0) {
 		errorVal = GetLastError();
 		if(DBG) fprintf(stderr, "%s%ld\n", "NATIVE SetCommTimeouts() in openComPort() failed with error number : ", errorVal);
-		if(DBG) fprintf(stderr, "%s \n", "PLEASE RETRY OPENING SERIAL PORT");
+		if(DBG) fprintf(stderr, "%s \n", "PLEASE RETRY OPENING SERIAL PORT.");
 		if(DBG) fflush(stderr);
 		CloseHandle(hComm);
-		return -240;
+		return (negative * (errorVal + ERR_OFFSET));
 	}
 	
 	/* Reset communication mask. */
@@ -428,7 +449,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 		errorVal = GetLastError();
 		if (DBG) fprintf(stderr, "%s %ld\n", "NATIVE EscapeCommFunction() in closeComPort() failed with windows error number : ", errorVal);
 		if (DBG) fflush(stderr);
-		return -240;
+		return (negative * (errorVal + ERR_OFFSET));
 	}
 
 	/* Close the port. */
@@ -441,9 +462,8 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 		}else {
 			if(DBG) fprintf(stderr, "%s %ld\n", "NATIVE CloseHandle() in closeComPort() failed with windows error number : ", errorVal);
 			if(DBG) fflush(stderr);
-			return -240;
+			return (negative * (errorVal + ERR_OFFSET));
 		}
-
 	}
 
 	return 0;
@@ -467,8 +487,8 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
  * Blocking read with 150ms timeout. If data is available return even before 150ms has passed.
  */
 JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_readBytes(JNIEnv *env, jobject obj, jlong handle, jint count, jobject status) {
-	jint ret = 0;
-	jint negative = -1;
+	int ret = 0;
+	int negative = -1;
 	HANDLE hComm = (HANDLE)handle;
 	DWORD errorVal;
 	jbyte data_buf[2*1024];
@@ -507,7 +527,8 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINative
 					errorVal = GetLastError();
 					if((errorVal == ERROR_HANDLE_EOF) || (errorVal == ERROR_IO_INCOMPLETE)) {
 						return NULL;
-					}else {
+					}
+					else {
 						/* This indicates error. */
 						jclass statusClass = (*env)->GetObjectClass(env, status);
 						if(statusClass == NULL) {
@@ -534,9 +555,10 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINative
 							errorVal = ENOMEM;
 						}else if(errorVal == ERROR_OPERATION_ABORTED) {
 							errorVal = ECANCELED;
+						}else {
 						}
 
-						(*env)->SetIntField(env, status, status_fid, (negative*errorVal));
+						(*env)->SetIntField(env, status, status_fid, (negative * (errorVal + ERR_OFFSET)));
 						CloseHandle(overlapped.hEvent);
 						return NULL;
 					}
@@ -573,7 +595,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINative
 				}else {
 				}
 
-				(*env)->SetIntField(env, status, status_fid, (negative*errorVal));
+				(*env)->SetIntField(env, status, status_fid, (negative * (errorVal + ERR_OFFSET)));
 				CloseHandle(overlapped.hEvent);
 				return NULL;
 			}else {
@@ -608,7 +630,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINative
 			}else {
 			}
 
-			(*env)->SetIntField(env, status, status_fid, (negative*errorVal));
+			(*env)->SetIntField(env, status, status_fid, (negative * (errorVal + ERR_OFFSET)));
 			CloseHandle(overlapped.hEvent);
 			return NULL;
 		}
@@ -666,9 +688,9 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 						errorVal = GetLastError();
 						if(DBG) fprintf(stderr, "%s %ld\n", "NATIVE GetOverlappedResult() in writeBytes() failed with windows error number : ", errorVal);
 						if(DBG) fflush(stderr);
-						status = -240;
+						status = (negative * (errorVal + ERR_OFFSET));
 					}else {
-						// success flush all data out of serial port
+						// success, so flush all data out of serial port
 						FlushFileBuffers(hComm);
 					}
 				}
@@ -681,7 +703,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 			}else {
 				if(DBG) fprintf(stderr, "%s %ld\n", "NATIVE WriteFile() in writeBytes() failed with windows error number : ", errorVal);
 				if(DBG) fflush(stderr);
-				status = -240;
+				status = (negative * (errorVal + ERR_OFFSET));
 			}
 		}
 	}else {
@@ -697,7 +719,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 							errorVal = GetLastError();
 							if(DBG) fprintf(stderr, "%s %ld\n", "NATIVE GetOverlappedResult() in writeBytes() failed with windows error number : ", errorVal);
 							if(DBG) fflush(stderr);
-							status = -240;
+							status = (negative * (errorVal + ERR_OFFSET));
 						}
 					}
 				}else if((errorVal == ERROR_INVALID_USER_BUFFER) || (errorVal == ERROR_NOT_ENOUGH_MEMORY)) {
@@ -709,7 +731,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 				}else {
 					if(DBG) fprintf(stderr, "%s %ld\n", "NATIVE WriteFile() in writeBytes() failed with windows error number : ", errorVal);
 					if(DBG) fflush(stderr);
-					status = -240;
+					status = (negative * (errorVal + ERR_OFFSET));
 				}
 			}
 			num_bytes_to_write -= num_of_bytes_written;
@@ -730,9 +752,9 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 * Signature: (JIIIII)I
 */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_configureComPortData(JNIEnv *env, jobject obj, jlong handle, jint dataBits, jint stopBits, jint parity, jint baudRateTranslated, jint custBaudTranslated) {
-	jint ret = 0;
+	int ret = 0;
 	DWORD errorVal = 0;
-	jint negative = -1;
+	int negative = -1;
 	DWORD baud = -1;
 	HANDLE hComm = (HANDLE)handle;
 	DCB dcb = { 0 };
@@ -744,7 +766,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 		errorVal = GetLastError();
 		if(DBG) fprintf(stderr, "%s %ld\n", "NATIVE SetCommState() in configureComPortData() failed with error number : ", errorVal);
 		if(DBG) fflush(stderr);
-		return -240;
+		return (negative * (errorVal + ERR_OFFSET));
 	}
 
 	if(baudRateTranslated == 251) {
@@ -870,7 +892,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 		if(errorVal == ERROR_INVALID_PARAMETER) {
 			return (negative * EINVAL);
 		}
-		return -240;
+		return (negative * (errorVal + ERR_OFFSET));
 	}
 
 	/* Flush old garbage values in IO port buffer for this port. */
@@ -886,9 +908,9 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 *
 */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_configureComPortControl(JNIEnv *env, jobject obj, jlong handle, jint flowctrl, jchar xon, jchar xoff, jboolean ParFraError, jboolean overFlowErr) {
-	jint ret = 0;
+	int ret = 0;
 	DWORD errorVal;
-	jint negative = -1;
+	int negative = -1;
 	DWORD baud = -1;
 	HANDLE hComm = (HANDLE)handle;
 	DCB dcb = { 0 };
@@ -900,7 +922,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 		errorVal = GetLastError();
 		if(DBG) fprintf(stderr, "%s %ld\n", "NATIVE GetCommState() in configureComPortControl() failed with error number : ", errorVal);
 		if(DBG) fflush(stderr);
-		return -240;
+		return (negative * (errorVal + ERR_OFFSET));
 	}
 
 	/* Set flow control. Details can be found here https://msdn.microsoft.com/en-us/library/ff802693.aspx */
@@ -939,7 +961,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 		if(errorVal == ERROR_INVALID_PARAMETER) {
 			return (negative * EINVAL);
 		}
-		return -240;
+		return (negative * (errorVal + ERR_OFFSET));
 	}
 
 	/* Flush old garbage values in IO port buffer for this port. */
@@ -956,7 +978,8 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 * Set the RTS signal high or low as requested by application.
 */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_setRTS(JNIEnv *env, jobject obj, jlong handle, jboolean enabled) {
-	jint ret = 0;
+	int ret = 0;
+	int negative = -1;
 	DWORD errorVal;
 	HANDLE hComm = (HANDLE)handle;
 	DWORD RTSVAL;
@@ -972,7 +995,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 		errorVal = GetLastError();
 		if(DBG) fprintf(stderr, "%s %ld\n", "NATIVE EscapeCommFunction() in setRTS() failed with error number : ", errorVal);
 		if(DBG) fflush(stderr);
-		return -240;
+		return (negative * (errorVal + ERR_OFFSET));
 	}
 
 	return 0;
@@ -986,7 +1009,8 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 * Set the DTR signal high or low as requested by application.
 */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_setDTR(JNIEnv *env, jobject obj, jlong handle, jboolean enabled) {
-	jint ret = 0;
+	int ret = 0;
+	int negative = -1;
 	DWORD errorVal;
 	HANDLE hComm = (HANDLE)handle;
 	DWORD DTRVAL;
@@ -1002,7 +1026,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 		errorVal = GetLastError();
 		if(DBG) fprintf(stderr, "%s %ld\n", "NATIVE EscapeCommFunction() in setDTR() failed with error number : ", errorVal);
 		if(DBG) fflush(stderr);
-		return -240;
+		return (negative * (errorVal + ERR_OFFSET));
 	}
 
 	return 0;
@@ -1016,9 +1040,9 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 * We return the bit mask as it is with out interpretation so that application can manipulate easily using mathematics.
 */
 JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_getCurrentConfigurationW(JNIEnv *env, jobject obj, jlong handle) {
-	jint ret = 0;
+	int ret = 0;
 	DWORD errorVal;
-	jint negative = -1;
+	int negative = -1;
 	HANDLE hComm = (HANDLE)handle;
 	DCB dcb = { 0 };
 	char tmp[100] = { 0 };  /* 100 is selected randomly. */
@@ -1128,14 +1152,13 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINati
 	char* dcbdtrc = "fDtrControl : ";
 	memset(tmp, 0, sizeof(tmp));
 	strcpy_s(tmp, sizeof(tmp), dcbdtrc);
-	if (dcb.fDtrControl == DTR_CONTROL_DISABLE) {
+	if(dcb.fDtrControl == DTR_CONTROL_DISABLE) {
 		strcat_s(tmp, sizeof(tmp), "DTR_CONTROL_DISABLE");
-	}
-	else if(dcb.fDtrControl == DTR_CONTROL_ENABLE) {
+	}else if(dcb.fDtrControl == DTR_CONTROL_ENABLE) {
 		strcat_s(tmp, sizeof(tmp), "DTR_CONTROL_ENABLE");
-	}
-	else if(dcb.fDtrControl == DTR_CONTROL_HANDSHAKE) {
+	}else if(dcb.fDtrControl == DTR_CONTROL_HANDSHAKE) {
 		strcat_s(tmp, sizeof(tmp), "DTR_CONTROL_HANDSHAKE");
+	}else {
 	}
 	strcat_s(tmp, sizeof(tmp), "\n");
 	(*env)->SetObjectArrayElement(env, current_config, 6, (*env)->NewStringUTF(env, tmp));
@@ -1231,15 +1254,13 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINati
 	strcpy_s(tmp, sizeof(tmp), dcbrtsc);
 	if(dcb.fRtsControl == DTR_CONTROL_DISABLE) {
 		strcat_s(tmp, sizeof(tmp), "RTS_CONTROL_DISABLE");
-	}
-	else if (dcb.fRtsControl == DTR_CONTROL_ENABLE) {
+	}else if(dcb.fRtsControl == DTR_CONTROL_ENABLE) {
 		strcat_s(tmp, sizeof(tmp), "RTS_CONTROL_ENABLE");
-	}
-	else if (dcb.fRtsControl == DTR_CONTROL_HANDSHAKE) {
+	}else if(dcb.fRtsControl == DTR_CONTROL_HANDSHAKE) {
 		strcat_s(tmp, sizeof(tmp), "RTS_CONTROL_HANDSHAKE");
-	}
-	else if (dcb.fRtsControl == RTS_CONTROL_TOGGLE) {
+	}else if(dcb.fRtsControl == RTS_CONTROL_TOGGLE) {
 		strcat_s(tmp, sizeof(tmp), "RTS_CONTROL_TOGGLE");
+	}else {
 	}
 	strcat_s(tmp, sizeof(tmp), "\n");
 	(*env)->SetObjectArrayElement(env, current_config, 13, (*env)->NewStringUTF(env, tmp));
@@ -1420,6 +1441,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINati
 JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_getByteCount(JNIEnv *env, jobject obj, jlong handle) {
 	int ret = 0;
 	int errorVal = 0;
+	int negative = -1;
 	HANDLE hComm = (HANDLE)handle;
 	DWORD errors;
 	COMSTAT comstat;
@@ -1431,7 +1453,7 @@ JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeI
 		errorVal = GetLastError();
 		if(DBG) fprintf(stderr, "%s %d\n", "NATIVE ClearCommError() in getByteCount() failed with error number : ", errorVal);
 		if(DBG) fflush(stderr);
-		val[0] = -240;
+		val[0] = (negative * (errorVal + ERR_OFFSET));
 		(*env)->SetIntArrayRegion(env, values, 0, 3, val);
 		return values;
 	}
@@ -1452,10 +1474,10 @@ JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeI
 *  in output buffer will get discarded i.e. not transmitted.
 */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_clearPortIOBuffers(JNIEnv *env, jobject obj, jlong handle, jboolean rxPortbuf, jboolean txPortbuf) {
-	jint ret = -1;
-	jint negative = -1;
+	int ret = -1;
+	int negative = -1;
 	DWORD errorVal = -1;
-	jint PORTIOBUFFER = -1;
+	int PORTIOBUFFER = -1;
 	HANDLE hComm = (HANDLE)handle;
 
 	if((rxPortbuf == JNI_TRUE) && (txPortbuf == JNI_TRUE)) {
@@ -1465,6 +1487,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 	}else if(txPortbuf == JNI_TRUE) {
 		PORTIOBUFFER = PURGE_TXCLEAR;
 	}else {
+		/* handled in java layer */
 	}
 
 	ret = PurgeComm(hComm, PORTIOBUFFER);
@@ -1472,7 +1495,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 		errorVal = GetLastError();
 		if(DBG) fprintf(stderr, "%s %ld\n", "NATIVE PurgeComm() in clearPortIOBuffers() failed with error number : ", errorVal);
 		if(DBG) fflush(stderr);
-		return -240;
+		return (negative * (errorVal + ERR_OFFSET));
 	}
 
 	return 0;
@@ -1488,9 +1511,10 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 * Last three values, DTR, RTS, LOOP are set to 0, as windows does not have any API to read there status.
 */
 JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_getLinesStatus(JNIEnv *env, jobject obj, jlong handle) {
-	jint ret = -1;
+	int ret = -1;
 	DWORD errorVal = -1;
-	jint status[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+	int negative = -1;
+	int status[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
 	HANDLE hComm = (HANDLE)handle;
 	DWORD modem_stat;
 	jintArray current_status = (*env)->NewIntArray(env, 8);
@@ -1500,7 +1524,7 @@ JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeI
 		errorVal = GetLastError();
 		if(DBG) fprintf(stderr, "%s %ld\n", "NATIVE GetCommModemStatus() in getLinesStatus() failed with error number : ", errorVal);
 		if(DBG) fflush(stderr);
-		status[0] = -240;
+		status[0] = (negative * (errorVal + ERR_OFFSET));
 		(*env)->SetIntArrayRegion(env, current_status, 0, 8, status);
 		return current_status;
 	}
@@ -1526,7 +1550,8 @@ JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeI
 * The duration is in milliseconds. This applies break condition as per EIA232 standard.
 */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_sendBreak(JNIEnv *env, jobject obj, jlong handle, jint duration) {
-	jint ret = -1;
+	int ret = -1;
+	int negative = -1;
 	DWORD errorVal = -1;
 	HANDLE hComm = (HANDLE)handle;
 
@@ -1535,7 +1560,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 		errorVal = GetLastError();
 		if(DBG) fprintf(stderr, "%s%ld\n", "NATIVE SetCommBreak() in sendBreak() failed with error number : ", errorVal);
 		if(DBG) fflush(stderr);
-		return -240;
+		return (negative * (errorVal + ERR_OFFSET));
 	}
 
 	serial_delay(duration);
@@ -1545,7 +1570,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 		errorVal = GetLastError();
 		if(DBG) fprintf(stderr, "%s%ld\n", "NATIVE ClearCommBreak() in sendBreak() failed with error number : ", errorVal);
 		if(DBG) fflush(stderr);
-		return -240;
+		return (negative * (errorVal + ERR_OFFSET));
 	}
 
 	return 0;
@@ -1591,6 +1616,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 	int x = 0;
 	int ret = 0;
 	int thread_exist = 0;
+	int negative = -1;
 	struct looper_thread_params *ptr;
 	ptr = handle_looper_info;
 	HANDLE hComm = (HANDLE)handle;
@@ -1621,7 +1647,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 			if(DBG) fprintf(stderr, "%s \n", "Try again !");
 			if(DBG) fflush(stderr);
 			ClearCommError(hComm, &error_type, &com_stat);
-			return -240;
+			return (negative * (errorVal + ERR_OFFSET));
 		}
 
 		/* set data_enabled flag */
@@ -1655,6 +1681,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 	* If it exist just update event mask to wait for otherwise create thread. */
 	int x = 0;
 	int ret = 0;
+	int negative = -1;
 	int thread_exist = 0;
 	struct looper_thread_params *ptr;
 	ptr = handle_looper_info;
@@ -1686,7 +1713,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 			if(DBG) fprintf(stderr, "%s \n", "Try again !");
 			if(DBG) fflush(stderr);
 			ClearCommError(hComm, &error_type, &com_stat);
-			return -240;
+			return (negative * (errorVal + ERR_OFFSET));
 		}
 		/* set event_enabled flag */
 		ptr->event_enabled = 1;
@@ -1709,6 +1736,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 }
 
 int setupLooperThread(JNIEnv *env, jobject obj, jlong handle, jobject looper_obj_ref, int data_enabled, int event_enabled, int global_index, int new_dtp_index) {
+	int negative = -1;
 	HANDLE hComm = (HANDLE)handle;
 	HANDLE thread_handle;
 	struct looper_thread_params params;
@@ -1756,7 +1784,7 @@ int setupLooperThread(JNIEnv *env, jobject obj, jlong handle, jobject looper_obj
 		if(DBG) fflush(stderr);
 		(*env)->DeleteGlobalRef(env, looper_ref);
 		LeaveCriticalSection(&csmutex);
-		return -240;
+		return (negative * (errno + ERR_OFFSET));
 	}
 
 	/* Save the thread handle which will be used when listener is unregistered. */
@@ -1798,6 +1826,7 @@ int setupLooperThread(JNIEnv *env, jobject obj, jlong handle, jobject looper_obj
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_destroyDataLooperThread(JNIEnv *env, jobject obj, jlong handle) {
 	int ret = 0;
 	int x = 0;
+	int negative = -1;
 	DWORD a = 0;
 	DWORD b = a & EV_CTS;
 	HANDLE hComm = (HANDLE)handle;
@@ -1819,7 +1848,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 		if(DBG) fflush(stderr);
 		ClearCommError(hComm, &error_type, &com_stat);
 		LeaveCriticalSection(&csmutex);
-		return 0; /* For unrecoverable errors we would like to exit and try again. */
+		return (negative * (errorVal + ERR_OFFSET)); /* For unrecoverable errors we would like to exit and try again. */
 	}
 
 	if((b & event_mask) == 1) {
@@ -1833,7 +1862,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 			if(DBG) fprintf(stderr, "%s \n", "Try again !");
 			if(DBG) fflush(stderr);
 			ClearCommError(hComm, &error_type, &com_stat);
-			return -240;
+			return (negative * (errorVal + ERR_OFFSET));
 		}
 		/* unset data_enabled flag */
 		ptr = handle_looper_info;
@@ -1864,7 +1893,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 		errorVal = GetLastError();
 		if(DBG) fprintf(stderr, "%s %ld\n", "NATIVE destroyDataLooperThread() failed in SetEvent() with error number : ", errorVal);
 		if(DBG) fflush(stderr);
-		return -240;
+		return (negative * (errorVal + ERR_OFFSET));
 	}
 
 	/* If neither data nor event thread exist for this file descriptor remove entry for it from global array. */
@@ -1883,6 +1912,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_destroyEventLooperThread(JNIEnv *env, jobject obj, jlong handle) {
 	int ret = 0;
 	int x = 0;
+	int negative = -1;
 	DWORD a = 0;
 	DWORD b = a & EV_RXCHAR;
 	HANDLE hComm = (HANDLE)handle;
@@ -1906,7 +1936,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 			if(DBG) fprintf(stderr, "%s \n", "Try again !");
 			if(DBG) fflush(stderr);
 			ClearCommError(hComm, &error_type, &com_stat);
-			return -240;
+			return (negative * (errorVal + ERR_OFFSET));
 		}
 		/* unset event_enabled flag */
 		ptr = handle_looper_info;
@@ -1936,13 +1966,13 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 			errorVal = GetLastError();
 			if(DBG) fprintf(stderr, "%s %ld\n", "NATIVE destroyEventLooperThread() failed in SetEvent() with error number : ", errorVal);
 			if(DBG) fflush(stderr);
-			return -240;
+			return (negative * (errorVal + ERR_OFFSET));
 		}
 	}
 
 	/* If neither data nor event thread exist for this file descriptor remove entry for it from global array. */
 	if(reset_hComm_field) {
-		ptr->hComm = (HANDLE)-1;
+		ptr->hComm = -1;
 		(*env)->DeleteGlobalRef(env, ptr->looper);
 	}
 
@@ -1956,6 +1986,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 *
 */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_registerPortMonitorListener(JNIEnv *env, jobject obj, jlong handle, jstring portName, jobject listener) {
+	int negative = -1;
 	HANDLE hComm = (HANDLE)handle;
 	HANDLE thread_handle;
 	struct port_info params;
@@ -1998,7 +2029,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 		if(DBG) fflush(stderr);
 		(*env)->DeleteGlobalRef(env, portListener);
 		LeaveCriticalSection(&csmutex);
-		return -240;
+		return (negative * (errno + ERR_OFFSET));
 	}
 
 	/* Save the data thread handle which will be used when listener is unregistered. */
@@ -2040,7 +2071,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 		errorVal = GetLastError();
 		if (DBG) fprintf(stderr, "%s %ld\n", "NATIVE unregisterPortMonitorListener() failed in PostMessage() with error number : ", errorVal);
 		if (DBG) fflush(stderr);
-		return -240;
+		return (negative * (errorVal + ERR_OFFSET));
 	}
 
 	LeaveCriticalSection(&csmutex);

@@ -32,7 +32,7 @@
 
 #define DBG 1
 
-/* access to global shared information */
+/* Access to global shared information */
 struct port_info *port_monitor_info_ptr = NULL;
 
 /* Do not let any exception propagate. Handle and clear it. */
@@ -41,7 +41,7 @@ void LOGE(JNIEnv *env) {
 	(*env)->ExceptionClear(env);
 }
 
-/* provide delay whenever required. */
+/* Provide delay whenever required. */
 int serial_delay(unsigned milliSeconds) {
 	Sleep(milliSeconds);
 	return 0;
@@ -51,6 +51,7 @@ int serial_delay(unsigned milliSeconds) {
  * occurred, it enqueue this to data or event to corresponding queue. Separate blocking queue for data and events are managed by java layer. */
 unsigned __stdcall event_data_looper(void* arg) {
 	int ret = 0;
+	int negative = -1;
 	BOOL result = FALSE;
 	COMSTAT com_stat;
 	DWORD error_type = 0;
@@ -170,7 +171,7 @@ unsigned __stdcall event_data_looper(void* arg) {
 		ClearCommError(hComm, &error_type, &com_stat);
 		EnterCriticalSection(((struct looper_thread_params*) arg)->csmutex);
 		CloseHandle(((struct looper_thread_params*) arg)->thread_handle);
-		((struct looper_thread_params*) arg)->init_done = -240;
+		((struct looper_thread_params*) arg)->init_done = (negative * (errorVal + ERR_OFFSET));
 		(*jvm)->DetachCurrentThread(jvm);
 		LeaveCriticalSection(((struct looper_thread_params*) arg)->csmutex);
 		return 0; /* For unrecoverable errors we would like to exit and try again. */
@@ -178,11 +179,12 @@ unsigned __stdcall event_data_looper(void* arg) {
 
 	((struct looper_thread_params*) arg)->wait_event_handles[0] = CreateEvent(NULL, FALSE, FALSE, NULL);
 	if(((struct looper_thread_params*) arg)->wait_event_handles[0] == NULL) {
-		if(DBG) fprintf(stderr, "%s\n", "NATIVE event_data_looper() failed to create thread exit event handle.");
+		errorVal = GetLastError();
+		if (DBG) fprintf(stderr, "%s\n", "NATIVE event_data_looper() failed to create thread exit event handle with error number : ", errorVal);
 		if(DBG) fflush(stderr);
 		EnterCriticalSection(((struct looper_thread_params*) arg)->csmutex);
 		CloseHandle(((struct looper_thread_params*) arg)->thread_handle);
-		((struct looper_thread_params*) arg)->init_done = -240;
+		((struct looper_thread_params*) arg)->init_done = (negative * (errorVal + ERR_OFFSET));
 		(*jvm)->DetachCurrentThread(jvm);
 		LeaveCriticalSection(((struct looper_thread_params*) arg)->csmutex);
 		return 0;
@@ -200,12 +202,9 @@ unsigned __stdcall event_data_looper(void* arg) {
 		memset(&overlapped, 0, sizeof(overlapped));
 		overlapped.hEvent = CreateEvent(NULL, FALSE, FALSE, NULL);   /* auto reset, unnamed event object */
 		if(overlapped.hEvent == NULL) {
-			if(DBG) fprintf(stderr, "%s\n", "NATIVE CreateEvent() in event_data_looper() failed creating overlapped event handle !");
+			errorVal = GetLastError();
+			if (DBG) fprintf(stderr, "%s\n", "NATIVE CreateEvent() in event_data_looper() failed creating overlapped event handle with error number : ", errorVal);
 			if(DBG) fflush(stderr);
-			EnterCriticalSection(((struct looper_thread_params*) arg)->csmutex);
-			CloseHandle(((struct looper_thread_params*) arg)->thread_handle);
-			((struct looper_thread_params*) arg)->thread_handle = 0;
-			LeaveCriticalSection(((struct looper_thread_params*) arg)->csmutex);
 			continue;
 		}
 
