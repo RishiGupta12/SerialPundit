@@ -1181,7 +1181,7 @@ public final class SerialComManager {
 	 * @param handle of the opened port
 	 * @param clearRxPort if true receive buffer will be cleared otherwise will be left untouched 
 	 * @param clearTxPort if true transmit buffer will be cleared otherwise will be left untouched
-	 * @return true on success
+	 * @return true on success false otherwise
 	 * @throws SerialComException - if invalid handle is passed or operation can not be completed successfully
 	 */
 	public synchronized boolean clearPortIOBuffers(long handle, boolean clearRxPort, boolean clearTxPort) throws SerialComException {
@@ -1201,9 +1201,10 @@ public final class SerialComManager {
 			if(ret < 0) {
 				throw new SerialComException("clearPortIOBuffers()", mErrMapper.getMappedError(ret));
 			}
+			return true;
 		}
 
-		return true;
+		return false;
 	}
 
 	/**
@@ -1617,32 +1618,3 @@ public final class SerialComManager {
 		return new String();
 	}
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
