@@ -138,6 +138,7 @@ __attribute__((constructor)) static void init_scmlib() {
 }
 */
 
+/* release mutex when library is unloaded. */
 __attribute__((destructor)) static void exit_scmlib() {
 	pthread_mutex_destroy(&mutex);
 }
@@ -988,7 +989,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 	 * port subject to sporadic job control and hang-up signals, and also that the serial interface driver
 	 * will read incoming bytes. CLOCAL results in ignoring modem status lines while CREAD enables receiving
 	 * data.Note that CLOCAL need always be set to prevent undesired effects of SIGNUP SIGNAL. */
-	currentconfig.c_cflag |= (CREAD | CLOCAL);
+	currentconfig.c_cflag |= (CREAD | CLOCAL | HUPCL);
 
 	/* Input options :
 	 * IMAXBEL : ring bell on input queue full, IGNBRK : Ignore break conditions, BRKINT : map BREAK to SIGINTR,
