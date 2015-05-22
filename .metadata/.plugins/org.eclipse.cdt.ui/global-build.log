@@ -5379,3 +5379,317 @@ make: Nothing to be done for `all'.
 11:10:36 **** Incremental Build of configuration Debug for project linux_serial ****
 make all 
 make: Nothing to be done for `all'.
+15:01:49 **** Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+15:02:46 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+15:02:51 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+15:03:31 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+15:04:13 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+15:04:50 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+15:06:16 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+15:06:31 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+15:06:44 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+15:07:25 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+15:07:47 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+15:08:11 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+15:09:35 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+15:10:03 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+15:12:52 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+Building file: ../src/unix_like_serial.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial.d" -MT"src/unix_like_serial.d" -o "src/unix_like_serial.o" "../src/unix_like_serial.c"
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_openComPort’:
+../src/unix_like_serial.c:445:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_readBytes’:
+../src/unix_like_serial.c:553:3: warning: format ‘%d’ expects argument of type ‘int’, but argument 4 has type ‘ssize_t’ [-Wformat]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_writeBytes’:
+../src/unix_like_serial.c:677:4: warning: implicit declaration of function ‘tcdrain’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_clearPortIOBuffers’:
+../src/unix_like_serial.c:1342:3: warning: implicit declaration of function ‘tcflush’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial.c
+ 
+Building target: linux_1.0.2_x86_64.so
+Invoking: GCC C Linker
+gcc -m64 -shared -o "linux_1.0.2_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   -lpthread -ludev
+Finished building target: linux_1.0.2_x86_64.so
+ 
+15:13:15 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+15:13:34 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+15:14:37 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+15:15:31 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+15:15:59 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+15:19:55 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+Building file: ../src/unix_like_serial.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial.d" -MT"src/unix_like_serial.d" -o "src/unix_like_serial.o" "../src/unix_like_serial.c"
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_openComPort’:
+../src/unix_like_serial.c:445:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_readBytes’:
+../src/unix_like_serial.c:556:3: warning: format ‘%d’ expects argument of type ‘int’, but argument 4 has type ‘ssize_t’ [-Wformat]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_writeBytes’:
+../src/unix_like_serial.c:680:4: warning: implicit declaration of function ‘tcdrain’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_clearPortIOBuffers’:
+../src/unix_like_serial.c:1345:3: warning: implicit declaration of function ‘tcflush’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial.c
+ 
+Building target: linux_1.0.2_x86_64.so
+Invoking: GCC C Linker
+gcc -m64 -shared -o "linux_1.0.2_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   -lpthread -ludev
+Finished building target: linux_1.0.2_x86_64.so
+ 
+15:19:57 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+15:19:59 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+15:20:17 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+15:20:24 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+15:21:05 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+15:22:31 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+15:22:55 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+15:24:51 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+15:28:37 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+15:29:25 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+Building file: ../src/unix_like_serial.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial.d" -MT"src/unix_like_serial.d" -o "src/unix_like_serial.o" "../src/unix_like_serial.c"
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_openComPort’:
+../src/unix_like_serial.c:445:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_readBytes’:
+../src/unix_like_serial.c:556:3: warning: format ‘%d’ expects argument of type ‘int’, but argument 4 has type ‘ssize_t’ [-Wformat]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_writeBytes’:
+../src/unix_like_serial.c:680:4: warning: implicit declaration of function ‘tcdrain’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_clearPortIOBuffers’:
+../src/unix_like_serial.c:1345:3: warning: implicit declaration of function ‘tcflush’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial.c
+ 
+Building target: linux_1.0.2_x86_64.so
+Invoking: GCC C Linker
+gcc -m64 -shared -o "linux_1.0.2_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   -lpthread -ludev
+Finished building target: linux_1.0.2_x86_64.so
+ 
+15:29:27 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+15:29:40 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+15:37:42 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+Building file: ../src/unix_like_serial.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial.d" -MT"src/unix_like_serial.d" -o "src/unix_like_serial.o" "../src/unix_like_serial.c"
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_openComPort’:
+../src/unix_like_serial.c:445:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_readBytes’:
+../src/unix_like_serial.c:556:3: warning: format ‘%d’ expects argument of type ‘int’, but argument 4 has type ‘ssize_t’ [-Wformat]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_writeBytes’:
+../src/unix_like_serial.c:680:4: warning: implicit declaration of function ‘tcdrain’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_clearPortIOBuffers’:
+../src/unix_like_serial.c:1343:3: warning: implicit declaration of function ‘tcflush’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial.c
+ 
+Building target: linux_1.0.2_x86_64.so
+Invoking: GCC C Linker
+gcc -m64 -shared -o "linux_1.0.2_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   -lpthread -ludev
+Finished building target: linux_1.0.2_x86_64.so
+ 
+15:37:43 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+15:38:38 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+15:40:25 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+Building file: ../src/unix_like_serial.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial.d" -MT"src/unix_like_serial.d" -o "src/unix_like_serial.o" "../src/unix_like_serial.c"
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_openComPort’:
+../src/unix_like_serial.c:445:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_readBytes’:
+../src/unix_like_serial.c:556:3: warning: format ‘%d’ expects argument of type ‘int’, but argument 4 has type ‘ssize_t’ [-Wformat]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_writeBytes’:
+../src/unix_like_serial.c:682:4: warning: implicit declaration of function ‘tcdrain’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_clearPortIOBuffers’:
+../src/unix_like_serial.c:1345:3: warning: implicit declaration of function ‘tcflush’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial.c
+ 
+Building target: linux_1.0.2_x86_64.so
+Invoking: GCC C Linker
+gcc -m64 -shared -o "linux_1.0.2_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   -lpthread -ludev
+Finished building target: linux_1.0.2_x86_64.so
+ 
+15:40:26 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+15:40:42 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+15:41:54 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+15:44:56 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+Building file: ../src/unix_like_serial.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial.d" -MT"src/unix_like_serial.d" -o "src/unix_like_serial.o" "../src/unix_like_serial.c"
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_openComPort’:
+../src/unix_like_serial.c:445:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_readBytes’:
+../src/unix_like_serial.c:556:3: warning: format ‘%d’ expects argument of type ‘int’, but argument 4 has type ‘ssize_t’ [-Wformat]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_writeBytes’:
+../src/unix_like_serial.c:682:4: warning: implicit declaration of function ‘tcdrain’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_clearPortIOBuffers’:
+../src/unix_like_serial.c:1345:3: warning: implicit declaration of function ‘tcflush’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial.c
+ 
+Building target: linux_1.0.2_x86_64.so
+Invoking: GCC C Linker
+gcc -m64 -shared -o "linux_1.0.2_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   -lpthread -ludev
+Finished building target: linux_1.0.2_x86_64.so
+ 
+15:44:57 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+15:45:12 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+15:46:30 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+15:54:06 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+15:55:58 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+Building file: ../src/unix_like_serial.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial.d" -MT"src/unix_like_serial.d" -o "src/unix_like_serial.o" "../src/unix_like_serial.c"
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_openComPort’:
+../src/unix_like_serial.c:445:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_readBytes’:
+../src/unix_like_serial.c:556:3: warning: format ‘%d’ expects argument of type ‘int’, but argument 4 has type ‘ssize_t’ [-Wformat]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_writeBytes’:
+../src/unix_like_serial.c:682:4: warning: implicit declaration of function ‘tcdrain’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_clearPortIOBuffers’:
+../src/unix_like_serial.c:1345:3: warning: implicit declaration of function ‘tcflush’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial.c
+ 
+Building target: linux_1.0.2_x86_64.so
+Invoking: GCC C Linker
+gcc -m64 -shared -o "linux_1.0.2_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   -lpthread -ludev
+Finished building target: linux_1.0.2_x86_64.so
+ 
+15:56:14 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+15:56:21 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+15:56:44 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+15:57:17 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+15:59:06 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+Building file: ../src/unix_like_serial.c
+Invoking: GCC C Compiler
+gcc -I/home/r/packages/jdk1.7.0_75/include -O0 -g3 -Wall -c -fmessage-length=0 -m64 -fPIC -MMD -MP -MF"src/unix_like_serial.d" -MT"src/unix_like_serial.d" -o "src/unix_like_serial.o" "../src/unix_like_serial.c"
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_openComPort’:
+../src/unix_like_serial.c:445:3: warning: implicit declaration of function ‘ioctl’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_writeBytes’:
+../src/unix_like_serial.c:674:4: warning: implicit declaration of function ‘tcdrain’ [-Wimplicit-function-declaration]
+../src/unix_like_serial.c: In function ‘Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_clearPortIOBuffers’:
+../src/unix_like_serial.c:1337:3: warning: implicit declaration of function ‘tcflush’ [-Wimplicit-function-declaration]
+Finished building: ../src/unix_like_serial.c
+ 
+Building target: linux_1.0.2_x86_64.so
+Invoking: GCC C Linker
+gcc -m64 -shared -o "linux_1.0.2_x86_64.so"  ./src/unix_like_serial.o ./src/unix_like_serial_lib.o   -lpthread -ludev
+Finished building target: linux_1.0.2_x86_64.so
+ 
+15:59:07 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+15:59:09 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+15:59:52 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+16:00:45 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+16:00:58 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+16:01:24 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+16:01:26 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+16:01:42 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.
+16:02:08 **** Incremental Build of configuration Debug for project linux_serial ****
+make all 
+make: Nothing to be done for `all'.

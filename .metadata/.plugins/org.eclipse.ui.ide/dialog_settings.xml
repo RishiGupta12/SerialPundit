@@ -5,11 +5,11 @@
 		<item value="false" key="WizardProjectsImportPage.STORE_COPY_PROJECT_ID"/>
 		<item value="false" key="WizardProjectsImportPage.STORE_NESTED_PROJECTS"/>
 		<list key="WizardProjectsImportPage.STORE_DIRECTORIES">
+			<item value="/home/r/ws-host-uart/serial-communication-manager/tests/ss.test35-RW-many-times"/>
+			<item value="/home/r/ws-host-uart/serial-communication-manager/tests/ss.test50-OC-Datalistener"/>
 			<item value="/home/r/ws-host-uart/serial-communication-manager/tests/test1-list-ports"/>
 			<item value="/home/r/ws-host-uart/serial-communication-manager/tests/test52-lines-stat-OC"/>
 			<item value="/home/r/ws-host-uart/serial-communication-manager/tests/test5-lines-status"/>
-			<item value="/home/r/ws-host-uart/serial-communication-manager/tests/test51-byteArrayToHexStr"/>
-			<item value="/home/r/ws-host-uart/serial-communication-manager/tests/test14-setMinDataLength"/>
 		</list>
 		<list key="WizardProjectsImportPage.STORE_ARCHIVES">
 			<item value=""/>

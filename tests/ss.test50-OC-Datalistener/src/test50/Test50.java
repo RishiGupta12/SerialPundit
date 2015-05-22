@@ -81,6 +81,9 @@ public class Test50 {
 					PORT1 = null;
 				}else{
 				}
+				
+				PORT = "/dev/pts/1";
+				PORT1 = "/dev/pts/2";
 
 				long handle = scm.openComPort(PORT, true, true, true);
 				scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
@@ -110,14 +113,14 @@ public class Test50 {
 						Thread.sleep(500);
 					}else{
 					}
-					scm.writeString(handle1, "2222", 200);
+					scm.writeString(handle1, "2222", 0);
 				}
 				exit.set(false);                                     // reset flag
 				
 				System.out.println("main thread unregister : " + scm.unregisterDataListener(dataListener));
 				System.out.println("main thread unregister : " + scm.unregisterDataListener(dataListener1));
 				if(osType == SerialComManager.OS_LINUX) {
-					Thread.sleep(1);
+					Thread.sleep(10);
 				}else if(osType == SerialComManager.OS_WINDOWS) {
 					Thread.sleep(500);
 				}else if(osType == SerialComManager.OS_MAC_OS_X) {
@@ -130,7 +133,7 @@ public class Test50 {
 				scm.closeComPort(handle);
 				scm.closeComPort(handle1);
 				if(osType == SerialComManager.OS_LINUX) {
-					Thread.sleep(1);
+					Thread.sleep(10);
 				}else if(osType == SerialComManager.OS_WINDOWS) {
 					Thread.sleep(500);
 				}else if(osType == SerialComManager.OS_MAC_OS_X) {

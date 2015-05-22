@@ -337,6 +337,9 @@ public final class SerialComManager {
 
 	/**
 	 * <p>Close the serial port. Application should unregister listeners if it has registered any.</p>
+	 * 
+	 * <p>DTR line is dropped when port is closed.</p>
+	 * 
 	 * <p>This method is thread safe.</p>
 	 * 
 	 * @param handle of the port to be closed

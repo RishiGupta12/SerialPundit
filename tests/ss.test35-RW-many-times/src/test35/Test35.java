@@ -57,9 +57,10 @@ public class Test35 {
 
 			for(int x = 0; x<5000; x++) {
 				System.out.println("Iteration : " + x);
-				scm.writeString(handle, "22222222222222222222", 0);
+				
+				scm.writeString(handle, "1111111111", 0);
 				if(osType == SerialComManager.OS_LINUX) {
-					Thread.sleep(150);
+					Thread.sleep(10);
 				}else if(osType == SerialComManager.OS_WINDOWS) {
 					Thread.sleep(500);
 				}else if(osType == SerialComManager.OS_MAC_OS_X) {
@@ -68,7 +69,8 @@ public class Test35 {
 					Thread.sleep(500);
 				}else{
 				}
-				System.out.println("read : " + scm.readString(handle1));
+				byte[] bb = scm.readBytes(handle1, 102);
+				System.out.println("read STR : " + new String(bb));
 			}
 
 			scm.closeComPort(handle);

@@ -62,6 +62,7 @@ public final class SerialComCompletionDispatcher {
 			mHandleInfo.setLooper(looper);
 		}
 
+		// set up queue and start thread first, then set up native thread
 		looper.startDataLooper(handle, dataListener, mHandleInfo.getOpenedPortName());
 		mHandleInfo.setDataListener(dataListener);
 
@@ -69,6 +70,9 @@ public final class SerialComCompletionDispatcher {
 		if(ret < 0) {
 			looper.stopDataLooper();
 			mHandleInfo.setDataListener(null);
+			if(mHandleInfo.getEventListener() == null) {
+				mHandleInfo.setLooper(null);
+			}
 			throw new SerialComException("setUpDataLooper()", mErrMapper.getMappedError(ret));
 		}
 
@@ -143,6 +147,9 @@ public final class SerialComCompletionDispatcher {
 		if(ret < 0) {
 			looper.stopEventLooper();
 			mHandleInfo.setEventListener(null);
+			if(mHandleInfo.getDataListener() == null) {
+				mHandleInfo.setLooper(null);
+			}
 			throw new SerialComException("setUpEventLooper()", mErrMapper.getMappedError(ret));
 		}
 

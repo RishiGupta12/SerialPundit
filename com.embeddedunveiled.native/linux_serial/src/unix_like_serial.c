@@ -535,10 +535,10 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINative
 	int index = 0;
 	int partial_data = -1;
 	int num_bytes_to_read = 0;
-	int total_read = 0; // total number of bytes read till now
+	int total_read = 0;         /* track total number of bytes read till now */
 	ssize_t ret = -1;
 	jbyte buffer[2 * 1024];
-	jbyte final_buf[3 * 1024]; /* Sufficient enough to deal with consecutive multiple partial reads. */
+	jbyte final_buf[3 * 1024];  /* Sufficient enough to deal with consecutive multiple partial reads. */
 	jbyteArray dataRead;
 
 	num_bytes_to_read = count;
@@ -559,12 +559,12 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINative
 					final_buf[i] = buffer[i];
 				}
 				dataRead = (*env)->NewByteArray(env, index + ret);
-				(*env)->SetByteArrayRegion(env, dataRead, 0, index + ret, final_buf);
+				(*env)->SetByteArrayRegion(env, dataRead, 0, total_read, final_buf);
 				return dataRead;
 			}else {
 				/* Pass the successful read to java layer straight away. */
 				dataRead = (*env)->NewByteArray(env, ret);
-				(*env)->SetByteArrayRegion(env, dataRead, 0, ret, buffer);
+				(*env)->SetByteArrayRegion(env, dataRead, 0, total_read, buffer);
 				return dataRead;
 			}
 		}else if(ret > 0 && errno == EINTR) {
@@ -995,8 +995,6 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 	 * IMAXBEL : ring bell on input queue full, IGNBRK : Ignore break conditions, BRKINT : map BREAK to SIGINTR,
 	 * PARMRK : mark parity and framing errors, ISTRIP : strip 8th bit off chars, INLCR : Don't Map NL to CR,
 	 * IGNCR : ignore CR, ICRNL : Don't Map CR to NL, IXON : enable output flow control */
-	currentconfig.c_iflag &= ~(BRKINT | PARMRK | ISTRIP | INLCR | IGNCR);
-	currentconfig.c_iflag &= ~(ICRNL | IXON | IXOFF | IXANY | INPCK | IGNPAR);
 	currentconfig.c_iflag |= IGNBRK;
 #ifdef IUCLC
 	currentconfig.c_iflag &= ~IUCLC;  /* translate upper case to lower case */
