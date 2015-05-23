@@ -65,31 +65,15 @@ struct port_info port_monitor_info[MAX_NUM_THREADS] = { { 0 } };
  * Used to protect global data from concurrent access. */
 CRITICAL_SECTION csmutex;
 
-/* Called at the time this dll come to life. 
-BOOL WINAPI DllMain(HANDLE hModule, DWORD ul_reason_for_call, LPVOID lpReserved) {
-	switch (ul_reason_for_call) {
-		case DLL_PROCESS_ATTACHED:
-			if (DBG) fprintf(stderr, "%s \n", "aa");
-			if (DBG) fflush(stderr);
-			break;
-
-		case DLL_THREAD_ATTACHED:
-			if (DBG) fprintf(stderr, "%s \n", "bb");
-			if (DBG) fflush(stderr);
-			break;
-
-		case DLL_THREAD_DETACH:
-			if (DBG) fprintf(stderr, "%s \n", "cc");
-			if (DBG) fflush(stderr);
-			break;
-
+/* Called when library is loaded or un-loaded. */
+BOOL WINAPI DllMain(HANDLE hModule, DWORD reason_for_call, LPVOID lpReserved) {
+	switch (reason_for_call) {
 		case DLL_PROCESS_DETACH:
-			if (DBG) fprintf(stderr, "%s \n", "dd");
-			if (DBG) fflush(stderr);
+			DeleteCriticalSection(&csmutex);
 			break;
 	}
 	return TRUE;
-} */
+}
 
 /*
 * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
@@ -107,7 +91,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 		return -240;
 	}
 
-	/* Initialise critical section (does not return any value). TODO DELETE WHEN UNLOADING LIBRARY*/
+	/* Initialise critical section (does not return any value). */
 	InitializeCriticalSection(&csmutex);
 	return 0;
 }
@@ -413,7 +397,6 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInter
 	}
 	
 	/* Reset communication mask. */
-	SetCommMask(hComm, 0);
 	SetCommMask(hComm, EV_BREAK|EV_CTS|EV_DSR|EV_ERR|EV_RING|EV_RLSD|EV_RXCHAR|EV_RXFLAG|EV_TXEMPTY);
 
 	/* Abort outstanding I/O operations, clear port's I/O buffer (flush old garbage values). */
@@ -427,7 +410,7 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInter
 * Method:    closeComPort
 * Signature: (J)I
 *
-* Exclusive ownership is cleared automatically.
+* Exclusive ownership is cleared automatically upon port close.
 */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_closeComPort(JNIEnv *env, jobject obj, jlong handle) {
 	jint ret = -1;

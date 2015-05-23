@@ -141,7 +141,9 @@ public final class SerialComLooper {
 		}
 	}
 
-	/* Constructor */
+	/**
+	 * <p>Allocates a new SerialComLooper object.</p>
+	 */
 	public SerialComLooper(SerialComJNINativeInterface nativeInterface, SerialComErrorMapper errMapper) { 
 		mNativeInterface = nativeInterface;
 		mErrMapper = errMapper;

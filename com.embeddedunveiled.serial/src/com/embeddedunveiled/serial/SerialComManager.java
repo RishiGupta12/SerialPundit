@@ -182,7 +182,7 @@ public final class SerialComManager {
 	private Object lock = new Object();
 
 	/**
-	 * Constructor, initialize various classes and load native libraries. 
+	 * <p>Allocates a new SerialComManager object. Constructor, initialize various classes and load native libraries.</p>
 	 */
 	public SerialComManager() {
 		String osNameMatch = osName.toLowerCase();

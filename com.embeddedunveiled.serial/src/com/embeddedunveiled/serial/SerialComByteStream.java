@@ -27,10 +27,12 @@ class SerialComOutputStream extends OutputStream {
 
 	private SerialComManager scm = null;
 	private long handle = 0;
+	private SerialComByteStream scbs = null;
 
-	public SerialComOutputStream(SerialComManager scm, long handle) {
+	public SerialComOutputStream(SerialComManager scm, long handle, SerialComByteStream scbs) {
 		this.scm = scm;
 		this.handle = handle;
+		this.scbs = scbs;
 	}
 
 	/**
@@ -90,11 +92,19 @@ class SerialComOutputStream extends OutputStream {
 	}
 
 	/**
-	 * <p>The flush method of OutputStream does nothing. Kept in source code just to specify developer
-	 * about behaviour of this library when flush is called.</p>
+	 * <p>The scm always flushes data every time writeBytes() method is called. So do nothing just return.</p>
 	 */
 	@Override
 	public void flush() throws IOException {
+	}
+	
+	/**
+	 * <p>This method releases the OutputStream object associated with the operating handle.</p>
+	 * <p>To actually close the port closeComPort() method should be used.</p>
+	 */
+	@Override
+	public void close() throws IOException {
+		scbs.closeOutStream();
 	}
 }
 
@@ -105,10 +115,12 @@ class SerialComInputStream extends InputStream {
 
 	private SerialComManager scm = null;
 	private long handle = 0;
+	private SerialComByteStream scbs = null;
 
-	public SerialComInputStream(SerialComManager scm, long handle) {
+	public SerialComInputStream(SerialComManager scm, long handle, SerialComByteStream scbs) {
 		this.scm = scm;
 		this.handle = handle;
+		this.scbs = scbs;
 	}
 
 	/**
@@ -176,6 +188,15 @@ class SerialComInputStream extends InputStream {
 	public long skip(long n) {
 		return 0;
 	}
+	
+	/**
+	 * <p>This method releases the InputStream object associated with the operating handle.</p>
+	 * <p>To actually close the port closeComPort() method should be used.</p>
+	 */
+	@Override
+	public void close() throws IOException {
+		scbs.closeInStream();
+	}
 }
 
 /**
@@ -189,24 +210,49 @@ public final class SerialComByteStream {
 	private SerialComInputStream inStream = null;
 
 	/**
+	 * <p>Allocates a new SerialComByteStream object.</p>
 	 * 
+	 * @param handle of the port to be used for reading and writing
+	 * @param scm instance of scm with which this port is opened
 	 */
 	public SerialComByteStream(SerialComManager scm, long handle) {
 		this.scm = scm;
 		this.handle = handle;
 	}
 
+	/**
+	 * <p>This method creates and returns a OutputStream object associated with handle and scm instance.</p>
+	 */
 	public SerialComOutputStream getSerialComOutputStream() {
 		if(outStream == null) {
-			outStream = new SerialComOutputStream(scm, handle);
+			outStream = new SerialComOutputStream(scm, handle, this);
 		}
 		return outStream;
 	}
 
+	/**
+	 * <p>This method creates and returns a InputStream object associated with handle and scm instance.</p>
+	 */
 	public SerialComInputStream getSerialComInputStream() {
 		if(inStream == null) {
-			inStream = new SerialComInputStream(scm, handle);
+			inStream = new SerialComInputStream(scm, handle, this);
 		}
 		return inStream;
+	}
+	
+	/**
+	 * <p>This method releases the OutputStream object associated with the operating handle.</p>
+	 * <p>To actually close the port closeComPort() method should be used.</p>
+	 */
+	public void closeOutStream() {
+		outStream = null;
+	}
+	
+	/**
+	 * <p>This method releases the InputStream object associated with the operating handle.</p>
+	 * <p>To actually close the port closeComPort() method should be used.</p>
+	 */
+	public void closeInStream() {
+		inStream = null;
 	}
 }

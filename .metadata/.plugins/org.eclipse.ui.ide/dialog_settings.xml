@@ -5,11 +5,11 @@
 		<item value="false" key="WizardProjectsImportPage.STORE_COPY_PROJECT_ID"/>
 		<item value="false" key="WizardProjectsImportPage.STORE_NESTED_PROJECTS"/>
 		<list key="WizardProjectsImportPage.STORE_DIRECTORIES">
+			<item value="/home/r/ws-host-uart/serial-communication-manager/tests/ss.test43-OC-Datalistener"/>
+			<item value="/home/r/ws-host-uart/serial-communication-manager/tests/test3-datalistener"/>
 			<item value="/home/r/ws-host-uart/serial-communication-manager/tests/ss.test35-RW-many-times"/>
 			<item value="/home/r/ws-host-uart/serial-communication-manager/tests/ss.test50-OC-Datalistener"/>
 			<item value="/home/r/ws-host-uart/serial-communication-manager/tests/test1-list-ports"/>
-			<item value="/home/r/ws-host-uart/serial-communication-manager/tests/test52-lines-stat-OC"/>
-			<item value="/home/r/ws-host-uart/serial-communication-manager/tests/test5-lines-status"/>
 		</list>
 		<list key="WizardProjectsImportPage.STORE_ARCHIVES">
 			<item value=""/>
@@ -18,10 +18,10 @@
 	<section name="CleanDialogSettings">
 		<item value="567" key="DIALOG_WIDTH"/>
 		<item value="true" key="BUILD_NOW"/>
-		<item value="true" key="BUILD_ALL"/>
 		<item value="257" key="DIALOG_Y_ORIGIN"/>
-		<item value="493" key="DIALOG_HEIGHT"/>
+		<item value="true" key="BUILD_ALL"/>
 		<item value="711" key="DIALOG_X_ORIGIN"/>
+		<item value="493" key="DIALOG_HEIGHT"/>
 		<item value="false" key="TOGGLE_SELECTED"/>
 	</section>
 </section>

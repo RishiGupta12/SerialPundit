@@ -37,6 +37,9 @@ public final class SerialComCompletionDispatcher {
 	private SerialComErrorMapper mErrMapper = null;
 	private List<SerialComPortHandleInfo> mPortHandleInfo = null;
 
+	/**
+	 * <p>Allocates a new SerialComCompletionDispatcher object.</p>
+	 */
 	public SerialComCompletionDispatcher(SerialComJNINativeInterface nativeInterface, SerialComErrorMapper errMapper, List<SerialComPortHandleInfo> portHandleInfo) {
 		this.mNativeInterface = nativeInterface;
 		this.mErrMapper = errMapper;
