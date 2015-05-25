@@ -1,0 +1,11 @@
+package com.embeddedunveiled.serial;
+
+import java.io.OutputStream;
+
+public final class SerialComOutputStream extends OutputStream {
+
+	public SerialComOutputStream() {
+		// TODO Auto-generated constructor stub
+	}
+
+}

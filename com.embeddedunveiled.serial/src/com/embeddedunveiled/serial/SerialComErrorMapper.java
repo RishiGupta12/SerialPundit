@@ -51,7 +51,14 @@ public final class SerialComErrorMapper {
 	public static final String ERR_TIMEOUT_ACKNOWLEDGE_BLOCK = "Timedout while waiting for block reception acknowledgement from receiver";
 	public static final String ERR_TIMEOUT_ACKNOWLEDGE_EOT = "Timedout while waiting for EOT reception acknowledgement from receiver";
 	public static final String ERR_CAN_NOT_BE_NULL = "This argument can not be null";
+	public static final String ERR_IN_STREAM_ALREADY_EXIST = "Input stream already exist for this handle";
+	public static final String ERR_OUT_STREAM_ALREADY_EXIST = "Output stream already exist for this handle";
+	public static final String ERR_BYTE_STREAM_IS_CLOSED = "The byte stream has been closed";
+	public static final String ERR_ARG_NOT_BYTE_ARRAY = "The argument data is not a byte array";
 
+	/**
+	 * <p>Allocates a new SerialComErrorMapper object.</p>
+	 */
 	public SerialComErrorMapper() {
 	}
 

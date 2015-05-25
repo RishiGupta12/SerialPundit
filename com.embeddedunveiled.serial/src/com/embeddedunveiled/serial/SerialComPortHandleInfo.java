@@ -18,15 +18,17 @@
 package com.embeddedunveiled.serial;
 
 /**
- * <p>This class encapsulate port handle, looper object, event listener, data listener and port name associated with a particular port.</p>
+ * <p>This class encapsulate port handle, looper object, event listener, data listener, port name etc associated with a particular port.</p>
  */
 public final class SerialComPortHandleInfo {
 
-	private String mOpenedPortName = null;
 	private long mPortHandle = -1;
+	private String mOpenedPortName = null;
 	private SerialComLooper mLooper = null;
 	private ISerialComEventListener mEventListener = null;
 	private ISerialComDataListener mDataListener = null;
+	private SerialComInByteStream mSerialComInByteStream = null;
+	private SerialComOutByteStream mSerialComOutByteStream = null;
 
 	public SerialComPortHandleInfo(String portName, long handle, SerialComLooper looper, ISerialComDataListener dataListener, ISerialComEventListener eventListener) {
 		this.mOpenedPortName = portName;
@@ -122,5 +124,25 @@ public final class SerialComPortHandleInfo {
 			return true;
 		}
 		return false;
+	}
+	
+	/** <p>Return SerialComByteStream object associated with this handle. </p>*/	
+	public SerialComInByteStream getSerialComInByteStream() {
+		return mSerialComInByteStream;
+	}
+
+	/** <p> Set the SerialComByteStream object associated with this handle. </p> */
+	public void setSerialComInByteStream(SerialComInByteStream serialComInByteStream) {
+		this.mSerialComInByteStream  = serialComInByteStream;
+	}
+	
+	/** <p>Return SerialComByteStream object associated with this handle. </p>*/	
+	public SerialComOutByteStream getSerialComOutByteStream() {
+		return mSerialComOutByteStream;
+	}
+
+	/** <p> Set the SerialComByteStream object associated with this handle. </p> */
+	public void setSerialComOutByteStream(SerialComOutByteStream serialComOutByteStream) {
+		this.mSerialComOutByteStream  = serialComOutByteStream;
 	}
 }

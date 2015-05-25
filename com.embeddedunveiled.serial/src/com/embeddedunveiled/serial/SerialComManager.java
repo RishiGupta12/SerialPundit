@@ -223,7 +223,8 @@ public final class SerialComManager {
 	 * <p>Gives operating system type as identified by this library. To interpret return integer see constants defined
 	 * SerialComManager class.</p>
 	 * 
-	 * @return Operating system type as identified by the scm library. 
+	 * @return Operating system type as identified by the scm library
+	 * @throws IllegalStateException - if application calls this method without first creating an instance of SerialComManager class
 	 */
 	public static int getOSType() throws IllegalStateException {
 		if(osType == -1) {
@@ -236,12 +237,12 @@ public final class SerialComManager {
 	 * <p>Returns all available UART style ports available on this system, otherwise an empty array of strings, if no serial style port is
 	 * found in the system.</p>
 	 * 
-	 * <p>This method to know which ports are valid communications ports before opening them for writing more robust code.</p>
+	 * <p>This method may be used to find valid serial ports for communications before opening them for developing more robust code.</p>
 	 * 
 	 * <p>This should find regular UART ports, hw/sw virtual COM ports, port server, USB-UART converter, bluetooth/3G dongles, 
 	 * ports connected through USB hub/expander etc.</p>
 	 * 
-	 * <p>Note : The BIOS may ignore UART ports on a PCI card and therefore BIOS settings has to be corrected if you modifed
+	 * <p>Note : The BIOS may ignore UART ports on a PCI card and therefore BIOS settings has to be corrected if you modified
 	 * default BIOS in custom OS.</p>
 	 * 
 	 * @return Available UART style ports name for windows, full path with name for Unix like OS, returns empty array if no ports found.
@@ -1585,6 +1586,105 @@ public final class SerialComManager {
 			throw new SerialComException("writeBytesBulk()",  mErrMapper.getMappedError(ret));
 		}
 		return true;
+	}
+	
+	/**
+	 * <p>Prepares context and returns an input streams of bytes for receiving data bytes from the 
+	 * serial port.</p>
+	 * 
+	 * <p>A handle can have only one input stream. After it has been used it need to be closed.</p>
+	 * 
+	 * @param handle handle of the opened port from which to read data bytes
+	 * @return reference to an object of type SerialComInByteStream
+	 * @throws SerialComException if input stream already exist for this handle or invalid handle is passed
+	 */
+	public SerialComInByteStream createInputByteStream(long handle) throws SerialComException {
+		boolean handlefound = false;
+		SerialComInByteStream scis = null;
+		SerialComPortHandleInfo mHandleInfo = null;
+
+		for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
+			if(mInfo.containsHandle(handle)) {
+				handlefound = true;
+				scis = mInfo.getSerialComInByteStream();
+				mHandleInfo = mInfo;
+				break;
+			}
+		}
+		if(handlefound == false) {
+			throw new SerialComException("createInputByteStream()", SerialComErrorMapper.ERR_WRONG_HANDLE);
+		}
+		
+		if(scis == null) {
+			scis = new SerialComInByteStream(this, handle);
+			mHandleInfo.setSerialComInByteStream(scis);
+		}else {
+			// if 2nd attempt is made to create already existing input stream, throw exception
+			throw new SerialComException("createInputByteStream()", SerialComErrorMapper.ERR_IN_STREAM_ALREADY_EXIST);
+		}
+		
+		return scis;
+	}
+	
+	/**
+	 * <p>Prepares context and returns an output streams of bytes for transferring data bytes out of 
+	 * serial port.</p>
+	 * 
+	 * <p>A handle can have only one output stream. After it has been used it need to be closed.</p>
+	 * 
+	 * <p>Using SerialComOutByteStream for writing data while not using SerialComInByteStream for
+	 * reading is a valid use case.</p>
+	 * 
+	 * @param handle handle of the opened port on which to write data bytes
+	 * @return reference to an object of type SerialComOutByteStream
+	 * @throws SerialComException if output stream already exist for this handle or invalid handle is passed
+	 */
+	public SerialComOutByteStream createOutputByteStream(long handle) throws SerialComException {
+		boolean handlefound = false;
+		SerialComOutByteStream scos = null;
+		SerialComPortHandleInfo mHandleInfo = null;
+
+		for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
+			if(mInfo.containsHandle(handle)) {
+				handlefound = true;
+				scos = mInfo.getSerialComOutByteStream();
+				mHandleInfo = mInfo;
+				break;
+			}
+		}
+		if(handlefound == false) {
+			throw new SerialComException("createOutputByteStream()", SerialComErrorMapper.ERR_WRONG_HANDLE);
+		}
+		
+		if(scos == null) {
+			scos = new SerialComOutByteStream(this, handle);
+			mHandleInfo.setSerialComOutByteStream(scos);
+		}else {
+			// if 2nd attempt is made to create already existing output stream, throw exception
+			throw new SerialComException("createOutputByteStream()", SerialComErrorMapper.ERR_OUT_STREAM_ALREADY_EXIST);
+		}
+		
+		return scos;
+	}
+	
+	/** Internal use */
+	public void destroyInputByteStream(SerialComInByteStream scis) {
+		for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
+			if(mInfo.getSerialComInByteStream() == scis) {
+				mInfo.setSerialComInByteStream(null);
+				break;
+			}
+		}
+	}
+	
+	/** Internal use */
+	public void destroyOutputByteStream(SerialComOutByteStream scos) {
+		for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
+			if(mInfo.getSerialComOutByteStream() == scos) {
+				mInfo.setSerialComOutByteStream(null);
+				break;
+			}
+		}
 	}
 	
 	/**

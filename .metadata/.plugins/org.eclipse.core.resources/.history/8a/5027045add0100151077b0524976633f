@@ -1,0 +1,9 @@
+package com.embeddedunveiled.serial;
+
+public final class SerialComOutputStream {
+
+	public SerialComOutputStream() {
+		// TODO Auto-generated constructor stub
+	}
+
+}

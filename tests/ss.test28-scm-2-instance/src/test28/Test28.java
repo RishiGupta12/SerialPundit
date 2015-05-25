@@ -35,7 +35,7 @@ public class Test28 {
 		try {
 			SerialComManager scm = new SerialComManager();
 			SerialComManager scm1 = new SerialComManager();
-
+/*
 			String PORT = null;
 			String PORT1 = null;
 			int osType = SerialComManager.getOSType();
@@ -67,7 +67,7 @@ public class Test28 {
 			System.out.println("data read is : " + scm.readString(handle));
 			System.out.println("data1 read is : " + scm1.readString(handle1));
 			System.out.println("close status : " + scm.closeComPort(handle));
-			System.out.println("close status : " + scm1.closeComPort(handle1));
+			System.out.println("close status : " + scm1.closeComPort(handle1)); */
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
