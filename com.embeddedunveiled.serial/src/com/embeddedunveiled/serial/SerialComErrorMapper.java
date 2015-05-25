@@ -37,7 +37,7 @@ public final class SerialComErrorMapper {
 	public static final String ERR_WRONG_LISTENER_PASSED = "This listener is not registered";
 	public static final String ERR_UNABLE_TO_WRITE = "Unable to copy native library in tmp directory. Probably insufficient permissions.";
 	public static final String ERR_PORT_NAME_NULL = "Port name can not be null";
-	public static final String ERR_INVALID_DATA_LENGTH = "Number of bytes should be positive value";
+	public static final String ERR_INVALID_COMBINATION_ARG = "Invalid combination of arguments passed";
 	public static final String ERR_WIN_OWNERSHIP = "Windows does not allow port sharing. The exclusiveOwnerShip must be true";
 	public static final String ERR_CLOSE_WITHOUT_UNREG_DATA = "Closing port without unregistering data listener is not allowed";
 	public static final String ERR_CLOSE_WITHOUT_UNREG_EVENT = "Closing port without unregistering event listener is not allowed";

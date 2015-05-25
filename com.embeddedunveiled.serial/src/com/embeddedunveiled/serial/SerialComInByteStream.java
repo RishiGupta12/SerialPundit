@@ -37,6 +37,7 @@ public final class SerialComInByteStream extends InputStream {
 	/**
 	 * <p>Returns an estimate of the minimum number of bytes that can be read from this input stream
 	 * without blocking by the next invocation of a method for this input stream.</p>
+	 * 
 	 * @return an estimate of the minimum number of bytes that can be read from this input stream without blocking
 	 * @throws IOException - if an I/O error occurs.
 	 */
@@ -57,6 +58,7 @@ public final class SerialComInByteStream extends InputStream {
 
 	/**
 	 * <p>scm does not support mark and reset of input stream. If required, it can be developed at application level.</p>
+	 * 
 	 * @return always returns false
 	 */
 	@Override
@@ -98,6 +100,7 @@ public final class SerialComInByteStream extends InputStream {
 
 	/**
 	 * <p>The scm does not support skip. If required, it can be developed at application level.</p>
+	 * 
 	 * @param number of bytes to skip
 	 * @return always returns 0
 	 */

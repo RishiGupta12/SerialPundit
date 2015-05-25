@@ -1574,16 +1574,42 @@ JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeI
 }
 
 /*
-* Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
-* Method:    setMinDataLength
-* Signature: (JI)I
-*
-* This function changes the behaviour of when data listener is called based on the value of numOfBytes variable.
-* The listener will be called only when this many bytes will be available to read from file descriptor.
-* Not supported by Windows OS itself. Return -1 notifying application about this.
-*/
-JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_setMinDataLength(JNIEnv *env, jobject obj, jlong handle, jint numOfBytes) {
-	return -1;
+ * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
+ * Method:    fineTuneRead
+ * Signature: (JIIIII)I
+ *
+ * This method gives more precise control on behavior of read operation.
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_fineTuneRead(JNIEnv *env, jobject obj, jlong handle, jint a, jint b, jint rit, jint rttm, jint rttc) {
+	int ret = 0;
+	int negative = -1;
+	DWORD errorVal;
+	COMMTIMEOUTS lpCommTimeouts;
+	HANDLE hComm = (HANDLE)handle;
+	
+	ret = GetCommTimeouts(hComm, &lpCommTimeouts);
+	if(ret == 0) {
+		errorVal = GetLastError();
+		if(DBG) fprintf(stderr, "%s %ld\n", "NATIVE fineTuneRead() failed in GetCommTimeouts() with error number : ", errorVal);
+		if(DBG) fprintf(stderr, "%s \n", "please retry tuning again.");
+		if(DBG) fflush(stderr);
+		return (negative * (errorVal + ERR_OFFSET));
+	}
+	
+	lpCommTimeouts.ReadIntervalTimeout = rit;
+	lpCommTimeouts.ReadTotalTimeoutMultiplier = rttm;
+	lpCommTimeouts.ReadTotalTimeoutConstant = rttc;
+	
+	ret = SetCommTimeouts(hComm, &lpCommTimeouts);
+	if(ret == 0) {
+		errorVal = GetLastError();
+		if(DBG) fprintf(stderr, "%s%ld\n", "NATIVE fineTuneRead() failed in SetCommTimeouts() with error number : ", errorVal);
+		if(DBG) fprintf(stderr, "%s \n", "please retry tuning again.");
+		if(DBG) fflush(stderr);
+		return (negative * (errorVal + ERR_OFFSET));
+	}
+	
+	return 0;
 }
 
 /* 

@@ -1066,28 +1066,34 @@ public final class SerialComManager {
 	}
 	
 	/**
-	 * <p>By default, the data listener will be called for every single byte available. This may not be optimal in case
-	 * of data, but may be critical in case data actually is part of some custom protocol. So, applications can
-	 * dynamically change the behavior of 'calling data listener' based on the amount of data availability.</p>
+	 * <p>This method gives more fine tune control to application for tuning performance and behavior of read
+	 * operations to leverage OS specific facility for read operation. The read operations can be optimized for
+	 * receiving for example high volume data speedily or low volume data but received in burst mode.</p>
 	 * 
-	 * <p>Note: (1) If the port has been opened by more than one user, all the users will be affected by this method.
-	 * (2) This is not supported on Windows OS.</p>
+	 * <p>If more than one client has opened the same port, then all the clients will be affected by new settings.</p>
+	 * 
+	 * <p>When this method is called application should make sure that previous read or write operation is not in progress.</p>
 	 * 
 	 * @param handle of the opened port
-	 * @param numOfBytes minimum number of bytes that would have been read from port to pass to listener
+	 * @param vmin c_cc[VMIN] field of termios structure
+	 * @param vtime c_cc[VTIME] field of termios structure
+	 * @param rit ReadIntervalTimeout field of COMMTIMEOUTS structure
+	 * @param rttm ReadTotalTimeoutMultiplier field of COMMTIMEOUTS structure
+	 * @param rttc ReadTotalTimeoutConstant field of COMMTIMEOUTS structure
 	 * @return true on success false otherwise
-	 * @throws SerialComException - if invalid value for numOfBytes is passed, wrong handle is passed, operation can not be done successfully
-	 * @throws IllegalArgumentException - if numOfBytes is less than 0
+	 * @throws SerialComException - if wrong handle is passed or operation can not be done successfully
+	 * @throws IllegalArgumentException - if invalid combination of arguments is passed
 	 */
-	public boolean setMinDataLength(long handle, int numOfBytes) throws SerialComException {
-
-		if(getOSType() == OS_WINDOWS) {
-			return false;
-		}
-
+	public boolean fineTuneRead(long handle, int vmin, int vtime, int rit, int rttm, int rttc) throws SerialComException {
 		boolean handlefound = false;
-		if(numOfBytes < 0) {
-			throw new IllegalArgumentException("setMinDataLength(), " + SerialComErrorMapper.ERR_INVALID_DATA_LENGTH);
+		int osType = SerialComManager.getOSType();
+		
+		if(osType == SerialComManager.OS_WINDOWS) {
+			//TODO
+		}else {
+			if((vmin == 0) && (vtime == 0)) {
+				throw new IllegalArgumentException("fineTuneRead(), " + SerialComErrorMapper.ERR_INVALID_COMBINATION_ARG);
+			}
 		}
 
 		for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
@@ -1098,13 +1104,14 @@ public final class SerialComManager {
 		}
 
 		if(handlefound == false) {
-			throw new SerialComException("setMinDataLength()", SerialComErrorMapper.ERR_WRONG_HANDLE);
+			throw new SerialComException("fineTuneRead()", SerialComErrorMapper.ERR_WRONG_HANDLE);
 		}
 
-		int ret = mNativeInterface.setMinDataLength(handle, numOfBytes);
+		int ret = mNativeInterface.fineTuneRead(handle, vmin, vtime, rit, rttm, rttc);
 		if(ret < 0) {
-			throw new SerialComException("setMinDataLength()",  mErrMapper.getMappedError(ret));
+			throw new SerialComException("fineTuneRead()",  mErrMapper.getMappedError(ret));
 		}
+		
 		return true;
 	}
 

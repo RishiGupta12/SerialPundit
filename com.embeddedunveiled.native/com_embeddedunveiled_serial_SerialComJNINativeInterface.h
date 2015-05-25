@@ -233,11 +233,11 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 
 /*
  * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
- * Method:    setMinDataLength
- * Signature: (JI)I
+ * Method:    fineTuneRead
+ * Signature: (JIIIII)I
  */
-JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_setMinDataLength
-  (JNIEnv *, jobject, jlong, jint);
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_fineTuneRead
+  (JNIEnv *, jobject, jlong, jint, jint, jint, jint, jint);
 
 #ifdef __cplusplus
 }
