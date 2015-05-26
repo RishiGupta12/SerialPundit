@@ -426,7 +426,7 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInter
 	}
 	(*env)->ReleaseStringUTFChars(env, portName, portpath);
 
-	/* Enable blocking I/O behavior. */
+	/* Enable blocking I/O behavior. Control behavior through VMIN and VTIME. */
 	n = fcntl(fd, F_GETFL, 0);
 	fcntl(fd, F_SETFL, n & ~O_NDELAY);
 

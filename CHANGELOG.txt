@@ -1,14 +1,22 @@
 
-v1.0.3 (TODO RELEASE DATE 12 May 2015)
+v1.0.3 (26 May 2015)
 	- added byteArrayToHexStr() utility method
+	- replace setMinDataLength() with fineTuneRead() with more features
+	- added input-output byte stream support in scm
 	- listAvailableComPorts() now throws SerialComException
 	- listeners optimized for less memory consumption
 	- read/write method are now more easy to use
 	- enabled 3rd parameter delay in writeBytes method
+	- drop DTR when port closed in linux
+	- enable DTR/RTS at port opening in windows
+	- flush data after each write to serial port in windows
+	- report actual windows error codes in exceptions thrown in java layer
 	- added getDataBytesLength() method in SerialComDataEvent
+	- delete critical section when un-loading library in windows os
 	- attempting to open an alreadyed opened port will throw exception (if trying to become exclusive owner)
 	- pass valid thread id to pthread_join() for data listener in linux
 	- destroy pthread_attr_t object upon thread termination
+	- various code improvements
 	- javadocs and source code comments updated
 	
 v1.0.2 (12 May 2015)

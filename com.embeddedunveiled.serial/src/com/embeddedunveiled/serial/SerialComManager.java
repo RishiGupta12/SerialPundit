@@ -603,22 +603,22 @@ public final class SerialComManager {
 	}
 
 	/** 
-	 * <p>Read specified number of bytes from serial port.</p>
+	 * <p>Read specified number of bytes from given serial port.</p>
 	 * <p>1. If data is read from serial port, array of bytes containing data is returned.</p>
-	 * <p>2. If there was no data in serial port to read, empty array is returned.</p>
+	 * <p>2. If there was no data in serial port to read, null is returned.</p>
 	 * 
 	 * <p>The number of bytes to read must be greater than or equal to 1 and less than or equal to 2048 (1 <= byteCount <= 2048).
 	 * This method may return less than the requested number of bytes due to reasons like, there is less data in operating system
 	 * buffer (serial port) or operating system returned less data which is also legal.</p>
 	 * 
-	 * @param handle of the port from which to read bytes
-	 * @param byteCount number of bytes to read from this port
-	 * @return array of bytes or empty array (zero length).
+	 * @param handle of the serial port from which to read bytes
+	 * @param byteCount number of bytes to read from serial port
+	 * @return array of bytes read from port or null
 	 * @throws SerialComException - if an I/O error occurs.
 	 */
 	public byte[] readBytes(long handle, int byteCount) throws SerialComException {
+		
 		SerialComReadStatus retStatus = new SerialComReadStatus(1);
-
 		byte[] buffer = mNativeInterface.readBytes(handle, byteCount, retStatus);
 
 		// data read from serial port, pass to application
@@ -626,9 +626,9 @@ public final class SerialComManager {
 			return buffer;
 		}
 
-		// reaching here means JNI layer passed null indicating either no data read or error
+		// reaching here means JNI layer passed null indicating either no data read or an error
 		if(retStatus.status == 1) {
-			return new byte[]{};               // serial port does not have any data
+			return null;               // serial port does not have any data
 		}else if(retStatus.status < 0) {
 			throw new SerialComException("reading", mErrMapper.getMappedError(retStatus.status));
 		}else {
@@ -643,7 +643,7 @@ public final class SerialComManager {
 	 * <p>It has same effect as readBytes(handle, 1024)</p>
 	 * 
 	 * @param handle of the port from which to read bytes
-	 * @return array of bytes read from port, empty array of bytes if there was no data in serial port, null if EOF encountered
+	 * @return array of bytes read from port or null
 	 * @throws SerialComException - if an I/O error occurs.
 	 */
 	public byte[] readBytes(long handle) throws SerialComException {
@@ -651,12 +651,14 @@ public final class SerialComManager {
 	}
 
 	/**
-	 * <p>This method reads data from serial port and converts data read from bytes to string.
-	 * Caller has more finer control over the byte operation.</p>
+	 * <p>This method reads data from serial port and converts it into string. Caller has more finer control over the byte operation.</p>
+	 * 
+	 * <p> It Constructs a new string by decoding the specified array of bytes using the platform's default charset. The length of the new
+     * string is a function of the charset, and hence may not be equal to the length of the byte array read from serial port.</p>
 	 * 
 	 * @param handle of port from which to read bytes
 	 * @param byteCount number of bytes to read from this port
-	 * @return string constructed from data read from serial port, empty string if there was no data on serial port, null if EOF
+	 * @return string constructed from data read from serial port or null
 	 * @throws SerialComException - if an I/O error occurs.
 	 */
 	public String readString(long handle, int byteCount) throws SerialComException {
@@ -668,11 +670,15 @@ public final class SerialComManager {
 	}
 
 	/**
-	 * <p>This method reads data from serial port and converts data read from bytes to string.</p>
-	 * <p>Note that the length of string read using this method can not be greater than DEFAULT_READBYTECOUNT (1024).</p>
+	 * <p>This method reads data from serial port and converts it into string. Caller has more finer control over the byte operation.</p>
+	 * 
+	 * <p> It Constructs a new string by decoding the specified array of bytes using the platform's default charset. The length of the new
+     * string is a function of the charset, and hence may not be equal to the length of the byte array read from serial port.</p>
+     * 
+	 * <p>Note that the length of data bytes read using this method can not be greater than DEFAULT_READBYTECOUNT i.e. 1024.</p>
 	 * 
 	 * @param handle of the port from which to read bytes
-	 * @return string constructed from data read from serial port, empty string if there was no data on serial port, null if EOF is read
+	 * @return string constructed from data read from serial port or null
 	 * @throws SerialComException - if an I/O error occurs.
 	 */
 	public String readString(long handle) throws SerialComException {
@@ -685,7 +691,7 @@ public final class SerialComManager {
 	 * <p>Its effect is same as readBytes(handle, 1)</p>
 	 * 
 	 * @param handle of the port from which to read bytes
-	 * @return 1 byte data read from port, empty array (zero length) if there was no data in serial port, null if EOF encountered
+	 * @return 1 byte data read from serial port or null
 	 * @throws SerialComException - if an I/O error occurs.
 	 */
 	public byte[] readSingleByte(long handle) throws SerialComException {

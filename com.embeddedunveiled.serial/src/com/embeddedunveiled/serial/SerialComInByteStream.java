@@ -28,10 +28,18 @@ public final class SerialComInByteStream extends InputStream {
 	private long handle = 0;
 	private boolean isOpened = false;
 
-	public SerialComInByteStream(SerialComManager scm, long handle) {
+	public SerialComInByteStream(SerialComManager scm, long handle) throws SerialComException {
 		this.scm = scm;
 		this.handle = handle;
 		isOpened = true;
+		
+		// make read pure blocking
+		int osType = SerialComManager.getOSType();
+		if(osType == SerialComManager.OS_WINDOWS) {
+			scm.fineTuneRead(handle, 1, 0, 0, 0, 0); //TODO
+		}else {
+			scm.fineTuneRead(handle, 1, 0, 0, 0, 0);
+		}
 	}
 
 	/**
@@ -55,6 +63,27 @@ public final class SerialComInByteStream extends InputStream {
 		}
 		return numBytesAvailable[0];
 	}
+	
+	/**
+	 * <p>This method releases the InputStream object associated with the operating handle.</p>
+	 * <p>To actually close the port closeComPort() method should be used.</p>
+	 */
+	@Override
+	public void close() throws IOException {
+		if(isOpened != true) {
+			throw new IOException(SerialComErrorMapper.ERR_BYTE_STREAM_IS_CLOSED);
+		}
+		scm.destroyInputByteStream(this);
+		isOpened = false;
+	}
+	
+	/**
+	 * <p>scm does not support mark and reset of input stream. If required, it can be developed at application level.</p>
+	 * 
+	 */
+	@Override
+	public void mark(int a) {
+	}
 
 	/**
 	 * <p>scm does not support mark and reset of input stream. If required, it can be developed at application level.</p>
@@ -68,14 +97,9 @@ public final class SerialComInByteStream extends InputStream {
 
 	/**
 	 * <p>Reads the next byte of data from the input stream. The value byte is returned as an int in 
-	 * the range 0 to 255. If no byte is available because the end of the stream has been reached, 
-	 * the value -1 is returned.</p>
+	 * the range 0 to 255. </p>
 	 * 
-	 * <p>From the perspective of serial port communication, it should be noted that when this method 
-	 * returns 0 which indicate that there was no data, data might have arrived just after the instant
-	 * this method returned.</p>
-	 * 
-	 * @return the next byte of data, or 0 no byte is read.
+	 * @return the next byte of data
 	 * @throws IOException - if an I/O error occurs.
 	 */
 	@Override
@@ -85,7 +109,7 @@ public final class SerialComInByteStream extends InputStream {
 		}
 		
 		int x = 0;
-		byte data[] = new byte[1];
+		byte[] data = new byte[1];
 		try {
 			data = scm.readBytes(handle, 1);
 			if(data == null) {
@@ -97,6 +121,12 @@ public final class SerialComInByteStream extends InputStream {
 
 		return x;
 	}
+	
+	/**
+	 * <p>The scm does not support reset. If required, it can be developed at application level.</p>
+	 */
+    public synchronized void reset() throws IOException {
+    }
 
 	/**
 	 * <p>The scm does not support skip. If required, it can be developed at application level.</p>
@@ -107,18 +137,5 @@ public final class SerialComInByteStream extends InputStream {
 	@Override
 	public long skip(long n) {
 		return 0;
-	}
-	
-	/**
-	 * <p>This method releases the InputStream object associated with the operating handle.</p>
-	 * <p>To actually close the port closeComPort() method should be used.</p>
-	 */
-	@Override
-	public void close() throws IOException {
-		if(isOpened != true) {
-			throw new IOException(SerialComErrorMapper.ERR_BYTE_STREAM_IS_CLOSED);
-		}
-		scm.destroyInputByteStream(this);
-		isOpened = false;
 	}
 }
