@@ -42,11 +42,19 @@ public final class SerialComOutByteStream extends OutputStream {
 	 * 
 	 * @param byte type array of data to be written to serial port
 	 * @throws IOException if write fails or output stream has been closed.
+	 * @throws NullPointerException if data is null
+	 * @throws IllegalArgumentException if data is not a byte type array
 	 */
 	@Override
 	public void write(byte[] data) throws IOException {
 		if(isOpened != true) {
 			throw new IOException(SerialComErrorMapper.ERR_BYTE_STREAM_IS_CLOSED);
+		}
+		if(data == null) {
+			throw new NullPointerException("write(), " + SerialComErrorMapper.ERR_WRITE_NULL_DATA_PASSED);
+		}
+		if(!(data instanceof byte[])) {
+			throw new IllegalArgumentException("write()," + SerialComErrorMapper.ERR_ARG_NOT_BYTE_ARRAY);
 		}
 		try {
 			scm.writeBytes(handle, data, 0);
@@ -64,7 +72,9 @@ public final class SerialComOutByteStream extends OutputStream {
 	 * @param data byte type array of data to be written to serial port
 	 * @param off offset from where to start sending data
 	 * @param len length of data to be written
-	 * @throws IOException if write fails or output stream has been closed.
+	 * @throws IOException if write fails or output stream has been closed
+	 * @throws IllegalArgumentException if data is not a byte type array
+	 * @throws NullPointerException if data is null
 	 * @throws IndexOutOfBoundsException If off is negative, or len is negative, or off+len is greater 
 	 * than the length of the array data.
 	 */
@@ -73,17 +83,14 @@ public final class SerialComOutByteStream extends OutputStream {
 		if(isOpened != true) {
 			throw new IOException(SerialComErrorMapper.ERR_BYTE_STREAM_IS_CLOSED);
 		}
-		
 		if(data == null) {
 			throw new NullPointerException("write(), " + SerialComErrorMapper.ERR_WRITE_NULL_DATA_PASSED);
 		}
-		
 		if((off < 0) || (len < 0) || ((off+len) > data.length)) {
-			throw new IndexOutOfBoundsException("write(), " + SerialComErrorMapper.ERR_WRITE_INDEX_VIOLATION);
+			throw new IndexOutOfBoundsException("write(), " + SerialComErrorMapper.ERR_INDEX_VIOLATION);
 		}
-		
 		if(!(data instanceof byte[])) {
-			throw new IOException(SerialComErrorMapper.ERR_ARG_NOT_BYTE_ARRAY);
+			throw new IllegalArgumentException("write()," + SerialComErrorMapper.ERR_ARG_NOT_BYTE_ARRAY);
 		}
 		
 		try {

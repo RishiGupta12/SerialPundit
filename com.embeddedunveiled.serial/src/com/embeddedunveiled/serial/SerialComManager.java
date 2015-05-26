@@ -224,7 +224,7 @@ public final class SerialComManager {
 	 * SerialComManager class.</p>
 	 * 
 	 * @return Operating system type as identified by the scm library
-	 * @throws IllegalStateException - if application calls this method without first creating an instance of SerialComManager class
+	 * @throws IllegalStateException if application calls this method without first creating an instance of SerialComManager class
 	 */
 	public static int getOSType() throws IllegalStateException {
 		if(osType == -1) {
@@ -246,7 +246,7 @@ public final class SerialComManager {
 	 * default BIOS in custom OS.</p>
 	 * 
 	 * @return Available UART style ports name for windows, full path with name for Unix like OS, returns empty array if no ports found.
-	 * @throws SerialComException - if an I/O error occurs.
+	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public String[] listAvailableComPorts() throws SerialComException {
 		SerialComPortsList scpl = new SerialComPortsList(this.mNativeInterface);
@@ -288,8 +288,8 @@ public final class SerialComManager {
 	 * @param enableWrite allows application to write bytes to this port
 	 * @param exclusiveOwnerShip application wants to become exclusive owner of this port or not
 	 * @return handle of the port successfully opened
-	 * @throws SerialComException - if both enableWrite and enableRead are false, trying to become exclusive owner when port is already opened
-	 * @throws IllegalArgumentException - if portName is null or invalid length
+	 * @throws SerialComException if both enableWrite and enableRead are false, trying to become exclusive owner when port is already opened
+	 * @throws IllegalArgumentException if portName is null or invalid length
 	 */
 	public long openComPort(String portName, boolean enableRead, boolean enableWrite, boolean exclusiveOwnerShip) throws SerialComException {
 		long handle = 0;
@@ -345,8 +345,8 @@ public final class SerialComManager {
 	 * 
 	 * @param handle of the port to be closed
 	 * @return Return true on success in closing the port false otherwise
-	 * @throws SerialComException - if invalid handle is passed or when it fails in closing the port
-	 * @throws IllegalStateException - if application tries to close port while data/event listener exist
+	 * @throws SerialComException if invalid handle is passed or when it fails in closing the port
+	 * @throws IllegalStateException if application tries to close port while data/event listener exist
 	 */
 	public boolean closeComPort(long handle) throws SerialComException {
 		boolean handlefound = false;
@@ -403,8 +403,8 @@ public final class SerialComManager {
 	 * @param buffer byte type buffer containing bytes to be written to port
 	 * @param delay interval to be maintained between writing two consecutive bytes
 	 * @return true on success, false on failure or if empty buffer is passed
-	 * @throws SerialComException - if an I/O error occurs.
-	 * @throws IllegalArgumentException - if buffer is null
+	 * @throws SerialComException if an I/O error occurs.
+	 * @throws IllegalArgumentException if buffer is null
 	 */
 	public boolean writeBytes(long handle, byte[] buffer, int delay) throws SerialComException {
 		if(buffer == null) {
@@ -429,8 +429,8 @@ public final class SerialComManager {
 	 * @param handle handle of the opened port on which to write bytes
 	 * @param buffer byte type buffer containing bytes to be written to port
 	 * @return true on success, false on failure or if empty buffer is passed
-	 * @throws SerialComException - if an I/O error occurs.
-	 * @throws IllegalArgumentException - if buffer is null
+	 * @throws SerialComException if an I/O error occurs.
+	 * @throws IllegalArgumentException if buffer is null
 	 */
 	public boolean writeBytes(long handle, byte[] buffer) throws SerialComException {
 		return writeBytes(handle, buffer, 0);
@@ -443,7 +443,7 @@ public final class SerialComManager {
 	 * @param handle handle of the opened port on which to write byte
 	 * @param data byte to be written to port
 	 * @return true on success false otherwise
-	 * @throws SerialComException - if an I/O error occurs.
+	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public boolean writeSingleByte(long handle, byte data) throws SerialComException {
 		return writeBytes(handle, new byte[] { data }, 0);
@@ -457,8 +457,8 @@ public final class SerialComManager {
 	 * @param data the string to be send to port
 	 * @param delay interval between two successive bytes while sending string
 	 * @return true on success false otherwise
-	 * @throws SerialComException - if an I/O error occurs.
-	 * @throws IllegalArgumentException - if data is null
+	 * @throws SerialComException if an I/O error occurs.
+	 * @throws IllegalArgumentException if data is null
 	 */
 	public boolean writeString(long handle, String data, int delay) throws SerialComException {
 		if(data == null) {
@@ -475,8 +475,8 @@ public final class SerialComManager {
 	 * @param data the string to be send to port
 	 * @param charset the character set into which given string will be encoded
 	 * @return true on success false otherwise
-	 * @throws SerialComException - if an I/O error occurs.
-	 * @throws IllegalArgumentException - if data is null
+	 * @throws SerialComException if an I/O error occurs.
+	 * @throws IllegalArgumentException if data is null
 	 */
 	public boolean writeString(long handle, String data, Charset charset, int delay) throws UnsupportedEncodingException, SerialComException {
 		if(data == null) {
@@ -504,7 +504,7 @@ public final class SerialComManager {
 	 * @param endianness big or little endian sequence to be followed while sending bytes representing this integer
 	 * @param numOfBytes number of bytes this integer can be represented in
 	 * @return true on success false otherwise
-	 * @throws SerialComException - if an I/O error occurs.
+	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public boolean writeSingleInt(long handle, int data, int delay, ENDIAN endianness, NUMOFBYTES numOfBytes) throws SerialComException {
 		byte[] buffer = null;
@@ -546,7 +546,7 @@ public final class SerialComManager {
 	 * @param endianness big or little endian sequence to be followed while sending bytes representing this integer
 	 * @param numOfBytes number of bytes this integer can be represented in
 	 * @return true on success false otherwise
-	 * @throws SerialComException - if an I/O error occurs.
+	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public boolean writeIntArray(long handle, int[] buffer, int delay, ENDIAN endianness, NUMOFBYTES numOfBytes) throws SerialComException {
 		byte[] localBuf = null;
@@ -614,7 +614,7 @@ public final class SerialComManager {
 	 * @param handle of the serial port from which to read bytes
 	 * @param byteCount number of bytes to read from serial port
 	 * @return array of bytes read from port or null
-	 * @throws SerialComException - if an I/O error occurs.
+	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public byte[] readBytes(long handle, int byteCount) throws SerialComException {
 		
@@ -644,7 +644,7 @@ public final class SerialComManager {
 	 * 
 	 * @param handle of the port from which to read bytes
 	 * @return array of bytes read from port or null
-	 * @throws SerialComException - if an I/O error occurs.
+	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public byte[] readBytes(long handle) throws SerialComException {
 		return readBytes(handle, DEFAULT_READBYTECOUNT);
@@ -659,7 +659,7 @@ public final class SerialComManager {
 	 * @param handle of port from which to read bytes
 	 * @param byteCount number of bytes to read from this port
 	 * @return string constructed from data read from serial port or null
-	 * @throws SerialComException - if an I/O error occurs.
+	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public String readString(long handle, int byteCount) throws SerialComException {
 		byte[] buffer = readBytes(handle, byteCount);
@@ -679,7 +679,7 @@ public final class SerialComManager {
 	 * 
 	 * @param handle of the port from which to read bytes
 	 * @return string constructed from data read from serial port or null
-	 * @throws SerialComException - if an I/O error occurs.
+	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public String readString(long handle) throws SerialComException {
 		return readString(handle, DEFAULT_READBYTECOUNT);
@@ -691,8 +691,8 @@ public final class SerialComManager {
 	 * <p>Its effect is same as readBytes(handle, 1)</p>
 	 * 
 	 * @param handle of the port from which to read bytes
-	 * @return 1 byte data read from serial port or null
-	 * @throws SerialComException - if an I/O error occurs.
+	 * @return array of length 1 representing 1 byte data read from serial port or null
+	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public byte[] readSingleByte(long handle) throws SerialComException {
 		return readBytes(handle, 1);
@@ -722,7 +722,7 @@ public final class SerialComManager {
 	 * @param baudRate of the frame (refer BAUDRATE enum for this)
 	 * @param custBaud custom baudrate if the desired rate is not included in BAUDRATE enum
 	 * @return true on success false otherwise
-	 * @throws SerialComException - if invalid handle is passed or an error occurs in configuring the port
+	 * @throws SerialComException if invalid handle is passed or an error occurs in configuring the port
 	 */
 	public boolean configureComPortData(long handle, DATABITS dataBits, STOPBITS stopBits, PARITY parity, BAUDRATE baudRate, int custBaud) throws SerialComException {
 
@@ -769,7 +769,7 @@ public final class SerialComManager {
 	 * @param ParFraError true if parity and frame errors are to be checked false otherwise
 	 * @param overFlowErr true if overflow error is to be detected false otherwise
 	 * @return true on success false otherwise
-	 * @throws SerialComException - if invalid handle is passed or an error occurs in configuring the port
+	 * @throws SerialComException if invalid handle is passed or an error occurs in configuring the port
 	 */
 	public boolean configureComPortControl(long handle, FLOWCONTROL flowctrl, char xon, char xoff, boolean ParFraError, boolean overFlowErr) throws SerialComException {
 
@@ -807,7 +807,7 @@ public final class SerialComManager {
 	 * 
 	 * @param handle of the opened port
 	 * @return array of string giving configuration
-	 * @throws SerialComException - if invalid handle is passed or an error occurs while reading current settings
+	 * @throws SerialComException if invalid handle is passed or an error occurs while reading current settings
 	 */
 	public String[] getCurrentConfiguration(long handle) throws SerialComException {
 
@@ -857,7 +857,7 @@ public final class SerialComManager {
 	 * @param handle of the opened port
 	 * @param enabled if true RTS will be asserted and vice-versa
 	 * @return true on success false otherwise
-	 * @throws SerialComException - if system is unable to complete requested operation
+	 * @throws SerialComException if system is unable to complete requested operation
 	 */
 	public boolean setRTS(long handle, boolean enabled) throws SerialComException {
 		int ret = mNativeInterface.setRTS(handle, enabled);
@@ -896,8 +896,8 @@ public final class SerialComManager {
 	 * @param handle of the port opened
 	 * @param dataListener instance of class which implements ISerialComDataListener interface
 	 * @return true on success false otherwise
-	 * @throws SerialComException - if invalid handle passed, handle is null or data listener already exist for this handle
-	 * @throws IllegalArgumentException - if dataListener is null 
+	 * @throws SerialComException if invalid handle passed, handle is null or data listener already exist for this handle
+	 * @throws IllegalArgumentException if dataListener is null 
 	 */
 	public boolean registerDataListener(long handle, ISerialComDataListener dataListener) throws SerialComException {
 
@@ -937,8 +937,8 @@ public final class SerialComManager {
 	 * 
 	 * @param dataListener instance of class which implemented ISerialComDataListener interface
 	 * @return true on success false otherwise
-	 * @throws SerialComException - if null value is passed in dataListener field
-	 * @throws IllegalArgumentException - if dataListener is null 
+	 * @throws SerialComException if null value is passed in dataListener field
+	 * @throws IllegalArgumentException if dataListener is null 
 	 */
 	public boolean unregisterDataListener(ISerialComDataListener dataListener) throws SerialComException {
 		if(dataListener == null) {
@@ -972,8 +972,8 @@ public final class SerialComManager {
 	 * @param handle of the port opened
 	 * @param eventListener instance of class which implements ISerialComEventListener interface
 	 * @return true on success false otherwise
-	 * @throws SerialComException - if invalid handle passed, handle is null or event listener already exist for this handle
-	 * @throws IllegalArgumentException - if eventListener is null 
+	 * @throws SerialComException if invalid handle passed, handle is null or event listener already exist for this handle
+	 * @throws IllegalArgumentException if eventListener is null 
 	 */
 	public boolean registerLineEventListener(long handle, ISerialComEventListener eventListener) throws SerialComException {
 		boolean handlefound = false;
@@ -1011,8 +1011,8 @@ public final class SerialComManager {
 	 * 
 	 * @param eventListener instance of class which implemented ISerialComEventListener interface
 	 * @return true on success false otherwise
-	 * @throws SerialComException - if null value is passed in eventListener field
-	 * @throws IllegalArgumentException - if eventListener is null 
+	 * @throws SerialComException if null value is passed in eventListener field
+	 * @throws IllegalArgumentException if eventListener is null 
 	 */
 	public boolean unregisterLineEventListener(ISerialComEventListener eventListener) throws SerialComException {
 		if(eventListener == null) {
@@ -1033,8 +1033,8 @@ public final class SerialComManager {
 	 * 
 	 * @param eventListener instance of class which implemented ISerialComEventListener interface
 	 * @return true on success false otherwise
-	 * @throws SerialComException - if null is passed for eventListener field
-	 * @throws IllegalArgumentException - if eventListener is null 
+	 * @throws SerialComException if null is passed for eventListener field
+	 * @throws IllegalArgumentException if eventListener is null 
 	 */
 	public boolean pauseListeningEvents(ISerialComEventListener eventListener) throws SerialComException {
 		if(eventListener == null) {
@@ -1056,8 +1056,8 @@ public final class SerialComManager {
 	 * 
 	 * @param eventListener is an instance of class which implements ISerialComEventListener
 	 * @return true on success false otherwise
-	 * @throws SerialComException - if error occurs
-	 * @throws IllegalArgumentException - if eventListener is null 
+	 * @throws SerialComException if error occurs
+	 * @throws IllegalArgumentException if eventListener is null 
 	 */
 	public boolean resumeListeningEvents(ISerialComEventListener eventListener) throws SerialComException {
 		if(eventListener == null) {
@@ -1087,8 +1087,8 @@ public final class SerialComManager {
 	 * @param rttm ReadTotalTimeoutMultiplier field of COMMTIMEOUTS structure
 	 * @param rttc ReadTotalTimeoutConstant field of COMMTIMEOUTS structure
 	 * @return true on success false otherwise
-	 * @throws SerialComException - if wrong handle is passed or operation can not be done successfully
-	 * @throws IllegalArgumentException - if invalid combination of arguments is passed
+	 * @throws SerialComException if wrong handle is passed or operation can not be done successfully
+	 * @throws IllegalArgumentException if invalid combination of arguments is passed
 	 */
 	public boolean fineTuneRead(long handle, int vmin, int vtime, int rit, int rttm, int rttc) throws SerialComException {
 		boolean handlefound = false;
@@ -1128,8 +1128,8 @@ public final class SerialComManager {
 	 * 
 	 * @param eventListener instance of class which implemented ISerialComEventListener interface
 	 * @return true on success false otherwise
-	 * @throws SerialComException - if null is passed for listener field or invalid listener is passed
-	 * @throws IllegalArgumentException - if eventListener is null
+	 * @throws SerialComException if null is passed for listener field or invalid listener is passed
+	 * @throws IllegalArgumentException if eventListener is null
 	 */
 	public boolean setEventsMask(ISerialComEventListener eventListener, int newMask) throws SerialComException {
 
@@ -1161,8 +1161,8 @@ public final class SerialComManager {
 	 * 
 	 * @param eventListener instance of class which implemented ISerialComEventListener interface
 	 * @return an integer containing bit fields representing mask
-	 * @throws SerialComException - if null or wrong listener is passed
-	 * @throws IllegalArgumentException - if eventListener is null
+	 * @throws SerialComException if null or wrong listener is passed
+	 * @throws IllegalArgumentException if eventListener is null
 	 */
 	public int getEventsMask(ISerialComEventListener eventListener) throws SerialComException {
 
@@ -1199,7 +1199,7 @@ public final class SerialComManager {
 	 * @param clearRxPort if true receive buffer will be cleared otherwise will be left untouched 
 	 * @param clearTxPort if true transmit buffer will be cleared otherwise will be left untouched
 	 * @return true on success false otherwise
-	 * @throws SerialComException - if invalid handle is passed or operation can not be completed successfully
+	 * @throws SerialComException if invalid handle is passed or operation can not be completed successfully
 	 */
 	public synchronized boolean clearPortIOBuffers(long handle, boolean clearRxPort, boolean clearTxPort) throws SerialComException {
 		boolean handlefound = false;
@@ -1239,7 +1239,7 @@ public final class SerialComManager {
 	 * @param handle of the opened port
 	 * @param duration the time in milliseconds for which break will be active
 	 * @return true on success
-	 * @throws SerialComException - if invalid handle is passed or operation can not be successfully completed
+	 * @throws SerialComException if invalid handle is passed or operation can not be successfully completed
 	 */
 	public synchronized boolean sendBreak(long handle, int duration) throws SerialComException {
 		boolean handlefound = false;
@@ -1271,7 +1271,7 @@ public final class SerialComManager {
 	 * 
 	 * @param handle of the port opened on which interrupts might have occurred
 	 * @return array of integers containing values corresponding to each interrupt source
-	 * @throws SerialComException - if invalid handle is passed or operation can not be completed
+	 * @throws SerialComException if invalid handle is passed or operation can not be completed
 	 */
 	public int[] getInterruptCount(long handle) throws SerialComException {
 		int x = 0;
@@ -1311,7 +1311,7 @@ public final class SerialComManager {
 	 * 
 	 * @param handle of the port opened
 	 * @return status of control lines
-	 * @throws SerialComException - if invalid handle is passed or operation can not be completed successfully
+	 * @throws SerialComException if invalid handle is passed or operation can not be completed successfully
 	 */
 	public int[] getLinesStatus(long handle) throws SerialComException {
 		int x = 0;
@@ -1351,7 +1351,7 @@ public final class SerialComManager {
 	 * 
 	 * @param handle of the opened port
 	 * @return array containing number of bytes in input and output buffer
-	 * @throws SerialComException - if invalid handle is passed or operation can not be completed successfully
+	 * @throws SerialComException if invalid handle is passed or operation can not be completed successfully
 	 */
 	public int[] getByteCountInPortIOBuffer(long handle) throws SerialComException {
 		boolean handlefound = false;
@@ -1390,7 +1390,7 @@ public final class SerialComManager {
 	 * @param handle which will be monitored
 	 * @return true on success false otherwise
 	 * @throws SerialComException - if invalid handle is passed or registration fails due to some reason
-	 * @throws IllegalArgumentException - if portMonitor is null
+	 * @throws IllegalArgumentException if portMonitor is null
 	 */
 	public boolean registerPortMonitorListener(long handle, ISerialComPortMonitor portMonitor) throws SerialComException {
 		boolean handlefound = false;
@@ -1425,7 +1425,7 @@ public final class SerialComManager {
 	 * 
 	 * @param handle for which listener will be unregistered
 	 * @return true on success false otherwise
-	 * @throws SerialComException - if invalid handle is passed or un-registration fails due to some reason
+	 * @throws SerialComException if invalid handle is passed or un-registration fails due to some reason
 	 */
 	public boolean unregisterPortMonitorListener(long handle) throws SerialComException {
 		boolean handlefound = false;
@@ -1493,12 +1493,12 @@ public final class SerialComManager {
 	 * @param fileToSend File instance representing file to be sent
 	 * @param fTxProto file transfer protocol to use for communication over serial port
 	 * @return true on success false otherwise
-	 * @throws SerialComException - if invalid handle is passed
-	 * @throws SecurityException - If a security manager exists and its SecurityManager.checkRead(java.lang.String) method denies read access to the file
-	 * @throws FileNotFoundException - if the file does not exist, is a directory rather than a regular file, or for some other reason cannot be opened for reading.
-	 * @throws SerialComTimeOutException - if timeout occurs as per file transfer protocol
+	 * @throws SerialComException if invalid handle is passed
+	 * @throws SecurityException If a security manager exists and its SecurityManager.checkRead(java.lang.String) method denies read access to the file
+	 * @throws FileNotFoundException if the file does not exist, is a directory rather than a regular file, or for some other reason cannot be opened for reading.
+	 * @throws SerialComTimeOutException if timeout occurs as per file transfer protocol
 	 * @throws IOException - if error occurs while reading data from file to be sent
-	 * @throws IllegalArgumentException - if fileToSend is null
+	 * @throws IllegalArgumentException if fileToSend is null
 	 */
 	public boolean sendFile(long handle, java.io.File fileToSend, FILETXPROTO fTxProto) throws SerialComException,
 	SecurityException, FileNotFoundException, SerialComTimeOutException, IOException {
@@ -1540,12 +1540,12 @@ public final class SerialComManager {
 	 * @param fileToReceive File instance representing file to be sent
 	 * @param fTxProto file transfer protocol to use for communication over serial port
 	 * @return true on success false otherwise
-	 * @throws SerialComException - if invalid handle is passed
-	 * @throws SecurityException - If a security manager exists and its SecurityManager.checkRead(java.lang.String) method denies read access to the file
-	 * @throws FileNotFoundException - if the file does not exist, is a directory rather than a regular file, or for some other reason cannot be opened for reading.
-	 * @throws SerialComTimeOutException - if timeout occurs as per file transfer protocol
-	 * @throws IOException - if error occurs while reading data from file to be sent
-	 * @throws IllegalArgumentException - if fileToReceive is null
+	 * @throws SerialComException if invalid handle is passed
+	 * @throws SecurityException If a security manager exists and its SecurityManager.checkRead(java.lang.String) method denies read access to the file
+	 * @throws FileNotFoundException if the file does not exist, is a directory rather than a regular file, or for some other reason cannot be opened for reading.
+	 * @throws SerialComTimeOutException if timeout occurs as per file transfer protocol
+	 * @throws IOException if error occurs while reading data from file to be sent
+	 * @throws IllegalArgumentException if fileToReceive is null
 	 */
 	public boolean receiveFile(long handle, java.io.File fileToReceive, FILETXPROTO fTxProto) throws SerialComException,
 	SecurityException, FileNotFoundException, SerialComTimeOutException, IOException {
@@ -1587,7 +1587,7 @@ public final class SerialComManager {
 	 * @param buffer byte type buffer containing bytes to be written to port
 	 * @return true on success, false on failure or if empty buffer is passed
 	 * @throws SerialComException - if an I/O error occurs.
-	 * @throws IllegalArgumentException - if buffer is null
+	 * @throws IllegalArgumentException if buffer is null
 	 */
 	public boolean writeBytesBulk(long handle, ByteBuffer buffer) throws SerialComException {
 		if(buffer == null) {
@@ -1707,7 +1707,7 @@ public final class SerialComManager {
 	 * @param data byte array to be converted into string
 	 * @param separator to be inserted after each hex value
 	 * @return constructed hex string if data.length > 0 otherwise empty string
-	 * @throws IllegalArgumentException - if data is null
+	 * @throws IllegalArgumentException if data is null
 	 */
 	public String byteArrayToHexStr(byte[] data, String separator) {
 		if(data == null) {
