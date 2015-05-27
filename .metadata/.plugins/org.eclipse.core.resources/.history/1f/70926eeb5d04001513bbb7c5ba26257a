@@ -603,7 +603,7 @@ public final class SerialComManager {
 	}
 	
 	/** 
-	 * <p>Read specified number of bytes from given serial port and stay blocked till bytes arrive at serial port.</p>
+	 * <p>Read specified number of bytes from given serial port.</p>
 	 * <p>1. If data is read from serial port, array of bytes containing data is returned.</p>
 	 * <p>2. If there was no data in serial port to read, null is returned.</p>
 	 * 

@@ -110,7 +110,7 @@ public final class SerialComInByteStream extends InputStream {
 		
 		byte[] data = new byte[1];
 		try {
-			data = scm.readBytesBlocking(handle, 1);
+			data = scm.readBytes(handle, 1);
 			if(data != null) {
 				return (int)data[0];
 			}
@@ -187,7 +187,7 @@ public final class SerialComInByteStream extends InputStream {
 		}
 		
 		try {
-			byte[] data = scm.readBytesBlocking(handle, len);
+			byte[] data = scm.readBytes(handle, len);
 			if(data != null) {
 				System.arraycopy(data, 0, b, off, data.length);
 				return data.length;

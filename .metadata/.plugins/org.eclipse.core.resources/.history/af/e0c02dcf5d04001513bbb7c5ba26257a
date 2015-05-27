@@ -601,46 +601,6 @@ public final class SerialComManager {
 			return writeBytes(handle, localBuf, delay);
 		}
 	}
-	
-	/** 
-	 * <p>Read specified number of bytes from given serial port and stay blocked till bytes arrive at serial port.</p>
-	 * <p>1. If data is read from serial port, array of bytes containing data is returned.</p>
-	 * <p>2. If there was no data in serial port to read, null is returned.</p>
-	 * 
-	 * <p>The number of bytes to read must be greater than or equal to 1 and less than or equal to 2048 (1 <= byteCount <= 2048).
-	 * This method may return less than the requested number of bytes due to reasons like, there is less data in operating system
-	 * buffer (serial port) or operating system returned less data which is also legal.</p>
-	 * 
-	 * @param handle of the serial port from which to read bytes
-	 * @param byteCount number of bytes to read from serial port
-	 * @return array of bytes read from port or null
-	 * @throws SerialComException if an I/O error occurs.
-	 */
-	public byte[] readBytesBlocking(long handle, int byteCount) throws SerialComException {
-		byte[] buffer = null;
-		SerialComReadStatus retStatus = new SerialComReadStatus(1);
-		int osType = SerialComManager.getOSType();
-		if(osType == SerialComManager.OS_WINDOWS) {
-			buffer = mNativeInterface.readBytesBlocking(handle, byteCount, retStatus);
-		}else {
-			buffer = mNativeInterface.readBytes(handle, byteCount, retStatus);
-		}
-		
-		// data read from serial port, pass to application
-		if(buffer != null) {
-			return buffer;
-		}
-
-		// reaching here means JNI layer passed null indicating either no data read or an error
-		if(retStatus.status < 0) {
-			throw new SerialComException("readBytesBlocking()", mErrMapper.getMappedError(retStatus.status));
-		}else if(retStatus.status == 1) { 
-			return null;                   // not possible for blocking call
-		}else {
-		}
-
-		return null;
-	}
 
 	/** 
 	 * <p>Read specified number of bytes from given serial port.</p>
