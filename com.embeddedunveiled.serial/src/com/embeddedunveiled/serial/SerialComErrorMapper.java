@@ -42,7 +42,8 @@ public final class SerialComErrorMapper {
 	public static final String ERR_CLOSE_WITHOUT_UNREG_DATA = "Closing port without unregistering data listener is not allowed";
 	public static final String ERR_CLOSE_WITHOUT_UNREG_EVENT = "Closing port without unregistering event listener is not allowed";
 	public static final String ERR_WRITE_NULL_DATA_PASSED = "Null data buffer passed to write operation";
-	public static final String ERR_WRITE_INDEX_VIOLATION = "Index violation detected";
+	public static final String ERR_INDEX_VIOLATION = "Index violation detected";
+	public static final String ERR_READ_NULL_DATA_PASSED = "Null data buffer passed to read operation";
 	public static final String ERR_NOT_A_FILE = "Seems like either file does not exist or not a file";
 	public static final String ERR_TIMEOUT_RECEIVER_CONNECT = "Timedout while waiting for receiver to initiate connection setup";
 	public static final String ERR_TIMEOUT_TRANSMITTER_CONNECT = "Timedout while trying to connect to transmitter";

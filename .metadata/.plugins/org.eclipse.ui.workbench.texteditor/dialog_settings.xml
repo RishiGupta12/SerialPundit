@@ -13,16 +13,16 @@
 		<item value="false" key="casesensitive"/>
 		<item value="false" key="incremental"/>
 		<item value="false" key="wholeword"/>
-		<item value="internal" key="selection"/>
+		<item value="readSingle" key="selection"/>
 		<list key="findhistory">
+			<item value="readsingle"/>
+			<item value="readbyte"/>
+			<item value="finetune"/>
+			<item value="fine"/>
+			<item value="setmin"/>
+			<item value="vmin"/>
 			<item value="internal"/>
 			<item value="SerialComPortHandleInfo"/>
-			<item value="close"/>
-			<item value="flush"/>
-			<item value="system"/>
-			<item value="clocal"/>
-			<item value="vmin"/>
-			<item value="hupcl"/>
 		</list>
 		<list key="replacehistory">
 		</list>

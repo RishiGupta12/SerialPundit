@@ -81,6 +81,14 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINative
 
 /*
  * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
+ * Method:    readBytesBlocking
+ * Signature: (JILcom/embeddedunveiled/serial/SerialComReadStatus;)[B
+ */
+JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_readBytesBlocking
+  (JNIEnv *, jobject, jlong, jint, jobject);
+
+/*
+ * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
  * Method:    writeBytes
  * Signature: (J[BI)I
  */

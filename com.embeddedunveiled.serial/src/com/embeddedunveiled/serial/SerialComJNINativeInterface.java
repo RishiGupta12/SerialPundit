@@ -203,6 +203,7 @@ public final class SerialComJNINativeInterface {
 	public native long openComPort(String portName, boolean enableRead, boolean enableWrite, boolean exclusiveOwner);
 	public native int closeComPort(long handle);
 	public native byte[] readBytes(long handle, int byteCount, SerialComReadStatus retStatus);
+	public native byte[] readBytesBlocking(long handle, int byteCount, SerialComReadStatus retStatus);
 	public native int writeBytes(long handle, byte[] buffer, int delay);
 	public native int writeBytesBulk(long handle, ByteBuffer buffer);
 
