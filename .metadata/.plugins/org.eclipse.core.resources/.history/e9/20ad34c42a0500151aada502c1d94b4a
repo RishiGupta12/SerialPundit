@@ -1135,15 +1135,13 @@ public final class SerialComManager {
 		int osType = SerialComManager.getOSType();
 		
 		if(osType == SerialComManager.OS_WINDOWS) {
-			if((rit < 0) || (rttm < 0) || (rttc < 0)) {
-				throw new IllegalArgumentException("fineTuneRead(), " + SerialComErrorMapper.ERR_ARG_CAN_NOT_NEGATIVE);
-			}
+			//TODO
 		}else {
 			if((vmin == 0) && (vtime == 0)) {
 				throw new IllegalArgumentException("fineTuneRead(), " + SerialComErrorMapper.ERR_INVALID_COMBINATION_ARG);
 			}
-			if((vmin < 0) || (vtime < 0)) {
-				throw new IllegalArgumentException("fineTuneRead(), " + SerialComErrorMapper.ERR_ARG_CAN_NOT_NEGATIVE);
+			if((vmin < 0) && (vtime < 0)) {
+				throw new IllegalArgumentException("fineTuneRead(), " + SerialComErrorMapper.ERR_INVALID_COMBINATION_ARG);
 			}
 		}
 
