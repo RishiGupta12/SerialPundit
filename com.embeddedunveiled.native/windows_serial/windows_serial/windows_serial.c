@@ -41,7 +41,7 @@ int setupLooperThread(JNIEnv *env, jobject obj, jlong handle, jobject looper_obj
 #define DBG 1
 
 #undef  UART_NATIVE_LIB_VERSION
-#define UART_NATIVE_LIB_VERSION "1.0.2"
+#define UART_NATIVE_LIB_VERSION "1.0.3"
 
 #define CommInBufSize 8192
 #define CommOutBufSize 3072
@@ -259,6 +259,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINati
 * Signature: (Ljava/lang/String;ZZZ)J
 *
 * Communications ports cannot be shared in the same manner as text files are shared in Windows.
+* Use overlapped I/O for simultaneous reading/writing. Nonoverlapped I/O causes WriteFile to block if a ReadFile is in progress, and vice versa.
 */
 JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_openComPort(JNIEnv *env, jobject obj, jstring portName, jboolean enableRead, jboolean enableWrite, jboolean exclusiveOwner) {
 	int ret = 0;
@@ -384,7 +385,8 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInter
 
 	/* Set correct timing parameters that will define how ReadFile and WriteFile functions will behave. */
 	SecureZeroMemory(&lpCommTimeouts, sizeof(COMMTIMEOUTS));
-	lpCommTimeouts.ReadIntervalTimeout = 100;
+	lpCommTimeouts.ReadIntervalTimeout = 1;
+	lpCommTimeouts.ReadTotalTimeoutConstant = 150;
 	lpCommTimeouts.WriteTotalTimeoutConstant = 1000;
 	ret = SetCommTimeouts(hComm, &lpCommTimeouts);
 	if(ret == 0) {
@@ -467,57 +469,56 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
  * The number of bytes return can be less than the request number of bytes but can never be greater than the requested
  * number of bytes. This is implemented using total_read variable. 1 <= Size request <= 2048.
  * 
- * Blocking read with 150ms timeout. If data is available return even before 150ms has passed.
+ * Blocking read with 150ms timeout. If data is available return even before 150ms has passed. use GetTickCount() for approx checking.
  */
 JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_readBytes(JNIEnv *env, jobject obj, jlong handle, jint count, jobject status) {
 	int ret = 0;
 	int negative = -1;
 	HANDLE hComm = (HANDLE)handle;
-	DWORD errorVal;
+	DWORD errorVal = 0;
 	jbyte data_buf[2*1024];
-	DWORD num_of_bytes_read;
 	OVERLAPPED overlapped;
 	jbyteArray data_read;
-	DWORD wait_status;
+	DWORD wait_status = 0;
+	DWORD num_of_bytes_read = 0;
 
 	/* Only hEvent member need to be initialled and others can be left 0. */
 	memset(&overlapped, 0, sizeof(overlapped));
-	overlapped.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
+	overlapped.hEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
 	if(overlapped.hEvent == NULL) {
 		if(DBG) fprintf(stderr, "%s\n", "NATIVE CreateEvent() in readBytes() failed creating overlapped event handle !");
 		if(DBG) fflush(stderr);
 		return NULL;
 	}
 
+	/* ReadFile resets the event to a nonsignaled state when it begins the I/O operation. */
 	ret = ReadFile(hComm, data_buf, count, &num_of_bytes_read, &overlapped);
 
 	if(ret == 0) {
 		errorVal = GetLastError();
 		if(errorVal == ERROR_IO_PENDING) {
 
-			wait_status = WaitForSingleObject(overlapped.hEvent, 150);
+			wait_status = WaitForSingleObject(overlapped.hEvent, 1000);
 
 			if(wait_status == WAIT_OBJECT_0) {
 				ret = GetOverlappedResult(hComm, &overlapped, &num_of_bytes_read, FALSE);
+				CloseHandle(overlapped.hEvent);
 
 				if(ret > 0) {
 					/* return data read from serial port */
 					data_read = (*env)->NewByteArray(env, num_of_bytes_read);
 					(*env)->SetByteArrayRegion(env, data_read, 0, num_of_bytes_read, data_buf);
-					CloseHandle(overlapped.hEvent);
 					return data_read;
 				}else if (ret == 0) {
 					errorVal = GetLastError();
 					if((errorVal == ERROR_HANDLE_EOF) || (errorVal == ERROR_IO_INCOMPLETE)) {
 						return NULL;
-					}
-					else {
+					}else {
 						/* This indicates error. */
 						jclass statusClass = (*env)->GetObjectClass(env, status);
 						if(statusClass == NULL) {
 							if (DBG) fprintf(stderr, "%s \n", "NATIVE readBytes() could not get class of object of type SerialComReadStatus !");
 							if (DBG) fflush(stderr);
-							CloseHandle(overlapped.hEvent);
 							return NULL;
 						}
 
@@ -525,7 +526,6 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINative
 						if(status_fid == NULL) {
 							if (DBG) fprintf(stderr, "%s \n", "NATIVE readBytes() failed to retrieve field id of field status in class SerialComReadStatus !");
 							if (DBG) fflush(stderr);
-							CloseHandle(overlapped.hEvent);
 							return NULL;
 						}
 						if((*env)->ExceptionOccurred(env)) {
@@ -542,7 +542,6 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINative
 						}
 
 						(*env)->SetIntField(env, status, status_fid, (negative * (errorVal + ERR_OFFSET)));
-						CloseHandle(overlapped.hEvent);
 						return NULL;
 					}
 				}else {
@@ -581,15 +580,21 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINative
 				(*env)->SetIntField(env, status, status_fid, (negative * (errorVal + ERR_OFFSET)));
 				CloseHandle(overlapped.hEvent);
 				return NULL;
+			}else if(wait_status == WAIT_TIMEOUT) {
+				CloseHandle(overlapped.hEvent);
+				return NULL;
 			}else {
+				CloseHandle(overlapped.hEvent);
+				return NULL;
 			}
 		}else {
 			/* This indicates error. */
+			CloseHandle(overlapped.hEvent);
+
 			jclass statusClass = (*env)->GetObjectClass(env, status);
 			if(statusClass == NULL) {
 				if(DBG) fprintf(stderr, "%s \n", "NATIVE readBytes() could not get class of object of type SerialComReadStatus !");
 				if(DBG) fflush(stderr);
-				CloseHandle(overlapped.hEvent);
 				return NULL;
 			}
 
@@ -597,7 +602,6 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINative
 			if(status_fid == NULL) {
 				if(DBG) fprintf(stderr, "%s \n", "NATIVE readBytes() failed to retrieve field id of field status in class SerialComReadStatus !");
 				if(DBG) fflush(stderr);
-				CloseHandle(overlapped.hEvent);
 				return NULL;
 			}
 			if((*env)->ExceptionOccurred(env)) {
@@ -614,15 +618,19 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINative
 			}
 
 			(*env)->SetIntField(env, status, status_fid, (negative * (errorVal + ERR_OFFSET)));
-			CloseHandle(overlapped.hEvent);
 			return NULL;
 		}
 	}else if(ret > 0) {
-		/* This indicates we got success and have read data in first go itself. */
-		data_read = (*env)->NewByteArray(env, num_of_bytes_read);
-		(*env)->SetByteArrayRegion(env, data_read, 0, num_of_bytes_read, data_buf);
 		CloseHandle(overlapped.hEvent);
-		return data_read;
+		if(num_of_bytes_read > 0) {
+			/* This indicates we got success and have read data in first go itself. */
+			data_read = (*env)->NewByteArray(env, num_of_bytes_read);
+			(*env)->SetByteArrayRegion(env, data_read, 0, num_of_bytes_read, data_buf);
+			return data_read;
+		}else {
+			return NULL;
+		}
+
 	}else {
 	}
 
@@ -642,21 +650,24 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 	int ret = 0;
 	int status = 0;
 	BOOL result = FALSE;
-	jint negative = -1;
+	int negative = -1;
 	DWORD errorVal = 0;
 	HANDLE hComm = (HANDLE)handle;
 	jbyte* data_buf = (*env)->GetByteArrayElements(env, buffer, JNI_FALSE);
 	DWORD num_bytes_to_write = (*env)->GetArrayLength(env, buffer);
 	DWORD num_of_bytes_written = 0;
-	OVERLAPPED ovWrite = { 0 };
+	OVERLAPPED ovWrite;
 	int index = 0;
 
 	/* Only hEvent member need to be initialled and others can be left 0. */
+	memset(&ovWrite, 0, sizeof(ovWrite));
 	ovWrite.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
 	if(ovWrite.hEvent == NULL) {
 		if(DBG) fprintf(stderr, "%s\n", "NATIVE CreateEvent() in writeBytes() failed creating overlapped event handle !");
 		if(DBG) fflush(stderr);
-		return -240;
+		(*env)->ReleaseByteArrayElements(env, buffer, data_buf, 0);
+		errorVal = GetLastError();
+		return (negative * (errorVal + ERR_OFFSET));
 	}
 
 	if(delay == 0) {
@@ -688,6 +699,9 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 				if(DBG) fflush(stderr);
 				status = (negative * (errorVal + ERR_OFFSET));
 			}
+		}else {
+			// success in one shot
+			FlushFileBuffers(hComm);
 		}
 	}else {
 		// delay between successive bytes sent
@@ -701,26 +715,31 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 						if(ret == 0) {
 							errorVal = GetLastError();
 							if(DBG) fprintf(stderr, "%s %ld\n", "NATIVE GetOverlappedResult() in writeBytes() failed with windows error number : ", errorVal);
-							if(DBG) fflush(stderr);
+							if (DBG) fflush(stderr);
+							num_bytes_to_write = -1;
 							status = (negative * (errorVal + ERR_OFFSET));
 						}
 					}
 				}else if((errorVal == ERROR_INVALID_USER_BUFFER) || (errorVal == ERROR_NOT_ENOUGH_MEMORY)) {
+					num_bytes_to_write = -1;
 					status = negative * ETOOMANYOP;
 				}else if(errorVal == ERROR_NOT_ENOUGH_QUOTA) {
+					num_bytes_to_write = -1;
 					status = negative * ENOMEM;
 				}else if(errorVal == ERROR_OPERATION_ABORTED) {
+					num_bytes_to_write = -1;
 					status = negative * ECANCELED;
 				}else {
 					if(DBG) fprintf(stderr, "%s %ld\n", "NATIVE WriteFile() in writeBytes() failed with windows error number : ", errorVal);
 					if(DBG) fflush(stderr);
+					num_bytes_to_write = -1;
 					status = (negative * (errorVal + ERR_OFFSET));
 				}
 			}
 			num_bytes_to_write -= num_of_bytes_written;
 			index = index + num_of_bytes_written;
 			FlushFileBuffers(hComm);
-			serial_delay(delay - 5); // delay between bytes in milliseconds, compensate for time taken by FlushFileBuffers() by subtracting 5 approx
+			serial_delay(delay - 5); // delay between bytes in milliseconds, compensate for time taken by FlushFileBuffers() by subtracting 5 approximately
 		}
 	}
 
@@ -1442,8 +1461,8 @@ JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeI
 	}
 
 	val[0] = 0;
-	val[1] = (jint)comstat.cbInQue;
-	val[2] = (jint)comstat.cbOutQue;
+	val[1] = (int)comstat.cbInQue;
+	val[2] = (int)comstat.cbOutQue;
 	(*env)->SetIntArrayRegion(env, values, 0, 3, val);
 	return values;
 }
@@ -2085,4 +2104,247 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 
 	LeaveCriticalSection(&csmutex);
 	return 0;
+}
+
+/*
+* Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
+* Method:    readBytes
+* Signature: (JI)[B
+*
+* Default number of bytes to read is set to 1024 in java layer. To maintain performance, we extract field ID
+* (object that carries error details) only when error occurs.
+*
+* 1. If data is read from serial port and no error occurs, return array of bytes.
+* 2. If there is no data to read from serial port and no error occurs, return NULL.
+* 3. If error occurs for whatever reason, return NULL and set status variable to Windows specific error number.
+*
+* The number of bytes return can be less than the request number of bytes but can never be greater than the requested
+* number of bytes. This is implemented using total_read variable. 1 <= Size request <= 2048.
+*
+* Blocking read until data is available. Once data is available timeouts as defined in COMMTIMEOUTS structure comes into picture.
+*/
+JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_readBytesBlocking(JNIEnv *env, jobject obj, jlong handle, jint count, jobject status) {
+	int ret = 0;
+	int negative = -1;
+	HANDLE hComm = (HANDLE)handle;
+	DWORD errorVal;
+	jbyte data_buf[2 * 1024];
+	DWORD num_of_bytes_read;
+	OVERLAPPED overlapped;
+	OVERLAPPED ovRead;
+	jbyteArray data_read;
+	DWORD events_mask = 0;
+	DWORD wait_status = 0;
+	int loop = 1;
+	DWORD errors;
+	COMSTAT comstat;
+
+	while (loop != -1) {
+		memset(&overlapped, 0, sizeof(overlapped));
+		overlapped.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
+		if(overlapped.hEvent == NULL) {
+			if (DBG) fprintf(stderr, "%s\n", "NATIVE CreateEvent() in readBytesBlocking() failed creating overlapped event handle !");
+			if (DBG) fflush(stderr);
+			return NULL;
+		}
+
+		ret = WaitCommEvent(hComm, &events_mask, &overlapped);
+		if(ret == 0) {
+			errorVal = GetLastError();
+			if(errorVal == ERROR_IO_PENDING) {
+				wait_status = WaitForSingleObject(overlapped.hEvent, INFINITE);
+				ClearCommError(hComm, &errors, &comstat);
+				if(comstat.cbInQue == 0) {
+					CloseHandle(overlapped.hEvent);
+					continue;
+				}
+				switch (wait_status) {
+					case WAIT_OBJECT_0 :
+						CloseHandle(overlapped.hEvent);
+						if(!(events_mask & EV_RXCHAR)) {
+							continue; // loop back for events other than data character
+						}
+						loop = -1;
+						break;
+					case WAIT_TIMEOUT :
+					case WAIT_FAILED :
+					default :
+						errorVal = GetLastError();
+						CloseHandle(overlapped.hEvent);
+						jclass statusClass = (*env)->GetObjectClass(env, status);
+						if(statusClass == NULL) {
+							if (DBG) fprintf(stderr, "%s \n", "NATIVE readBytesBlocking() could not get class of object of type SerialComReadStatus !");
+							if (DBG) fflush(stderr);
+							return NULL;
+						}
+						jfieldID status_fid = (*env)->GetFieldID(env, statusClass, "status", "I");
+						if(status_fid == NULL) {
+							if (DBG) fprintf(stderr, "%s \n", "NATIVE readBytesBlocking() failed to retrieve field id of field status in class SerialComReadStatus !");
+							if (DBG) fflush(stderr);
+							return NULL;
+						}
+						if((*env)->ExceptionOccurred(env)) {
+							LOGE(env);
+						}
+						(*env)->SetIntField(env, status, status_fid, (negative * (errorVal + ERR_OFFSET)));
+						return NULL;
+				}
+			}
+		}else {
+			ClearCommError(hComm, &errors, &comstat);
+			if(comstat.cbInQue == 0) {
+				CloseHandle(overlapped.hEvent);
+				continue;
+			}
+			loop = -1;
+		}
+	}
+
+	memset(&ovRead, 0, sizeof(ovRead));
+	ovRead.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
+	if(ovRead.hEvent == NULL) {
+		if (DBG) fprintf(stderr, "%s\n", "NATIVE CreateEvent() in readBytesBlocking() failed creating overlapped event handle !");
+		if (DBG) fflush(stderr);
+		return NULL;
+	}
+
+	/* ReadFile resets the event to a nonsignaled state when it begins the I/O operation. */
+	ret = ReadFile(hComm, data_buf, count, &num_of_bytes_read, &ovRead);
+
+	if(ret == 0) {
+		errorVal = GetLastError();
+		if (errorVal == ERROR_IO_PENDING) {
+
+			wait_status = WaitForSingleObject(ovRead.hEvent, 1000);
+
+			if(wait_status == WAIT_OBJECT_0) {
+				ret = GetOverlappedResult(hComm, &ovRead, &num_of_bytes_read, FALSE);
+				if(ret > 0) {
+					/* return data read from serial port */
+					data_read = (*env)->NewByteArray(env, num_of_bytes_read);
+					(*env)->SetByteArrayRegion(env, data_read, 0, num_of_bytes_read, data_buf);
+					CloseHandle(ovRead.hEvent);
+					return data_read;
+				}else if(ret == 0) {
+					errorVal = GetLastError();
+					if((errorVal == ERROR_HANDLE_EOF) || (errorVal == ERROR_IO_INCOMPLETE)) {
+						return NULL;
+					}else {
+						/* This indicates error. */
+						jclass statusClass = (*env)->GetObjectClass(env, status);
+						if(statusClass == NULL) {
+							if (DBG) fprintf(stderr, "%s \n", "NATIVE readBytesBlocking() could not get class of object of type SerialComReadStatus !");
+							if (DBG) fflush(stderr);
+							CloseHandle(ovRead.hEvent);
+							return NULL;
+						}
+
+						jfieldID status_fid = (*env)->GetFieldID(env, statusClass, "status", "I");
+						if(status_fid == NULL) {
+							if (DBG) fprintf(stderr, "%s \n", "NATIVE readBytesBlocking() failed to retrieve field id of field status in class SerialComReadStatus !");
+							if (DBG) fflush(stderr);
+							CloseHandle(ovRead.hEvent);
+							return NULL;
+						}
+						if((*env)->ExceptionOccurred(env)) {
+							LOGE(env);
+						}
+
+						if((errorVal == ERROR_INVALID_USER_BUFFER) || (errorVal == ERROR_NOT_ENOUGH_MEMORY)) {
+							errorVal = ETOOMANYOP;
+						}else if((errorVal == ERROR_NOT_ENOUGH_QUOTA) || (errorVal == ERROR_INSUFFICIENT_BUFFER)) {
+							errorVal = ENOMEM;
+						}else if(errorVal == ERROR_OPERATION_ABORTED) {
+							errorVal = ECANCELED;
+						}else {
+						}
+
+						(*env)->SetIntField(env, status, status_fid, (negative * (errorVal + ERR_OFFSET)));
+						CloseHandle(ovRead.hEvent);
+						return NULL;
+					}
+				}else {
+				}
+			}else if(wait_status == WAIT_FAILED) {
+				/* This indicates error. */
+				errorVal = GetLastError();
+				jclass statusClass = (*env)->GetObjectClass(env, status);
+				if(statusClass == NULL) {
+					if (DBG) fprintf(stderr, "%s \n", "NATIVE readBytesBlocking() could not get class of object of type SerialComReadStatus !");
+					if (DBG) fflush(stderr);
+					CloseHandle(ovRead.hEvent);
+					return NULL;
+				}
+
+				jfieldID status_fid = (*env)->GetFieldID(env, statusClass, "status", "I");
+				if(status_fid == NULL) {
+					if (DBG) fprintf(stderr, "%s \n", "NATIVE readBytesBlocking() failed to retrieve field id of field status in class SerialComReadStatus !");
+					if (DBG) fflush(stderr);
+					CloseHandle(ovRead.hEvent);
+					return NULL;
+				}
+				if((*env)->ExceptionOccurred(env)) {
+					LOGE(env);
+				}
+
+				if((errorVal == ERROR_INVALID_USER_BUFFER) || (errorVal == ERROR_NOT_ENOUGH_MEMORY)) {
+					errorVal = ETOOMANYOP;
+				}else if((errorVal == ERROR_NOT_ENOUGH_QUOTA) || (errorVal == ERROR_INSUFFICIENT_BUFFER)) {
+					errorVal = ENOMEM;
+				}else if(errorVal == ERROR_OPERATION_ABORTED) {
+					errorVal = ECANCELED;
+				}else {
+				}
+
+				(*env)->SetIntField(env, status, status_fid, (negative * (errorVal + ERR_OFFSET)));
+				CloseHandle(ovRead.hEvent);
+				return NULL;
+			}else if(wait_status == WAIT_TIMEOUT) {
+			}else {
+			}
+		}else {
+			/* This indicates error. */
+			jclass statusClass = (*env)->GetObjectClass(env, status);
+			if(statusClass == NULL) {
+				if (DBG) fprintf(stderr, "%s \n", "NATIVE readBytesBlocking() could not get class of object of type SerialComReadStatus !");
+				if (DBG) fflush(stderr);
+				CloseHandle(ovRead.hEvent);
+				return NULL;
+			}
+
+			jfieldID status_fid = (*env)->GetFieldID(env, statusClass, "status", "I");
+			if(status_fid == NULL) {
+				if (DBG) fprintf(stderr, "%s \n", "NATIVE readBytesBlocking() failed to retrieve field id of field status in class SerialComReadStatus !");
+				if (DBG) fflush(stderr);
+				CloseHandle(ovRead.hEvent);
+				return NULL;
+			}
+			if((*env)->ExceptionOccurred(env)) {
+				LOGE(env);
+			}
+
+			if((errorVal == ERROR_INVALID_USER_BUFFER) || (errorVal == ERROR_NOT_ENOUGH_MEMORY)) {
+				errorVal = ETOOMANYOP;
+			}else if((errorVal == ERROR_NOT_ENOUGH_QUOTA) || (errorVal == ERROR_INSUFFICIENT_BUFFER)) {
+				errorVal = ENOMEM;
+			}else if(errorVal == ERROR_OPERATION_ABORTED) {
+				errorVal = ECANCELED;
+			}else {
+			}
+
+			(*env)->SetIntField(env, status, status_fid, (negative * (errorVal + ERR_OFFSET)));
+			CloseHandle(ovRead.hEvent);
+			return NULL;
+		}
+	}else if(ret > 0) {
+		/* This indicates we got success and have read data in first go itself. */
+		data_read = (*env)->NewByteArray(env, num_of_bytes_read);
+		(*env)->SetByteArrayRegion(env, data_read, 0, num_of_bytes_read, data_buf);
+		CloseHandle(ovRead.hEvent);
+		return data_read;
+	}else {
+	}
+
+	CloseHandle(ovRead.hEvent);
+	return NULL;
 }

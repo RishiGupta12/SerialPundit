@@ -1167,6 +1167,8 @@ public final class SerialComManager {
 	}
 
 	/**
+	 * <p>Defines for which line events registered event listener will be called.</p>
+	 * 
 	 * <p>In future we may shift modifying mask in the native code itself, so as to prevent JNI transitions.
 	 * This filters what events should be sent to application. Note that, although we sent only those event
 	 * for which user has set mask, however native code send all the events to java layer as of now.</p>
