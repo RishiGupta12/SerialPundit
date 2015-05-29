@@ -31,7 +31,7 @@ import java.util.List;
  */
 public final class SerialComManager {
 
-	public static final String JAVA_LIB_VERSION = "1.0.2";
+	public static final String JAVA_LIB_VERSION = "1.0.3";
 
 	public static boolean DEBUG = true;
 	private static int osType = -1;

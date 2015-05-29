@@ -86,7 +86,7 @@
 #include "../../com_embeddedunveiled_serial_SerialComJNINativeInterface.h"
 
 #undef  UART_NATIVE_LIB_VERSION
-#define UART_NATIVE_LIB_VERSION "1.0.2"
+#define UART_NATIVE_LIB_VERSION "1.0.3"
 
 #define DBG 1
 
@@ -195,10 +195,9 @@ JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInt
  * For Solaris, this is handled in java layer itself as of now.
  */
 JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_getSerialPortNames(JNIEnv *env, jobject obj, jobject status) {
-
+	int negative = -1;
 #if defined (__linux__)
 	int i=0;
-	int negative = -1;
 	int ret = -1;
 	int num_of_dir_found = 0;
 	char path[1024];
@@ -2031,6 +2030,17 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 #endif
 #if defined (__SunOS)
 #endif
+}
+
+/*
+* Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
+* Method:    readBytes
+* Signature: (JI)[B
+*
+* Not implemented as normal readBytes() function will act as blocking when vmin and vtime is configured correctly.
+*/
+JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_readBytesBlocking(JNIEnv *env, jobject obj, jlong handle, jint count, jobject status) {
+	return NULL;
 }
 
 #endif /* End compiling for Unix-like OS. */

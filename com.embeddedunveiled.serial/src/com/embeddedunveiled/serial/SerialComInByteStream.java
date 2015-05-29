@@ -212,7 +212,7 @@ public final class SerialComInByteStream extends InputStream {
 	 * @return always returns 0
 	 */
 	@Override
-	public long skip(long n) {
+	public long skip(long number) {
 		return 0;
 	}
 }

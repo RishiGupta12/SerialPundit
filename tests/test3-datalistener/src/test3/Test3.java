@@ -80,7 +80,7 @@ public class Test3 {
 			Thread.sleep(1000); // wait for data to be displayed on console
 			
 			if(osType == SerialComManager.OS_LINUX) {
-				scm.setMinDataLength(handle, 5);
+				scm.fineTuneRead(handle, 5, 1, 0, 0, 0);
 			}
 			
 			scm.writeString(handle1, "test string", 0);

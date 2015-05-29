@@ -5,23 +5,23 @@
 		<item value="false" key="WizardProjectsImportPage.STORE_COPY_PROJECT_ID"/>
 		<item value="false" key="WizardProjectsImportPage.STORE_NESTED_PROJECTS"/>
 		<list key="WizardProjectsImportPage.STORE_DIRECTORIES">
-			<item value="/home/r/Desktop/test53-byteStream"/>
 			<item value="/home/r/ws-host-uart/serial-communication-manager/tests/test2-OCRW"/>
+			<item value="/home/r/ws-host-uart/serial-communication-manager/tests/test20-softflow"/>
+			<item value="/home/r/ws-host-uart/serial-communication-manager/tests/test3-datalistener"/>
+			<item value="/home/r/Desktop/test53-byteStream"/>
 			<item value="/home/r/ws-host-uart/serial-communication-manager/com.embeddedunveiled.native/linux_serial"/>
-			<item value="/home/r/ws-host-uart/serial-communication-manager/tests/test1-list-ports"/>
-			<item value="/home/r/ws-host-uart/serial-communication-manager/tests/ss.test28-scm-2-instance"/>
 		</list>
 		<list key="WizardProjectsImportPage.STORE_ARCHIVES">
 			<item value=""/>
 		</list>
 	</section>
 	<section name="CleanDialogSettings">
-		<item value="571" key="DIALOG_WIDTH"/>
+		<item value="573" key="DIALOG_WIDTH"/>
 		<item value="true" key="BUILD_NOW"/>
-		<item value="true" key="BUILD_ALL"/>
 		<item value="257" key="DIALOG_Y_ORIGIN"/>
-		<item value="551" key="DIALOG_HEIGHT"/>
+		<item value="true" key="BUILD_ALL"/>
 		<item value="711" key="DIALOG_X_ORIGIN"/>
+		<item value="580" key="DIALOG_HEIGHT"/>
 		<item value="false" key="TOGGLE_SELECTED"/>
 	</section>
 </section>
