@@ -61,6 +61,14 @@ public class Example {
 
 http://www.embeddedunveiled.com/
 
+##Help the project grow !
+
+- Suggest features and enhancements
+- Report bugs and fixes
+- Help with missing documentation
+- Suggest more test cases
+- Publish an article on your blog to educate others about this project
+
 ##Author, License, and Copyright
 The 'serial communication manager (scm)' is designed, developed and maintained by Rishi gupta. The Linkdin profile of the author can be found here : http://in.linkedin.com/pub/rishi-gupta/20/9b8/a10
 

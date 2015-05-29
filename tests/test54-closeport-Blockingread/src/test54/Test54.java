@@ -25,12 +25,29 @@ import com.embeddedunveiled.serial.SerialComManager.FLOWCONTROL;
 import com.embeddedunveiled.serial.SerialComManager.PARITY;
 import com.embeddedunveiled.serial.SerialComManager.STOPBITS;
 
+class ClosePort extends Test54 implements Runnable {
+	@Override
+	public void run() {
+		try {
+			Thread.sleep(5000); // make sure closed is called after read is blocked
+			System.out.println("closing");
+			scm.closeComPort(handle);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+}
+
 // test if port is closed port while read was blocked 
-public final class Test54 {
-	private Thread mDataLooperThread = null;
+public class Test54 {
+	
+	private static Thread mThread = null;
+	public static long handle = 0;
+	public static SerialComManager scm = null;
+	
 	public static void main(String[] args) {
 		try {
-			SerialComManager scm = new SerialComManager();
+			scm = new SerialComManager();
 
 			String PORT = null;
 			String PORT1 = null;
@@ -50,16 +67,22 @@ public final class Test54 {
 			}else{
 			}
 
-			long handle = scm.openComPort(PORT, true, true, true);
+			handle = scm.openComPort(PORT, true, true, true);
 			scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
 			scm.configureComPortControl(handle, FLOWCONTROL.NONE, 'x', 'x', false, false);
 			
-			SerialComInByteStream in = scm.createInputByteStream(handle1);
-			byte[] b = new byte[50];
-			in.read(b);
-			System.out.println("b : " + new String(b));
+			mThread = new Thread(new ClosePort());
+			mThread.start();
 			
-			scm.closeComPort(handle);
+			while(true) {
+			scm.readBytes(handle); }
+			
+//			SerialComInByteStream in = scm.createInputByteStream(handle);
+//			byte[] b = new byte[50];
+//			in.read(b);
+//			System.out.println("b : " + new String(b));
+//			
+//			System.out.println("out of read");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

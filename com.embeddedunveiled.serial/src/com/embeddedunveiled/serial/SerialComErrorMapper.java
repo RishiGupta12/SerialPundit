@@ -90,6 +90,9 @@ public final class SerialComErrorMapper {
 			case -6:
 				exceptionType = new String("No such device or address");
 				break;
+			case -9:
+				exceptionType = new String("Bad file number or Invalid file descriptor");
+				break;
 			case -11:
 				exceptionType = new String("Try again");
 				break;

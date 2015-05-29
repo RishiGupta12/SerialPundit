@@ -1945,3 +1945,103 @@ Command-line arguments:  -os linux -ws gtk -arch x86_64 -clean -product org.ecli
 
 !ENTRY org.eclipse.debug.core 4 120 2015-05-29 11:21:40.939
 !MESSAGE The selected resource does not resolve to a Java element
+!SESSION 2015-05-29 18:10:06.336 -----------------------------------------------
+eclipse.buildId=4.4.2.M20150204-1700
+java.version=1.7.0_75
+java.vendor=Oracle Corporation
+BootLoader constants: OS=linux, ARCH=x86_64, WS=gtk, NL=en_IN
+Framework arguments:  -product org.eclipse.epp.package.java.product
+Command-line arguments:  -os linux -ws gtk -arch x86_64 -clean -product org.eclipse.epp.package.java.product
+
+!ENTRY org.eclipse.jdt.launching 4 107 2015-05-29 18:26:38.829
+!MESSAGE Launch configuration Test48 references non-existing project test48.
+
+!ENTRY org.eclipse.m2e.logback.appender 4 0 2015-05-29 18:26:54.724
+!MESSAGE Launch configuration Test48 references non-existing project test48.
+
+!ENTRY org.eclipse.m2e.logback.appender 4 0 2015-05-29 18:26:54.725
+!MESSAGE Launch configuration Test48 references non-existing project test48.
+
+!ENTRY org.eclipse.m2e.logback.appender 4 0 2015-05-29 18:26:54.726
+!MESSAGE Launch configuration Test48 references non-existing project test48.
+
+!ENTRY org.eclipse.m2e.logback.appender 4 0 2015-05-29 18:26:54.728
+!MESSAGE Launch configuration Test48 references non-existing project test48.
+
+!ENTRY org.eclipse.m2e.logback.appender 4 0 2015-05-29 18:26:54.729
+!MESSAGE Launch configuration Test48 references non-existing project test48.
+
+!ENTRY org.eclipse.m2e.logback.appender 4 0 2015-05-29 18:26:54.746
+!MESSAGE Launch configuration Test48 references non-existing project test48.
+
+!ENTRY org.eclipse.m2e.logback.appender 4 0 2015-05-29 18:26:54.747
+!MESSAGE Launch configuration Test48 references non-existing project test48.
+
+!ENTRY org.eclipse.m2e.logback.appender 4 0 2015-05-29 18:26:54.748
+!MESSAGE Launch configuration Test48 references non-existing project test48.
+
+!ENTRY org.eclipse.m2e.logback.appender 4 0 2015-05-29 18:26:54.749
+!MESSAGE Launch configuration Test48 references non-existing project test48.
+
+!ENTRY org.eclipse.m2e.logback.appender 4 0 2015-05-29 18:26:54.750
+!MESSAGE Launch configuration Test48 references non-existing project test48.
+
+!ENTRY org.eclipse.m2e.logback.appender 4 0 2015-05-29 18:26:54.913
+!MESSAGE Launch configuration Test48 references non-existing project test48.
+
+!ENTRY org.eclipse.m2e.logback.appender 4 0 2015-05-29 18:26:54.914
+!MESSAGE Launch configuration Test48 references non-existing project test48.
+
+!ENTRY org.eclipse.m2e.logback.appender 4 0 2015-05-29 18:26:54.915
+!MESSAGE Launch configuration Test48 references non-existing project test48.
+
+!ENTRY org.eclipse.m2e.logback.appender 4 0 2015-05-29 18:26:54.916
+!MESSAGE Launch configuration Test48 references non-existing project test48.
+
+!ENTRY org.eclipse.m2e.logback.appender 4 0 2015-05-29 18:26:54.917
+!MESSAGE Launch configuration Test48 references non-existing project test48.
+
+!ENTRY org.eclipse.m2e.logback.appender 4 0 2015-05-29 18:26:54.927
+!MESSAGE Launch configuration Test48 references non-existing project test48.
+
+!ENTRY org.eclipse.m2e.logback.appender 4 0 2015-05-29 18:26:54.928
+!MESSAGE Launch configuration Test48 references non-existing project test48.
+
+!ENTRY org.eclipse.m2e.logback.appender 4 0 2015-05-29 18:26:54.929
+!MESSAGE Launch configuration Test48 references non-existing project test48.
+
+!ENTRY org.eclipse.m2e.logback.appender 4 0 2015-05-29 18:26:54.930
+!MESSAGE Launch configuration Test48 references non-existing project test48.
+
+!ENTRY org.eclipse.m2e.logback.appender 4 0 2015-05-29 18:26:54.931
+!MESSAGE Launch configuration Test48 references non-existing project test48.
+
+!ENTRY org.eclipse.m2e.logback.appender 4 0 2015-05-29 18:26:54.941
+!MESSAGE Launch configuration Test48 references non-existing project test48.
+
+!ENTRY org.eclipse.m2e.logback.appender 4 0 2015-05-29 18:26:54.943
+!MESSAGE Launch configuration Test48 references non-existing project test48.
+
+!ENTRY org.eclipse.m2e.logback.appender 4 0 2015-05-29 18:26:54.944
+!MESSAGE Launch configuration Test48 references non-existing project test48.
+
+!ENTRY org.eclipse.m2e.logback.appender 4 0 2015-05-29 18:26:54.945
+!MESSAGE Launch configuration Test48 references non-existing project test48.
+
+!ENTRY org.eclipse.m2e.logback.appender 4 0 2015-05-29 18:26:54.946
+!MESSAGE Launch configuration Test48 references non-existing project test48.
+
+!ENTRY org.eclipse.m2e.logback.appender 4 0 2015-05-29 18:26:54.957
+!MESSAGE Launch configuration Test48 references non-existing project test48.
+
+!ENTRY org.eclipse.m2e.logback.appender 4 0 2015-05-29 18:26:54.958
+!MESSAGE Launch configuration Test48 references non-existing project test48.
+
+!ENTRY org.eclipse.m2e.logback.appender 4 0 2015-05-29 18:26:54.959
+!MESSAGE Launch configuration Test48 references non-existing project test48.
+
+!ENTRY org.eclipse.m2e.logback.appender 4 0 2015-05-29 18:26:54.960
+!MESSAGE Launch configuration Test48 references non-existing project test48.
+
+!ENTRY org.eclipse.m2e.logback.appender 4 0 2015-05-29 18:26:54.961
+!MESSAGE Launch configuration Test48 references non-existing project test48.
