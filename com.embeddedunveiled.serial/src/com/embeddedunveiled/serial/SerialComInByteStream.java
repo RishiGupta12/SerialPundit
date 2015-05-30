@@ -25,6 +25,9 @@ import java.io.InputStream;
  * <p>It implements blocking read as mentioned in standard Java. It is for this reason -1 
  * or EOF is never returned by any read method because it blocks until it reads data byte
  * or an exception occurs.</p>
+ * 
+ * <p>Application design should make sure that the port is not closed if there exist a read method
+ * which is blocked (waiting for data byte) on the same port.</p>
  */
 public final class SerialComInByteStream extends InputStream {
 

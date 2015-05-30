@@ -19,12 +19,20 @@ package com.embeddedunveiled.serial;
 
 import java.io.IOException;
 
-/** This limit the scope of exceptions in context of serial operation only. */
+/** 
+ * <p>This limit the scope of exceptions in context of serial operation only. </p>
+ */
 public final class SerialComTimeOutException extends IOException {
 
 	private static final long serialVersionUID = -2454774135396601296L;
 	
-	public SerialComTimeOutException(String methodName, String exceptionType) {
-		super(exceptionType + " in method " + methodName);
+	/**
+     * Constructs an SerialComTimeOutException with the specified detail message.
+     *
+     * @param methodName name of method where exception occurred
+     * @param exceptionMsg message describing reason for exception
+     */
+	public SerialComTimeOutException(String methodName, String exceptionMsg) {
+		super(exceptionMsg + " in method " + methodName);
 	}
 }

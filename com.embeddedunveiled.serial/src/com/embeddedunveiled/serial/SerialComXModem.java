@@ -26,7 +26,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 /**
- *TODO JAVADOC
+ * <p>This class realizes state machine for XMODEM file transfer protocol in Java.</p>
  */
 public final class SerialComXModem {
 
@@ -48,7 +48,7 @@ public final class SerialComXModem {
 
 
 	/**
-	 * <p>The constructor, joins instance of this class to the instance of scm.</p>
+	 * <p>Allocates object of this class and associate this object with the supplied scm object.</p>
 	 * 
 	 * @param scm SerialComManager instance associated with this handle
 	 * @param handle of the port on which file is to be sent
@@ -115,7 +115,7 @@ public final class SerialComXModem {
 							Thread.sleep(800);  // delay before next attempt to check NAK arrival
 						} catch (InterruptedException e) {
 						}
-						// abort if timedout while waiting for NAK character
+						// abort if timed-out while waiting for NAK character
 						if((nakReceived != true) && (System.currentTimeMillis() >= responseWaitTimeOut)) {
 							errMsg = SerialComErrorMapper.ERR_TIMEOUT_RECEIVER_CONNECT;
 							state = ABORT;

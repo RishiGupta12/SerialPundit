@@ -74,15 +74,12 @@ public class Test54 {
 			mThread = new Thread(new ClosePort());
 			mThread.start();
 			
-			while(true) {
-			scm.readBytes(handle); }
+			SerialComInByteStream in = scm.createInputByteStream(handle);
+			byte[] b = new byte[50];
+			in.read(b);
+			System.out.println("b : " + new String(b));
 			
-//			SerialComInByteStream in = scm.createInputByteStream(handle);
-//			byte[] b = new byte[50];
-//			in.read(b);
-//			System.out.println("b : " + new String(b));
-//			
-//			System.out.println("out of read");
+			System.out.println("out of read");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

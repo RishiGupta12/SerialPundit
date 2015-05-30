@@ -462,6 +462,7 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInter
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_closeComPort(JNIEnv *env, jobject obj, jlong fd) {
 	int ret = -1;
 	int negative = -1;
+	int exit_loop = 0;
 
 	/* Flush all remaining data if any to the receiver. */
 #if defined (__linux__)
@@ -489,13 +490,21 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 #endif
 
 	/* Whether we were able to flush remaining data or not, we proceed to close port. */
-	errno = 0;
-	ret = close(fd);
-	if(ret < 0) {
-		if(DBG) fprintf(stderr, "%s %d\n", "Native closeComPort() failed to close port with error number : -", errno);
-		if(DBG) fflush(stderr);
-		return (negative * errno);
-	}
+	do {
+		errno = 0;
+		ret = close(fd);
+		if(ret < 0) {
+			if(errno == EINTR) {
+				errno = 0;
+				continue;
+			}else {
+				if(DBG) fprintf(stderr, "%s %d\n", "Native closeComPort() failed to close port with error number : -", errno);
+				if(DBG) fflush(stderr);
+				return (negative * errno);
+			}
+		}
+		exit_loop = 1;
+	}while (exit_loop == 0);
 
 	return ret;
 }
@@ -567,10 +576,12 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINative
 			}
 			index = ret;
 			partial_data = 1;
+			errno = 0;
 			continue;
 		}else if(ret < 0) {
 			if(errno == EINTR) {
 				/* This indicates that we should retry as we are just interrupted by a signal. */
+				errno = 0;
 				continue;
 			}else {
 				/* This indicates, irrespective of, there was data to read or not, we got an error during operation. */
@@ -634,6 +645,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 			if(ret < 0) {
 				if(errno == EINTR) {
 					serial_delay(20); // 20 milliseconds delay just to let the cause of signal go away
+					errno = 0;
 					continue;
 				}else {
 					if(DBG) fprintf(stderr, "%s%d\n", "NATIVE writeBytes() failed to write requested data with error number : -", errno);
@@ -652,6 +664,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 			if(ret < 0) {
 				if(errno == EINTR) {
 					serial_delay(delay);
+					errno = 0;
 					continue;
 				}else {
 					if(DBG) fprintf(stderr, "%s%d\n", "NATIVE writeBytes() failed to write requested data with error number : -", errno);
