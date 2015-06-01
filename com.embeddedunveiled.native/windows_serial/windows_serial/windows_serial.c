@@ -505,11 +505,14 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINative
 				CloseHandle(overlapped.hEvent);
 
 				if(ret > 0) {
-					/* return data read from serial port */
-					data_read = (*env)->NewByteArray(env, num_of_bytes_read);
-					(*env)->SetByteArrayRegion(env, data_read, 0, num_of_bytes_read, data_buf);
-					return data_read;
-				}else if (ret == 0) {
+					/* return data read from serial port if exist */
+					if(num_of_bytes_read > 0) {
+						data_read = (*env)->NewByteArray(env, num_of_bytes_read);
+						(*env)->SetByteArrayRegion(env, data_read, 0, num_of_bytes_read, data_buf);
+						return data_read;
+					}
+					return NULL;
+				}else if(ret == 0) {
 					errorVal = GetLastError();
 					if((errorVal == ERROR_HANDLE_EOF) || (errorVal == ERROR_IO_INCOMPLETE)) {
 						return NULL;

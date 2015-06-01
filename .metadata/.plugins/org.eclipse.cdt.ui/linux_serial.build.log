@@ -1,4 +1,4 @@
-11:20:37 **** Build of configuration Debug for project linux_serial ****
+11:23:55 **** Build of configuration Debug for project linux_serial ****
 make all 
 Building file: ../src/unix_like_serial.c
 Invoking: GCC C Compiler
@@ -24,5 +24,5 @@ gcc -m64 -shared -o "linux_1.0.3_x86_64.so"  ./src/unix_like_serial.o ./src/unix
 Finished building target: linux_1.0.3_x86_64.so
  
 
-11:20:37 Build Finished (took 258ms)
+11:23:55 Build Finished (took 257ms)
 

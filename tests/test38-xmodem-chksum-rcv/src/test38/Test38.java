@@ -53,7 +53,7 @@ public class Test38 {
 			}
 			
 			long handle = scm.openComPort(PORT, true, true, true);
-			scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B2400, 0);
+			scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
 			scm.configureComPortControl(handle, FLOWCONTROL.NONE, 'x', 'x', false, false);
 			
 			scm.receiveFile(handle, new File("/home/r/ws-host-uart/development/ftptest/b.txt"), FILETXPROTO.XMODEM);

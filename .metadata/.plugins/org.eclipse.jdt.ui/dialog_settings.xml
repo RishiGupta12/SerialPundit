@@ -79,20 +79,15 @@
 		<item value="/home/r/ws-host-uart/serial-communication-manager/com.embeddedunveiled.serial/javadoc.xml" key="antpath"/>
 		<item value="true" key="fromStandard"/>
 		<section name="projects">
-			<section name="test54">
-				<item value="/home/r/ws-host-uart/serial-communication-manager/tests/test54-closeport-Blockingread/doc" key="destdir"/>
-				<item value="/home/r/ws-host-uart/serial-communication-manager/tests/test54-closeport-Blockingread/javadoc.xml" key="antpath"/>
-				<item value="" key="href"/>
-			</section>
 			<section name="linux_serial">
 				<item value="/home/r/ws-host-uart/serial-communication-manager/com.embeddedunveiled.native/linux_serial/doc" key="destdir"/>
-				<item value="/home/r/ws-host-uart/serial-communication-manager/com.embeddedunveiled.native/linux_serial/javadoc.xml" key="antpath"/>
 				<item value="" key="href"/>
+				<item value="/home/r/ws-host-uart/serial-communication-manager/com.embeddedunveiled.native/linux_serial/javadoc.xml" key="antpath"/>
 			</section>
 			<section name="com.embeddedunveiled.serial">
 				<item value="/home/r/ws-host-uart/serial-communication-manager/javadoc" key="destdir"/>
-				<item value="/home/r/ws-host-uart/serial-communication-manager/com.embeddedunveiled.serial/javadoc.xml" key="antpath"/>
 				<item value="" key="href"/>
+				<item value="/home/r/ws-host-uart/serial-communication-manager/com.embeddedunveiled.serial/javadoc.xml" key="antpath"/>
 			</section>
 		</section>
 	</section>
