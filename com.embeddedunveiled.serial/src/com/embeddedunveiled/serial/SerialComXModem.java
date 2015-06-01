@@ -21,34 +21,33 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
 /**
- *TODO JAVADOC
+ * <p>This class realizes state machine for XMODEM file transfer protocol in Java.</p>
  */
 public final class SerialComXModem {
 
-	private static final byte SOH = 0x01; // Start of header character
-	private static final byte EOT = 0x04; // End-of-transmission character
-	private static final byte ACK = 0x06; // Acknowledge byte character
-	private static final byte NAK = 0x15; // Negative-acknowledge character
-	private static final byte SUB = 0x1A; // Substitute/CTRL+Z
+	private final byte SOH = 0x01;  // Start of header character
+	private final byte EOT = 0x04;  // End-of-transmission character
+	private final byte ACK = 0x06;  // Acknowledge byte character
+	private final byte NAK = 0x15;  // Negative-acknowledge character
+	private final byte SUB = 0x1A;  // Substitute/CTRL+Z
 
 	private SerialComManager scm = null;
 	private long handle = 0;
 	private File fileToProcess = null;
 
 	private int blockNumber = -1;
-	private byte[] block = new byte[132];       // 132 bytes xmodem block/packet
-	private BufferedInputStream inStream = null;
-	private BufferedOutputStream outStream = null;
+	private byte[] block = new byte[132];            // 132 bytes xmodem block/packet
+	private BufferedInputStream inStream = null;     // sent file from local to remote system
+	private BufferedOutputStream outStream = null;   // received file from remote to local system
 	private boolean noMoreData = false;
 
 
 	/**
-	 * <p>The constructor, joins instance of this class to the instance of scm.</p>
+	 * <p>Allocates object of this class and associate this object with the supplied scm object.</p>
 	 * 
 	 * @param scm SerialComManager instance associated with this handle
 	 * @param handle of the port on which file is to be sent
@@ -85,172 +84,174 @@ public final class SerialComXModem {
 		long eotAckWaitTimeOutValue = 0;
 
 		inStream = new BufferedInputStream(new FileInputStream(fileToProcess));
-		state = CONNECT;
 
+		state = CONNECT;
 		while(true) {
 			switch(state) {
-			case CONNECT:
-				responseWaitTimeOut = System.currentTimeMillis() + 60000;
-				while(nakReceived != true) {
-					try {
-						data = scm.readBytes(handle);
-					} catch (SerialComException exp) {
-						inStream.close();
-						throw exp;
-					}
-
-					if(data.length > 0) {
-						/* Instead of purging receive buffer and then waiting for NAK, receive all data because
-						 * this approach might be faster. The other side might have opened first time and may 
-						 * have flushed garbage data. So receive buffer may contain garbage + NAK character. */
-						for(int x=0; x < data.length; x++) {
-							if(NAK == data[x]) {
-								nakReceived = true;
-								state = BEGINSEND;
+				case CONNECT:
+					responseWaitTimeOut = System.currentTimeMillis() + 60000;
+					while(nakReceived != true) {
+						try {
+							data = scm.readBytes(handle, 1024);
+						} catch (SerialComException exp) {
+							inStream.close();
+							throw exp;
+						}
+	
+						if((data != null) && (data.length > 0)) {
+							/* Instead of purging receive buffer and then waiting for NAK, receive all data because
+							 * this approach might be faster. The other side might have opened first time and may 
+							 * have flushed garbage data. So receive buffer may contain garbage + NAK character. */
+							for(int x=0; x < data.length; x++) {
+								if(NAK == data[x]) {
+									nakReceived = true;
+									state = BEGINSEND;
+									break;
+								}
+							}
+						}else {
+							try {
+								Thread.sleep(300);  // delay before next attempt to check NAK character reception
+							} catch (InterruptedException e) {
+							}
+							// abort if timed-out while waiting for NAK character
+							if((nakReceived != true) && (System.currentTimeMillis() >= responseWaitTimeOut)) {
+								errMsg = SerialComErrorMapper.ERR_TIMEOUT_RECEIVER_CONNECT;
+								state = ABORT;
 								break;
 							}
 						}
-					}else {
-						try {
-							Thread.sleep(800);  // delay before next attempt to check NAK arrival
-						} catch (InterruptedException e) {
-						}
-						// abort if timedout while waiting for NAK character
-						if((nakReceived != true) && (System.currentTimeMillis() >= responseWaitTimeOut)) {
-							errMsg = SerialComErrorMapper.ERR_TIMEOUT_RECEIVER_CONNECT;
-							state = ABORT;
-							break;
-						}
 					}
-				}
-				break;
-			case BEGINSEND:
-				blockNumber = 1; // Block numbering starts with 1 for the first block sent, not 0.
-				assembleBlock();
-				try {
-					scm.writeBytes(handle, block);
-				} catch (SerialComException exp) {
-					inStream.close();
-					throw exp;
-				}
-				state = WAITACK;
-				break;
-			case RESEND:
-				if(retryCount > 10) {
-					errMsg = SerialComErrorMapper.ERR_MAX_RETRY_REACHED;
-					state = ABORT;
 					break;
-				}
-				try {
-					scm.writeBytes(handle, block);
-				} catch (SerialComException exp) {
-					inStream.close();
-					throw exp;
-				}
-				state = WAITACK;
-				break;
-			case WAITACK:
-				responseWaitTimeOut = System.currentTimeMillis() + 60000; // 1 minute
-				while(true) {
-					// delay before next attempt to read from serial port
+				case BEGINSEND:
+					blockNumber = 1; // Block numbering starts with 1 for the first block sent, not 0.
+					assembleBlock();
 					try {
-						if(noMoreData != true) {
-							Thread.sleep(150);
-						}else {
-							Thread.sleep(1500);
-						}
-					} catch (InterruptedException e) {
-					}
-
-					// try to read data from serial port
-					try {
-						data = scm.readBytes(handle);
+						scm.writeBytes(handle, block);
 					} catch (SerialComException exp) {
 						inStream.close();
 						throw exp;
 					}
-
-					/* if data received process it. if long timeout occurred abort otherwise retry reading from serial port.
-					 * if nothing received at all abort. */
-					if(data.length > 0) {
-						break;
-					}else {
-						if(noMoreData == true) {
-							state = ENDTX;
-							break;
-						}
-						if(System.currentTimeMillis() >= responseWaitTimeOut) {
-							if(noMoreData == true) {
-								errMsg = SerialComErrorMapper.ERR_TIMEOUT_ACKNOWLEDGE_EOT;
-							}else {
-								errMsg = SerialComErrorMapper.ERR_TIMEOUT_ACKNOWLEDGE_BLOCK;
-							}
-							state = ABORT;
-							break;
-						}
-					}
-				}
-
-				if((state != ABORT) && (state != ENDTX)) {
-					if(noMoreData != true) {
-						if(data[0] == ACK) {
-							state = SENDNEXT;
-						}else if(data[0] == NAK) {
-							retryCount++;
-							state = RESEND;
-						}else{
-							errMsg = SerialComErrorMapper.ERR_KNOWN_ERROR_OCCURED;
-							state = ABORT;
-						}
-					}else {
-						if(data[0] == ACK) {
-							inStream.close();
-							return true; // successfully sent file, let's go back home happily
-						}else{
-							if(System.currentTimeMillis() >= eotAckWaitTimeOutValue) {
-								errMsg = SerialComErrorMapper.ERR_TIMEOUT_ACKNOWLEDGE_EOT;
-								state = ABORT;
-							}else {
-								state = ENDTX;
-							}
-						}
-					}
-				}
-				break;
-			case SENDNEXT:
-				retryCount = 0;
-				blockNumber++;
-				assembleBlock();
-				if(noMoreData == true) {
-					state = ENDTX;
+					state = WAITACK;
 					break;
-				}
-				try {
-					scm.writeBytes(handle, block);
-				} catch (SerialComException exp) {
+				case RESEND:
+					if(retryCount > 10) {
+						errMsg = SerialComErrorMapper.ERR_MAX_RETRY_REACHED;
+						state = ABORT;
+						break;
+					}
+					try {
+						scm.writeBytes(handle, block);
+					} catch (SerialComException exp) {
+						inStream.close();
+						throw exp;
+					}
+					state = WAITACK;
+					break;
+				case WAITACK:
+					responseWaitTimeOut = System.currentTimeMillis() + 60000; // 1 minute
+					while(true) {
+						// delay before next attempt to read from serial port
+						try {
+							if(noMoreData != true) {
+								Thread.sleep(150);
+							}else {
+								Thread.sleep(1500);
+							}
+						} catch (InterruptedException e) {
+						}
+	
+						// try to read data from serial port
+						try {
+							data = scm.readBytes(handle);
+						} catch (SerialComException exp) {
+							inStream.close();
+							throw exp;
+						}
+	
+						/* if data received process it. if long timeout occurred abort otherwise retry reading from serial port.
+						 * if nothing received at all abort. */
+						if((data != null) && (data.length > 0)) {
+							break;
+						}else {
+							if(noMoreData == true) {
+								state = ENDTX;
+								break;
+							}
+							if(System.currentTimeMillis() >= responseWaitTimeOut) {
+								if(noMoreData == true) {
+									errMsg = SerialComErrorMapper.ERR_TIMEOUT_ACKNOWLEDGE_EOT;
+								}else {
+									errMsg = SerialComErrorMapper.ERR_TIMEOUT_ACKNOWLEDGE_BLOCK;
+								}
+								state = ABORT;
+								break;
+							}
+						}
+					}
+	
+					if((state != ABORT) && (state != ENDTX)) {
+						if(noMoreData != true) {
+							if(data[0] == ACK) {
+								state = SENDNEXT;
+							}else if(data[0] == NAK) {
+								retryCount++;
+								state = RESEND;
+							}else{
+								errMsg = SerialComErrorMapper.ERR_KNOWN_ERROR_OCCURED;
+								state = ABORT;
+							}
+						}else {
+							if(data[0] == ACK) {
+								inStream.close();
+								return true; // successfully sent file, let's go back home happily
+							}else{
+								if(System.currentTimeMillis() >= eotAckWaitTimeOutValue) {
+									errMsg = SerialComErrorMapper.ERR_TIMEOUT_ACKNOWLEDGE_EOT;
+									state = ABORT;
+								}else {
+									state = ENDTX;
+								}
+							}
+						}
+					}
+					break;
+				case SENDNEXT:
+					retryCount = 0;
+					blockNumber++;
+					assembleBlock();
+					if(noMoreData == true) {
+						state = ENDTX;
+						break;
+					}
+					try {
+						scm.writeBytes(handle, block);
+					} catch (SerialComException exp) {
+						inStream.close();
+						throw exp;
+					}
+					state = WAITACK;
+					break;
+				case ENDTX:
+					if(eotAckReceptionTimerInitialized != true) {
+						eotAckWaitTimeOutValue = System.currentTimeMillis() + 60000; // 1 minute
+						eotAckReceptionTimerInitialized = true;
+					}
+					try {
+						scm.writeSingleByte(handle, EOT);
+					} catch (SerialComException exp) {
+						inStream.close();
+						throw exp;
+					}
+					state = WAITACK;
+					break;
+				case ABORT:
+					/* if ioexception occurs, control will not reach here instead exception would have been
+					 * thrown already. */
 					inStream.close();
-					throw exp;
-				}
-				state = WAITACK;
-				break;
-			case ENDTX:
-				if(eotAckReceptionTimerInitialized != true) {
-					eotAckWaitTimeOutValue = System.currentTimeMillis() + 60000; // 1 minute
-					eotAckReceptionTimerInitialized = true;
-				}
-				try {
-					scm.writeSingleByte(handle, EOT);
-				} catch (SerialComException exp) {
-					inStream.close();
-					throw exp;
-				}
-				state = WAITACK;
-				break;
-			case ABORT:
-				/* if ioexception occurs, control will not reach here instead exception would have been
-				 * thrown already. */
-				inStream.close();
-				throw new SerialComTimeOutException("sendFile()", errMsg);
+					throw new SerialComTimeOutException("sendFile()", errMsg);
+				default:
+					break;
 			}
 		}
 	}
@@ -295,11 +296,9 @@ public final class SerialComXModem {
 	/**
 	 * <p>For internal use only.</p>
 	 * <p>Represents actions to execute in state machine to implement xmodem protocol for receiving files.</p>
-	 * 
-	 * @throws SerialComException
-	 * @throws FileNotFoundException 
+	 * @throws IOException 
 	 */
-	public boolean receiveFileX() throws SerialComException, FileNotFoundException, IOException {
+	public boolean receiveFileX() throws IOException, SerialComException {
 
 		// Finite state machine
 		final int CONNECT = 0;
@@ -308,172 +307,178 @@ public final class SerialComXModem {
 		final int REPLY = 3;
 		final int ABORT = 4;
 
-		int a = 0;
 		int x = 0;
 		int z = 0;
+		int delayVal = 250;
 		int retryCount = 0;
 		int state = -1;
-		int blockNumber = 1; //TODO CHK VALID BLK NO
+		int blockNumber = 1;
 		int blockChecksum = -1;
 		int bufferIndex = 0;
-		boolean readComplete = false;
+		long connectTimeOut = 0;
+		long nextDataRecvTimeOut = 0;
+		boolean rxDone = false;
 		boolean firstBlock = false;
 		boolean isCorrupted = false;
-		boolean rxDone = false;
 		byte[] block = new byte[132];
 		byte[] data = null;
 		String errMsg = null;
 
+		/* The data bytes get flushed automatically to file system physically whenever BufferedOutputStream's internal
+		   buffer gets full and request to write more bytes have arrived. */
 		outStream = new BufferedOutputStream(new FileOutputStream(fileToProcess));
 
 		// Clear receive buffer before start
 		try {
 			scm.clearPortIOBuffers(handle, true, false);
-		} catch (SerialComException e) {
+		} catch (SerialComException exp) {
 			outStream.close();
-			throw e;
+			throw exp;
 		}
 
 		state = CONNECT;
 		while(true) {
-			System.out.println("state : " + state);
 			switch(state) {
-			case CONNECT:
-				if(retryCount > 10) {
-					state = ABORT;
-					errMsg = SerialComErrorMapper.ERR_TIMEOUT_TRANSMITTER_CONNECT;
+				case CONNECT:
+					if(retryCount > 10) {
+						errMsg = SerialComErrorMapper.ERR_TIMEOUT_TRANSMITTER_CONNECT;
+						state = ABORT;
+						break;
+					}
+					try {
+						scm.writeSingleByte(handle, NAK);
+						firstBlock = true;
+						connectTimeOut = System.currentTimeMillis() + 10000; // update timeout, 10 seconds
+						state = RECEIVEDATA;
+					} catch (SerialComException exp) {
+						outStream.close();
+						throw exp;
+					}
 					break;
-				}
-
-				try {
-					scm.writeSingleByte(handle, NAK); // send NAK to begin tx
-					firstBlock = true;
-					state = RECEIVEDATA;
-				} catch (SerialComException exp) {
-					outStream.close();
-					throw exp;
-				}
-				break;
-			case RECEIVEDATA:
-				if(firstBlock == false) {
-					// TODO
-				}else {
-					/* If anything is not received from port with in 10 seconds (i.e. transmitter has not started sending data)
-					 * go back to CONNECT state to send NAK again otherwise as data is received goto REPLY or VERIFY state
-					 * based on EOT or data received. */
-					for(a=0; a<34; a++) {
+				case RECEIVEDATA:
+					while(true) {
 						try {
-							Thread.sleep(300); // 300*34 = 10.2 seconds
+							Thread.sleep(delayVal);
 						} catch (InterruptedException e) {
 						}
-
 						try {
 							data = scm.readBytes(handle);
-							System.out.println("length : " + data.length);
 						} catch (SerialComException exp) {
 							outStream.close();
 							throw exp;
 						}
-
-						if(data.length > 0) {
-							retryCount = 0;                  // reset retry count
-							if(data[0] == EOT){            // transmitter sent EOT as very first data !
-								state = REPLY;
+						if((data != null) && (data.length > 0)) {
+							firstBlock = false;
+							if(data[0] == EOT) {
 								isCorrupted = false;
 								rxDone = true;
+								state = REPLY;
 								break;
 							}else {
-								if(data.length == 132) {   // complete block read
+								if(data.length == 132) {
+									 // complete block read in one go
 									for(int i=0; i < 132; i++) {
 										block[i] = data[i];
 									}
 									state = VERIFY;
 									break;
-								}else {                     // partial block read
-									readComplete = false;
-									bufferIndex = data.length;
-									for(int d=0; d < bufferIndex; d++) {
-										block[d] = data[d];
+								}else {
+									// partial block read
+									for(z=0; z < data.length; z++) {
+										block[bufferIndex] = data[z];
+										bufferIndex++;
 									}
-									while(true) {
-										try {
-											Thread.sleep(50);
-										} catch (InterruptedException e) {
-										}
-
-										try {
-											z = 0;
-											data = scm.readBytes(handle);
-											if(data.length > 0) {
-												for(bufferIndex = bufferIndex + 0; bufferIndex < data.length; bufferIndex++) {
-													block[bufferIndex] = data[z];
-													z++;
-												}
-												if(bufferIndex > 131) {
-													firstBlock = false;
-													break;
-												}
-											}
-										} catch (SerialComException exp) {
-											outStream.close();
-											throw exp;
-										}
-									}
+									if(bufferIndex == 132) {
+										delayVal = 250;  // reset delay
+										bufferIndex = 0; // reset index
+										state = VERIFY;
+										break;
+									}else {
+										delayVal = 100; // next remaining data bytes should arrive early
+										continue;
+									}	
+								}
+							}
+						}else {
+							if(firstBlock == false) {
+								if(System.currentTimeMillis() > nextDataRecvTimeOut) {
+									errMsg = SerialComErrorMapper.ERR_TIMEOUT_RECV_FROM_SENDER;
+									state = ABORT;
+									break;
+								}
+							}else {
+								if(System.currentTimeMillis() > connectTimeOut) {
+									retryCount++;
+									state = CONNECT;
+									break;
 								}
 							}
 						}
 					}
-
-					if(a > 33){
-						state = CONNECT;
-						retryCount++;
-					}
-
-				}
-				break;
-			case VERIFY:
-				blockChecksum = 0;
-				isCorrupted = false;
-				// verify block number
-				if(block[1] != ~block[2]){
-					isCorrupted = true;
-					state = REPLY;
 					break;
-				}
-				// verify checksum
-				for(x=3; x<131; x++) {
-					blockChecksum = (byte)blockChecksum + block[x];
-				}
-				blockChecksum = (byte) (blockChecksum % 256);
-				if(blockChecksum != block[131]){
-					isCorrupted = true;
+				case VERIFY:
+					blockChecksum = 0;
+					isCorrupted = false;
 					state = REPLY;
-				}
-				state = REPLY;
-				break;
-			case REPLY:
-				try {
-					if(isCorrupted == false) {
-						scm.writeSingleByte(handle, ACK);
-					}else {
-						scm.writeSingleByte(handle, NAK);
+					// check duplicate block
+					if(block[1] == (blockNumber - 1)){
+						break;
 					}
-				} catch (SerialComException exp) {
+					// verify block number sequence
+					if(block[1] != blockNumber){
+						isCorrupted = true;
+						break;
+					}
+					// verify block number
+					if(block[1] != ~block[2]){
+						isCorrupted = true;
+						break;
+					}
+					// verify checksum
+					for(x=3; x < 131; x++) {
+						blockChecksum = (byte)blockChecksum + block[x];
+					}
+					blockChecksum = (byte) (blockChecksum % 256);
+					if(blockChecksum != block[131]){
+						isCorrupted = true;
+					}
+					break;
+				case REPLY:
+					try {
+						if(rxDone == false) {
+							if(isCorrupted == false) {
+								scm.writeSingleByte(handle, ACK);
+								outStream.write(block, 3, 128);
+								blockNumber++;
+								if(blockNumber > 0xFF) {
+									blockNumber = 0x00;
+								}
+							}else {
+								scm.writeSingleByte(handle, NAK);
+							}
+							state = RECEIVEDATA;
+						}else {
+							scm.writeSingleByte(handle, ACK);
+							outStream.flush();
+							outStream.close();
+							return true;        // file reception successfully finished, let us go back home
+						}
+					} catch (SerialComException exp) {
+						outStream.close();
+						throw exp;
+					} catch (IOException exp) {
+						outStream.close();
+						throw exp;
+					}
+					nextDataRecvTimeOut = System.currentTimeMillis() + 1000; // update timeout for next byte 1 second
+					break;
+				case ABORT:
+					/* if an IOexception occurs, control will not reach here instead exception would have been
+					 * thrown already. */
 					outStream.close();
-					throw exp;
-				}
-				if(rxDone == false) {
-					state = RECEIVEDATA;
-				}else {
-					outStream.close();
-					return true; // file reception successfully finished, let us go back home
-				}
-				break;
-			case ABORT:
-				/* if ioexception occurs, control will not reach here instead exception would have been
-				 * thrown already. */
-				outStream.close();
-				throw new SerialComTimeOutException("receiveFile()", errMsg);
+					throw new SerialComTimeOutException("receiveFile()", errMsg);
+				default:
+					break;
 			}
 		}
 	}

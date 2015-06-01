@@ -30,7 +30,7 @@ public interface ISerialComDataListener {
 	 * which returns array of bytes.</p>
 	 * 
 	 * <p>In Linux, by default, the listener is called for every new byte available. This behavior can be modified by 
-	 * using available setMinDataLength() API for Linux.</p>
+	 * using available fineTuneRead() API for Linux.</p>
 	 */
 	public abstract void onNewSerialDataAvailable(SerialComDataEvent dataEvent);
 

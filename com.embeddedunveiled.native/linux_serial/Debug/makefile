@@ -23,19 +23,19 @@ endif
 # Add inputs and outputs from these tool invocations to the build variables 
 
 # All Target
-all: linux_1.0.2_x86_64.so
+all: linux_1.0.3_x86_64.so
 
 # Tool invocations
-linux_1.0.2_x86_64.so: $(OBJS) $(USER_OBJS)
+linux_1.0.3_x86_64.so: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: GCC C Linker'
-	gcc -m64 -shared -o "linux_1.0.2_x86_64.so" $(OBJS) $(USER_OBJS) $(LIBS)
+	gcc -m64 -shared -o "linux_1.0.3_x86_64.so" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
 # Other Targets
 clean:
-	-$(RM) $(OBJS)$(C_DEPS)$(LIBRARIES) linux_1.0.2_x86_64.so
+	-$(RM) $(OBJS)$(C_DEPS)$(LIBRARIES) linux_1.0.3_x86_64.so
 	-@echo ' '
 
 .PHONY: all clean dependents

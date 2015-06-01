@@ -35,6 +35,7 @@
 		<item value="false" key="jarOptionsWizardPage.STORE_USE_SRC_FOLDERS"/>
 		<item value="" key="jarOptionsWizardPage.DESCRIPTION_LOCATION"/>
 		<list key="JarPackageWizardPage.DESTINATION_NAMES_ID">
+			<item value="/home/r/Desktop/scm-1.0.3.jar"/>
 			<item value="/home/r/Desktop/scm-1.0.2.jar"/>
 		</list>
 	</section>
@@ -72,7 +73,7 @@
 		<item value="true" key="author"/>
 		<item value="" key="docletname"/>
 		<item value="1.6" key="source"/>
-		<item value="false" key="openinbrowser"/>
+		<item value="true" key="openinbrowser"/>
 		<item value="false" key="noindex"/>
 		<item value="" key="docletpath"/>
 		<item value="/home/r/ws-host-uart/serial-communication-manager/com.embeddedunveiled.serial/javadoc.xml" key="antpath"/>

@@ -17,7 +17,7 @@
 package com.embeddedunveiled.serial;
 
 /**
- * <p>This class acts as a status messenger between native and java layer.
+ * <p>This class acts as a carrier of operation result between native and java layer.
  * If an error occurs native layer put error number into this status field
  * of this class.</p>
  */
@@ -25,6 +25,11 @@ public final class SerialComFindStatus {
 
 	int status = 1; // package-private access
 
+	/**
+     * Constructs an SerialComFindStatus with integer value supplied.
+     *
+     * @param status initial status value
+     */
 	public SerialComFindStatus(int status) {
 		this.status = status;
 	}

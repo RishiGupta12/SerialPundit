@@ -22,7 +22,7 @@ public final class SerialComOutByteStream extends OutputStream {
 	 * <p>Writes the specified byte to this output stream (eight low-order bits of the argument data).
 	 * The 24 high-order bits of data are ignored.</p>
 	 * 
-	 * @param integer data to be written to serial port
+	 * @param data integer to be written to serial port
 	 * @throws IOException if write fails or output stream has been closed.
 	 */
 	@Override
@@ -40,7 +40,7 @@ public final class SerialComOutByteStream extends OutputStream {
 	/**
 	 * <p>Writes data.length bytes from the specified byte array to this output stream.</p>
 	 * 
-	 * @param byte type array of data to be written to serial port
+	 * @param data byte type array of data to be written to serial port
 	 * @throws IOException if write fails or output stream has been closed.
 	 * @throws NullPointerException if data is null
 	 * @throws IllegalArgumentException if data is not a byte type array

@@ -1,5 +1,9 @@
 
+<<<<<<< HEAD
 v1.0.3 (27 May 2015)
+=======
+v1.0.3 (29 May 2015)
+>>>>>>> upstream/master
 	- added byteArrayToHexStr() utility method
 	- replace setMinDataLength() with fineTuneRead() with more features
 	- added input-output byte stream support in scm

@@ -31,7 +31,7 @@ import java.util.List;
  */
 public final class SerialComManager {
 
-	public static final String JAVA_LIB_VERSION = "1.0.2";
+	public static final String JAVA_LIB_VERSION = "1.0.3";
 
 	public static boolean DEBUG = true;
 	private static int osType = -1;
@@ -1135,10 +1135,15 @@ public final class SerialComManager {
 		int osType = SerialComManager.getOSType();
 		
 		if(osType == SerialComManager.OS_WINDOWS) {
-			//TODO
+			if((rit < 0) || (rttm < 0) || (rttc < 0)) {
+				throw new IllegalArgumentException("fineTuneRead(), " + SerialComErrorMapper.ERR_ARG_CAN_NOT_NEGATIVE);
+			}
 		}else {
 			if((vmin == 0) && (vtime == 0)) {
 				throw new IllegalArgumentException("fineTuneRead(), " + SerialComErrorMapper.ERR_INVALID_COMBINATION_ARG);
+			}
+			if((vmin < 0) || (vtime < 0)) {
+				throw new IllegalArgumentException("fineTuneRead(), " + SerialComErrorMapper.ERR_ARG_CAN_NOT_NEGATIVE);
 			}
 		}
 
@@ -1162,6 +1167,8 @@ public final class SerialComManager {
 	}
 
 	/**
+	 * <p>Defines for which line events registered event listener will be called.</p>
+	 * 
 	 * <p>In future we may shift modifying mask in the native code itself, so as to prevent JNI transitions.
 	 * This filters what events should be sent to application. Note that, although we sent only those event
 	 * for which user has set mask, however native code send all the events to java layer as of now.</p>

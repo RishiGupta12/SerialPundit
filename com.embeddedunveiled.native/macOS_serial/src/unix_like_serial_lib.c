@@ -108,7 +108,6 @@ void *data_looper(void *arg) {
 	ssize_t ret = -1;
 	jbyte buffer[1024];
 	jbyte final_buf[1024 * 3]; 	  /* Sufficient enough to deal with consecutive multiple partial reads. */
-	jbyte empty_buf[] = { };
 	jbyteArray dataRead;
 	int data_available = 0;
 
@@ -317,7 +316,6 @@ void *data_looper(void *arg) {
 			if(1 == ((struct com_thread_params*) arg)->data_thread_exit) {
 				close(epfd);
 				close(((struct com_thread_params*) arg)->evfd);
-				((struct com_thread_params*) arg)->data_thread_id = 0;
 				ret = (*jvm)->DetachCurrentThread(jvm);
 				if(ret != JNI_OK) {
 					if(DBG) fprintf(stderr, "%s %d\n", "NATIVE data_looper() failed to exit data monitor thread with JNI error ", (int)ret);
@@ -336,7 +334,6 @@ void *data_looper(void *arg) {
 				close(kq);
 				close(pipe1[0]);
 				close(pipe1[1]);
-				((struct com_thread_params*) arg)->data_thread_id = 0;
 				ret = (*jvm)->DetachCurrentThread(jvm);
 				if(ret != JNI_OK) {
 					if(DBG) fprintf(stderr, "%s %d\n", "NATIVE data_looper() failed to exit data monitor thread with JNI error ", (ssize_t)ret);

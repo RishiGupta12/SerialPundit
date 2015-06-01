@@ -86,7 +86,7 @@
 #include "../../com_embeddedunveiled_serial_SerialComJNINativeInterface.h"
 
 #undef  UART_NATIVE_LIB_VERSION
-#define UART_NATIVE_LIB_VERSION "1.0.2"
+#define UART_NATIVE_LIB_VERSION "1.0.3"
 
 #define DBG 1
 
@@ -195,10 +195,9 @@ JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInt
  * For Solaris, this is handled in java layer itself as of now.
  */
 JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_getSerialPortNames(JNIEnv *env, jobject obj, jobject status) {
-
+	int negative = -1;
 #if defined (__linux__)
 	int i=0;
-	int negative = -1;
 	int ret = -1;
 	int num_of_dir_found = 0;
 	char path[1024];
@@ -463,6 +462,7 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInter
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_closeComPort(JNIEnv *env, jobject obj, jlong fd) {
 	int ret = -1;
 	int negative = -1;
+	int exit_loop = 0;
 
 	/* Flush all remaining data if any to the receiver. */
 #if defined (__linux__)
@@ -490,13 +490,21 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 #endif
 
 	/* Whether we were able to flush remaining data or not, we proceed to close port. */
-	errno = 0;
-	ret = close(fd);
-	if(ret < 0) {
-		if(DBG) fprintf(stderr, "%s %d\n", "Native closeComPort() failed to close port with error number : -", errno);
-		if(DBG) fflush(stderr);
-		return (negative * errno);
-	}
+	do {
+		errno = 0;
+		ret = close(fd);
+		if(ret < 0) {
+			if(errno == EINTR) {
+				errno = 0;
+				continue;
+			}else {
+				if(DBG) fprintf(stderr, "%s %d\n", "Native closeComPort() failed to close port with error number : -", errno);
+				if(DBG) fflush(stderr);
+				return (negative * errno);
+			}
+		}
+		exit_loop = 1;
+	}while (exit_loop == 0);
 
 	return ret;
 }
@@ -568,10 +576,12 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINative
 			}
 			index = ret;
 			partial_data = 1;
+			errno = 0;
 			continue;
 		}else if(ret < 0) {
 			if(errno == EINTR) {
 				/* This indicates that we should retry as we are just interrupted by a signal. */
+				errno = 0;
 				continue;
 			}else {
 				/* This indicates, irrespective of, there was data to read or not, we got an error during operation. */
@@ -635,6 +645,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 			if(ret < 0) {
 				if(errno == EINTR) {
 					serial_delay(20); // 20 milliseconds delay just to let the cause of signal go away
+					errno = 0;
 					continue;
 				}else {
 					if(DBG) fprintf(stderr, "%s%d\n", "NATIVE writeBytes() failed to write requested data with error number : -", errno);
@@ -653,6 +664,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 			if(ret < 0) {
 				if(errno == EINTR) {
 					serial_delay(delay);
+					errno = 0;
 					continue;
 				}else {
 					if(DBG) fprintf(stderr, "%s%d\n", "NATIVE writeBytes() failed to write requested data with error number : -", errno);
@@ -2031,6 +2043,17 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 #endif
 #if defined (__SunOS)
 #endif
+}
+
+/*
+* Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
+* Method:    readBytes
+* Signature: (JI)[B
+*
+* Not implemented as normal readBytes() function will act as blocking when vmin and vtime is configured correctly.
+*/
+JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_readBytesBlocking(JNIEnv *env, jobject obj, jlong handle, jint count, jobject status) {
+	return NULL;
 }
 
 #endif /* End compiling for Unix-like OS. */
