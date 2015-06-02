@@ -24,6 +24,8 @@ import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+
+//TODO HANDLE IF SENDER KEEP SENDING DUPLICATE BLOCK
 /**
  * <p>This class realizes state machine for XMODEM file transfer protocol in Java.</p>
  */
@@ -38,6 +40,7 @@ public final class SerialComXModem {
 	private SerialComManager scm = null;
 	private long handle = 0;
 	private File fileToProcess = null;
+	private int mode = 0;
 
 	private int blockNumber = -1;
 	private byte[] block = new byte[132];            // 132 bytes xmodem block/packet
@@ -53,10 +56,11 @@ public final class SerialComXModem {
 	 * @param handle of the port on which file is to be sent
 	 * @param fileToProcess File instance representing file to be sent
 	 */
-	public SerialComXModem(SerialComManager scm, long handle, File fileToProcess) {
+	public SerialComXModem(SerialComManager scm, long handle, File fileToProcess, int mode) {
 		this.scm = scm;
 		this.handle = handle;
 		this.fileToProcess = fileToProcess;
+		this.mode = mode;
 	}
 
 	/**
@@ -97,7 +101,6 @@ public final class SerialComXModem {
 							inStream.close();
 							throw exp;
 						}
-	
 						if((data != null) && (data.length > 0)) {
 							/* Instead of purging receive buffer and then waiting for NAK, receive all data because
 							 * this approach might be faster. The other side might have opened first time and may 
@@ -111,7 +114,7 @@ public final class SerialComXModem {
 							}
 						}else {
 							try {
-								Thread.sleep(300);  // delay before next attempt to check NAK character reception
+								Thread.sleep(250);  // delay before next attempt to check NAK character reception
 							} catch (InterruptedException e) {
 							}
 							// abort if timed-out while waiting for NAK character
@@ -124,7 +127,7 @@ public final class SerialComXModem {
 					}
 					break;
 				case BEGINSEND:
-					blockNumber = 1; // Block numbering starts with 1 for the first block sent, not 0.
+					blockNumber = 1; // Block numbering starts from 1 for the first block sent, not 0.
 					assembleBlock();
 					try {
 						scm.writeBytes(handle, block);
@@ -246,7 +249,7 @@ public final class SerialComXModem {
 					state = WAITACK;
 					break;
 				case ABORT:
-					/* if ioexception occurs, control will not reach here instead exception would have been
+					/* if IOexception occurs, control will not reach here instead exception would have been
 					 * thrown already. */
 					inStream.close();
 					throw new SerialComTimeOutException("sendFile()", errMsg);
@@ -256,7 +259,7 @@ public final class SerialComXModem {
 		}
 	}
 
-	// prepares xmodem block <SOH><blk #><255-blk #><--128 data bytes--><cksum>
+	// prepares xmodem block [SOH][blk #][255-blk #][128 data bytes][cksum]
 	private void assembleBlock() throws IOException {
 		int data = 0;
 		int x = 0;
@@ -275,7 +278,7 @@ public final class SerialComXModem {
 			if(data < 0) {
 				if(x != 3) {
 					// assembling last block with padding
-					for(x=x+0; x<128+4; x++) {
+					for(x=x+0; x<128+3; x++) {
 						block[x] = SUB;
 					}
 				}else {
@@ -299,7 +302,7 @@ public final class SerialComXModem {
 	 * @throws IOException 
 	 */
 	public boolean receiveFileX() throws IOException, SerialComException {
-
+		
 		// Finite state machine
 		final int CONNECT = 0;
 		final int RECEIVEDATA = 1;
