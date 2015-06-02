@@ -1,4 +1,9 @@
 
+v1.0.4 (TODO RELEASE DATE)
+	- added XMODEM(checksum, CRC, 1K) support
+	- fix issue for not returning null in windows in read function
+	- added test for XMODEM file transfer protocol 
+
 v1.0.3 (29 May 2015)
 	- added byteArrayToHexStr() utility method
 	- replace setMinDataLength() with fineTuneRead() with more features
