@@ -24,8 +24,6 @@ import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-
-//TODO HANDLE IF SENDER KEEP SENDING DUPLICATE BLOCK
 /**
  * <p>This class realizes state machine for XMODEM file transfer protocol in Java.</p>
  */
@@ -53,8 +51,8 @@ public final class SerialComXModem {
 	 * <p>Allocates object of this class and associate this object with the supplied scm object.</p>
 	 * 
 	 * @param scm SerialComManager instance associated with this handle
-	 * @param handle of the port on which file is to be sent
-	 * @param fileToProcess File instance representing file to be sent
+	 * @param handle of the port on which file is to be communicated
+	 * @param fileToProcess File instance representing file to be communicated
 	 */
 	public SerialComXModem(SerialComManager scm, long handle, File fileToProcess, int mode) {
 		this.scm = scm;
@@ -139,7 +137,7 @@ public final class SerialComXModem {
 					break;
 				case RESEND:
 					if(retryCount > 10) {
-						errMsg = SerialComErrorMapper.ERR_MAX_RETRY_REACHED;
+						errMsg = SerialComErrorMapper.ERR_MAX_TX_RETRY_REACHED;
 						state = ABORT;
 						break;
 					}
@@ -220,7 +218,7 @@ public final class SerialComXModem {
 					}
 					break;
 				case SENDNEXT:
-					retryCount = 0;
+					retryCount = 0;  // reset retry count
 					blockNumber++;
 					assembleBlock();
 					if(noMoreData == true) {
@@ -314,6 +312,7 @@ public final class SerialComXModem {
 		int z = 0;
 		int delayVal = 250;
 		int retryCount = 0;
+		int duplicateBlockRetryCount = 0;
 		int state = -1;
 		int blockNumber = 1;
 		int blockChecksum = -1;
@@ -323,6 +322,7 @@ public final class SerialComXModem {
 		boolean rxDone = false;
 		boolean firstBlock = false;
 		boolean isCorrupted = false;
+		boolean isDuplicateBlock = false;
 		byte[] block = new byte[132];
 		byte[] data = null;
 		String errMsg = null;
@@ -421,10 +421,17 @@ public final class SerialComXModem {
 					break;
 				case VERIFY:
 					blockChecksum = 0;
-					isCorrupted = false;
+					isCorrupted = false;      // reset
+					isDuplicateBlock = false; // reset
 					state = REPLY;
 					// check duplicate block
 					if(block[1] == (blockNumber - 1)){
+						isDuplicateBlock = true;
+						duplicateBlockRetryCount++;
+						if(duplicateBlockRetryCount > 10) {
+							errMsg = SerialComErrorMapper.ERR_MAX_RX_RETRY_REACHED;
+							state = ABORT;
+						}
 						break;
 					}
 					// verify block number sequence
@@ -452,9 +459,11 @@ public final class SerialComXModem {
 							if(isCorrupted == false) {
 								scm.writeSingleByte(handle, ACK);
 								outStream.write(block, 3, 128);
-								blockNumber++;
-								if(blockNumber > 0xFF) {
-									blockNumber = 0x00;
+								if(isDuplicateBlock != true) {
+									blockNumber++;
+									if(blockNumber > 0xFF) {
+										blockNumber = 0x00;
+									}
 								}
 							}else {
 								scm.writeSingleByte(handle, NAK);
