@@ -143,6 +143,8 @@ public final class SerialComLooper {
 
 	/**
 	 * <p>Allocates a new SerialComLooper object.</p>
+	 * @param nativeInterface reference to nativeInterface object to call native functions
+	 * @param errMapper reference to errMapper object to get and map error information
 	 */
 	public SerialComLooper(SerialComJNINativeInterface nativeInterface, SerialComErrorMapper errMapper) { 
 		mNativeInterface = nativeInterface;
@@ -151,6 +153,7 @@ public final class SerialComLooper {
 
 	/**
 	 * <p>This method is called from native code to pass data bytes.</p>
+	 * @param newData byte array containing data read from serial port
 	 */
 	public void insertInDataQueue(byte[] newData) {
 		if(mDataQueue.remainingCapacity() == 0) {
@@ -166,6 +169,7 @@ public final class SerialComLooper {
 	/**
 	 * <p>Native side detects the change in status of lines, get the new line status and call this method. Based on the
 	 * mask this method determines whether this event should be sent to application or not.</p>
+	 * @param newEvent bit mask representing event on serial port control lines
 	 */
 	public void insertInEventQueue(int newEvent) {
 		newLineState = newEvent & appliedMask;
@@ -182,13 +186,14 @@ public final class SerialComLooper {
 
 	/**
 	 * <p>This method insert error info in error queue which will be later delivered to application.</p>
+	 * @param errorNum operating system specific error number to be sent to application
 	 */
-	public void insertInDataErrorQueue(int newData) {
+	public void insertInDataErrorQueue(int errorNum) {
 		if(mDataErrorQueue.remainingCapacity() == 0) {
 			mDataErrorQueue.poll();
 		}
 		try {
-			mDataErrorQueue.offer(newData);
+			mDataErrorQueue.offer(errorNum);
 		} catch (Exception e) {
 			if(DEBUG) e.printStackTrace();
 		}
@@ -196,6 +201,9 @@ public final class SerialComLooper {
 
 	/**
 	 * <p>Start the thread to loop over data queue. </p>
+	 * @param handle handle of the opened port for which data looper need to be started
+	 * @param dataListener listener to which data will be delivered
+	 * @param portName name of port represented by this handle
 	 */
 	public void startDataLooper(long handle, ISerialComDataListener dataListener, String portName) {
 		try {
@@ -229,6 +237,9 @@ public final class SerialComLooper {
 
 	/**
 	 * <p>Get initial status of control lines and start thread.</p>
+	 * @param handle handle of the opened port for which event looper need to be started
+	 * @param eventListener listener to which event will be delivered
+	 * @param portName name of port represented by this handle
 	 */
 	public void startEventLooper(long handle, ISerialComEventListener eventListener, String portName) throws SerialComException {
 		int state = 0;
@@ -287,6 +298,7 @@ public final class SerialComLooper {
 	 * <p>In future we may shift modifying mask in the native code itself, so as to prevent JNI transitions.
 	 * This filters what events should be sent to application. Note that, although we sent only those event
 	 * for which user has set mask, however native code send all the events to java layer as of now.</p>
+	 * @param newMask new bit mask for events that will be delivered to application
 	 */
 	public void setEventsMask(int newMask) {
 		appliedMask = newMask;
@@ -294,6 +306,7 @@ public final class SerialComLooper {
 
 	/**
 	 * <p>Gives the event mask currently active.</p>
+	 * @return bit mask of events currently active
 	 */
 	public int getEventsMask() {
 		return appliedMask;

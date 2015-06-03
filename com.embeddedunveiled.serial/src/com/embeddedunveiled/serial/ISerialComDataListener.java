@@ -31,6 +31,8 @@ public interface ISerialComDataListener {
 	 * 
 	 * <p>In Linux, by default, the listener is called for every new byte available. This behavior can be modified by 
 	 * using available fineTuneRead() API for Linux.</p>
+	 * 
+	 * @param dataEvent event object containing data bytes read from serial port
 	 */
 	public abstract void onNewSerialDataAvailable(SerialComDataEvent dataEvent);
 
@@ -42,6 +44,8 @@ public interface ISerialComDataListener {
 	 * <p>Developer can implement different recovery policies like unregister listener, close com port
 	 * and then open and register listener again. Another policy might be to send email to system 
 	 * administrator so that he can take appropriate actions to recover from situation.</p>
+	 * 
+	 * @param errorNum operating system specific error number
 	 */
 	public abstract void onDataListenerError(int errorNum);
 

@@ -31,6 +31,8 @@ public interface ISerialComPortMonitor {
 	 * <p>Note that port removal event indicates that the port for which this monitor was registered has
 	 * been removed physically from system. However, port addition event is fired every time a serial port
 	 * is plugged into system.</p>
+	 * 
+	 * @param event integer value indicating whether device was plugged or un-plugged from system
 	 */
 	public abstract void onPortMonitorEvent(int event);
 

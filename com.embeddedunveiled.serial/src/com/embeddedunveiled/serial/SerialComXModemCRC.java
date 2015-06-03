@@ -53,8 +53,8 @@ public final class SerialComXModemCRC {
 	 * <p>Allocates object of this class and associate this object with the supplied scm object.</p>
 	 * 
 	 * @param scm SerialComManager instance associated with this handle
-	 * @param handle of the port on which file is to be sent
-	 * @param fileToProcess File instance representing file to be sent
+	 * @param handle of the port on which file is to be communicated
+	 * @param fileToProcess File instance representing file to be communicated
 	 */
 	public SerialComXModemCRC(SerialComManager scm, long handle, File fileToProcess, int mode) {
 		this.scm = scm;
@@ -141,7 +141,7 @@ public final class SerialComXModemCRC {
 					break;
 				case RESEND:
 					if(retryCount > 10) {
-						errMsg = SerialComErrorMapper.ERR_MAX_RETRY_REACHED;
+						errMsg = SerialComErrorMapper.ERR_MAX_TX_RETRY_REACHED;
 						state = ABORT;
 						break;
 					}
@@ -222,7 +222,7 @@ public final class SerialComXModemCRC {
 					}
 					break;
 				case SENDNEXT:
-					retryCount = 0;
+					retryCount = 0; // reset retry count
 					blockNumber++;
 					assembleBlock(crcCalculator);
 					if(noMoreData == true) {
@@ -251,7 +251,7 @@ public final class SerialComXModemCRC {
 					state = WAITACK;
 					break;
 				case ABORT:
-					/* if ioexception occurs, control will not reach here instead exception would have been
+					/* if IOexception occurs, control will not reach here instead exception would have been
 					 * thrown already. */
 					inStream.close();
 					throw new SerialComTimeOutException("sendFile()", errMsg);
@@ -316,6 +316,7 @@ public final class SerialComXModemCRC {
 		int z = 0;
 		int delayVal = 250;
 		int retryCount = 0;
+		int duplicateBlockRetryCount = 0;
 		int state = -1;
 		int blockNumber = 1;
 		int bufferIndex = 0;
@@ -324,7 +325,8 @@ public final class SerialComXModemCRC {
 		boolean rxDone = false;
 		boolean firstBlock = false;
 		boolean isCorrupted = false;
-		byte[] block = new byte[132];
+		boolean isDuplicateBlock = false;
+		byte[] block = new byte[133];
 		byte[] data = null;
 		String errMsg = null;
 		int blockCRCval = 0;
@@ -344,6 +346,7 @@ public final class SerialComXModemCRC {
 
 		state = CONNECT;
 		while(true) {
+			System.out.println("rcv STATE : " + state);
 			switch(state) {
 				case CONNECT:
 					if(retryCount > 10) {
@@ -381,9 +384,11 @@ public final class SerialComXModemCRC {
 								state = REPLY;
 								break;
 							}else {
+								System.out.println("data.length : " + data.length);
 								if(data.length == 133) {
 									 // complete block read in one go
 									for(int i=0; i < 133; i++) {
+										System.out.println("i : " + i);
 										block[i] = data[i];
 									}
 									state = VERIFY;
@@ -423,10 +428,17 @@ public final class SerialComXModemCRC {
 					}
 					break;
 				case VERIFY:
-					isCorrupted = false;
+					isCorrupted = false;      // reset
+					isDuplicateBlock = false; // reset
 					state = REPLY;
 					// check duplicate block
 					if(block[1] == (blockNumber - 1)){
+						isDuplicateBlock = true;
+						duplicateBlockRetryCount++;
+						if(duplicateBlockRetryCount > 10) {
+							errMsg = SerialComErrorMapper.ERR_MAX_RX_RETRY_REACHED;
+							state = ABORT;
+						}
 						break;
 					}
 					// verify block number sequence
@@ -451,9 +463,11 @@ public final class SerialComXModemCRC {
 							if(isCorrupted == false) {
 								scm.writeSingleByte(handle, ACK);
 								outStream.write(block, 3, 128);
-								blockNumber++;
-								if(blockNumber > 0xFF) {
-									blockNumber = 0x00;
+								if(isDuplicateBlock != true) {
+									blockNumber++;
+									if(blockNumber > 0xFF) {
+										blockNumber = 0x00;
+									}
 								}
 							}else {
 								scm.writeSingleByte(handle, NAK);

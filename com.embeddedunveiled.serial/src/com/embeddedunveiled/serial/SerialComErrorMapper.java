@@ -48,7 +48,8 @@ public final class SerialComErrorMapper {
 	public static final String ERR_TIMEOUT_RECEIVER_CONNECT = "Timedout while waiting for file receiver to initiate connection setup";
 	public static final String ERR_TIMEOUT_TRANSMITTER_CONNECT = "Timedout while trying to connect to file sender";
 	public static final String ERR_TIMEOUT_RECV_FROM_SENDER = "Timedout while trying to receive next data byte from file sender";
-	public static final String ERR_MAX_RETRY_REACHED = "Maximum number of retries reached while sending same data block";
+	public static final String ERR_MAX_TX_RETRY_REACHED = "Maximum number of retries reached while sending same data block";
+	public static final String ERR_MAX_RX_RETRY_REACHED = "Maximum number of retries reached while receiving same data block";
 	public static final String ERR_KNOWN_ERROR_OCCURED = "Unknown error occured";
 	public static final String ERR_TIMEOUT_ACKNOWLEDGE_BLOCK = "Timedout while waiting for block reception acknowledgement from file receiver";
 	public static final String ERR_TIMEOUT_ACKNOWLEDGE_EOT = "Timedout while waiting for EOT reception acknowledgement from file receiver";
@@ -72,6 +73,10 @@ public final class SerialComErrorMapper {
 	 * behavior of java library throwing exactly same exception/error irrespective of which OS platform the library is running on.</p>
 	 * 
 	 * <p>For windows if the error can not be mapped exact windows error code is printed.</p>
+	 * 
+	 * @param errorNumber operating system specific error number (may have been translated already in case of Windows OS)
+	 * @return string constructed out of error number
+	 * 
 	 */
 	public String getMappedError(long errorNumber) {
 		String exceptionType = null;

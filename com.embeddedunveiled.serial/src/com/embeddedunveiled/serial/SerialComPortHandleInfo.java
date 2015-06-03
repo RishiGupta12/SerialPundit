@@ -30,6 +30,15 @@ public final class SerialComPortHandleInfo {
 	private SerialComInByteStream mSerialComInByteStream = null;
 	private SerialComOutByteStream mSerialComOutByteStream = null;
 
+	/**
+	 * <p>Allocates a new SerialComPortHandleInfo object.</p>
+	 * 
+	 * @param portName name of port for which info is to stored
+	 * @param handle handle of opened port
+	 * @param looper looper object serving this handle
+	 * @param dataListener listener to whom data bytes/errors will be delivered for this handle
+	 * @param eventListener listener to whom events will be delivered for this handle
+	 */
 	public SerialComPortHandleInfo(String portName, long handle, SerialComLooper looper, ISerialComDataListener dataListener, ISerialComEventListener eventListener) {
 		this.mOpenedPortName = portName;
 		this.mPortHandle     = handle;
@@ -39,17 +48,26 @@ public final class SerialComPortHandleInfo {
 	}
 
 
-	/** <p>Get the name of port associated with given handle Callers first find reference to this class object using given handle and then invoke this method.</p>*/	
+	/** 
+	 * <p>Get the name of port associated with given handle Callers first find reference to this class object using given handle and then invoke this method.</p>
+	 * @return name of port
+	 */	
 	public String getOpenedPortName() {
 		return mOpenedPortName;
 	}
 
-	/** <p>Set the name of port.</p>*/	
+	/** 
+	 * <p>Set the name of port.</p>
+	 * @param portName name of port opened for communication
+	 */
 	public void setOpenedPortName(String portName) {
 		this.mOpenedPortName = portName;
 	}
 
-	/** <p> Check if the corresponding port name exist. </p>*/
+	/** 
+	 * <p> Check if the corresponding port name exist. </p>
+	 * @param portName name of port to find
+	 */
 	public boolean containsPort(String portName) throws SerialComException {
 		if(portName == null) {
 			throw new SerialComException("containsPort()", SerialComErrorMapper.ERR_PORT_NAME_NULL);
@@ -62,17 +80,26 @@ public final class SerialComPortHandleInfo {
 		return false;
 	}
 
-	/** <p>Returns handle to the opened port. </p>*/	
+	/** 
+	 * <p>Returns handle to the opened port. </p>
+	 * @return handle of opened port
+	 */	
 	public long getPortHandle() {
 		return mPortHandle;
 	}
 
-	/** <p>Sets the handle of the port opened.</p>*/
+	/** 
+	 * <p>Sets the handle of the port opened.</p>
+	 * @param handle handle of port after opening it successfully
+	 */
 	public void setPortHandle(long handle) {
 		this.mPortHandle = handle;
 	}
 
-	/** <p>Check if the object of this class have this handle. </p>*/
+	/** 
+	 * <p>Check if the object of this class have this handle. </p>
+	 * @return true if object of this class contains given handle false otherwise
+	 */
 	public boolean containsHandle(long handle) {
 		if(handle == mPortHandle) {
 			return true;
@@ -80,27 +107,40 @@ public final class SerialComPortHandleInfo {
 		return false;
 	}
 
-	/** <p>Looper associated with this port, info and manipulation. </p>*/	
+	/** 
+	 * <p>Looper associated with this port, info and manipulation. </p>
+	 * @return looper object for this handle/port
+	 */	
 	public SerialComLooper getLooper() {
 		return mLooper;
 	}
 
-	/** <p>Set the looper object that is associated with this handle.</p>*/
+	/** <p>Set the looper object that is associated with this handle.</p>
+	 * @param looper looper object that will server this port/handle
+	 */
 	public void setLooper(SerialComLooper looper) {
 		this.mLooper = looper;
 	}
 
-	/** <p>Event listener associated with this port, info and manipulation. </p>*/	
+	/** 
+	 * <p>Event listener associated with this port, info and manipulation. </p>
+	 * @return event listener who will get events for this port/handle
+	 */	
 	public ISerialComEventListener getEventListener() {
 		return mEventListener;
 	}
 
-	/** <p> Set the event listener associated with this handle. </p> */
+	/** <p> Set the event listener associated with this handle. </p>
+	 * @param eventListener event listener who will get events for this port/handle
+	 */
 	public void setEventListener(ISerialComEventListener eventListener) {
 		this.mEventListener  = eventListener;
 	}
 
-	/** <p> Check if there is already a registered event listener for this handle. </p> */
+	/** 
+	 * <p> Check if there is already a registered event listener for this handle. </p> 
+	 * @param eventListener event listener who will get events for this port/handle
+	 */
 	public boolean containsEventListener(ISerialComEventListener eventListener) {
 		if(eventListener == mEventListener) {
 			return true;
@@ -108,17 +148,26 @@ public final class SerialComPortHandleInfo {
 		return false;
 	}
 
-	/** <p>Data Listener associated with this port, info and manipulation.</p> */	
+	/** 
+	 * <p>Data Listener associated with this port, info and manipulation.</p>
+	 * @return data listener who will get data bytes/errors for this port/handle
+	 */	
 	public ISerialComDataListener getDataListener() {
 		return mDataListener;
 	}
 
-	/** <p> Set the data listener for this handle. </p> */
+	/** 
+	 * <p> Set the data listener for this handle. </p> 
+	 * @param dataListener listener who will get data bytes/errors for this port/handle
+	 */
 	public void setDataListener(ISerialComDataListener dataListener) {
 		this.mDataListener  = dataListener;
 	}
 
-	/** <p> Check if there already exist a data listener for this handle. </p> */
+	/** 
+	 * <p> Check if there already exist a data listener for this handle. </p>
+	 * @param listener who will get data bytes/errors for this port/handle
+	 */
 	public boolean containsDataListener(ISerialComDataListener dataListener) {
 		if(dataListener == mDataListener) {
 			return true;
@@ -126,22 +175,33 @@ public final class SerialComPortHandleInfo {
 		return false;
 	}
 	
-	/** <p>Return SerialComByteStream object associated with this handle. </p>*/	
+	/** 
+	 * <p>Return SerialComByteStream object associated with this handle. </p>
+	 * @return input byte stream object for this port/handle
+	 */	
 	public SerialComInByteStream getSerialComInByteStream() {
 		return mSerialComInByteStream;
 	}
 
-	/** <p> Set the SerialComByteStream object associated with this handle. </p> */
+	/** 
+	 * <p> Set the SerialComByteStream object associated with this handle. </p>
+	 * @param serialComInByteStream input byte stream object for this port/handle
+	 */
 	public void setSerialComInByteStream(SerialComInByteStream serialComInByteStream) {
 		this.mSerialComInByteStream  = serialComInByteStream;
 	}
 	
-	/** <p>Return SerialComByteStream object associated with this handle. </p>*/	
+	/** 
+	 * <p>Return SerialComByteStream object associated with this handle. </p>
+	 * @return output byte stream for this port/handle
+	 */	
 	public SerialComOutByteStream getSerialComOutByteStream() {
 		return mSerialComOutByteStream;
 	}
 
-	/** <p> Set the SerialComByteStream object associated with this handle. </p> */
+	/** <p> Set the SerialComByteStream object associated with this handle. </p>
+	 * @param serialComOutByteStream output byte stream for this port/handle
+	 */
 	public void setSerialComOutByteStream(SerialComOutByteStream serialComOutByteStream) {
 		this.mSerialComOutByteStream  = serialComOutByteStream;
 	}
