@@ -17,6 +17,9 @@
 
 package com.embeddedunveiled.serial;
 
+/**
+ * <p>This class helps in calculating CRC-CCITT value speedily using table based algorithm.</p>
+ */
 public final class SerialComCRC {
 	
 	int[] preCalCRCVal = { 
@@ -54,9 +57,20 @@ public final class SerialComCRC {
 		        0x6e17, 0x7e36, 0x4e55, 0x5e74, 0x2e93, 0x3eb2, 0x0ed1, 0x1ef0
 	};
 
+	/**
+	 * <p>Allocates object of SerialComCRC class.</p>
+	 */
 	public SerialComCRC() {
 	}
 	
+	/** 
+	 * <p>Calculates CRC-CCITT value of the data bytes specified.</p>
+	 * 
+	 * @param data byte type buffer for whom CRC is to be calculated
+	 * @param start offset in supplied data buffer from where CRC calculation should start
+	 * @param end offset in data buffer till which CRC should be calculated
+	 * @return CRC value of specified data bytes
+	 */
 	public int getCRCval(byte[] data, int start, int end) {
 		int x = start;
 		int crcVal = 0x00;
@@ -66,5 +80,5 @@ public final class SerialComCRC {
         }
 		return crcVal;
 	}
-
 }
+
