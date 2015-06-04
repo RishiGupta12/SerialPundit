@@ -24,6 +24,10 @@ import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import com.embeddedunveiled.serial.SerialComManager.FTPMODE;
+import com.embeddedunveiled.serial.SerialComManager.FTPPROTO;
+import com.embeddedunveiled.serial.SerialComManager.FTPVAR;
+
 /**
  * <p>This class realizes state machine for XMODEM/CRC file transfer protocol in Java.</p>
  * <p>Addition of CRC increases data integrity.</p>
@@ -64,8 +68,7 @@ public final class SerialComXModemCRC {
 	}
 
 	/**
-	 * <p>For internal use only.</p>
-	 * <p>Represents actions to execute in state machine to implement xmodem protocol for sending files.</p>
+	 * <p>Represents actions to execute in state machine to implement xmodem/crc protocol for sending files.</p>
 	 */
 	public boolean sendFileX() throws SecurityException, IOException, SerialComException {
 
@@ -91,7 +94,6 @@ public final class SerialComXModemCRC {
 
 		state = CONNECT;
 		while(true) {
-			System.out.println("STATE : " + state);
 			switch(state) {
 				case CONNECT:
 					responseWaitTimeOut = System.currentTimeMillis() + 60000;
@@ -107,7 +109,6 @@ public final class SerialComXModemCRC {
 							 * this approach might be faster. The other side might have opened first time and may 
 							 * have flushed garbage data. So receive buffer may contain garbage + C character. */
 							for(int x=0; x < data.length; x++) {
-								System.out.println("C received : " + data[x]);
 								if(data[x] == C) {
 									cReceived = true;
 									state = BEGINSEND;
@@ -116,10 +117,10 @@ public final class SerialComXModemCRC {
 							}
 						}else {
 							try {
-								Thread.sleep(250);  // delay before next attempt to check NAK character reception
+								Thread.sleep(100);  // delay before next attempt to check C character reception
 							} catch (InterruptedException e) {
 							}
-							// abort if timed-out while waiting for NAK character
+							// abort if timed-out while waiting for C character
 							if((cReceived != true) && (System.currentTimeMillis() >= responseWaitTimeOut)) {
 								errMsg = SerialComErrorMapper.ERR_TIMEOUT_RECEIVER_CONNECT;
 								state = ABORT;
@@ -254,7 +255,7 @@ public final class SerialComXModemCRC {
 					/* if IOexception occurs, control will not reach here instead exception would have been
 					 * thrown already. */
 					inStream.close();
-					throw new SerialComTimeOutException("sendFile()", errMsg);
+					throw new SerialComTimeOutException("sendFileX()", errMsg);
 				default:
 					break;
 			}
@@ -268,6 +269,7 @@ public final class SerialComXModemCRC {
 		int x = 0;
 		int blockCRCval = 0;
 
+		// starts at 01 increments by 1, and wraps 0FFH to 00H (not to 01)
 		if(blockNumber > 0xFF) {
 			blockNumber = 0x00;
 		}
@@ -276,12 +278,12 @@ public final class SerialComXModemCRC {
 		block[1] = (byte) blockNumber;
 		block[2] = (byte) ~blockNumber;
 
-		for(x=x+3; x<128+4; x++) {
+		for(x=x+3; x<131; x++) {
 			data = inStream.read();
 			if(data < 0) {
 				if(x != 3) {
 					// assembling last block with padding
-					for(x=x+0; x<128+3; x++) {
+					for(x=x+0; x<131; x++) {
 						block[x] = SUB;
 					}
 				}else {
@@ -295,12 +297,11 @@ public final class SerialComXModemCRC {
 
 		// 2 byte CRC
 		blockCRCval = scCRC.getCRCval(block, 3, 130);
-		block[131] = (byte) (blockCRCval >>> 8);
-		block[132] = (byte) blockCRCval;
+		block[131] = (byte) (blockCRCval >>> 8); // CRC high byte
+		block[132] = (byte) blockCRCval;         // CRC low byte
 	}
 
 	/**
-	 * <p>For internal use only.</p>
 	 * <p>Represents actions to execute in state machine to implement xmodem protocol for receiving files.</p>
 	 * @throws IOException 
 	 */
@@ -346,22 +347,26 @@ public final class SerialComXModemCRC {
 
 		state = CONNECT;
 		while(true) {
-			System.out.println("rcv STATE : " + state);
 			switch(state) {
 				case CONNECT:
-					if(retryCount > 10) {
-						errMsg = SerialComErrorMapper.ERR_TIMEOUT_TRANSMITTER_CONNECT;
-						state = ABORT;
-						break;
-					}
-					try {
-						scm.writeSingleByte(handle, C);
-						firstBlock = true;
-						connectTimeOut = System.currentTimeMillis() + 10000; // update timeout, 10 seconds
-						state = RECEIVEDATA;
-					} catch (SerialComException exp) {
-						outStream.close();
-						throw exp;
+					if(retryCount < 3) {
+						try {
+							scm.writeSingleByte(handle, C);
+							firstBlock = true;
+							connectTimeOut = System.currentTimeMillis() + 3000; // update timeout, 3 seconds
+							state = RECEIVEDATA;
+						} catch (SerialComException exp) {
+							outStream.close();
+							throw exp;
+						}
+					}else {
+						// fall back to checksum mode
+						if(mode == 1) {
+							return scm.receiveFile(handle, fileToProcess, FTPPROTO.XMODEM, FTPVAR.CHKSUM, FTPMODE.TEXT);
+						}else if(mode == 2) {
+							return scm.receiveFile(handle, fileToProcess, FTPPROTO.XMODEM, FTPVAR.CHKSUM, FTPMODE.BINARY);
+						}else {
+						}
 					}
 					break;
 				case RECEIVEDATA:
@@ -384,11 +389,9 @@ public final class SerialComXModemCRC {
 								state = REPLY;
 								break;
 							}else {
-								System.out.println("data.length : " + data.length);
 								if(data.length == 133) {
-									 // complete block read in one go
+									// complete block read in one go
 									for(int i=0; i < 133; i++) {
-										System.out.println("i : " + i);
 										block[i] = data[i];
 									}
 									state = VERIFY;
@@ -492,7 +495,7 @@ public final class SerialComXModemCRC {
 					/* if an IOexception occurs, control will not reach here instead exception would have been
 					 * thrown already. */
 					outStream.close();
-					throw new SerialComTimeOutException("receiveFile()", errMsg);
+					throw new SerialComTimeOutException("receiveFileX()", errMsg);
 				default:
 					break;
 			}

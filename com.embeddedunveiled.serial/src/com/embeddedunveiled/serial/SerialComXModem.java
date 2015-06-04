@@ -62,8 +62,8 @@ public final class SerialComXModem {
 	}
 
 	/**
-	 * <p>For internal use only.</p>
 	 * <p>Represents actions to execute in state machine to implement xmodem protocol for sending files.</p>
+	 * <p>On successful completion it will return true otherwise an exception would be thrown as per situation.</p>
 	 */
 	public boolean sendFileX() throws SecurityException, IOException, SerialComException {
 
@@ -112,7 +112,7 @@ public final class SerialComXModem {
 							}
 						}else {
 							try {
-								Thread.sleep(250);  // delay before next attempt to check NAK character reception
+								Thread.sleep(100);  // delay before next attempt to check NAK character reception
 							} catch (InterruptedException e) {
 							}
 							// abort if timed-out while waiting for NAK character
@@ -250,7 +250,7 @@ public final class SerialComXModem {
 					/* if IOexception occurs, control will not reach here instead exception would have been
 					 * thrown already. */
 					inStream.close();
-					throw new SerialComTimeOutException("sendFile()", errMsg);
+					throw new SerialComTimeOutException("sendFileX()", errMsg);
 				default:
 					break;
 			}
@@ -263,6 +263,7 @@ public final class SerialComXModem {
 		int x = 0;
 		int blockChecksum = 0;
 
+		// starts at 01 increments by 1, and wraps 0FFH to 00H (not to 01)
 		if(blockNumber > 0xFF) {
 			blockNumber = 0x00;
 		}
@@ -271,12 +272,12 @@ public final class SerialComXModem {
 		block[1] = (byte) blockNumber;
 		block[2] = (byte) ~blockNumber;
 
-		for(x=x+3; x<128+4; x++) {
+		for(x=x+3; x<131; x++) {
 			data = inStream.read();
 			if(data < 0) {
 				if(x != 3) {
 					// assembling last block with padding
-					for(x=x+0; x<128+3; x++) {
+					for(x=x+0; x<131; x++) {
 						block[x] = SUB;
 					}
 				}else {
@@ -295,8 +296,8 @@ public final class SerialComXModem {
 	}
 
 	/**
-	 * <p>For internal use only.</p>
 	 * <p>Represents actions to execute in state machine to implement xmodem protocol for receiving files.</p>
+	 * <p>On successful completion it will return true otherwise an exception would be thrown as per situation.</p>
 	 * @throws IOException 
 	 */
 	public boolean receiveFileX() throws IOException, SerialComException {
@@ -488,7 +489,7 @@ public final class SerialComXModem {
 					/* if an IOexception occurs, control will not reach here instead exception would have been
 					 * thrown already. */
 					outStream.close();
-					throw new SerialComTimeOutException("receiveFile()", errMsg);
+					throw new SerialComTimeOutException("receiveFileX()", errMsg);
 				default:
 					break;
 			}
