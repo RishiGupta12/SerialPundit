@@ -1646,7 +1646,8 @@ public final class SerialComManager {
 				SerialComXModemCRC xmodem = new SerialComXModemCRC(this, handle, fileToSend, mode);
 				result = xmodem.sendFileX();
 			}else if(variant == 3) {
-				
+				SerialComXModem1K xmodem = new SerialComXModem1K(this, handle, fileToSend, mode);
+				result = xmodem.sendFileX();
 			}else {
 			}
 		}else if(protocol == 2) {
@@ -1708,7 +1709,8 @@ public final class SerialComManager {
 				SerialComXModemCRC xmodem = new SerialComXModemCRC(this, handle, fileToReceive, mode);
 				result = xmodem.receiveFileX();
 			}else if(variant == 3) {
-				
+				SerialComXModem1K xmodem = new SerialComXModem1K(this, handle, fileToReceive, mode);
+				result = xmodem.receiveFileX();
 			}else {
 			}
 		}else if(protocol == 2) {

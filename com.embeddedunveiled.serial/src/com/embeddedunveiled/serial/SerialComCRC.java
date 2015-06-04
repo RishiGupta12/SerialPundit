@@ -18,7 +18,8 @@
 package com.embeddedunveiled.serial;
 
 /**
- * <p>This class helps in calculating CRC-CCITT value speedily using table based algorithm.</p>
+ * <p>This class helps in calculating CRC-CCITT value speedily using table based algorithm.
+ *  It is used for checking data integrity of the data bytes communicated.</p>
  */
 public final class SerialComCRC {
 	
@@ -65,6 +66,7 @@ public final class SerialComCRC {
 	
 	/** 
 	 * <p>Calculates CRC-CCITT value of the data bytes specified.</p>
+	 * <P>The data bytes at start and end index are included in calculation.</p>
 	 * 
 	 * @param data byte type buffer for whom CRC is to be calculated
 	 * @param start offset in supplied data buffer from where CRC calculation should start
