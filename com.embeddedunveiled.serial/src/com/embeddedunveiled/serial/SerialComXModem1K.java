@@ -95,7 +95,6 @@ public final class SerialComXModem1K {
 
 		state = CONNECT;
 		while(true) {
-			System.out.println("STATE : " + state);
 			switch(state) {
 				case CONNECT:
 					responseWaitTimeOut = System.currentTimeMillis() + 60000;
@@ -135,7 +134,7 @@ public final class SerialComXModem1K {
 					blockNumber = 1; // Block numbering starts from 1 for the first block sent, not 0.
 					assembleBlock(crcCalculator);
 					try {
-						scm.writeBytes(handle, block);
+						scm.writeBytes(handle, block, 0);
 					} catch (SerialComException exp) {
 						inStream.close();
 						throw exp;
@@ -149,7 +148,7 @@ public final class SerialComXModem1K {
 						break;
 					}
 					try {
-						scm.writeBytes(handle, block);
+						scm.writeBytes(handle, block, 0);
 					} catch (SerialComException exp) {
 						inStream.close();
 						throw exp;
@@ -233,7 +232,7 @@ public final class SerialComXModem1K {
 						break;
 					}
 					try {
-						scm.writeBytes(handle, block);
+						scm.writeBytes(handle, block, 0);
 					} catch (SerialComException exp) {
 						inStream.close();
 						throw exp;
@@ -267,8 +266,8 @@ public final class SerialComXModem1K {
 	/* Prepares xmodem/crc block [STX][blk #][255-blk #][1019 data bytes][2 byte CRC]
 	 * using CRC-16-CCITT. */
 	private void assembleBlock(SerialComCRC scCRC) throws IOException {
-		int data = 0;
 		int x = 0;
+		int numBytesRead = 0;
 		int blockCRCval = 0;
 
 		// starts at 01 increments by 1, and wraps 0FFH to 00H (not to 01)
@@ -276,32 +275,29 @@ public final class SerialComXModem1K {
 			blockNumber = 0x00;
 		}
 
-		block[0] = SOH;
+		block[0] = STX;
 		block[1] = (byte) blockNumber;
 		block[2] = (byte) ~blockNumber;
-
-		for(x=x+3; x<1028; x++) {
-			System.out.println("x : " + x);
-			data = inStream.read();
-			if(data < 0) {
-				if(x != 3) {
-					// assembling last block with padding
-					for(x=x+0; x<1028; x++) {
-						block[x] = SUB;
-					}
-				}else {
-					noMoreData = true;
-					return;
-				}
-			}else {
-				block[x] = (byte) data;
+		
+		// read data from file to be sent
+		numBytesRead = inStream.read(block, 3, 1024);
+		if((numBytesRead > 0) && (numBytesRead < 1024)) {
+			// assembling last block with padding
+			x = numBytesRead;
+			for(x = x + 0; x < 1027; x++) {
+				block[x] = SUB;
 			}
+		}else if(numBytesRead < 0){
+			// EOF encountered
+			noMoreData = true;
+			return;
+		}else {
 		}
 
 		// 2 byte CRC
-		blockCRCval = scCRC.getCRCval(block, 3, 1027);
-		block[1028] = (byte) (blockCRCval >>> 8); // CRC high byte
-		block[1029] = (byte) blockCRCval;         // CRC low byte
+		blockCRCval = scCRC.getCRCval(block, 3, 1026);
+		block[1027] = (byte) (blockCRCval >>> 8); // CRC high byte
+		block[1028] = (byte) blockCRCval;         // CRC low byte
 	}
 
 	/**
@@ -318,7 +314,7 @@ public final class SerialComXModem1K {
 		final int ABORT = 4;
 
 		int z = 0;
-		int delayVal = 250;
+		int delayVal = 300;
 		int retryCount = 0;
 		int duplicateBlockRetryCount = 0;
 		int state = -1;
@@ -330,7 +326,8 @@ public final class SerialComXModem1K {
 		boolean firstBlock = false;
 		boolean isCorrupted = false;
 		boolean isDuplicateBlock = false;
-		byte[] block = new byte[133];
+		boolean handlingLargeBlock = false;
+		byte[] block = new byte[1029];
 		byte[] data = null;
 		String errMsg = null;
 		int blockCRCval = 0;
@@ -379,7 +376,7 @@ public final class SerialComXModem1K {
 						} catch (InterruptedException e) {
 						}
 						try {
-							data = scm.readBytes(handle);
+							data = scm.readBytes(handle, 1500);
 						} catch (SerialComException exp) {
 							outStream.close();
 							throw exp;
@@ -391,7 +388,36 @@ public final class SerialComXModem1K {
 								rxDone = true;
 								state = REPLY;
 								break;
-							}else {
+							}else if((data[0] == STX) || (handlingLargeBlock == true)) {
+								/* At the beginning of block data[0] will be either STX or SOH but when receiving partial data
+								 * data[0] will not be STX/SOH.handlingLargeBlock check tells whether we are receiving 133 or 1029
+								 * length block. */
+								handlingLargeBlock = true;
+								if(data.length == 1029) {
+									// complete block read in one go
+									for(int i=0; i < 1029; i++) {
+										block[i] = data[i];
+									}
+									state = VERIFY;
+									break;
+								}else {
+									// partial block read
+									for(z=0; z < data.length; z++) {
+										block[bufferIndex] = data[z];
+										bufferIndex++;
+									}
+									if(bufferIndex == 1029) {
+										delayVal = 300;  // reset delay
+										bufferIndex = 0; // reset index
+										state = VERIFY;
+										break;
+									}else {
+										delayVal = 120; // next remaining data bytes should arrive early
+										continue;
+									}	
+								}
+							}else if((data[0] == SOH) || (handlingLargeBlock == false)) {
+								handlingLargeBlock = false;
 								if(data.length == 133) {
 									// complete block read in one go
 									for(int i=0; i < 133; i++) {
@@ -406,7 +432,7 @@ public final class SerialComXModem1K {
 										bufferIndex++;
 									}
 									if(bufferIndex == 133) {
-										delayVal = 250;  // reset delay
+										delayVal = 300;  // reset delay
 										bufferIndex = 0; // reset index
 										state = VERIFY;
 										break;
@@ -415,6 +441,7 @@ public final class SerialComXModem1K {
 										continue;
 									}	
 								}
+							}else {
 							}
 						}else {
 							if(firstBlock == false) {
@@ -458,9 +485,16 @@ public final class SerialComXModem1K {
 						break;
 					}
 					// verify CRC
-					blockCRCval = crcCalculator.getCRCval(block, 3, 130);
-					if((block[131] != (byte)(blockCRCval >>> 8)) || (block[132] != (byte)blockCRCval)){
-						isCorrupted = true;
+					if(handlingLargeBlock == true) {
+						blockCRCval = crcCalculator.getCRCval(block, 3, 1026);
+						if((block[1027] != (byte)(blockCRCval >>> 8)) || (block[1028] != (byte)blockCRCval)){
+							isCorrupted = true;
+						}
+					}else {
+						blockCRCval = crcCalculator.getCRCval(block, 3, 130);
+						if((block[131] != (byte)(blockCRCval >>> 8)) || (block[132] != (byte)blockCRCval)){
+							isCorrupted = true;
+						}
 					}
 					break;
 				case REPLY:
@@ -468,7 +502,11 @@ public final class SerialComXModem1K {
 						if(rxDone == false) {
 							if(isCorrupted == false) {
 								scm.writeSingleByte(handle, ACK);
-								outStream.write(block, 3, 128);
+								if(handlingLargeBlock == true) {
+									outStream.write(block, 3, 1024);
+								}else {
+									outStream.write(block, 3, 128);
+								}
 								if(isDuplicateBlock != true) {
 									blockNumber++;
 									if(blockNumber > 0xFF) {
@@ -478,6 +516,7 @@ public final class SerialComXModem1K {
 							}else {
 								scm.writeSingleByte(handle, NAK);
 							}
+							handlingLargeBlock = false; // reset
 							state = RECEIVEDATA;
 						}else {
 							scm.writeSingleByte(handle, ACK);
