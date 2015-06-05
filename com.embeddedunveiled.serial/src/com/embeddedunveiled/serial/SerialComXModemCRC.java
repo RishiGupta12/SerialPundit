@@ -133,7 +133,7 @@ public final class SerialComXModemCRC {
 					blockNumber = 1; // Block numbering starts from 1 for the first block sent, not 0.
 					assembleBlock(crcCalculator);
 					try {
-						scm.writeBytes(handle, block);
+						scm.writeBytes(handle, block, 0);
 					} catch (SerialComException exp) {
 						inStream.close();
 						throw exp;
@@ -147,7 +147,7 @@ public final class SerialComXModemCRC {
 						break;
 					}
 					try {
-						scm.writeBytes(handle, block);
+						scm.writeBytes(handle, block, 0);
 					} catch (SerialComException exp) {
 						inStream.close();
 						throw exp;
@@ -231,7 +231,7 @@ public final class SerialComXModemCRC {
 						break;
 					}
 					try {
-						scm.writeBytes(handle, block);
+						scm.writeBytes(handle, block, 0);
 					} catch (SerialComException exp) {
 						inStream.close();
 						throw exp;
@@ -265,8 +265,8 @@ public final class SerialComXModemCRC {
 	/* Prepares xmodem/crc block [SOH][blk #][255-blk #][128 data bytes][2 byte CRC]
 	 * using CRC-16-CCITT. */
 	private void assembleBlock(SerialComCRC scCRC) throws IOException {
-		int data = 0;
 		int x = 0;
+		int numBytesRead = 0;
 		int blockCRCval = 0;
 
 		// starts at 01 increments by 1, and wraps 0FFH to 00H (not to 01)
@@ -277,22 +277,20 @@ public final class SerialComXModemCRC {
 		block[0] = SOH;
 		block[1] = (byte) blockNumber;
 		block[2] = (byte) ~blockNumber;
-
-		for(x=x+3; x<131; x++) {
-			data = inStream.read();
-			if(data < 0) {
-				if(x != 3) {
-					// assembling last block with padding
-					for(x=x+0; x<131; x++) {
-						block[x] = SUB;
-					}
-				}else {
-					noMoreData = true;
-					return;
-				}
-			}else {
-				block[x] = (byte) data;
+		
+		// read data from file to be sent
+		numBytesRead = inStream.read(block, 3, 128);
+		if((numBytesRead > 0) && (numBytesRead < 128)) {
+			// assembling last block with padding
+			x = numBytesRead;
+			for(x = x + 0; x < 131; x++) {
+				block[x] = SUB;
 			}
+		}else if(numBytesRead < 0){
+			// EOF encountered
+			noMoreData = true;
+			return;
+		}else {
 		}
 
 		// 2 byte CRC
