@@ -128,7 +128,7 @@ public final class SerialComXModem {
 					blockNumber = 1; // Block numbering starts from 1 for the first block sent, not 0.
 					assembleBlock();
 					try {
-						scm.writeBytes(handle, block);
+						scm.writeBytes(handle, block, 0);
 					} catch (SerialComException exp) {
 						inStream.close();
 						throw exp;
@@ -142,7 +142,7 @@ public final class SerialComXModem {
 						break;
 					}
 					try {
-						scm.writeBytes(handle, block);
+						scm.writeBytes(handle, block, 0);
 					} catch (SerialComException exp) {
 						inStream.close();
 						throw exp;
@@ -226,7 +226,7 @@ public final class SerialComXModem {
 						break;
 					}
 					try {
-						scm.writeBytes(handle, block);
+						scm.writeBytes(handle, block, 0);
 					} catch (SerialComException exp) {
 						inStream.close();
 						throw exp;
@@ -259,8 +259,8 @@ public final class SerialComXModem {
 
 	// prepares xmodem block [SOH][blk #][255-blk #][128 data bytes][cksum]
 	private void assembleBlock() throws IOException {
-		int data = 0;
 		int x = 0;
+		int numBytesRead = 0;
 		int blockChecksum = 0;
 
 		// starts at 01 increments by 1, and wraps 0FFH to 00H (not to 01)
@@ -271,22 +271,20 @@ public final class SerialComXModem {
 		block[0] = SOH;
 		block[1] = (byte) blockNumber;
 		block[2] = (byte) ~blockNumber;
-
-		for(x=x+3; x<131; x++) {
-			data = inStream.read();
-			if(data < 0) {
-				if(x != 3) {
-					// assembling last block with padding
-					for(x=x+0; x<131; x++) {
-						block[x] = SUB;
-					}
-				}else {
-					noMoreData = true;
-					return;
-				}
-			}else {
-				block[x] = (byte) data;
+		
+		// read data from file to be sent
+		numBytesRead = inStream.read(block, 3, 128);
+		if((numBytesRead > 0) && (numBytesRead < 128)) {
+			// assembling last block with padding
+			x = numBytesRead;
+			for(x = x + 0; x < 131; x++) {
+				block[x] = SUB;
 			}
+		}else if(numBytesRead < 0){
+			// EOF encountered
+			noMoreData = true;
+			return;
+		}else {
 		}
 
 		for(x=3; x<131; x++) {
