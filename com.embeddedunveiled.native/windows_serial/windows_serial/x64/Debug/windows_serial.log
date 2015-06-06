@@ -1,8 +1,0 @@
-﻿  stdafx.c
-  windows_serial_lib.c
-  windows_serial.c
-windows_serial.c(210): warning C4133: 'function' : incompatible types - from 'LPBYTE' to 'LPWSTR'
-windows_serial.c(2006): warning C4047: '=' : 'HANDLE' differs in levels of indirection from 'int'
-  Generating Code...
-     Creating library D:\SERIAL\serial-communication-manager\com.embeddedunveiled.native\windows_serial\x64\Debug\windows_1.0.3_x86_64.lib and object D:\SERIAL\serial-communication-manager\com.embeddedunveiled.native\windows_serial\x64\Debug\windows_1.0.3_x86_64.exp
-  windows_serial.vcxproj -> D:\SERIAL\serial-communication-manager\com.embeddedunveiled.native\windows_serial\x64\Debug\windows_1.0.3_x86_64.dll

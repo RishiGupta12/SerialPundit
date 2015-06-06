@@ -1722,12 +1722,13 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 		return (negative * ret);
 	}
 
-	ptr->data_thread_id = 0;   /* Reset thread id field. */
 	ret = pthread_attr_destroy(&(ptr->data_thread_attr));
 	if(ret != 0) {
 		if(DBG) fprintf(stderr, "%s %d \n", "native data looper thread failed to destroy thread attr object with error -", ret);
 		if(DBG) fflush(stderr);
 	}
+
+	ptr->data_thread_id = 0;   /* Reset thread id field. */
 
 	/* If neither data nor event thread exist for this file descriptor remove entry for it from global array.
 	 * Free/delete global reference for looper object as well. */
