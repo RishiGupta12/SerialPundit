@@ -84,7 +84,6 @@ public final class SerialComLooper {
 				}
 			}
 			exitDataThread.set(false); // Reset exit flag
-			mDataQueue = null;
 		}
 	}
 
@@ -113,7 +112,6 @@ public final class SerialComLooper {
 				}
 			}
 			exitDataErrorThread.set(false); // Reset exit flag
-			mDataErrorQueue = null;
 		}
 	}
 
@@ -210,7 +208,6 @@ public final class SerialComLooper {
 			mDataListener = dataListener;
 			mDataQueue = new ArrayBlockingQueue<SerialComDataEvent>(MAX_NUM_EVENTS);
 			mDataErrorQueue = new ArrayBlockingQueue<Integer>(MAX_NUM_EVENTS);
-			
 			mDataLooperThread = new Thread(new DataLooper(), "SCM DataLooper for handle " + handle + " and port " + portName);
 			mDataErrorLooperThread = new Thread(new DataErrorLooper(), "SCM DataErrorLooper for handle " + handle + " and port " + portName);
 			mDataLooperThread.start();
@@ -230,6 +227,10 @@ public final class SerialComLooper {
 			exitDataErrorThread.set(true);
 			mDataLooperThread.interrupt();
 			mDataErrorLooperThread.interrupt();
+			while(mDataLooperThread.isAlive()) { }
+			while(mDataErrorLooperThread.isAlive()) { }
+			mDataErrorQueue = null;
+			mDataQueue = null;         // reset and free reference to queue
 		} catch (Exception e) {
 			if(DEBUG) e.printStackTrace();
 		}
