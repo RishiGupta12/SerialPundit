@@ -1,7 +1,15 @@
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 v1.0.3 (27 May 2015)
 =======
+=======
+v1.0.4 (TODO RELEASE DATE)
+	- added XMODEM(checksum, CRC, 1K) support
+	- fix issue for not returning null in windows in read function
+	- added test for XMODEM file transfer protocol 
+
+>>>>>>> upstream/master
 v1.0.3 (29 May 2015)
 >>>>>>> upstream/master
 	- added byteArrayToHexStr() utility method

@@ -103,10 +103,10 @@ void *data_looper(void *arg) {
 	int i = -1;
 	int negative = -1;
 	int index = 0;
-	int partialData = -1;
-	int errorCount = 0;
+	int partial_data = -1;
+	int error_count = 0;
 	ssize_t ret = -1;
-	jbyte buffer[1024];
+	jbyte buffer[2 * 1024];
 	jbyte final_buf[1024 * 3]; 	  /* Sufficient enough to deal with consecutive multiple partial reads. */
 	jbyteArray dataRead;
 	int data_available = 0;
@@ -191,8 +191,8 @@ void *data_looper(void *arg) {
 
 #if defined (__linux__)
 	errno = 0;
-	ret  = eventfd(0, EFD_NONBLOCK);
-	if(ret < 0) {
+	evfd  = eventfd(0, 0);
+	if(evfd < 0) {
 		if(DBG) fprintf(stderr, "%s %d\n", "NATIVE data_looper() thread failed to create eventfd with error number : -", errno);
 		if(DBG) fprintf(stderr, "%s \n", "NATIVE data_looper() thread exiting. Please RETRY registering data listener !");
 		if(DBG) fflush(stderr);
@@ -201,8 +201,7 @@ void *data_looper(void *arg) {
 		pthread_mutex_unlock(((struct com_thread_params*) arg)->mutex);
 		pthread_exit((void *)0);
 	}
-	((struct com_thread_params*) arg)->evfd = ret;  /* Save evfd for cleanup. */
-	evfd = ((struct com_thread_params*) arg)->evfd;
+	((struct com_thread_params*) arg)->evfd = evfd;  /* Save evfd for cleanup. */
 
 	errno = 0;
 	epfd = epoll_create(2);
@@ -217,7 +216,7 @@ void *data_looper(void *arg) {
 		pthread_exit((void *)0);
 	}
 
-	/* add serial port to epoll wait mechanism. Use level triggered (returned immediately if there is data in read buffer)
+	/* Add serial port to epoll wait mechanism. Use level triggered (returned immediately if there is data in read buffer)
 	 * epoll mechanism.  */
 	ev_port.events = (EPOLLIN | EPOLLPRI | EPOLLERR | EPOLLHUP);
 	ev_port.data.fd = fd;
@@ -292,10 +291,14 @@ void *data_looper(void *arg) {
 
 	/* This keep looping until listener is unregistered, waiting for data and passing it to java layer. */
 	while(1) {
+		index = 0;           /* reset */
+		partial_data = 0;    /* reset */
+		data_available = 0;  /* reset */
 
 #if defined (__linux__)
 		errno = 0;
 		ret = epoll_wait(epfd, events, MAXEVENTS, -1);
+
 		if(ret <= 0) {
 			/* ret < 0 if error occurs, ret = 0 if no fd available for read.
 			 * for error (unlikely to happen) just restart looping. */
@@ -316,6 +319,7 @@ void *data_looper(void *arg) {
 			if(1 == ((struct com_thread_params*) arg)->data_thread_exit) {
 				close(epfd);
 				close(((struct com_thread_params*) arg)->evfd);
+				free(events);
 				ret = (*jvm)->DetachCurrentThread(jvm);
 				if(ret != JNI_OK) {
 					if(DBG) fprintf(stderr, "%s %d\n", "NATIVE data_looper() failed to exit data monitor thread with JNI error ", (int)ret);
@@ -352,18 +356,22 @@ void *data_looper(void *arg) {
 #endif
 				/* input event happened, no error occurred, we have data to read on file descriptor. */
 				do {
+<<<<<<< HEAD
 					data_available = 0;
+=======
+>>>>>>> upstream/master
 					errno = 0;
 					ret = read(fd, buffer, sizeof(buffer));
 					if(ret > 0 && errno == 0) {
 						/* This indicates we got success and have read data. */
 						/* If there is partial data read previously, append this data. */
-						if(partialData == 1) {
-							for(i = index; i < ret; i++) {
-								final_buf[i] = buffer[i];
+						if(partial_data == 1) {
+							for(i = 0; i < ret; i++) {
+								final_buf[index] = buffer[i];
+								index++;
 							}
-							dataRead = (*env)->NewByteArray(env, index + ret);
-							(*env)->SetByteArrayRegion(env, dataRead, 0, index + ret, final_buf);
+							dataRead = (*env)->NewByteArray(env, index);
+							(*env)->SetByteArrayRegion(env, dataRead, 0, index, final_buf);
 							data_available = 1;
 							break;
 						}else {
@@ -376,11 +384,11 @@ void *data_looper(void *arg) {
 					}else if(ret > 0 && errno == EINTR) {
 						/* This indicates, there is data to read, however, we got interrupted before we finish reading
 						 * all of the available data. So we need to save this partial data and get back to read remaining. */
-						for(i = index; i < ret; i++) {
-							final_buf[i] = buffer[i];
+						for(i = 0; i < ret; i++) {
+							final_buf[index] = buffer[i];
+							index++;
 						}
-						index = ret;
-						partialData = 1;
+						partial_data = 1;
 						continue;
 					}else if(ret < 0) {
 						if(errno == EINTR) {
@@ -423,27 +431,27 @@ void *data_looper(void *arg) {
 			}else {
 #if defined (__linux__)
 				if(events[0].events & (EPOLLERR|EPOLLHUP)) {
-					errorCount++;
+					error_count++;
 					/* minimize JNI transition by setting threshold for when application will be called. */
-					if(errorCount == 100) {
+					if(error_count == 100) {
 						(*env)->CallVoidMethod(env, looper, mide, events[0].events);
 						if((*env)->ExceptionOccurred(env)) {
 							LOGE(env);
 						}
-						errorCount = 0; // reset error count
+						error_count = 0; // reset error count
 					}
 				}
 #endif
 #if defined (__APPLE__)
 				if(evlist[0].flags & EV_ERROR) {
-					errorCount++;
+					error_count++;
 					/* minimize JNI transition by setting threshold for when application will be called. */
-					if(errorCount == 100) {
+					if(error_count == 100) {
 						(*env)->CallVoidMethod(env, looper, mide, evlist[0].data);
 						if((*env)->ExceptionOccurred(env)) {
 							LOGE(env);
 						}
-						errorCount = 0; // reset error count
+						error_count = 0; // reset error count
 					}
 				}
 #endif
