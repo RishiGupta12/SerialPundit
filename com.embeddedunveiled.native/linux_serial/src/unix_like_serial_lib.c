@@ -319,6 +319,7 @@ void *data_looper(void *arg) {
 			if(1 == ((struct com_thread_params*) arg)->data_thread_exit) {
 				close(epfd);
 				close(((struct com_thread_params*) arg)->evfd);
+				free(events);
 				ret = (*jvm)->DetachCurrentThread(jvm);
 				if(ret != JNI_OK) {
 					if(DBG) fprintf(stderr, "%s %d\n", "NATIVE data_looper() failed to exit data monitor thread with JNI error ", (int)ret);
