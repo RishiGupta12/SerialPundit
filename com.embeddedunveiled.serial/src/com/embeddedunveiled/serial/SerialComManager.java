@@ -27,7 +27,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This class is the root of scm library. The applications should call methods defined in this class only.
+ * <p>This class is the root of scm library. The applications should call methods defined in this class only.</p>
+ * <p>The WIKI page for this project is here : http://www.embeddedunveiled.com/ </p>
  */
 public final class SerialComManager {
 
