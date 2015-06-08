@@ -1,5 +1,0 @@
-package com.embeddedunveiled.serial;
-
-public final class SerialComFindStatus {
-
-}
