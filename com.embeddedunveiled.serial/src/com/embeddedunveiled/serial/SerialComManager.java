@@ -27,20 +27,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This class is the root of scm library. The applications should call methods defined in this class only.
+ * <p>This class is the root of scm library. The applications should call methods defined in this class only.</p>
+ * <p>The WIKI page for this project is here : http://www.embeddedunveiled.com/ </p>
  */
 public final class SerialComManager {
 
+	/** Relase version of SCM library. */
 	public static final String JAVA_LIB_VERSION = "1.0.3";
-
-	public static boolean DEBUG = true;
-	private static int osType = -1;
-	public static final int OS_LINUX    = 1;
-	public static final int OS_WINDOWS  = 2;
-	public static final int OS_SOLARIS  = 3;
-	public static final int OS_MAC_OS_X = 4;
-
-	public static final int DEFAULT_READBYTECOUNT = 1024;
 
 	/** Pre-defined constants for baud rate values. */
 	public enum BAUDRATE {
@@ -50,7 +43,6 @@ public final class SerialComManager {
 		B460800(460800), B500000(500000), B576000(576000), B921600(921600), B1000000(1000000), B1152000(1152000),
 		B1500000(1500000),B2000000(2000000), B2500000(2500000), B3000000(3000000), B3500000(3500000), B4000000(4000000),
 		BCUSTOM(251);
-
 		private int value;
 		private BAUDRATE(int value) {
 			this.value = value;	
@@ -63,7 +55,6 @@ public final class SerialComManager {
 	/** Pre-defined constants for number of data bits in a serial frame. */
 	public enum DATABITS {
 		DB_5(5), DB_6(6), DB_7(7), DB_8(8);
-
 		private int value;
 		private DATABITS(int value) {
 			this.value = value;	
@@ -77,7 +68,6 @@ public final class SerialComManager {
 	// SB_1_5(4) is 1.5 stop bits.
 	public enum STOPBITS {
 		SB_1(1), SB_1_5(4), SB_2(2);
-
 		private int value;
 		private STOPBITS(int value) {
 			this.value = value;	
@@ -90,7 +80,6 @@ public final class SerialComManager {
 	/** Pre-defined constants for enabling type of parity in a serial frame. */
 	public enum PARITY {
 		P_NONE(1), P_ODD(2), P_EVEN(3), P_MARK(4), P_SPACE(5);
-
 		private int value;
 		private PARITY(int value) {
 			this.value = value;	
@@ -103,7 +92,6 @@ public final class SerialComManager {
 	/** Pre-defined constants for controlling data flow between DTE and DCE. */
 	public enum FLOWCONTROL {
 		NONE(1), HARDWARE(2), SOFTWARE(3);
-
 		private int value;
 		private FLOWCONTROL(int value) {
 			this.value = value;	
@@ -116,7 +104,6 @@ public final class SerialComManager {
 	/** Pre-defined constants for defining endianness of data to be sent over serial port. */
 	public enum ENDIAN {
 		E_LITTLE(1), E_BIG(2), E_DEFAULT(3);
-
 		private int value;
 		private ENDIAN(int value) {
 			this.value = value;	
@@ -128,8 +115,10 @@ public final class SerialComManager {
 
 	/** Pre-defined constants for defining number of bytes given data can be represented in. */
 	public enum NUMOFBYTES {
-		NUM_2(2), NUM_4(4);
-
+		/** Integer value requires 16 bits. */
+		NUM_2(2),
+		/** Integer value requires 32 bits. */
+		NUM_4(4);
 		private int value;
 		private NUMOFBYTES(int value) {
 			this.value = value;	
@@ -140,46 +129,125 @@ public final class SerialComManager {
 	}
 
 	/** Pre-defined constants for defining file transfer protocol to use. */
-	public enum FILETXPROTO {
-		XMODEM(1);
-
+	public enum FTPPROTO {
+		/** XMODEM protocol with three variants checksum, CRC and 1k. */
+		XMODEM(1),
+		/** YMODEM protocol with two variants CRC + 128 data bytes and CRC + 1k block. */
+		YMODEM(2),
+		/** coming soon */
+		ZMODEM(3);
 		private int value;
-		private FILETXPROTO(int value) {
+		private FTPPROTO(int value) {
 			this.value = value;	
 		}
 		public int getValue() {
 			return this.value;
 		}
 	}
+	
+	/** Pre-defined constants for defining variant of file transfer protocol to use. */
+	public enum FTPVAR {
+		/** Checksum for XMODEM protocol, 128 data byte block for YMODEM.  *///TODO FOR zmodem
+		DEFAULT(0),
+		/** Checksum variant for XMODEM protocol (1 byte checksum with total block size of 132).  */
+		CHKSUM(1),
+		/** CRC variant for XMODEM protocol (2 byte CRC with total block size of 133).  */
+		CRC(2),
+		/** 1k variant for X/Y MODEM protocol (2 byte CRC with total block size of 1024). */ //TODO DOUBLE CHK THIS
+		VAR1K(3),
+		/** 128 byte data variant for YMODEM protocol (//TODO).  */
+		VAR128B(4);
+		private int value;
+		private FTPVAR(int value) {
+			this.value = value;	
+		}
+		public int getValue() {
+			return this.value;
+		}
+	}
+	
+	/** Pre-defined constants for defining translation mode file transfer protocol to use. */ //TODO MAKE IT MORE COMPREHENSIVE 
+	public enum FTPMODE {
+		/** Specify translating of data as per the operating system on which receiver application is running. */
+		TEXT(1),
+		/** Specify no translation on data received. */
+		BINARY(2);
+		private int value;
+		private FTPMODE(int value) {
+			this.value = value;	
+		}
+		public int getValue() {
+			return this.value;
+		}
+	}
+	
+	public static boolean DEBUG = true;
+	
+	/** Integer constant with value 1. */
+	public static final int OS_LINUX    = 1;
+	
+	/** Integer constant with value 2. */
+	public static final int OS_WINDOWS  = 2;
+	
+	/** Integer constant with value 3. */
+	public static final int OS_SOLARIS  = 3;
+	
+	/** Integer constant with value 4. */
+	public static final int OS_MAC_OS_X = 4;
 
-	/** Mask bits for UART control lines. */
+	/** Default number of bytes (1024) to read from serial port. */
+	public static final int DEFAULT_READBYTECOUNT = 1024;
+
+	/** Clear to send mask bit constant for UART control line. */
 	public static final int CTS =  0x01;  // 0000001
+	
+	/** Data set ready mask bit constant for UART control line. */
 	public static final int DSR =  0x02;  // 0000010
+	
+	/** Data carrier detect mask bit constant for UART control line. */
 	public static final int DCD =  0x04;  // 0000100
+	
+	/** Ring indicator mask bit constant for UART control line. */
 	public static final int RI  =  0x08;  // 0001000
+	
+	/** Loop indicator mask bit constant for UART control line. */
 	public static final int LOOP = 0x10;  // 0010000
+	
+	/** Request to send mask bit constant for UART control line. */
 	public static final int RTS =  0x20;  // 0100000
+	
+	/** Data terminal ready mask bit constant for UART control line. */
 	public static final int DTR  = 0x40;  // 1000000
 
-	/** These properties are used to load OS specific native library. */
+	/** Operating system name as returned by JVM. */
 	public static final String osName = System.getProperty("os.name");
+	
+	/** Operating system architecture as returned by JVM. */
 	public static final String osArch = System.getProperty("os.arch").toLowerCase();
+	
+	/** User home directory as returned by JVM. */
 	public static final String userHome = System.getProperty("user.home");
+	
+	/** Temp/tmp directory on this system as returned by JVM. */
 	public static final String javaTmpDir = System.getProperty("java.io.tmpdir");
+	
+	/** File separator identifier for this operating system as returned by JVM. */
 	public static final String fileSeparator = System.getProperty("file.separator");
+	
+	/** Java library path for this system as returned by JVM. */
 	public static final String javaLibPath = System.getProperty("java.library.path").toLowerCase();
-	private static final String HEXNUM = "0123456789ABCDEF";
 
 	/** Maintain integrity and consistency among all operations, therefore synchronize them for
 	 *  making structural changes. This array can be sorted array if scaled to large scale. */
 	private ArrayList<SerialComPortHandleInfo> handleInfo = new ArrayList<SerialComPortHandleInfo>();
 	private List<SerialComPortHandleInfo> mPortHandleInfo = Collections.synchronizedList(handleInfo);
-
+	
 	private SerialComJNINativeInterface mNativeInterface = null;
 	private SerialComErrorMapper mErrMapper = null;
 	private SerialComCompletionDispatcher mEventCompletionDispatcher = null;
-	
 	private Object lock = new Object();
+	private static int osType = -1;
+	private static final String HEXNUM = "0123456789ABCDEF";
 
 	/**
 	 * <p>Allocates a new SerialComManager object. Constructor, initialize various classes and load native libraries.</p>
@@ -401,7 +469,7 @@ public final class SerialComManager {
 	 * 
 	 * @param handle handle of the opened port on which to write bytes
 	 * @param buffer byte type buffer containing bytes to be written to port
-	 * @param delay interval to be maintained between writing two consecutive bytes
+	 * @param delay  time gap between transmitting two successive bytes
 	 * @return true on success, false on failure or if empty buffer is passed
 	 * @throws SerialComException if an I/O error occurs.
 	 * @throws IllegalArgumentException if buffer is null
@@ -474,6 +542,7 @@ public final class SerialComManager {
 	 * @param handle handle of the opened port on which to write byte
 	 * @param data the string to be send to port
 	 * @param charset the character set into which given string will be encoded
+	 * @param delay  time gap between transmitting two successive bytes in this string
 	 * @return true on success false otherwise
 	 * @throws SerialComException if an I/O error occurs.
 	 * @throws IllegalArgumentException if data is null
@@ -836,11 +905,11 @@ public final class SerialComManager {
 	 * <p>This method gives currently applicable settings associated with particular serial port.
 	 * The values are bit mask so that application can manipulate them to get required information.</p>
 	 * 
-	 * <p>For Linux the order is : c_iflag, c_oflag, c_cflag, c_lflag, c_line, c_cc[0], c_cc[1], c_cc[2], c_cc[3]
+	 * <p>For Unix-like OS the order is : c_iflag, c_oflag, c_cflag, c_lflag, c_line, c_cc[0], c_cc[1], c_cc[2], c_cc[3]
 	 * c_cc[4], c_cc[5], c_cc[6], c_cc[7], c_cc[8], c_cc[9], c_cc[10], c_cc[11], c_cc[12], c_cc[13], c_cc[14],
 	 * c_cc[15], c_cc[16], c_ispeed and c_ospeed.</p>
 	 * 
-	 * <p>For Windows the order is :DCBlength, BaudRate, fBinary, fParity, fOutxCtsFlow, fOutxDsrFlow, fDtrControl,
+	 * <p>For Windows OS the order is :DCBlength, BaudRate, fBinary, fParity, fOutxCtsFlow, fOutxDsrFlow, fDtrControl,
 	 * fDsrSensitivity, fTXContinueOnXoff, fOutX, fInX, fErrorChar, fNull, fRtsControl, fAbortOnError, fDummy2,
 	 * wReserved, XonLim, XoffLim, ByteSize, Parity, StopBits, XonChar, XoffChar, ErrorChar, StopBits, EvtChar,
 	 * wReserved1.</p>
@@ -1314,7 +1383,7 @@ public final class SerialComManager {
 	 * CTS, DSR, RING, CARRIER DETECT, RECEIVER BUFFER, TRANSMIT BUFFER, FRAME ERROR, OVERRUN ERROR, PARITY ERROR,
 	 * BREAK AND BUFFER OVERRUN.</p>
 	 * 
-	 * <p>Note: It is supported on Linux OS only. For other operating systems, this will return 0 for all the indexes.</p>
+	 * <p>Note: It is supported for Unix-like OS only. For other operating systems, this will return 0 for all the indexes.</p>
 	 * 
 	 * @param handle of the port opened on which interrupts might have occurred
 	 * @return array of integers containing values corresponding to each interrupt source
@@ -1349,12 +1418,12 @@ public final class SerialComManager {
 	}
 
 	/**
-	 * <p>Gives status of serial port's control lines as supported by underlying operating system.</p>
+	 * <p>Gives status of serial port's control lines as supported by underlying operating system.
+	 * The sequence of status in returned array is :</p>
 	 * 
-	 * The sequence of status in returned array is :<br/>
-	 * Linux    : CTS, DSR, DCD, RI, LOOP, RTS, DTR respectively.<br/>
-	 * MAC OS X : CTS, DSR, DCD, RI, 0,    RTS, DTR respectively.<br/>
-	 * Windows  : CTS, DSR, DCD, RI, 0,    0,   0   respectively.<br/>
+	 * <p>Linux OS   : CTS, DSR, DCD, RI, LOOP, RTS, DTR respectively.</p>
+	 * <p>MAC OS X   : CTS, DSR, DCD, RI, 0,    RTS, DTR respectively.</p>
+	 * <p>Windows OS : CTS, DSR, DCD, RI, 0,    0,   0   respectively.</p>
 	 * 
 	 * @param handle of the port opened
 	 * @return status of control lines
@@ -1508,7 +1577,7 @@ public final class SerialComManager {
 
 	/**
 	 * <p>This method gives the port name with which given handle is associated. If the given handle is
-	 * unknown to scm, null is returned. The port is known to scm if it was opened using scm.</p>
+	 * unknown to scm library, null is returned. The port is known to scm if it was opened using scm.</p>
 	 * 
 	 * @param handle for which the port name is to be found
 	 * @return port name if port found or null if not found
@@ -1530,26 +1599,26 @@ public final class SerialComManager {
 	}
 
 	/**
-	 * <p>TODO</p>
-	 * 
-	 * <p>Application should carefully examine that before calling this method input and output buffer does not have any pending
-	 * data. As scm flushes data out of serial port upon every write operation, so output buffer will not have any pending data.
-	 * However input data is completely dependent how application read data.</p>
+	 * <p>Send given file using specified file transfer protocol.</p>
 	 * 
 	 * @param handle of the port on which file is to be sent
 	 * @param fileToSend File instance representing file to be sent
-	 * @param fTxProto file transfer protocol to use for communication over serial port
+	 * @param ftpProto file transfer protocol to use for communication over serial port
+	 * @param ftpVariant variant of file transfer protocol to use
+	 * @param ftpMode define whether data should be translated(ASCII mode) or not (binary mode)
 	 * @return true on success false otherwise
 	 * @throws SerialComException if invalid handle is passed
 	 * @throws SecurityException If a security manager exists and its SecurityManager.checkRead(java.lang.String) method denies read access to the file
 	 * @throws FileNotFoundException if the file does not exist, is a directory rather than a regular file, or for some other reason cannot be opened for reading.
 	 * @throws SerialComTimeOutException if timeout occurs as per file transfer protocol
-	 * @throws IOException - if error occurs while reading data from file to be sent
+	 * @throws IOException if error occurs while reading data from file to be sent
 	 * @throws IllegalArgumentException if fileToSend is null
 	 */
-	public boolean sendFile(long handle, java.io.File fileToSend, FILETXPROTO fTxProto) throws SerialComException,
-	SecurityException, FileNotFoundException, SerialComTimeOutException, IOException {
+	public boolean sendFile(long handle, java.io.File fileToSend, FTPPROTO ftpProto, FTPVAR ftpVariant, FTPMODE ftpMode) throws SerialComException, SecurityException,
+							FileNotFoundException, SerialComTimeOutException, IOException {
 		int protocol = 0;
+		int variant = 0;
+		int mode = 0;
 		boolean handlefound = false;
 		boolean result = false;
 
@@ -1567,25 +1636,39 @@ public final class SerialComManager {
 			throw new IllegalArgumentException("sendFile()" + SerialComErrorMapper.ERR_NULL_POINTER_FOR_FILE_SEND);
 		}
 
-		protocol = fTxProto.getValue();
-		if(protocol == 1){
-			SerialComXModem xmodem = new SerialComXModem(this, handle, fileToSend);
-			result = xmodem.sendFileX();
+		protocol = ftpProto.getValue();
+		variant = ftpVariant.getValue();
+		mode = ftpMode.getValue();
+		if(protocol == 1) {
+			if((variant == 0) || (variant == 1)) {
+				SerialComXModem xmodem = new SerialComXModem(this, handle, fileToSend, mode);
+				result = xmodem.sendFileX();
+			}else if(variant == 2) {
+				SerialComXModemCRC xmodem = new SerialComXModemCRC(this, handle, fileToSend, mode);
+				result = xmodem.sendFileX();
+			}else if(variant == 3) {
+				SerialComXModem1K xmodem = new SerialComXModem1K(this, handle, fileToSend, mode);
+				result = xmodem.sendFileX();
+			}else {
+			}
+		}else if(protocol == 2) {
+			
+		}else if(protocol == 3) {
+			
+		}else {
 		}
-
+		
 		return result;
 	}
 
 	/**
-	 * <p>TODO</p>
-	 * 
-	 * <p>Application should carefully examine that before calling this method input and output buffer does not have any pending
-	 * data. As scm flushes data out of serial port upon every write operation, so output buffer will not have any pending data.
-	 * However input data is completely dependent how application read data.</p>
+	 * <p>Receives file using specified file transfer protocol.</p>
 	 * 
 	 * @param handle of the port on which file is to be sent
 	 * @param fileToReceive File instance representing file to be sent
-	 * @param fTxProto file transfer protocol to use for communication over serial port
+	 * @param ftpProto file transfer protocol to use for communication over serial port
+	 * @param ftpVariant variant of file transfer protocol to use
+	 * @param ftpMode define whether data should be translated(ASCII mode) or not (binary mode)
 	 * @return true on success false otherwise
 	 * @throws SerialComException if invalid handle is passed
 	 * @throws SecurityException If a security manager exists and its SecurityManager.checkRead(java.lang.String) method denies read access to the file
@@ -1594,9 +1677,11 @@ public final class SerialComManager {
 	 * @throws IOException if error occurs while reading data from file to be sent
 	 * @throws IllegalArgumentException if fileToReceive is null
 	 */
-	public boolean receiveFile(long handle, java.io.File fileToReceive, FILETXPROTO fTxProto) throws SerialComException,
-	SecurityException, FileNotFoundException, SerialComTimeOutException, IOException {
+	public boolean receiveFile(long handle, java.io.File fileToReceive, FTPPROTO ftpProto, FTPVAR ftpVariant, FTPMODE ftpMode) throws SerialComException,
+								SecurityException, FileNotFoundException, SerialComTimeOutException, IOException {
 		int protocol = 0;
+		int variant = 0;
+		int mode = 0;
 		boolean handlefound = false;
 		boolean result = false;
 
@@ -1614,10 +1699,26 @@ public final class SerialComManager {
 			throw new IllegalArgumentException("receiveFile()" + SerialComErrorMapper.ERR_NULL_POINTER_FOR_FILE_RECEIVE);
 		}
 		
-		protocol = fTxProto.getValue();
-		if(protocol == 1){
-			SerialComXModem xmodem = new SerialComXModem(this, handle, fileToReceive);
-			result = xmodem.receiveFileX();
+		protocol = ftpProto.getValue();
+		variant = ftpVariant.getValue();
+		mode = ftpMode.getValue();
+		if(protocol == 1) {
+			if((variant == 0) || (variant == 1)) {
+				SerialComXModem xmodem = new SerialComXModem(this, handle, fileToReceive, mode);
+				result = xmodem.receiveFileX();
+			}else if(variant == 2) {
+				SerialComXModemCRC xmodem = new SerialComXModemCRC(this, handle, fileToReceive, mode);
+				result = xmodem.receiveFileX();
+			}else if(variant == 3) {
+				SerialComXModem1K xmodem = new SerialComXModem1K(this, handle, fileToReceive, mode);
+				result = xmodem.receiveFileX();
+			}else {
+			}
+		}else if(protocol == 2) {
+			
+		}else if(protocol == 3) {
+			
+		}else {
 		}
 
 		return result;

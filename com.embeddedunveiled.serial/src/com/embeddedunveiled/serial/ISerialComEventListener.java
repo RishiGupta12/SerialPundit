@@ -27,6 +27,8 @@ public interface ISerialComEventListener {
 	 * This method gets called from the looper thread associated with the corresponding listener (handler).
 	 * The listener can extract detailed information about event from the event object passed by calling
 	 * various methods on the event object.</p>
+	 * 
+	 * @param lineEvent event object containing bit mask of events on serial port control lines
 	 */
 	public abstract void onNewSerialEvent(SerialComLineEvent lineEvent);
 

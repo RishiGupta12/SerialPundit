@@ -39,6 +39,10 @@ public final class SerialComCompletionDispatcher {
 
 	/**
 	 * <p>Allocates a new SerialComCompletionDispatcher object.</p>
+	 * 
+	 * @param nativeInterface reference to nativeInterface object to call native functions
+	 * @param errMapper reference to errMapper object to get and map error information
+	 * @param portHandleInfo reference to portHandleInfo object to get/set information about handle/port
 	 */
 	public SerialComCompletionDispatcher(SerialComJNINativeInterface nativeInterface, SerialComErrorMapper errMapper, List<SerialComPortHandleInfo> portHandleInfo) {
 		this.mNativeInterface = nativeInterface;
@@ -49,8 +53,9 @@ public final class SerialComCompletionDispatcher {
 	/**
 	 * <p>This method creates data looper thread and initialize subsystem for data event passing. </p>
 	 * 
-	 * @param dataListener listener for which looper has to be set up
+	 * @param handle handle of the opened port for which data looper need to be set up
 	 * @param mHandleInfo Reference to SerialComPortHandleInfo object associated with given handle
+	 * @param dataListener listener for which looper has to be set up
 	 * @return true on success
 	 * @throws SerialComException if not able to complete requested operation
 	 */
@@ -127,8 +132,9 @@ public final class SerialComCompletionDispatcher {
 	/**
 	 * <p>This method creates event looper thread and initialize subsystem for line event passing. </p>
 	 * 
-	 * @param eventListener listener for which looper has to be set up
+	 * @param handle handle of the opened port for which event looper need to be set up
 	 * @param mHandleInfo Reference to SerialComPortHandleInfo object associated with given handle
+	 * @param eventListener listener for which looper has to be set up
 	 * @return true on success
 	 * @throws SerialComException if error occurs
 	 */

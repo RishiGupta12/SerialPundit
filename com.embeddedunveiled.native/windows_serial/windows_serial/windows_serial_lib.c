@@ -88,6 +88,7 @@ unsigned __stdcall event_data_looper(void* arg) {
 		if(DBG) fprintf(stderr, "%s \n", "NATIVE event_data_looper() thread failed to attach itself to JVM.");
 		if(DBG) fflush(stderr);
 		((struct looper_thread_params*) arg)->init_done = -240;
+		_endthreadex(0);
 		return 0;
 	}
 	env = (JNIEnv*) env1;
@@ -98,11 +99,9 @@ unsigned __stdcall event_data_looper(void* arg) {
 		if(DBG) fprintf(stderr, "%s \n", "NATIVE event_data_looper() thread could not get class of object of type looper !");
 		if(DBG) fprintf(stderr, "%s \n", "NATIVE event_data_looper() thread exiting. Please RETRY registering data listener !");
 		if(DBG) fflush(stderr);
-		EnterCriticalSection(((struct looper_thread_params*) arg)->csmutex);
-		CloseHandle(((struct looper_thread_params*) arg)->thread_handle);
 		((struct looper_thread_params*) arg)->init_done = -240;
 		(*jvm)->DetachCurrentThread(jvm);
-		LeaveCriticalSection(((struct looper_thread_params*) arg)->csmutex);
+		_endthreadex(0);
 		return 0;   /* For unrecoverable errors we would like to exit and try again. */
 	}
 
@@ -114,12 +113,10 @@ unsigned __stdcall event_data_looper(void* arg) {
 		if(DBG) fprintf(stderr, "%s \n", "NATIVE event_data_looper() thread failed to retrieve method id of method insertInEventQueue in class SerialComLooper !");
 		if(DBG) fprintf(stderr, "%s \n", "NATIVE event_data_looper() thread exiting. Please RETRY registering event listener !");
 		if(DBG) fflush(stderr);
-		EnterCriticalSection(((struct looper_thread_params*) arg)->csmutex);
-		(*jvm)->DetachCurrentThread(jvm);
 		((struct looper_thread_params*) arg)->init_done = -240;
-		LeaveCriticalSection(((struct looper_thread_params*) arg)->csmutex);
-		CloseHandle(((struct looper_thread_params*) arg)->thread_handle);
-		return 0; /* For unrecoverable errors we would like to exit and try again. */
+		(*jvm)->DetachCurrentThread(jvm);
+		_endthreadex(0);
+		return 0;
 	}
 
 	jmethodID data_mid = (*env)->GetMethodID(env, SerialComLooper, "insertInDataQueue", "([B)V");
@@ -130,12 +127,10 @@ unsigned __stdcall event_data_looper(void* arg) {
 		if(DBG) fprintf(stderr, "%s \n", "NATIVE event_data_looper() thread failed to retrieve method id of method insertInDataQueue in class SerialComLooper !");
 		if(DBG) fprintf(stderr, "%s \n", "NATIVE event_data_looper() thread exiting. Please RETRY registering data listener !");
 		if(DBG) fflush(stderr);
-		EnterCriticalSection(((struct looper_thread_params*) arg)->csmutex);
-		CloseHandle(((struct looper_thread_params*) arg)->thread_handle);
 		((struct looper_thread_params*) arg)->init_done = -240;
 		(*jvm)->DetachCurrentThread(jvm);
-		LeaveCriticalSection(((struct looper_thread_params*) arg)->csmutex);
-		return 0; /* For unrecoverable errors we would like to exit and try again. */
+		_endthreadex(0);
+		return 0;
 	}
 
 	jmethodID mide = (*env)->GetMethodID(env, SerialComLooper, "insertInDataErrorQueue", "(I)V");
@@ -146,12 +141,10 @@ unsigned __stdcall event_data_looper(void* arg) {
 		if (DBG) fprintf(stderr, "%s \n", "NATIVE event_data_looper() thread failed to retrieve method id of method insertInDataErrorQueue in class SerialComLooper !");
 		if (DBG) fprintf(stderr, "%s \n", "NATIVE event_data_looper() thread exiting. Please RETRY registering listener !");
 		if (DBG) fflush(stderr);
-		EnterCriticalSection(((struct looper_thread_params*) arg)->csmutex);
-		CloseHandle(((struct looper_thread_params*) arg)->thread_handle);
 		((struct looper_thread_params*) arg)->init_done = -240;
 		(*jvm)->DetachCurrentThread(jvm);
-		LeaveCriticalSection(((struct looper_thread_params*) arg)->csmutex);
-		return 0; /* For unrecoverable errors we would like to exit and try again. */
+		_endthreadex(0);
+		return 0;
 	}
 
 	/* Set the event mask this thread will wait for. */
@@ -169,24 +162,20 @@ unsigned __stdcall event_data_looper(void* arg) {
 		if(DBG) fprintf(stderr, "%s %ld\n", "NATIVE event_data_looper() failed in SetCommMask() with error number : ", errorVal);
 		if(DBG) fflush(stderr);
 		ClearCommError(hComm, &error_type, &com_stat);
-		EnterCriticalSection(((struct looper_thread_params*) arg)->csmutex);
-		CloseHandle(((struct looper_thread_params*) arg)->thread_handle);
 		((struct looper_thread_params*) arg)->init_done = (negative * (errorVal + ERR_OFFSET));
 		(*jvm)->DetachCurrentThread(jvm);
-		LeaveCriticalSection(((struct looper_thread_params*) arg)->csmutex);
-		return 0; /* For unrecoverable errors we would like to exit and try again. */
+		_endthreadex(0);
+		return 0;
 	}
 
 	((struct looper_thread_params*) arg)->wait_event_handles[0] = CreateEvent(NULL, FALSE, FALSE, NULL);
 	if(((struct looper_thread_params*) arg)->wait_event_handles[0] == NULL) {
 		errorVal = GetLastError();
-		if (DBG) fprintf(stderr, "%s\n", "NATIVE event_data_looper() failed to create thread exit event handle with error number : ", errorVal);
+		if(DBG) fprintf(stderr, "%s\n", "NATIVE event_data_looper() failed to create thread exit event handle with error number : ", errorVal);
 		if(DBG) fflush(stderr);
-		EnterCriticalSection(((struct looper_thread_params*) arg)->csmutex);
-		CloseHandle(((struct looper_thread_params*) arg)->thread_handle);
 		((struct looper_thread_params*) arg)->init_done = (negative * (errorVal + ERR_OFFSET));
 		(*jvm)->DetachCurrentThread(jvm);
-		LeaveCriticalSection(((struct looper_thread_params*) arg)->csmutex);
+		_endthreadex(0);
 		return 0;
 	}
 
@@ -203,7 +192,7 @@ unsigned __stdcall event_data_looper(void* arg) {
 		overlapped.hEvent = CreateEvent(NULL, FALSE, FALSE, NULL);   /* auto reset, unnamed event object */
 		if(overlapped.hEvent == NULL) {
 			errorVal = GetLastError();
-			if (DBG) fprintf(stderr, "%s\n", "NATIVE CreateEvent() in event_data_looper() failed creating overlapped event handle with error number : ", errorVal);
+			if(DBG) fprintf(stderr, "%s\n", "NATIVE CreateEvent() in event_data_looper() failed creating overlapped event handle with error number : ", errorVal);
 			if(DBG) fflush(stderr);
 			continue;
 		}
@@ -224,13 +213,10 @@ unsigned __stdcall event_data_looper(void* arg) {
 				switch (dwEvent) {
 					case WAIT_OBJECT_0 + 0:
 						/* Thread is asked to exit. */
-						if(1 == ((struct looper_thread_params*) arg)->thread_exit) {
-							EnterCriticalSection(((struct looper_thread_params*) arg)->csmutex);
-							CloseHandle(((struct looper_thread_params*) arg)->thread_handle);
-							((struct looper_thread_params*) arg)->thread_handle = 0;
+						if(1 == ((struct looper_thread_params*) arg)->thread_exit) {							
 							(*jvm)->DetachCurrentThread(jvm);
-							LeaveCriticalSection(((struct looper_thread_params*) arg)->csmutex);
 							CloseHandle(overlapped.hEvent);
+							_endthreadex(0);
 							return 0;
 						}
 						break;
@@ -260,6 +246,14 @@ unsigned __stdcall event_data_looper(void* arg) {
 				continue;
 			}
 		}else {
+			/* Thread is asked to exit. */
+			if(((struct looper_thread_params*) arg)->thread_exit == 1) {
+				(*jvm)->DetachCurrentThread(jvm);
+				CloseHandle(overlapped.hEvent);
+				_endthreadex(0);
+				return 0;
+			}
+			/* WaitCommEvent tells an event occured in one shot. */
 			eventOccurred = TRUE;
 		}
 
@@ -271,38 +265,40 @@ unsigned __stdcall event_data_looper(void* arg) {
 				/* A data event has occured and application has registered listener for data also, so send data to application. */
 				memset(&overlapped, 0, sizeof(overlapped));
 				overlapped.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
-				if(overlapped.hEvent == NULL) {
-					//TODO WHT IF FAIL
-				}
-
-				result = ReadFile(hComm, data_buf, sizeof(data_buf), &num_of_bytes_read, &overlapped);
-				if(result == TRUE) {
-					data_read = (*env)->NewByteArray(env, num_of_bytes_read);
-					(*env)->SetByteArrayRegion(env, data_read, 0, num_of_bytes_read, data_buf);
-					(*env)->CallVoidMethod(env, looper, data_mid, data_read);
-					if((*env)->ExceptionOccurred(env)) {
-						LOGE(env);
-					}
-				}else {
-					errorVal = GetLastError();
-					if(errorVal == ERROR_IO_PENDING) {
-						if(WaitForSingleObject(overlapped.hEvent, INFINITE) == WAIT_OBJECT_0) {
-							if (GetOverlappedResult(hComm, &overlapped, &num_of_bytes_read, FALSE)) {
-								data_read = (*env)->NewByteArray(env, num_of_bytes_read);
-								(*env)->SetByteArrayRegion(env, data_read, 0, num_of_bytes_read, data_buf);
-								(*env)->CallVoidMethod(env, looper, data_mid, data_read);
-								if((*env)->ExceptionOccurred(env)) {
-									LOGE(env);
-								}
+				if(overlapped.hEvent != NULL) {
+					result = ReadFile(hComm, data_buf, sizeof(data_buf), &num_of_bytes_read, &overlapped);
+					if(result == TRUE) {
+						if(num_of_bytes_read > 0) {
+							data_read = (*env)->NewByteArray(env, num_of_bytes_read);
+							(*env)->SetByteArrayRegion(env, data_read, 0, num_of_bytes_read, data_buf);
+							(*env)->CallVoidMethod(env, looper, data_mid, data_read);
+							if((*env)->ExceptionOccurred(env)) {
+								LOGE(env);
 							}
 						}
 					}else {
-						if(DBG) fprintf(stderr, "ReadFile failed with error : %ld\n", errorVal);
-						if(DBG) fflush(stderr);
+						errorVal = GetLastError();
+						if(errorVal == ERROR_IO_PENDING) {
+							if(WaitForSingleObject(overlapped.hEvent, INFINITE) == WAIT_OBJECT_0) {
+								if(GetOverlappedResult(hComm, &overlapped, &num_of_bytes_read, FALSE)) {
+									if(num_of_bytes_read > 0) {
+										data_read = (*env)->NewByteArray(env, num_of_bytes_read);
+										(*env)->SetByteArrayRegion(env, data_read, 0, num_of_bytes_read, data_buf);
+										(*env)->CallVoidMethod(env, looper, data_mid, data_read);
+										if((*env)->ExceptionOccurred(env)) {
+											LOGE(env);
+										}
+									}
+								}
+							}
+						}else {
+							if(DBG) fprintf(stderr, "ReadFile failed with error : %ld\n", errorVal);
+							if(DBG) fflush(stderr);
+						}
 					}
-				}
 
-				CloseHandle(overlapped.hEvent);
+					CloseHandle(overlapped.hEvent);
+				}
 			}
 			
 			if((events_mask & EV_CTS) || (events_mask & EV_DSR) || (events_mask & EV_RLSD) || (events_mask & EV_RING)) {

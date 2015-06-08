@@ -469,7 +469,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
  * The number of bytes return can be less than the request number of bytes but can never be greater than the requested
  * number of bytes. This is implemented using total_read variable. 1 <= Size request <= 2048.
  * 
- * Blocking read with 150ms timeout. If data is available return even before 150ms has passed. use GetTickCount() for approx checking.
+ * Blocking read with 150ms timeout. If data is available return even before 150ms has passed. use GetTickCount64() for approx checking.
  */
 JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_readBytes(JNIEnv *env, jobject obj, jlong handle, jint count, jobject status) {
 	int ret = 0;
@@ -900,9 +900,6 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 		return (negative * (errorVal + ERR_OFFSET));
 	}
 
-	/* Flush old garbage values in IO port buffer for this port. */
-	PurgeComm(hComm, PURGE_RXCLEAR | PURGE_TXCLEAR);
-
 	return 0;
 }
 
@@ -968,9 +965,6 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 		}
 		return (negative * (errorVal + ERR_OFFSET));
 	}
-
-	/* Flush old garbage values in IO port buffer for this port. */
-	PurgeComm(hComm, PURGE_RXCLEAR | PURGE_TXCLEAR);
 
 	return 0;
 }
@@ -1643,7 +1637,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_setUpDataLooperThread(JNIEnv *env, jobject obj, jlong handle, jobject looper) {
 	/* Check whether thread for this handle already exist or not. If it exist just update event
-	* mask to wait for otherwise create thread. */
+	 * mask to wait for otherwise create thread. */
 	int x = 0;
 	int ret = 0;
 	int thread_exist = 0;
@@ -1833,11 +1827,13 @@ int setupLooperThread(JNIEnv *env, jobject obj, jlong handle, jobject looper_obj
 		if(((struct looper_thread_params*) arg)->init_done == 0) {
 			continue;
 		}
-		if(1 == ((struct looper_thread_params*) arg)->init_done) {
+		if(((struct looper_thread_params*) arg)->init_done == 1) {
 			return 0; /* success */
 		}else {
-			(*env)->DeleteGlobalRef(env, looper_ref);
+			WaitForSingleObject(((struct looper_thread_params*) arg)->thread_handle, INFINITE);
+			CloseHandle(((struct looper_thread_params*) arg)->thread_handle);
 			((struct looper_thread_params*) arg)->thread_handle = 0;
+			(*env)->DeleteGlobalRef(env, looper_ref);
 			return ((struct looper_thread_params*) arg)->init_done;  /* return error value contained in init_done varaible */
 		}
 	}
@@ -1851,8 +1847,8 @@ int setupLooperThread(JNIEnv *env, jobject obj, jlong handle, jobject looper_obj
  * Signature: (J)I
  * 
  * If a process attempts to change the device handle's event mask by using the SetCommMask function while an overlapped  WaitCommEvent operation is 
- * in progress, WaitCommEvent returns immediately. When WaitCommEvent returns, thread can check if it asked to exit. This is equivalent to 'evfd' 
- * concept used in Linux.
+ * in progress, WaitCommEvent returns immediately. Further WaitForMultipleObjects() comes out of waiting state when signaled. When either WaitCommEvent
+ * or WaitForMultipleObjects returns, thread can check if it asked to exit. This is equivalent to 'evfd' concept used in Linux.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_destroyDataLooperThread(JNIEnv *env, jobject obj, jlong handle) {
 	int ret = 0;
@@ -1918,7 +1914,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 		}
 	}
 
-	/* This causes thread to come out of waiting state. */
+	/* This causes WaitForMultipleObjects() in worker thread to come out of waiting state. */
 	ret = SetEvent(ptr->wait_event_handles[0]);
 	if(ret == 0) {
 		errorVal = GetLastError();
@@ -1927,9 +1923,14 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 		return (negative * (errorVal + ERR_OFFSET));
 	}
 
+	/* Wait till worker thread actually terminate and OS clean up resources. */
+	WaitForSingleObject(ptr->thread_handle, INFINITE);
+	CloseHandle(ptr->thread_handle);
+	ptr->thread_handle = 0;
+
 	/* If neither data nor event thread exist for this file descriptor remove entry for it from global array. */
-	if(reset_hComm_field) {
-		ptr->hComm = (HANDLE)-1;
+	if (reset_hComm_field) {
+		ptr->hComm = -1;
 		(*env)->DeleteGlobalRef(env, ptr->looper);
 	}
 
@@ -2000,6 +2001,11 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 			return (negative * (errorVal + ERR_OFFSET));
 		}
 	}
+
+	/* Wait till worker thread actually terminate and OS clean up resources. */
+	WaitForSingleObject(ptr->thread_handle, INFINITE);
+	CloseHandle(ptr->thread_handle);
+	ptr->thread_handle = 0;
 
 	/* If neither data nor event thread exist for this file descriptor remove entry for it from global array. */
 	if(reset_hComm_field) {

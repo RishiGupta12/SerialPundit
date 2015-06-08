@@ -18,7 +18,7 @@ package com.embeddedunveiled.serial;
 
 /**
  * <p>This class acts as a status messenger between native and java layer.
- * If an error occurs native layer put error number into this status field
+ * If an error occurs native layer put error number into the status field
  * of this class.</p>
  */
 public final class SerialComRetStatus {

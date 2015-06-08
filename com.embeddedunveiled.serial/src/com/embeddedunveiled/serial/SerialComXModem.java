@@ -38,6 +38,7 @@ public final class SerialComXModem {
 	private SerialComManager scm = null;
 	private long handle = 0;
 	private File fileToProcess = null;
+	private int mode = 0;
 
 	private int blockNumber = -1;
 	private byte[] block = new byte[132];            // 132 bytes xmodem block/packet
@@ -50,18 +51,19 @@ public final class SerialComXModem {
 	 * <p>Allocates object of this class and associate this object with the supplied scm object.</p>
 	 * 
 	 * @param scm SerialComManager instance associated with this handle
-	 * @param handle of the port on which file is to be sent
-	 * @param fileToProcess File instance representing file to be sent
+	 * @param handle of the port on which file is to be communicated
+	 * @param fileToProcess File instance representing file to be communicated
 	 */
-	public SerialComXModem(SerialComManager scm, long handle, File fileToProcess) {
+	public SerialComXModem(SerialComManager scm, long handle, File fileToProcess, int mode) {
 		this.scm = scm;
 		this.handle = handle;
 		this.fileToProcess = fileToProcess;
+		this.mode = mode;
 	}
 
 	/**
-	 * <p>For internal use only.</p>
 	 * <p>Represents actions to execute in state machine to implement xmodem protocol for sending files.</p>
+	 * <p>On successful completion it will return true otherwise an exception would be thrown as per situation.</p>
 	 */
 	public boolean sendFileX() throws SecurityException, IOException, SerialComException {
 
@@ -97,7 +99,6 @@ public final class SerialComXModem {
 							inStream.close();
 							throw exp;
 						}
-	
 						if((data != null) && (data.length > 0)) {
 							/* Instead of purging receive buffer and then waiting for NAK, receive all data because
 							 * this approach might be faster. The other side might have opened first time and may 
@@ -111,7 +112,7 @@ public final class SerialComXModem {
 							}
 						}else {
 							try {
-								Thread.sleep(300);  // delay before next attempt to check NAK character reception
+								Thread.sleep(100);  // delay before next attempt to check NAK character reception
 							} catch (InterruptedException e) {
 							}
 							// abort if timed-out while waiting for NAK character
@@ -124,10 +125,10 @@ public final class SerialComXModem {
 					}
 					break;
 				case BEGINSEND:
-					blockNumber = 1; // Block numbering starts with 1 for the first block sent, not 0.
+					blockNumber = 1; // Block numbering starts from 1 for the first block sent, not 0.
 					assembleBlock();
 					try {
-						scm.writeBytes(handle, block);
+						scm.writeBytes(handle, block, 0);
 					} catch (SerialComException exp) {
 						inStream.close();
 						throw exp;
@@ -136,12 +137,12 @@ public final class SerialComXModem {
 					break;
 				case RESEND:
 					if(retryCount > 10) {
-						errMsg = SerialComErrorMapper.ERR_MAX_RETRY_REACHED;
+						errMsg = SerialComErrorMapper.ERR_MAX_TX_RETRY_REACHED;
 						state = ABORT;
 						break;
 					}
 					try {
-						scm.writeBytes(handle, block);
+						scm.writeBytes(handle, block, 0);
 					} catch (SerialComException exp) {
 						inStream.close();
 						throw exp;
@@ -217,7 +218,7 @@ public final class SerialComXModem {
 					}
 					break;
 				case SENDNEXT:
-					retryCount = 0;
+					retryCount = 0;  // reset retry count
 					blockNumber++;
 					assembleBlock();
 					if(noMoreData == true) {
@@ -225,7 +226,7 @@ public final class SerialComXModem {
 						break;
 					}
 					try {
-						scm.writeBytes(handle, block);
+						scm.writeBytes(handle, block, 0);
 					} catch (SerialComException exp) {
 						inStream.close();
 						throw exp;
@@ -246,22 +247,23 @@ public final class SerialComXModem {
 					state = WAITACK;
 					break;
 				case ABORT:
-					/* if ioexception occurs, control will not reach here instead exception would have been
+					/* if IOexception occurs, control will not reach here instead exception would have been
 					 * thrown already. */
 					inStream.close();
-					throw new SerialComTimeOutException("sendFile()", errMsg);
+					throw new SerialComTimeOutException("sendFileX()", errMsg);
 				default:
 					break;
 			}
 		}
 	}
 
-	// prepares xmodem block <SOH><blk #><255-blk #><--128 data bytes--><cksum>
+	// prepares xmodem block [SOH][blk #][255-blk #][128 data bytes][cksum]
 	private void assembleBlock() throws IOException {
-		int data = 0;
 		int x = 0;
+		int numBytesRead = 0;
 		int blockChecksum = 0;
 
+		// starts at 01 increments by 1, and wraps 0FFH to 00H (not to 01)
 		if(blockNumber > 0xFF) {
 			blockNumber = 0x00;
 		}
@@ -269,22 +271,20 @@ public final class SerialComXModem {
 		block[0] = SOH;
 		block[1] = (byte) blockNumber;
 		block[2] = (byte) ~blockNumber;
-
-		for(x=x+3; x<128+4; x++) {
-			data = inStream.read();
-			if(data < 0) {
-				if(x != 3) {
-					// assembling last block with padding
-					for(x=x+0; x<128+4; x++) {
-						block[x] = SUB;
-					}
-				}else {
-					noMoreData = true;
-					return;
-				}
-			}else {
-				block[x] = (byte) data;
+		
+		// read data from file to be sent
+		numBytesRead = inStream.read(block, 3, 128);
+		if((numBytesRead > 0) && (numBytesRead < 128)) {
+			// assembling last block with padding
+			x = numBytesRead;
+			for(x = x + 0; x < 131; x++) {
+				block[x] = SUB;
 			}
+		}else if(numBytesRead < 0){
+			// EOF encountered
+			noMoreData = true;
+			return;
+		}else {
 		}
 
 		for(x=3; x<131; x++) {
@@ -294,12 +294,12 @@ public final class SerialComXModem {
 	}
 
 	/**
-	 * <p>For internal use only.</p>
 	 * <p>Represents actions to execute in state machine to implement xmodem protocol for receiving files.</p>
+	 * <p>On successful completion it will return true otherwise an exception would be thrown as per situation.</p>
 	 * @throws IOException 
 	 */
 	public boolean receiveFileX() throws IOException, SerialComException {
-
+		
 		// Finite state machine
 		final int CONNECT = 0;
 		final int RECEIVEDATA = 1;
@@ -311,6 +311,7 @@ public final class SerialComXModem {
 		int z = 0;
 		int delayVal = 250;
 		int retryCount = 0;
+		int duplicateBlockRetryCount = 0;
 		int state = -1;
 		int blockNumber = 1;
 		int blockChecksum = -1;
@@ -320,6 +321,7 @@ public final class SerialComXModem {
 		boolean rxDone = false;
 		boolean firstBlock = false;
 		boolean isCorrupted = false;
+		boolean isDuplicateBlock = false;
 		byte[] block = new byte[132];
 		byte[] data = null;
 		String errMsg = null;
@@ -418,10 +420,17 @@ public final class SerialComXModem {
 					break;
 				case VERIFY:
 					blockChecksum = 0;
-					isCorrupted = false;
+					isCorrupted = false;      // reset
+					isDuplicateBlock = false; // reset
 					state = REPLY;
 					// check duplicate block
 					if(block[1] == (blockNumber - 1)){
+						isDuplicateBlock = true;
+						duplicateBlockRetryCount++;
+						if(duplicateBlockRetryCount > 10) {
+							errMsg = SerialComErrorMapper.ERR_MAX_RX_RETRY_REACHED;
+							state = ABORT;
+						}
 						break;
 					}
 					// verify block number sequence
@@ -449,9 +458,11 @@ public final class SerialComXModem {
 							if(isCorrupted == false) {
 								scm.writeSingleByte(handle, ACK);
 								outStream.write(block, 3, 128);
-								blockNumber++;
-								if(blockNumber > 0xFF) {
-									blockNumber = 0x00;
+								if(isDuplicateBlock != true) {
+									blockNumber++;
+									if(blockNumber > 0xFF) {
+										blockNumber = 0x00;
+									}
 								}
 							}else {
 								scm.writeSingleByte(handle, NAK);
@@ -476,7 +487,7 @@ public final class SerialComXModem {
 					/* if an IOexception occurs, control will not reach here instead exception would have been
 					 * thrown already. */
 					outStream.close();
-					throw new SerialComTimeOutException("receiveFile()", errMsg);
+					throw new SerialComTimeOutException("receiveFileX()", errMsg);
 				default:
 					break;
 			}
