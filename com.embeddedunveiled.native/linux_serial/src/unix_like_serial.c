@@ -57,8 +57,8 @@
 #include <sys/eventfd.h>    /* Linux eventfd for event notification. */
 #include <signal.h>
 #include <sys/uio.h>
+#include <time.h>
 #endif
-
 
 #if defined (__APPLE__)
 #include <termios.h>
@@ -527,7 +527,10 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
  * The number of bytes return can be less than the request number of bytes but can never be greater than the requested
  * number of bytes. This is implemented using total_read variable. Size request should not be more than 2048.
  *
- * Do not block any signals.
+ * Do not block any signals. This function handles following scenarios :
+ * 1. Complete read in 1st pass itself
+ * 2. Partial read followed by complete read
+ * 3. Partial read followed by partial read then complete read
  */
 JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_readBytes(JNIEnv *env, jobject obj, jlong fd, jint count, jobject status) {
 	int i = -1;
@@ -541,7 +544,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINative
 	jbyte final_buf[3 * 1024];  /* Sufficient enough to deal with consecutive multiple partial reads. */
 	jbyteArray dataRead;
 
-	num_bytes_to_read = count;
+	num_bytes_to_read = count; /* initial value */
 	do {
 		if(partial_data == 1) {
 			num_bytes_to_read = count - total_read;
@@ -555,26 +558,28 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINative
 			/* This indicates we got success and have read data. */
 			/* If there is partial data read previously, append this data. */
 			if(partial_data == 1) {
-				for(i = index; i < ret; i++) {
-					final_buf[i] = buffer[i];
+				for(i = 0; i < ret; i++) {
+					final_buf[index] = buffer[i];
+					index++;
 				}
-				dataRead = (*env)->NewByteArray(env, index + ret);
-				(*env)->SetByteArrayRegion(env, dataRead, 0, total_read, final_buf);
+				/* Pass the final fully successful read to java layer. */
+				dataRead = (*env)->NewByteArray(env, index);
+				(*env)->SetByteArrayRegion(env, dataRead, 0, index, final_buf);
 				return dataRead;
 			}else {
 				/* Pass the successful read to java layer straight away. */
 				dataRead = (*env)->NewByteArray(env, ret);
-				(*env)->SetByteArrayRegion(env, dataRead, 0, total_read, buffer);
+				(*env)->SetByteArrayRegion(env, dataRead, 0, ret, buffer);
 				return dataRead;
 			}
 		}else if(ret > 0 && errno == EINTR) {
 			total_read = total_read + ret;
 			/* This indicates, there is data to read, however, we got interrupted before we finish reading
 			 * all of the available data. So we need to save this partial data and get back to read remaining. */
-			for(i = index; i < ret; i++) {
-				final_buf[i] = buffer[i];
+			for(i = 0; i < ret; i++) {
+				final_buf[index] = buffer[i];
+				index++;
 			}
-			index = ret;
 			partial_data = 1;
 			errno = 0;
 			continue;
