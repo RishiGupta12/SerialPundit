@@ -19,9 +19,27 @@ package com.embeddedunveiled.serial;
 
 import org.junit.Test;
 import org.junit.Assert;
+
 import java.util.Arrays;
 
 public class SerialData1StartTest  extends BaseSerial1Test{
+	
+	/*
+	 * connect bluetooth dongle, 3G dongle, USB-UART converter and all of them should be 
+	 * detected by this library apart from regular ports.
+	 * Test1
+	 */	
+	@Test
+	public void listPortsTest() throws SerialComException{
+		
+		LOG.debug("listPortsTest()");
+		String[] ports = {};
+		ports = scm.listAvailableComPorts();
+		for(String port: ports){
+			LOG.debug("Port: {}", port );
+		}		
+		
+	}
 	
 	/*
 	 * readWriteWithoutOwnership() Test2

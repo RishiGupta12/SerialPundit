@@ -33,23 +33,6 @@ public class SerialData2Test extends BaseSerial1Test{
 	
 	
 	/*
-	 * connect bluetooth dongle, 3G dongle, USB-UART converter and all of them should be 
-	 * detected by this library apart from regular ports.
-	 * Test1
-	 */	
-	@Test
-	public void listPortsTest() throws SerialComException{
-		
-		LOG.debug("listPortsTest()");
-		String[] ports = {};
-		ports = scm.listAvailableComPorts();
-		for(String port: ports){
-			LOG.debug("Port: {}", port );
-		}		
-		
-	}
-	
-	/*
 	 * try opening serial port for read and write without exclusive ownership
 	 */		
 	@Test

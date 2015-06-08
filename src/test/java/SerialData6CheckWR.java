@@ -17,11 +17,9 @@
 
 package com.embeddedunveiled.serial;
 
-import java.io.File;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.embeddedunveiled.serial.SerialComManager.FILETXPROTO;
 
 public class SerialData6CheckWR extends BaseSerial1Test {
 	
@@ -136,7 +134,7 @@ public class SerialData6CheckWR extends BaseSerial1Test {
 	
 	/*
 	 * transferDocuments() Test37 Test38
-	 */
+	 *
 	@Test
 	public void transferDocuments() throws SerialComException, InterruptedException{
 		LOG.debug("transferDocuments()");
@@ -146,13 +144,13 @@ public class SerialData6CheckWR extends BaseSerial1Test {
 		} catch (Exception e){
 			LOG.error("SerialCheck. sendDocs: " + e);
 		}
-//		try{
-//			scm.receiveFile(handle2, new File("/home/pedro/Escritorio/b.txt"), FILETXPROTO.XMODEM);
-//			Thread.sleep(20);
-//		} catch (Exception e){
-//			LOG.error("SerialCheck. receiveDocs: " + e);
-//		}
-	}
+		try{
+			scm.receiveFile(handle2, new File("/home/pedro/Escritorio/b.txt"), FILETXPROTO.XMODEM);
+			Thread.sleep(20);
+		} catch (Exception e){
+			LOG.error("SerialCheck. receiveDocs: " + e);
+		}
+	}*/
 	
 	/*
 	 * requestAmountOfBytes() Test39
