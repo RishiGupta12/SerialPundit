@@ -50,7 +50,7 @@ public final class SerialComErrorMapper {
 	public static final String ERR_TIMEOUT_RECV_FROM_SENDER = "Timedout while trying to receive next data byte from file sender";
 	public static final String ERR_MAX_TX_RETRY_REACHED = "Maximum number of retries reached while sending same data block";
 	public static final String ERR_MAX_RX_RETRY_REACHED = "Maximum number of retries reached while receiving same data block";
-	public static final String ERR_KNOWN_ERROR_OCCURED = "Unknown error occured";
+	public static final String ERR_UNKNOWN_OCCURED = "Unknown error occured";
 	public static final String ERR_TIMEOUT_ACKNOWLEDGE_BLOCK = "Timedout while waiting for block reception acknowledgement from file receiver";
 	public static final String ERR_TIMEOUT_ACKNOWLEDGE_EOT = "Timedout while waiting for EOT reception acknowledgement from file receiver";
 	public static final String ERR_CAN_NOT_BE_NULL = "This argument can not be null";

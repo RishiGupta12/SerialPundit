@@ -181,6 +181,21 @@ public final class SerialComManager {
 		}
 	}
 	
+	/** Pre-defined constants for defining behavior of byte stream. */
+	public enum SMODE {
+		/** Read will block till data is available. */
+		BLOCKING(1), 
+		/** Read will not block till data is available. */
+		NONBLOCKING(2);
+		private int value;
+		private SMODE(int value) {
+			this.value = value;	
+		}
+		public int getValue() {
+			return this.value;
+		}
+	}
+	
 	public static boolean DEBUG = true;
 	
 	/** Integer constant with value 1. */
@@ -704,7 +719,7 @@ public final class SerialComManager {
 		if(retStatus.status < 0) {
 			throw new SerialComException("readBytesBlocking()", mErrMapper.getMappedError(retStatus.status));
 		}else if(retStatus.status == 1) { 
-			return null;                   // not possible for blocking call
+			return null; // not possible for blocking call
 		}else {
 		}
 
@@ -1759,7 +1774,7 @@ public final class SerialComManager {
 	 * @return reference to an object of type SerialComInByteStream
 	 * @throws SerialComException if input stream already exist for this handle or invalid handle is passed
 	 */
-	public SerialComInByteStream createInputByteStream(long handle) throws SerialComException {
+	public SerialComInByteStream createInputByteStream(long handle, SMODE streamMode) throws SerialComException {
 		boolean handlefound = false;
 		SerialComInByteStream scis = null;
 		SerialComPortHandleInfo mHandleInfo = null;
@@ -1777,7 +1792,7 @@ public final class SerialComManager {
 		}
 		
 		if(scis == null) {
-			scis = new SerialComInByteStream(this, handle);
+			scis = new SerialComInByteStream(this, handle, streamMode);
 			mHandleInfo.setSerialComInByteStream(scis);
 		}else {
 			// if 2nd attempt is made to create already existing input stream, throw exception
@@ -1800,7 +1815,7 @@ public final class SerialComManager {
 	 * @return reference to an object of type SerialComOutByteStream
 	 * @throws SerialComException if output stream already exist for this handle or invalid handle is passed
 	 */
-	public SerialComOutByteStream createOutputByteStream(long handle) throws SerialComException {
+	public SerialComOutByteStream createOutputByteStream(long handle, SMODE streamMode) throws SerialComException {
 		boolean handlefound = false;
 		SerialComOutByteStream scos = null;
 		SerialComPortHandleInfo mHandleInfo = null;
@@ -1818,7 +1833,7 @@ public final class SerialComManager {
 		}
 		
 		if(scos == null) {
-			scos = new SerialComOutByteStream(this, handle);
+			scos = new SerialComOutByteStream(this, handle, streamMode);
 			mHandleInfo.setSerialComOutByteStream(scos);
 		}else {
 			// if 2nd attempt is made to create already existing output stream, throw exception

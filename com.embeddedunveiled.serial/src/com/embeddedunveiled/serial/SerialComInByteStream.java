@@ -19,30 +19,41 @@ package com.embeddedunveiled.serial;
 import java.io.IOException;
 import java.io.InputStream;
 
+import com.embeddedunveiled.serial.SerialComManager.SMODE;
+
 /**
  * <p>This class represents an input stream of bytes which is received from serial port.</p>
  * 
- * <p>It implements blocking read as mentioned in standard Java. It is for this reason -1 
- * or EOF is never returned by any read method because it blocks until it reads data byte
- * or an exception occurs.</p>
- * 
  * <p>Application design should make sure that the port is not closed if there exist a read method
  * which is blocked (waiting for data byte) on the same port.</p>
+ * 
+ * <p>Advance applications may fine tune the timing behavior using fineTuneRead() API.</p>
  */
 public final class SerialComInByteStream extends InputStream {
 
 	private SerialComManager scm = null;
 	private long handle = 0;
 	private boolean isOpened = false;
+	private boolean isBlocking = false;
 
-	public SerialComInByteStream(SerialComManager scm, long handle) throws SerialComException {
+	/**
+	 * <p>Allocates a new SerialComInByteStream object.</p>
+	 * @param scm instance of SerialComManager class with which this stream will associate itself
+	 * @param handle handle of the serial port on which to read data bytes
+	 * @param streamMode indicates blocking or non-blocking behavior of stream
+	 * @throws SerialComException if serial port can not be configured for specified read behavior
+	 */
+	public SerialComInByteStream(SerialComManager scm, long handle, SMODE streamMode) throws SerialComException {
 		this.scm = scm;
 		this.handle = handle;
 		isOpened = true;
 		
-		// make read pure blocking in non-windows OS. For windows blocking read method is called.
-		if(SerialComManager.getOSType() != SerialComManager.OS_WINDOWS) {
-			scm.fineTuneRead(handle, 1, 0, 0, 0, 0);
+		if(streamMode.getValue() == 1) {
+			// For windows blocking read method is called while for others (unix-like) VMIN/VTIME is set.
+			if(SerialComManager.getOSType() != SerialComManager.OS_WINDOWS) {
+				scm.fineTuneRead(handle, 1, 0, 0, 0, 0);
+			}
+			isBlocking = true;
 		}
 	}
 
@@ -50,7 +61,7 @@ public final class SerialComInByteStream extends InputStream {
 	 * <p>Returns an estimate of the minimum number of bytes that can be read from this input stream
 	 * without blocking by the next invocation of a method for this input stream.</p>
 	 * 
-	 * @return an estimate of the minimum number of bytes that can be read from this input stream without blocking
+	 * @return an estimate of the minimum number of bytes available for reading
 	 * @throws IOException if an I/O error occurs.
 	 */
 	@Override
@@ -102,7 +113,10 @@ public final class SerialComInByteStream extends InputStream {
 	/**
 	 * <p>Reads the next byte of data from the input stream. The value byte is returned as an int in the range 0 to 255.</p>
 	 * 
-	 * @return the next byte of data
+	 * <p>For blocking mode this method returns the next byte of data. For non-blocking mode this method returns the next byte 
+	 * of data if it is available otherwise -1 if there is no data at serial port.</p>
+	 * 
+	 * @return the next byte of data or -1
 	 * @throws IOException if an I/O error occurs or if input stream has been closed
 	 */
 	@Override
@@ -113,15 +127,24 @@ public final class SerialComInByteStream extends InputStream {
 		
 		byte[] data = new byte[1];
 		try {
-			data = scm.readBytesBlocking(handle, 1);
-			if(data != null) {
-				return (int)data[0];
+			if(isBlocking == true) {
+				data = scm.readBytesBlocking(handle, 1);
+				if(data != null) {
+					return (int)data[0];
+				}else {
+					throw new IOException(SerialComErrorMapper.ERR_UNKNOWN_OCCURED);
+				}
+			}else {
+				data = scm.readBytes(handle, 1);
+				if(data != null) {
+					return (int)data[0];
+				}else {
+					return -1;
+				}
 			}
 		}catch (SerialComException e) {
 			throw new IOException(e);
 		}
-
-		return -1;
 	}
 	
     /**
@@ -151,8 +174,6 @@ public final class SerialComInByteStream extends InputStream {
      * as many as len bytes, but a smaller number may be read. The number of bytes actually read is returned as 
      * an integer.</p>
      * 
-     * <p>This method blocks until input data is available or an exception is thrown.</p>
-     * 
      * <p>If len is zero, then no bytes are read and 0 is returned; otherwise, there is an attempt to read at 
      * least one byte and stored into b.</p>
      * 
@@ -162,10 +183,13 @@ public final class SerialComInByteStream extends InputStream {
      *  
      * <p>In every case, elements b[0] through b[off] and elements b[off+len] through b[b.length-1] are unaffected.</p>
      * 
+     * <p>For blocking mode, this method blocks until input data is available or an exception is thrown. For non-blocking
+     * it attempts to read data, returns data byte if read. It will return -1 if there is no data at serial port.</p>
+     * 
      * @param b the buffer into which the data is read.
      * @param off the start offset in array b at which the data is written.
      * @param len the maximum number of bytes to read.
-     * @return the total number of bytes read into the buffer or 0 if len is zero
+     * @return the total number of bytes read into the buffer or 0 if len is zero or -1 if there is no data (non-blocking)
      * @throws IOException if an I/O error occurs or if input stream has been closed
      * @throws NullPointerException if <code>b</code> is <code>null</code>.
      * @throws IllegalArgumentException if data is not a byte type array
@@ -189,22 +213,40 @@ public final class SerialComInByteStream extends InputStream {
 			throw new IllegalArgumentException(SerialComErrorMapper.ERR_ARG_NOT_BYTE_ARRAY);
 		}
 		
+		int i = off;
 		try {
-			byte[] data = scm.readBytesBlocking(handle, len);
-			if(data != null) {
-				System.arraycopy(data, 0, b, off, data.length);
-				return data.length;
+			if(isBlocking == true) {
+				byte[] data = scm.readBytesBlocking(handle, len);
+				if(data != null) {
+					for(int x=0; x<data.length; x++) {
+						b[i] = data[x];
+						i++;
+					}
+					return data.length;
+				}else {
+					throw new IOException(SerialComErrorMapper.ERR_UNKNOWN_OCCURED);
+				}
+			}else {
+				byte[] data = scm.readBytes(handle, len);
+				if(data != null) {
+					for(int x=0; x<data.length; x++) {
+						b[i] = data[x];
+						i++;
+					}
+					return data.length;
+				}else {
+					return -1;
+				}
 			}
 		}catch (SerialComException e) {
 			throw new IOException(e);
 		}
-        
-		return -1;
     }
 	
 	/**
 	 * <p>The scm does not support reset. If required, it can be developed at application level.</p>
 	 */
+	@Override
     public synchronized void reset() throws IOException {
     }
 

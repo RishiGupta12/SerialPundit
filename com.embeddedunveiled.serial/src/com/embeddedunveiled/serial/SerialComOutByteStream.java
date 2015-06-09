@@ -3,6 +3,8 @@ package com.embeddedunveiled.serial;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import com.embeddedunveiled.serial.SerialComManager.SMODE;
+
 /**
  * <p>This class represents an output stream of bytes that gets sent over to serial port for transmission.</p>
  */
@@ -11,11 +13,22 @@ public final class SerialComOutByteStream extends OutputStream {
 	private SerialComManager scm = null;
 	private long handle = 0;
 	private boolean isOpened = false;
+	/* private boolean isBlocking = false; */
 
-	public SerialComOutByteStream(SerialComManager scm, long handle) {
+	/**
+	 * <p>Allocates a new SerialComOutByteStream object.</p>
+	 * @param scm instance of SerialComManager class with which this stream will associate itself
+	 * @param handle handle of the serial port on which to write data bytes
+	 * @param streamMode indicates blocking or non-blocking behavior of stream
+	 * @throws SerialComException if serial port can not be configured for specified write behavior
+	 */
+	public SerialComOutByteStream(SerialComManager scm, long handle, SMODE streamMode) throws SerialComException {
 		this.scm = scm;
 		this.handle = handle;
 		isOpened = true;
+		/* if(streamMode.getValue() == 1) {
+			isBlocking = true;
+		} */
 	}
 
 	/**
@@ -94,8 +107,13 @@ public final class SerialComOutByteStream extends OutputStream {
 		}
 		
 		try {
+			int x = 0;
+			int i = off;
 			byte[] buf = new byte[len];
-			System.arraycopy(data, off, buf, 0, len);
+			for(x=0; x<len; x++) {
+				buf[x] = data[i];
+				i++;
+			}
 			scm.writeBytes(handle, buf, 0);
 		} catch (SerialComException e) {
 			throw new IOException(e);
