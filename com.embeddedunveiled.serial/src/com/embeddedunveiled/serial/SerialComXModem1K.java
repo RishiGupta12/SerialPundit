@@ -205,7 +205,7 @@ public final class SerialComXModem1K {
 								retryCount++;
 								state = RESEND;
 							}else{
-								errMsg = SerialComErrorMapper.ERR_KNOWN_ERROR_OCCURED;
+								errMsg = SerialComErrorMapper.ERR_UNKNOWN_OCCURED;
 								state = ABORT;
 							}
 						}else {

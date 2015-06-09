@@ -59,6 +59,11 @@ public class Test26 {
 			handle1 = scm.openComPort(PORT1, true, true, true);
 			scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
 			scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+			
+			for(x=0; x<10000; x++) {
+				scm.writeString(handle, "testing", 0);
+				scm.writeString(handle1, "testing1", 0);
+			}
 
 			for(x=0; x<10000; x++) {
 				if(scm.writeString(handle, "testing", 0) == false) {

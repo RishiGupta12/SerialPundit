@@ -17,16 +17,15 @@
 
 package test43;
 
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import com.embeddedunveiled.serial.ISerialComDataListener;
-import com.embeddedunveiled.serial.SerialComDataEvent;
 import com.embeddedunveiled.serial.SerialComManager;
 import com.embeddedunveiled.serial.SerialComManager.BAUDRATE;
 import com.embeddedunveiled.serial.SerialComManager.DATABITS;
 import com.embeddedunveiled.serial.SerialComManager.FLOWCONTROL;
 import com.embeddedunveiled.serial.SerialComManager.PARITY;
 import com.embeddedunveiled.serial.SerialComManager.STOPBITS;
+import com.embeddedunveiled.serial.SerialComDataEvent;
+import com.embeddedunveiled.serial.ISerialComDataListener;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 class DataListener extends Test43 implements ISerialComDataListener{
 
@@ -34,12 +33,12 @@ class DataListener extends Test43 implements ISerialComDataListener{
 	
 	@Override
 	public void onNewSerialDataAvailable(SerialComDataEvent data) {
+
 		byte[] buf = data.getDataBytes();
-		System.out.println("DataListener : " + new String(buf));
-		System.out.println("DataListener : " + buf.length);
+		System.out.println("length : " + buf.length + " data : " + new String(buf));
 		
 		y = y + buf.length;
-		if(y >= 20) {
+		if(y >= 1) {
 			exit.set(true);
 		}
 	}
@@ -57,13 +56,12 @@ public class Test43 {
 	public static void main(String[] args) {
 		
 		SerialComManager scm = new SerialComManager();
+		DataListener dataListener = new DataListener();
 		
-		int x = 0;
+		long x = 0;
 		for(x=0; x<5000; x++) {
 			System.out.println("\n" + "Iteration : " + x);
 			try {
-				DataListener dataListener = new DataListener();
-	
 				String PORT = null;
 				String PORT1 = null;
 				int osType = SerialComManager.getOSType();
@@ -81,62 +79,29 @@ public class Test43 {
 					PORT1 = null;
 				}else{
 				}
+				
+//				PORT = "/dev/pts/1";
+//				PORT1 = "/dev/pts/3";
 
-				long handle = scm.openComPort(PORT, true, true, true);
+				long handle = scm.openComPort(PORT, true, true, false);
 				scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
 				scm.configureComPortControl(handle, FLOWCONTROL.NONE, 'x', 'x', false, false);
-				long handle1 = scm.openComPort(PORT1, true, true, true);
+				long handle1 = scm.openComPort(PORT1, true, true, false);
 				scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
 				scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
 
 				System.out.println("main thread register  : " + scm.registerDataListener(handle, dataListener));
-				
-				if(osType == SerialComManager.OS_WINDOWS) {
-					Thread.sleep(500);
-				}
-				
-				scm.writeString(handle1, "22222222222222222222", 0); // length of this string is 20
+				scm.writeString(handle1, "HELLO", 0);
 				
 				// wait till data listener has received all the data
-				while(exit.get() == false) { 
-					if(osType == SerialComManager.OS_LINUX) {
-						Thread.sleep(1);
-					}else if(osType == SerialComManager.OS_WINDOWS) {
-						Thread.sleep(600);
-					}else if(osType == SerialComManager.OS_MAC_OS_X) {
-						Thread.sleep(500);
-					}else if(osType == SerialComManager.OS_SOLARIS) {
-						Thread.sleep(500);
-					}else{
-					}
-					scm.writeString(handle1, "22222222222222222222", 0);
+				while(exit.get() == false) {
+					scm.writeString(handle1, "L", 0);
 				}
-				exit.set(false);                                     // reset flag
+				exit.set(false);
 				
 				System.out.println("main thread unregister : " + scm.unregisterDataListener(dataListener));
-				if(osType == SerialComManager.OS_LINUX) {
-					Thread.sleep(1);
-				}else if(osType == SerialComManager.OS_WINDOWS) {
-					Thread.sleep(500);
-				}else if(osType == SerialComManager.OS_MAC_OS_X) {
-					Thread.sleep(500);
-				}else if(osType == SerialComManager.OS_SOLARIS) {
-					Thread.sleep(500);
-				}else{
-				}
-				
-				scm.closeComPort(handle);
-				scm.closeComPort(handle1);
-				if(osType == SerialComManager.OS_LINUX) {
-					Thread.sleep(1);
-				}else if(osType == SerialComManager.OS_WINDOWS) {
-					Thread.sleep(500);
-				}else if(osType == SerialComManager.OS_MAC_OS_X) {
-					Thread.sleep(500);
-				}else if(osType == SerialComManager.OS_SOLARIS) {
-					Thread.sleep(500);
-				}else{
-				}
+				System.out.println("close handle : " + scm.closeComPort(handle));
+				System.out.println("close handle1 : " + scm.closeComPort(handle1));
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

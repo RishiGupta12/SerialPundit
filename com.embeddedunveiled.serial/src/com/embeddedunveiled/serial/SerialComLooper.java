@@ -163,6 +163,21 @@ public final class SerialComLooper {
 			if(DEBUG) e.printStackTrace();
 		}
 	}
+	
+	/**
+	 * <p>This method insert error info in error queue which will be later delivered to application.</p>
+	 * @param errorNum operating system specific error number to be sent to application
+	 */
+	public void insertInDataErrorQueue(int errorNum) {
+		if(mDataErrorQueue.remainingCapacity() == 0) {
+			mDataErrorQueue.poll();
+		}
+		try {
+			mDataErrorQueue.offer(errorNum);
+		} catch (Exception e) {
+			if(DEBUG) e.printStackTrace();
+		}
+	}
 
 	/**
 	 * <p>Native side detects the change in status of lines, get the new line status and call this method. Based on the
@@ -180,21 +195,6 @@ public final class SerialComLooper {
 			if(DEBUG) e.printStackTrace();
 		}
 		oldLineState = newLineState;
-	}
-
-	/**
-	 * <p>This method insert error info in error queue which will be later delivered to application.</p>
-	 * @param errorNum operating system specific error number to be sent to application
-	 */
-	public void insertInDataErrorQueue(int errorNum) {
-		if(mDataErrorQueue.remainingCapacity() == 0) {
-			mDataErrorQueue.poll();
-		}
-		try {
-			mDataErrorQueue.offer(errorNum);
-		} catch (Exception e) {
-			if(DEBUG) e.printStackTrace();
-		}
 	}
 
 	/**
