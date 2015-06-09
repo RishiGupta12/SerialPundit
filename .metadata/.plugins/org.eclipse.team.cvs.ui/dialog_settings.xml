@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<section name="Workbench">
-	<section name="org.eclipse.team.ccvs.ui.RepositoriesView">
-		<item value="0" key="selectedOrderBy"/>
-		<item value="" key="SelectedWorkingSet"/>
-		<item value="true" key="selectedSortingOrder"/>
-		<item value="" key="filterShowModules"/>
-	</section>
-</section>
