@@ -639,6 +639,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 	int ret = -1;
 	int negative = -1;
 	int index = 0;
+	int status = 0;
 
 	jbyte* data_buf = (*env)->GetByteArrayElements(env, buffer, JNI_FALSE);
 	size_t count = (size_t) (*env)->GetArrayLength(env, buffer);
@@ -655,7 +656,8 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 				}else {
 					if(DBG) fprintf(stderr, "%s%d\n", "NATIVE writeBytes() failed to write requested data with error number : -", errno);
 					if(DBG) fflush(stderr);
-					return (negative * errno);
+					status = (negative * errno);
+					break;
 				}
 
 			}
@@ -674,7 +676,8 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 				}else {
 					if(DBG) fprintf(stderr, "%s%d\n", "NATIVE writeBytes() failed to write requested data with error number : -", errno);
 					if(DBG) fflush(stderr);
-					return (negative * errno);
+					status = (negative * errno);
+					break;
 				}
 
 			}
@@ -686,9 +689,8 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 	}
 
 	(*env)->ReleaseByteArrayElements(env, buffer, data_buf, 0);
-
 	tcdrain(fd);
-	return 0;
+	return status;
 }
 
 /*
