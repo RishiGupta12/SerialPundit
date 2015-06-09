@@ -589,9 +589,17 @@ public final class SerialComManager {
 	 * @param numOfBytes number of bytes this integer can be represented in
 	 * @return true on success false otherwise
 	 * @throws SerialComException if an I/O error occurs.
+	 * @throws IllegalArgumentException if endianness or numOfBytes is null
 	 */
 	public boolean writeSingleInt(long handle, int data, int delay, ENDIAN endianness, NUMOFBYTES numOfBytes) throws SerialComException {
 		byte[] buffer = null;
+		
+		if(endianness == null) {
+			throw new IllegalArgumentException("writeSingleInt() " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_ENDIAN);
+		}
+		if(numOfBytes == null) {
+			throw new IllegalArgumentException("writeSingleInt() " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_NUMBYTE);
+		}
 
 		if(numOfBytes.getValue() == 2) {             // conversion to two bytes data
 			buffer = new byte[2];
@@ -631,9 +639,17 @@ public final class SerialComManager {
 	 * @param numOfBytes number of bytes this integer can be represented in
 	 * @return true on success false otherwise
 	 * @throws SerialComException if an I/O error occurs.
+	 * @throws IllegalArgumentException if endianness or numOfBytes is null
 	 */
 	public boolean writeIntArray(long handle, int[] buffer, int delay, ENDIAN endianness, NUMOFBYTES numOfBytes) throws SerialComException {
 		byte[] localBuf = null;
+		
+		if(endianness == null) {
+			throw new IllegalArgumentException("writeIntArray() " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_ENDIAN);
+		}
+		if(numOfBytes == null) {
+			throw new IllegalArgumentException("writeIntArray() " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_NUMBYTE);
+		}
 
 		if(numOfBytes.getValue() == 2) {
 			localBuf = new byte[2 * buffer.length];
@@ -847,12 +863,26 @@ public final class SerialComManager {
 	 * @param custBaud custom baudrate if the desired rate is not included in BAUDRATE enum
 	 * @return true on success false otherwise
 	 * @throws SerialComException if invalid handle is passed or an error occurs in configuring the port
+	 * @throws IllegalArgumentException if dataBits or stopBits or parity or baudRate is null
 	 */
 	public boolean configureComPortData(long handle, DATABITS dataBits, STOPBITS stopBits, PARITY parity, BAUDRATE baudRate, int custBaud) throws SerialComException {
 
 		int baudRateTranslated = 0;
 		int custBaudTranslated = 0;
-		int baudRateGiven = baudRate.getValue();
+		int baudRateGiven = 0;
+		
+		if(dataBits == null) {
+			throw new IllegalArgumentException("configureComPortData() " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_DBITS);
+		}
+		if(stopBits == null) {
+			throw new IllegalArgumentException("configureComPortData() " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_SBITS);
+		}
+		if(parity == null) {
+			throw new IllegalArgumentException("configureComPortData() " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_PARITY);
+		}
+		if(baudRate == null) {
+			throw new IllegalArgumentException("configureComPortData() " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_BRATE);
+		}
 
 		boolean handlefound = false;
 		for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
@@ -865,6 +895,7 @@ public final class SerialComManager {
 			throw new SerialComException("configureComPortData()", SerialComErrorMapper.ERR_WRONG_HANDLE);
 		}
 
+		baudRateGiven = baudRate.getValue();
 		if(baudRateGiven != 251) {
 			baudRateTranslated = baudRateGiven;
 			custBaudTranslated = 0;
@@ -894,10 +925,15 @@ public final class SerialComManager {
 	 * @param overFlowErr true if overflow error is to be detected false otherwise
 	 * @return true on success false otherwise
 	 * @throws SerialComException if invalid handle is passed or an error occurs in configuring the port
+	 * @throws IllegalArgumentException if flowctrl is null
 	 */
 	public boolean configureComPortControl(long handle, FLOWCONTROL flowctrl, char xon, char xoff, boolean ParFraError, boolean overFlowErr) throws SerialComException {
-
 		boolean handlefound = false;
+		
+		if(flowctrl == null) {
+			throw new IllegalArgumentException("configureComPortControl() " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_FLOWCTRL);
+		}
+		
 		for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
 			if(mInfo.containsHandle(handle)) {
 				handlefound = true;
@@ -1296,7 +1332,7 @@ public final class SerialComManager {
 	 * @throws IllegalArgumentException if eventListener is null
 	 */
 	public int getEventsMask(ISerialComEventListener eventListener) throws SerialComException {
-
+		
 		SerialComLooper looper = null;
 		ISerialComEventListener mEventListener = null;
 
@@ -1595,7 +1631,7 @@ public final class SerialComManager {
 	 * unknown to scm library, null is returned. The port is known to scm if it was opened using scm.</p>
 	 * 
 	 * @param handle for which the port name is to be found
-	 * @return port name if port found or null if not found
+	 * @return port name if port found for given handle or null if not found
 	 */
 	public String getPortName(long handle) {
 		String portName = null;
@@ -1627,15 +1663,28 @@ public final class SerialComManager {
 	 * @throws FileNotFoundException if the file does not exist, is a directory rather than a regular file, or for some other reason cannot be opened for reading.
 	 * @throws SerialComTimeOutException if timeout occurs as per file transfer protocol
 	 * @throws IOException if error occurs while reading data from file to be sent
-	 * @throws IllegalArgumentException if fileToSend is null
+	 * @throws IllegalArgumentException if fileToSend or ftpProto or ftpVariant or ftpMode argument is null
 	 */
 	public boolean sendFile(long handle, java.io.File fileToSend, FTPPROTO ftpProto, FTPVAR ftpVariant, FTPMODE ftpMode) throws SerialComException, SecurityException,
-							FileNotFoundException, SerialComTimeOutException, IOException {
+							  FileNotFoundException, SerialComTimeOutException, IOException {
 		int protocol = 0;
 		int variant = 0;
 		int mode = 0;
 		boolean handlefound = false;
 		boolean result = false;
+		
+		if(fileToSend == null) {
+			throw new IllegalArgumentException("sendFile()" + SerialComErrorMapper.ERR_NULL_POINTER_FOR_FILE_SEND);
+		}
+		if(ftpProto == null) {
+			throw new IllegalArgumentException("sendFile() " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_PROTOCOL);
+		}
+		if(ftpVariant == null) {
+			throw new IllegalArgumentException("sendFile() " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_VARIANT);
+		}
+		if(ftpMode == null) {
+			throw new IllegalArgumentException("sendFile() " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_MODE);
+		}
 
 		for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
 			if(mInfo.containsHandle(handle)) {
@@ -1645,10 +1694,6 @@ public final class SerialComManager {
 		}
 		if(handlefound == false) {
 			throw new SerialComException("sendFile()", SerialComErrorMapper.ERR_WRONG_HANDLE);
-		}
-		
-		if(fileToSend == null) {
-			throw new IllegalArgumentException("sendFile()" + SerialComErrorMapper.ERR_NULL_POINTER_FOR_FILE_SEND);
 		}
 
 		protocol = ftpProto.getValue();
@@ -1690,7 +1735,7 @@ public final class SerialComManager {
 	 * @throws FileNotFoundException if the file does not exist, is a directory rather than a regular file, or for some other reason cannot be opened for reading.
 	 * @throws SerialComTimeOutException if timeout occurs as per file transfer protocol
 	 * @throws IOException if error occurs while reading data from file to be sent
-	 * @throws IllegalArgumentException if fileToReceive is null
+	 * @throws IllegalArgumentException if fileToReceive or ftpProto or ftpVariant or ftpMode argument is null
 	 */
 	public boolean receiveFile(long handle, java.io.File fileToReceive, FTPPROTO ftpProto, FTPVAR ftpVariant, FTPMODE ftpMode) throws SerialComException,
 								SecurityException, FileNotFoundException, SerialComTimeOutException, IOException {
@@ -1699,7 +1744,20 @@ public final class SerialComManager {
 		int mode = 0;
 		boolean handlefound = false;
 		boolean result = false;
-
+		
+		if(fileToReceive == null) {
+			throw new IllegalArgumentException("receiveFile()" + SerialComErrorMapper.ERR_NULL_POINTER_FOR_FILE_RECEIVE);
+		}
+		if(ftpProto == null) {
+			throw new IllegalArgumentException("receiveFile() " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_PROTOCOL);
+		}
+		if(ftpVariant == null) {
+			throw new IllegalArgumentException("receiveFile() " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_VARIANT);
+		}
+		if(ftpMode == null) {
+			throw new IllegalArgumentException("receiveFile() " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_MODE);
+		}
+		
 		for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
 			if(mInfo.containsHandle(handle)) {
 				handlefound = true;
@@ -1710,10 +1768,6 @@ public final class SerialComManager {
 			throw new SerialComException("receiveFile()", SerialComErrorMapper.ERR_WRONG_HANDLE);
 		}
 
-		if(fileToReceive == null) {
-			throw new IllegalArgumentException("receiveFile()" + SerialComErrorMapper.ERR_NULL_POINTER_FOR_FILE_RECEIVE);
-		}
-		
 		protocol = ftpProto.getValue();
 		variant = ftpVariant.getValue();
 		mode = ftpMode.getValue();
@@ -1768,16 +1822,21 @@ public final class SerialComManager {
 	 * <p>Prepares context and returns an input streams of bytes for receiving data bytes from the 
 	 * serial port.</p>
 	 * 
-	 * <p>A handle can have only one input stream. After it has been used it need to be closed.</p>
+	 * <p>A handle can have only one input stream. Application should close stream after it is done.</p>
 	 * 
 	 * @param handle handle of the opened port from which to read data bytes
 	 * @return reference to an object of type SerialComInByteStream
 	 * @throws SerialComException if input stream already exist for this handle or invalid handle is passed
+	 * @throws IllegalArgumentException if streamMode is null
 	 */
 	public SerialComInByteStream createInputByteStream(long handle, SMODE streamMode) throws SerialComException {
 		boolean handlefound = false;
 		SerialComInByteStream scis = null;
 		SerialComPortHandleInfo mHandleInfo = null;
+		
+		if(streamMode == null) {
+			throw new IllegalArgumentException("createInputByteStream() " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_SMODE);
+		}
 
 		for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
 			if(mInfo.containsHandle(handle)) {
@@ -1806,7 +1865,7 @@ public final class SerialComManager {
 	 * <p>Prepares context and returns an output streams of bytes for transferring data bytes out of 
 	 * serial port.</p>
 	 * 
-	 * <p>A handle can have only one output stream. After it has been used it need to be closed.</p>
+	 * <p>A handle can have only one output stream. Application should close stream after it is done.</p>
 	 * 
 	 * <p>Using SerialComOutByteStream for writing data while not using SerialComInByteStream for
 	 * reading is a valid use case.</p>
@@ -1814,11 +1873,16 @@ public final class SerialComManager {
 	 * @param handle handle of the opened port on which to write data bytes
 	 * @return reference to an object of type SerialComOutByteStream
 	 * @throws SerialComException if output stream already exist for this handle or invalid handle is passed
+	 * @throws IllegalArgumentException if streamMode is null
 	 */
 	public SerialComOutByteStream createOutputByteStream(long handle, SMODE streamMode) throws SerialComException {
 		boolean handlefound = false;
 		SerialComOutByteStream scos = null;
 		SerialComPortHandleInfo mHandleInfo = null;
+		
+		if(streamMode == null) {
+			throw new IllegalArgumentException("createOutputByteStream() " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_SMODE);
+		}
 
 		for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
 			if(mInfo.containsHandle(handle)) {
