@@ -166,7 +166,7 @@ public final class SerialComPortHandleInfo {
 
 	/** 
 	 * <p> Check if there already exist a data listener for this handle. </p>
-	 * @param listener who will get data bytes/errors for this port/handle
+	 * @param dataListener who will get data bytes/errors for this port/handle
 	 */
 	public boolean containsDataListener(ISerialComDataListener dataListener) {
 		if(dataListener == mDataListener) {

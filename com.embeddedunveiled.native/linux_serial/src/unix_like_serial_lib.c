@@ -396,21 +396,10 @@ void *data_looper(void *arg) {
 							continue;
 						}else {
 							/* This indicates, there was data to read but we got an error during read operation, notify application. */
-#if defined (__linux__)
 							(*env)->CallVoidMethod(env, looper, mide, errno);
 							if((*env)->ExceptionOccurred(env)) {
 								LOGE(env);
 							}
-#endif
-#if defined (__APPLE__)
-							(*env)->CallVoidMethod(env, looper, mide, errno);
-							if((*env)->ExceptionOccurred(env)) {
-								LOGE(env);
-							}
-#endif
-#if defined (__SunOS)
-//TODO solaris
-#endif
 							break;
 						}
 					}else if(ret == 0) {
@@ -1004,4 +993,3 @@ void *data_looper(void *arg) {
 	}
 
 #endif /* End compiling for Unix-like OS. */
-

@@ -51,6 +51,7 @@ public class Test35 {
 			long handle = scm.openComPort(PORT, true, true, true);
 			scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
 			scm.configureComPortControl(handle, FLOWCONTROL.NONE, 'x', 'x', false, false);
+			
 			long handle1 = scm.openComPort(PORT1, true, true, true);
 			scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
 			scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
@@ -58,7 +59,7 @@ public class Test35 {
 			for(int x = 0; x<5000; x++) {
 				System.out.println("Iteration : " + x);
 				
-				scm.writeString(handle, "1111111111", 0);
+				scm.writeString(handle, "HELLO", 0);
 				if(osType == SerialComManager.OS_LINUX) {
 					Thread.sleep(10);
 				}else if(osType == SerialComManager.OS_WINDOWS) {
@@ -69,8 +70,8 @@ public class Test35 {
 					Thread.sleep(500);
 				}else{
 				}
-				byte[] bb = scm.readBytes(handle1, 102);
-				System.out.println("read STR : " + new String(bb));
+				String data = scm.readString(handle1);
+				System.out.println("data read is : " + data);
 			}
 
 			scm.closeComPort(handle);

@@ -663,6 +663,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 			}
 			count -= ret;
 			index = index + ret;
+			tcdrain(fd); /* user may have supplied large buffer and driver may have small, so make some room. */
 		}
 	}else {
 		while(count > 0) {

@@ -35,8 +35,7 @@ class DataListener extends Test50 implements ISerialComDataListener{
 	@Override
 	public void onNewSerialDataAvailable(SerialComDataEvent data) {
 		byte[] buf = data.getDataBytes();
-		System.out.println("DataListener : " + new String(buf));
-		System.out.println("DataListener : " + buf.length);
+		System.out.println("length : " + buf.length + " data : " + new String(buf));
 		
 		y = y + buf.length;
 		if(y >= 2) {
