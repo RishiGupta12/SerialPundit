@@ -633,7 +633,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINative
  * If the number of bytes to be written is 0, then behavior is undefined as per POSIX standard. Therefore we do not allow dummy writes with absolutely no data
  * at all and this is handled at java layer.
  *
- * Do not block any signals.
+ * Do not block any signals. If the read/write are working as expected using pseudo terminals (/dev/pts/1) then check termios structure settings.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_writeBytes(JNIEnv *env, jobject obj, jlong fd, jbyteArray buffer, jint delay) {
 	int ret = -1;
@@ -661,10 +661,10 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 				}
 
 			}
-			count -= ret;
+			count = count - ret;
 			index = index + ret;
-			tcdrain(fd); /* user may have supplied large buffer and driver may have small, so make some room. */
 		}
+		tcdrain(fd);
 	}else {
 		while(count > 0) {
 			errno = 0;
@@ -682,15 +682,16 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 				}
 
 			}
-			count -= ret;
+			count = count - ret;
 			index = index + ret;
-			tcdrain(fd);         // flush even single byte out of serial port physically
-			serial_delay(delay); // use supplied delay between bytes in milliseconds
+			if(count != 0) {
+				tcdrain(fd);         // flush single byte out of serial port physically
+				serial_delay(delay); // use supplied delay between bytes in milliseconds
+			}
 		}
 	}
 
 	(*env)->ReleaseByteArrayElements(env, buffer, data_buf, 0);
-	tcdrain(fd);
 	return status;
 }
 
@@ -988,7 +989,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 	currentconfig.c_oflag = 0;
 
 	/* Line options :
-	 * Non-canonical mode is enabled, echo nothing, deliver no sognals. */
+	 * Non-canonical mode is enabled, echo nothing, deliver no signals. */
 	currentconfig.c_lflag = 0;
 
 #if defined (__linux__)
@@ -1003,11 +1004,8 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 	 * data.Note that CLOCAL need always be set to prevent undesired effects of SIGNUP SIGNAL. */
 	currentconfig.c_cflag |= (CREAD | CLOCAL | HUPCL);
 
-	/* Input options :
-	 * IMAXBEL : ring bell on input queue full, IGNBRK : Ignore break conditions, BRKINT : map BREAK to SIGINTR,
-	 * PARMRK : mark parity and framing errors, ISTRIP : strip 8th bit off chars, INLCR : Don't Map NL to CR,
-	 * IGNCR : ignore CR, ICRNL : Don't Map CR to NL, IXON : enable output flow control */
-	currentconfig.c_iflag |= IGNBRK;
+	/* Input options : */
+	currentconfig.c_iflag &= ~(IGNBRK | IGNCR | INLCR | ICRNL | IUCLC | IXANY | IXON | IXOFF | INPCK | ISTRIP | BRKINT);
 #ifdef IUCLC
 	currentconfig.c_iflag &= ~IUCLC;  /* translate upper case to lower case */
 #endif
