@@ -357,7 +357,7 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInter
 	dcb.fOutxDsrFlow = FALSE;
 	dcb.fDtrControl = DTR_CONTROL_ENABLE;
 	dcb.fDsrSensitivity = FALSE;
-	dcb.fTXContinueOnXoff = FALSE;
+	dcb.fTXContinueOnXoff = TRUE;
 	dcb.fOutX = FALSE;
 	dcb.fInX = FALSE;
 	dcb.fErrorChar = FALSE;
