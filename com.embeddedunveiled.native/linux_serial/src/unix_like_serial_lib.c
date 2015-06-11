@@ -356,10 +356,7 @@ void *data_looper(void *arg) {
 #endif
 				/* input event happened, no error occurred, we have data to read on file descriptor. */
 				do {
-<<<<<<< HEAD
-					data_available = 0;
-=======
->>>>>>> upstream/master
+
 					errno = 0;
 					ret = read(fd, buffer, sizeof(buffer));
 					if(ret > 0 && errno == 0) {
