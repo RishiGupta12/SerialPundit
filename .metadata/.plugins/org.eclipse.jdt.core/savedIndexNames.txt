@@ -1,2 +1,0 @@
-INDEX VERSION 1.127+/home/r/ws-host-uart/serial-communication-manager/.metadata/.plugins/org.eclipse.jdt.core
-487595418.index
