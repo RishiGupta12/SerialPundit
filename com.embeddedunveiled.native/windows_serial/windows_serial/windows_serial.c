@@ -936,6 +936,10 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 		dcb.fOutxCtsFlow = FALSE;
 		dcb.fOutxDsrFlow = FALSE;
 		dcb.fDsrSensitivity = FALSE;
+		dcb.XonChar = 0x00;
+		dcb.XoffChar = 0x00;
+		dcb.XonLim = 0x00;
+		dcb.XoffLim = 0x00;
 	}else if(flowctrl == 2) {                    /* Hardware flow control. */
 		dcb.fOutX = FALSE;
 		dcb.fInX = FALSE;
