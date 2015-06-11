@@ -42,9 +42,26 @@ void LOGE(JNIEnv *env) {
 }
 
 /* Provide delay whenever required. */
-int serial_delay(unsigned milliSeconds) {
-	Sleep(milliSeconds);
-	return 0;
+int serial_delay(unsigned milli_seconds) {
+	DWORD wait_status = 0;
+	OVERLAPPED ov = { 0 };
+	ov.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
+	if(ov.hEvent == NULL) {
+		return (-1 * GetLastError());
+	}
+	wait_status = WaitForSingleObject(ov.hEvent, milli_seconds);
+	CloseHandle(ov.hEvent);
+	switch (wait_status) {
+		case WAIT_TIMEOUT:
+			return 0;
+		case WAIT_ABANDONED :
+			return -1;
+		case WAIT_OBJECT_0 :
+			return -1;
+		case WAIT_FAILED :
+			return (-1 * GetLastError());
+	}
+	return -1;
 }
 
 /* This thread wait for both data and control event both to occur on the specified port. When data is received on port or a control event has
