@@ -487,7 +487,7 @@ public final class SerialComManager {
 	 * @param delay  time gap between transmitting two successive bytes
 	 * @return true on success, false on failure or if empty buffer is passed
 	 * @throws SerialComException if an I/O error occurs.
-	 * @throws IllegalArgumentException if buffer is null
+	 * @throws IllegalArgumentException if buffer is null or delay is negative
 	 */
 	public boolean writeBytes(long handle, byte[] buffer, int delay) throws SerialComException {
 		if(buffer == null) {
@@ -495,6 +495,9 @@ public final class SerialComManager {
 		}
 		if(buffer.length == 0) {
 			return false;
+		}
+		if(delay < 0) {
+			throw new IllegalArgumentException("writeBytes(), " + SerialComErrorMapper.ERR_DELAY_CAN_NOT_NEG);
 		}
 		int ret = mNativeInterface.writeBytes(handle, buffer, delay);
 		if(ret < 0) {
@@ -1368,7 +1371,7 @@ public final class SerialComManager {
 	 * @return true on success false otherwise
 	 * @throws SerialComException if invalid handle is passed or operation can not be completed successfully
 	 */
-	public synchronized boolean clearPortIOBuffers(long handle, boolean clearRxPort, boolean clearTxPort) throws SerialComException {
+	public boolean clearPortIOBuffers(long handle, boolean clearRxPort, boolean clearTxPort) throws SerialComException {
 		boolean handlefound = false;
 		for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
 			if(mInfo.containsHandle(handle)) {
@@ -1407,8 +1410,9 @@ public final class SerialComManager {
 	 * @param duration the time in milliseconds for which break will be active
 	 * @return true on success
 	 * @throws SerialComException if invalid handle is passed or operation can not be successfully completed
+	 * @throws IllegalArgumentException if duration is zero or negative
 	 */
-	public synchronized boolean sendBreak(long handle, int duration) throws SerialComException {
+	public boolean sendBreak(long handle, int duration) throws SerialComException {
 		boolean handlefound = false;
 		for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
 			if(mInfo.containsHandle(handle)) {
@@ -1418,6 +1422,10 @@ public final class SerialComManager {
 		}
 		if(handlefound == false) {
 			throw new SerialComException("sendBreak()", SerialComErrorMapper.ERR_WRONG_HANDLE);
+		}
+		
+		if((duration < 0) || (duration == 0)) {
+			throw new IllegalArgumentException("sendBreak(), " + SerialComErrorMapper.ERR_DUR_CAN_NOT_NEG_ZERO);
 		}
 
 		int ret = mNativeInterface.sendBreak(handle, duration);
