@@ -742,7 +742,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 			num_bytes_to_write -= num_of_bytes_written;
 			index = index + num_of_bytes_written;
 			FlushFileBuffers(hComm);
-			serial_delay(delay - 5); // delay between bytes in milliseconds, compensate for time taken by FlushFileBuffers() by subtracting 5 approximately
+			serial_delay(delay);
 		}
 	}
 
