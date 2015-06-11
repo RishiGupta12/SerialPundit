@@ -1242,7 +1242,7 @@ public final class SerialComManager {
 	 * 
 	 * @param handle of the opened port
 	 * @param vmin c_cc[VMIN] field of termios structure
-	 * @param vtime c_cc[VTIME] field of termios structure
+	 * @param vtime c_cc[VTIME] field of termios structure (10th of a second)
 	 * @param rit ReadIntervalTimeout field of COMMTIMEOUTS structure
 	 * @param rttm ReadTotalTimeoutMultiplier field of COMMTIMEOUTS structure
 	 * @param rttc ReadTotalTimeoutConstant field of COMMTIMEOUTS structure
@@ -1429,8 +1429,8 @@ public final class SerialComManager {
 	}
 
 	/**
-	 * <p>This method gives the number of serial line interrupts that have occurred. The interrupt count is in following
-	 * order in array beginning from index 0 and ending with 11th index :
+	 * <p>This method gives the number of interrupts on serial line that have occurred. The interrupt count is in following
+	 * order in array beginning from index 0 and ending at index 11 :
 	 * CTS, DSR, RING, CARRIER DETECT, RECEIVER BUFFER, TRANSMIT BUFFER, FRAME ERROR, OVERRUN ERROR, PARITY ERROR,
 	 * BREAK AND BUFFER OVERRUN.</p>
 	 * 
@@ -1472,11 +1472,11 @@ public final class SerialComManager {
 	 * <p>Gives status of serial port's control lines as supported by underlying operating system.
 	 * The sequence of status in returned array is :</p>
 	 * 
-	 * <p>Linux OS   : CTS, DSR, DCD, RI, LOOP, RTS, DTR respectively.</p>
-	 * <p>MAC OS X   : CTS, DSR, DCD, RI, 0,    RTS, DTR respectively.</p>
-	 * <p>Windows OS : CTS, DSR, DCD, RI, 0,    0,   0   respectively.</p>
+	 * <p>Linux OS &nbsp;&nbsp;&nbsp;: CTS, DSR, DCD, RI, LOOP, RTS, DTR respectively.</p>
+	 * <p>MAC OS X &nbsp;&nbsp;:       CTS, DSR, DCD, RI, 0,    RTS, DTR respectively.</p>
+	 * <p>Windows OS :                 CTS, DSR, DCD, RI, 0,    0,   0   respectively.</p>
 	 * 
-	 * @param handle of the port opened
+	 * @param handle of the port whose status is to be read
 	 * @return status of control lines
 	 * @throws SerialComException if invalid handle is passed or operation can not be completed successfully
 	 */
