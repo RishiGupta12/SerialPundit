@@ -1,6 +1,6 @@
 # eclipse related stuff
-/metadata/
-/recommenders/
+/.metadata/*
+/.recommenders/*
 
 # JVM crash logs
 hs_err_pid*
