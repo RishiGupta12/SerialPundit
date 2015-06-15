@@ -17,6 +17,8 @@
 
 package test20;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import com.embeddedunveiled.serial.SerialComManager;
 import com.embeddedunveiled.serial.SerialComManager.BAUDRATE;
 import com.embeddedunveiled.serial.SerialComManager.DATABITS;
@@ -26,30 +28,35 @@ import com.embeddedunveiled.serial.SerialComManager.STOPBITS;
 import com.embeddedunveiled.serial.ISerialComDataListener;
 import com.embeddedunveiled.serial.SerialComDataEvent;
 
-class Data0 implements ISerialComDataListener{
+class Data1 extends Test20 implements ISerialComDataListener{
 	@Override
 	public void onNewSerialDataAvailable(SerialComDataEvent data) {
-		System.out.println("Sender got from receiver : " + new String(data.getDataBytes()));
+		System.out.println("foun\n");
+		byte[] b = data.getDataBytes();
+		for(int a=0; a<b.length; a++) {
+			if(b[a] == (byte) '#') {
+				exit.set(true);
+				System.out.println("found xoff : " + b[a]);
+			}else if(b[a] == (byte) '$') {
+				System.out.println("found xon : " + b[a]);
+			}
+		}
 	}
 
 	@Override
 	public void onDataListenerError(int arg0) {
+		System.out.println("" + arg0);
 	}
 }
 
-class Data1 implements ISerialComDataListener{
-	@Override
-	public void onNewSerialDataAvailable(SerialComDataEvent data) {
-		System.out.println("Receiver got from sender : " + new String(data.getDataBytes()));
-	}
-
-	@Override
-	public void onDataListenerError(int arg0) {
-	}
-}
-
+/*
+ * port will send xoff and xon after buffer limit is reached.
+ */
 public class Test20 {
+	protected static AtomicBoolean exit = new AtomicBoolean(false);
+	
 	public static void main(String[] args) {
+		
 		try {
 			SerialComManager scm = new SerialComManager();
 
@@ -71,45 +78,32 @@ public class Test20 {
 			}else{
 			}
 
-			byte[] XON  = new byte[] {(byte) 0x24};   // ASCII value of $ character is 0x24
-			byte[] XOFF = new byte[] {(byte) 0x23};   // ASCII value of # character is 0x23
-
+//			char XON = (char) 17;  replace '$' with XON to  test with CTRL+Q
+//			char XOFF = (char) 19; replace '#' with XOFF to test with CTRL+S
 			Data1 receiver = new Data1();
-			Data0 sender = new Data0();
 
-			// open and configure port that will listen data
 			long receiverHandle = scm.openComPort(PORT, true, true, true);
 			scm.configureComPortData(receiverHandle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
 			scm.configureComPortControl(receiverHandle, FLOWCONTROL.SOFTWARE, '$', '#', false, false);
 
-			scm.registerDataListener(receiverHandle, receiver);
-
-			// open and configure port which will send data
 			long senderHandle = scm.openComPort(PORT1, true, true, true);
 			scm.configureComPortData(senderHandle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
 			scm.configureComPortControl(senderHandle, FLOWCONTROL.SOFTWARE, '$', '#', false, false);
-			scm.registerDataListener(senderHandle, sender);
+			
+			scm.registerDataListener(receiverHandle, receiver);
 
-			// Step 1
-			scm.writeString(senderHandle, "str1", 0);
-			scm.writeString(receiverHandle, "str2", 0);
+			for(int x=0; x<100; x++) {
+				scm.writeString(receiverHandle, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", 0);
+				if(exit.get() == true) {
+					break;
+				}
+			}
+			
+			for(int x=0; x<10; x++) {
+				scm.readString(senderHandle);
+			}
+			
 			Thread.sleep(1000);
-
-			// Step 2
-			scm.writeBytes(receiverHandle, XOFF, 0);
-			Thread.sleep(200);
-
-			// Step 3
-			scm.writeString(senderHandle, "str3", 0);
-
-			// Step 4
-			Thread.sleep(4000);
-
-			// Step 5
-			scm.writeBytes(receiverHandle, XON, 0);
-			Thread.sleep(100000);
-
-			scm.unregisterDataListener(sender);
 			scm.unregisterDataListener(receiver);
 			scm.closeComPort(receiverHandle);
 			scm.closeComPort(senderHandle);

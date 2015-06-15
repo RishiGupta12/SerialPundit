@@ -6,8 +6,15 @@ v1.0.3 (27 May 2015)
 =======
 v1.0.4 (TODO RELEASE DATE)
 	- added XMODEM(checksum, CRC, 1K) support
+	- byte steam now can be operated in 2 modes blocking or non-blocking
 	- fix issue for not returning null in windows in read function
-	- added test for XMODEM file transfer protocol 
+	- added test for XMODEM file transfer protocol
+	- added check for incorrect arguments passing to methods
+	- fixed memory release for epoll implementations
+	- implemented partial read scenario for unix-like OS
+	- worker threads in Windows OS now exit gracefully
+	- various code improvements and optimizations
+	- javadocs and source code comments updated
 
 >>>>>>> upstream/master
 v1.0.3 (29 May 2015)

@@ -357,7 +357,7 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInter
 	dcb.fOutxDsrFlow = FALSE;
 	dcb.fDtrControl = DTR_CONTROL_ENABLE;
 	dcb.fDsrSensitivity = FALSE;
-	dcb.fTXContinueOnXoff = FALSE;
+	dcb.fTXContinueOnXoff = TRUE;
 	dcb.fOutX = FALSE;
 	dcb.fInX = FALSE;
 	dcb.fErrorChar = FALSE;
@@ -742,7 +742,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 			num_bytes_to_write -= num_of_bytes_written;
 			index = index + num_of_bytes_written;
 			FlushFileBuffers(hComm);
-			serial_delay(delay - 5); // delay between bytes in milliseconds, compensate for time taken by FlushFileBuffers() by subtracting 5 approximately
+			serial_delay(delay);
 		}
 	}
 
@@ -936,6 +936,10 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 		dcb.fOutxCtsFlow = FALSE;
 		dcb.fOutxDsrFlow = FALSE;
 		dcb.fDsrSensitivity = FALSE;
+		dcb.XonChar = 0x00;
+		dcb.XoffChar = 0x00;
+		dcb.XonLim = 0x00;
+		dcb.XoffLim = 0x00;
 	}else if(flowctrl == 2) {                    /* Hardware flow control. */
 		dcb.fOutX = FALSE;
 		dcb.fInX = FALSE;

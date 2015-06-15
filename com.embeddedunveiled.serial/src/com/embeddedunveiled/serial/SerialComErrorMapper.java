@@ -70,6 +70,8 @@ public final class SerialComErrorMapper {
 	public static final String ERR_BYTE_STREAM_IS_CLOSED = "The byte stream has been closed";
 	public static final String ERR_ARG_NOT_BYTE_ARRAY = "The argument data is not a byte array";
 	public static final String ERR_ARG_CAN_NOT_NEGATIVE = "Argument(s) can not be negative";
+	public static final String ERR_DELAY_CAN_NOT_NEG = "Delay can not be negative";
+	public static final String ERR_DUR_CAN_NOT_NEG_ZERO = "Duration can not be negative or zero";
 
 	/**
 	 * <p>Allocates a new SerialComErrorMapper object.</p>

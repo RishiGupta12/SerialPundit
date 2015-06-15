@@ -48,8 +48,8 @@ public final class Test2 {
 			}else{
 			}
 			
-//			PORT = "/dev/pts/1";
-//			PORT1 = "/dev/pts/3";
+//			PORT = "/dev/pts/11";
+//			PORT1 = "/dev/pts/12";
 
 			// try opening serial port for read and write without exclusive ownership
 			long handle = scm.openComPort(PORT, true, true, true);

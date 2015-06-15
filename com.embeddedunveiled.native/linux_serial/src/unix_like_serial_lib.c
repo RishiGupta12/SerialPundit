@@ -90,10 +90,16 @@ void LOGE(JNIEnv *env) {
 
 /* pselect() is used to provide delay whenever required. */
 int serial_delay(unsigned milliSeconds) {
+	int ret = 0;
+	int negative = -1;
 	struct timespec t;
 	t.tv_sec  = milliSeconds/1000;
 	t.tv_nsec = 0;
-	pselect(1, 0, 0, 0, &t, 0);
+	errno = 0;
+	ret = pselect(1, 0, 0, 0, &t, 0);
+	if(ret < 0) {
+		return (negative * errno);
+	}
 	return 0;
 }
 
@@ -121,7 +127,7 @@ void *data_looper(void *arg) {
 	struct epoll_event ev_port;
 	struct epoll_event ev_exit;
 	struct epoll_event event;
-	struct epoll_event *events = calloc(MAXEVENTS, sizeof(event));
+	struct epoll_event *events = calloc(MAXEVENTS, sizeof(event)); /*todo return err if fail*/
 #endif
 #if defined (__APPLE__)
 	/* Kqueue is used for MAC OS X systems. */
