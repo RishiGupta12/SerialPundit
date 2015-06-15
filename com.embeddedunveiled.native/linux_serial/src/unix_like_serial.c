@@ -302,7 +302,81 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINati
 		return NULL;
 	}
 
+	/* (2) Identify serial devices using regex expression. */
+	/* /dev/ttytxXXXX for perle port server */
+	ret = regcomp(&regex, "[ttytx[:digit:][:digit:][:digit:][:digit:]]" , REG_EXTENDED);
+	if(ret != 0) {
+		getSerialPortNamesSetErr(env, obj, status, ret);
+		return NULL;
+	}
 
+	dir_stream = opendir("/dev");
+	if(dir_stream == NULL) {
+		/* TODO return custom err num */
+		fprintf(stderr, "%s\n", "opendir(/dev) failed !");
+		fflush(stderr);
+	}
+
+	/* loop recursively and count number of device files under /dev directory. */
+	dev_files_count = 0;
+	for (;;) {
+		ret = readdir_r(dir_stream, &entry, &result);
+		if(ret == 0) {
+			if(result != NULL) {
+				dev_files_count++;
+			}else {
+				break;
+			}
+		}else if(ret > 0) {
+			getSerialPortNamesSetErr(env, obj, status, EBADF);
+			return NULL;
+		}else {
+		}
+	}
+
+	rewinddir(dir_stream);
+
+	if(dev_files_count > 0) {
+		regex_ports_base = (char **) calloc(dev_files_count, sizeof(char *));
+		if(regex_ports_base == NULL) {
+			/* TODO return custom err num*/
+			fprintf(stderr, "%s\n", "calloc(dev_files_count, failed !");
+			fflush(stderr);
+		}
+		have_regex_ports = 1;
+		regex_ports_found = 0; /* initialize */
+		for (i=0; i<dev_files_count; i++) {
+			/* Length of d_name field in Linux is 255 and no dynamic calculation is needed. */
+			ret = readdir_r(dir_stream, &entry, &result);      /* thread-safe & reentrant */
+			if(ret == 0) {
+				if(result != NULL) {
+					if((result->d_type == DT_CHR) || (result->d_type == DT_LNK)) {
+						ret = regexec(&regex, result->d_name, 0, NULL, 0);
+						if(ret == 0) {
+							x = strlen(result->d_name);
+							port_name = (char *) calloc(1, (x + 1));
+							memcpy(port_name, result->d_name, (x + 1));
+							regex_ports_base[regex_ports_found] = port_name;
+							regex_ports_found++;
+						}
+					}
+				}else {
+					break;
+				}
+			}else if(ret > 0) {
+				getSerialPortNamesSetErr(env, obj, status, EBADF);
+				return NULL;
+			}else {
+			}
+		}
+	}
+
+	errno = 0;
+	ret = closedir(dir_stream);
+	if(ret < 0) {
+		getSerialPortNamesSetErr(env, obj, status, errno);
+		return NULL;
+	}
 
 	/* Create a JAVA/JNI style array of String object, populate it and return to java layer. */
 	jclass strClass = (*env)->FindClass(env, "java/lang/String");
@@ -338,7 +412,12 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINati
 	if(have_sys_ports == 1) {
 		free(sys_ports_base);
 	}
-
+	if(have_regex_ports == 1) {
+		for (i=0; i < regex_ports_found; i++) {
+			free(regex_ports_base[i]);
+		}
+		free(regex_ports_base);
+	}
 	return portsFound;
 #endif
 
