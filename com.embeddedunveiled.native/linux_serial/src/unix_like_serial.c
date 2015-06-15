@@ -58,6 +58,8 @@
 #include <signal.h>
 #include <sys/uio.h>
 #include <time.h>
+#include <regex.h>
+#include <stddef.h>         /* Avoid OS/lib implementation specific dependencies. */
 #endif
 
 #if defined (__APPLE__)
@@ -179,121 +181,165 @@ JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInt
 	return version;
 }
 
+int getSerialPortNamesSetErr(JNIEnv *env, jobject obj, jobject status, int error_number) {
+	int negative = -1;
+	jclass statusClass = (*env)->GetObjectClass(env, status);
+	if(statusClass == NULL) {
+		if(DBG) fprintf(stderr, "%s\n", "NATIVE getSerialPortNames() could not get class of object of type SerialComRetStatus !");
+		if(DBG) fflush(stderr);
+		return -1;
+	}
+	jfieldID statusFid = (*env)->GetFieldID(env, statusClass, "status", "I");
+	if(statusFid == NULL) {
+		if(DBG) fprintf(stderr, "%s\n", "NATIVE getSerialPortNames() failed to retrieve field id of field status in class SerialComRetStatus !");
+		if(DBG) fflush(stderr);
+		return -1;
+	}
+	if((*env)->ExceptionOccurred(env)) {
+		LOGE(env);
+	}
+	(*env)->SetIntField(env, status, statusFid, (negative * error_number));
+	return 0;
+}
+
 /*
  * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
  * Method:    getSerialPortNames
  * Signature: ()[Ljava/lang/String;
  *
- * Check if the entry in /sys/class/tty has a driver associated with it. If it has we assume it is a valid serial port.
+ * Use OS specific way to detect/identify serial ports known to system at the instant this function is called. Do not try to open any
+ * port as for bluetooth this may result in system trying to make BT connection and failing with time out.
+ *
+ * FOR LINUX : (1) Check if the entry in /sys/class/tty has a driver associated with it. If it has we assume it is a valid serial port.
  * For example for a USB-SERIAL converter, we can verify this from shell by executing readlink command on path:
  * $ readlink /sys/class/tty/ttyUSB0/device/driver
  * ../../../../../../../bus/usb-serial/drivers/pl2303
+ * (2) Identify serial devices using regex expression for example ttytxXXXX is usually device files made by perle port servers.
  *
- * We don't try to open port as on some bluetooth device, this results in system trying to make BT connection and failing with time out.
- * We have assumed system will not have more than 1024 ports. Further, we used OS specific way to identify available serial port.
+ * FOR MAC OS X :
  *
- * For Solaris, this is handled in java layer itself as of now.
+ * For SOLARIS : this is handled in java layer itself as of now.
  */
 JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_getSerialPortNames(JNIEnv *env, jobject obj, jobject status) {
 	int negative = -1;
 #if defined (__linux__)
-	int i=0;
+	int i = 0;
+	int x = 0;
 	int ret = -1;
 	int num_of_dir_found = 0;
+	int total_ports = 0;
 	char path[1024];
 	char buffer[1024];
 	char* sysfspath = "/sys/class/tty/";
 	const char nulll[1] = "\0";
 	struct dirent **namelist;
 	struct stat statbuf = {0};
-	char *ports_identified[1024];
-	int portsadded = 0;
+	char *devnode;
+	char devbase[100];
+	int sys_ports_found = 0;
+	int have_sys_ports = 0;
+	char **sys_ports_base = ((void *)0);
 
+	long name_max = 0;
+	DIR *dir_stream = NULL;
+	struct dirent entry;
+	struct dirent *result;
+	int have_regex_ports = 0;
+	int regex_ports_found = 0;
+	char **regex_ports_base = ((void *)0);
+	int dev_files_count = 0;
+	regex_t regex;
+	char *port_name = ((void *)0);
+
+	/* (1) $ readlink /sys/class/tty/XXXXXX/device/driver */
 	errno = 0;
 	num_of_dir_found = scandir(sysfspath, &namelist, NULL, NULL);
-	if(num_of_dir_found >= 0) {
+	if(num_of_dir_found > 0) {
+		sys_ports_base = (char **) calloc(num_of_dir_found, sizeof(char *));
+		if(sys_ports_base == NULL) {
+			/* TODO return custom err num */
+			fprintf(stderr, "%s\n", "calloc(num_of_dir_found, failed !");
+			fflush(stderr);
+		}
+		have_sys_ports = 1;
 		while(num_of_dir_found--) {
 			memset(path, 0, sizeof(path));
-			if (strcmp(namelist[num_of_dir_found]->d_name, "..") && strcmp(namelist[num_of_dir_found]->d_name, ".")) {
+			if(strcmp(namelist[num_of_dir_found]->d_name, "..") && strcmp(namelist[num_of_dir_found]->d_name, ".")) {
 				strcpy(path, sysfspath);
 				strcat(path, namelist[num_of_dir_found]->d_name);
 				strcat(path, "/device");
 				strcat(path, nulll);
-
+				errno = 0;
 				ret = lstat(path, &statbuf);
-				if (ret >= 0) {
+				if(ret >= 0) {
 					if(S_ISLNK(statbuf.st_mode)) {
-						memset(buffer, 0, sizeof(buffer));
+						memset(buffer, '\0', sizeof(buffer));
 						strncpy(path, path, strlen(path));
 						strcat(path, "/driver");
 						strcat(path, nulll);
-
 						ret = readlink(path, buffer, sizeof(buffer));
 						if(ret >= 0) {
 							if(strlen(buffer) > 0) {
-								ports_identified[portsadded] = namelist[num_of_dir_found]->d_name;
-								portsadded++;
+								memset(devbase, '\0', sizeof(devbase));
+								sys_ports_base[sys_ports_found] = strcat(strcpy(devbase, "/dev/"), namelist[num_of_dir_found]->d_name);
+								sys_ports_found++;
 							}
-						} else {
-							/* if(DBG) fprintf(stderr, "%s \n", "ERROR in readlink the file."); un-comment only when debugging code.
-							 * if(DBG) fflush(stderr); */
 						}
 					}
-				} else {
-					/* if(DBG) fprintf(stderr, "%s \n", "ERROR in stat directory."); un-comment only when debugging code.
-					 * if(DBG) fflush(stderr); */
+				}else {
+					 if(errno != ENOENT) {
+						 getSerialPortNamesSetErr(env, obj, status, errno);
+						 return NULL;
+					 }
 				}
 
 			}
 			free(namelist[num_of_dir_found]);
 		}
 		free(namelist);
-
-		/* Prepare full path to device node as per Linux standard.
-		 * Create a JAVA/JNI style array of String object, populate it and return to java layer. */
-		char *devnode;
-		char devbase[100];
-
-		jclass strClass = (*env)->FindClass(env, "java/lang/String");
-		if( (*env)->ExceptionOccurred(env) ) {
-			LOGE(env);
-		}
-
-		jobjectArray portsFound = (*env)->NewObjectArray(env, (jsize)portsadded, strClass, NULL);
-		if( (*env)->ExceptionOccurred(env) ) {
-			LOGE(env);
-		}
-
-		for (i=0; i < portsadded; i++) {
-			devnode = strcat( strcpy(devbase, "/dev/"), ports_identified[i]);
-			(*env)->SetObjectArrayElement(env, portsFound, i, (*env)->NewStringUTF(env, devnode));
-			if((*env)->ExceptionOccurred(env)) {
-				LOGE(env);
-			}
-		}
-		return portsFound;
 	}else {
-		jclass statusClass = (*env)->GetObjectClass(env, status);
-		if(statusClass == NULL) {
-			if(DBG) fprintf(stderr, "%s\n", "NATIVE getSerialPortNames() could not get class of object of type SerialComRetStatus !");
-			if(DBG) fflush(stderr);
-			return NULL;
-		}
-		jfieldID status_fid = (*env)->GetFieldID(env, statusClass, "status", "I");
-		if(status_fid == NULL) {
-			if(DBG) fprintf(stderr, "%s\n", "NATIVE getSerialPortNames() failed to retrieve field id of field status in class SerialComRetStatus !");
-			if(DBG) fflush(stderr);
-			return NULL;
-		}
+		getSerialPortNamesSetErr(env, obj, status, errno);
+		return NULL;
+	}
+
+
+
+	/* Create a JAVA/JNI style array of String object, populate it and return to java layer. */
+	jclass strClass = (*env)->FindClass(env, "java/lang/String");
+	if((*env)->ExceptionOccurred(env)) {
+		LOGE(env);
+	}
+
+	total_ports = sys_ports_found + regex_ports_found;
+	jobjectArray portsFound = (*env)->NewObjectArray(env, (jsize)total_ports, strClass, NULL);
+	if((*env)->ExceptionOccurred(env)) {
+		LOGE(env);
+	}
+
+	/* Prepare full path to device node as per Linux standard. */
+	for (i=0; i < sys_ports_found; i++) {
+		(*env)->SetObjectArrayElement(env, portsFound, i, (*env)->NewStringUTF(env, sys_ports_base[i]));
 		if((*env)->ExceptionOccurred(env)) {
 			LOGE(env);
 		}
-		(*env)->SetIntField(env, status, status_fid, (negative*errno));
-		if(DBG) fprintf(stderr, "%s %d\n", "NATIVE getSerialPortNames() failed to scan directory /sys/class/tty/ with error no : -", errno);
-		if(DBG) fflush(stderr);
-		return NULL;
 	}
-	return NULL;
+	if(regex_ports_found > 0) {
+		x = sys_ports_found;
+		for (i=0; i < regex_ports_found; i++) {
+			(*env)->SetObjectArrayElement(env, portsFound, x, (*env)->NewStringUTF(env, regex_ports_base[i]));
+			if((*env)->ExceptionOccurred(env)) {
+				LOGE(env);
+			}
+			x++;
+		}
+	}
+
+	/* free/release memories allocated */
+	if(have_sys_ports == 1) {
+		free(sys_ports_base);
+	}
+
+	return portsFound;
 #endif
 
 #if defined (__APPLE__)
