@@ -215,6 +215,7 @@ int getSerialPortNamesSetErr(JNIEnv *env, jobject obj, jobject status, int error
  * $ readlink /sys/class/tty/ttyUSB0/device/driver
  * ../../../../../../../bus/usb-serial/drivers/pl2303
  * (2) Identify serial devices using regex expression for example ttytxXXXX is usually device files made by perle port servers.
+ * (3) Identify pseudo terminals using lstat.
  *
  * FOR MAC OS X :
  *
@@ -231,16 +232,14 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINati
 	char path[1024];
 	char buffer[1024];
 	char* sysfspath = "/sys/class/tty/";
-	const char nulll[1] = "\0";
 	struct dirent **namelist;
 	struct stat statbuf = {0};
-	char *devnode;
-	char devbase[100];
+	char devbase[1024];
 	int sys_ports_found = 0;
 	int have_sys_ports = 0;
 	char **sys_ports_base = ((void *)0);
+	char* fullpath = ((void *)0);
 
-	long name_max = 0;
 	DIR *dir_stream = NULL;
 	struct dirent entry;
 	struct dirent *result;
@@ -250,6 +249,11 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINati
 	int dev_files_count = 0;
 	regex_t regex;
 	char *port_name = ((void *)0);
+
+	int pts_ports_found = 0;
+	int have_pts_ports = 0;
+	char* ptspath = "/dev/pts/";
+	char **pts_ports_base = ((void *)0);
 
 	/* (1) $ readlink /sys/class/tty/XXXXXX/device/driver */
 	errno = 0;
@@ -263,12 +267,11 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINati
 		}
 		have_sys_ports = 1;
 		while(num_of_dir_found--) {
-			memset(path, 0, sizeof(path));
+			memset(path, '\0', sizeof(path));
 			if(strcmp(namelist[num_of_dir_found]->d_name, "..") && strcmp(namelist[num_of_dir_found]->d_name, ".")) {
 				strcpy(path, sysfspath);
 				strcat(path, namelist[num_of_dir_found]->d_name);
 				strcat(path, "/device");
-				strcat(path, nulll);
 				errno = 0;
 				ret = lstat(path, &statbuf);
 				if(ret >= 0) {
@@ -276,12 +279,15 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINati
 						memset(buffer, '\0', sizeof(buffer));
 						strncpy(path, path, strlen(path));
 						strcat(path, "/driver");
-						strcat(path, nulll);
 						ret = readlink(path, buffer, sizeof(buffer));
 						if(ret >= 0) {
 							if(strlen(buffer) > 0) {
 								memset(devbase, '\0', sizeof(devbase));
-								sys_ports_base[sys_ports_found] = strcat(strcpy(devbase, "/dev/"), namelist[num_of_dir_found]->d_name);
+								fullpath = strcat(strcpy(devbase, "/dev/"), namelist[num_of_dir_found]->d_name);
+								x = strlen(fullpath);
+								port_name = (char *) calloc(1, (x + 1));
+								memcpy(port_name, fullpath, (x + 1));
+								sys_ports_base[sys_ports_found] = port_name;
 								sys_ports_found++;
 							}
 						}
@@ -304,7 +310,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINati
 
 	/* (2) Identify serial devices using regex expression. */
 	/* /dev/ttytxXXXX for perle port server */
-	ret = regcomp(&regex, "[ttytx[:digit:][:digit:][:digit:][:digit:]]" , REG_EXTENDED);
+	ret = regcomp(&regex, "ttytx[0-9]" , 0);
 	if(ret != 0) {
 		getSerialPortNamesSetErr(env, obj, status, ret);
 		return NULL;
@@ -353,9 +359,11 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINati
 					if((result->d_type == DT_CHR) || (result->d_type == DT_LNK)) {
 						ret = regexec(&regex, result->d_name, 0, NULL, 0);
 						if(ret == 0) {
-							x = strlen(result->d_name);
+							memset(devbase, '\0', sizeof(devbase));
+							fullpath = strcat(strcpy(devbase, "/dev/"), result->d_name);
+							x = strlen(fullpath);
 							port_name = (char *) calloc(1, (x + 1));
-							memcpy(port_name, result->d_name, (x + 1));
+							memcpy(port_name, fullpath, (x + 1));
 							regex_ports_base[regex_ports_found] = port_name;
 							regex_ports_found++;
 						}
@@ -371,9 +379,57 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINati
 		}
 	}
 
+	regfree(&regex);
 	errno = 0;
 	ret = closedir(dir_stream);
 	if(ret < 0) {
+		getSerialPortNamesSetErr(env, obj, status, errno);
+		return NULL;
+	}
+
+	/* (3) $ lstat /dev/pts/X for pseudo terminals */
+	errno = 0;
+	num_of_dir_found = scandir(ptspath, &namelist, NULL, NULL);
+	if(num_of_dir_found > 0) {
+		pts_ports_base = (char **) calloc(num_of_dir_found, sizeof(char *));
+		if(pts_ports_base == NULL) {
+			/* TODO return custom err num */
+			fprintf(stderr, "%s\n", "calloc(num_of_dir_found, failed !");
+			fflush(stderr);
+		}
+		have_pts_ports = 1;
+		while(num_of_dir_found--) {
+			memset(path, '\0', sizeof(path));
+			if(strcmp(namelist[num_of_dir_found]->d_name, "..") && strcmp(namelist[num_of_dir_found]->d_name, ".")) {
+				strcpy(path, ptspath);
+				strcat(path, namelist[num_of_dir_found]->d_name);
+				errno = 0;
+				ret = lstat(path, &statbuf);
+				if(ret >= 0) {
+					if(S_ISLNK(statbuf.st_mode) || S_ISCHR(statbuf.st_mode)) {
+						/*memset(buffer, '\0', sizeof(buffer));
+						strncpy(path, path, strlen(path));
+						strcat(path, "/driver");
+						ret = readlink(path, buffer, sizeof(buffer));
+						if(ret >= 0) {
+							if(strlen(buffer) > 0) {
+								memset(devbase, '\0', sizeof(devbase));
+								sys_ports_base[sys_ports_found] = strcat(strcpy(devbase, "/dev/"), namelist[num_of_dir_found]->d_name);
+								sys_ports_found++;
+							}
+						}*/
+					}
+				}else {
+					if(errno != ENOENT) {
+						getSerialPortNamesSetErr(env, obj, status, errno);
+						return NULL;
+					}
+				}
+			}
+			free(namelist[num_of_dir_found]);
+		}
+		free(namelist);
+	}else {
 		getSerialPortNamesSetErr(env, obj, status, errno);
 		return NULL;
 	}
@@ -408,8 +464,11 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINati
 		}
 	}
 
-	/* free/release memories allocated */
+	/* free/release memories allocated finally. */
 	if(have_sys_ports == 1) {
+		for (i=0; i < sys_ports_found; i++) {
+			free(sys_ports_base[i]);
+		}
 		free(sys_ports_base);
 	}
 	if(have_regex_ports == 1) {
