@@ -866,7 +866,7 @@ public final class SerialComManager {
 	 * @param custBaud custom baudrate if the desired rate is not included in BAUDRATE enum
 	 * @return true on success false otherwise
 	 * @throws SerialComException if invalid handle is passed or an error occurs in configuring the port
-	 * @throws IllegalArgumentException if dataBits or stopBits or parity or baudRate is null
+	 * @throws IllegalArgumentException if dataBits or stopBits or parity or baudRate is null, or if custBaud is zero or negative
 	 */
 	public boolean configureComPortData(long handle, DATABITS dataBits, STOPBITS stopBits, PARITY parity, BAUDRATE baudRate, int custBaud) throws SerialComException {
 
@@ -904,6 +904,9 @@ public final class SerialComManager {
 			custBaudTranslated = 0;
 		}else {
 			// custom baud rate
+			if(custBaud <= 0) {
+				throw new IllegalArgumentException("configureComPortData() " + SerialComErrorMapper.ERR_CUSTB_CAN_NOT_NEG_ZERO);
+			}
 			baudRateTranslated = baudRateGiven;
 			custBaudTranslated = custBaud;
 		}

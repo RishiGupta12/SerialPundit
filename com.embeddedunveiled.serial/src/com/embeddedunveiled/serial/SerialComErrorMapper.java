@@ -72,6 +72,7 @@ public final class SerialComErrorMapper {
 	public static final String ERR_ARG_CAN_NOT_NEGATIVE = "Argument(s) can not be negative";
 	public static final String ERR_DELAY_CAN_NOT_NEG = "Delay can not be negative";
 	public static final String ERR_DUR_CAN_NOT_NEG_ZERO = "Duration can not be negative or zero";
+	public static final String ERR_CUSTB_CAN_NOT_NEG_ZERO = "Baudrate can not be negative or zero";
 
 	/**
 	 * <p>Allocates a new SerialComErrorMapper object.</p>
@@ -101,7 +102,7 @@ public final class SerialComErrorMapper {
 				exceptionType = new String("No such file or directory");
 				break;
 			case -4:
-				exceptionType = new String("I/O error");
+				exceptionType = new String("Interrupted system call");
 				break;
 			case -5:
 				exceptionType = new String("I/O error");
