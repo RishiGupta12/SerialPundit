@@ -277,7 +277,8 @@ public final class SerialComManager {
 	private static final String HEXNUM = "0123456789ABCDEF";
 
 	/**
-	 * <p>Allocates a new SerialComManager object. Constructor, initialize various classes and load native libraries.</p>
+	 * <p>Allocates a new SerialComManager object. Identify operating system type, initialize various 
+	 * classes and initiate loading of native library.</p>
 	 */
 	public SerialComManager() {
 		String osNameMatch = osName.toLowerCase();
@@ -289,8 +290,8 @@ public final class SerialComManager {
 			osType = OS_SOLARIS;
 		}else if(osNameMatch.contains("mac os") || osNameMatch.contains("macos") || osNameMatch.contains("darwin")) {
 			osType = OS_MAC_OS_X;
-		}else {
-			//TODO
+		}else if(osNameMatch.contains("freebsd") || osNameMatch.contains("free bsd")) {
+			osType = OS_FREEBSD;
 		}
 
 		mErrMapper = new SerialComErrorMapper();
@@ -373,8 +374,9 @@ public final class SerialComManager {
 	 * 
 	 * <p>For Solaris, exclusiveOwnerShip should be set to false as of now.</p>
 	 * 
-	 * <p>DTR acts as a modem on-hook/off-hook control sometimes. By default when port is opened both DTR and RTS are enabled.
-	 * Modern modems are highly flexible in their dependency, working and configurations. Please consult modem manual.</p>
+	 * <p>Sometimes, DTR acts as a modem on-hook/off-hook control for other end. By default when the SCM opens a port, it sets both
+	 *  DTR and RTS signals. So just in case other end was waiting for its DTS line to be asserted can see this end as online.
+	 *  Modern modems are highly flexible in their dependency, working and configurations. It is best to consult modem manual.</p>
 	 * 
 	 * <p>This method is thread safe.</p>
 	 * 
