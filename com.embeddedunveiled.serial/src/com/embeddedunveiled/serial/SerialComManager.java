@@ -198,17 +198,29 @@ public final class SerialComManager {
 	
 	public static boolean DEBUG = true;
 	
-	/** Integer constant with value 0x01. */
+	/** The value indicating the Linux operating system. Integer constant with value 0x01. */
 	public static final int OS_LINUX    = 0x01;
 	
-	/** Integer constant with value 0x02. */
+	/** The value indicating the Windows operating system. Integer constant with value 0x02. */
 	public static final int OS_WINDOWS  = 0x02;
 	
-	/** Integer constant with value 0x03. */
+	/** The value indicating the Solaris operating system. Integer constant with value 0x03. */
 	public static final int OS_SOLARIS  = 0x03;
 	
-	/** Integer constant with value 0x04. */
+	/** The value indicating the Mac OS X operating system. Integer constant with value 0x04. */
 	public static final int OS_MAC_OS_X = 0x04;
+	
+	/** The value indicating the FreeBSD operating system.. Integer constant with value 0x05. */
+	public static final int OS_FREEBSD  = 0x05;
+	
+	/** The value indicating the NetBSD operating system. Integer constant with value 0x06. */
+	public static final int OS_NETBSD   = 0x06;
+	
+	/** The value indicating the OpenBSD operating system. Integer constant with value 0x07. */
+	public static final int OS_OPENBSD  = 0x07;
+	
+	/** The value indicating the Android operating system. Integer constant with value 0x08. */
+	public static final int OS_ANDROID  = 0x08;
 
 	/** Default number of bytes (1024) to read from serial port. */
 	public static final int DEFAULT_READBYTECOUNT = 1024;
@@ -866,7 +878,7 @@ public final class SerialComManager {
 	 * @param custBaud custom baudrate if the desired rate is not included in BAUDRATE enum
 	 * @return true on success false otherwise
 	 * @throws SerialComException if invalid handle is passed or an error occurs in configuring the port
-	 * @throws IllegalArgumentException if dataBits or stopBits or parity or baudRate is null
+	 * @throws IllegalArgumentException if dataBits or stopBits or parity or baudRate is null, or if custBaud is zero or negative
 	 */
 	public boolean configureComPortData(long handle, DATABITS dataBits, STOPBITS stopBits, PARITY parity, BAUDRATE baudRate, int custBaud) throws SerialComException {
 
@@ -904,6 +916,9 @@ public final class SerialComManager {
 			custBaudTranslated = 0;
 		}else {
 			// custom baud rate
+			if(custBaud <= 0) {
+				throw new IllegalArgumentException("configureComPortData() " + SerialComErrorMapper.ERR_CUSTB_CAN_NOT_NEG_ZERO);
+			}
 			baudRateTranslated = baudRateGiven;
 			custBaudTranslated = custBaud;
 		}
