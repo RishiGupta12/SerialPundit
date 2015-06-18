@@ -143,10 +143,10 @@ __attribute__((destructor)) static void exit_scmlib() {
  *
  * This function gets the JVM interface (used in the Invocation API) associated with the current thread and save it so that it
  * can be used across native library, threads etc. It creates and prepares mutex object to synchronize access to global data.
+ * Clear all exceptions.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_initNativeLib(JNIEnv *env, jobject obj) {
 	int ret = 0;
-
 	ret = (*env)->GetJavaVM(env, &jvm);
 	if(ret < 0) {
 		return (-1 * SCMERR_GETJVM);
@@ -155,11 +155,10 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 	errno = 0;
 	ret = pthread_mutex_init(&mutex, NULL);
 	if(ret != 0) {
-		if(DBG) fprintf(stderr, "%s %d\n", "NATIVE initNativeLib() failed to init mutex with error number : -", errno);
-		if(DBG) fflush(stderr);
 		return (-1 * errno);
 	}
 
+	(*env)->ExceptionClear(env);
 	return 0;
 }
 
@@ -171,7 +170,8 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
  * This might return null which is handled by java layer.
  */
 JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_getNativeLibraryVersion (JNIEnv *env, jobject obj) {
-	jstring version = (*env)->NewStringUTF(env, UART_NATIVE_LIB_VERSION);
+	jstring version = NULL;
+	version = (*env)->NewStringUTF(env, UART_NATIVE_LIB_VERSION);
 	if((*env)->ExceptionOccurred(env)) {
 		LOGE(env);
 	}
