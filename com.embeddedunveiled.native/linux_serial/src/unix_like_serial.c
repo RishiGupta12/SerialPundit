@@ -23,7 +23,7 @@
  * - Wherever possible avoid JNI data types.
  * - Sometimes, the JNI does not like some pointer arithmetic so it is avoided wherever possible. */
 
-#if defined (__linux__) || defined (__APPLE__) || defined (__SunOS)
+#if defined (__linux__) || defined (__APPLE__) || defined (__SunOS) || defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__)
 
 /* Make primitives such as read and write resume, in case they are interrupted by signal,
  * before they actually start reading or writing data. The partial success case are handled
@@ -110,7 +110,7 @@ int dtp_index = 0;
 struct com_thread_params fd_looper_info[MAX_NUM_THREADS] = { {0} };
 
 /* Used to protect global data from concurrent access. */
-pthread_mutex_t mutex;
+pthread_mutex_t mutex = {{0}};
 
 /* Holds information for port monitor facility. */
 int port_monitor_index = 0;
@@ -141,28 +141,24 @@ __attribute__((destructor)) static void exit_scmlib() {
  * Method:    initNativeLib
  * Signature: ()I
  *
- * This function save reference to JVM which will be used across native library, threads etc. It prepares mutex
- * object also ready for use.
+ * This function gets the JVM interface (used in the Invocation API) associated with the current thread and save it so that it
+ * can be used across native library, threads etc. It creates and prepares mutex object to synchronize access to global data.
+ * Clear all exceptions.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_initNativeLib(JNIEnv *env, jobject obj) {
 	int ret = 0;
-	int negative = -1;
-
 	ret = (*env)->GetJavaVM(env, &jvm);
 	if(ret < 0) {
-		if(DBG) fprintf(stderr, "%s \n", "NATIVE initNativeLib() could not get Java VM interface.");
-		if(DBG) fflush(stderr);
-		return -240;
+		return (-1 * SCMERR_GETJVM);
 	}
 
 	errno = 0;
 	ret = pthread_mutex_init(&mutex, NULL);
-	if(ret < 0) {
-		if(DBG) fprintf(stderr, "%s %d\n", "NATIVE initNativeLib() failed to init mutex with error number : -", errno);
-		if(DBG) fflush(stderr);
-		return (negative * errno);
+	if(ret != 0) {
+		return (-1 * errno);
 	}
 
+	(*env)->ExceptionClear(env);
 	return 0;
 }
 
@@ -174,7 +170,8 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
  * This might return null which is handled by java layer.
  */
 JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_getNativeLibraryVersion (JNIEnv *env, jobject obj) {
-	jstring version = (*env)->NewStringUTF(env, UART_NATIVE_LIB_VERSION);
+	jstring version = NULL;
+	version = (*env)->NewStringUTF(env, UART_NATIVE_LIB_VERSION);
 	if((*env)->ExceptionOccurred(env)) {
 		LOGE(env);
 	}
@@ -262,8 +259,8 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINati
 		sys_ports_base = (char **) calloc(num_of_dir_found, sizeof(char *));
 		if(sys_ports_base == NULL) {
 			/* TODO return custom err num */
-			fprintf(stderr, "%s\n", "calloc(num_of_dir_found, failed !");
-			fflush(stderr);
+			if(DBG) fprintf(stderr, "%s\n", "calloc(num_of_dir_found, failed !");
+			if(DBG) fflush(stderr);
 		}
 		have_sys_ports = 1;
 		sys_ports_found = 0; /* initialize */
@@ -320,8 +317,8 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINati
 	dir_stream = opendir("/dev");
 	if(dir_stream == NULL) {
 		/* TODO return custom err num */
-		fprintf(stderr, "%s\n", "opendir(/dev) failed !");
-		fflush(stderr);
+		if(DBG) fprintf(stderr, "%s\n", "opendir(/dev) failed !");
+		if(DBG) fflush(stderr);
 	}
 
 	/* loop recursively and count number of device files under /dev directory. */
@@ -347,8 +344,8 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINati
 		regex_ports_base = (char **) calloc(dev_files_count, sizeof(char *));
 		if(regex_ports_base == NULL) {
 			/* TODO return custom err num*/
-			fprintf(stderr, "%s\n", "calloc(dev_files_count, failed !");
-			fflush(stderr);
+			if(DBG) fprintf(stderr, "%s\n", "calloc(dev_files_count, failed !");
+			if(DBG) fflush(stderr);
 		}
 		have_regex_ports = 1;
 		regex_ports_found = 0; /* initialize */
@@ -396,8 +393,8 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINati
 		pts_ports_base = (char **) calloc(num_of_dir_found, sizeof(char *));
 		if(pts_ports_base == NULL) {
 			/* TODO return custom err num */
-			fprintf(stderr, "%s\n", "calloc(num_of_dir_found, failed !");
-			fflush(stderr);
+			if(DBG) fprintf(stderr, "%s\n", "calloc(num_of_dir_found, failed !");
+			if(DBG) fflush(stderr);
 		}
 		have_pts_ports = 1;
 		pts_ports_found = 0; /* initialize */
@@ -490,10 +487,10 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINati
 #endif
 
 #if defined (__APPLE__)
-	CFMutableDictionaryRef matchingDict;
+	CFMutableDictionaryRef matchingDict = NULL;
 	io_iterator_t iter = 0;
 	io_service_t service = 0;
-	kern_return_t kr;
+	kern_return_t kr = 0;;
 	CFStringRef cfCalloutPath;
 	CFStringRef cfDeviceName;
 	char calloutPath[512];
@@ -506,8 +503,13 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINati
 
 	/* Create a matching dictionary that will find any serial device. */
 	matchingDict = IOServiceMatching(kIOSerialBSDServiceValue);
+	if(matchingDict == NULL) {
+		/* TODO return custom err num */
+		if(DBG) fprintf(stderr, "%s\n", "IOServiceMatching could not create dictionary.");
+		if(DBG) fflush(stderr);
+	}
 	kr = IOServiceGetMatchingServices(kIOMasterPortDefault, matchingDict, &iter);
-	if (kr != KERN_SUCCESS) {
+	if(kr != KERN_SUCCESS) {
 		if(DBG) fprintf(stderr, "%s %d \n", "NATIVE getSerialPortNames() failed in IOServiceGetMatchingServices() with error", kr);
 		if(DBG) fflush(stderr);
 		jclass statusClass = (*env)->GetObjectClass(env, status);
