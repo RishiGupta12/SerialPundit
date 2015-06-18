@@ -44,8 +44,8 @@ public abstract class BaseSerial1Test{
 	static String PORT1 = null;
 	static String PORT2 = null;	
 	
-	Long handle1;
-	Long handle2;
+	long handle1;
+	long handle2;
 	
 	class Data implements ISerialComDataListener{
 		@Override
@@ -96,6 +96,9 @@ public abstract class BaseSerial1Test{
 				 *  socat -d -v -x PTY,link=/tmp/serial,wait-slave,raw /dev/tty_dgrp_a_9,raw
 				 *  
 				 */
+				
+				//PORT1 = "/dev/tty_dgrp_a_2";
+				//PORT2 = "/dev/tty_dgrp_a_3";
 				PORT1 = "/dev/ttyS98";
 				PORT2 = "/dev/ttyS99";
 			}else if(osType == SerialComManager.OS_WINDOWS) {

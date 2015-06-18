@@ -92,8 +92,10 @@ public class BaseSerial2Test {
 				 *  socat -d -v -x PTY,link=/tmp/serial,wait-slave,raw /dev/tty_dgrp_a_9,raw
 				 *  
 				 */
-				PORT1 = "/dev/ttyS98";
-				PORT2 = "/dev/ttyS99";
+				PORT1 = "/dev/tty_dgrp_a_2";
+				PORT2 = "/dev/tty_dgrp_a_3";
+				//PORT1 = "/dev/ttyS98";
+				//PORT2 = "/dev/ttyS99";
 			}else if(osType == SerialComManager.OS_WINDOWS) {
 				PORT1 = "COM51";
 				PORT2 = "COM52";

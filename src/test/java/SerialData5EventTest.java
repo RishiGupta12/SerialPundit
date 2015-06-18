@@ -56,7 +56,7 @@ public class SerialData5EventTest extends BaseSerial2Test{
 		Thread.sleep(100);
 
 		// Step 2
-		//scm.writeBytes(receiverHandle, XOFF, 0); //Modified
+		scm.writeBytes(receiverHandle, XOFF, 0); //Modified
 		Thread.sleep(100);
 		// Step 3
 		scm.writeString(senderHandle, "str3", 0);
@@ -160,7 +160,6 @@ public class SerialData5EventTest extends BaseSerial2Test{
 		long DTE = receiverHandle;
 		scm.configureComPortData(DTE, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B9600, 0);
 		scm.configureComPortControl(DTE, FLOWCONTROL.HARDWARE, 'x', 'x', false, true);
-
 		long DTE1 = senderHandle;
 		scm.configureComPortData(DTE1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B9600, 0);
 		scm.configureComPortControl(DTE1, FLOWCONTROL.HARDWARE, 'x', 'x', false, true);
@@ -255,7 +254,7 @@ public class SerialData5EventTest extends BaseSerial2Test{
 		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, '$', '$', false, false);
 		String str = "testing";
 		scm.writeString(handle, str, 0);
-		Thread.sleep(100);
+		Thread.sleep(1000);
 		String data = scm.readString(handle1);
 		LOG.debug("data read is : " + data);
 		Assert.assertEquals(str, data);
@@ -312,7 +311,7 @@ public class SerialData5EventTest extends BaseSerial2Test{
 		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
 		int x = 0;
 
-		for(x=0; x<5000; x++) {
+		for(x=0; x<100; x++) {
 			LOG.debug("register  : " + scm.registerLineEventListener(handle, eventListener));
 			scm.setDTR(handle1, true);
 			scm.setRTS(handle1, true);
@@ -323,7 +322,7 @@ public class SerialData5EventTest extends BaseSerial2Test{
 		}
 		LOG.debug("test event pass \n");
 
-		for(x=0; x<5000; x++) {
+		for(x=0; x<100; x++) {
 			LOG.debug("register  : " + scm.registerDataListener(handle, dataListener));
 			scm.writeString(handle1, "T", 0);
 			Thread.sleep(50);
@@ -351,15 +350,18 @@ public class SerialData5EventTest extends BaseSerial2Test{
 
 		LOG.debug("register  : " + scm.registerLineEventListener(handle, eventListener));
 		LOG.debug("register  : " + scm.registerDataListener(handle, dataListener));
-
-		while(true) {
+		int cont = 0;
+		while(cont != 100) {
 			scm.setDTR(handle1, true);
 			scm.setRTS(handle1, true);
 			scm.setRTS(handle1, false);
 			scm.setDTR(handle1, false);
 			scm.writeString(handle1, "T", 0);
-			Thread.sleep(3000);
+			Thread.sleep(50);
+			cont++;
 		}
+		scm.unregisterLineEventListener(eventListener);
+		LOG.debug("unregister : " + scm.unregisterDataListener(dataListener));
 	}
 	
 	/*
@@ -380,8 +382,8 @@ public class SerialData5EventTest extends BaseSerial2Test{
 
 		LOG.debug("register  : " + scm.registerLineEventListener(receiverHandle, eventListener));
 		LOG.debug("register  : " + scm.registerDataListener(receiverHandle, dataListener));
-
-		while(true) {
+		int cont = 0;
+		while(cont != 50) {
 			scm.setDTR(senderHandle, true);
 			scm.setRTS(senderHandle, true);
 			scm.setRTS(senderHandle, false);
@@ -389,8 +391,11 @@ public class SerialData5EventTest extends BaseSerial2Test{
 			scm.writeString(senderHandle, "T", 0);
 			Thread.sleep(10);
 			scm.readString(receiverHandle);
-			Thread.sleep(10000);
+			Thread.sleep(10);
+			cont++;
 		}
+		scm.unregisterLineEventListener(eventListener);
+		LOG.debug("unregister : " + scm.unregisterDataListener(dataListener));
 	}
 	
 }

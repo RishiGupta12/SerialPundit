@@ -20,6 +20,8 @@ package com.embeddedunveiled.serial;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.embeddedunveiled.serial.SerialComManager.SMODE;
+
 public class SerialData8Status extends BaseSerial1Test{
 	
 	/*
@@ -50,8 +52,8 @@ public class SerialData8Status extends BaseSerial1Test{
 	@Test
 	public void iOPutStream() throws SerialComException, InterruptedException{
 		LOG.debug("iOPutStream()");
-		SerialComOutByteStream out = scm.createOutputByteStream(handle1);
-		SerialComInByteStream in = scm.createInputByteStream(handle2);
+		SerialComOutByteStream out = scm.createOutputByteStream(handle1, SMODE.NONBLOCKING);
+		SerialComInByteStream in = scm.createInputByteStream(handle2, SMODE.NONBLOCKING);
 		try {
 			//We write int 65. Read int.
 			out.write(65); 
@@ -98,7 +100,7 @@ public class SerialData8Status extends BaseSerial1Test{
 		mThread = new Thread(new ClosePort());
 		mThread.start();
 		try {
-			SerialComInByteStream in = scm.createInputByteStream(handle1);
+			SerialComInByteStream in = scm.createInputByteStream(handle1, SMODE.NONBLOCKING);
 			byte[] b = new byte[50];
 			in.read(b);
 			LOG.debug("b : " + new String(b));

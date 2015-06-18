@@ -78,16 +78,16 @@ public class SerialData2Test extends BaseSerial1Test{
 		String in = "";
 		
 
-		LOG.debug(out);
+		LOG.debug("We sent: " + out);
 				
 		scm.writeString(handle1, out, Charset.forName("UTF-8"), 0);
-	
+		
 		// wait for data to be displayed on console
-		Thread.sleep(1000);
+		Thread.sleep(5000);
 		
 		in = scm.readString(handle2); //MODIFIED: scm.readString(handle1)
 		
-		LOG.debug(in);
+		LOG.debug("We received: " + in);
 		
 		//test if strings are the same
 		Assert.assertEquals(out, in);	
