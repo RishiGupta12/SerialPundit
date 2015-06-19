@@ -88,7 +88,7 @@
 #include "../../com_embeddedunveiled_serial_SerialComJNINativeInterface.h"
 
 #undef  UART_NATIVE_LIB_VERSION
-#define UART_NATIVE_LIB_VERSION "1.0.3"
+#define UART_NATIVE_LIB_VERSION "1.0.4"
 
 #define DBG 1
 
@@ -149,60 +149,64 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 	int ret = 0;
 	ret = (*env)->GetJavaVM(env, &jvm);
 	if(ret < 0) {
-		return (-1 * SCMERR_GETJVM);
+		return (-1 * E_GETJVM);
 	}
 
-	errno = 0;
 	ret = pthread_mutex_init(&mutex, NULL);
 	if(ret != 0) {
-		return (-1 * errno);
+		return (-1 * ret);
 	}
 
-	(*env)->ExceptionClear(env);
+	if((*env)->ExceptionCheck(env) == JNI_TRUE) {
+		(*env)->ExceptionClear(env);
+	}
 	return 0;
 }
 
 /*
  * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
  * Method:    getNativeLibraryVersion
- * Signature: ()Ljava/lang/String;
+ * Signature: (Lcom/embeddedunveiled/serial/SerialComRetStatus;)Ljava/lang/String;
  *
- * This might return null which is handled by java layer.
+ * Returns library version or null (setting error code).
  */
-JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_getNativeLibraryVersion (JNIEnv *env, jobject obj) {
+JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_getNativeLibraryVersion(JNIEnv *env, jobject obj, jobject status) {
 	jstring version = NULL;
 	version = (*env)->NewStringUTF(env, UART_NATIVE_LIB_VERSION);
-	if((*env)->ExceptionOccurred(env)) {
-		LOGE(env);
+	if((*env)->ExceptionOccurred(env) != NULL) {
+		set_error_status(env, obj, status, E_NEWSTRUTF);
+		(*env)->ExceptionClear(env);
+		return NULL;
 	}
 	return version;
 }
 
-int getSerialPortNamesSetErr(JNIEnv *env, jobject obj, jobject status, int error_number) {
-	int negative = -1;
-	jclass statusClass = (*env)->GetObjectClass(env, status);
-	if(statusClass == NULL) {
-		if(DBG) fprintf(stderr, "%s\n", "NATIVE getSerialPortNames() could not get class of object of type SerialComRetStatus !");
-		if(DBG) fflush(stderr);
-		return -1;
+void free_allocated_memory(int hs, int spf, char **sys_ports_base, int hr, int rpf, char **regex_ports_base, int hp, int ppf, char **pts_ports_base) {
+	int i = 0;
+	if(hs == 1) {
+		for (i=0; i < spf; i++) {
+			free(sys_ports_base[i]);
+		}
+		free(sys_ports_base);
 	}
-	jfieldID statusFid = (*env)->GetFieldID(env, statusClass, "status", "I");
-	if(statusFid == NULL) {
-		if(DBG) fprintf(stderr, "%s\n", "NATIVE getSerialPortNames() failed to retrieve field id of field status in class SerialComRetStatus !");
-		if(DBG) fflush(stderr);
-		return -1;
+	if(hr == 1) {
+		for (i=0; i < rpf; i++) {
+			free(regex_ports_base[i]);
+		}
+		free(regex_ports_base);
 	}
-	if((*env)->ExceptionOccurred(env)) {
-		LOGE(env);
+	if(hp == 1) {
+		for (i=0; i < ppf; i++) {
+			free(pts_ports_base[i]);
+		}
+		free(pts_ports_base);
 	}
-	(*env)->SetIntField(env, status, statusFid, (negative * error_number));
-	return 0;
 }
 
 /*
  * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
- * Method:    getSerialPortNames
- * Signature: ()[Ljava/lang/String;
+ * Method:    listAvailableComPorts
+ * Signature: (Lcom/embeddedunveiled/serial/SerialComRetStatus;)[Ljava/lang/String;
  *
  * Use OS specific way to detect/identify serial ports known to system at the instant this function is called. Do not try to open any
  * port as for bluetooth this may result in system trying to make BT connection and failing with time out.
@@ -218,7 +222,7 @@ int getSerialPortNamesSetErr(JNIEnv *env, jobject obj, jobject status, int error
  *
  * For SOLARIS : this is handled in java layer itself as of now.
  */
-JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_getSerialPortNames(JNIEnv *env, jobject obj, jobject status) {
+JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_listAvailableComPorts(JNIEnv *env, jobject obj, jobject status) {
 	int negative = -1;
 #if defined (__linux__)
 	int i = 0;
@@ -256,11 +260,16 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINati
 	errno = 0;
 	num_of_dir_found = scandir(sysfspath, &namelist, NULL, NULL);
 	if(num_of_dir_found > 0) {
+		errno = 0;
 		sys_ports_base = (char **) calloc(num_of_dir_found, sizeof(char *));
 		if(sys_ports_base == NULL) {
-			/* TODO return custom err num */
-			if(DBG) fprintf(stderr, "%s\n", "calloc(num_of_dir_found, failed !");
-			if(DBG) fflush(stderr);
+			if(errno == 0) {
+				/* If OS/lib does not set exact error code we set it explicitly to maintain consistency and portability. */
+				set_error_status(env, obj, status, ENOMEM);
+			}else {
+				set_error_status(env, obj, status, errno);
+			}
+			return NULL;
 		}
 		have_sys_ports = 1;
 		sys_ports_found = 0; /* initialize */
@@ -283,7 +292,20 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINati
 								memset(devbase, '\0', sizeof(devbase));
 								fullpath = strcat(strcpy(devbase, "/dev/"), namelist[num_of_dir_found]->d_name);
 								x = strlen(fullpath);
+								errno = 0;
 								port_name = (char *) calloc(1, (x + 1));
+								if(port_name == NULL) {
+									if(errno == 0) {
+										set_error_status(env, obj, status, ENOMEM);
+									}else {
+										set_error_status(env, obj, status, errno);
+									}
+									for (i=0; i < sys_ports_found; i++) {
+										free(sys_ports_base[i]);
+									}
+									free(sys_ports_base);
+									return NULL;
+								}
 								memcpy(port_name, fullpath, (x + 1));
 								sys_ports_base[sys_ports_found] = port_name;
 								sys_ports_found++;
@@ -292,7 +314,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINati
 					}
 				}else {
 					 if(errno != ENOENT) {
-						 getSerialPortNamesSetErr(env, obj, status, errno);
+						 set_error_status(env, obj, status, errno);
 						 return NULL;
 					 }
 				}
@@ -302,7 +324,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINati
 		}
 		free(namelist);
 	}else {
-		getSerialPortNamesSetErr(env, obj, status, errno);
+		set_error_status(env, obj, status, errno);
 		return NULL;
 	}
 
@@ -310,15 +332,27 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINati
 	/* /dev/ttytxXXXX for perle port server */
 	ret = regcomp(&regex, "ttytx[0-9]" , 0);
 	if(ret != 0) {
-		getSerialPortNamesSetErr(env, obj, status, ret);
+		set_error_status(env, obj, status, ret);
+		if(have_sys_ports == 1) {
+			for (i=0; i < sys_ports_found; i++) {
+				free(sys_ports_base[i]);
+			}
+			free(sys_ports_base);
+		}
 		return NULL;
 	}
 
+	errno = 0;
 	dir_stream = opendir("/dev");
 	if(dir_stream == NULL) {
-		/* TODO return custom err num */
-		if(DBG) fprintf(stderr, "%s\n", "opendir(/dev) failed !");
-		if(DBG) fflush(stderr);
+		set_error_status(env, obj, status, errno);
+		if(have_sys_ports == 1) {
+			for (i=0; i < sys_ports_found; i++) {
+				free(sys_ports_base[i]);
+			}
+			free(sys_ports_base);
+		}
+		return NULL;
 	}
 
 	/* loop recursively and count number of device files under /dev directory. */
@@ -332,7 +366,13 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINati
 				break;
 			}
 		}else if(ret > 0) {
-			getSerialPortNamesSetErr(env, obj, status, EBADF);
+			set_error_status(env, obj, status, EBADF);
+			if(have_sys_ports == 1) {
+				for (i=0; i < sys_ports_found; i++) {
+					free(sys_ports_base[i]);
+				}
+				free(sys_ports_base);
+			}
 			return NULL;
 		}else {
 		}
@@ -341,11 +381,21 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINati
 	rewinddir(dir_stream);
 
 	if(dev_files_count > 0) {
+		errno = 0;
 		regex_ports_base = (char **) calloc(dev_files_count, sizeof(char *));
 		if(regex_ports_base == NULL) {
-			/* TODO return custom err num*/
-			if(DBG) fprintf(stderr, "%s\n", "calloc(dev_files_count, failed !");
-			if(DBG) fflush(stderr);
+			if(errno == 0) {
+				set_error_status(env, obj, status, ENOMEM);
+			}else {
+				set_error_status(env, obj, status, errno);
+			}
+			if(have_sys_ports == 1) {
+				for (i=0; i < sys_ports_found; i++) {
+					free(sys_ports_base[i]);
+				}
+				free(sys_ports_base);
+			}
+			return NULL;
 		}
 		have_regex_ports = 1;
 		regex_ports_found = 0; /* initialize */
@@ -360,7 +410,26 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINati
 							memset(devbase, '\0', sizeof(devbase));
 							fullpath = strcat(strcpy(devbase, "/dev/"), result->d_name);
 							x = strlen(fullpath);
+							errno = 0;
 							port_name = (char *) calloc(1, (x + 1));
+							if(port_name == NULL) {
+								if(errno == 0) {
+									set_error_status(env, obj, status, ENOMEM);
+								}else {
+									set_error_status(env, obj, status, errno);
+								}
+								if(have_sys_ports == 1) {
+									for (i=0; i < sys_ports_found; i++) {
+										free(sys_ports_base[i]);
+									}
+									free(sys_ports_base);
+								}
+								for (i=0; i < regex_ports_found; i++) {
+									free(regex_ports_base[i]);
+								}
+								free(regex_ports_base);
+								return NULL;
+							}
 							memcpy(port_name, fullpath, (x + 1));
 							regex_ports_base[regex_ports_found] = port_name;
 							regex_ports_found++;
@@ -370,7 +439,13 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINati
 					break;
 				}
 			}else if(ret > 0) {
-				getSerialPortNamesSetErr(env, obj, status, EBADF);
+				set_error_status(env, obj, status, EBADF);
+				if(have_sys_ports == 1) {
+					for (i=0; i < sys_ports_found; i++) {
+						free(sys_ports_base[i]);
+					}
+					free(sys_ports_base);
+				}
 				return NULL;
 			}else {
 			}
@@ -381,7 +456,19 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINati
 	errno = 0;
 	ret = closedir(dir_stream);
 	if(ret < 0) {
-		getSerialPortNamesSetErr(env, obj, status, errno);
+		set_error_status(env, obj, status, errno);
+		if(have_sys_ports == 1) {
+			for (i=0; i < sys_ports_found; i++) {
+				free(sys_ports_base[i]);
+			}
+			free(sys_ports_base);
+		}
+		if(have_regex_ports == 1) {
+			for (i=0; i < regex_ports_found; i++) {
+				free(regex_ports_base[i]);
+			}
+			free(regex_ports_base);
+		}
 		return NULL;
 	}
 
@@ -390,11 +477,27 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINati
 	num_of_dir_found = 0;
 	num_of_dir_found = scandir(ptspath, &namelist, NULL, NULL);
 	if(num_of_dir_found > 0) {
+		errno = 0;
 		pts_ports_base = (char **) calloc(num_of_dir_found, sizeof(char *));
 		if(pts_ports_base == NULL) {
-			/* TODO return custom err num */
-			if(DBG) fprintf(stderr, "%s\n", "calloc(num_of_dir_found, failed !");
-			if(DBG) fflush(stderr);
+			if(errno == 0) {
+				set_error_status(env, obj, status, ENOMEM);
+			}else {
+				set_error_status(env, obj, status, errno);
+			}
+			if(have_sys_ports == 1) {
+				for (i=0; i < sys_ports_found; i++) {
+					free(sys_ports_base[i]);
+				}
+				free(sys_ports_base);
+			}
+			if(have_regex_ports == 1) {
+				for (i=0; i < regex_ports_found; i++) {
+					free(regex_ports_base[i]);
+				}
+				free(regex_ports_base);
+			}
+			return NULL;
 		}
 		have_pts_ports = 1;
 		pts_ports_found = 0; /* initialize */
@@ -408,14 +511,39 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINati
 				if(ret >= 0) {
 					if(S_ISLNK(statbuf.st_mode) || S_ISCHR(statbuf.st_mode)) {
 						x = strlen(path);
+						errno = 0;
 						port_name = (char *) calloc(1, (x + 1));
+						if(port_name == NULL) {
+							if(errno == 0) {
+								set_error_status(env, obj, status, ENOMEM);
+							}else {
+								set_error_status(env, obj, status, errno);
+							}
+							if(have_sys_ports == 1) {
+								for (i=0; i < sys_ports_found; i++) {
+									free(sys_ports_base[i]);
+								}
+								free(sys_ports_base);
+							}
+							if(have_regex_ports == 1) {
+								for (i=0; i < regex_ports_found; i++) {
+									free(regex_ports_base[i]);
+								}
+								free(regex_ports_base);
+							}
+							for (i=0; i < pts_ports_found; i++) {
+								free(pts_ports_base[i]);
+							}
+							free(pts_ports_base);
+							return NULL;
+						}
 						memcpy(port_name, path, (x + 1));
 						pts_ports_base[pts_ports_found] = port_name;
 						pts_ports_found++;
 					}
 				}else {
 					if(errno != ENOENT) {
-						getSerialPortNamesSetErr(env, obj, status, errno);
+						set_error_status(env, obj, status, errno);
 						return NULL;
 					}
 				}
@@ -424,34 +552,56 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINati
 		}
 		free(namelist);
 	}else {
-		getSerialPortNamesSetErr(env, obj, status, errno);
+		set_error_status(env, obj, status, errno);
+		if(have_sys_ports == 1) {
+			for (i=0; i < sys_ports_found; i++) {
+				free(sys_ports_base[i]);
+			}
+			free(sys_ports_base);
+		}
+		if(have_regex_ports == 1) {
+			for (i=0; i < regex_ports_found; i++) {
+				free(regex_ports_base[i]);
+			}
+			free(regex_ports_base);
+		}
 		return NULL;
 	}
 
 	/* Create a JAVA/JNI style array of String object, populate it and return to java layer. */
 	jclass strClass = (*env)->FindClass(env, "java/lang/String");
 	if((*env)->ExceptionOccurred(env)) {
-		LOGE(env);
+		set_error_status(env, obj, status, E_FINDCLASS);
+		free_allocated_memory(have_sys_ports, sys_ports_found, sys_ports_base, have_regex_ports, regex_ports_found, regex_ports_base, have_pts_ports, pts_ports_found, pts_ports_base);
+		(*env)->ExceptionClear(env);
+		return NULL;
 	}
 
 	total_ports = sys_ports_found + regex_ports_found + pts_ports_found;
 	jobjectArray portsFound = (*env)->NewObjectArray(env, (jsize)total_ports, strClass, NULL);
 	if((*env)->ExceptionOccurred(env)) {
-		LOGE(env);
+		set_error_status(env, obj, status, E_NEWOBJECTARRAY);
+		free_allocated_memory(have_sys_ports, sys_ports_found, sys_ports_base, have_regex_ports, regex_ports_found, regex_ports_base, have_pts_ports, pts_ports_found, pts_ports_base);
+		(*env)->ExceptionClear(env);
+		return NULL;
 	}
 
 	/* Prepare full path to device node as per Linux standard. */
 	for (i=0; i < sys_ports_found; i++) {
 		(*env)->SetObjectArrayElement(env, portsFound, i, (*env)->NewStringUTF(env, sys_ports_base[i]));
 		if((*env)->ExceptionOccurred(env)) {
-			LOGE(env);
+			free_allocated_memory(have_sys_ports, sys_ports_found, sys_ports_base, have_regex_ports, regex_ports_found, regex_ports_base, have_pts_ports, pts_ports_found, pts_ports_base);
+			(*env)->ExceptionClear(env);
+			return NULL;
 		}
 	}
 	x = sys_ports_found;
 	for (i=0; i < regex_ports_found; i++) {
 		(*env)->SetObjectArrayElement(env, portsFound, x, (*env)->NewStringUTF(env, regex_ports_base[i]));
 		if((*env)->ExceptionOccurred(env)) {
-			LOGE(env);
+			free_allocated_memory(have_sys_ports, sys_ports_found, sys_ports_base, have_regex_ports, regex_ports_found, regex_ports_base, have_pts_ports, pts_ports_found, pts_ports_base);
+			(*env)->ExceptionClear(env);
+			return NULL;
 		}
 		x++;
 	}
@@ -459,30 +609,15 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINati
 	for (i=0; i < pts_ports_found; i++) {
 		(*env)->SetObjectArrayElement(env, portsFound, x, (*env)->NewStringUTF(env, pts_ports_base[i]));
 		if((*env)->ExceptionOccurred(env)) {
-			LOGE(env);
+			free_allocated_memory(have_sys_ports, sys_ports_found, sys_ports_base, have_regex_ports, regex_ports_found, regex_ports_base, have_pts_ports, pts_ports_found, pts_ports_base);
+			(*env)->ExceptionClear(env);
+			return NULL;
 		}
 		x++;
 	}
 
-	/* free/release memories allocated finally. */
-	if(have_sys_ports == 1) {
-		for (i=0; i < sys_ports_found; i++) {
-			free(sys_ports_base[i]);
-		}
-		free(sys_ports_base);
-	}
-	if(have_regex_ports == 1) {
-		for (i=0; i < regex_ports_found; i++) {
-			free(regex_ports_base[i]);
-		}
-		free(regex_ports_base);
-	}
-	if(have_pts_ports == 1) {
-		for (i=0; i < pts_ports_found; i++) {
-			free(pts_ports_base[i]);
-		}
-		free(pts_ports_base);
-	}
+	/* free/release memories allocated finally (Top command will show memory accumulation if it not freed for debugging). */
+	free_allocated_memory(have_sys_ports, sys_ports_found, sys_ports_base, have_regex_ports, regex_ports_found, regex_ports_base, have_pts_ports, pts_ports_found, pts_ports_base);
 	return portsFound;
 #endif
 

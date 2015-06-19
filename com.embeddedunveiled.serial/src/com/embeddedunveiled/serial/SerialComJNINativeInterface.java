@@ -193,9 +193,9 @@ public final class SerialComJNINativeInterface {
 	}
 
 	public native int initNativeLib();
-	public native String getNativeLibraryVersion();
+	public native String getNativeLibraryVersion(SerialComRetStatus retStatus);
 	public native boolean debug(boolean enableDebug);
-	public native String[] getSerialPortNames(SerialComRetStatus retStatus);
+	public native String[] listAvailableComPorts(SerialComRetStatus retStatus);
 
 	public native int registerPortMonitorListener(long handle, String portName, ISerialComPortMonitor portMonitor);
 	public native int unregisterPortMonitorListener(long handle);

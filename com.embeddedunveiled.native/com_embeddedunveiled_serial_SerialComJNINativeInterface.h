@@ -18,10 +18,10 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 /*
  * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
  * Method:    getNativeLibraryVersion
- * Signature: ()Ljava/lang/String;
+ * Signature: (Lcom/embeddedunveiled/serial/SerialComRetStatus;)Ljava/lang/String;
  */
 JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_getNativeLibraryVersion
-  (JNIEnv *, jobject);
+  (JNIEnv *, jobject, jobject);
 
 /*
  * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
@@ -33,10 +33,10 @@ JNIEXPORT jboolean JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeIn
 
 /*
  * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
- * Method:    getSerialPortNames
+ * Method:    listAvailableComPorts
  * Signature: (Lcom/embeddedunveiled/serial/SerialComRetStatus;)[Ljava/lang/String;
  */
-JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_getSerialPortNames
+JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_listAvailableComPorts
   (JNIEnv *, jobject, jobject);
 
 /*

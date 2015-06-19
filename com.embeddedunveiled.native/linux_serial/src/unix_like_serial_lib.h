@@ -79,16 +79,57 @@
 	};
 
 #elif defined (__SunOS)
+#else
 #endif
 
 /* function prototypes */
-extern void LOGE(JNIEnv *env);
 extern void *data_looper(void *params);
 extern void *event_looper(void *params);
 extern void *port_monitor(void *params);
 extern int serial_delay(unsigned usecs);
+extern int set_error_status(JNIEnv *env, jobject obj, jobject status, int error_number);
+
+/* custom error codes for SCM library */
+#define ERROR_OFFSET 350
+#define E_GETJVM (ERROR_OFFSET + 1)
+#define E_NEWSTRUTF (ERROR_OFFSET + 2)
+#define E_OPENDIR (ERROR_OFFSET + 3)    /* Either filename cannot be accessed or cannot malloc() enough memory to hold the whole thing. */
+#define E_FINDCLASS (ERROR_OFFSET + 4)  /* Probably out of memory. */
+#define E_NEWOBJECTARRAY (ERROR_OFFSET + 5)  /* Probably out of memory. */
 
 #endif /* UNIX_LIKE_SERIAL_LIB_H_ */
 
 #endif /* end compiling for Unix-like OS */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

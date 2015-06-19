@@ -33,7 +33,7 @@ import java.util.List;
 public final class SerialComManager {
 
 	/** Relase version of SCM library. */
-	public static final String JAVA_LIB_VERSION = "1.0.3";
+	public static final String JAVA_LIB_VERSION = "1.0.4";
 
 	/** Pre-defined constants for baud rate values. */
 	public enum BAUDRATE {
@@ -303,14 +303,17 @@ public final class SerialComManager {
 	 * <p>Gives library versions of java and native modules.</p>
 	 * 
 	 * @return Java and C library versions implementing this library.
+	 * @throws SerialComException 
 	 */
-	public String getLibraryVersions() {
+	public String getLibraryVersions() throws SerialComException {
 		String version = null;
-		String nativeLibversion = mNativeInterface.getNativeLibraryVersion();
+		SerialComRetStatus retStatus = new SerialComRetStatus(0);
+		String nativeLibversion = mNativeInterface.getNativeLibraryVersion(retStatus);
 		if(nativeLibversion != null) {
 			version = "Java lib version: " + JAVA_LIB_VERSION + "\n" + "Native lib version: " + nativeLibversion;
+		}else if(retStatus.status < 0){
+			throw new SerialComException("getLibraryVersions()", mErrMapper.getMappedError(retStatus.status));
 		}else {
-			version = "Java lib version: " + JAVA_LIB_VERSION + "\n" + "Native lib version: " + "Could not be determined !";
 		}
 		return version;
 	}
@@ -355,7 +358,7 @@ public final class SerialComManager {
 			if(retStatus.status == 1) {
 				return new String[]{};
 			}else if(retStatus.status < 0) {
-				throw new SerialComException("listAvailableComPorts", mErrMapper.getMappedError(retStatus.status));
+				throw new SerialComException("listAvailableComPorts()", mErrMapper.getMappedError(retStatus.status));
 			}else {
 			}
 		}
@@ -1639,16 +1642,6 @@ public final class SerialComManager {
 		}
 
 		return true;
-	}
-
-	/**
-	 * <p>Enable printing debugging messages and stack trace for development and debugging purpose.</p>
-	 * 
-	 * @param enable if true debugging messages will be printed on console otherwise not
-	 */
-	public void enableDebugging(boolean enable) {
-		mNativeInterface.debug(enable);
-		SerialComManager.DEBUG = enable;
 	}
 
 	/**
