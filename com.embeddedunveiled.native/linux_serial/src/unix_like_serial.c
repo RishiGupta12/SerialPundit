@@ -1701,15 +1701,12 @@ JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeI
 
 #if defined(__linux__)
 	int ret = -1;
-	int negative = -1;
 	struct serial_icounter_struct counter = {0};
 
 	errno = 0;
 	ret = ioctl(fd , TIOCGICOUNT, &counter);
 	if(ret < 0) {
-		if(DBG) fprintf(stderr, "%s%d\n", "NATIVE getInterruptCount() failed to get interrupt count with error number : -", errno);
-		if(DBG) fflush(stderr);
-		count_info[0] = (negative * errno);
+		count_info[0] = (-1 * errno);
 		(*env)->SetIntArrayRegion(env, interrupt_info, 0, 11, count_info);
 		return interrupt_info;
 	}
@@ -1740,32 +1737,26 @@ JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeI
  * Method:    fineTuneRead
  * Signature: (JIIIII)I
  *
- * This method gives more precise control on behavior of read operation.
+ * This function gives more precise control over the behavior of read operation in terms of timeout and number of bytes.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_fineTuneRead(JNIEnv *env, jobject obj, jlong fd, jint vmin, jint vtime, jint a, jint b, jint c) {
-	int ret = 0;
-	int negative = -1;
+	int ret = -1;
 
 #if defined (__linux__)
 	struct termios2 currentconfig = {0};
 	errno = 0;
 	ret = ioctl(fd, TCGETS2, &currentconfig);
 	if(ret < 0) {
-		if(DBG) fprintf(stderr, "%s%d\n", "NATIVE fineTuneRead() failed to get current configuration with error number : -", errno);
-		if(DBG) fprintf(stderr, "%s\n", "Please try again !");
-		if(DBG) fflush(stderr);
-		return (negative * errno);
+		return (-1 * errno);
 	}
 #elif defined (__APPLE__) || defined (__SunOS)
 	struct termios currentconfig = {0};
 	errno = 0;
 	ret = tcgetattr(fd, &currentconfig);
 	if(ret < 0) {
-		if(DBG) fprintf(stderr, "%s %d\n", "NATIVE fineTuneRead() failed to get current configuration with error number : -", errno);
-		if(DBG) fprintf(stderr, "%s\n", "Please try again !");
-		if(DBG) fflush(stderr);
-		return (negative * errno);
+		return (-1 * errno);
 	}
+#else
 #endif
 
 	currentconfig.c_cc[VMIN] = vmin;
@@ -1775,18 +1766,15 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 	errno = 0;
 	ret = ioctl(fd, TCSETS2, &currentconfig);
 	if(ret < 0) {
-		if(DBG) fprintf(stderr, "%s %d\n", "NATIVE fineTuneRead() failed to set default terminal settings with error number : -", errno);
-		if(DBG) fflush(stderr);
-		return (negative * errno);
+		return (-1 * errno);
 	}
 #elif defined (__APPLE__) || defined (__SunOS)
 	errno = 0;
 	ret  = tcsetattr(fd, TCSANOW, &currentconfig);
 	if(ret < 0) {
-		if(DBG) fprintf(stderr, "%s %d\n", "NATIVE fineTuneRead() failed to set default terminal settings with error number : -", errno);
-		if(DBG) fflush(stderr);
-		return (negative * errno);
+		return (-1 * errno);
 	}
+#else
 #endif
 
 	return 0;
@@ -1797,11 +1785,11 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
  * Method:    setUpDataLooperThread
  * Signature: (JLcom/embeddedunveiled/serial/SerialComLooper;)I
  *
+ * Creates new native thread.
  * Note that, GetMethodID() causes an uninitialized class to be initialized. However in our case we have already initialized classes required.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_setUpDataLooperThread(JNIEnv *env, jobject obj, jlong fd, jobject looper) {
 	int ret = -1;
-	int negative = -1;
 	int x = -1;
 	struct com_thread_params *ptr;
 	ptr = fd_looper_info;
@@ -1837,10 +1825,8 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 		/* Set the values, create reference to it to be passed to thread. */
 		datalooper = (*env)->NewGlobalRef(env, looper);
 		if(datalooper == NULL) {
-			if(DBG) fprintf(stderr, "%s \n", "NATIVE setUpDataLooperThread() could not create global reference for looper object.");
-			if(DBG) fflush(stderr);
 			pthread_mutex_unlock(&mutex);
-			return -240;
+			return (-1 * E_NEWGLOBALREF);
 		}
 		params.jvm = jvm;
 		params.fd = fd;
@@ -1859,10 +1845,8 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 		/* Set the values, create reference to it to be passed to thread. */
 		datalooper = (*env)->NewGlobalRef(env, looper);
 		if(datalooper == NULL) {
-			if(DBG) fprintf(stderr, "%s \n", "NATIVE setUpDataLooperThread() could not create global reference for looper object.");
-			if(DBG) fflush(stderr);
 			pthread_mutex_unlock(&mutex);
-			return -240;
+			return (-1 * E_NEWGLOBALREF);
 		}
 		params.jvm = jvm;
 		params.fd = fd;
@@ -1884,12 +1868,10 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 	errno = 0;
 	ret = pthread_create(&thread_id, NULL, &data_looper, arg);
 	if(ret < 0) {
-		if(DBG) fprintf(stderr, "%s %d\n", "NATIVE setUpDataLooperThread() failed to create native data looper thread with error number : -", errno);
-		if(DBG) fflush(stderr);
 		(*env)->DeleteGlobalRef(env, datalooper);
 		pthread_attr_destroy(&((struct com_thread_params*) arg)->data_thread_attr);
 		pthread_mutex_unlock(&mutex);
-		return (negative * errno);
+		return (-1 * errno);
 	}
 
 	if((entry_found == JNI_TRUE) || (empty_entry_found == JNI_TRUE)) {
@@ -1920,10 +1902,11 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
  * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
  * Method:    destroyDataLooperThread
  * Signature: (J)I
+ *
+ * Terminates native thread.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_destroyDataLooperThread(JNIEnv *env, jobject obj, jlong fd) {
 	int ret = -1;
-	int negative = -1;
 	int x = -1;
 	struct com_thread_params *ptr;
 	ptr = fd_looper_info;
@@ -1958,16 +1941,14 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 	/* Join the thread to check its exit status. */
 	ret = pthread_join(data_thread_id, &status);
 	if(ret != 0) {
-		if(DBG) fprintf(stderr, "%s %d \n", "native data looper thread failed to join with error -", ret);
-		if(DBG) fflush(stderr);
 		pthread_mutex_unlock(&mutex);
-		return (negative * ret);
+		return (-1 * ret);
 	}
 
 	ret = pthread_attr_destroy(&(ptr->data_thread_attr));
 	if(ret != 0) {
-		if(DBG) fprintf(stderr, "%s %d \n", "native data looper thread failed to destroy thread attr object with error -", ret);
-		if(DBG) fflush(stderr);
+		pthread_mutex_unlock(&mutex);
+		return (-1 * ret);
 	}
 
 	ptr->data_thread_id = 0;   /* Reset thread id field. */
@@ -1990,7 +1971,6 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_setUpEventLooperThread(JNIEnv *env, jobject obj, jlong fd, jobject looper) {
 	int ret = -1;
-	int negative = -1;
 	int x = -1;
 	struct com_thread_params *ptr;
 	ptr = fd_looper_info;
@@ -2026,10 +2006,8 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 		/* Set the values, create reference to it to be passed to thread. */
 		eventlooper = (*env)->NewGlobalRef(env, looper);
 		if(eventlooper == NULL) {
-			if(DBG) fprintf(stderr, "%s \n", "NATIVE setUpEventLooperThread() could not create global reference for looper object.");
-			if(DBG) fflush(stderr);
 			pthread_mutex_unlock(&mutex);
-			return -240;
+			return (-1 * E_NEWGLOBALREF);
 		}
 
 		params.jvm = jvm;
@@ -2049,10 +2027,8 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 		/* Set the values, create reference to it to be passed to thread. */
 		eventlooper = (*env)->NewGlobalRef(env, looper);
 		if(eventlooper == NULL) {
-			if(DBG) fprintf(stderr, "%s \n", "NATIVE setUpEventLooperThread() could not create global reference for looper object.");
-			if(DBG) fflush(stderr);
 			pthread_mutex_unlock(&mutex);
-			return -240;
+			return (-1 * E_NEWGLOBALREF);
 		}
 
 		params.jvm = jvm;
@@ -2075,12 +2051,10 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 	errno = 0;
 	ret = pthread_create(&thread_id, NULL, &event_looper, arg);
 	if(ret < 0) {
-		if(DBG) fprintf(stderr, "%s %d\n", "NATIVE setUpEventLooperThread() failed to create native data looper thread with error number : -", errno);
-		if(DBG) fflush(stderr);
 		(*env)->DeleteGlobalRef(env, eventlooper);
 		pthread_attr_destroy(&((struct com_thread_params*) arg)->event_thread_attr);
 		pthread_mutex_unlock(&mutex);
-		return (negative * errno);
+		return (-1 * errno);
 	}
 
 	if((entry_found == JNI_TRUE) || (empty_entry_found == JNI_TRUE)) {
@@ -2115,7 +2089,6 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_destroyEventLooperThread(JNIEnv *env, jobject obj, jlong fd) {
 	int ret = -1;
-	int negative = -1;
 	int x = -1;
 	struct com_thread_params *ptr;
 	ptr = fd_looper_info;
@@ -2139,26 +2112,22 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 	/* send signal to event thread. */
 	ret = pthread_kill(event_thread_id, SIGUSR1);
 	if(ret != 0) {
-		if(DBG) fprintf(stderr, "%s %d\n", "NATIVE destroyEventLooperThread() failed to terminate event looper thread with error number : -", ret);
-		if(DBG) fflush(stderr);
 		pthread_mutex_unlock(&mutex);
-		return (negative * ret);
+		return (-1 * ret);
 	}
 
 	/* Join the thread (waits for the thread specified to terminate). */
 	ret = pthread_join(event_thread_id, &status);
 	if(ret != 0) {
-		if(DBG) fprintf(stderr, "%s \n", "native event looper thread failed to join !");
-		if(DBG) fflush(stderr);
 		pthread_mutex_unlock(&mutex);
-		return (negative * ret);
+		return (-1 * ret);
 	}
 
 	ptr->event_thread_id = 0;    /* Reset thread id field. */
 	ret = pthread_attr_destroy(&(ptr->event_thread_attr));
 	if(ret != 0) {
-		if(DBG) fprintf(stderr, "%s %d \n", "native event looper thread failed to destroy thread attr object with error -", ret);
-		if(DBG) fflush(stderr);
+		pthread_mutex_unlock(&mutex);
+		return (-1 * ret);
 	}
 
 	/* If neither data nor event thread exist for this file descriptor remove entry for it from global array. */
@@ -2179,7 +2148,6 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_registerPortMonitorListener(JNIEnv *env, jobject obj, jlong fd, jstring portName, jobject listener) {
 	int ret = -1;
-	int negative = -1;
 	pthread_attr_t attr;
 	pthread_t thread_id = 0;
 	void *arg;
@@ -2190,10 +2158,8 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 
 	portListener = (*env)->NewGlobalRef(env, listener);
 	if(portListener == NULL) {
-		if(DBG) fprintf(stderr, "%s \n", "NATIVE registerPortMonitorListener() could not create global reference for listener object.");
-		if(DBG) fflush(stderr);
 		pthread_mutex_unlock(&mutex);
-		return -240;
+		return (-1 * E_NEWGLOBALREF);
 	}
 
 	params.jvm = jvm;
@@ -2213,12 +2179,10 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 	errno = 0;
 	ret = pthread_create(&thread_id, NULL, &port_monitor, arg);
 	if(ret < 0) {
-		if(DBG) fprintf(stderr, "%s %d\n", "NATIVE setUpDataLooperThread() failed to create native data looper thread with error number : -", errno);
-		if(DBG) fflush(stderr);
 		(*env)->DeleteGlobalRef(env, portListener);
 		((struct port_info*) arg)->fd = -1;
 		pthread_mutex_unlock(&mutex);
-		return (negative * errno);
+		return (-1 * errno);
 	}
 
 	/* Save the data thread id which will be used when listener is unregistered. */
@@ -2238,7 +2202,6 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_unregisterPortMonitorListener(JNIEnv *env, jobject obj, jlong fd) {
 #if defined (__linux__) || defined (__APPLE__)
 	int ret = -1;
-	int negative = -1;
 	int x = -1;
 	struct port_info *ptr;
 	ptr = port_monitor_info;
@@ -2262,19 +2225,15 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 	/* send signal to event thread. */
 	ret = pthread_kill(thread_id, SIGUSR1);
 	if(ret != 0) {
-		if(DBG) fprintf(stderr, "%s %d\n", "NATIVE unregisterPortMonitorListener() failed to terminate monitor thread with error number : -", ret);
-		if(DBG) fflush(stderr);
 		pthread_mutex_unlock(&mutex);
-		return (negative * ret);
+		return (-1 * ret);
 	}
 
 	/* Join the thread (waits for the thread specified to terminate). */
 	ret = pthread_join(thread_id, &status);
 	if(ret != 0) {
-		if(DBG) fprintf(stderr, "%s \n", "native port monitor thread failed to join !");
-		if(DBG) fflush(stderr);
 		pthread_mutex_unlock(&mutex);
-		return (negative * ret);
+		return (-1 * ret);
 	}
 
 	(*env)->DeleteGlobalRef(env, ptr->port_listener);
