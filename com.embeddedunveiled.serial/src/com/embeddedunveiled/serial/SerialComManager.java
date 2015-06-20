@@ -198,6 +198,9 @@ public final class SerialComManager {
 	
 	public static boolean DEBUG = true;
 	
+	/** The value indicating that operating system is unknown to SCM library. Integer constant with value 0x00. */
+	public static final int OS_UNKNOWN  = 0x00;
+	
 	/** The value indicating the Linux operating system. Integer constant with value 0x01. */
 	public static final int OS_LINUX    = 0x01;
 	
@@ -292,9 +295,15 @@ public final class SerialComManager {
 			osType = OS_MAC_OS_X;
 		}else if(osNameMatch.contains("freebsd") || osNameMatch.contains("free bsd")) {
 			osType = OS_FREEBSD;
+		}else if(osNameMatch.contains("netbsd")) {
+			osType = OS_NETBSD;
+		}else if(osNameMatch.contains("openbsd")) {
+			osType = OS_OPENBSD;
+		}else {
+			osType = OS_UNKNOWN;
 		}
 
-		mErrMapper = new SerialComErrorMapper();
+		mErrMapper = new SerialComErrorMapper(osType);
 		mNativeInterface = new SerialComJNINativeInterface();
 		mEventCompletionDispatcher = new SerialComCompletionDispatcher(mNativeInterface, mErrMapper, mPortHandleInfo);
 	}
