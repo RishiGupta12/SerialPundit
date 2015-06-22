@@ -153,6 +153,7 @@ public final class SerialComJNINativeInterface {
 						while((read = input.read(buffer)) != -1){
 							output.write(buffer, 0, read);
 						}
+						output.flush();
 						// Check if we got success or not
 						if(libFile != null) {
 							if(libFile.exists() && libFile.isFile()){
