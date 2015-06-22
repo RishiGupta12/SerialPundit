@@ -115,7 +115,7 @@ public final class SerialComPortsList {
 			
 			// For Linux, Mac, Windows get list from native library
 			ArrayList<String> portsIdentified = new ArrayList<String>();
-			String[] ports = mNativeInterface.getSerialPortNames(retStatus);
+			String[] ports = mNativeInterface.listAvailableComPorts(retStatus);
 			if(ports != null) {
 				for(String portName : ports){
 					portsIdentified.add(portName);

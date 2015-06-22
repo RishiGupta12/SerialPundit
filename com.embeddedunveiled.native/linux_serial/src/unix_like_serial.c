@@ -88,7 +88,7 @@
 #include "../../com_embeddedunveiled_serial_SerialComJNINativeInterface.h"
 
 #undef  UART_NATIVE_LIB_VERSION
-#define UART_NATIVE_LIB_VERSION "1.0.3"
+#define UART_NATIVE_LIB_VERSION "1.0.4"
 
 #define DBG 1
 
@@ -149,60 +149,64 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 	int ret = 0;
 	ret = (*env)->GetJavaVM(env, &jvm);
 	if(ret < 0) {
-		return (-1 * SCMERR_GETJVM);
+		return (-1 * E_GETJVM);
 	}
 
-	errno = 0;
 	ret = pthread_mutex_init(&mutex, NULL);
 	if(ret != 0) {
-		return (-1 * errno);
+		return (-1 * ret);
 	}
 
-	(*env)->ExceptionClear(env);
+	if((*env)->ExceptionCheck(env) == JNI_TRUE) {
+		(*env)->ExceptionClear(env);
+	}
 	return 0;
 }
 
 /*
  * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
  * Method:    getNativeLibraryVersion
- * Signature: ()Ljava/lang/String;
+ * Signature: (Lcom/embeddedunveiled/serial/SerialComRetStatus;)Ljava/lang/String;
  *
- * This might return null which is handled by java layer.
+ * Returns library version or null (setting error code).
  */
-JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_getNativeLibraryVersion (JNIEnv *env, jobject obj) {
+JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_getNativeLibraryVersion(JNIEnv *env, jobject obj, jobject status) {
 	jstring version = NULL;
 	version = (*env)->NewStringUTF(env, UART_NATIVE_LIB_VERSION);
-	if((*env)->ExceptionOccurred(env)) {
-		LOGE(env);
+	if((*env)->ExceptionOccurred(env) != NULL) {
+		set_error_status(env, obj, status, E_NEWSTRUTF);
+		(*env)->ExceptionClear(env);
+		return NULL;
 	}
 	return version;
 }
 
-int getSerialPortNamesSetErr(JNIEnv *env, jobject obj, jobject status, int error_number) {
-	int negative = -1;
-	jclass statusClass = (*env)->GetObjectClass(env, status);
-	if(statusClass == NULL) {
-		if(DBG) fprintf(stderr, "%s\n", "NATIVE getSerialPortNames() could not get class of object of type SerialComRetStatus !");
-		if(DBG) fflush(stderr);
-		return -1;
+void free_allocated_memory(int hs, int spf, char **sys_ports_base, int hr, int rpf, char **regex_ports_base, int hp, int ppf, char **pts_ports_base) {
+	int i = 0;
+	if(hs == 1) {
+		for (i=0; i < spf; i++) {
+			free(sys_ports_base[i]);
+		}
+		free(sys_ports_base);
 	}
-	jfieldID statusFid = (*env)->GetFieldID(env, statusClass, "status", "I");
-	if(statusFid == NULL) {
-		if(DBG) fprintf(stderr, "%s\n", "NATIVE getSerialPortNames() failed to retrieve field id of field status in class SerialComRetStatus !");
-		if(DBG) fflush(stderr);
-		return -1;
+	if(hr == 1) {
+		for (i=0; i < rpf; i++) {
+			free(regex_ports_base[i]);
+		}
+		free(regex_ports_base);
 	}
-	if((*env)->ExceptionOccurred(env)) {
-		LOGE(env);
+	if(hp == 1) {
+		for (i=0; i < ppf; i++) {
+			free(pts_ports_base[i]);
+		}
+		free(pts_ports_base);
 	}
-	(*env)->SetIntField(env, status, statusFid, (negative * error_number));
-	return 0;
 }
 
 /*
  * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
- * Method:    getSerialPortNames
- * Signature: ()[Ljava/lang/String;
+ * Method:    listAvailableComPorts
+ * Signature: (Lcom/embeddedunveiled/serial/SerialComRetStatus;)[Ljava/lang/String;
  *
  * Use OS specific way to detect/identify serial ports known to system at the instant this function is called. Do not try to open any
  * port as for bluetooth this may result in system trying to make BT connection and failing with time out.
@@ -218,7 +222,7 @@ int getSerialPortNamesSetErr(JNIEnv *env, jobject obj, jobject status, int error
  *
  * For SOLARIS : this is handled in java layer itself as of now.
  */
-JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_getSerialPortNames(JNIEnv *env, jobject obj, jobject status) {
+JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_listAvailableComPorts(JNIEnv *env, jobject obj, jobject status) {
 	int negative = -1;
 #if defined (__linux__)
 	int i = 0;
@@ -256,11 +260,16 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINati
 	errno = 0;
 	num_of_dir_found = scandir(sysfspath, &namelist, NULL, NULL);
 	if(num_of_dir_found > 0) {
+		errno = 0;
 		sys_ports_base = (char **) calloc(num_of_dir_found, sizeof(char *));
 		if(sys_ports_base == NULL) {
-			/* TODO return custom err num */
-			if(DBG) fprintf(stderr, "%s\n", "calloc(num_of_dir_found, failed !");
-			if(DBG) fflush(stderr);
+			if(errno == 0) {
+				/* If OS/lib does not set exact error code we set it explicitly to maintain consistency and portability. */
+				set_error_status(env, obj, status, ENOMEM);
+			}else {
+				set_error_status(env, obj, status, errno);
+			}
+			return NULL;
 		}
 		have_sys_ports = 1;
 		sys_ports_found = 0; /* initialize */
@@ -283,7 +292,20 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINati
 								memset(devbase, '\0', sizeof(devbase));
 								fullpath = strcat(strcpy(devbase, "/dev/"), namelist[num_of_dir_found]->d_name);
 								x = strlen(fullpath);
+								errno = 0;
 								port_name = (char *) calloc(1, (x + 1));
+								if(port_name == NULL) {
+									if(errno == 0) {
+										set_error_status(env, obj, status, ENOMEM);
+									}else {
+										set_error_status(env, obj, status, errno);
+									}
+									for (i=0; i < sys_ports_found; i++) {
+										free(sys_ports_base[i]);
+									}
+									free(sys_ports_base);
+									return NULL;
+								}
 								memcpy(port_name, fullpath, (x + 1));
 								sys_ports_base[sys_ports_found] = port_name;
 								sys_ports_found++;
@@ -292,7 +314,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINati
 					}
 				}else {
 					 if(errno != ENOENT) {
-						 getSerialPortNamesSetErr(env, obj, status, errno);
+						 set_error_status(env, obj, status, errno);
 						 return NULL;
 					 }
 				}
@@ -302,7 +324,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINati
 		}
 		free(namelist);
 	}else {
-		getSerialPortNamesSetErr(env, obj, status, errno);
+		set_error_status(env, obj, status, errno);
 		return NULL;
 	}
 
@@ -310,15 +332,27 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINati
 	/* /dev/ttytxXXXX for perle port server */
 	ret = regcomp(&regex, "ttytx[0-9]" , 0);
 	if(ret != 0) {
-		getSerialPortNamesSetErr(env, obj, status, ret);
+		set_error_status(env, obj, status, ret);
+		if(have_sys_ports == 1) {
+			for (i=0; i < sys_ports_found; i++) {
+				free(sys_ports_base[i]);
+			}
+			free(sys_ports_base);
+		}
 		return NULL;
 	}
 
+	errno = 0;
 	dir_stream = opendir("/dev");
 	if(dir_stream == NULL) {
-		/* TODO return custom err num */
-		if(DBG) fprintf(stderr, "%s\n", "opendir(/dev) failed !");
-		if(DBG) fflush(stderr);
+		set_error_status(env, obj, status, errno);
+		if(have_sys_ports == 1) {
+			for (i=0; i < sys_ports_found; i++) {
+				free(sys_ports_base[i]);
+			}
+			free(sys_ports_base);
+		}
+		return NULL;
 	}
 
 	/* loop recursively and count number of device files under /dev directory. */
@@ -332,7 +366,13 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINati
 				break;
 			}
 		}else if(ret > 0) {
-			getSerialPortNamesSetErr(env, obj, status, EBADF);
+			set_error_status(env, obj, status, EBADF);
+			if(have_sys_ports == 1) {
+				for (i=0; i < sys_ports_found; i++) {
+					free(sys_ports_base[i]);
+				}
+				free(sys_ports_base);
+			}
 			return NULL;
 		}else {
 		}
@@ -341,11 +381,21 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINati
 	rewinddir(dir_stream);
 
 	if(dev_files_count > 0) {
+		errno = 0;
 		regex_ports_base = (char **) calloc(dev_files_count, sizeof(char *));
 		if(regex_ports_base == NULL) {
-			/* TODO return custom err num*/
-			if(DBG) fprintf(stderr, "%s\n", "calloc(dev_files_count, failed !");
-			if(DBG) fflush(stderr);
+			if(errno == 0) {
+				set_error_status(env, obj, status, ENOMEM);
+			}else {
+				set_error_status(env, obj, status, errno);
+			}
+			if(have_sys_ports == 1) {
+				for (i=0; i < sys_ports_found; i++) {
+					free(sys_ports_base[i]);
+				}
+				free(sys_ports_base);
+			}
+			return NULL;
 		}
 		have_regex_ports = 1;
 		regex_ports_found = 0; /* initialize */
@@ -360,7 +410,26 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINati
 							memset(devbase, '\0', sizeof(devbase));
 							fullpath = strcat(strcpy(devbase, "/dev/"), result->d_name);
 							x = strlen(fullpath);
+							errno = 0;
 							port_name = (char *) calloc(1, (x + 1));
+							if(port_name == NULL) {
+								if(errno == 0) {
+									set_error_status(env, obj, status, ENOMEM);
+								}else {
+									set_error_status(env, obj, status, errno);
+								}
+								if(have_sys_ports == 1) {
+									for (i=0; i < sys_ports_found; i++) {
+										free(sys_ports_base[i]);
+									}
+									free(sys_ports_base);
+								}
+								for (i=0; i < regex_ports_found; i++) {
+									free(regex_ports_base[i]);
+								}
+								free(regex_ports_base);
+								return NULL;
+							}
 							memcpy(port_name, fullpath, (x + 1));
 							regex_ports_base[regex_ports_found] = port_name;
 							regex_ports_found++;
@@ -370,7 +439,13 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINati
 					break;
 				}
 			}else if(ret > 0) {
-				getSerialPortNamesSetErr(env, obj, status, EBADF);
+				set_error_status(env, obj, status, EBADF);
+				if(have_sys_ports == 1) {
+					for (i=0; i < sys_ports_found; i++) {
+						free(sys_ports_base[i]);
+					}
+					free(sys_ports_base);
+				}
 				return NULL;
 			}else {
 			}
@@ -381,7 +456,19 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINati
 	errno = 0;
 	ret = closedir(dir_stream);
 	if(ret < 0) {
-		getSerialPortNamesSetErr(env, obj, status, errno);
+		set_error_status(env, obj, status, errno);
+		if(have_sys_ports == 1) {
+			for (i=0; i < sys_ports_found; i++) {
+				free(sys_ports_base[i]);
+			}
+			free(sys_ports_base);
+		}
+		if(have_regex_ports == 1) {
+			for (i=0; i < regex_ports_found; i++) {
+				free(regex_ports_base[i]);
+			}
+			free(regex_ports_base);
+		}
 		return NULL;
 	}
 
@@ -390,11 +477,27 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINati
 	num_of_dir_found = 0;
 	num_of_dir_found = scandir(ptspath, &namelist, NULL, NULL);
 	if(num_of_dir_found > 0) {
+		errno = 0;
 		pts_ports_base = (char **) calloc(num_of_dir_found, sizeof(char *));
 		if(pts_ports_base == NULL) {
-			/* TODO return custom err num */
-			if(DBG) fprintf(stderr, "%s\n", "calloc(num_of_dir_found, failed !");
-			if(DBG) fflush(stderr);
+			if(errno == 0) {
+				set_error_status(env, obj, status, ENOMEM);
+			}else {
+				set_error_status(env, obj, status, errno);
+			}
+			if(have_sys_ports == 1) {
+				for (i=0; i < sys_ports_found; i++) {
+					free(sys_ports_base[i]);
+				}
+				free(sys_ports_base);
+			}
+			if(have_regex_ports == 1) {
+				for (i=0; i < regex_ports_found; i++) {
+					free(regex_ports_base[i]);
+				}
+				free(regex_ports_base);
+			}
+			return NULL;
 		}
 		have_pts_ports = 1;
 		pts_ports_found = 0; /* initialize */
@@ -408,14 +511,39 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINati
 				if(ret >= 0) {
 					if(S_ISLNK(statbuf.st_mode) || S_ISCHR(statbuf.st_mode)) {
 						x = strlen(path);
+						errno = 0;
 						port_name = (char *) calloc(1, (x + 1));
+						if(port_name == NULL) {
+							if(errno == 0) {
+								set_error_status(env, obj, status, ENOMEM);
+							}else {
+								set_error_status(env, obj, status, errno);
+							}
+							if(have_sys_ports == 1) {
+								for (i=0; i < sys_ports_found; i++) {
+									free(sys_ports_base[i]);
+								}
+								free(sys_ports_base);
+							}
+							if(have_regex_ports == 1) {
+								for (i=0; i < regex_ports_found; i++) {
+									free(regex_ports_base[i]);
+								}
+								free(regex_ports_base);
+							}
+							for (i=0; i < pts_ports_found; i++) {
+								free(pts_ports_base[i]);
+							}
+							free(pts_ports_base);
+							return NULL;
+						}
 						memcpy(port_name, path, (x + 1));
 						pts_ports_base[pts_ports_found] = port_name;
 						pts_ports_found++;
 					}
 				}else {
 					if(errno != ENOENT) {
-						getSerialPortNamesSetErr(env, obj, status, errno);
+						set_error_status(env, obj, status, errno);
 						return NULL;
 					}
 				}
@@ -424,34 +552,56 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINati
 		}
 		free(namelist);
 	}else {
-		getSerialPortNamesSetErr(env, obj, status, errno);
+		set_error_status(env, obj, status, errno);
+		if(have_sys_ports == 1) {
+			for (i=0; i < sys_ports_found; i++) {
+				free(sys_ports_base[i]);
+			}
+			free(sys_ports_base);
+		}
+		if(have_regex_ports == 1) {
+			for (i=0; i < regex_ports_found; i++) {
+				free(regex_ports_base[i]);
+			}
+			free(regex_ports_base);
+		}
 		return NULL;
 	}
 
 	/* Create a JAVA/JNI style array of String object, populate it and return to java layer. */
 	jclass strClass = (*env)->FindClass(env, "java/lang/String");
 	if((*env)->ExceptionOccurred(env)) {
-		LOGE(env);
+		set_error_status(env, obj, status, E_FINDCLASS);
+		free_allocated_memory(have_sys_ports, sys_ports_found, sys_ports_base, have_regex_ports, regex_ports_found, regex_ports_base, have_pts_ports, pts_ports_found, pts_ports_base);
+		(*env)->ExceptionClear(env);
+		return NULL;
 	}
 
 	total_ports = sys_ports_found + regex_ports_found + pts_ports_found;
 	jobjectArray portsFound = (*env)->NewObjectArray(env, (jsize)total_ports, strClass, NULL);
 	if((*env)->ExceptionOccurred(env)) {
-		LOGE(env);
+		set_error_status(env, obj, status, E_NEWOBJECTARRAY);
+		free_allocated_memory(have_sys_ports, sys_ports_found, sys_ports_base, have_regex_ports, regex_ports_found, regex_ports_base, have_pts_ports, pts_ports_found, pts_ports_base);
+		(*env)->ExceptionClear(env);
+		return NULL;
 	}
 
 	/* Prepare full path to device node as per Linux standard. */
 	for (i=0; i < sys_ports_found; i++) {
 		(*env)->SetObjectArrayElement(env, portsFound, i, (*env)->NewStringUTF(env, sys_ports_base[i]));
 		if((*env)->ExceptionOccurred(env)) {
-			LOGE(env);
+			free_allocated_memory(have_sys_ports, sys_ports_found, sys_ports_base, have_regex_ports, regex_ports_found, regex_ports_base, have_pts_ports, pts_ports_found, pts_ports_base);
+			(*env)->ExceptionClear(env);
+			return NULL;
 		}
 	}
 	x = sys_ports_found;
 	for (i=0; i < regex_ports_found; i++) {
 		(*env)->SetObjectArrayElement(env, portsFound, x, (*env)->NewStringUTF(env, regex_ports_base[i]));
 		if((*env)->ExceptionOccurred(env)) {
-			LOGE(env);
+			free_allocated_memory(have_sys_ports, sys_ports_found, sys_ports_base, have_regex_ports, regex_ports_found, regex_ports_base, have_pts_ports, pts_ports_found, pts_ports_base);
+			(*env)->ExceptionClear(env);
+			return NULL;
 		}
 		x++;
 	}
@@ -459,30 +609,15 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINati
 	for (i=0; i < pts_ports_found; i++) {
 		(*env)->SetObjectArrayElement(env, portsFound, x, (*env)->NewStringUTF(env, pts_ports_base[i]));
 		if((*env)->ExceptionOccurred(env)) {
-			LOGE(env);
+			free_allocated_memory(have_sys_ports, sys_ports_found, sys_ports_base, have_regex_ports, regex_ports_found, regex_ports_base, have_pts_ports, pts_ports_found, pts_ports_base);
+			(*env)->ExceptionClear(env);
+			return NULL;
 		}
 		x++;
 	}
 
-	/* free/release memories allocated finally. */
-	if(have_sys_ports == 1) {
-		for (i=0; i < sys_ports_found; i++) {
-			free(sys_ports_base[i]);
-		}
-		free(sys_ports_base);
-	}
-	if(have_regex_ports == 1) {
-		for (i=0; i < regex_ports_found; i++) {
-			free(regex_ports_base[i]);
-		}
-		free(regex_ports_base);
-	}
-	if(have_pts_ports == 1) {
-		for (i=0; i < pts_ports_found; i++) {
-			free(pts_ports_base[i]);
-		}
-		free(pts_ports_base);
-	}
+	/* free/release memories allocated finally (Top command will show memory accumulation if it not freed for debugging). */
+	free_allocated_memory(have_sys_ports, sys_ports_found, sys_ports_base, have_regex_ports, regex_ports_found, regex_ports_base, have_pts_ports, pts_ports_found, pts_ports_base);
 	return portsFound;
 #endif
 
@@ -589,15 +724,13 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINati
 JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_openComPort(JNIEnv *env, jobject obj, jstring portName, jboolean enableRead, jboolean enableWrite, jboolean exclusiveOwner) {
 	int ret = -1;
 	jlong fd = -1;
-	int negative = -1;
 	int OPEN_MODE = -1;
 	int n = 0;
+	const char* portpath = NULL;
 
-	const char* portpath = (*env)->GetStringUTFChars(env, portName, NULL);
+	portpath = (*env)->GetStringUTFChars(env, portName, NULL);
 	if(portpath == NULL) {
-		if(DBG) fprintf(stderr, "%s \n", "NATIVE openComPort() failed to create portpath string.");
-		if(DBG) fflush(stderr);
-		return -240;
+		return (-1 * E_GETSTRUTFCHAR);
 	}
 
 	if((enableRead == JNI_TRUE) && (enableWrite == JNI_TRUE)) {
@@ -613,10 +746,8 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInter
 	errno = 0;
 	fd = open(portpath, OPEN_MODE | O_NDELAY | O_NOCTTY);
 	if(fd < 0) {
-		if(DBG) fprintf(stderr, "%s %d\n", "NATIVE openComPort() failed to open requested port with error number : -", errno);
-		if(DBG) fflush(stderr);
 		(*env)->ReleaseStringUTFChars(env, portName, portpath);
-		return (negative * errno);
+		return (-1 * errno);
 	}
 	(*env)->ReleaseStringUTFChars(env, portName, portpath);
 
@@ -630,10 +761,8 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInter
 		errno = 0;
 		ret = ioctl(fd, TIOCEXCL);
 		if(ret < 0) {
-			if(DBG) fprintf(stderr, "%s %d\n", "NATIVE openComPort() failed to become exclusive owner of port with error number : -", errno);
-			if(DBG) fflush(stderr);
 			close(fd);
-			return (negative * errno);
+			return (-1 * errno);
 		}
 #elif defined (__SunOS)
 		/* Exclusive ownership is not supported for Solaris as of now. */
@@ -656,21 +785,10 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInter
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_closeComPort(JNIEnv *env, jobject obj, jlong fd) {
 	int ret = -1;
-	int negative = -1;
 	int exit_loop = 0;
 
-	/* Flush all remaining data if any to the receiver. */
-#if defined (__linux__)
-	ret = ioctl(fd, TCSBRK, 1);
-#elif defined (__APPLE__) || defined (__SunOS)
-	ret = tcdrain(fd);
-#endif
-
-	if(ret < 0) {
-		if(DBG) fprintf(stderr, "%s %d\n", "Native closeComPort() failed to flush data to receiver with error number : -", errno);
-		if(DBG) fprintf(stderr, "%s\n", "Still proceeding to close port.");
-		if(DBG) fflush(stderr);
-	}
+	/* Flush data (if any due to any reason) to the receiver. */
+	tcdrain(fd);
 
 	/* Failing disclaiming exclusive ownership of port will produce unexpected results if same port is to be used by more users.
 	 * So if we fail we return with error and user application should retry closing. */
@@ -678,9 +796,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 	errno = 0;
 	ret = ioctl(fd, TIOCNXCL);
 	if(ret < 0) {
-		if(DBG) fprintf(stderr, "%s %d\n", "Native closeComPort() failed to release exclusive ownership of port with error number : -", errno);
-		if(DBG) fflush(stderr);
-		return (negative * errno);
+		return (-1 * errno);
 	}
 #endif
 
@@ -695,7 +811,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 			}else {
 				if(DBG) fprintf(stderr, "%s %d\n", "Native closeComPort() failed to close port with error number : -", errno);
 				if(DBG) fflush(stderr);
-				return (negative * errno);
+				return (-1 * errno);
 			}
 		}
 		exit_loop = 1;
@@ -729,7 +845,6 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
  */
 JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_readBytes(JNIEnv *env, jobject obj, jlong fd, jint count, jobject status) {
 	int i = -1;
-	int negative = -1;
 	int index = 0;
 	int partial_data = -1;
 	int num_bytes_to_read = 0;
@@ -785,26 +900,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINative
 				continue;
 			}else {
 				/* This indicates, irrespective of, there was data to read or not, we got an error during operation. */
-				jclass statusClass = (*env)->GetObjectClass(env, status);
-				if(statusClass == NULL) {
-					if(DBG) fprintf(stderr, "%s \n", "NATIVE readBytes() could not get class of object of type SerialComReadStatus !");
-					if(DBG) fflush(stderr);
-					return NULL;
-				}
-
-				jfieldID status_fid = (*env)->GetFieldID(env, statusClass, "status", "I");
-				if(status_fid == NULL) {
-					if(DBG) fprintf(stderr, "%s \n", "NATIVE readBytes() failed to retrieve field id of field status in class SerialComReadStatus !");
-					if(DBG) fflush(stderr);
-					return NULL;
-				}
-				if((*env)->ExceptionOccurred(env)) {
-					LOGE(env);
-				}
-
-				if(DBG) fprintf(stderr, "%s%d\n", "Native readBytes() failed to read data with error number : -", errno);
-				if(DBG) fflush(stderr);
-				(*env)->SetIntField(env, status, status_fid, (negative*errno));
+				set_error_status(env, obj, status, errno);
 				return NULL;
 			}
 		}else if(ret == 0) {
@@ -832,10 +928,8 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINative
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_writeBytes(JNIEnv *env, jobject obj, jlong fd, jbyteArray buffer, jint delay) {
 	int ret = -1;
-	int negative = -1;
 	int index = 0;
 	int status = 0;
-
 	jbyte* data_buf = (*env)->GetByteArrayElements(env, buffer, JNI_FALSE);
 	size_t count = (size_t) (*env)->GetArrayLength(env, buffer);
 
@@ -849,9 +943,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 					errno = 0;
 					continue;
 				}else {
-					if(DBG) fprintf(stderr, "%s%d\n", "NATIVE writeBytes() failed to write requested data with error number : -", errno);
-					if(DBG) fflush(stderr);
-					status = (negative * errno);
+					status = (-1 * errno);
 					break;
 				}
 
@@ -870,9 +962,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 					errno = 0;
 					continue;
 				}else {
-					if(DBG) fprintf(stderr, "%s%d\n", "NATIVE writeBytes() failed to write requested data with error number : -", errno);
-					if(DBG) fflush(stderr);
-					status = (negative * errno);
+					status = (-1 * errno);
 					break;
 				}
 
@@ -897,28 +987,22 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_configureComPortData(JNIEnv *env, jobject obj, jlong fd, jint dataBits, jint stopBits, jint parity, jint baudRateTranslated, jint custBaudTranslated) {
 	int ret = 0;
-	int negative = -1;
 
 #if defined (__linux__)
 	struct termios2 currentconfig = {0};
 	errno = 0;
 	ret = ioctl(fd, TCGETS2, &currentconfig);
 	if(ret < 0) {
-		if(DBG) fprintf(stderr, "%s%d\n", "NATIVE configureComPortData() failed to get current configuration with error number : -", errno);
-		if(DBG) fprintf(stderr, "%s\n", "Please try again");
-		if(DBG) fflush(stderr);
-		return (negative * errno);
+		return (-1 * errno);
 	}
 #elif defined (__APPLE__) || defined (__SunOS)
 	struct termios currentconfig = {0};
 	errno = 0;
 	ret = tcgetattr(fd, &currentconfig);
 	if(ret < 0) {
-		if(DBG) fprintf(stderr, "%s %d\n", "NATIVE configureComPortData() failed to get current configuration with error number : -", errno);
-		if(DBG) fprintf(stderr, "%s\n", "Please try again");
-		if(DBG) fflush(stderr);
-		return (negative * errno);
+		return (-1 * errno);
 	}
+#else
 #endif
 
 	/* We handle custom baud rate case first so as to make development/DBGging easy for developers. */
@@ -932,9 +1016,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 		errno = 0;
 		ret = ioctl(fd, TCSETS2, &currentconfig);
 		if(ret < 0) {
-			if(DBG) fprintf(stderr, "%s%d\n", "NATIVE configureComPortData() failed to set desired baud rate with error number : -", errno);
-			if(DBG) fflush(stderr);
-			return (negative * errno);
+			return (-1 * errno);
 		}
 
 #elif defined (__APPLE__)
@@ -942,15 +1024,14 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 		errno = 0;
 		ret = ioctl(fd, IOSSIOSPEED, &speed);
 		if(ret < 0) {
-			if(DBG) fprintf(stderr, "%s%d\n", "NATIVE configureComPortData() failed to set desired baud rate with error number : -", errno);
-			if(DBG) fflush(stderr);
-			return (negative * errno);
+			return (-1 * errno);
 		}
 
 #elif defined (__SunOS)
 		/* Solaris does not support custom baud rates. */
 		if(DBG) fprintf(stderr, "%s\n", "This baud rate is not supported by OS platform.");
 		if(DBG) fflush(stderr);
+#else
 #endif
 
 	}else {
@@ -1042,10 +1123,9 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 		errno = 0;
 		ret = cfsetspeed(&currentconfig, baud);
 		if(ret < 0) {
-			if(DBG) fprintf(stderr, "%s%d\n", "NATIVE configureComPortData() failed to set desired terminal settings with error number : -", errno);
-			if(DBG) fflush(stderr);
-			return (negative * errno);
+			return (-1 * errno);
 		}
+#else
 #endif
 	}
 
@@ -1126,10 +1206,9 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 	errno = 0;
 	ret  = tcsetattr(fd, TCSANOW, &currentconfig);
 	if(ret < 0) {
-		if(DBG) fprintf(stderr, "%s%d\n", "NATIVE configureComPortData() failed to set desired terminal settings with error number : -", errno);
-		if(DBG) fflush(stderr);
-		return (negative * errno);
+		return (-1 * errno);
 	}
+#else
 #endif
 
 	/* Clear IO buffers after applying new valid settings to make port in 100% sane condition. */
@@ -1155,28 +1234,22 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_configureComPortControl(JNIEnv *env, jobject obj, jlong fd, jint flowctrl, jchar xon, jchar xoff, jboolean ParFraError, jboolean overFlowErr) {
 	int ret = 0;
-	int negative = -1;
 
 #if defined (__linux__)
 	struct termios2 currentconfig = {0};
 	errno = 0;
 	ret = ioctl(fd, TCGETS2, &currentconfig);
 	if(ret < 0) {
-		if(DBG) fprintf(stderr, "%s%d\n", "NATIVE configureComPortControl() failed to get current configuration with error number : -", errno);
-		if(DBG) fprintf(stderr, "%s\n", "Please try again");
-		if(DBG) fflush(stderr);
-		return (negative * errno);
+		return (-1 * errno);
 	}
 #elif defined (__APPLE__) || defined (__SunOS)
 	struct termios currentconfig = {0};
 	errno = 0;
 	ret = tcgetattr(fd, &currentconfig);
 	if(ret < 0) {
-		if(DBG) fprintf(stderr, "%s%d\n", "NATIVE configureComPortControl() failed to get current configuration with error number : -", errno);
-		if(DBG) fprintf(stderr, "%s\n", "Please try again");
-		if(DBG) fflush(stderr);
-		return (negative * errno);
+		return (-1 * errno);
 	}
+#else
 #endif
 
 	/* Output options :
@@ -1284,19 +1357,16 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 	errno = 0;
 	ret = ioctl(fd, TCSETS2, &currentconfig);
 	if(ret < 0) {
-		if(DBG) fprintf(stderr, "%s%d\n", "NATIVE configureComPortData() failed to set desired terminal settings with error number : -", errno);
-		if(DBG) fflush(stderr);
-		return (negative * errno);
+		return (-1 * errno);
 	}
 
 #elif defined (__APPLE__) || defined (__SunOS)
 	errno = 0;
 	ret  = tcsetattr(fd, TCSANOW, &currentconfig);
 	if(ret < 0) {
-		if(DBG) fprintf(stderr, "%s%d\n", "NATIVE configureComPortData() failed to set desired terminal settings with error number : -", errno);
-		if(DBG) fflush(stderr);
-		return (negative * errno);
+		return (-1 * errno);
 	}
+#else
 #endif
 
 	/* Clear IO buffers after applying new valid settings to make port in 100% sane condition. */
@@ -1304,6 +1374,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 	ioctl(fd, TCFLSH, TCIOFLUSH);
 #elif defined (__APPLE__) || defined (__SunOS)
 	tcflush(fd, TCIOFLUSH);
+#else
 #endif
 
 	return 0;
@@ -1313,19 +1384,18 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
  * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
  * Method:    setRTS
  * Signature: (JZ)I
+ *
+ * Sets the RTS line to low or high as defined by enabled argument.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_setRTS(JNIEnv *env, jobject obj, jlong fd, jboolean enabled) {
 	int ret = -1;
-	int negative = -1;
 	int status = -1;
 
 	/* Get current configuration. */
 	errno = 0;
 	ret = ioctl(fd, TIOCMGET, &status);
 	if(ret < 0) {
-		if(DBG) fprintf(stderr, "%s%d\n", "NATIVE setRTS() failed to get current line status with error number : -", errno);
-		if(DBG) fflush(stderr);
-		return (negative * errno);
+		return (-1 * errno);
 	}
 
 	if(enabled == JNI_TRUE) {
@@ -1334,13 +1404,11 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 		status &= ~TIOCM_RTS;
 	}
 
-	/* Update RTS line. */
+	/* Update RTS line to desired state. */
 	errno = 0;
 	ret = ioctl(fd, TIOCMSET, &status);
 	if(ret < 0) {
-		if(DBG) fprintf(stderr, "%s%d\n", "NATIVE setRTS() failed to set requested line status with error number : -", errno);
-		if(DBG) fflush(stderr);
-		return (negative * errno);
+		return (-1 * errno);
 	}
 
 	return 0;
@@ -1350,18 +1418,17 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
  * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
  * Method:    setDTR
  * Signature: (JZ)I
+ *
+ * Sets the DTR line to low or high as defined by enabled argument.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_setDTR(JNIEnv *env, jobject obj, jlong fd, jboolean enabled) {
 	int ret = -1;
-	int negative = -1;
 	int status = -1;
 
 	errno = 0;
 	ret = ioctl(fd, TIOCMGET, &status);
 	if(ret < 0) {
-		if(DBG) fprintf(stderr, "%s %d\n", "NATIVE setDTR() failed to get current line status with error number : -", errno);
-		if(DBG) fflush(stderr);
-		return (negative * errno);
+		return (-1 * errno);
 	}
 
 	if(enabled == JNI_TRUE) {
@@ -1373,9 +1440,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 	errno = 0;
 	ret = ioctl(fd, TIOCMSET, &status);
 	if(ret < 0) {
-		if(DBG) fprintf(stderr, "%s%d\n", "NATIVE setDTR() failed to set requested line status with error number : -", errno);
-		if(DBG) fflush(stderr);
-		return (negative * errno);
+		return (-1 * errno);
 	}
 
 	return 0;
@@ -1390,6 +1455,8 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
  */
 JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_getCurrentConfigurationU(JNIEnv *env, jobject obj, jlong fd) {
 	int ret = -1;
+	jint err[] = {-1};
+	jintArray errr;
 
 #if defined (__linux__)
 	int settings[25];
@@ -1399,11 +1466,7 @@ JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeI
 	errno = 0;
 	ret = ioctl(fd, TCGETS2, &currentconfig);
 	if(ret < 0) {
-		if(DBG) fprintf(stderr, "%s%d\n", "NATIVE getCurrentConfiguration() failed to get current configuration with error number : -", errno);
-		if(DBG) fprintf(stderr, "%s\n", "Please try again");
-		if(DBG) fflush(stderr);
-		jint err[] = {-1};
-		jintArray errr = (*env)->NewIntArray(env, 1);
+		errr = (*env)->NewIntArray(env, 1);
 		(*env)->SetIntArrayRegion(env, errr, 0, 1, err);
 		return errr;
 	}
@@ -1416,15 +1479,11 @@ JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeI
 	errno = 0;
 	ret = tcgetattr(fd, &currentconfig);
 	if(ret < 0) {
-		if(DBG) fprintf(stderr, "%s%d\n", "NATIVE getCurrentConfiguration() failed to get current configuration with error number : -", errno);
-		if(DBG) fprintf(stderr, "%s\n", "Please try again");
-		if(DBG) fflush(stderr);
-		jint err[] = {-1};
-		jintArray errr = (*env)->NewIntArray(env, 1);
+		errr = (*env)->NewIntArray(env, 1);
 		(*env)->SetIntArrayRegion(env, errr, 0, 1, err);
 		return errr;
 	}
-
+#else
 #endif
 
 	/* Populate array with current settings. */
@@ -1482,7 +1541,7 @@ JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeI
 	settings[21] = (jint) currentconfig.c_cc[16];
 
 	(*env)->SetIntArrayRegion(env, configuration, 0, 22, settings);
-
+#else
 #endif
 
 	return configuration;
@@ -1497,16 +1556,13 @@ JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeI
  */
 JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_getByteCount(JNIEnv *env, jobject obj, jlong fd) {
 	int ret = -1;
-	int negative = -1;
 	int val[3] = {0, 0, 0};
 	jintArray byteCounts = (*env)->NewIntArray(env, 3);
 
 	errno = 0;
 	ret = ioctl(fd, FIONREAD, &val[1]);
 	if(ret < 0) {
-		if(DBG) fprintf(stderr, "%s%d\n", "NATIVE getByteCount() failed to get number of bytes to read with error number : -", errno);
-		if(DBG) fflush(stderr);
-		val[0] = (negative * errno);
+		val[0] = (-1 * errno);
 		(*env)->SetIntArrayRegion(env, byteCounts, 0, 3, val);
 		return byteCounts;
 	}
@@ -1514,9 +1570,7 @@ JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeI
 	errno = 0;
 	ret = ioctl(fd, TIOCOUTQ, &val[2]);
 	if(ret < 0) {
-		if(DBG) fprintf(stderr, "%s%d\n", "NATIVE getByteCount() failed to get number of bytes to be written with error number : -", errno);
-		if(DBG) fflush(stderr);
-		val[0] = (negative * errno);
+		val[0] = (-1 * errno);
 		(*env)->SetIntArrayRegion(env, byteCounts, 0, 3, val);
 		return byteCounts;
 	}
@@ -1535,32 +1589,24 @@ JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeI
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_clearPortIOBuffers(JNIEnv *env, jobject obj, jlong fd, jboolean rxPortbuf, jboolean txPortbuf) {
 	int ret = -1;
-	int negative = -1;
 
-	errno = 0;
 	if((rxPortbuf == JNI_TRUE) && (txPortbuf == JNI_TRUE)) {
+		errno = 0;
 		ret = tcflush(fd, TCIOFLUSH);
 		if(ret < 0) {
-			if(DBG) fprintf(stderr, "%s%d\n", "NATIVE clearPortIOBuffers() failed to clear INPUT and OUTPUT buffer(s) with error number : -", errno);
-			if(DBG) fprintf(stderr, "%s\n", "Please try again !");
-			if(DBG) fflush(stderr);
-			return (negative * errno);
+			return (-1 * errno);
 		}
 	}else if(rxPortbuf == JNI_TRUE) {
+		errno = 0;
 		ret = tcflush(fd, TCIFLUSH);
 		if(ret < 0) {
-			if(DBG) fprintf(stderr, "%s%d\n", "NATIVE clearPortIOBuffers() failed to clear INPUT buffer(s) with error number : -", errno);
-			if(DBG) fprintf(stderr, "%s\n", "Please try again !");
-			if(DBG) fflush(stderr);
-			return (negative * errno);
+			return (-1 * errno);
 		}
 	}else if(txPortbuf == JNI_TRUE) {
+		errno = 0;
 		ret = tcflush(fd, TCOFLUSH);
 		if(ret < 0) {
-			if(DBG) fprintf(stderr, "%s%d\n", "NATIVE clearPortIOBuffers() failed to clear OUTPUT buffer(s) with error number : -", errno);
-			if(DBG) fprintf(stderr, "%s\n", "Please try again !");
-			if(DBG) fflush(stderr);
-			return (negative * errno);
+			return (-1 * errno);
 		}
 	}else {
 	}
@@ -1578,7 +1624,6 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
  */
 JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_getLinesStatus(JNIEnv *env, jobject obj, jlong fd) {
 	int ret = -1;
-	int negative = -1;
 	int lines_status = 0;
 	int status[8] = {0};
 	jintArray current_status = (*env)->NewIntArray(env, 8);
@@ -1586,21 +1631,19 @@ JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeI
 	errno = 0;
 	ret = ioctl(fd, TIOCMGET, &lines_status);
 	if(ret < 0) {
-		if(DBG) fprintf(stderr, "%s%d\n", "NATIVE getLinesStatus() failed to get status of control lines with error number : -", errno);
-		if(DBG) fflush(stderr);
-		status[0] = (negative * errno);
+		status[0] = (-1 * errno);
 		(*env)->SetIntArrayRegion(env, current_status, 0, 8, status);
 		return current_status;
 	}
 
 	status[0] = 0;
-	status[1] = (lines_status & TIOCM_CTS)  ? 1 : 0;
-	status[2] = (lines_status & TIOCM_DSR)  ? 1 : 0;
-	status[3] = (lines_status & TIOCM_CD)   ? 1 : 0;
-	status[4] = (lines_status & TIOCM_RI)   ? 1 : 0;
+	status[1] = (lines_status & TIOCM_CTS) ? 1 : 0;
+	status[2] = (lines_status & TIOCM_DSR) ? 1 : 0;
+	status[3] = (lines_status & TIOCM_CD)  ? 1 : 0;
+	status[4] = (lines_status & TIOCM_RI)  ? 1 : 0;
 	status[5] = 0;
-	status[6] = (lines_status & TIOCM_RTS)  ? 1 : 0;
-	status[7] = (lines_status & TIOCM_DTR)  ? 1 : 0;
+	status[6] = (lines_status & TIOCM_RTS) ? 1 : 0;
+	status[7] = (lines_status & TIOCM_DTR) ? 1 : 0;
 	(*env)->SetIntArrayRegion(env, current_status, 0, 8, status);
 
 	return current_status;
@@ -1613,30 +1656,28 @@ JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeI
  *
  * The duration is in milliseconds. If the line is held in the logic low condition (space in UART jargon) for longer than a character
  * time, this is a break condition that can be detected by the UART.
- * Use this for testing timing if(DBG) fprintf(stderr, "%u\n", (unsigned)time(NULL));
+ * Use this for testing timing fprintf(stderr, "%u\n", (unsigned)time(NULL));
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_sendBreak(JNIEnv *env, jobject obj, jlong fd, jint duration) {
 	int ret = -1;
-	int negative = -1;
 
-	/* Start break condition. */
+	/* Set break condition. */
 	errno = 0;
 	ret = ioctl(fd, TIOCSBRK, 0);
 	if(ret < 0) {
-		if(DBG) fprintf(stderr, "%s%d\n", "NATIVE sendBreak() failed to start break condition with error number : -", errno);
-		if(DBG) fflush(stderr);
-		return (negative * errno);
+		return (-1 * errno);
 	}
 
-	serial_delay(duration);
+	ret = serial_delay(duration);
+	if(ret < 0) {
+		return ret;
+	}
 
 	/* Release break condition. */
 	errno = 0;
 	ret = ioctl(fd, TIOCCBRK, 0);
 	if(ret < 0) {
-		if(DBG) fprintf(stderr, "%s%d\n", "NATIVE sendBreak() failed to stop break condition with error number : -", errno);
-		if(DBG) fflush(stderr);
-		return (negative * errno);
+		return (-1 * errno);
 	}
 
 	return 0;
@@ -1660,15 +1701,12 @@ JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeI
 
 #if defined(__linux__)
 	int ret = -1;
-	int negative = -1;
 	struct serial_icounter_struct counter = {0};
 
 	errno = 0;
 	ret = ioctl(fd , TIOCGICOUNT, &counter);
 	if(ret < 0) {
-		if(DBG) fprintf(stderr, "%s%d\n", "NATIVE getInterruptCount() failed to get interrupt count with error number : -", errno);
-		if(DBG) fflush(stderr);
-		count_info[0] = (negative * errno);
+		count_info[0] = (-1 * errno);
 		(*env)->SetIntArrayRegion(env, interrupt_info, 0, 11, count_info);
 		return interrupt_info;
 	}
@@ -1699,32 +1737,26 @@ JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeI
  * Method:    fineTuneRead
  * Signature: (JIIIII)I
  *
- * This method gives more precise control on behavior of read operation.
+ * This function gives more precise control over the behavior of read operation in terms of timeout and number of bytes.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_fineTuneRead(JNIEnv *env, jobject obj, jlong fd, jint vmin, jint vtime, jint a, jint b, jint c) {
-	int ret = 0;
-	int negative = -1;
+	int ret = -1;
 
 #if defined (__linux__)
 	struct termios2 currentconfig = {0};
 	errno = 0;
 	ret = ioctl(fd, TCGETS2, &currentconfig);
 	if(ret < 0) {
-		if(DBG) fprintf(stderr, "%s%d\n", "NATIVE fineTuneRead() failed to get current configuration with error number : -", errno);
-		if(DBG) fprintf(stderr, "%s\n", "Please try again !");
-		if(DBG) fflush(stderr);
-		return (negative * errno);
+		return (-1 * errno);
 	}
 #elif defined (__APPLE__) || defined (__SunOS)
 	struct termios currentconfig = {0};
 	errno = 0;
 	ret = tcgetattr(fd, &currentconfig);
 	if(ret < 0) {
-		if(DBG) fprintf(stderr, "%s %d\n", "NATIVE fineTuneRead() failed to get current configuration with error number : -", errno);
-		if(DBG) fprintf(stderr, "%s\n", "Please try again !");
-		if(DBG) fflush(stderr);
-		return (negative * errno);
+		return (-1 * errno);
 	}
+#else
 #endif
 
 	currentconfig.c_cc[VMIN] = vmin;
@@ -1734,18 +1766,15 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 	errno = 0;
 	ret = ioctl(fd, TCSETS2, &currentconfig);
 	if(ret < 0) {
-		if(DBG) fprintf(stderr, "%s %d\n", "NATIVE fineTuneRead() failed to set default terminal settings with error number : -", errno);
-		if(DBG) fflush(stderr);
-		return (negative * errno);
+		return (-1 * errno);
 	}
 #elif defined (__APPLE__) || defined (__SunOS)
 	errno = 0;
 	ret  = tcsetattr(fd, TCSANOW, &currentconfig);
 	if(ret < 0) {
-		if(DBG) fprintf(stderr, "%s %d\n", "NATIVE fineTuneRead() failed to set default terminal settings with error number : -", errno);
-		if(DBG) fflush(stderr);
-		return (negative * errno);
+		return (-1 * errno);
 	}
+#else
 #endif
 
 	return 0;
@@ -1756,11 +1785,11 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
  * Method:    setUpDataLooperThread
  * Signature: (JLcom/embeddedunveiled/serial/SerialComLooper;)I
  *
+ * Creates new native thread.
  * Note that, GetMethodID() causes an uninitialized class to be initialized. However in our case we have already initialized classes required.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_setUpDataLooperThread(JNIEnv *env, jobject obj, jlong fd, jobject looper) {
 	int ret = -1;
-	int negative = -1;
 	int x = -1;
 	struct com_thread_params *ptr;
 	ptr = fd_looper_info;
@@ -1796,10 +1825,8 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 		/* Set the values, create reference to it to be passed to thread. */
 		datalooper = (*env)->NewGlobalRef(env, looper);
 		if(datalooper == NULL) {
-			if(DBG) fprintf(stderr, "%s \n", "NATIVE setUpDataLooperThread() could not create global reference for looper object.");
-			if(DBG) fflush(stderr);
 			pthread_mutex_unlock(&mutex);
-			return -240;
+			return (-1 * E_NEWGLOBALREF);
 		}
 		params.jvm = jvm;
 		params.fd = fd;
@@ -1818,10 +1845,8 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 		/* Set the values, create reference to it to be passed to thread. */
 		datalooper = (*env)->NewGlobalRef(env, looper);
 		if(datalooper == NULL) {
-			if(DBG) fprintf(stderr, "%s \n", "NATIVE setUpDataLooperThread() could not create global reference for looper object.");
-			if(DBG) fflush(stderr);
 			pthread_mutex_unlock(&mutex);
-			return -240;
+			return (-1 * E_NEWGLOBALREF);
 		}
 		params.jvm = jvm;
 		params.fd = fd;
@@ -1843,12 +1868,10 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 	errno = 0;
 	ret = pthread_create(&thread_id, NULL, &data_looper, arg);
 	if(ret < 0) {
-		if(DBG) fprintf(stderr, "%s %d\n", "NATIVE setUpDataLooperThread() failed to create native data looper thread with error number : -", errno);
-		if(DBG) fflush(stderr);
 		(*env)->DeleteGlobalRef(env, datalooper);
 		pthread_attr_destroy(&((struct com_thread_params*) arg)->data_thread_attr);
 		pthread_mutex_unlock(&mutex);
-		return (negative * errno);
+		return (-1 * errno);
 	}
 
 	if((entry_found == JNI_TRUE) || (empty_entry_found == JNI_TRUE)) {
@@ -1879,10 +1902,11 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
  * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
  * Method:    destroyDataLooperThread
  * Signature: (J)I
+ *
+ * Terminates native thread.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_destroyDataLooperThread(JNIEnv *env, jobject obj, jlong fd) {
 	int ret = -1;
-	int negative = -1;
 	int x = -1;
 	struct com_thread_params *ptr;
 	ptr = fd_looper_info;
@@ -1917,16 +1941,14 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 	/* Join the thread to check its exit status. */
 	ret = pthread_join(data_thread_id, &status);
 	if(ret != 0) {
-		if(DBG) fprintf(stderr, "%s %d \n", "native data looper thread failed to join with error -", ret);
-		if(DBG) fflush(stderr);
 		pthread_mutex_unlock(&mutex);
-		return (negative * ret);
+		return (-1 * ret);
 	}
 
 	ret = pthread_attr_destroy(&(ptr->data_thread_attr));
 	if(ret != 0) {
-		if(DBG) fprintf(stderr, "%s %d \n", "native data looper thread failed to destroy thread attr object with error -", ret);
-		if(DBG) fflush(stderr);
+		pthread_mutex_unlock(&mutex);
+		return (-1 * ret);
 	}
 
 	ptr->data_thread_id = 0;   /* Reset thread id field. */
@@ -1949,7 +1971,6 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_setUpEventLooperThread(JNIEnv *env, jobject obj, jlong fd, jobject looper) {
 	int ret = -1;
-	int negative = -1;
 	int x = -1;
 	struct com_thread_params *ptr;
 	ptr = fd_looper_info;
@@ -1985,10 +2006,8 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 		/* Set the values, create reference to it to be passed to thread. */
 		eventlooper = (*env)->NewGlobalRef(env, looper);
 		if(eventlooper == NULL) {
-			if(DBG) fprintf(stderr, "%s \n", "NATIVE setUpEventLooperThread() could not create global reference for looper object.");
-			if(DBG) fflush(stderr);
 			pthread_mutex_unlock(&mutex);
-			return -240;
+			return (-1 * E_NEWGLOBALREF);
 		}
 
 		params.jvm = jvm;
@@ -2008,10 +2027,8 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 		/* Set the values, create reference to it to be passed to thread. */
 		eventlooper = (*env)->NewGlobalRef(env, looper);
 		if(eventlooper == NULL) {
-			if(DBG) fprintf(stderr, "%s \n", "NATIVE setUpEventLooperThread() could not create global reference for looper object.");
-			if(DBG) fflush(stderr);
 			pthread_mutex_unlock(&mutex);
-			return -240;
+			return (-1 * E_NEWGLOBALREF);
 		}
 
 		params.jvm = jvm;
@@ -2034,12 +2051,10 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 	errno = 0;
 	ret = pthread_create(&thread_id, NULL, &event_looper, arg);
 	if(ret < 0) {
-		if(DBG) fprintf(stderr, "%s %d\n", "NATIVE setUpEventLooperThread() failed to create native data looper thread with error number : -", errno);
-		if(DBG) fflush(stderr);
 		(*env)->DeleteGlobalRef(env, eventlooper);
 		pthread_attr_destroy(&((struct com_thread_params*) arg)->event_thread_attr);
 		pthread_mutex_unlock(&mutex);
-		return (negative * errno);
+		return (-1 * errno);
 	}
 
 	if((entry_found == JNI_TRUE) || (empty_entry_found == JNI_TRUE)) {
@@ -2074,7 +2089,6 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_destroyEventLooperThread(JNIEnv *env, jobject obj, jlong fd) {
 	int ret = -1;
-	int negative = -1;
 	int x = -1;
 	struct com_thread_params *ptr;
 	ptr = fd_looper_info;
@@ -2098,26 +2112,22 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 	/* send signal to event thread. */
 	ret = pthread_kill(event_thread_id, SIGUSR1);
 	if(ret != 0) {
-		if(DBG) fprintf(stderr, "%s %d\n", "NATIVE destroyEventLooperThread() failed to terminate event looper thread with error number : -", ret);
-		if(DBG) fflush(stderr);
 		pthread_mutex_unlock(&mutex);
-		return (negative * ret);
+		return (-1 * ret);
 	}
 
 	/* Join the thread (waits for the thread specified to terminate). */
 	ret = pthread_join(event_thread_id, &status);
 	if(ret != 0) {
-		if(DBG) fprintf(stderr, "%s \n", "native event looper thread failed to join !");
-		if(DBG) fflush(stderr);
 		pthread_mutex_unlock(&mutex);
-		return (negative * ret);
+		return (-1 * ret);
 	}
 
 	ptr->event_thread_id = 0;    /* Reset thread id field. */
 	ret = pthread_attr_destroy(&(ptr->event_thread_attr));
 	if(ret != 0) {
-		if(DBG) fprintf(stderr, "%s %d \n", "native event looper thread failed to destroy thread attr object with error -", ret);
-		if(DBG) fflush(stderr);
+		pthread_mutex_unlock(&mutex);
+		return (-1 * ret);
 	}
 
 	/* If neither data nor event thread exist for this file descriptor remove entry for it from global array. */
@@ -2138,7 +2148,6 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_registerPortMonitorListener(JNIEnv *env, jobject obj, jlong fd, jstring portName, jobject listener) {
 	int ret = -1;
-	int negative = -1;
 	pthread_attr_t attr;
 	pthread_t thread_id = 0;
 	void *arg;
@@ -2149,10 +2158,8 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 
 	portListener = (*env)->NewGlobalRef(env, listener);
 	if(portListener == NULL) {
-		if(DBG) fprintf(stderr, "%s \n", "NATIVE registerPortMonitorListener() could not create global reference for listener object.");
-		if(DBG) fflush(stderr);
 		pthread_mutex_unlock(&mutex);
-		return -240;
+		return (-1 * E_NEWGLOBALREF);
 	}
 
 	params.jvm = jvm;
@@ -2172,12 +2179,10 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 	errno = 0;
 	ret = pthread_create(&thread_id, NULL, &port_monitor, arg);
 	if(ret < 0) {
-		if(DBG) fprintf(stderr, "%s %d\n", "NATIVE setUpDataLooperThread() failed to create native data looper thread with error number : -", errno);
-		if(DBG) fflush(stderr);
 		(*env)->DeleteGlobalRef(env, portListener);
 		((struct port_info*) arg)->fd = -1;
 		pthread_mutex_unlock(&mutex);
-		return (negative * errno);
+		return (-1 * errno);
 	}
 
 	/* Save the data thread id which will be used when listener is unregistered. */
@@ -2197,7 +2202,6 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_unregisterPortMonitorListener(JNIEnv *env, jobject obj, jlong fd) {
 #if defined (__linux__) || defined (__APPLE__)
 	int ret = -1;
-	int negative = -1;
 	int x = -1;
 	struct port_info *ptr;
 	ptr = port_monitor_info;
@@ -2221,19 +2225,15 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 	/* send signal to event thread. */
 	ret = pthread_kill(thread_id, SIGUSR1);
 	if(ret != 0) {
-		if(DBG) fprintf(stderr, "%s %d\n", "NATIVE unregisterPortMonitorListener() failed to terminate monitor thread with error number : -", ret);
-		if(DBG) fflush(stderr);
 		pthread_mutex_unlock(&mutex);
-		return (negative * ret);
+		return (-1 * ret);
 	}
 
 	/* Join the thread (waits for the thread specified to terminate). */
 	ret = pthread_join(thread_id, &status);
 	if(ret != 0) {
-		if(DBG) fprintf(stderr, "%s \n", "native port monitor thread failed to join !");
-		if(DBG) fflush(stderr);
 		pthread_mutex_unlock(&mutex);
-		return (negative * ret);
+		return (-1 * ret);
 	}
 
 	(*env)->DeleteGlobalRef(env, ptr->port_listener);
