@@ -23,7 +23,7 @@
  * - Wherever possible avoid JNI data types.
  * - Sometimes, the JNI does not like some pointer arithmetic so it is avoided wherever possible. */
 
-#if defined (__linux__) || defined (__APPLE__) || defined (__SunOS) || defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__)
+#if defined (__linux__) || defined (__APPLE__) || defined (__SunOS) || defined(__sun) || defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__) || defined(__hpux__) || defined(__hpux) || defined(_AIX)
 
 /* Make primitives such as read and write resume, in case they are interrupted by signal,
  * before they actually start reading or writing data. The partial success case are handled

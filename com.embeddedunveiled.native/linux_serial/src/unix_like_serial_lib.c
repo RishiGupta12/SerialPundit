@@ -20,7 +20,7 @@
  * and that the thread is responsible for cleaning them before exiting. As appropriate a policy is
  * followed that if listener exist and port is removed, CPU usage does not go very high. */
 
-#if defined (__linux__) || defined (__APPLE__) || defined (__SunOS)
+#if defined (__linux__) || defined (__APPLE__) || defined (__SunOS) || defined(__sun) || defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__) || defined(__hpux__) || defined(__hpux) || defined(_AIX)
 
 #include <unistd.h>     	/* UNIX standard function definitions */
 #include <stdio.h>
@@ -82,23 +82,43 @@ int pm_index = 0;
 struct driver_ref* pm_info[2048] = {0};
 #endif
 
-/* Do not let any exception propagate. Handle and clear it. */
 void LOGE(JNIEnv *env) {
 	(*env)->ExceptionDescribe(env);
 	(*env)->ExceptionClear(env);
 }
 
+/* This function set error field so as to inform exact error code to java layer. The error field is returned as negative number. */
+int set_error_status(JNIEnv *env, jobject obj, jobject status, int error_number) {
+	int negative = -1;
+	jclass statusClass = (*env)->GetObjectClass(env, status);
+	if(statusClass == NULL) {
+		if(DBG) fprintf(stderr, "%s\n", "NATIVE getSerialPortNames() could not get class of object of type SerialComRetStatus !");
+		if(DBG) fflush(stderr);
+		return -1;
+	}
+	jfieldID statusFid = (*env)->GetFieldID(env, statusClass, "status", "I");
+	if(statusFid == NULL) {
+		if(DBG) fprintf(stderr, "%s\n", "NATIVE getSerialPortNames() failed to retrieve field id of field status in class SerialComRetStatus !");
+		if(DBG) fflush(stderr);
+		return -1;
+	}
+	if((*env)->ExceptionOccurred(env) != NULL) {
+		LOGE(env);
+	}
+	(*env)->SetIntField(env, status, statusFid, (negative * error_number));
+	return 0;
+}
+
 /* pselect() is used to provide delay whenever required. */
 int serial_delay(unsigned milliSeconds) {
 	int ret = 0;
-	int negative = -1;
 	struct timespec t;
 	t.tv_sec  = milliSeconds/1000;
 	t.tv_nsec = 0;
 	errno = 0;
 	ret = pselect(1, 0, 0, 0, &t, 0);
 	if(ret < 0) {
-		return (negative * errno);
+		return (-1 * errno);
 	}
 	return 0;
 }
