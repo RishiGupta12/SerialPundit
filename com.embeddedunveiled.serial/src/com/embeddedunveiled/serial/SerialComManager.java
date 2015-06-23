@@ -35,7 +35,7 @@ public final class SerialComManager {
 	/** Relase version of SCM library. */
 	public static final String JAVA_LIB_VERSION = "1.0.4";
 
-	/** Pre-defined constants for baud rate values. */
+	/** Pre-defined enum constants for baud rate values. */
 	public enum BAUDRATE {
 		B0(0), B50(50), B75(75), B110(110), B134(134), B150(150), B200(200), B300(300), B600(600), B1200(1200),
 		B1800(1800), B2400(2400), B4800(4800), B9600(9600), B14400(14400), B19200(19200), B28800(28800), B38400(38400),
@@ -52,7 +52,7 @@ public final class SerialComManager {
 		}
 	}
 
-	/** Pre-defined constants for number of data bits in a serial frame. */
+	/** Pre-defined enum constants for number of data bits in a serial frame. */
 	public enum DATABITS {
 		DB_5(5), DB_6(6), DB_7(7), DB_8(8);
 		private int value;
@@ -64,7 +64,7 @@ public final class SerialComManager {
 		}
 	}
 
-	/** Pre-defined constants for number of stop bits in a serial frame. */
+	/** Pre-defined enum constants for number of stop bits in a serial frame. */
 	// SB_1_5(4) is 1.5 stop bits.
 	public enum STOPBITS {
 		SB_1(1), SB_1_5(4), SB_2(2);
@@ -77,7 +77,7 @@ public final class SerialComManager {
 		}
 	}
 
-	/** Pre-defined constants for enabling type of parity in a serial frame. */
+	/** Pre-defined enum constants for enabling type of parity in a serial frame. */
 	public enum PARITY {
 		P_NONE(1), P_ODD(2), P_EVEN(3), P_MARK(4), P_SPACE(5);
 		private int value;
@@ -89,7 +89,7 @@ public final class SerialComManager {
 		}
 	}
 
-	/** Pre-defined constants for controlling data flow between DTE and DCE. */
+	/** Pre-defined enum constants for controlling data flow between DTE and DCE. */
 	public enum FLOWCONTROL {
 		NONE(1), HARDWARE(2), SOFTWARE(3);
 		private int value;
@@ -101,7 +101,7 @@ public final class SerialComManager {
 		}
 	}
 
-	/** Pre-defined constants for defining endianness of data to be sent over serial port. */
+	/** Pre-defined enum constants for defining endianness of data to be sent over serial port. */
 	public enum ENDIAN {
 		E_LITTLE(1), E_BIG(2), E_DEFAULT(3);
 		private int value;
@@ -113,7 +113,7 @@ public final class SerialComManager {
 		}
 	}
 
-	/** Pre-defined constants for defining number of bytes given data can be represented in. */
+	/** Pre-defined enum constants for defining number of bytes given data can be represented in. */
 	public enum NUMOFBYTES {
 		/** Integer value requires 16 bits. */
 		NUM_2(2),
@@ -128,7 +128,7 @@ public final class SerialComManager {
 		}
 	}
 
-	/** Pre-defined constants for defining file transfer protocol to use. */
+	/** Pre-defined enum constants for defining file transfer protocol to use. */
 	public enum FTPPROTO {
 		/** XMODEM protocol with three variants checksum, CRC and 1k. */
 		XMODEM(1),
@@ -145,7 +145,7 @@ public final class SerialComManager {
 		}
 	}
 	
-	/** Pre-defined constants for defining variant of file transfer protocol to use. */
+	/** Pre-defined enum constants for defining variant of file transfer protocol to use. */
 	public enum FTPVAR {
 		/** Checksum for XMODEM protocol, 128 data byte block for YMODEM.  *///TODO FOR zmodem
 		DEFAULT(0),
@@ -166,7 +166,7 @@ public final class SerialComManager {
 		}
 	}
 	
-	/** Pre-defined constants for defining translation mode file transfer protocol to use. */ //TODO MAKE IT MORE COMPREHENSIVE 
+	/** Pre-defined enum constants for defining translation mode file transfer protocol to use. */ //TODO MAKE IT MORE COMPREHENSIVE 
 	public enum FTPMODE {
 		/** Specify translating of data as per the operating system on which receiver application is running. */
 		TEXT(1),
@@ -181,7 +181,7 @@ public final class SerialComManager {
 		}
 	}
 	
-	/** Pre-defined constants for defining behavior of byte stream. */
+	/** Pre-defined enum constants for defining behavior of byte stream. */
 	public enum SMODE {
 		/** Read will block till data is available. */
 		BLOCKING(1), 
@@ -262,10 +262,10 @@ public final class SerialComManager {
 	public static final int PORT_REMOVED  = 0x02;
 
 	/** Operating system name as returned by JVM. */
-	public static final String osName = System.getProperty("os.name");
+	public static final String osName = System.getProperty("os.name").toLowerCase().trim();
 	
 	/** Operating system architecture as returned by JVM. */
-	public static final String osArch = System.getProperty("os.arch").toLowerCase();
+	public static final String osArch = System.getProperty("os.arch").toLowerCase().trim();
 	
 	/** User home directory as returned by JVM. */
 	public static final String userHome = System.getProperty("user.home");
@@ -311,6 +311,10 @@ public final class SerialComManager {
 			osType = OS_NETBSD;
 		}else if(osNameMatch.contains("openbsd")) {
 			osType = OS_OPENBSD;
+		}else if(osNameMatch.contains("aix")) {
+			osType = OS_IBM_AIX;
+		}else if(osNameMatch.contains("hp-ux")) {
+			osType = OS_HP_UX;
 		}else {
 			osType = OS_UNKNOWN;
 		}
