@@ -496,11 +496,11 @@ public final class SerialComManager {
 	
 			int ret = mNativeInterface.closeComPort(handle);
 			// native close() returns 0 on success
-			if(ret != 0) {
+			if(ret < 0) {
 				throw new SerialComException("closeComPort()",  mErrMapper.getMappedError(ret));
 			}
 	
-			/* delete info about this port/handle from global arraylist */
+			/* delete info about this port/handle from global info arraylist. */
 			mPortHandleInfo.remove(mHandleInfo);
 		}
 
