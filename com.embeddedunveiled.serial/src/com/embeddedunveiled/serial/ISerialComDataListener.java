@@ -45,6 +45,8 @@ public interface ISerialComDataListener {
 	 * and then open and register listener again. Another policy might be to send email to system 
 	 * administrator so that he can take appropriate actions to recover from situation.</p>
 	 * 
+	 * <p>Swing/AWT GUI applications might play beep sound to inform user about port addition or removal.</p>
+	 * 
 	 * @param errorNum operating system specific error number
 	 */
 	public abstract void onDataListenerError(int errorNum);
