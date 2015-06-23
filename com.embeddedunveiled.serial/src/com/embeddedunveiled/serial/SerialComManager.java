@@ -222,8 +222,14 @@ public final class SerialComManager {
 	/** The value indicating the OpenBSD operating system. Integer constant with value 0x07. */
 	public static final int OS_OPENBSD  = 0x07;
 	
-	/** The value indicating the Android operating system. Integer constant with value 0x08. */
-	public static final int OS_ANDROID  = 0x08;
+	/** The value indicating the IBM AIX operating system. Integer constant with value 0x08. */
+	public static final int OS_IBM_AIX  = 0x08;
+	
+	/** The value indicating the HP-UX operating system. Integer constant with value 0x09. */
+	public static final int OS_HP_UX    = 0x09;
+	
+	/** The value indicating the Android operating system. Integer constant with value 0x0A. */
+	public static final int OS_ANDROID  = 0x0A;
 
 	/** Default number of bytes (1024) to read from serial port. */
 	public static final int DEFAULT_READBYTECOUNT = 1024;
@@ -248,6 +254,12 @@ public final class SerialComManager {
 	
 	/** Data terminal ready mask bit constant for UART control line. */
 	public static final int DTR  = 0x40;  // 1000000
+	
+	/** The value indicating that a serial port has been added into system. */
+	public static final int PORT_ADDED =  0x01;
+	
+	/** The value indicating that a serial port has been removed from system. */
+	public static final int PORT_REMOVED  = 0x02;
 
 	/** Operating system name as returned by JVM. */
 	public static final String osName = System.getProperty("os.name");
