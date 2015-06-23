@@ -16,7 +16,7 @@
  *
  ***************************************************************************************************/
 
-#if defined (__linux__) || defined (__APPLE__) || defined (__SunOS)
+#if defined (__linux__) || defined (__APPLE__) || defined (__SunOS) || defined(__sun) || defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__) || defined(__hpux__) || defined(__hpux) || defined(_AIX)
 
 #if defined (__APPLE__)
 #include <IOKit/IOMessage.h>
@@ -91,11 +91,13 @@ extern int set_error_status(JNIEnv *env, jobject obj, jobject status, int error_
 
 /* custom error codes for SCM library */
 #define ERROR_OFFSET 350
-#define E_GETJVM (ERROR_OFFSET + 1)
-#define E_NEWSTRUTF (ERROR_OFFSET + 2)
-#define E_OPENDIR (ERROR_OFFSET + 3)    /* Either filename cannot be accessed or cannot malloc() enough memory to hold the whole thing. */
-#define E_FINDCLASS (ERROR_OFFSET + 4)  /* Probably out of memory. */
+#define E_GETJVM         (ERROR_OFFSET + 1)
+#define E_NEWSTRUTF      (ERROR_OFFSET + 2)
+#define E_OPENDIR        (ERROR_OFFSET + 3)  /* Either filename cannot be accessed or cannot malloc() enough memory to hold the whole thing. */
+#define E_FINDCLASS      (ERROR_OFFSET + 4)  /* Probably out of memory. */
 #define E_NEWOBJECTARRAY (ERROR_OFFSET + 5)  /* Probably out of memory. */
+#define E_GETSTRUTFCHAR  (ERROR_OFFSET + 6)
+#define E_NEWGLOBALREF   (ERROR_OFFSET + 7)  /* Probably out of memory. */
 
 #endif /* UNIX_LIKE_SERIAL_LIB_H_ */
 
