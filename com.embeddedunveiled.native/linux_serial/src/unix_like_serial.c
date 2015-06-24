@@ -110,7 +110,11 @@ int dtp_index = 0;
 struct com_thread_params fd_looper_info[MAX_NUM_THREADS] = { {0} };
 
 /* Used to protect global data from concurrent access. */
+#if defined (__linux__)
 pthread_mutex_t mutex = {{0}};
+#else
+pthread_mutex_t mutex = {0};
+#endif
 
 /* Holds information for port monitor facility. */
 int port_monitor_index = 0;
@@ -157,6 +161,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 		return (-1 * ret);
 	}
 
+	/* clear if something unexpected was there. */
 	if((*env)->ExceptionCheck(env) == JNI_TRUE) {
 		(*env)->ExceptionClear(env);
 	}
@@ -817,7 +822,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 		exit_loop = 1;
 	}while (exit_loop == 0);
 
-	return ret;
+	return 0;
 }
 
 /*
