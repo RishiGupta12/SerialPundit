@@ -1283,7 +1283,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 	currentconfig.c_cflag |= (CREAD | CLOCAL | HUPCL);
 
 	/* Input options : */
-	currentconfig.c_iflag &= ~(IGNBRK | IGNCR | INLCR | ICRNL | IUCLC | IXANY | IXON | IXOFF | INPCK | ISTRIP | BRKINT);
+	currentconfig.c_iflag &= ~(IGNBRK | IGNCR | INLCR | ICRNL | IXANY | IXON | IXOFF | INPCK | ISTRIP | BRKINT);
 #ifdef IUCLC
 	currentconfig.c_iflag &= ~IUCLC;  /* translate upper case to lower case */
 #endif
