@@ -1482,7 +1482,7 @@ JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeI
 	}
 
 #elif defined (__APPLE__) || defined (__SunOS)
-	int settings[23];
+	jint settings[23];
 	jintArray configuration = (*env)->NewIntArray(env, 23);
 
 	struct termios currentconfig = {0};
@@ -1635,7 +1635,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_getLinesStatus(JNIEnv *env, jobject obj, jlong fd) {
 	int ret = -1;
 	int lines_status = 0;
-	int status[8] = {0};
+	jint status[8] = {0};
 	jintArray current_status = (*env)->NewIntArray(env, 8);
 
 	errno = 0;
@@ -1706,7 +1706,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
  * Not supported by Solaris and Mac OS itself (this function will return NULL).
  */
 JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_getInterruptCount(JNIEnv *env, jobject obj, jlong fd) {
-	int count_info[11] = {0};
+	jint count_info[11] = {0};
 	jintArray interrupt_info = (*env)->NewIntArray(env, 11);
 
 #if defined(__linux__)
