@@ -1395,7 +1395,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
  * Method:    setRTS
  * Signature: (JZ)I
  *
- * Sets the RTS line to low or high as defined by enabled argument.
+ * Sets the RTS line to low or high voltages as defined by enabled argument.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_setRTS(JNIEnv *env, jobject obj, jlong fd, jboolean enabled) {
 	int ret = -1;
@@ -1429,7 +1429,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
  * Method:    setDTR
  * Signature: (JZ)I
  *
- * Sets the DTR line to low or high as defined by enabled argument.
+ * Sets the DTR line to low or high voltages as defined by enabled argument.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_setDTR(JNIEnv *env, jobject obj, jlong fd, jboolean enabled) {
 	int ret = -1;
@@ -1566,7 +1566,7 @@ JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeI
  */
 JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_getByteCount(JNIEnv *env, jobject obj, jlong fd) {
 	int ret = -1;
-	int val[3] = {0, 0, 0};
+	jint val[3] = {0, 0, 0};
 	jintArray byteCounts = (*env)->NewIntArray(env, 3);
 
 	errno = 0;
