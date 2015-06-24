@@ -228,7 +228,6 @@ void free_allocated_memory(int hs, int spf, char **sys_ports_base, int hr, int r
  * For SOLARIS : this is handled in java layer itself as of now.
  */
 JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_listAvailableComPorts(JNIEnv *env, jobject obj, jobject status) {
-	int negative = -1;
 #if defined (__linux__)
 	int i = 0;
 	int x = 0;
@@ -627,6 +626,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINati
 #endif
 
 #if defined (__APPLE__)
+	int negative = -1;
 	CFMutableDictionaryRef matchingDict = NULL;
 	io_iterator_t iter = 0;
 	io_service_t service = 0;
@@ -784,9 +784,8 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInter
  * Method:    closeComPort
  * Signature: (J)I
  *
- * Free the file descriptor for reuse and tell kernel to free up structures associated with this file. The close system call
- * does not flush any data in Linux, so caller should make sure that he has taken care of this. The close system call return
- * 0 on success.
+ * Free the file descriptor for reuse and tell kernel to free up structures associated with this file. In scenarios like if the port has
+ * been removed from the system physically or tty structures have been de-allocated etc. we proceed to close ignoring some errors.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_closeComPort(JNIEnv *env, jobject obj, jlong fd) {
 	int ret = -1;
@@ -801,7 +800,12 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 	errno = 0;
 	ret = ioctl(fd, TIOCNXCL);
 	if(ret < 0) {
-		return (-1 * errno);
+		if((errno == ENXIO) || (errno == ENOTTY) || (errno == EBADF) || (errno == ENODEV)) {
+			/* ignore */
+		}else {
+			return (-1 * errno);
+		}
+
 	}
 #endif
 
@@ -813,6 +817,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 			if(errno == EINTR) {
 				errno = 0;
 				continue;
+			}else if((errno == ENXIO) || (errno == ENOTTY) || (errno == EBADF) || (errno == ENODEV)) {
 			}else {
 				if(DBG) fprintf(stderr, "%s %d\n", "Native closeComPort() failed to close port with error number : -", errno);
 				if(DBG) fflush(stderr);
