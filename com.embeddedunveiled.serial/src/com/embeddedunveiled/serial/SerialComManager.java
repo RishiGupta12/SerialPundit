@@ -337,7 +337,7 @@ public final class SerialComManager {
 	private SerialComErrorMapper mErrMapper = null;
 	private SerialComCompletionDispatcher mEventCompletionDispatcher = null;
 	private Object lock = new Object();
-	private static int osType = -1;
+	private int osType = -1;
 	private int cpuArch = -1;
 	private static final String HEXNUM = "0123456789ABCDEF";
 
@@ -378,12 +378,8 @@ public final class SerialComManager {
 	 * SerialComManager class.</p>
 	 * 
 	 * @return Operating system type as identified by the scm library
-	 * @throws IllegalStateException if application calls this method without first creating an instance of SerialComManager class
 	 */
-	public static int getOSType() throws IllegalStateException {
-		if(osType == -1) {
-			throw new IllegalStateException("getOSType() " + SerialComErrorMapper.ERR_SCM_DOES_NOT_INSTANTIATED);
-		}
+	public int getOSType() {
 		return osType;
 	}
 
