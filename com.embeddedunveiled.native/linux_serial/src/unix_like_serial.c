@@ -110,7 +110,11 @@ int dtp_index = 0;
 struct com_thread_params fd_looper_info[MAX_NUM_THREADS] = { {0} };
 
 /* Used to protect global data from concurrent access. */
+#if defined (__linux__)
 pthread_mutex_t mutex = {{0}};
+#else
+pthread_mutex_t mutex = {0};
+#endif
 
 /* Holds information for port monitor facility. */
 int port_monitor_index = 0;
@@ -157,6 +161,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 		return (-1 * ret);
 	}
 
+	/* clear if something unexpected was there. */
 	if((*env)->ExceptionCheck(env) == JNI_TRUE) {
 		(*env)->ExceptionClear(env);
 	}
@@ -223,7 +228,6 @@ void free_allocated_memory(int hs, int spf, char **sys_ports_base, int hr, int r
  * For SOLARIS : this is handled in java layer itself as of now.
  */
 JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_listAvailableComPorts(JNIEnv *env, jobject obj, jobject status) {
-	int negative = -1;
 #if defined (__linux__)
 	int i = 0;
 	int x = 0;
@@ -622,6 +626,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINati
 #endif
 
 #if defined (__APPLE__)
+	int negative = -1;
 	CFMutableDictionaryRef matchingDict = NULL;
 	io_iterator_t iter = 0;
 	io_service_t service = 0;
@@ -779,9 +784,8 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInter
  * Method:    closeComPort
  * Signature: (J)I
  *
- * Free the file descriptor for reuse and tell kernel to free up structures associated with this file. The close system call
- * does not flush any data in Linux, so caller should make sure that he has taken care of this. The close system call return
- * 0 on success.
+ * Free the file descriptor for reuse and tell kernel to free up structures associated with this file. In scenarios like if the port has
+ * been removed from the system physically or tty structures have been de-allocated etc. we proceed to close ignoring some errors.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_closeComPort(JNIEnv *env, jobject obj, jlong fd) {
 	int ret = -1;
@@ -796,7 +800,12 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 	errno = 0;
 	ret = ioctl(fd, TIOCNXCL);
 	if(ret < 0) {
-		return (-1 * errno);
+		if((errno == ENXIO) || (errno == ENOTTY) || (errno == EBADF) || (errno == ENODEV)) {
+			/* ignore */
+		}else {
+			return (-1 * errno);
+		}
+
 	}
 #endif
 
@@ -808,6 +817,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 			if(errno == EINTR) {
 				errno = 0;
 				continue;
+			}else if((errno == ENXIO) || (errno == ENOTTY) || (errno == EBADF) || (errno == ENODEV)) {
 			}else {
 				if(DBG) fprintf(stderr, "%s %d\n", "Native closeComPort() failed to close port with error number : -", errno);
 				if(DBG) fflush(stderr);
@@ -817,7 +827,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 		exit_loop = 1;
 	}while (exit_loop == 0);
 
-	return ret;
+	return 0;
 }
 
 /*
@@ -1273,7 +1283,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 	currentconfig.c_cflag |= (CREAD | CLOCAL | HUPCL);
 
 	/* Input options : */
-	currentconfig.c_iflag &= ~(IGNBRK | IGNCR | INLCR | ICRNL | IUCLC | IXANY | IXON | IXOFF | INPCK | ISTRIP | BRKINT);
+	currentconfig.c_iflag &= ~(IGNBRK | IGNCR | INLCR | ICRNL | IXANY | IXON | IXOFF | INPCK | ISTRIP | BRKINT);
 #ifdef IUCLC
 	currentconfig.c_iflag &= ~IUCLC;  /* translate upper case to lower case */
 #endif
@@ -1385,7 +1395,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
  * Method:    setRTS
  * Signature: (JZ)I
  *
- * Sets the RTS line to low or high as defined by enabled argument.
+ * Sets the RTS line to low or high voltages as defined by enabled argument.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_setRTS(JNIEnv *env, jobject obj, jlong fd, jboolean enabled) {
 	int ret = -1;
@@ -1419,7 +1429,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
  * Method:    setDTR
  * Signature: (JZ)I
  *
- * Sets the DTR line to low or high as defined by enabled argument.
+ * Sets the DTR line to low or high voltages as defined by enabled argument.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_setDTR(JNIEnv *env, jobject obj, jlong fd, jboolean enabled) {
 	int ret = -1;
@@ -1472,7 +1482,7 @@ JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeI
 	}
 
 #elif defined (__APPLE__) || defined (__SunOS)
-	int settings[23];
+	jint settings[23];
 	jintArray configuration = (*env)->NewIntArray(env, 23);
 
 	struct termios currentconfig = {0};
@@ -1556,7 +1566,7 @@ JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeI
  */
 JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_getByteCount(JNIEnv *env, jobject obj, jlong fd) {
 	int ret = -1;
-	int val[3] = {0, 0, 0};
+	jint val[3] = {0, 0, 0};
 	jintArray byteCounts = (*env)->NewIntArray(env, 3);
 
 	errno = 0;
@@ -1625,7 +1635,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_getLinesStatus(JNIEnv *env, jobject obj, jlong fd) {
 	int ret = -1;
 	int lines_status = 0;
-	int status[8] = {0};
+	jint status[8] = {0};
 	jintArray current_status = (*env)->NewIntArray(env, 8);
 
 	errno = 0;
@@ -1696,7 +1706,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
  * Not supported by Solaris and Mac OS itself (this function will return NULL).
  */
 JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_getInterruptCount(JNIEnv *env, jobject obj, jlong fd) {
-	int count_info[11] = {0};
+	jint count_info[11] = {0};
 	jintArray interrupt_info = (*env)->NewIntArray(env, 11);
 
 #if defined(__linux__)

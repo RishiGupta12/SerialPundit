@@ -31,6 +31,9 @@ import java.util.List;
  * <p>The WIKI page for this project is here : http://www.embeddedunveiled.com/ </p>
  */
 public final class SerialComManager {
+	
+	//TODO REMOVE
+	public static final String osArch = System.getProperty("os.arch").toLowerCase().trim();
 
 	/** Relase version of SCM library. */
 	public static final String JAVA_LIB_VERSION = "1.0.4";
@@ -230,6 +233,27 @@ public final class SerialComManager {
 	
 	/** The value indicating the Android operating system. Integer constant with value 0x0A. */
 	public static final int OS_ANDROID  = 0x0A;
+	
+	/** The common value indicating the x86/i386/i486/i586/i686 (32 bit) CPU architecture. Integer constant with value 0x01. */
+	public static final int ARCH_X86 = 0x01;
+	
+	/** The common value indicating the x86/i386/i486/i586/i686 (64 bit) CPU architecture. Integer constant with value 0x02. */
+	public static final int ARCH_X86_64 = 0x02;
+	
+	/** The common value indicating the x86/i386/i486/i586/i686 (64 bit) CPU architecture. Integer constant with value 0x02. */
+	public static final int ARCH_PA_RISC = 0x03;
+	
+	/** The common value indicating the x86/i386/i486/i586/i686 (64 bit) CPU architecture. Integer constant with value 0x02. */
+	public static final int ARCH_PPC = 0x03;
+	
+	/** The common value indicating the x86/i386/i486/i586/i686 (64 bit) CPU architecture. Integer constant with value 0x02. */
+	public static final int ARCH_SPARC = 0x03;
+	
+	/** The common value indicating the x86/i386/i486/i586/i686 (64 bit) CPU architecture. Integer constant with value 0x02. */
+	public static final int ARCH_IA64 = 0x03;
+	
+	/** The common value indicating the x86/i386/i486/i586/i686 (64 bit) CPU architecture. Integer constant with value 0x02. */
+	public static final int ARCH_IA64_32 = 0x03;
 
 	/** Default number of bytes (1024) to read from serial port. */
 	public static final int DEFAULT_READBYTECOUNT = 1024;
@@ -260,12 +284,6 @@ public final class SerialComManager {
 	
 	/** The value indicating that a serial port has been removed from system. */
 	public static final int PORT_REMOVED  = 0x02;
-
-	/** Operating system name as returned by JVM. */
-	public static final String osName = System.getProperty("os.name").toLowerCase().trim();
-	
-	/** Operating system architecture as returned by JVM. */
-	public static final String osArch = System.getProperty("os.arch").toLowerCase().trim();
 	
 	/** User home directory as returned by JVM. */
 	public static final String userHome = System.getProperty("user.home");
@@ -284,11 +302,13 @@ public final class SerialComManager {
 	private ArrayList<SerialComPortHandleInfo> handleInfo = new ArrayList<SerialComPortHandleInfo>();
 	private List<SerialComPortHandleInfo> mPortHandleInfo = Collections.synchronizedList(handleInfo);
 	
+	private SerialComPlatformIdentifier mSerialComPlatformIdentifier = null;
 	private SerialComJNINativeInterface mNativeInterface = null;
 	private SerialComErrorMapper mErrMapper = null;
 	private SerialComCompletionDispatcher mEventCompletionDispatcher = null;
 	private Object lock = new Object();
 	private static int osType = -1;
+	private int cpuArch = -1;
 	private static final String HEXNUM = "0123456789ABCDEF";
 
 	/**
@@ -296,29 +316,9 @@ public final class SerialComManager {
 	 * classes and initiate loading of native library.</p>
 	 */
 	public SerialComManager() {
-		String osNameMatch = osName.toLowerCase();
-		if(osNameMatch.contains("linux")) {
-			osType = OS_LINUX;
-		}else if(osNameMatch.contains("windows")) {
-			osType = OS_WINDOWS;
-		}else if(osNameMatch.contains("solaris") || osNameMatch.contains("sunos")) {
-			osType = OS_SOLARIS;
-		}else if(osNameMatch.contains("mac os") || osNameMatch.contains("macos") || osNameMatch.contains("darwin")) {
-			osType = OS_MAC_OS_X;
-		}else if(osNameMatch.contains("freebsd") || osNameMatch.contains("free bsd")) {
-			osType = OS_FREEBSD;
-		}else if(osNameMatch.contains("netbsd")) {
-			osType = OS_NETBSD;
-		}else if(osNameMatch.contains("openbsd")) {
-			osType = OS_OPENBSD;
-		}else if(osNameMatch.contains("aix")) {
-			osType = OS_IBM_AIX;
-		}else if(osNameMatch.contains("hp-ux")) {
-			osType = OS_HP_UX;
-		}else {
-			osType = OS_UNKNOWN;
-		}
-
+		mSerialComPlatformIdentifier = new SerialComPlatformIdentifier();
+		osType = mSerialComPlatformIdentifier.getOSType();
+		cpuArch = mSerialComPlatformIdentifier.getCPUArch();
 		mErrMapper = new SerialComErrorMapper(osType);
 		mNativeInterface = new SerialComJNINativeInterface();
 		mEventCompletionDispatcher = new SerialComCompletionDispatcher(mNativeInterface, mErrMapper, mPortHandleInfo);
@@ -1050,7 +1050,10 @@ public final class SerialComManager {
 	}
 
 	/**
-	 * <p>This method assert/de-assert RTS line of serial port. Set "true" for asserting signal, false otherwise. This changes the state of RTS line electrically.</p>
+	 * <p>This method assert/de-assert RTS line of serial port. Set "true" for asserting signal, false otherwise. 
+	 * This changes the state of RTS line electrically.</p>
+	 * 
+	 * <p>RTS and DTR lines can be asserted or de-asserted even when using no flow control on serial port.</p>
 	 * 
 	 * <p>The RS-232 standard defines the voltage levels that correspond to logical one and logical zero levels for the data 
 	 * transmission and the control signal lines. Valid signals are either in the range of +3 to +15 volts or the range 
@@ -1060,7 +1063,8 @@ public final class SerialComManager {
 	 * <p>In asserted condition, voltage at pin number 7 (RTS signal) will be greater than 3 volts. Voltage 5.0 volts
 	 * was observed when using USB-UART converter http://www.amazon.in/Bafo-USB-Serial-Converter-DB9/dp/B002SCRCDG.</p>
 	 * 
-	 * <p>On some hardware IC, signals may be active low and therefore for actual voltage datasheet should be consulted.<p>
+	 * <p>On some hardware IC, signals may be active low and therefore for actual voltage datasheet should be consulted. Also please check if the 
+	 * driver supports setting RTS/DTR lines or not.<p>
 	 * 
 	 * @param handle of the opened port
 	 * @param enabled if true RTS will be asserted and vice-versa
@@ -1076,7 +1080,10 @@ public final class SerialComManager {
 	}
 
 	/**
-	 * <p>This method assert/de-assert DTR line of serial port. Set "true" for asserting signal, false otherwise. This changes the state of RTS line electrically.</p>
+	 * <p>This method assert/de-assert DTR line of serial port. Set "true" for asserting signal, false otherwise. 
+	 * This changes the state of RTS line electrically.</p>
+	 * 
+	 * <p>RTS and DTR lines can be asserted or de-asserted even when using no flow control on serial port.</p>
 	 * 
 	 * @param handle of the opened port
 	 * @param enabled if true DTR will be asserted and vice-versa

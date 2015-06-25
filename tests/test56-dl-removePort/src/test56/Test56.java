@@ -17,7 +17,10 @@
 
 package test56;
 
+import com.embeddedunveiled.serial.ISerialComEventListener;
+import com.embeddedunveiled.serial.ISerialComPortMonitor;
 import com.embeddedunveiled.serial.SerialComException;
+import com.embeddedunveiled.serial.SerialComLineEvent;
 import com.embeddedunveiled.serial.SerialComManager;
 import com.embeddedunveiled.serial.SerialComManager.BAUDRATE;
 import com.embeddedunveiled.serial.SerialComManager.DATABITS;
@@ -38,6 +41,8 @@ class Data extends Test56 implements ISerialComDataListener{
 		System.out.println("onDataListenerError called " + arg0);
 		try {
 			scm.unregisterDataListener(dataListener);
+			scm.unregisterLineEventListener(eventListener);
+			scm.unregisterPortMonitorListener(handle);
 			scm.closeComPort(handle);
 		} catch (SerialComException e) {
 			e.printStackTrace();
@@ -45,9 +50,25 @@ class Data extends Test56 implements ISerialComDataListener{
 	}
 }
 
+class EventListener implements ISerialComEventListener{
+	@Override
+	public void onNewSerialEvent(SerialComLineEvent lineEvent) {
+		System.out.println("eventCTS : " + lineEvent.getCTS());
+		System.out.println("eventDSR : " + lineEvent.getDSR());
+	}
+}
+
+class portWatcher implements ISerialComPortMonitor{
+	@Override
+	public void onPortMonitorEvent(int event) {
+		System.out.println("==" + event);
+	}
+}
+
 public class Test56 {
 	protected static long handle = 0;
 	protected static Data dataListener = null;
+	protected static EventListener eventListener = null;
 	protected static SerialComManager scm = null;
 	
 	public static void main(String[] args) {
@@ -72,12 +93,17 @@ public class Test56 {
 			}else{
 			}
 
-			dataListener = new Data();
 			handle = scm.openComPort(PORT, true, true, true);
 			scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
 			scm.configureComPortControl(handle, FLOWCONTROL.NONE, 'x', 'x', false, false);
-			
+			dataListener = new Data();
+			eventListener = new EventListener();
+			portWatcher pw = new portWatcher();
 			scm.registerDataListener(handle, dataListener);
+			scm.registerLineEventListener(handle, eventListener);
+			scm.registerPortMonitorListener(handle, pw);
+			
+			System.out.println("ready");
 			
 			// remove usb-uart physically from system and see onDataListenerError(int arg0) will be called
 			// where recovery policy will come into action.

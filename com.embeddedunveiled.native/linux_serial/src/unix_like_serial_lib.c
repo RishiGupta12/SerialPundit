@@ -306,7 +306,7 @@ void *data_looper(void *arg) {
 		pthread_exit((void *)0);
 	}
 
-	/* Initialize what changes to be monitor on which fd. */
+	/* Initialize what changes to be monitor on which file descriptor. */
 	EV_SET(&chlist[0], fd, EVFILT_READ, EV_ADD , 0, 0, NULL);
 	EV_SET(&chlist[1], pipe1[0], EVFILT_READ, EV_ADD , 0, 0, NULL);
 #endif
@@ -480,7 +480,7 @@ void *data_looper(void *arg) {
 	void event_exit_signal_handler(int signal_number) {
 		int ret = -1;
 		if(signal_number == SIGUSR1) {
-			ret = (*jvm_port)->DetachCurrentThread(jvm_port);
+			ret = (*jvm_event)->DetachCurrentThread(jvm_event);
 			if(ret != JNI_OK) {
 				if(DBG) fprintf(stderr, "%s %d\n", "NATIVE exit_signal_handler() failed to exit event thread with JNI error ", ret);
 				if(DBG) fflush(stderr);
@@ -578,14 +578,14 @@ void *data_looper(void *arg) {
 			errno = 0;
 			ret = ioctl(fd, TIOCMIWAIT, TIOCM_DSR | TIOCM_CTS | TIOCM_CD | TIOCM_RNG);
 			if(ret < 0) {
-				if(DBG) fprintf(stderr, "%s%d\n", "NATIVE event_looper() failed in ioctl TIOCMIWAIT with error number : -", errno);
-				if(DBG) fflush(stderr);
+				/*if(DBG) fprintf(stderr, "%s%d\n", "NATIVE event_looper() failed in ioctl TIOCMIWAIT with error number : -", errno);
+				if(DBG) fflush(stderr);*/
 				continue;
 			}
 
 #endif
 #if defined (__APPLE__)
-			usleep(500000); /* 0.5 seconds */
+			usleep(500000); /* 500 milliseconds */
 #endif
 
 			/* Something happened on status line so get it. */
@@ -663,13 +663,14 @@ void *data_looper(void *arg) {
 				ptr = pm_info[x];
 				if(pm_info[x] == 0) {
 					continue;
-				}
-				if((*ptr->data).thread_id == tid) {
+				}else if((*ptr->data).thread_id == tid) {
 					IOObjectRelease(ptr->notification); /* Remove the driver state change notification.        */
 					IOObjectRelease(ptr->service);      /* Release our reference to the driver object.         */
 					free(ptr);                          /* Release structure that holds the driver connection. */
+					pm_info[x] = 0;                     /* reset */
+					break;
+				}else {
 				}
-				pm_info[x] = 0;
 			}
 
 			pthread_exit((void *)0);

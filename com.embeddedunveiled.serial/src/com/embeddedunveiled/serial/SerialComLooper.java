@@ -84,6 +84,7 @@ public final class SerialComLooper {
 				}
 			}
 			exitDataThread.set(false); // Reset exit flag
+			mDataQueue = null;
 		}
 	}
 
@@ -112,6 +113,7 @@ public final class SerialComLooper {
 				}
 			}
 			exitDataErrorThread.set(false); // Reset exit flag
+			mDataErrorQueue = null;
 		}
 	}
 
@@ -135,7 +137,7 @@ public final class SerialComLooper {
 					}
 			}
 			exitEventThread.set(false); // Reset exit flag
-			mEventQueue = null; // release memory for GC
+			mEventQueue = null;
 		}
 	}
 
@@ -227,10 +229,6 @@ public final class SerialComLooper {
 			exitDataErrorThread.set(true);
 			mDataLooperThread.interrupt();
 			mDataErrorLooperThread.interrupt();
-			while(mDataLooperThread.isAlive()) { }
-			while(mDataErrorLooperThread.isAlive()) { }
-			mDataErrorQueue = null;
-			mDataQueue = null;         // reset and free reference to queue
 		} catch (Exception e) {
 			if(DEBUG) e.printStackTrace();
 		}
