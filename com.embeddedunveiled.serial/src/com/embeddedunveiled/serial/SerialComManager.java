@@ -234,29 +234,65 @@ public final class SerialComManager {
 	/** The value indicating the Android operating system. Integer constant with value 0x0A. */
 	public static final int OS_ANDROID  = 0x0A;
 	
-	/** The common value indicating the x86/i386/i486/i586/i686 (32 bit) CPU architecture. Integer constant with value 0x01. */
+	/** The common value indicating that the library is running on a 32 bit Intel i386/i486/i586/i686/i786/i886/i986/IA-32 based architecture. Integer constant with value 0x01. */
 	public static final int ARCH_X86 = 0x01;
 	
-	/** The common value indicating the x86/i386/i486/i586/i686 (64 bit) CPU architecture. Integer constant with value 0x02. */
-	public static final int ARCH_X86_64 = 0x02;
+	/** The common value indicating that the library is running on a 64 bit Intel x86_64 (x86-64/x64/Intel 64) and AMD amd64 based architecture. Integer constant with value 0x02. */
+	public static final int ARCH_AMD64 = 0x02;
 	
-	/** The common value indicating the x86/i386/i486/i586/i686 (64 bit) CPU architecture. Integer constant with value 0x02. */
-	public static final int ARCH_PA_RISC = 0x03;
-	
-	/** The common value indicating the x86/i386/i486/i586/i686 (64 bit) CPU architecture. Integer constant with value 0x02. */
-	public static final int ARCH_PPC = 0x03;
-	
-	/** The common value indicating the x86/i386/i486/i586/i686 (64 bit) CPU architecture. Integer constant with value 0x02. */
-	public static final int ARCH_SPARC = 0x03;
-	
-	/** The common value indicating the x86/i386/i486/i586/i686 (64 bit) CPU architecture. Integer constant with value 0x02. */
+	/** The value indicating that the library is running on a 64 bit Intel/HP Itanium based architecture. Integer constant with value 0x03. */
 	public static final int ARCH_IA64 = 0x03;
 	
-	/** The common value indicating the x86/i386/i486/i586/i686 (64 bit) CPU architecture. Integer constant with value 0x02. */
-	public static final int ARCH_IA64_32 = 0x03;
+	/** The value indicating that the library is running on an IA64 32 bit based architecture. Integer constant with value 0x04. */
+	public static final int ARCH_IA64_32 = 0x04;
+	
+	/** The value indicating that the library is running on a 32 bit PowerPC based architecture from Apple–IBM–Motorola. Integer constant with value 0x05. */
+	public static final int ARCH_PPC = 0x05;
+	
+	/** The value indicating that the library is running on a 64 bit PowerPC based architecture from Apple–IBM–Motorola. Integer constant with value 0x06. */
+	public static final int ARCH_PPC64 = 0x06;
+	
+	/** The value indicating that the library is running on a 32 bit Sparc based architecture from Sun Microsystems. Integer constant with value 0x07. */
+	public static final int ARCH_SPARC = 0x07;
+	
+	/** The value indicating that the library is running on a 64 bit Sparc based architecture from Sun Microsystems. Integer constant with value 0x08. */
+	public static final int ARCH_SPARC64 = 0x08;
+	
+	/** The value indicating that the library is running on a 32 bit PA-RISC based architecture. Integer constant with value 0x09. */
+	public static final int ARCH_PA_RISC = 0x09;
+	
+	/** The value indicating that the library is running on a 64 bit PA-RISC based architecture. Integer constant with value 0x0A. */
+	public static final int ARCH_PA_RISC64 = 0x0A;
+	
+	/** The value indicating that the library is running on a 32 bit IBM S/390 system. Integer constant with value 0x0B. */
+	public static final int ARCH_S390 = 0x0B;
+	
+	/** The value indicating that the library is running on a 64 bit IBM S/390 system. Integer constant with value 0x0C. */
+	public static final int ARCH_S390X = 0x0C;
+	
+	/** The value indicating that the library is running on a ARMv5 based architecture CPU. Integer constant with value 0x0D. */
+	public static final int ARCH_ARMV5 = 0x0D;
+	
+	/** The value indicating that the library is running on a ARMv6 soft float based JVM. Integer constant with value 0x0E. */
+	public static final int ARCH_ARMV6_SF = 0x0E;
+	
+	/** The value indicating that the library is running on a ARMv6 hard float based JVM. Integer constant with value 0x0F. */
+	public static final int ARCH_ARMV6_HF = 0x0F;
+	
+	/** The value indicating that the library is running on a ARMv7 soft float based JVM. Integer constant with value 0x10. */
+	public static final int ARCH_ARMV7_SF = 0x10;
+	
+	/** The value indicating that the library is running on a ARMv7 hard float based JVM. Integer constant with value 0x11. */
+	public static final int ARCH_ARMV7_HF = 0x11;
 
 	/** Default number of bytes (1024) to read from serial port. */
 	public static final int DEFAULT_READBYTECOUNT = 1024;
+	
+	/** The value indicating that a serial port has been added into system. */
+	public static final int PORT_ADDED =  0x01;
+	
+	/** The value indicating that a serial port has been removed from system. */
+	public static final int PORT_REMOVED  = 0x02;
 
 	/** Clear to send mask bit constant for UART control line. */
 	public static final int CTS =  0x01;  // 0000001
@@ -279,12 +315,6 @@ public final class SerialComManager {
 	/** Data terminal ready mask bit constant for UART control line. */
 	public static final int DTR  = 0x40;  // 1000000
 	
-	/** The value indicating that a serial port has been added into system. */
-	public static final int PORT_ADDED =  0x01;
-	
-	/** The value indicating that a serial port has been removed from system. */
-	public static final int PORT_REMOVED  = 0x02;
-	
 	/** User home directory as returned by JVM. */
 	public static final String userHome = System.getProperty("user.home");
 	
@@ -302,7 +332,7 @@ public final class SerialComManager {
 	private ArrayList<SerialComPortHandleInfo> handleInfo = new ArrayList<SerialComPortHandleInfo>();
 	private List<SerialComPortHandleInfo> mPortHandleInfo = Collections.synchronizedList(handleInfo);
 	
-	private SerialComPlatformIdentifier mSerialComPlatformIdentifier = null;
+	private SerialComPlatform mSerialComPlatform = null;
 	private SerialComJNINativeInterface mNativeInterface = null;
 	private SerialComErrorMapper mErrMapper = null;
 	private SerialComCompletionDispatcher mEventCompletionDispatcher = null;
@@ -316,9 +346,9 @@ public final class SerialComManager {
 	 * classes and initiate loading of native library.</p>
 	 */
 	public SerialComManager() {
-		mSerialComPlatformIdentifier = new SerialComPlatformIdentifier();
-		osType = mSerialComPlatformIdentifier.getOSType();
-		cpuArch = mSerialComPlatformIdentifier.getCPUArch();
+		mSerialComPlatform = new SerialComPlatform();
+		osType = mSerialComPlatform.getOSType();
+		cpuArch = mSerialComPlatform.getCPUArch();
 		mErrMapper = new SerialComErrorMapper(osType);
 		mNativeInterface = new SerialComJNINativeInterface();
 		mEventCompletionDispatcher = new SerialComCompletionDispatcher(mNativeInterface, mErrMapper, mPortHandleInfo);
