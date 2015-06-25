@@ -2,15 +2,24 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.embeddedunveiled</groupId>
   <artifactId>scm</artifactId>
-  <version>1.0.3</version>
+  <version>1.0.4</version>
   <packaging>jar</packaging>
   <name>serial communication manager</name>
   <description>serial communication in java</description>
   <url>http://embeddedunveiled.com</url>
   <issueManagement>
-    <url>https://github.com/RishiGupta12/serial-communication-manager/issues</url>
     <system>GitHub Issues</system>
+    <url>https://github.com/RishiGupta12/serial-communication-manager/issues</url>
   </issueManagement>
+  <mailingLists>
+    <mailingList>
+      <name>SCM mailing list</name>
+      <archive>https://groups.google.com/d/forum/serial-communication-manager</archive>
+      <subscribe>serial-communication-manager+subscribe@googlegroups.com</subscribe>
+      <unsubscribe>serial-communication-manager+unsubscribe@googlegroups.com</unsubscribe>
+      <post>serial-communication-manager@googlegroups.com</post>
+    </mailingList>
+  </mailingLists>
   <licenses>
     <license>
       <name>GNU LGPL, Version 3.0</name>
