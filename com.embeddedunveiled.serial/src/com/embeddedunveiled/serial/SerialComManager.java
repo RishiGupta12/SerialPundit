@@ -372,7 +372,7 @@ public final class SerialComManager {
 		}
 		return version;
 	}
-
+	
 	/**
 	 * <p>Gives operating system type as identified by this library. To interpret return integer see constants defined
 	 * SerialComManager class.</p>
@@ -381,6 +381,16 @@ public final class SerialComManager {
 	 */
 	public int getOSType() {
 		return osType;
+	}
+	
+	/**
+	 * <p>Gives CPU/Platform architecture as identified by this library. To interpret return integer see constants defined
+	 * SerialComManager class.</p>
+	 * 
+	 * @return CPU/Platform architecture as identified by the scm library
+	 */
+	public int getCPUArchitecture() {
+		return cpuArch;
 	}
 
 	/**
@@ -790,7 +800,6 @@ public final class SerialComManager {
 	public byte[] readBytesBlocking(long handle, int byteCount) throws SerialComException {
 		byte[] buffer = null;
 		SerialComReadStatus retStatus = new SerialComReadStatus(1);
-		int osType = SerialComManager.getOSType();
 		if(osType == SerialComManager.OS_WINDOWS) {
 			buffer = mNativeInterface.readBytesBlocking(handle, byteCount, retStatus);
 		}else {
@@ -1332,9 +1341,7 @@ public final class SerialComManager {
 	 * @throws IllegalArgumentException if invalid combination of arguments is passed
 	 */
 	public boolean fineTuneRead(long handle, int vmin, int vtime, int rit, int rttm, int rttc) throws SerialComException {
-		boolean handlefound = false;
-		int osType = SerialComManager.getOSType();
-		
+		boolean handlefound = false;		
 		if(osType == SerialComManager.OS_WINDOWS) {
 			if((rit < 0) || (rttm < 0) || (rttc < 0)) {
 				throw new IllegalArgumentException("fineTuneRead(), " + SerialComErrorMapper.ERR_ARG_CAN_NOT_NEGATIVE);
