@@ -16,6 +16,7 @@
  */
 package com.embeddedunveiled.serial;
 
+import java.io.IOException;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Locale;
@@ -151,13 +152,51 @@ public final class SerialComPlatform {
 				}
 			});
 		}
-		
 		if(osVendor == null) {
 			throw new SerialComUnexpectedException("isAndroid()", SerialComErrorMapper.ERR_PROP_VM_VENDOR);
 		}
+		
 		if(osVendor.contains("android")) {
 			return true;
 		}
 		return false;
+	}
+	
+	/** 
+	 * <p>For Linux on ARM platform this method identifies ABI type. It checks whether JVM found uses ARM hard-float ABI.</p>
+	 * @return either ABI_ARMHF or ABI_ARMEL constant value as per identification
+	 * @throws SerialComUnexpectedException if java.home system property is null
+	 */
+	public final int getARMABIType() throws SerialComUnexpectedException {
+		String javaHome = null;
+		int abiType = SerialComManager.ABI_ARMEL;
+		// java.vm.vendor system property in android always returns The Android Project as per android javadocs.
+		if(System.getSecurityManager() == null) {
+			javaHome = System.getProperty("java.home");
+		}else {
+			javaHome = (String) AccessController.doPrivileged(new PrivilegedAction<String>() {
+				public String run() {
+					return System.getProperty("java.home");
+				}
+			});
+		}
+		if(javaHome == null) {
+			throw new SerialComUnexpectedException("getARMABIType()", SerialComErrorMapper.ERR_PROP_JAVA_HOME);
+		}
+		
+	    try {
+	        String[] cmdarray = { "/bin/sh", "-c", "find '" + javaHome +
+	                "' -name 'libjvm.so' | head -1 | xargs readelf -A | " +
+	                "grep 'Tag_ABI_VFP_args: VFP registers'" };
+	        int exitValueOfSubProcess = Runtime.getRuntime().exec(cmdarray).waitFor();
+	        if(exitValueOfSubProcess == 0) {
+	        	abiType = SerialComManager.ABI_ARMHF;
+	        }
+	    }catch (IOException e) {
+	    	return SerialComManager.ABI_ARMEL;
+	    }catch (InterruptedException e) {
+	    	return SerialComManager.ABI_ARMEL;
+	    }
+	    return abiType;
 	}
 }
