@@ -35,20 +35,24 @@ public final class SerialComPlatform {
 	public SerialComPlatform() {
 	}
 	
-	public int getOSType() {
+	public final int getOSType() {
 		int osType = SerialComManager.OS_UNKNOWN;
 		osName = System.getProperty("os.name").toLowerCase(Locale.ENGLISH).trim();
 		if(osName == null) {
 			//TODO
 		}
-		if(osName.contains("linux")) {
-			osType = SerialComManager.OS_LINUX;
-		}else if(osName.contains("windows")) {
+		if(osName.contains("windows")) {
 			osType = SerialComManager.OS_WINDOWS;
-		}else if(osName.contains("solaris") || osName.contains("sunos")) {
-			osType = SerialComManager.OS_SOLARIS;
+		}else if(osName.contains("linux")) {
+			if(isAndroid()) {
+				osType = SerialComManager.OS_ANDROID;
+			}else {
+				osType = SerialComManager.OS_LINUX;
+			}
 		}else if(osName.contains("mac os") || osName.contains("macos") || osName.contains("darwin")) {
 			osType = SerialComManager.OS_MAC_OS_X;
+		}else if(osName.contains("solaris") || osName.contains("sunos")) {
+			osType = SerialComManager.OS_SOLARIS;
 		}else if(osName.contains("freebsd") || osName.contains("free bsd")) {
 			osType = SerialComManager.OS_FREEBSD;
 		}else if(osName.contains("netbsd")) {
@@ -61,12 +65,11 @@ public final class SerialComPlatform {
 			osType = SerialComManager.OS_HP_UX;
 		}else {
 		}
-		// TODO android
 		return osType;
 	}
 
 	/** Packages that are compiled for i386 architecture, are compatible with i486, i586, i686, i786, i886 and i896 architectures. */
-	public int getCPUArch() {
+	public final int getCPUArch() {
 		int osArchitecture = SerialComManager.ARCH_UNKNOWN;
 		osArch = System.getProperty("os.arch").toLowerCase(Locale.ENGLISH).trim();
 		if(osArch == null) {
@@ -102,6 +105,21 @@ public final class SerialComPlatform {
 		}else {
 		}
 		return osArchitecture;
+	}
+	
+	/** 
+	 * Identifies whether library is running on android platform.
+	 */
+	private boolean isAndroid() {
+		String osVendor = System.getProperty("java.vm.vendor").toLowerCase(Locale.ENGLISH).trim();
+		if(osVendor == null) {
+		//TODO	
+		}
+		// java.vm.vendor system property in android always returns The Android Project as per android javadocs.
+		if(osVendor.contains("android")) {
+			return true;
+		}
+		return false;
 	}
 }
 
