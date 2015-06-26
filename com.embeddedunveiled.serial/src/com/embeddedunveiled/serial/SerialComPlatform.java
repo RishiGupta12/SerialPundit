@@ -16,31 +16,41 @@
  */
 package com.embeddedunveiled.serial;
 
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.Locale;
 
 /**
- * <p>This class identifies various hardware and software platform attributes like operating system type and CPU architecture etc.</p>
+ * <p>This class identifies various hardware and software platform attributes like operating system and CPU architecture etc.</p>
  */
 public final class SerialComPlatform {
-
-	/** Operating system name as returned by JVM/JRE. */
-	private String osName = null;
-	
-	/** CPU architecture as returned by JVM/JRE. */
-	private String osArch = null;
-
 	/**
 	 * <p>Allocates a new SerialComPlatform object.</p>
 	 */
 	public SerialComPlatform() {
 	}
 	
-	public final int getOSType() {
+	/** <p>Identifies the operating system on which scm library is running.</p>
+	 * @return SerialComManager.OS_UNKNOWN if platform is unknown to scm otherwise one of the SerialComManager.OS_XXXX constant
+	 * @throws SerialComUnexpectedException if os.name system property is null
+	 */
+	public final int getOSType() throws SerialComUnexpectedException {
+		String osName = null;
 		int osType = SerialComManager.OS_UNKNOWN;
-		osName = System.getProperty("os.name").toLowerCase(Locale.ENGLISH).trim();
-		if(osName == null) {
-			//TODO
+		
+		if(System.getSecurityManager() == null) {
+			osName = System.getProperty("os.name").toLowerCase(Locale.ENGLISH).trim();
+		}else {
+			osName = (String) AccessController.doPrivileged(new PrivilegedAction<String>() {
+				public String run() {
+					return System.getProperty("os.name").toLowerCase(Locale.ENGLISH).trim();
+				}
+			});
 		}
+		if(osName == null) {
+			throw new SerialComUnexpectedException("getOSType()", SerialComErrorMapper.ERR_PROP_OS_NAME);
+		}
+		
 		if(osName.contains("windows")) {
 			osType = SerialComManager.OS_WINDOWS;
 		}else if(osName.contains("linux")) {
@@ -68,13 +78,29 @@ public final class SerialComPlatform {
 		return osType;
 	}
 
-	/** Packages that are compiled for i386 architecture, are compatible with i486, i586, i686, i786, i886 and i896 architectures. */
-	public final int getCPUArch() {
+	/** <p>Identifies CPU architecture scm library is running on.</p>
+	 * <p>Packages that are compiled for i386 architecture are compatible with i486, i586, i686, i786, i886 and i986 architectures.
+	 * Packages that are compiled for x86_64 architecture are compatible with amd64 architecture.</p>
+	 * @return @return SerialComManager.ARCH_UNKNOWN if platform is unknown to scm otherwise one of the SerialComManager.ARCH_XXXX constant
+	 * @throws SerialComUnexpectedException if os.arch system property is null
+	 */
+	public final int getCPUArch() throws SerialComUnexpectedException {
+		String osArch = null;
 		int osArchitecture = SerialComManager.ARCH_UNKNOWN;
-		osArch = System.getProperty("os.arch").toLowerCase(Locale.ENGLISH).trim();
-		if(osArch == null) {
-		//TODO	
+		
+		if(System.getSecurityManager() == null) {
+			osArch = System.getProperty("os.arch").toLowerCase(Locale.ENGLISH).trim();
+		}else {
+			osArch = (String) AccessController.doPrivileged(new PrivilegedAction<String>() {
+				public String run() {
+					return System.getProperty("os.arch").toLowerCase(Locale.ENGLISH).trim();
+				}
+			});
 		}
+		if(osArch == null) {
+			throw new SerialComUnexpectedException("getCPUArch()", SerialComErrorMapper.ERR_PROP_OS_ARCH);
+		}
+		
 		if(osArch.equals("x86") || osArch.equals("i386") || osArch.equals("i486") || osArch.equals("i586") || osArch.equals("i686") 
 				|| osArch.equals("i786") || osArch.equals("i886") || osArch.equals("i986") || osArch.equals("pentium") || osArch.equals("i86pc")) {
 			osArchitecture = SerialComManager.ARCH_X86;
@@ -108,32 +134,30 @@ public final class SerialComPlatform {
 	}
 	
 	/** 
-	 * Identifies whether library is running on android platform.
+	 * <p>Identifies whether library is running on an android platform.</p>
+	 * @return true if platform is android false otherwise
+	 * @throws SerialComUnexpectedException if java.vm.vendor system property is null
 	 */
-	private boolean isAndroid() {
-		String osVendor = System.getProperty("java.vm.vendor").toLowerCase(Locale.ENGLISH).trim();
-		if(osVendor == null) {
-		//TODO	
-		}
+	private boolean isAndroid() throws SerialComUnexpectedException {
+		String osVendor = null;
+		
 		// java.vm.vendor system property in android always returns The Android Project as per android javadocs.
+		if(System.getSecurityManager() == null) {
+			osVendor = System.getProperty("java.vm.vendor").toLowerCase(Locale.ENGLISH).trim();
+		}else {
+			osVendor = (String) AccessController.doPrivileged(new PrivilegedAction<String>() {
+				public String run() {
+					return System.getProperty("java.vm.vendor").toLowerCase(Locale.ENGLISH).trim();
+				}
+			});
+		}
+		
+		if(osVendor == null) {
+			throw new SerialComUnexpectedException("isAndroid()", SerialComErrorMapper.ERR_PROP_VM_VENDOR);
+		}
 		if(osVendor.contains("android")) {
 			return true;
 		}
 		return false;
 	}
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
