@@ -31,9 +31,6 @@ import java.util.List;
  * <p>The WIKI page for this project is here : http://www.embeddedunveiled.com/ </p>
  */
 public final class SerialComManager {
-	
-	//TODO REMOVE
-	public static final String osArch = System.getProperty("os.arch").toLowerCase().trim();
 
 	/** Relase version of SCM library. */
 	public static final String JAVA_LIB_VERSION = "1.0.4";
@@ -199,8 +196,6 @@ public final class SerialComManager {
 		}
 	}
 	
-	public static boolean DEBUG = true;
-	
 	/** The value indicating that operating system is unknown to SCM library. Integer constant with value 0x00. */
 	public static final int OS_UNKNOWN  = 0x00;
 	
@@ -234,6 +229,9 @@ public final class SerialComManager {
 	/** The value indicating the Android operating system. Integer constant with value 0x0A. */
 	public static final int OS_ANDROID  = 0x0A;
 	
+	/** The value indicating that platform architecture is unknown to SCM library. Integer constant with value 0x00. */
+	public static final int ARCH_UNKNOWN  = 0x00;
+	
 	/** The common value indicating that the library is running on a 32 bit Intel i386/i486/i586/i686/i786/i886/i986/IA-32 based architecture. Integer constant with value 0x01. */
 	public static final int ARCH_X86 = 0x01;
 	
@@ -247,19 +245,22 @@ public final class SerialComManager {
 	public static final int ARCH_IA64_32 = 0x04;
 	
 	/** The value indicating that the library is running on a 32 bit PowerPC based architecture from Apple–IBM–Motorola. Integer constant with value 0x05. */
-	public static final int ARCH_PPC = 0x05;
+	public static final int ARCH_PPC32 = 0x05;
 	
 	/** The value indicating that the library is running on a 64 bit PowerPC based architecture from Apple–IBM–Motorola. Integer constant with value 0x06. */
 	public static final int ARCH_PPC64 = 0x06;
 	
+	/** The value indicating that the library is running on a 64 bit PowerPC based architecture in little endian mode from Apple–IBM–Motorola. Integer constant with value 0x06. */
+	public static final int ARCH_PPC64LE = 0x06;
+	
 	/** The value indicating that the library is running on a 32 bit Sparc based architecture from Sun Microsystems. Integer constant with value 0x07. */
-	public static final int ARCH_SPARC = 0x07;
+	public static final int ARCH_SPARC32 = 0x07;
 	
 	/** The value indicating that the library is running on a 64 bit Sparc based architecture from Sun Microsystems. Integer constant with value 0x08. */
 	public static final int ARCH_SPARC64 = 0x08;
 	
 	/** The value indicating that the library is running on a 32 bit PA-RISC based architecture. Integer constant with value 0x09. */
-	public static final int ARCH_PA_RISC = 0x09;
+	public static final int ARCH_PA_RISC32 = 0x09;
 	
 	/** The value indicating that the library is running on a 64 bit PA-RISC based architecture. Integer constant with value 0x0A. */
 	public static final int ARCH_PA_RISC64 = 0x0A;
@@ -336,22 +337,34 @@ public final class SerialComManager {
 	private SerialComJNINativeInterface mNativeInterface = null;
 	private SerialComErrorMapper mErrMapper = null;
 	private SerialComCompletionDispatcher mEventCompletionDispatcher = null;
-	private Object lock = new Object();
-	private int osType = -1;
-	private int cpuArch = -1;
+	private SerialComPortsList mSerialComPortsList = null;
+	private Object lockB = new Object();
+	
+	private static Object lockA = new Object();
+	private static int osType = -1;
+	private static int cpuArch = -1;
 	private static final String HEXNUM = "0123456789ABCDEF";
 
 	/**
 	 * <p>Allocates a new SerialComManager object. Identify operating system type, initialize various 
 	 * classes and initiate loading of native library.</p>
+	 * @throws SerialComUnexpectedException
 	 */
-	public SerialComManager() {
-		mSerialComPlatform = new SerialComPlatform();
-		osType = mSerialComPlatform.getOSType();
-		cpuArch = mSerialComPlatform.getCPUArch();
+	public SerialComManager() throws SerialComUnexpectedException {
+		/* First let the instance be created totally and then call required methods to increase security.
+		 * Platform need to be identified only once, so if more scm instance are created pass them pre-calculated values.*/
+		synchronized(lockA) {
+			if(osType <= 0) {
+				mSerialComPlatform = new SerialComPlatform();
+				osType = mSerialComPlatform.getOSType();
+				cpuArch = mSerialComPlatform.getCPUArch();
+			}
+		}
+
 		mErrMapper = new SerialComErrorMapper(osType);
-		mNativeInterface = new SerialComJNINativeInterface();
+		mNativeInterface = new SerialComJNINativeInterface(osType, cpuArch);
 		mEventCompletionDispatcher = new SerialComCompletionDispatcher(mNativeInterface, mErrMapper, mPortHandleInfo);
+		mSerialComPortsList = new SerialComPortsList(mNativeInterface, osType);
 	}
 
 	/**
@@ -403,16 +416,14 @@ public final class SerialComManager {
 	 * <p>Note : The BIOS may ignore UART ports on a PCI card and therefore BIOS settings has to be corrected if you modified
 	 * default BIOS in OS.</p>
 	 * 
-	 * <p>This method may be used to find valid serial ports for communications before opening them for writing more robust code.</p>
+	 * <p>This method may be used to find valid serial ports for communications before opening them for writing more robust application.</p>
 	 * 
 	 * @return Available UART style ports name for windows, full path with name for Unix like OS, returns empty array if no ports found.
 	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public String[] listAvailableComPorts() throws SerialComException {
-		SerialComPortsList scpl = new SerialComPortsList(this.mNativeInterface);
 		SerialComRetStatus retStatus = new SerialComRetStatus(1);
-		String[] availablePorts = scpl.listAvailableComPorts(retStatus);
-		
+		String[] availablePorts = mSerialComPortsList.listAvailableComPorts(retStatus);
 		if(availablePorts != null) {
 			return availablePorts;
 		}else {
@@ -472,7 +483,7 @@ public final class SerialComManager {
 			}
 		}
 		
-		synchronized(lock) {
+		synchronized(lockB) {
 			/* Try to reduce transitions from java to JNI layer as it is possible here by performing check in java layer itself. */
 			if(exclusiveOwnerShip == true) {
 				for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
@@ -513,7 +524,7 @@ public final class SerialComManager {
 		boolean handlefound = false;
 		SerialComPortHandleInfo mHandleInfo = null;
 
-		synchronized(lock) {
+		synchronized(lockB) {
 			for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
 				if(mInfo.containsHandle(handle)) {
 					handlefound = true;
@@ -1158,7 +1169,7 @@ public final class SerialComManager {
 			throw new IllegalArgumentException("registerDataListener(), " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_LISTENER);
 		}
 		
-		synchronized(lock) {
+		synchronized(lockB) {
 			for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
 				if(mInfo.containsHandle(handle)) {
 					handlefound = true;
@@ -1195,7 +1206,7 @@ public final class SerialComManager {
 			throw new IllegalArgumentException("unregisterDataListener(), " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_LISTENER);
 		}
 
-		synchronized(lock) {
+		synchronized(lockB) {
 			if(mEventCompletionDispatcher.destroyDataLooper(dataListener)) {
 				return true;
 			}
@@ -1233,7 +1244,7 @@ public final class SerialComManager {
 			throw new IllegalArgumentException("registerLineEventListener(), " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_LISTENER);
 		}
 
-		synchronized(lock) {
+		synchronized(lockB) {
 			for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
 				if(mInfo.containsHandle(handle)) {
 					handlefound = true;
@@ -1268,7 +1279,7 @@ public final class SerialComManager {
 		if(eventListener == null) {
 			throw new IllegalArgumentException("unregisterLineEventListener(), " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_LISTENER);
 		}
-		synchronized(lock) {
+		synchronized(lockB) {
 			if(mEventCompletionDispatcher.destroyEventLooper(eventListener)) {
 				return true;
 			}
