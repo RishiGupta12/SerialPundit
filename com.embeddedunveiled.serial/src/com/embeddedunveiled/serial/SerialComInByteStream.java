@@ -50,7 +50,7 @@ public final class SerialComInByteStream extends InputStream {
 		
 		if(streamMode.getValue() == 1) {
 			// For windows blocking read method is called while for others (unix-like) VMIN/VTIME is set.
-			if(SerialComManager.getOSType() != SerialComManager.OS_WINDOWS) {
+			if(scm.getOSType() != SerialComManager.OS_WINDOWS) {
 				scm.fineTuneRead(handle, 1, 0, 0, 0, 0);
 			}
 			isBlocking = true;
