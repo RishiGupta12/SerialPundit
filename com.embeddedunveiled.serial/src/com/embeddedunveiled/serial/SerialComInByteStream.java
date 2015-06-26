@@ -74,7 +74,7 @@ public final class SerialComInByteStream extends InputStream {
 		try {
 			numBytesAvailable = scm.getByteCountInPortIOBuffer(handle);
 		} catch (SerialComException e) {
-			throw new IOException(e);
+			throw new IOException(e.getExceptionMsg());
 		}
 		return numBytesAvailable[0];
 	}
@@ -143,7 +143,7 @@ public final class SerialComInByteStream extends InputStream {
 				}
 			}
 		}catch (SerialComException e) {
-			throw new IOException(e);
+			throw new IOException(e.getExceptionMsg());
 		}
 	}
 	
@@ -239,7 +239,7 @@ public final class SerialComInByteStream extends InputStream {
 				}
 			}
 		}catch (SerialComException e) {
-			throw new IOException(e);
+			throw new IOException(e.getExceptionMsg());
 		}
     }
 	

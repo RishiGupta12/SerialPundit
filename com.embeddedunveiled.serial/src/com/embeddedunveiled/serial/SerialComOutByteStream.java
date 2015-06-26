@@ -46,7 +46,7 @@ public final class SerialComOutByteStream extends OutputStream {
 		try {
 			scm.writeSingleByte(handle, (byte)data);
 		} catch (SerialComException e) {
-			throw new IOException(e);
+			throw new IOException(e.getExceptionMsg());
 		}
 	}
 
@@ -72,7 +72,7 @@ public final class SerialComOutByteStream extends OutputStream {
 		try {
 			scm.writeBytes(handle, data, 0);
 		} catch (SerialComException e) {
-			throw new IOException(e);
+			throw new IOException(e.getExceptionMsg());
 		}
 	}
 
@@ -116,7 +116,7 @@ public final class SerialComOutByteStream extends OutputStream {
 			}
 			scm.writeBytes(handle, buf, 0);
 		} catch (SerialComException e) {
-			throw new IOException(e);
+			throw new IOException(e.getExceptionMsg());
 		}
 	}
 
