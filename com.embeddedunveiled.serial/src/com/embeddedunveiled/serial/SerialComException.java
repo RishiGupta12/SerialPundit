@@ -75,7 +75,7 @@ public final class SerialComException extends IOException {
 	 * <p>Get the specific type of exception. </p>
 	 * @return exceptionMsg reason for exception
 	 */
-	public String getExceptionType() {
+	public String getExceptionMsg() {
 		return exceptionMsg;
 	}
 }

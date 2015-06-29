@@ -20,8 +20,11 @@ package com.embeddedunveiled.serial;
 /**
  * <p>This class helps in consistent error reporting in java layer mapping OS specific error numbers.</p>
  */
-
 public final class SerialComErrorMapper {
+	private int osType = 0;
+	public static final String ERR_PROP_VM_VENDOR = "The java.vm.vendor system property is null in the system";
+	public static final String ERR_PROP_OS_NAME = "The os.name system property is null in the system";
+	public static final String ERR_PROP_OS_ARCH = "The os.arch system property is null in the system";
 	public static final String ERR_PORT_ALREADY_OPEN = "The requested port is already opened";
 	public static final String ERR_SCM_DOES_NOT_INSTANTIATED = "SerialComManager class has to be instantiated first";
 	public static final String ERR_SCM_NOT_STORE_PORTINFO = "Could not save info about port locally. Please retry opening port.";
@@ -76,8 +79,10 @@ public final class SerialComErrorMapper {
 
 	/**
 	 * <p>Allocates a new SerialComErrorMapper object.</p>
+	 * @param osType operating system type as identified by SCM library
 	 */
-	public SerialComErrorMapper() {
+	public SerialComErrorMapper(int osType) {
+		this.osType = osType;
 	}
 
 	/**
@@ -94,178 +99,240 @@ public final class SerialComErrorMapper {
 	 */
 	public String getMappedError(long errorNumber) {
 		String exceptionType = null;
-		switch ((int) errorNumber) {
-			case -1:
-				exceptionType = new String("Operation not permitted");
-				break;
-			case -2:
-				exceptionType = new String("No such file or directory");
-				break;
-			case -4:
-				exceptionType = new String("Interrupted system call");
-				break;
-			case -5:
-				exceptionType = new String("I/O error");
-				break;
-			case -6:
-				exceptionType = new String("No such device or address");
-				break;
-			case -9:
-				exceptionType = new String("Bad file number or Invalid file descriptor");
-				break;
-			case -11:
-				exceptionType = new String("Try again");
-				break;
-			case -12:
-				exceptionType = new String("Out of memory");
-				break;
-			case -13:
-				exceptionType = new String("Permission denied");
-				break;
-			case -14:
-				exceptionType = new String("Bad address");
-				break;
-			case -16:
-				exceptionType = new String("Device or resource busy");
-				break;
-			case -19:
-				exceptionType = new String("No such device");
-				break;
-			case -22:
-				exceptionType = new String("Invalid argument");
-				break;
-			case -24:
-				exceptionType = new String("Too many open files");
-				break;
-			case -25:
-				exceptionType = new String("Not a typewriter");
-				break;
-			case -26:
-				exceptionType = new String("Text file busy");
-				break;
-			case -27:
-				exceptionType = new String("File too large");
-				break;
-			case -28:
-				exceptionType = new String("No space left on device");
-				break;
-			case -30:
-				exceptionType = new String("Read-only file system");
-				break;
-			case -31:
-				exceptionType = new String("Too many links");
-				break;
-			case -32:
-				exceptionType = new String("Broken pipe");
-				break;
-			case -35:
-				exceptionType = new String("Resource deadlock would occur");
-				break;
-			case -36:
-				exceptionType = new String("File name too long");
-				break;
-			case -38:
-				exceptionType = new String("Function not implemented");
-				break;
-			case -40:
-				exceptionType = new String("Too many symbolic links encountered");
-				break;
-			case -42:
-				exceptionType = new String("No message of desired type");
-				break;
-			case -43:
-				exceptionType = new String("Identifier removed");
-				break;
-			case -49:
-				exceptionType = new String("Protocol driver not attached");
-				break;
-			case -53:
-				exceptionType = new String("Invalid request descriptor");
-				break;
-			case -59:
-				exceptionType = new String("Bad font file format");
-				break;
-			case -60:
-				exceptionType = new String("Device not a stream");
-				break;
-			case -61:
-				exceptionType = new String("No data available");
-				break;
-			case -62:
-				exceptionType = new String("Timer expired");
-				break;
-			case -63:
-				exceptionType = new String("Out of streams resources");
-				break;
-			case -64:
-				exceptionType = new String("Machine is not on the network");
-				break;
-			case -77:
-				exceptionType = new String("File descriptor in bad state");
-				break;
-			case -79:
-				exceptionType = new String("Can not access a needed shared library");
-				break;
-			case -80:
-				exceptionType = new String("Accessing a corrupted shared library");
-				break;
-			case -82:
-				exceptionType = new String("Attempting to link in too many shared libraries");
-				break;
-			case -83:
-				exceptionType = new String("Cannot exec a shared library directly");
-				break;
-			case -84:
-				exceptionType = new String("Illegal byte sequence");
-				break;
-			case -85:
-				exceptionType = new String("Interrupted system call should be restarted");
-				break;
-			case -86:
-				exceptionType = new String("Streams pipe error");
-				break;
-			case -87:
-				exceptionType = new String("Too many users");
-				break;
-			case -130:
-				exceptionType = new String("Owner died");
-				break;
-			case -131:
-				exceptionType = new String("State not recoverable");
-				break;
-			case -133:
-				exceptionType = new String("Memory page has hardware error");
-				break;
-			case -239:
-				exceptionType = new String("There are too many outstanding asynchronous I/O requests");
-				break;
-			case -240:
-				// In some cases, we may deliberately send this value is we want known error to occur.
-				exceptionType = new String("Unknown exception occured");
-				break;
-			case -241:
-				exceptionType = new String("Exclusive ownership is not supported for Solaris as of now");
-				break;
-			case -242:
-				exceptionType = new String("Enable parity in configureComPortData() for parity/frame error checking to work");
-				break;
-			default:
-				int osType = SerialComManager.getOSType();
-				if(osType == SerialComManager.OS_WINDOWS) {
-					// Extract and report exact windows error number, + 320 removes offset added by native library
-					errorNumber = errorNumber + 320;
-					errorNumber = -1 * errorNumber;
-					StringBuilder sBuilder = new StringBuilder("Windows OS error code ");
-					sBuilder.append(errorNumber);
+		long err = -1 * errorNumber;
+		int errorNum = (int)err;
+		
+		if(osType == SerialComManager.OS_WINDOWS) {
+			
+		}else {
+			switch (errorNum) {
+				case 1:
+					if((osType == SerialComManager.OS_HP_UX) || (osType == SerialComManager.OS_SOLARIS)) {
+						exceptionType = new String("Not super-user");
+					}else {
+						exceptionType = new String("Operation not permitted");
+					}
+					break;
+				case 2:
+					exceptionType = new String("No such file or directory");
+					break;
+				case 3:
+					exceptionType = new String("No such process");
+					break;
+				case 4:
+					exceptionType = new String("Interrupted system call");
+					break;
+				case 5:
+					if((osType == SerialComManager.OS_LINUX) || (osType == SerialComManager.OS_SOLARIS) || (osType == SerialComManager.OS_IBM_AIX)) {
+						exceptionType = new String("I/O error");
+					}else {
+						exceptionType = new String("Input/output error");
+					}
+					break;
+				case 6:
+					if((osType == SerialComManager.OS_LINUX) || (osType == SerialComManager.OS_SOLARIS) || (osType == SerialComManager.OS_IBM_AIX) || (osType == SerialComManager.OS_HP_UX)) {
+						exceptionType = new String("No such device or address");
+					}else {
+						exceptionType = new String("Device not configured");
+					}
+					break;
+				case 7:
+					if((osType == SerialComManager.OS_LINUX) || (osType == SerialComManager.OS_SOLARIS) || (osType == SerialComManager.OS_IBM_AIX) || (osType == SerialComManager.OS_HP_UX)) {
+						exceptionType = new String("Arg list too long");
+					}else {
+						exceptionType = new String("Argument list too long");
+					}
+					break;
+				case 8:
+					exceptionType = new String("Exec format error");
+					break;
+				case 9:
+					if((osType == SerialComManager.OS_LINUX) || (osType == SerialComManager.OS_SOLARIS) || (osType == SerialComManager.OS_IBM_AIX) || (osType == SerialComManager.OS_HP_UX)) {
+						exceptionType = new String("Bad file number");
+					}else {
+						exceptionType = new String("Bad file descriptor");
+					}
+					break;
+				case 10:
+					if((osType == SerialComManager.OS_SOLARIS) || (osType == SerialComManager.OS_HP_UX)) {
+						exceptionType = new String("No children");
+					}else {
+						exceptionType = new String("No child processes");
+					}
+					break;
+				case 11:
+					if(osType == SerialComManager.OS_LINUX) {
+						exceptionType = new String("Try again");
+					}else if(osType == SerialComManager.OS_HP_UX) {
+						exceptionType = new String("No more processes");
+					}else {
+						exceptionType = new String("Resource deadlock avoided");
+					}
+					break;
+				case 12:
+					if(osType == SerialComManager.OS_LINUX) {
+						exceptionType = new String("Out of memory");
+					}else if((osType == SerialComManager.OS_SOLARIS) || (osType == SerialComManager.OS_HP_UX)) {
+						exceptionType = new String("Not enough core");
+					}else if(osType == SerialComManager.OS_IBM_AIX) {
+						exceptionType = new String("Not enough space");
+					}else {
+						exceptionType = new String("Cannot allocate memory");
+					}
+					break;
+				case 13:
+					exceptionType = new String("Permission denied");
+					break;
+				case 14:
+					exceptionType = new String("Bad address");
+					break;
+				case 15:
+					exceptionType = new String("Block device required");
+					break;
+				case 16:
+					if(osType == SerialComManager.OS_LINUX) {
+						exceptionType = new String("Device or resource busy");
+					}else if((osType == SerialComManager.OS_SOLARIS) || (osType == SerialComManager.OS_HP_UX)) {
+						exceptionType = new String("Mount device busy");
+					}else if(osType == SerialComManager.OS_IBM_AIX) {
+						exceptionType = new String("Resource busy");
+					}else {
+						exceptionType = new String("Device busy");
+					}
+					break;
+				case 17:
+					exceptionType = new String("File exists");
+					break;
+				case 18:
+					if(osType == SerialComManager.OS_IBM_AIX) {
+						exceptionType = new String("Improper link");
+					}else {
+						exceptionType = new String("Cross-device link");
+					}
+					break;
+				case 19:
+					if((osType == SerialComManager.OS_LINUX) || (osType == SerialComManager.OS_SOLARIS) || (osType == SerialComManager.OS_IBM_AIX) || (osType == SerialComManager.OS_HP_UX)) {
+						exceptionType = new String("No such device");
+					}else {
+						exceptionType = new String("Operation not supported by device");
+					}
+					break;
+				case 20:
+					exceptionType = new String("Not a directory");
+					break;
+				case 21:
+					exceptionType = new String("Is a directory");
+					break;
+				case 22:
+					exceptionType = new String("Invalid argument");
+					break;
+				case 23:
+					if((osType == SerialComManager.OS_LINUX) || (osType == SerialComManager.OS_SOLARIS) || (osType == SerialComManager.OS_HP_UX)) {
+						exceptionType = new String("File table overflow");
+					}else {
+						exceptionType = new String("Too many open files in system");
+					}
+					break;
+				case 24:
+					exceptionType = new String("Too many open files");
+					break;
+				case 25:
+					if((osType == SerialComManager.OS_LINUX) || (osType == SerialComManager.OS_HP_UX)) {
+						exceptionType = new String("Not a typewriter");
+					}else if(osType == SerialComManager.OS_IBM_AIX) {
+						exceptionType = new String("Inappropriate I/O control operation");
+					}else {
+						exceptionType = new String("Inappropriate ioctl for device");
+					}
+					break;
+				case 26:
+					exceptionType = new String("Text file busy");
+					break;
+				case 27:
+					exceptionType = new String("File too large");
+					break;
+				case 28:
+					exceptionType = new String("No space left on device");
+					break;
+				case 29:
+					if(osType == SerialComManager.OS_IBM_AIX) {
+						exceptionType = new String("Invalid seek");
+					}else {
+						exceptionType = new String("Illegal seek");
+					}
+					break;
+				case 30:
+					exceptionType = new String("Read only file system");
+					break;
+				case 31:
+					exceptionType = new String("Too many links");
+					break;
+				case 32:
+					exceptionType = new String("Broken pipe");
+					break;
+				case 33:
+					if(osType == SerialComManager.OS_LINUX) {
+						exceptionType = new String("Math argument out of domain of func");
+					}else if(osType == SerialComManager.OS_SOLARIS) {
+						exceptionType = new String("Math arg out of domain of func");
+					}else if(osType == SerialComManager.OS_IBM_AIX) {
+						exceptionType = new String("Domain error within math function");
+					}else if(osType == SerialComManager.OS_HP_UX) {
+						exceptionType = new String("OS error code : 33");
+					}else {
+						exceptionType = new String("Numerical argument out of domain");
+					}
+					break;
+				case 34:
+					if((osType == SerialComManager.OS_LINUX) || (osType == SerialComManager.OS_SOLARIS)) {
+						exceptionType = new String("Math result not representable");
+					}else if(osType == SerialComManager.OS_HP_UX) {
+						exceptionType = new String("OS error code : 34");
+					}else {
+						exceptionType = new String("Result too large");
+					}
+					break;
+				case 35:
+					if(osType == SerialComManager.OS_LINUX) {
+						exceptionType = new String("Resource deadlock would occur");
+					}else if(osType == SerialComManager.OS_SOLARIS) {
+						exceptionType = new String("Resource deadlock would occur");
+					}
+					break;
+				default:
+					StringBuilder sBuilder = new StringBuilder("OS error code : ");
+					sBuilder.append(errorNum);
 					exceptionType = sBuilder.toString();
-				}else {
-					StringBuilder sBuilder = new StringBuilder("OS error code ");
-					errorNumber = -1 * errorNumber;
-					sBuilder.append(errorNumber);
-					exceptionType = sBuilder.toString();
-				}
-				break;
+					break;
+			}
 		}
+		
 		return exceptionType;
 	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

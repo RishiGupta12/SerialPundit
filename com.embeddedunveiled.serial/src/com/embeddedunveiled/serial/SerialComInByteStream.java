@@ -53,7 +53,7 @@ public final class SerialComInByteStream extends InputStream {
 		
 		if(streamMode.getValue() == 1) {
 			// For windows blocking read method is called while for others (unix-like) VMIN/VTIME is set.
-			if(SerialComManager.getOSType() != SerialComManager.OS_WINDOWS) {
+			if(scm.getOSType() != SerialComManager.OS_WINDOWS) {
 				scm.fineTuneRead(handle, 1, 0, 0, 0, 0);
 			}
 			isBlocking = true;
@@ -77,7 +77,7 @@ public final class SerialComInByteStream extends InputStream {
 		try {
 			numBytesAvailable = scm.getByteCountInPortIOBuffer(handle);
 		} catch (SerialComException e) {
-			throw new IOException(e);
+			throw new IOException(e.getExceptionMsg());
 		}
 		return numBytesAvailable[0];
 	}
@@ -146,7 +146,7 @@ public final class SerialComInByteStream extends InputStream {
 				}
 			}
 		}catch (SerialComException e) {
-			throw new IOException(e);
+			throw new IOException(e.getExceptionMsg());
 		}
 	}
 	
@@ -242,7 +242,7 @@ public final class SerialComInByteStream extends InputStream {
 				}
 			}
 		}catch (SerialComException e) {
-			throw new IOException(e);
+			throw new IOException(e.getExceptionMsg());
 		}
     }
 	

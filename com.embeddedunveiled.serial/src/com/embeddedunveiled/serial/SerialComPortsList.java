@@ -25,11 +25,11 @@ import java.util.TreeSet;
 import java.util.regex.Pattern;
 
 /**
- * <p>This class arranges serial port names found in the system in alphanumeric order.</p>
+ * <p>This class finds all serial ports known to system and return them in sorted alphanumeric order.</p>
  */
-
 public final class SerialComPortsList {
-
+	
+	private int osType = -1;
 	private static final Pattern Sol_regExpPattern = Pattern.compile("[0-9]*|[a-z]*");
 	private static final String Sol_search_path = "/dev/term/";
 	private SerialComJNINativeInterface mNativeInterface = null;
@@ -98,9 +98,10 @@ public final class SerialComPortsList {
 		}
 	};
 
-	/* Constructor */
-	public SerialComPortsList(SerialComJNINativeInterface nativeInterface) {
+	/** Allocates a new SerialComPortsList object. */
+	public SerialComPortsList(SerialComJNINativeInterface nativeInterface, int osType) {
 		this.mNativeInterface = nativeInterface;
+		this.osType = osType;
 	}
 
 	/**
@@ -108,12 +109,10 @@ public final class SerialComPortsList {
 	 * <p>For Linux, Windows and Mac OS, ports are found with the help of OS specific facilities/API.</p>
 	 * <p>For Solaris, a predefined port naming pattern is matched.</p>
 	 * 
-	 * @return array of ports found on system
+	 * @return array of ports found on system or null
 	 */
 	public String[] listAvailableComPorts(SerialComRetStatus retStatus) {
-		if(SerialComManager.getOSType() != SerialComManager.OS_SOLARIS) {
-			
-			// For Linux, Mac, Windows get list from native library
+		if(osType != SerialComManager.OS_SOLARIS) {                         // For Linux, Mac, Windows get list from native library
 			ArrayList<String> portsIdentified = new ArrayList<String>();
 			String[] ports = mNativeInterface.listAvailableComPorts(retStatus);
 			if(ports != null) {
@@ -124,10 +123,7 @@ public final class SerialComPortsList {
 				return portsIdentified.toArray(new String[portsIdentified.size()]);
 			}
 			return null;
-			
-		} else {
-			
-			// For Solaris match the pre-known pattern for names
+		}else {                                                              // For Solaris match the pre-known pattern for names
 			String[] portsIdentified = new String[]{};
 			File dir = new File(Sol_search_path);
 			if(dir.exists() && dir.isDirectory()) {
@@ -148,7 +144,6 @@ public final class SerialComPortsList {
 				return null; // The look up path directory either does not exist or is not directory
 			}
 			return portsIdentified;
-			
 		}
 	}
 }
