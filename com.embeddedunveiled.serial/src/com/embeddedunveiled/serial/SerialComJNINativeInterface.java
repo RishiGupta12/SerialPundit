@@ -17,12 +17,14 @@
 
 package com.embeddedunveiled.serial;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
+import java.io.InputStream;
+import java.io.FileOutputStream;
+
+/* Load OS specific C-library. Extract native library in our unique "_tuartx1" directory inside 
+ * OS/User specific tmp directory and load from here.
+ * http://docs.oracle.com/javase/7/docs/api/ */
 
 /**
  * <p>This class load native library and is an interface between java and native shared library.</p>
@@ -30,167 +32,173 @@ import java.nio.ByteBuffer;
  * <p>2. Locate in user specific temp folder.</p>
  * <p>3. Try to load native shared library.</p>
  * <p>4. Try to link functions. </p>
- * 
- * <p>Try to minimize transition from Java to JNI whenever possible for performance reason.</p>
  */
-
 public final class SerialComJNINativeInterface {
-
-	/* Static blocks are executed only once, irrespective of the fact, how many times,
-	 * this class has been instantiated. Also they are called before invoking constructors. */
-	static {
-		try {
-			loadNativeLibrary();
-		} catch (Exception e) {
-			if(SerialComManager.DEBUG) e.printStackTrace();
-		}
-	}
-
+	
+	/**
+	 * <p>Allocates a new SerialComJNINativeInterface object.</p>
+	 * @param loadedLibName 
+	 * @param directoryPath 
+	 */
 	public SerialComJNINativeInterface() {
-		/* After native library has been loaded, initialize it. */
-		initNativeLib();
 	}
-
-	/* Load OS specific C-library. Extract native library in our unique "_tuartx1" directory inside 
-	 * OS/User specific tmp directory and load from here.
-	 * http://docs.oracle.com/javase/7/docs/api/ */
-	private static void loadNativeLibrary() throws SerialComException {
-
-		File tmpDir = null;
+	
+	public static boolean loadNativeLibrary(String directoryPath, String loadedLibName, SerialComSystemProperty serialComSystemProperty, int osType, int cpuArch) throws
+						SerialComUnexpectedException, SecurityException, SerialComLoadException, UnsatisfiedLinkError {
+		String javaTmpDir = null;
+		String userHomeDir = null;
+		String fileSeparator = null;
+		File baseDir = null;
 		File workingDir = null;
+		boolean isTmpDir = false;
+		boolean isUserHomeDir = false;
 		String libNameOnly = null;
-
-		boolean readyToLoad = false;
 		File libFile = null;
 		InputStream input = null;
 		FileOutputStream output = null;
-
-		// Because we use same directory and file, we will not blow tmp directory out of space.
-		tmpDir = new File(SerialComManager.javaTmpDir);
-		if(!tmpDir.canWrite()) {
-			// we don't have write permission probably, so try using user's home directory 
-			tmpDir = new File(SerialComManager.userHome);
-			if(!tmpDir.canWrite()) {
-				throw new SerialComException("loadNativeLibrary()", SerialComErrorMapper.ERR_UNABLE_TO_WRITE);
+		
+		/* prepare directory in which native shared library will be extracted from jar */
+		if(directoryPath == null) {
+			// user did not supplied any directory path so try tmp and user home
+			javaTmpDir = serialComSystemProperty.getJavaIOTmpDir();
+			if(javaTmpDir == null) {
+				throw new SerialComUnexpectedException("loadNativeLibrary()", SerialComErrorMapper.ERR_PROP_JAVA_IO_TMPDIR);
 			}
-		}
-
-		/* If the workingTmp directory exist, delete it first and then create. We do not use previously existing 
-		 * directory as some other software might have created it or user might have installed different OS (arch)
-		 * retaining the tmp directory. */
-		if(tmpDir.exists() && tmpDir.isDirectory()){
-			workingDir = new File(tmpDir.toString() + SerialComManager.fileSeparator + "_tuartx1");
-			try {
-				if(!workingDir.exists()) {
-					workingDir.mkdir();
-				}else {
-					workingDir.delete();
-					workingDir.mkdir();
+			
+			baseDir = new File(javaTmpDir);
+			if(baseDir.exists() && baseDir.isDirectory() && baseDir.canWrite()) {
+				isTmpDir = true;
+				// temp directory will be used
+			}else {
+				// access to temp directory failed, let us try access to user's home directory
+				userHomeDir = serialComSystemProperty.getUserHome();
+				if(userHomeDir == null) {
+					throw new SerialComUnexpectedException("loadNativeLibrary()", SerialComErrorMapper.ERR_PROP_USER_HOME);
 				}
-			} catch (Exception e) {
-				if(SerialComManager.DEBUG) e.printStackTrace();
-			}
-		}
-
-		int osType = SerialComManager.getOSType();
-		if(osType > 0) {
-			if(workingDir.exists() && workingDir.isDirectory()){
-				if(SerialComManager.osArch.equals("i386") || SerialComManager.osArch.equals("i486") || SerialComManager.osArch.equals("i586") || 
-						SerialComManager.osArch.equals("i686") || SerialComManager.osArch.equals("x86") || SerialComManager.osArch.equals("sparc")) {
-					if(osType == SerialComManager.OS_LINUX) {
-						libNameOnly = "linux_"   + SerialComManager.JAVA_LIB_VERSION + "_x86.so";
-					}else if(osType == SerialComManager.OS_WINDOWS) {
-						libNameOnly = "windows_" + SerialComManager.JAVA_LIB_VERSION + "_x86.dll";
-					}else if(osType == SerialComManager.OS_MAC_OS_X) {
-						libNameOnly = "mac_"     + SerialComManager.JAVA_LIB_VERSION + "_x86.dylib";
-					}else if(osType == SerialComManager.OS_SOLARIS) {
-						libNameOnly = "solaris_" + SerialComManager.JAVA_LIB_VERSION + "_x86.so";
-					}
-				}else if(SerialComManager.osArch.equals("amd64") || SerialComManager.osArch.equals("x86_64") || SerialComManager.osArch.equals("amd64 em64t x86_64") 
-						|| SerialComManager.osArch.equals("x86-64") || SerialComManager.osArch.equals("sparcv9")) {
-					if(osType == SerialComManager.OS_LINUX) {
-						libNameOnly = "linux_"   + SerialComManager.JAVA_LIB_VERSION + "_x86_64.so";
-					}else if(osType == SerialComManager.OS_WINDOWS) {
-						libNameOnly = "windows_" + SerialComManager.JAVA_LIB_VERSION + "_x86_64.dll";
-					}else if(osType == SerialComManager.OS_MAC_OS_X) {
-						libNameOnly = "mac_"     + SerialComManager.JAVA_LIB_VERSION + "_x86_64.dylib";
-					}else if(osType == SerialComManager.OS_SOLARIS) {
-						libNameOnly = "solaris_" + SerialComManager.JAVA_LIB_VERSION + "_x86_64.so";
-					}
-				}else if(SerialComManager.osArch.startsWith("arm")) {
-					libNameOnly = "linux_" + SerialComManager.JAVA_LIB_VERSION + "_armel.so";
-					if(SerialComManager.javaLibPath.contains("gnueabihf") || SerialComManager.javaLibPath.contains("armhf")) {
-						libNameOnly = "linux_" + SerialComManager.JAVA_LIB_VERSION + "_armhf.so";
-					}else {
-						try {
-							// take decision based on JVM binary's format
-							Process p = Runtime.getRuntime().exec("readelf -A " + System.getProperty("java.home") + "/bin/java");
-							BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
-							String buffer = "";
-							while((buffer = reader.readLine()) != null && !buffer.isEmpty()){
-								if(buffer.toLowerCase().contains("tag_abi_vfp_args")){
-									libNameOnly = "linux_" + SerialComManager.JAVA_LIB_VERSION + "_armhf.so";
-									break;
-								}
-							}
-							reader.close();
-						} catch (Exception e) {
-							if(SerialComManager.DEBUG) e.printStackTrace();
-						}
-					}
-				}else {
-					if(SerialComManager.DEBUG) System.out.println("Unable to determine OS/CPU architecture. Please send your architecture, so that we can add support for it.");
+				baseDir = new File(userHomeDir);
+				if(!baseDir.exists()) {
+					throw new SerialComLoadException("loadNativeLibrary()", SerialComErrorMapper.ERR_USER_DIR_NOT_EXIST_TMP);
 				}
-
-				// Get the library from jar file and extract it in our workingTmp directory
-				try {
-					libFile = new File(workingDir.getAbsolutePath() + SerialComManager.fileSeparator + libNameOnly);
-					input = SerialComJNINativeInterface.class.getResourceAsStream("/libs/" + libNameOnly);
-					output = new FileOutputStream(libFile);
-					if(input != null) {
-						int read;
-						byte[] buffer = new byte[4096];
-						while((read = input.read(buffer)) != -1){
-							output.write(buffer, 0, read);
-						}
-						output.flush();
-						// Check if we got success or not
-						if(libFile != null) {
-							if(libFile.exists() && libFile.isFile()){
-								readyToLoad = true;
-							}else {
-								if(SerialComManager.DEBUG) System.out.println("Can not write as stream to libFile !");
-							}
-						}
-					}else {
-						if(SerialComManager.DEBUG) System.out.println("Can not extract library file : " + libNameOnly + " from jar file !");
-					}
-				} catch (Exception e) {
-					if(SerialComManager.DEBUG) e.printStackTrace();
-				} finally {
-					try {
-						output.close();
-						input.close();
-					} catch (Exception e) {
-						if(SerialComManager.DEBUG) e.printStackTrace();
-					}
+				if(!baseDir.isDirectory()) {
+					throw new SerialComLoadException("loadNativeLibrary()", SerialComErrorMapper.ERR_USER_IS_NOT_DIR_TMP);
 				}
-
-				/* Try loading the dynamic shared library from the local file system, 
-				 * else tell user something went wrong, he should retry. */
-				if(readyToLoad == true) {
-					try {
-						System.load(libFile.toString());
-					} catch (UnsatisfiedLinkError e) {
-						if(SerialComManager.DEBUG) System.err.println("Failed to load native dynamic shared library.\n" + e);
-					} catch (Exception e) {
-						if(SerialComManager.DEBUG) e.printStackTrace();
-					}
+				if(!baseDir.canWrite()) {
+					throw new SerialComLoadException("loadNativeLibrary()", SerialComErrorMapper.ERR_USER_DIR_NOT_WRITABLE_TMP);
 				}
+				isUserHomeDir = true;
 			}
 		}else {
-			throw new SerialComException("loadNativeLibrary()", SerialComErrorMapper.ERR_UNABLE_TO_DETECT_OS_TYPE);
+			// user specified directory, so try it
+			baseDir = new File(directoryPath);
+			if(!baseDir.exists()) {
+				throw new SerialComLoadException("loadNativeLibrary()", SerialComErrorMapper.ERR_GIVEN_DIR_NOT_EXIST);
+			}
+			if(!baseDir.isDirectory()) {
+				throw new SerialComLoadException("loadNativeLibrary()", SerialComErrorMapper.ERR_GIVEN_IS_NOT_DIR);
+			}
+			if(!baseDir.canWrite()) {
+				throw new SerialComLoadException("loadNativeLibrary()", SerialComErrorMapper.ERR_GIVEN_DIR_NOT_WRITABLE);
+			}
 		}
+		
+		fileSeparator = serialComSystemProperty.getfileSeparator();
+		if(fileSeparator == null) {
+			throw new SerialComUnexpectedException("loadNativeLibrary()", SerialComErrorMapper.ERR_PROP_FILE_SEPARATOR);
+		}
+		
+		if((isTmpDir == true) || (isUserHomeDir == true)) {
+			// for tmp or user home create unique directory inside them for our use only
+			workingDir = new File(baseDir.toString() + fileSeparator + "scm_tuartx1");
+			if(!workingDir.exists()) {
+				if(!workingDir.mkdir()) {
+					if(isTmpDir == true) {
+						throw new SerialComLoadException("loadNativeLibrary()", SerialComErrorMapper.ERR_CREATE_UNIQUE_DIR_TMP);
+					}else if(isUserHomeDir == true) {
+						throw new SerialComLoadException("loadNativeLibrary()", SerialComErrorMapper.ERR_CREATE_UNIQUE_DIR_USER);
+					}else {
+					}
+				}
+			}
+		}
+
+		/* prepare the name of the native library that will be loaded based on arch and os type */
+		if(cpuArch == SerialComManager.ARCH_AMD64) {
+			switch(osType) {
+				case SerialComManager.OS_WINDOWS:
+					libNameOnly = "windows_" + SerialComManager.JAVA_LIB_VERSION + "_x86_64.dll";
+					break;
+				case SerialComManager.OS_LINUX:
+					libNameOnly = "linux_" + SerialComManager.JAVA_LIB_VERSION + "_x86_64.so";
+					break;
+				case SerialComManager.OS_MAC_OS_X:
+					libNameOnly = "mac_" + SerialComManager.JAVA_LIB_VERSION + "_x86_64.dylib";
+					break;
+				default :
+			}
+		}else if(cpuArch == SerialComManager.ARCH_X86) {
+			switch(osType) {
+				case SerialComManager.OS_WINDOWS:
+					libNameOnly = "windows_" + SerialComManager.JAVA_LIB_VERSION + "_x86.dll";
+					break;
+				case SerialComManager.OS_LINUX:
+					libNameOnly = "linux_" + SerialComManager.JAVA_LIB_VERSION + "_x86.so";
+					break;
+				case SerialComManager.OS_MAC_OS_X:
+					libNameOnly = "mac_" + SerialComManager.JAVA_LIB_VERSION + "_x86.dylib";
+					break;
+				default :
+			}
+		}else if(cpuArch == SerialComManager.ARCH_IA64) {
+			
+		}else {
+			//TODO for more platforms
+		}
+		
+		/* extract shared library from jar into working directory */
+		try {
+			libFile = new File(workingDir.getAbsolutePath() + fileSeparator + libNameOnly);
+			input = SerialComJNINativeInterface.class.getResourceAsStream("/libs/" + libNameOnly);
+			output = new FileOutputStream(libFile);
+			if(input != null) {
+				int read;
+				byte[] buffer = new byte[4096];
+				while((read = input.read(buffer)) != -1){
+					output.write(buffer, 0, read);
+				}
+				output.flush();
+				output.close();
+				output = null;
+				
+				if((libFile != null) && libFile.exists() && libFile.isFile()) {
+				}else {
+					throw new SerialComLoadException("loadNativeLibrary()", SerialComErrorMapper.ERR_CANNOT_EXTRACT_LIB);
+				}
+			}else {
+				throw new SerialComLoadException("loadNativeLibrary()", SerialComErrorMapper.ERR_CANNOT_RES_AS_STREAM);
+			}
+		} catch (Exception e) {
+			 throw (SerialComLoadException) new SerialComLoadException("loadNativeLibrary()", libFile.toString()).initCause(e);
+		} finally {
+			try {
+				if(output != null) {
+					output.close();
+				}
+				if(input != null) {
+					input.close();
+				}
+			} catch (Exception e) {
+				// ignore
+			}
+		}
+		
+		/* Try loading the dynamic shared library from the local file system now. */
+		try {
+			System.load(libFile.toString());
+		} catch (Exception e) {
+			throw (UnsatisfiedLinkError) new UnsatisfiedLinkError(SerialComErrorMapper.ERR_CAN_NOT_LOAD_NATIVE_LIB).initCause(e);
+		}
+		
+		return true;
 	}
 
 	public native int initNativeLib();

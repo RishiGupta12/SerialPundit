@@ -17,37 +17,30 @@
 package com.embeddedunveiled.serial;
 
 import java.io.IOException;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
-import java.util.Locale;
 
 /**
  * <p>This class identifies various hardware and software platform attributes like operating system and CPU architecture etc.</p>
  */
 public final class SerialComPlatform {
+	
+	SerialComSystemProperty mSerialComSystemProperty = null;
+	
 	/**
 	 * <p>Allocates a new SerialComPlatform object.</p>
 	 */
-	public SerialComPlatform() {
+	public SerialComPlatform(SerialComSystemProperty mSerialComSystemProperty) {
+		this.mSerialComSystemProperty = mSerialComSystemProperty;
 	}
 	
-	/** <p>Identifies the operating system on which scm library is running.</p>
+	/** 
+	 * <p>Identifies the operating system on which scm library is running.</p>
 	 * @return SerialComManager.OS_UNKNOWN if platform is unknown to scm otherwise one of the SerialComManager.OS_XXXX constant
 	 * @throws SerialComUnexpectedException if os.name system property is null
 	 */
-	public final int getOSType() throws SerialComUnexpectedException {
-		String osName = null;
+	public final int getOSType() throws SecurityException, SerialComUnexpectedException {
 		int osType = SerialComManager.OS_UNKNOWN;
 		
-		if(System.getSecurityManager() == null) {
-			osName = System.getProperty("os.name").toLowerCase(Locale.ENGLISH).trim();
-		}else {
-			osName = (String) AccessController.doPrivileged(new PrivilegedAction<String>() {
-				public String run() {
-					return System.getProperty("os.name").toLowerCase(Locale.ENGLISH).trim();
-				}
-			});
-		}
+		String osName = mSerialComSystemProperty.getOSName();
 		if(osName == null) {
 			throw new SerialComUnexpectedException("getOSType()", SerialComErrorMapper.ERR_PROP_OS_NAME);
 		}
@@ -82,22 +75,13 @@ public final class SerialComPlatform {
 	/** <p>Identifies CPU architecture scm library is running on.</p>
 	 * <p>Packages that are compiled for i386 architecture are compatible with i486, i586, i686, i786, i886 and i986 architectures.
 	 * Packages that are compiled for x86_64 architecture are compatible with amd64 architecture.</p>
-	 * @return @return SerialComManager.ARCH_UNKNOWN if platform is unknown to scm otherwise one of the SerialComManager.ARCH_XXXX constant
+	 * @return SerialComManager.ARCH_UNKNOWN if platform is unknown to scm otherwise one of the SerialComManager.ARCH_XXXX constant
 	 * @throws SerialComUnexpectedException if os.arch system property is null
 	 */
 	public final int getCPUArch() throws SerialComUnexpectedException {
-		String osArch = null;
 		int osArchitecture = SerialComManager.ARCH_UNKNOWN;
 		
-		if(System.getSecurityManager() == null) {
-			osArch = System.getProperty("os.arch").toLowerCase(Locale.ENGLISH).trim();
-		}else {
-			osArch = (String) AccessController.doPrivileged(new PrivilegedAction<String>() {
-				public String run() {
-					return System.getProperty("os.arch").toLowerCase(Locale.ENGLISH).trim();
-				}
-			});
-		}
+		String osArch = mSerialComSystemProperty.getOSArch();
 		if(osArch == null) {
 			throw new SerialComUnexpectedException("getCPUArch()", SerialComErrorMapper.ERR_PROP_OS_ARCH);
 		}
@@ -140,18 +124,8 @@ public final class SerialComPlatform {
 	 * @throws SerialComUnexpectedException if java.vm.vendor system property is null
 	 */
 	private boolean isAndroid() throws SerialComUnexpectedException {
-		String osVendor = null;
-		
 		// java.vm.vendor system property in android always returns The Android Project as per android javadocs.
-		if(System.getSecurityManager() == null) {
-			osVendor = System.getProperty("java.vm.vendor").toLowerCase(Locale.ENGLISH).trim();
-		}else {
-			osVendor = (String) AccessController.doPrivileged(new PrivilegedAction<String>() {
-				public String run() {
-					return System.getProperty("java.vm.vendor").toLowerCase(Locale.ENGLISH).trim();
-				}
-			});
-		}
+		String osVendor = mSerialComSystemProperty.getJavaVmVendor();
 		if(osVendor == null) {
 			throw new SerialComUnexpectedException("isAndroid()", SerialComErrorMapper.ERR_PROP_VM_VENDOR);
 		}
@@ -168,18 +142,8 @@ public final class SerialComPlatform {
 	 * @throws SerialComUnexpectedException if java.home system property is null
 	 */
 	public final int getARMABIType() throws SerialComUnexpectedException {
-		String javaHome = null;
 		int abiType = SerialComManager.ABI_ARMEL;
-		// java.vm.vendor system property in android always returns The Android Project as per android javadocs.
-		if(System.getSecurityManager() == null) {
-			javaHome = System.getProperty("java.home");
-		}else {
-			javaHome = (String) AccessController.doPrivileged(new PrivilegedAction<String>() {
-				public String run() {
-					return System.getProperty("java.home");
-				}
-			});
-		}
+		String javaHome = mSerialComSystemProperty.getJavaHome();
 		if(javaHome == null) {
 			throw new SerialComUnexpectedException("getARMABIType()", SerialComErrorMapper.ERR_PROP_JAVA_HOME);
 		}

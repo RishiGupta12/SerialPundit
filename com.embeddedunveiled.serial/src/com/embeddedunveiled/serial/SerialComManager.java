@@ -367,23 +367,12 @@ public final class SerialComManager {
 	/** <p>Data terminal ready mask bit constant for UART control line. </p>*/
 	public static final int DTR  = 0x40;  // 1000000
 	
-	/** <p>User home directory as returned by JVM. </p>*/
-	public static final String userHome = System.getProperty("user.home");
-	
-	/** <p>Temp/tmp directory on this system as returned by JVM. </p>*/
-	public static final String javaTmpDir = System.getProperty("java.io.tmpdir");
-	
-	/** <p>File separator identifier for this operating system as returned by JVM. */
-	public static final String fileSeparator = System.getProperty("file.separator");
-	
-	/** <p>Java library path for this system as returned by JVM. </p>*/
-	public static final String javaLibPath = System.getProperty("java.library.path").toLowerCase();
-
-	/** <p>Maintain integrity and consistency among all operations, therefore synchronize them for
+	/** <p>Maintain integrity and consistency among all operations, synchronize them for
 	 *  making structural changes. This array can be sorted array if scaled to large scale.</p>*/
 	private ArrayList<SerialComPortHandleInfo> handleInfo = new ArrayList<SerialComPortHandleInfo>();
 	private List<SerialComPortHandleInfo> mPortHandleInfo = Collections.synchronizedList(handleInfo);
 	
+	private SerialComSystemProperty mSerialComSystemProperty = null;
 	private SerialComPlatform mSerialComPlatform = null;
 	private SerialComJNINativeInterface mNativeInterface = null;
 	private SerialComErrorMapper mErrMapper = null;
@@ -394,26 +383,63 @@ public final class SerialComManager {
 	private static Object lockA = new Object();
 	private static int osType = -1;
 	private static int cpuArch = -1;
+	private static boolean nativeLibLoadAndInitAlready = false;
 	private static final String HEXNUM = "0123456789ABCDEF";
 
 	/**
 	 * <p>Allocates a new SerialComManager object. Identify operating system type, initialize various 
 	 * classes and initiate loading of native library.</p>
 	 * @throws SerialComUnexpectedException
+	 * @throws SerialComLoadException 
+	 * @throws SecurityException 
 	 */
-	public SerialComManager() throws SerialComUnexpectedException {
+	public SerialComManager() throws SerialComUnexpectedException, SerialComException, SecurityException, SerialComLoadException {
 		/* First let the instance be created totally and then call required methods to increase security.
-		 * Platform need to be identified only once, so if more scm instance are created pass them pre-calculated values.*/
+		 * Platform need to be identified only once, so if more scm instance are created pass them pre-calculated values. */
+		mSerialComSystemProperty = new SerialComSystemProperty();
 		synchronized(lockA) {
 			if(osType <= 0) {
-				mSerialComPlatform = new SerialComPlatform();
+				mSerialComPlatform = new SerialComPlatform(mSerialComSystemProperty);
 				osType = mSerialComPlatform.getOSType();
 				cpuArch = mSerialComPlatform.getCPUArch();
 			}
 		}
-
 		mErrMapper = new SerialComErrorMapper(osType);
-		mNativeInterface = new SerialComJNINativeInterface(osType, cpuArch);
+		mNativeInterface = new SerialComJNINativeInterface();
+		if(nativeLibLoadAndInitAlready == false) {
+			SerialComJNINativeInterface.loadNativeLibrary(null, null, mSerialComSystemProperty, osType, cpuArch);
+			mNativeInterface.initNativeLib();
+		}
+		mEventCompletionDispatcher = new SerialComCompletionDispatcher(mNativeInterface, mErrMapper, mPortHandleInfo);
+		mSerialComPortsList = new SerialComPortsList(mNativeInterface, osType);
+	}
+	
+	public SerialComManager(String directoryPath, String loadedLibName) throws SerialComUnexpectedException, SerialComException, SecurityException, SerialComLoadException {
+		if(directoryPath == null) {
+			throw new IllegalArgumentException("SerialComManager() " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_DIRPATH);
+		}
+		if(directoryPath.length() == 0) {
+			throw new IllegalArgumentException("SerialComManager(), " + SerialComErrorMapper.ERR_EMPTY_PATH_FOR_DIRPATH);
+		}
+		if(loadedLibName == null) {
+			throw new IllegalArgumentException("SerialComManager() " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_LIBNAME);
+		}
+		if(loadedLibName.length() == 0) {
+			throw new IllegalArgumentException("SerialComManager(), " + SerialComErrorMapper.ERR_EMPTY_NAME_FOR_LIBNAME);
+		}
+		synchronized(lockA) {
+			if(osType <= 0) {
+				mSerialComPlatform = new SerialComPlatform(mSerialComSystemProperty);
+				osType = mSerialComPlatform.getOSType();
+				cpuArch = mSerialComPlatform.getCPUArch();
+			}
+		}
+		mErrMapper = new SerialComErrorMapper(osType);
+		mNativeInterface = new SerialComJNINativeInterface();
+		if(nativeLibLoadAndInitAlready == false) {
+			SerialComJNINativeInterface.loadNativeLibrary(directoryPath, loadedLibName, mSerialComSystemProperty, osType, cpuArch);
+			mNativeInterface.initNativeLib();
+		}
 		mEventCompletionDispatcher = new SerialComCompletionDispatcher(mNativeInterface, mErrMapper, mPortHandleInfo);
 		mSerialComPortsList = new SerialComPortsList(mNativeInterface, osType);
 	}
@@ -517,11 +543,11 @@ public final class SerialComManager {
 	public long openComPort(String portName, boolean enableRead, boolean enableWrite, boolean exclusiveOwnerShip) throws SerialComException {
 		long handle = 0;
 		if(portName == null) {
-			throw new IllegalArgumentException("openComPort(), " + SerialComErrorMapper.ERR_PORT_NAME_FOR_PORT_OPENING);
+			throw new IllegalArgumentException("openComPort(), " + SerialComErrorMapper.ERR_PORT_NAME_NULL);
 		}
 		portName = portName.trim();
 		if(portName.length() == 0) {
-			throw new IllegalArgumentException("openComPort(), " + SerialComErrorMapper.ERR_PORT_NAME_FOR_PORT_OPENING);
+			throw new IllegalArgumentException("openComPort(), " + SerialComErrorMapper.ERR_EMPTY_PORT_NAME);
 		}
 		if((enableRead == false) && (enableWrite == false)) {
 			throw new SerialComException(portName, "openComPort()",  "Enable at-least read, write or both.");
