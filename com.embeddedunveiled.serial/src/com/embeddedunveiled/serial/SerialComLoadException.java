@@ -20,20 +20,20 @@ package com.embeddedunveiled.serial;
 import java.io.IOException;
 
 /** 
- * <p>This exception is thrown in situation which was not supposed to happen. 
+ * <p>This exception is thrown if native shared library extraction sub-system encounter any error. 
  * This limit the scope of exceptions in context of serial operation only. </p>
  */
-public final class SerialComUnexpectedException extends IOException {
+public final class SerialComLoadException extends IOException {
 
-	private static final long serialVersionUID = -2454774135396601246L;
+	private static final long serialVersionUID = -2454774135396601242L;
 	
 	/**
-     * Constructs an SerialComUnexpectedException object with the specified detail message.
+     * Constructs an SerialComLoadException object with the specified detail message.
      *
      * @param methodName name of method where exception occurred
      * @param exceptionMsg message describing reason for exception
      */
-	public SerialComUnexpectedException(String methodName, String exceptionMsg) {
+	public SerialComLoadException(String methodName, String exceptionMsg) {
 		super(exceptionMsg + " in method " + methodName);
 	}
 }

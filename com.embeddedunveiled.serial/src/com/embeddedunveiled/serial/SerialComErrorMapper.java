@@ -19,17 +19,38 @@ package com.embeddedunveiled.serial;
 
 /**
  * <p>This class helps in consistent error reporting in java layer mapping OS specific error numbers.</p>
+ * <p>Errors or exceptions are detected and reported as specific as possibel to accelerate debugging.</p>
  */
 public final class SerialComErrorMapper {
 	private int osType = 0;
-	public static final String ERR_PROP_VM_VENDOR = "The java.vm.vendor system property is null in the system";
-	public static final String ERR_PROP_OS_NAME = "The os.name system property is null in the system";
-	public static final String ERR_PROP_OS_ARCH = "The os.arch system property is null in the system";
+	public static final String ERR_UNKNOWN_OCCURED = "Unknown error occured";
+	public static final String ERR_NULL_POINTER_FOR_DIRPATH = "The directory path can not be null";
+	public static final String ERR_NULL_POINTER_FOR_LIBNAME = "The library can not be null";
+	public static final String ERR_EMPTY_PATH_FOR_DIRPATH = "The directory path can not be empty";
+	public static final String ERR_EMPTY_NAME_FOR_LIBNAME = "The library name can not be empty";
+	public static final String ERR_PROP_VM_VENDOR = "The java.vm.vendor java system property is null in the system";
+	public static final String ERR_PROP_OS_NAME = "The os.name java system property is null in the system";
+	public static final String ERR_PROP_OS_ARCH = "The os.arch java system property is null in the system";
+	public static final String ERR_PROP_JAVA_HOME = "The java.home java system property is null in the system";
+	public static final String ERR_PROP_JAVA_IO_TMPDIR = "The java.io.tmpdir java system property is null in the system";
+	public static final String ERR_PROP_FILE_SEPARATOR = "The file.separator java system property is null in the system";
+	public static final String ERR_PROP_USER_HOME = "The user.home java system property is null in the system";
+	public static final String ERR_USER_DIR_NOT_EXIST_TMP = "User home directory does not exist. Also unable to access tmp/temp directory";
+	public static final String ERR_USER_IS_NOT_DIR_TMP = "User home directory is not A directory. Also unable to access tmp/temp directory";
+	public static final String ERR_USER_DIR_NOT_WRITABLE_TMP = "User home directory is not writeable (permissions ??). Also unable to access tmp/temp directory";
+	public static final String ERR_CREATE_UNIQUE_DIR_TMP = "Can not create scm_tuartx1 unique directory in temp directory";
+	public static final String ERR_CREATE_UNIQUE_DIR_USER = "Can not create scm_tuartx1 unique directory in user home directory";
+	public static final String ERR_GIVEN_DIR_NOT_EXIST = "Given directory does not exist";
+	public static final String ERR_GIVEN_IS_NOT_DIR = "Given directory is not a directory";
+	public static final String ERR_GIVEN_DIR_NOT_WRITABLE = "Given directory is not writeable";
 	public static final String ERR_PORT_ALREADY_OPEN = "The requested port is already opened";
+	public static final String ERR_CANNOT_RES_AS_STREAM = "Can not get shared library resource as stream from jar using class loader";
+	public static final String ERR_CANNOT_EXTRACT_LIB = "Can not extract native library from jar";
+	public static final String ERR_CAN_NOT_LOAD_NATIVE_LIB = "Could not load a native library:";
 	public static final String ERR_SCM_DOES_NOT_INSTANTIATED = "SerialComManager class has to be instantiated first";
 	public static final String ERR_SCM_NOT_STORE_PORTINFO = "Could not save info about port locally. Please retry opening port.";
 	public static final String ERR_UNABLE_TO_DETECT_OS_TYPE = "Unable to detect Operating System";
-	public static final String ERR_PORT_NAME_FOR_PORT_OPENING = "Name of the port to open is not passed";
+	public static final String ERR_EMPTY_PORT_NAME = "Name of the port to open can not be empty";
 	public static final String ERR_WRONG_HANDLE = "Wrong port handle passed for the requested operations";
 	public static final String ERR_LISTENER_ALREADY_EXIST = "Event listener already exist. Only one listener allowed.";
 	public static final String ERR_DATA_LISTENER_ALREADY_EXIST = "Data listener already exist. Only one listener allowed.";
@@ -49,7 +70,8 @@ public final class SerialComErrorMapper {
 	public static final String ERR_NULL_POINTER_FOR_SMODE = "The streamMode argument can not be null";
 	public static final String ERR_NULL_POINTER_FOR_FLOWCTRL = "The flowctrl argument can not be null";
 	public static final String ERR_WRONG_LISTENER_PASSED = "This listener is not registered";
-	public static final String ERR_UNABLE_TO_WRITE = "Unable to copy native library in tmp directory. Probably insufficient permissions.";
+	public static final String ERR_UNABLE_TO_INSTALL = "Unable to extract native library in tmp and user home directory. Probably insufficient permissions";
+	public static final String ERR_UNABLE_TO_INSTALL_AT_PATH = "Unable to extract native library in given directory. Probably insufficient permissions";
 	public static final String ERR_PORT_NAME_NULL = "Port name can not be null";
 	public static final String ERR_INVALID_COMBINATION_ARG = "Invalid combination of arguments passed";
 	public static final String ERR_WIN_OWNERSHIP = "Windows does not allow port sharing. The exclusiveOwnerShip must be true";
@@ -64,7 +86,6 @@ public final class SerialComErrorMapper {
 	public static final String ERR_TIMEOUT_RECV_FROM_SENDER = "Timedout while trying to receive next data byte from file sender";
 	public static final String ERR_MAX_TX_RETRY_REACHED = "Maximum number of retries reached while sending same data block";
 	public static final String ERR_MAX_RX_RETRY_REACHED = "Maximum number of retries reached while receiving same data block";
-	public static final String ERR_UNKNOWN_OCCURED = "Unknown error occured";
 	public static final String ERR_TIMEOUT_ACKNOWLEDGE_BLOCK = "Timedout while waiting for block reception acknowledgement from file receiver";
 	public static final String ERR_TIMEOUT_ACKNOWLEDGE_EOT = "Timedout while waiting for EOT reception acknowledgement from file receiver";
 	public static final String ERR_CAN_NOT_BE_NULL = "This argument can not be null";
