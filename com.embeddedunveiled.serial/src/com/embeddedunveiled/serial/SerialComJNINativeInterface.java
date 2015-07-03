@@ -239,5 +239,7 @@ public final class SerialComJNINativeInterface {
 	public native int clearPortIOBuffers(long handle, boolean rxPortbuf, boolean txPortbuf);
 	public native int fineTuneRead(long handle, int vmin, int vtime, int rit, int rttm, int rttc);
 
-	public native int ioctlExecuteOperation(long handle, long operationCode);
+	public native long ioctlExecuteOperation(long handle, long operationCode);
+	public native long ioctlSetValue(long handle, long operationCode, long value);
+	public native long ioctlGetValue(long handle, long operationCode);
 }
