@@ -242,4 +242,6 @@ public final class SerialComJNINativeInterface {
 	public native long ioctlExecuteOperation(long handle, long operationCode);
 	public native long ioctlSetValue(long handle, long operationCode, long value);
 	public native long ioctlGetValue(long handle, long operationCode);
+	public native long ioctlSetValueIntArray(long handle, long operationCode, int[] values);
+	public native long ioctlSetValueCharArray(long handle, long operationCode, byte[] values);
 }

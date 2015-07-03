@@ -18,7 +18,9 @@
 package com.embeddedunveiled.serial;
 
 /**
- * <p>This class helps in implementing device specific IOCTL calls.</p>
+ * <p>This class helps in implementing device specific IOCTL calls. The default/VCP/CDC-ACM driver 
+ * has limited capabilities to control specific devices. The IOCTL calls helps to use more functionality 
+ * built into the chip. It provide access to UART registers in the chip.</p>
  * 
  * <p>It should be noted that the USB-UART bridge generally have one time programmable memory 
  * and therefore configuration/customization settings must be done thoughtfully either programmatically 
@@ -70,10 +72,14 @@ public final class SerialComIOCTLExecutor {
      * 
      * <p>Further GPIO pins may have multiplexed functionality. For example a particular GPIO Pin may be configured 
      * as GPIO to control external peripheral or may be configured as RTS modem line. It is advised to consult 
-     * datasheet.</p>
+     * datasheet. GPIO pins may alos be configured at power-up so that they can be tailored to fit the needs of the 
+     * application design.</p>
+     * 
+     * <p>This method can be used to write to UART registers in a USB-UART device for example EXAR XR22801/802/804 etc.</p>
      *
      * @param handle handle of the port on which to execute this ioctl operation
      * @param operationCode unique ioctl operation code
+     * @param value the value to be passed to the IOCTL operation
      * @return true if operation executed successfully
 	 * @throws SerialComException if the operation can not be completed as requested
      */
@@ -93,6 +99,8 @@ public final class SerialComIOCTLExecutor {
      * 
      * <p>long value = ioctlSetValue(handle, 0x8000) </p>
      * 
+     * <p>This method can be used to read UART registers in a USB-UART device for example EXAR XR21B1420/1422/1424 family etc.</p>
+     * 
      * @param handle handle of the port on which to execute this ioctl operation
      * @param operationCode unique ioctl operation code
      * @return value requested
@@ -105,5 +113,44 @@ public final class SerialComIOCTLExecutor {
 			throw new SerialComException("ioctlGetValue()", mErrMapper.getMappedError(ret));
 		}
 		return ret;
+	}
+	
+	/**
+     * <p>Executes the requested operation on the specified handle passing the given value to operation.</p>
+     *
+     * @param handle handle of the port on which to execute this ioctl operation
+     * @param operationCode unique ioctl operation code
+     * @param value the value to be passed to the IOCTL operation
+     * @return true if operation executed successfully
+	 * @throws SerialComException if the operation can not be completed as requested
+     */
+	public boolean ioctlSetValueIntArray(long handle, long operationCode, int[] values) throws SerialComException {
+		long ret = 0;
+		ret = mNativeInterface.ioctlSetValueIntArray(handle, operationCode, values);
+		if(ret < 0) {
+			throw new SerialComException("ioctlSetValueIntArray()", mErrMapper.getMappedError(ret));
+		}
+		return true;
+	}
+	
+	/**
+     * <p>Executes the requested operation on the specified handle passing the given value to operation.</p>
+     * 
+     * <p>Although values argument is of type byte however this method can be also used if native ioctl requires 
+     * argument to be of type unsigned char (C language).</p>
+     *
+     * @param handle handle of the port on which to execute this ioctl operation
+     * @param operationCode unique ioctl operation code
+     * @param value the value to be passed to the IOCTL operation
+     * @return true if operation executed successfully
+	 * @throws SerialComException if the operation can not be completed as requested
+     */
+	public boolean ioctlSetValueCharArray(long handle, long operationCode, byte[] values) throws SerialComException {
+		long ret = 0;
+		ret = mNativeInterface.ioctlSetValueCharArray(handle, operationCode, values);
+		if(ret < 0) {
+			throw new SerialComException("ioctlSetValueCharArray()", mErrMapper.getMappedError(ret));
+		}
+		return true;
 	}
 }
