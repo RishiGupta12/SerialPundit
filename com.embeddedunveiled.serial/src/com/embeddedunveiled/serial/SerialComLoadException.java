@@ -28,7 +28,7 @@ public final class SerialComLoadException extends IOException {
 	private static final long serialVersionUID = -2454774135396601242L;
 	
 	/**
-     * Constructs an SerialComLoadException object with the specified detail message.
+     * <p>Constructs an SerialComLoadException object with the specified detail message.</p>
      *
      * @param methodName name of method where exception occurred
      * @param exceptionMsg message describing reason for exception

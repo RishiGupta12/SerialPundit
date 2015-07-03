@@ -27,7 +27,7 @@ public final class SerialComTimeOutException extends IOException {
 	private static final long serialVersionUID = -2454774135396601296L;
 	
 	/**
-     * Constructs an SerialComTimeOutException object with the specified detail message.
+     * <p>Constructs an SerialComTimeOutException object with the specified detail message.</p>
      *
      * @param methodName name of method where exception occurred
      * @param exceptionMsg message describing reason for exception
