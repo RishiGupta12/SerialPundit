@@ -2078,7 +2078,7 @@ public final class SerialComManager {
 		return scos;
 	}
 	
-	/** Internal use */
+	/** Internal use only */
 	public void destroyInputByteStream(SerialComInByteStream scis) {
 		for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
 			if(mInfo.getSerialComInByteStream() == scis) {
@@ -2088,7 +2088,7 @@ public final class SerialComManager {
 		}
 	}
 	
-	/** Internal use */
+	/** Internal use only */
 	public void destroyOutputByteStream(SerialComOutByteStream scos) {
 		for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
 			if(mInfo.getSerialComOutByteStream() == scos) {
@@ -2130,5 +2130,27 @@ public final class SerialComManager {
 		}
 
 		return new String();
+	}
+	
+	/**
+	 * <p>Prepares context for excuting IOCTL operations on the given port.</p>
+	 * 
+	 * @param handle handle of the opened port on which to execute ioctl operations
+	 * @return reference to an object of type SerialComIOCTLExecutor on which various ioctl methods can be invoked
+	 * @throws SerialComException if invalid handle is passed
+	 */
+	public SerialComIOCTLExecutor getIOCTLExecutor(long handle) throws SerialComException {
+		boolean handlefound = false;
+		for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
+			if(mInfo.containsHandle(handle)) {
+				handlefound = true;
+				break;
+			}
+		}
+		if(handlefound == false) {
+			throw new SerialComException("getIOCTLExecutor()", SerialComErrorMapper.ERR_WRONG_HANDLE);
+		}
+		
+		return new SerialComIOCTLExecutor(mNativeInterface, mErrMapper);
 	}
 }
