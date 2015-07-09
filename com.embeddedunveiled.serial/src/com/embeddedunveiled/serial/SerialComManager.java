@@ -340,11 +340,14 @@ public final class SerialComManager {
 	/** <p>Default number of bytes (1024) to read from serial port. </p>*/
 	public static final int DEFAULT_READBYTECOUNT = 1024;
 	
-	/** <p>The value indicating that a serial port has been added into system. </p>*/
-	public static final int PORT_ADDED =  0x01;
+	/** <p>The value indicating that the USB device can have any vendor id and product id. </p>*/
+	public static final int USB_DEV_ANY = 0x00;
 	
-	/** <p>The value indicating that a serial port has been removed from system. </p>*/
-	public static final int PORT_REMOVED  = 0x02;
+	/** <p>The value indicating that a USB device has been added into system. </p>*/
+	public static final int USB_DEV_ADDED = 0x01;
+	
+	/** <p>The value indicating that a USB device has been removed from system. </p>*/
+	public static final int USB_DEV_REMOVED  = 0x02;
 
 	/** <p>Clear to send mask bit constant for UART control line. </p>*/
 	public static final int CTS =  0x01;  // 0000001
@@ -371,6 +374,9 @@ public final class SerialComManager {
 	 *  making structural changes. This array can be sorted array if scaled to large scale.</p>*/
 	private ArrayList<SerialComPortHandleInfo> handleInfo = new ArrayList<SerialComPortHandleInfo>();
 	private List<SerialComPortHandleInfo> mPortHandleInfo = Collections.synchronizedList(handleInfo);
+	
+	private ArrayList<SerialComHotPlugInfo> hotPlugListenerInfo = new ArrayList<SerialComHotPlugInfo>();
+	private List<SerialComHotPlugInfo> mHotPlugListenerInfo = Collections.synchronizedList(hotPlugListenerInfo);
 	
 	private SerialComSystemProperty mSerialComSystemProperty = null;
 	private SerialComPlatform mSerialComPlatform = null;
@@ -1729,69 +1735,89 @@ public final class SerialComManager {
 	}
 
 	/**
-	 * <p>This registers a listener who will be invoked whenever a port has been plugged or un-plugged in system.
-	 * Initially, the port has to be present into system, as that is only when we will be able to open port.</p>
+	 * <p>This registers a listener who will be invoked whenever a USB device has been plugged or un-plugged in system. This method can 
+	 * be used to write auto discovery applications for example when a hardware USB device is added to system, application can automatically 
+	 * detect and identify it and launch appropriate service.</p>
 	 * 
-	 * <p>Application must implement ISerialComPortMonitor interface and override onPortMonitorEvent method. An event value
-	 * 1 represents addition of device while event value 2 represents removal (unplugging) of device from system.</p>
+	 * <p>Application must implement ISerialComHotPlugListener interface and override onHotPlugEvent method. The event value 
+	 * SerialComManager.USB_DEV_ADDED indicates USB device has been added to the system. The event value SerialComManager.USB_DEV_REMOVED 
+	 * indicates USB device has been removed from system.</p>
 	 * 
-	 * @param handle which will be monitored
-	 * @return true on success false otherwise
-	 * @throws SerialComException - if invalid handle is passed or registration fails due to some reason
-	 * @throws IllegalArgumentException if portMonitor is null
+	 * <p>Application can specify the usb device for which callback should be called based on USB VID and USB PID. If the value of 
+	 * filterVID is specified however the value of filterPID is constant SerialComManager.USB_DEV_ANY, then callback will be called 
+	 * for USB device which matches given VID and its PID can have any value. If the value of filterPID is specified however the 
+	 * value of filterVID is constant SerialComManager.USB_DEV_ANY, then callback will be called for USB device which matches given PID 
+	 * and its VID can have any value.</p>
+	 * 
+	 * <p>If both filterVID and filterPID are set to SerialComManager.USB_DEV_ANY, then callback will be called for every USB device.</p>
+	 * 
+	 * @param hotPlugListener object of class which implements ISerialComHotPlugListener interface
+	 * @param filterVID USB vendor ID to match
+	 * @param filterPID USB product ID to match
+	 * @return true on success
+	 * @throws SerialComException if registration fails due to some reason
+	 * @throws IllegalArgumentException if hotPlugListener is null
 	 */
-	public boolean registerPortMonitorListener(long handle, ISerialComPortMonitor portMonitor) throws SerialComException {
-		boolean handlefound = false;
-		String portName = null;
-		int ret = 0;
-
-		if(portMonitor == null) {
-			throw new IllegalArgumentException("registerPortMonitorListener(), " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_MONITOR);
+	public boolean registerHotPlugEventListener(ISerialComHotPlugListener hotPlugListener, int filterVID, int filterPID) throws SerialComException {
+		if(hotPlugListener == null) {
+			throw new IllegalArgumentException("registerHotplugEventListener(), " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_HOT_LISTENER);
 		}
-
-		for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
-			if(mInfo.containsHandle(handle)) {
-				portName = mInfo.getOpenedPortName();
-				handlefound = true;
-				break;
+		
+		if((filterVID < 0) || (filterPID < 0)) {
+			throw new IllegalArgumentException("registerHotplugEventListener(), " + SerialComErrorMapper.ERR_VID_PID_CANNOT_NEGATIVE);
+		}
+		
+		synchronized(lockB) {
+			int[] ret = mNativeInterface.registerHotPlugEventListener(hotPlugListener, filterVID, filterPID);
+			if(ret[0] < 0) {
+				throw new SerialComException("registerHotPlugEventListener()", mErrMapper.getMappedError(ret[0]));
 			}
-		}
-		if(handlefound == false) {
-			throw new SerialComException("registerPortMonitorListener()", SerialComErrorMapper.ERR_WRONG_HANDLE);
-		}
-
-		ret = mNativeInterface.registerPortMonitorListener(handle, portName, portMonitor);
-		if(ret < 0) {
-			throw new SerialComException("registerPortMonitorListener()", mErrMapper.getMappedError(ret));
+			
+			boolean added = mHotPlugListenerInfo.add(new SerialComHotPlugInfo(hotPlugListener, ret[1]));
+			if(added != true) {
+				unregisterHotPlugEventListener(hotPlugListener);
+				throw new SerialComException("registerHotPlugEventListener()",  SerialComErrorMapper.ERR_SCM_NOT_STORE_HOTPLUGINFO);
+			}
 		}
 
 		return true;
 	}
 
 	/**
-	 * <p>This unregisters listener and terminate native thread used for monitoring hot plugging of port.</p>
+	 * <p>This unregisters listener and terminate native thread used for monitoring specified hot plug events.</p>
 	 * 
-	 * @param handle for which listener will be unregistered
-	 * @return true on success false otherwise
-	 * @throws SerialComException if invalid handle is passed or un-registration fails due to some reason
+	 * @param hotPlugListener object of class which implemented ISerialComHotPlugListener interface
+	 * @return true on success
+	 * @throws SerialComException un-registration fails due to some reason
+	 * @throws IllegalArgumentException if hotPlugListener is null
 	 */
-	public boolean unregisterPortMonitorListener(long handle) throws SerialComException {
-		boolean handlefound = false;
+	public boolean unregisterHotPlugEventListener(ISerialComHotPlugListener hotPlugListener) throws SerialComException {
 		int ret = 0;
-
-		for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
-			if(mInfo.containsHandle(handle)) {
-				handlefound = true;
+		int index = -1;
+		SerialComHotPlugInfo mListenerInfo = null;
+		if(hotPlugListener == null) {
+			throw new IllegalArgumentException("unregisterHotplugEventListener(), " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_HOT_LISTENER);
+		}
+		
+		for(SerialComHotPlugInfo mInfo: mHotPlugListenerInfo){
+			if(mInfo.getSerialComHotPlugListener() ==  hotPlugListener) {
+				index = mInfo.getSerialComHotPlugListenerIndex();
+				mListenerInfo = mInfo;
 				break;
 			}
 		}
-		if(handlefound == false) {
-			throw new SerialComException("unregisterPortMonitorListener()", SerialComErrorMapper.ERR_WRONG_HANDLE);
+		if(index == -1) {
+			throw new SerialComException("unregisterHotPlugEventListener()", SerialComErrorMapper.ERR_WRONG_LISTENER_PASSED);
 		}
-
-		ret = mNativeInterface.unregisterPortMonitorListener(handle);
-		if(ret < 0) {
-			throw new SerialComException("unregisterPortMonitorListener()", mErrMapper.getMappedError(ret));
+		
+		synchronized(lockB) {
+			ret = mNativeInterface.unregisterHotPlugEventListener(index);
+			if(ret < 0) {
+				throw new SerialComException("unregisterHotPlugEventListener()", mErrMapper.getMappedError(ret));
+			}
+			
+			/* delete info about this listener from global info arraylist. */
+			mHotPlugListenerInfo.remove(mListenerInfo);
 		}
 
 		return true;
