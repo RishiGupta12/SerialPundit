@@ -18,7 +18,8 @@
 package com.embeddedunveiled.serial;
 
 /**
- * <p>This class encapsulate port handle, looper object, event listener, data listener, port name etc associated with a particular port.</p>
+ * <p>This class encapsulates the information like port handle, looper object, event listener, 
+ * data listener, port name etc associated with a particular port.</p>
  */
 public final class SerialComPortHandleInfo {
 
@@ -67,10 +68,11 @@ public final class SerialComPortHandleInfo {
 	/** 
 	 * <p> Check if the corresponding port name exist. </p>
 	 * @param portName name of port to find
+	 * @throws IllegalArgumentException if portName is null 
 	 */
-	public boolean containsPort(String portName) throws SerialComException {
+	public boolean containsPort(String portName) throws IllegalArgumentException {
 		if(portName == null) {
-			throw new SerialComException("containsPort()", SerialComErrorMapper.ERR_PORT_NAME_NULL);
+			throw new IllegalArgumentException("containsPort(), " + SerialComErrorMapper.ERR_PORT_NAME_NULL);
 		}
 		if(mOpenedPortName != null) {
 			if(portName.equals(mOpenedPortName)) {
