@@ -99,6 +99,7 @@ public final class SerialComErrorMapper {
 	public static final String ERR_DELAY_CAN_NOT_NEG = "Delay can not be negative";
 	public static final String ERR_DUR_CAN_NOT_NEG_ZERO = "Duration can not be negative or zero";
 	public static final String ERR_CUSTB_CAN_NOT_NEG_ZERO = "Baudrate can not be negative or zero";
+	public static final String ERR_NULL_DATA_PASSED = "Null data buffer passed to operation";
 
 	/**
 	 * <p>Allocates a new SerialComErrorMapper object.</p>
