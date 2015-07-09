@@ -15,25 +15,32 @@
  * along with serial communication manager. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.embeddedunveiled.serial;
 
-/**
- * <p>This interface need to be implemented by class who wants to monitor serial port.</p>
- */
-public interface ISerialComPortMonitor {
+package test21;
 
-	/** 
-	 * <p>Whenever a serial device is plugged or unplugged from system, onPortMonitorEvent() method will
-	 * be called by native layer.</p>
-	 * 
-	 * <p>The event 2 indicates port removal, 1 indicates additional of port.</p>
-	 * 
-	 * <p>Note that port removal event indicates that the port for which this monitor was registered has
-	 * been removed physically from system. However, port addition event is fired every time a serial port
-	 * is plugged into system.</p>
-	 * 
-	 * @param event integer value indicating whether device was plugged or un-plugged from system
-	 */
-	public abstract void onPortMonitorEvent(int event);
+import com.embeddedunveiled.serial.ISerialComHotPlugListener;
+import com.embeddedunveiled.serial.SerialComManager;
 
+// event 2 indicates port removal, 1 indicates additional of port
+class portWatcher implements ISerialComHotPlugListener {
+	@Override
+	public void onHotPlugEvent(int arg0) {
+		System.out.println("event " + arg0);
+	}
+}
+
+public class Test21 {
+	public static void main(String[] args) {
+		try {
+			SerialComManager scm = new SerialComManager();
+			portWatcher pw = new portWatcher();
+			
+//			scm.registerHotPlugEventListener(pw, SerialComManager.USB_DEV_ANY, SerialComManager.USB_DEV_ANY);
+			scm.registerHotPlugEventListener(pw, 0x0403, 0x6001);
+			Thread.sleep(100000);
+			scm.unregisterHotPlugEventListener(pw);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 }

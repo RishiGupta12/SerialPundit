@@ -116,7 +116,7 @@ pthread_mutex_t mutex = {{0}};
 pthread_mutex_t mutex = {0};
 #endif
 
-/* Holds information for port monitor facility. */
+/* Holds information for hot plug port monitor facility. */
 int port_monitor_index = 0;
 struct port_info port_monitor_info[MAX_NUM_THREADS] = { {0} };
 
@@ -2152,31 +2152,37 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 
 /*
  * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
- * Method:    registerPortMonitorListener
- * Signature: (JLcom/embeddedunveiled/serial/IPortMonitor;)I
+ * Method:    registerHotPlugEventListener
+ * Signature: (Lcom/embeddedunveiled/serial/ISerialComHotPlugListener;II)[I
  *
+ * Create a native thread that works with operating system specific mechanism for USB hot plug facility.
+ * In thread_info array, location 0 contains return code while location 1 contains index of global array at which info about thread is stored.
  */
-JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_registerPortMonitorListener(JNIEnv *env, jobject obj, jlong fd, jstring portName, jobject listener) {
+JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_registerHotPlugEventListener(JNIEnv *env, jobject obj, jobject hotPlugListener, jint filterVID, jint filterPID) {
 	int ret = -1;
-	pthread_attr_t attr;
+	jint thread_info[] = {0, 0};
+	jintArray threadInfo = (*env)->NewIntArray(env, 2);
 	pthread_t thread_id = 0;
 	void *arg;
 	struct port_info params;
-	jobject portListener;
+	jobject usbHotPlugListener;
 
 	pthread_mutex_lock(&mutex);
 
-	portListener = (*env)->NewGlobalRef(env, listener);
-	if(portListener == NULL) {
+	usbHotPlugListener = (*env)->NewGlobalRef(env, hotPlugListener);
+	if(usbHotPlugListener == NULL) {
 		pthread_mutex_unlock(&mutex);
-		return (-1 * E_NEWGLOBALREF);
+		thread_info[0] = (-1 * E_NEWGLOBALREF);
+		(*env)->SetIntArrayRegion(env, threadInfo, 0, 2, thread_info);
+		return threadInfo;
 	}
 
 	params.jvm = jvm;
-	params.port_name = (*env)->GetStringUTFChars(env, portName, NULL);
-	params.fd = fd;
-	params.port_listener= portListener;
+	params.usbHotPlugEventListener = usbHotPlugListener;
+	params.filterVID = filterVID;
+	params.filterPID = filterPID;
 	params.thread_exit = 0;
+	params.init_done = -1;
 	params.mutex = &mutex;
 #if defined (__APPLE__)
 	params.data = &port_monitor_info[port_monitor_index];
@@ -2184,71 +2190,71 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 	port_monitor_info[port_monitor_index] = params;
 	arg = &port_monitor_info[port_monitor_index];
 
-	pthread_attr_init(&attr);
-	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
+	pthread_attr_init(&((struct port_info*) arg)->thread_attr);
+	pthread_attr_setdetachstate(&((struct port_info*) arg)->thread_attr, PTHREAD_CREATE_JOINABLE);
 	errno = 0;
-	ret = pthread_create(&thread_id, NULL, &port_monitor, arg);
+	ret = pthread_create(&thread_id, NULL, &usb_hot_plug_monitor, arg);
 	if(ret < 0) {
-		(*env)->DeleteGlobalRef(env, portListener);
-		((struct port_info*) arg)->fd = -1;
+		(*env)->DeleteGlobalRef(env, usbHotPlugListener);
 		pthread_mutex_unlock(&mutex);
-		return (-1 * errno);
+		thread_info[0] = (-1 * errno);
+		(*env)->SetIntArrayRegion(env, threadInfo, 0, 2, thread_info);
+		return threadInfo;
 	}
 
-	/* Save the data thread id which will be used when listener is unregistered. */
-	((struct port_info*) arg)->thread_id = thread_id;
-
-	port_monitor_index++;
 	pthread_mutex_unlock(&mutex);
 
-	return 0;
+	while(((struct port_info*) arg)->init_done == -1) { }            /* let the worker thread initialize completely and then return success/failure. */
+
+	if(0 == ((struct port_info*) arg)->init_done) {
+		((struct port_info*) arg)->thread_id = thread_id;             /* Save the thread id which will be used when listener is unregistered. */
+		thread_info[0] = 0;
+		thread_info[1] = port_monitor_index;
+		(*env)->SetIntArrayRegion(env, threadInfo, 0, 2, thread_info);
+		port_monitor_index++;                                          /* update index where data for next thread will be saved. */
+	}else {
+		(*env)->DeleteGlobalRef(env, usbHotPlugListener);
+		pthread_attr_destroy(&((struct port_info*) arg)->thread_attr);
+		((struct port_info*) arg)->thread_id = 0;
+		thread_info[0] = -1 * ((struct port_info*) arg)->init_done;  /* failure; init_done was set to error code by the worker thread */
+		(*env)->SetIntArrayRegion(env, threadInfo, 0, 2, thread_info);
+	}
+
+	return threadInfo;
 }
 
 /*
  * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
- * Method:    unregisterPortMonitorListener
- * Signature: (J)I
+ * Method:    unregisterHotPlugEventListener
+ * Signature: (I)I
+ *
+ * Destroy worker thread used for USB hot plug monitoring.
  */
-JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_unregisterPortMonitorListener(JNIEnv *env, jobject obj, jlong fd) {
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_unregisterHotPlugEventListener(JNIEnv *env, jobject obj, jint index) {
 #if defined (__linux__) || defined (__APPLE__)
 	int ret = -1;
-	int x = -1;
 	struct port_info *ptr;
-	ptr = port_monitor_info;
-	pthread_t thread_id = 0;
+	ptr = &port_monitor_info[index];
 	void *status;
 
 	pthread_mutex_lock(&mutex);
 
-	/* Find the event thread serving this file descriptor. */
-	for (x=0; x < MAX_NUM_THREADS; x++) {
-		if(ptr->fd == fd) {
-			thread_id = ptr->thread_id;
-			break;
-		}
-		ptr++;
-	}
+	ptr->thread_exit = 1;                          /* Set the flag that will be checked by thread to check for exit condition. */
 
-	/* Set the flag that will be checked by thread to check for exit condition. */
-	ptr->thread_exit = 1;
-
-	/* send signal to event thread. */
-	ret = pthread_kill(thread_id, SIGUSR1);
+	ret = pthread_kill(ptr->thread_id, SIGUSR1); /* send signal to event thread. */
 	if(ret != 0) {
 		pthread_mutex_unlock(&mutex);
 		return (-1 * ret);
 	}
 
-	/* Join the thread (waits for the thread specified to terminate). */
-	ret = pthread_join(thread_id, &status);
+	ret = pthread_join(ptr->thread_id, &status); /* Join the thread (waits for the thread specified to terminate). */
 	if(ret != 0) {
 		pthread_mutex_unlock(&mutex);
 		return (-1 * ret);
 	}
 
-	(*env)->DeleteGlobalRef(env, ptr->port_listener);
-	ptr->thread_id = 0;    /* Reset thread id field. */
-	ptr->fd = -1;
+	(*env)->DeleteGlobalRef(env, ptr->usbHotPlugEventListener);
+	ptr->thread_id = 0;                                          /* Reset thread id field. */
 
 	pthread_mutex_unlock(&mutex);
 	return 0;
@@ -2258,12 +2264,12 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 }
 
 /*
-* Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
-* Method:    readBytes
-* Signature: (JI)[B
-*
-* Not implemented as normal readBytes() function will act as blocking when vmin and vtime is configured correctly.
-*/
+ * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
+ * Method:    readBytes
+ * Signature: (JI)[B
+ *
+ * Not implemented as normal readBytes() function will act as blocking when vmin and vtime is configured correctly.
+ */
 JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_readBytesBlocking(JNIEnv *env, jobject obj, jlong handle, jint count, jobject status) {
 	return NULL;
 }

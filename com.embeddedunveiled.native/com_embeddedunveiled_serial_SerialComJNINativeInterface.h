@@ -41,19 +41,19 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINati
 
 /*
  * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
- * Method:    registerPortMonitorListener
- * Signature: (JLjava/lang/String;Lcom/embeddedunveiled/serial/ISerialComPortMonitor;)I
+ * Method:    registerHotPlugEventListener
+ * Signature: (Lcom/embeddedunveiled/serial/ISerialComHotPlugListener;II)[I
  */
-JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_registerPortMonitorListener
-  (JNIEnv *, jobject, jlong, jstring, jobject);
+JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_registerHotPlugEventListener
+  (JNIEnv *, jobject, jobject, jint, jint);
 
 /*
  * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
- * Method:    unregisterPortMonitorListener
- * Signature: (J)I
+ * Method:    unregisterHotPlugEventListener
+ * Signature: (I)I
  */
-JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_unregisterPortMonitorListener
-  (JNIEnv *, jobject, jlong);
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_unregisterHotPlugEventListener
+  (JNIEnv *, jobject, jint);
 
 /*
  * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
@@ -246,6 +246,46 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_fineTuneRead
   (JNIEnv *, jobject, jlong, jint, jint, jint, jint, jint);
+
+/*
+ * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
+ * Method:    ioctlExecuteOperation
+ * Signature: (JJ)J
+ */
+JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_ioctlExecuteOperation
+  (JNIEnv *, jobject, jlong, jlong);
+
+/*
+ * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
+ * Method:    ioctlSetValue
+ * Signature: (JJJ)J
+ */
+JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_ioctlSetValue
+  (JNIEnv *, jobject, jlong, jlong, jlong);
+
+/*
+ * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
+ * Method:    ioctlGetValue
+ * Signature: (JJ)J
+ */
+JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_ioctlGetValue
+  (JNIEnv *, jobject, jlong, jlong);
+
+/*
+ * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
+ * Method:    ioctlSetValueIntArray
+ * Signature: (JJ[I)J
+ */
+JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_ioctlSetValueIntArray
+  (JNIEnv *, jobject, jlong, jlong, jintArray);
+
+/*
+ * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
+ * Method:    ioctlSetValueCharArray
+ * Signature: (JJ[B)J
+ */
+JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_ioctlSetValueCharArray
+  (JNIEnv *, jobject, jlong, jlong, jbyteArray);
 
 #ifdef __cplusplus
 }

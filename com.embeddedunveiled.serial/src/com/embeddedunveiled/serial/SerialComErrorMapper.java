@@ -49,6 +49,7 @@ public final class SerialComErrorMapper {
 	public static final String ERR_CAN_NOT_LOAD_NATIVE_LIB = "Could not load a native library:";
 	public static final String ERR_SCM_DOES_NOT_INSTANTIATED = "SerialComManager class has to be instantiated first";
 	public static final String ERR_SCM_NOT_STORE_PORTINFO = "Could not save info about port locally. Please retry opening port.";
+	public static final String ERR_SCM_NOT_STORE_HOTPLUGINFO = "Could not save info about hot plug listener locally. Please retry registering hot plug listener.";
 	public static final String ERR_UNABLE_TO_DETECT_OS_TYPE = "Unable to detect Operating System";
 	public static final String ERR_EMPTY_PORT_NAME = "Name of the port to open can not be empty";
 	public static final String ERR_WRONG_HANDLE = "Wrong port handle passed for the requested operations";
@@ -61,7 +62,7 @@ public final class SerialComErrorMapper {
 	public static final String ERR_NULL_POINTER_FOR_ENDIAN = "The endianness argument can not be null";
 	public static final String ERR_NULL_POINTER_FOR_NUMBYTE = "The numOfBytes argument can not be null";
 	public static final String ERR_NULL_POINTER_FOR_LISTENER = "The listener can not be null";
-	public static final String ERR_NULL_POINTER_FOR_MONITOR = "The monitor can not be null";
+	public static final String ERR_NULL_POINTER_FOR_HOT_LISTENER = "The hot plug listener can not be null";
 	public static final String ERR_NULL_POINTER_FOR_FILE_SEND = "The fileToSend argument can not be null";
 	public static final String ERR_NULL_POINTER_FOR_PROTOCOL = "The ftpProto argument can not be null";
 	public static final String ERR_NULL_POINTER_FOR_VARIANT = "The ftpVariant argument can not be null";
@@ -74,6 +75,7 @@ public final class SerialComErrorMapper {
 	public static final String ERR_UNABLE_TO_INSTALL_AT_PATH = "Unable to extract native library in given directory. Probably insufficient permissions";
 	public static final String ERR_PORT_NAME_NULL = "Port name can not be null";
 	public static final String ERR_INVALID_COMBINATION_ARG = "Invalid combination of arguments passed";
+	public static final String ERR_VID_PID_CANNOT_NEGATIVE = "USB VID or PID can not be negative number";
 	public static final String ERR_WIN_OWNERSHIP = "Windows does not allow port sharing. The exclusiveOwnerShip must be true";
 	public static final String ERR_CLOSE_WITHOUT_UNREG_DATA = "Closing port without unregistering data listener is not allowed";
 	public static final String ERR_CLOSE_WITHOUT_UNREG_EVENT = "Closing port without unregistering event listener is not allowed";
