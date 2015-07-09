@@ -819,8 +819,6 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 				continue;
 			}else if((errno == ENXIO) || (errno == ENOTTY) || (errno == EBADF) || (errno == ENODEV)) {
 			}else {
-				if(DBG) fprintf(stderr, "%s %d\n", "Native closeComPort() failed to close port with error number : -", errno);
-				if(DBG) fflush(stderr);
 				return (-1 * errno);
 			}
 		}
@@ -1334,9 +1332,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 	if(ParFraError == JNI_TRUE) {
 		/* First check if user has enabled parity checking or not. */
 		if(!((currentconfig.c_cflag & PARENB) == PARENB)) {
-			if(DBG) fprintf(stderr, "%s\n", "Parity checking is not enabled first via configureComPortData method.");
-			if(DBG) fflush(stderr);
-			return -242;
+			return -1 * E_ENBLPARCHK;
 		}
 
 		/* Mark the character as containing an error. This will cause a character containing a parity or framing error to be
@@ -1847,8 +1843,8 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 		params.data_thread_exit = 0;
 		params.event_thread_exit = 0;
 		params.mutex = &mutex;
-		params.data_init_done = 0;
-		params.event_init_done = 0;
+		params.data_init_done = -1;
+		params.event_init_done = -1;
 		fd_looper_info[x] = params;
 		arg = &fd_looper_info[x];
 	}else {
@@ -1867,8 +1863,8 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 		params.data_thread_exit = 0;
 		params.event_thread_exit = 0;
 		params.mutex = &mutex;
-		params.data_init_done = 0;
-		params.event_init_done = 0;
+		params.data_init_done = -1;
+		params.event_init_done = -1;
 		fd_looper_info[dtp_index] = params;
 		arg = &fd_looper_info[dtp_index];
 	}
@@ -1893,18 +1889,16 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 
 	pthread_mutex_unlock(&mutex);
 
-	/* wait till thread initialize completely, then return success. */
-	while(0 == ((struct com_thread_params*) arg)->data_init_done) { }
+	while(-1 == ((struct com_thread_params*) arg)->data_init_done) { }  /* wait till thread initialize completely, then return success. */
 
-	if(1 == ((struct com_thread_params*) arg)->data_init_done) {
-		/* Save the data thread id which will be used when listener is unregistered. */
-		((struct com_thread_params*) arg)->data_thread_id = thread_id;
-		return 0; /* success */
+	if(0 == ((struct com_thread_params*) arg)->data_init_done) {
+		((struct com_thread_params*) arg)->data_thread_id = thread_id;  /* Save the data thread id which will be used when listener is unregistered. */
+		return 0;                                                       /* success */
 	}else {
 		(*env)->DeleteGlobalRef(env, datalooper);
 		pthread_attr_destroy(&((struct com_thread_params*) arg)->data_thread_attr);
 		((struct com_thread_params*) arg)->data_thread_id = 0;
-		return ((struct com_thread_params*) arg)->data_init_done;  /* data_init_done contains error code */
+		return -1 * ((struct com_thread_params*) arg)->data_init_done;  /* data_init_done contains error code */
 	}
 }
 
@@ -2029,8 +2023,8 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 		params.data_thread_exit = 0;
 		params.event_thread_exit = 0;
 		params.mutex = &mutex;
-		params.data_init_done = 0;
-		params.event_init_done = 0;
+		params.data_init_done = -1;
+		params.event_init_done = -1;
 		fd_looper_info[x] = params;
 		arg = &fd_looper_info[x];
 	}else {
@@ -2050,8 +2044,8 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 		params.data_thread_exit = 0;
 		params.event_thread_exit = 0;
 		params.mutex = &mutex;
-		params.data_init_done = 0;
-		params.event_init_done = 0;
+		params.data_init_done = -1;
+		params.event_init_done = -1;
 		fd_looper_info[dtp_index] = params;
 		arg = &fd_looper_info[dtp_index];
 	}
@@ -2076,18 +2070,16 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 
 	pthread_mutex_unlock(&mutex);
 
-	/* let thread initialize completely and then return success. */
-	while(0 == ((struct com_thread_params*) arg)->event_init_done) { }
+	while(-1 == ((struct com_thread_params*) arg)->event_init_done) { }  /* let thread initialize completely and then return success. */
 
-	if(1 == ((struct com_thread_params*) arg)->event_init_done) {
-		/* Save the data thread id which will be used when listener is unregistered. */
-		((struct com_thread_params*) arg)->event_thread_id = thread_id;
-		return 0; /* success */
+	if(0 == ((struct com_thread_params*) arg)->event_init_done) {
+		((struct com_thread_params*) arg)->event_thread_id = thread_id;  /* Save the data thread id which will be used when listener is unregistered. */
+		return 0;                                                        /* success */
 	}else {
 		(*env)->DeleteGlobalRef(env, eventlooper);
 		pthread_attr_destroy(&((struct com_thread_params*) arg)->event_thread_attr);
 		((struct com_thread_params*) arg)->event_thread_id = 0;
-		return ((struct com_thread_params*) arg)->event_init_done;  /* error */
+		return -1 * ((struct com_thread_params*) arg)->event_init_done;  /* error */
 	}
 }
 

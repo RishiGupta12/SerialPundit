@@ -105,6 +105,7 @@ extern int set_error_status(JNIEnv *env, jobject obj, jobject status, int error_
 #define E_GETMETHODID         (ERROR_OFFSET + 10) /* Probably out of memory. */
 #define E_UDEVNEW             (ERROR_OFFSET + 11) /* Could not create udev context. */
 #define E_UDEVNETLINK         (ERROR_OFFSET + 12) /* Could not initialize udev monitor. */
+#define E_ENBLPARCHK          (ERROR_OFFSET + 13) /* Enable parity checking in configureComPortData method first. */
 
 #endif /* UNIX_LIKE_SERIAL_LIB_H_ */
 
