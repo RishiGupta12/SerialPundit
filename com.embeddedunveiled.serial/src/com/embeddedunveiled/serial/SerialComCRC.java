@@ -19,7 +19,7 @@ package com.embeddedunveiled.serial;
 
 /**
  * <p>This class helps in calculating CRC-CCITT value speedily using table based algorithm.
- *  It is used for checking data integrity of the data bytes communicated.</p>
+ *  It is used for checking data integrity of the data bytes communicated over serial port.</p>
  */
 public final class SerialComCRC {
 	
@@ -59,7 +59,7 @@ public final class SerialComCRC {
 	};
 
 	/**
-	 * <p>Allocates object of SerialComCRC class.</p>
+	 * <p>Allocates a new SerialComCRC object.</p>
 	 */
 	public SerialComCRC() {
 	}
@@ -82,5 +82,5 @@ public final class SerialComCRC {
         }
 		return crcVal;
 	}
+	
 }
-
