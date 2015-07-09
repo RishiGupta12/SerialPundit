@@ -21,6 +21,8 @@ package com.embeddedunveiled.serial;
  * <p>This class provides common utility functions for serial port communication related projects.</p>
  */
 public final class SerialComUtil {
+	
+	private static final String HEXNUM = "0123456789ABCDEF";
 
 	/**
      * <p>Allocates a new SerialComUtil object.</p>
@@ -50,6 +52,40 @@ public final class SerialComUtil {
 		}
 		
 		return sb.substring(0, min);
+	}
+	
+	/**
+	 * <p>This method creates hex string from byte array. This is useful in bluetooth low energy applications where characteristics
+	 * returned are to be interpreted or for example Internet of things applications where sensor data is getting exchanged.</p>
+	 * 
+	 * @param data byte array to be converted into string
+	 * @param separator to be inserted after each hex value
+	 * @return constructed hex string if data.length > 0 otherwise empty string
+	 * @throws IllegalArgumentException if data is null
+	 */
+	public static String byteArrayToHexString(byte[] data, String separator) {
+		if(data == null) {
+			throw new IllegalArgumentException("byteArrayToHexStr(), " + SerialComErrorMapper.ERR_CAN_NOT_BE_NULL);
+		}
+		
+		if(data.length > 0) {
+			if(separator != null) {
+				final StringBuilder sBuilder = new StringBuilder(2 * data.length);
+				for (final byte b : data) {
+					sBuilder.append(HEXNUM.charAt((b & 0xF0) >> 4)).append(HEXNUM.charAt((b & 0x0F)));
+					sBuilder.append(separator);
+				}
+				return sBuilder.toString();
+			}else {
+				final StringBuilder sBuilder = new StringBuilder(2 * data.length);
+				for (final byte b : data) {
+					sBuilder.append(HEXNUM.charAt((b & 0xF0) >> 4)).append(HEXNUM.charAt((b & 0x0F)));
+				}
+				return sBuilder.toString();
+			}
+		}
+
+		return new String();
 	}
 	
 	/**
