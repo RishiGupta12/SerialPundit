@@ -77,7 +77,7 @@ JavaVM *jvm_event;
 JavaVM *jvm_port;
 
 #if defined (__APPLE__)
-/* Holds information for port monitor facility. */
+/* Holds information for hot plug monitor facility. */
 int pm_index = 0;
 struct driver_ref* pm_info[2048] = {0};
 #endif
@@ -778,27 +778,34 @@ void *data_looper(void *arg) {
 	 * informs java listener and exit. We need to ensure that stat() itself does not fail.
 	 * It has been assumed that till this thread has initialized, port will not be unplugged from system.
 	 * Link against libudev which provides a set of functions for accessing the udev database and querying sysfs. */
-	void *port_monitor(void *arg) {
+	void *usb_hot_plug_monitor(void *arg) {
 		struct port_info* params = (struct port_info*) arg;
-		JavaVM *jvm = (*params).jvm;
-		jvm_port = (*params).jvm;
-		jobject port_listener = (*params).port_listener;
 		void* env1;
 		JNIEnv* env;
-		jclass portListener;
-		jmethodID mid;
+		jmethodID onHotPlugEventMethodID;
+		jclass usbHotPlugEventListenerClass;
+		JavaVM *jvm = (*params).jvm;
+		jvm_port = (*params).jvm;
+		jobject usbHotPlugEventListenerObj = (*params).usbHotPlugEventListener;
+		int filterVID = (*params).filterVID;
+		int filterPID = (*params).filterPID;
+		int USB_DEV_ANY = 0x00;     /* must match value in SerialComManager class. */
+		int USB_DEV_ADDED = 0x01;   /* must match value in SerialComManager class. */
+		int USB_DEV_REMOVED = 0x02; /* must match value in SerialComManager class. */
 
 #if defined (__linux__)
-		struct stat st;
 		int ret = 0;
-		int fd;
+		int udev_monitor_fd;
 		fd_set fds;
-		struct udev *udev;
-		struct udev_device *device;
-		struct udev_monitor *monitor;
-		char action[32];
-		const char *SUBSYSTEM_USB = "usb";
-		const char *DEVICE_TYPE_USB = "usb_device";
+		struct udev *udev_ctx = NULL;
+		struct udev_device *udev_device;
+		struct udev_monitor *udev_monitor;
+		const char* udev_action_str;
+		char udev_action[128];
+		const char* usb_vid_str;
+		const char* usb_pid_str;
+		int usb_vid = 0;
+		int usb_pid = 0;
 #endif
 #if defined (__APPLE__)
 		CFDictionaryRef matching_dictionary = NULL;
@@ -811,149 +818,143 @@ void *data_looper(void *arg) {
 #endif
 
 		if((*jvm)->AttachCurrentThread(jvm, &env1, NULL) != JNI_OK) {
-			if(DBG) fprintf(stderr, "%s \n", "NATIVE event_looper() thread failed to attach itself to JVM.");
-			if(DBG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread exiting. Please RETRY registering port listener !");
-			if(DBG) fflush(stderr);
-			/*todo make this robust as data listner wait till register complete and delete globalref*/
+			((struct port_info*) arg)->init_done = E_ATTACHCURRENTTHREAD;      /* set custom error code */
 			pthread_exit((void *)0);
 		}
 		env = (JNIEnv*) env1;
 
-		portListener = (*env)->GetObjectClass(env, port_listener);
-		if(portListener == NULL) {
-			if(DBG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread could not get class of object of type IPortMonitor !");
-			if(DBG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread exiting. Please RETRY registering port listener !");
-			if(DBG) fflush(stderr);
+		usbHotPlugEventListenerClass = (*env)->GetObjectClass(env, usbHotPlugEventListenerObj);
+		if(usbHotPlugEventListenerClass == NULL) {
+			(*jvm)->DetachCurrentThread(jvm);
+			((struct port_info*) arg)->init_done = E_GETOBJECTCLASS;
 			pthread_exit((void *)0);
 		}
 
-		mid = (*env)->GetMethodID(env, portListener, "onPortMonitorEvent", "(I)V");
+		onHotPlugEventMethodID = (*env)->GetMethodID(env, usbHotPlugEventListenerClass, "onHotPlugEvent", "(I)V");
 		if((*env)->ExceptionOccurred(env)) {
-			LOGE(env);
+			(*env)->ExceptionClear(env);
 		}
-		if(mid == NULL) {
-			if(DBG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread failed to retrieve method id of method onPortRemovedEvent !");
-			if(DBG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread exiting. Please RETRY registering port listener !");
-			if(DBG) fflush(stderr);
+		if(onHotPlugEventMethodID == NULL) {
+			(*jvm)->DetachCurrentThread(jvm);
+			((struct port_info*) arg)->init_done = E_GETMETHODID;
 			pthread_exit((void *)0);
 		}
 
 #if defined (__linux__)
-		/* Create the udev object */
-		udev = udev_new();
-		if(!udev) {
-			if(DBG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread failed to create udev object !");
-			if(DBG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread exiting. Please RETRY registering port listener !");
-			if(DBG) fflush(stderr);
+		/* Create udev library context. Reads the udev configuration file, fills in the default values and return pointer to it. */
+		udev_ctx = udev_new();
+		if(!udev_ctx) {
+			(*jvm)->DetachCurrentThread(jvm);
+			((struct port_info*) arg)->init_done = E_UDEVNEW;
 			pthread_exit((void *)0);
 		}
 
-		/* Create new udev monitor and connect to a specified event source. Applications should usually not
-	   connect directly to the "kernel" events, because the devices might not be usable at that time,
-	   before udev has configured them, and created device nodes. Accessing devices at the same time as
-	   udev, might result in unpredictable behavior. The "udev" events are sent out after udev has
-	   finished its event processing, all rules have been processed, and needed device nodes are created. */
-		monitor = udev_monitor_new_from_netlink(udev, "udev");
-		if(monitor == NULL) {
-			if(DBG) fprintf(stderr, "%s %d\n", "NATIVE port_monitor failed to create udev monitor with error ", ret);
-			if(DBG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread exiting. Please RETRY registering port listener !");
-			if(DBG) fflush(stderr);
+		/* Create new udev monitor and connect to a specified event source. Applications should usually not connect directly to the "kernel" events,
+		 * because the devices might not be usable at that time, before udev has configured them, and created device nodes. Accessing devices at the
+		 * same time as udev, might result in unpredictable behavior. The "udev" events are sent out after udev has finished its event processing,
+		 * all rules have been processed, and needed device nodes are created. This returns a pointer to the allocated udev monitor. */
+		udev_monitor = udev_monitor_new_from_netlink(udev_ctx, "udev");
+		if(udev_monitor == NULL) {
+			(*jvm)->DetachCurrentThread(jvm);
+			udev_unref(udev_ctx);
+			((struct port_info*) arg)->init_done = E_UDEVNETLINK;
 			pthread_exit((void *)0);
 		}
 
-		/* This filter is efficiently executed inside the kernel, and libudev subscribers will
-	   usually not be woken up for devices which do not match. The filter must be installed
-	   before the monitor is switched to listening mode. */
-		ret = udev_monitor_filter_add_match_subsystem_devtype(monitor, SUBSYSTEM_USB, DEVICE_TYPE_USB);
-		if(ret != 0) {
-			if(DBG) fprintf(stderr, "%s %d\n", "NATIVE port_monitor failed to install filter for udev with error ", ret);
-			if(DBG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread exiting. Please RETRY registering port listener !");
-			if(DBG) fflush(stderr);
+		/* This filter is efficiently executed inside the kernel, and libudev subscribers will usually not be woken up for devices which do not match.
+		 * The filter must be installed before the monitor is switched to listening mode. */
+		ret = udev_monitor_filter_add_match_subsystem_devtype(udev_monitor, "usb", "usb_device");
+		if(ret < 0) {
+			(*jvm)->DetachCurrentThread(jvm);
+			udev_monitor_unref(udev_monitor);
+			udev_unref(udev_ctx);
+			((struct port_info*) arg)->init_done = -1 * ret;
 			pthread_exit((void *)0);
 		}
 
 		/* Binds the udev_monitor socket to the event source. */
-		ret = udev_monitor_enable_receiving(monitor);
-		if(ret != 0) {
-			if(DBG) fprintf(stderr, "%s %d\n", "NATIVE port_monitor failed to bind udev socket to monitor with error ", ret);
-			if(DBG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread exiting. Please RETRY registering port listener !");
-			if(DBG) fflush(stderr);
+		ret = udev_monitor_enable_receiving(udev_monitor);
+		if(ret < 0) {
+			(*jvm)->DetachCurrentThread(jvm);
+			udev_monitor_unref(udev_monitor);
+			udev_unref(udev_ctx);
+			((struct port_info*) arg)->init_done = -1 * ret;
 			pthread_exit((void *)0);
 		}
 
 		/* Retrieve the socket file descriptor associated with the monitor. This fd will get passed to select(). */
-		fd = udev_monitor_get_fd(monitor);
+		udev_monitor_fd = udev_monitor_get_fd(udev_monitor);
 		FD_ZERO(&fds);
-		FD_SET(fd, &fds);
+		FD_SET(udev_monitor_fd, &fds);
 
 		/* Install signal handler that will be invoked to indicate that the thread should exit. */
+		errno = 0;
 		if(signal(SIGUSR1, exitMonitor_signal_handler) == SIG_ERR) {
-			if(DBG) fprintf(stderr, "%s\n", "Unable to create handler for thread exit !");
-			if(DBG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread exiting. Please RETRY registering port listener !");
-			if(DBG) fflush(stderr);
+			(*jvm)->DetachCurrentThread(jvm);
+			udev_monitor_unref(udev_monitor);
+			udev_unref(udev_ctx);
+			((struct port_info*) arg)->init_done = errno;
 			pthread_exit((void *)0);
 		}
 
+		((struct port_info*) arg)->init_done = 0; /* tell main thread thread initialization successfully completed */
+
 		while(1) {
-			ret = select(fd+1, &fds, NULL, NULL, NULL);
+			ret = select(udev_monitor_fd + 1, &fds, NULL, NULL, NULL);
 
-			/* Check no error occured, and udev file descriptor indicates event. */
-			if((ret > 0) && FD_ISSET(fd, &fds)) {
-				device = udev_monitor_receive_device(monitor);
-				if(device) {
-					memset(action, '\0', sizeof(action));
-					strcpy(action, udev_device_get_action(device));
-					serial_delay(500);  /* let udev execute udev rules completely (500 milliseconds delay). */
-					udev_device_unref(device);
+			/* Check no error occurred, and udev file descriptor indicates event. */
+			if((ret > 0) && FD_ISSET(udev_monitor_fd, &fds)) {
+				udev_device = udev_monitor_receive_device(udev_monitor);
+				if(udev_device) {
+					udev_action_str = udev_device_get_action(udev_device); /* This is only valid if the device was received through a monitor. */
+					if(udev_action == NULL) {
+						udev_device_unref(udev_device);
+						continue;
+					}
+					memset(udev_action, '\0', sizeof(udev_action));
+					strcpy(udev_action, udev_action_str);
 
-					/* Based on use case and more robust design, notification for plugging port will be
-					 * developed in future. As of now we just notify app that some device has been added to system.
-					 * In Linux, port name will change, for example at the time of registering this listener
-					 * if it was ttyUSB0, then after re-insertion, it will be ttyUSB1. */
-					if(strcmp(action, "add") == 0) {
-						(*env)->CallVoidMethod(env, port_listener, mid, 1); /* arg 1 represent device add action */
+					usb_vid_str = udev_device_get_property_value(udev_device, "ID_VENDOR_ID");
+					if(usb_vid_str != NULL) {
+						usb_vid = strtoul(usb_vid_str, NULL, 16);
+					}
+
+					usb_pid_str = udev_device_get_property_value(udev_device, "ID_MODEL_ID");
+					if(usb_pid_str != NULL) {
+						usb_pid = strtoul(usb_pid_str, NULL, 16);
+					}
+
+					udev_device_unref(udev_device);
+
+					if(filterVID != USB_DEV_ANY) {
+						if(filterVID != usb_vid) {
+							continue;
+						}
+					}
+
+					if(filterPID != USB_DEV_ANY) {
+						if(filterPID != usb_pid) {
+							continue;
+						}
+					}
+
+					/* reaching here means vip/pid matching criteria is fulfilled, so notify application about it. */
+					if(strcmp(udev_action, "add") == 0) {
+						(*env)->CallVoidMethod(env, usbHotPlugEventListenerObj, onHotPlugEventMethodID, USB_DEV_ADDED);
 						if((*env)->ExceptionOccurred(env)) {
 							LOGE(env);
 						}
-					}else if(strcmp(action, "remove") == 0) {
-						errno = 0;
-						ret = stat((*params).port_name, &st);
-						if(ret == 0) {
-						}else {
-							if(errno == EACCES) {
-								if(DBG) fprintf(stderr, "%s %d\n", "NATIVE port_monitor does not have permission to stat port error : ", errno);
-								if(DBG) fflush(stderr);
-							}else if(errno == ELOOP) {
-								if(DBG) fprintf(stderr, "%s %d\n", "NATIVE port_monitor encountered too many symbolic links while traversing the path error : ", errno);
-								if(DBG) fflush(stderr);
-							}else if(errno == ENAMETOOLONG) {
-								if(DBG) fprintf(stderr, "%s %d\n", "NATIVE port_monitor path is too long error : ", errno);
-								if(DBG) fflush(stderr);
-							}else if(errno == ENOMEM) {
-								if(DBG) fprintf(stderr, "%s %d\n", "NATIVE port_monitor Out of memory (i.e., kernel memory) error : ", errno);
-								if(DBG) fflush(stderr);
-							}else if(errno == ENOTDIR) {
-								if(DBG) fprintf(stderr, "%s %d\n", "NATIVE port_monitor a component of the path prefix of path is not a directory error : ", errno);
-								if(DBG) fflush(stderr);
-							}else if(errno == EOVERFLOW) {
-								if(DBG) fprintf(stderr, "%s %d\n", "NATIVE port_monitor improper data size handling/definition error : ", errno);
-								if(DBG) fflush(stderr);
-							}else if(errno == EFAULT) {
-								if(DBG) fprintf(stderr, "%s %d\n", "NATIVE port_monitor bad address error : ", errno);
-								if(DBG) fflush(stderr);
-							}else {
-								(*env)->CallVoidMethod(env, port_listener, mid, 2); /* arg 2 represent device remove action */
-								if((*env)->ExceptionOccurred(env)) {
-									LOGE(env);
-								}
-							}
+					}else if(strcmp(udev_action, "remove") == 0) {
+						(*env)->CallVoidMethod(env, usbHotPlugEventListenerObj, onHotPlugEventMethodID, USB_DEV_REMOVED);
+						if((*env)->ExceptionOccurred(env)) {
+							LOGE(env);
 						}
 					}else {
-						/* neither add nor remove action, do nothing. */
+						/* ignore */
 					}
 				}
 			}
-		}
+		} /* go back to loop again */
 
 		return ((void *)0);
 #endif
