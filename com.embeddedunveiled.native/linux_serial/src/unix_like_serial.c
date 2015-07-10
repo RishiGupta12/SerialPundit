@@ -2152,6 +2152,10 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
  */
 JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_registerHotPlugEventListener(JNIEnv *env, jobject obj, jobject hotPlugListener, jint filterVID, jint filterPID) {
 	int ret = -1;
+	int x = 0;
+	int empty_index_found = 0;
+	struct port_info *ptr;
+	ptr = port_monitor_info;
 	jint thread_info[] = {0, 0};
 	jintArray threadInfo = (*env)->NewIntArray(env, 2);
 	pthread_t thread_id = 0;
@@ -2169,18 +2173,37 @@ JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeI
 		return threadInfo;
 	}
 
+	/* Check if there is an unused index then we will reuse it. */
+	for (x=0; x < MAX_NUM_THREADS; x++) {
+		if(ptr->thread_id == 0) {
+			empty_index_found = 1;
+			break;
+		}
+		ptr++;
+	}
+
 	params.jvm = jvm;
 	params.usbHotPlugEventListener = usbHotPlugListener;
 	params.filterVID = filterVID;
 	params.filterPID = filterPID;
 	params.thread_exit = 0;
+	params.evfd = 0;
 	params.init_done = -1;
 	params.mutex = &mutex;
 #if defined (__APPLE__)
-	params.data = &port_monitor_info[port_monitor_index];
+	if(empty_index_found == 1) {
+		params.data = &port_monitor_info[x];
+	}else {
+		params.data = &port_monitor_info[port_monitor_index];
+	}
 #endif
-	port_monitor_info[port_monitor_index] = params;
-	arg = &port_monitor_info[port_monitor_index];
+	if(empty_index_found == 1) {
+		port_monitor_info[x] = params;
+		arg = &port_monitor_info[x];
+	}else {
+		port_monitor_info[port_monitor_index] = params;
+		arg = &port_monitor_info[port_monitor_index];
+	}
 
 	pthread_attr_init(&((struct port_info*) arg)->thread_attr);
 	pthread_attr_setdetachstate(&((struct port_info*) arg)->thread_attr, PTHREAD_CREATE_JOINABLE);
@@ -2201,9 +2224,13 @@ JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeI
 	if(0 == ((struct port_info*) arg)->init_done) {
 		((struct port_info*) arg)->thread_id = thread_id;             /* Save the thread id which will be used when listener is unregistered. */
 		thread_info[0] = 0;
-		thread_info[1] = port_monitor_index;
+		if(empty_index_found == 1) {
+			thread_info[1] = x;
+		}else {
+			thread_info[1] = port_monitor_index;
+			port_monitor_index++;                                      /* update index where data for next thread will be saved. */
+		}
 		(*env)->SetIntArrayRegion(env, threadInfo, 0, 2, thread_info);
-		port_monitor_index++;                                          /* update index where data for next thread will be saved. */
 	}else {
 		(*env)->DeleteGlobalRef(env, usbHotPlugListener);
 		pthread_attr_destroy(&((struct port_info*) arg)->thread_attr);
@@ -2220,7 +2247,7 @@ JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeI
  * Method:    unregisterHotPlugEventListener
  * Signature: (I)I
  *
- * Destroy worker thread used for USB hot plug monitoring.
+ * Destroy worker thread used for USB hot plug monitoring. The java layer sends index in array where info about the thread to be destroyed is stored.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_unregisterHotPlugEventListener(JNIEnv *env, jobject obj, jint index) {
 #if defined (__linux__) || defined (__APPLE__)
@@ -2228,16 +2255,22 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 	struct port_info *ptr;
 	ptr = &port_monitor_info[index];
 	void *status;
+#if defined (__linux__)
+	uint64_t value = 1;
+#endif
 
 	pthread_mutex_lock(&mutex);
 
 	ptr->thread_exit = 1;                          /* Set the flag that will be checked by thread to check for exit condition. */
 
-	ret = pthread_kill(ptr->thread_id, SIGUSR1); /* send signal to event thread. */
-	if(ret != 0) {
+#if defined (__linux__)
+	errno = 0;
+	ret = write(ptr->evfd, &value, sizeof(value));
+	if(ret < 0) {
 		pthread_mutex_unlock(&mutex);
-		return (-1 * ret);
+		return (-1 * errno);
 	}
+#endif
 
 	ret = pthread_join(ptr->thread_id, &status); /* Join the thread (waits for the thread specified to terminate). */
 	if(ret != 0) {

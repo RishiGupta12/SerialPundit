@@ -45,20 +45,20 @@ struct com_thread_params {
 	pthread_attr_t event_thread_attr;
 };
 
-#if defined (__linux__)
+/* The port_info structure has platform specific fields based on how thread is created, destroyed and what data need to be passed.*/
 	struct port_info {
+#if defined (__linux__)
 		JavaVM *jvm;
 		jobject usbHotPlugEventListener;
 		jint filterVID;
 		jint filterPID;
+		int evfd;
 		int thread_exit;
 		pthread_t thread_id;
 		pthread_attr_t thread_attr;
 		pthread_mutex_t *mutex;
 		int init_done;
-	};
 #elif defined (__APPLE__)
-	struct port_info {
 		JavaVM *jvm;
 		JNIEnv* env;
 		const char *port_name;
@@ -71,17 +71,18 @@ struct com_thread_params {
 		struct port_info *data;
 		IONotificationPortRef notification_port;
 		int tempVal;
+#elif defined (__SunOS)
+#else
+#endif
 	};
 
+#if defined (__APPLE__)
 	/* Structure to hold reference to driver and subscribed notification. */
 	struct driver_ref {
 		io_service_t service;
 		io_object_t notification;
 		struct port_info *data;
 	};
-
-#elif defined (__SunOS)
-#else
 #endif
 
 /* function prototypes */
