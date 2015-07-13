@@ -42,7 +42,7 @@ set -e
 echo "~~~~~~~~~ Build starts.....wait for message Build completed. ~~~~~~~~~~~~~~~~~~~~"
 echo "  "
 
-LIB_VERSION="1.0.3"
+LIB_VERSION="1.0.4"
 a="windows_"
 b="_x86_64.dll"
 c="_x86.dll"
