@@ -23,14 +23,18 @@ import com.embeddedunveiled.serial.SerialComManager.DATABITS;
 import com.embeddedunveiled.serial.SerialComManager.FLOWCONTROL;
 import com.embeddedunveiled.serial.SerialComManager.PARITY;
 import com.embeddedunveiled.serial.SerialComManager.STOPBITS;
+import com.embeddedunveiled.serial.SerialComUtil;
 
+/*
+ * CR and LF character must be received as is for correct MODEM communication.
+ */
 public class Test41 {
 	public static void main(String[] args) {
 		try {
 			SerialComManager scm = new SerialComManager();
 			String PORT = null;
 			String PORT1 = null;
-			int osType = SerialComManager.getOSType();
+			int osType = scm.getOSType();
 			if(osType == SerialComManager.OS_LINUX) {
 				PORT = "/dev/ttyUSB0";
 				PORT1 = "/dev/ttyUSB1";
@@ -52,25 +56,27 @@ public class Test41 {
 			long handle1 = scm.openComPort(PORT1, true, true, true);
 			scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
 			scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+			
+			// send OK\r\n\r\n and check they are received at other end, OS does not strip them
+			if(scm.writeBytes(handle, "OK\r\n\r\n".getBytes(), 0) == true) {
+				System.out.println("write success");
+			}
+			Thread.sleep(1000);
+			byte[] data = scm.readBytes(handle1, 100);
+			System.out.println(SerialComUtil.byteArrayToHexString(data, ":"));
 
-			// send \r\n and chek they are received at other end, OS does not strip them
-			System.out.println("write begin at time : " + System.currentTimeMillis());
+			System.out.println("\n");
+			
+			// send \r\nOK\r\n and check they are received at other end, OS does not strip them
 			if(scm.writeBytes(handle, "\r\nOK\r\n".getBytes(), 0) == true) {
 				System.out.println("write success");
 			}
-			Thread.sleep(10);
-			
-			// length must be 6
-			while(true){
-				byte[] data = scm.readBytes(handle1, 100);
-				if(data != null && data.length > 0) {
-					System.out.println("data length : " + data.length + " time : " + System.currentTimeMillis());
-				}
-				Thread.sleep(100);
-			}
+			Thread.sleep(1000);
+			byte[] data1 = scm.readBytes(handle1, 100);
+			System.out.println(SerialComUtil.byteArrayToHexString(data1, ":"));
 
-//			scm.closeComPort(handle);
-//			scm.closeComPort(handle1);
+			scm.closeComPort(handle);
+			scm.closeComPort(handle1);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
