@@ -16,17 +16,32 @@
  *
  ***************************************************************************************************/
 
-#if defined (__linux__) || defined (__APPLE__) || defined (__SunOS) || defined(__sun) || defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__) || defined(__hpux__) || defined(__hpux) || defined(_AIX)
-
-#if defined (__APPLE__)
-#include <IOKit/IOMessage.h>
-#endif
-
-
 #ifndef UNIX_LIKE_SERIAL_LIB_H_
 #define UNIX_LIKE_SERIAL_LIB_H_
 
-#include <pthread.h>		/* POSIX thread definitions	      */
+#if defined (__linux__) || defined (__APPLE__) || defined (__SunOS) || defined(__sun) || defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__) || defined(__hpux__) || defined(__hpux) || defined(_AIX)
+
+#include <pthread.h>
+#if defined (__APPLE__)
+#include <IOKit/IOMessage.h>
+#endif
+#include <jni.h>
+
+/* custom error codes for SCM library */
+#define ERROR_OFFSET 350
+#define E_GETJVM              (ERROR_OFFSET + 1)
+#define E_NEWSTRUTF           (ERROR_OFFSET + 2)
+#define E_OPENDIR             (ERROR_OFFSET + 3)  /* Either filename cannot be accessed or cannot malloc() enough memory to hold the whole thing. */
+#define E_FINDCLASS           (ERROR_OFFSET + 4)  /* Probably out of memory. */
+#define E_NEWOBJECTARRAY      (ERROR_OFFSET + 5)  /* Probably out of memory. */
+#define E_GETSTRUTFCHAR       (ERROR_OFFSET + 6)
+#define E_NEWGLOBALREF        (ERROR_OFFSET + 7)  /* Probably out of memory. */
+#define E_ATTACHCURRENTTHREAD (ERROR_OFFSET + 8)
+#define E_GETOBJECTCLASS      (ERROR_OFFSET + 9)
+#define E_GETMETHODID         (ERROR_OFFSET + 10) /* Probably out of memory. */
+#define E_UDEVNEW             (ERROR_OFFSET + 11) /* Could not create udev context. */
+#define E_UDEVNETLINK         (ERROR_OFFSET + 12) /* Could not initialize udev monitor. */
+#define E_ENBLPARCHK          (ERROR_OFFSET + 13) /* Enable parity checking in configureComPortData method first. */
 
 /* Structure representing data that is passed to each data looper thread with info corresponding to that file descriptor. */
 struct com_thread_params {
@@ -85,28 +100,23 @@ struct com_thread_params {
 	};
 #endif
 
+	/* This holds information for implementing dynamically growing array in C. */
+	struct array_list {
+		char **base;      /* pointer to an array of pointers to string */
+		int index;        /* array element index                       */
+		int current_size; /* size of this array                        */
+	};
+
 /* function prototypes */
 extern void *data_looper(void *params);
 extern void *event_looper(void *params);
 extern void *usb_hot_plug_monitor(void *params);
 extern int serial_delay(unsigned usecs);
 extern int set_error_status(JNIEnv *env, jobject obj, jobject status, int error_number);
-
-/* custom error codes for SCM library */
-#define ERROR_OFFSET 350
-#define E_GETJVM              (ERROR_OFFSET + 1)
-#define E_NEWSTRUTF           (ERROR_OFFSET + 2)
-#define E_OPENDIR             (ERROR_OFFSET + 3)  /* Either filename cannot be accessed or cannot malloc() enough memory to hold the whole thing. */
-#define E_FINDCLASS           (ERROR_OFFSET + 4)  /* Probably out of memory. */
-#define E_NEWOBJECTARRAY      (ERROR_OFFSET + 5)  /* Probably out of memory. */
-#define E_GETSTRUTFCHAR       (ERROR_OFFSET + 6)
-#define E_NEWGLOBALREF        (ERROR_OFFSET + 7)  /* Probably out of memory. */
-#define E_ATTACHCURRENTTHREAD (ERROR_OFFSET + 8)
-#define E_GETOBJECTCLASS      (ERROR_OFFSET + 9)
-#define E_GETMETHODID         (ERROR_OFFSET + 10) /* Probably out of memory. */
-#define E_UDEVNEW             (ERROR_OFFSET + 11) /* Could not create udev context. */
-#define E_UDEVNETLINK         (ERROR_OFFSET + 12) /* Could not initialize udev monitor. */
-#define E_ENBLPARCHK          (ERROR_OFFSET + 13) /* Enable parity checking in configureComPortData method first. */
+extern void init_array_list(struct array_list *al, int initial_size);
+extern void insert_array_list(struct array_list *al, char *element);
+extern void free_array_list(struct array_list *al);
+extern jobjectArray list_usb_devices(JNIEnv *env, jobject obj, jobject status);
 
 #endif /* UNIX_LIKE_SERIAL_LIB_H_ */
 
