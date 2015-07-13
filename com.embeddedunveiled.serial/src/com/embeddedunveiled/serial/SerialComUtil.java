@@ -216,6 +216,17 @@ public final class SerialComUtil {
 	}
 	
 	/**
+	 * <p>This converts a number represented in hex string to decimal number. It parses the string 
+	 * argument as a signed long with radix as 16.</p>
+	 * @param hexNumStr hex-string to be converted
+	 * @return a long type number repressing given hex string
+	 * TODO NumberFormatException
+	 */
+	public static long hexStrToLongNumber(String hexNumStr) {
+		return Long.parseLong(hexNumStr, 16);
+	}
+	
+	/**
 	 * <p>Converts the given long value to hex string.</p>
 	 * @param data the long type value to convert.
 	 * @return a string representing given long number in hexadecimal format
