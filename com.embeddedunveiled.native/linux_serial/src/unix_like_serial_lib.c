@@ -635,6 +635,13 @@ void *data_looper(void *arg) {
 	}
 
 #if defined (__APPLE__)
+
+	/* Each thread has exactly one run loop associated with it. This forces run loop to stop running and return
+	 * control to the function that called CFRunLoopRun i.e. this thread's usb_hot_plug_monitor() */
+	void indicate_thread_exit(void *info) {
+		CFRunLoopStop(CFRunLoopGetCurrent());
+	}
+
 	/* Callback associated with run loop which will be invoked whenever a device is removed from system.
 	 * In order to keep our device removal detection independent from system, we used stat on file path. */
 	void device_removed(void *refCon, io_service_t service, natural_t messageType, void *messageArgument) {
@@ -732,9 +739,11 @@ void *data_looper(void *arg) {
 #endif
 
 	/*
-	 * This worker thread monitors usb events and notifies application as appropriate.
+	 * This worker thread monitors usb events and notifies application as appropriate. Platform specific facility
+	 * has been used to terminate thread with any thread dead-lock and ensuring resource clean up.
 	 *
-	 * For Linux : libudev is used to monitor events and filter them. To destroy this thread
+	 * For Linux : libudev is used to monitor events, extract info about events etc. To destroy this thread main thread
+	 * causes dummy event on evfd which makes select come out of blocking state.
 	 *
 	 * For MAC OS X :
 	 * There is exactly one CFRunLoop for each thread. */
@@ -770,10 +779,12 @@ void *data_looper(void *arg) {
 		int usb_pid = 0;
 #endif
 #if defined (__APPLE__)
+		kern_return_t kr;
 		CFDictionaryRef matching_dictionary = NULL;
 		io_iterator_t iter = 0;
-		CFRunLoopSourceRef run_loop_source;
-		kern_return_t kr;
+		CFRunLoopSourceRef usb_run_loop_source;
+		CFRunLoopSourceRef exit_run_loop_source;
+		CFRunLoopSourceContext exit_source_context;
 #endif
 #if defined (__SunOS)
 		/* TODO solaris */
@@ -938,19 +949,16 @@ void *data_looper(void *arg) {
 #endif
 
 #if defined (__APPLE__)
-
 		((struct port_info*) arg)->env = env;
 		((struct port_info*) arg)->port_listener = port_listener;
 		((struct port_info*) arg)->mid = mid;
 		((struct port_info*) arg)->tempVal = 0;
 
-		/* Install signal handler that will be invoked to indicate that the thread should exit. */
-		if(signal(SIGUSR1, exitMonitor_signal_handler) == SIG_ERR) {
-			if(DBG) fprintf(stderr, "%s\n", "Unable to create handler for thread's exit !");
-			if(DBG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread exiting. Please RETRY registering port listener !");
-			if(DBG) fflush(stderr);
-			pthread_exit((void *)0);
-		}
+		/* Install custom input source in run loop of worker thread. Run loop execute sources in order of priority so give it more priority than
+		 * usb events source. */
+		exit_source_context.perform = indicate_thread_exit;
+		exit_run_loop_source = CFRunLoopSourceCreate(NULL, 1, &exit_source_context);
+		CFRunLoopAddSource(CFRunLoopGetCurrent(), exit_run_loop_source, kCFRunLoopDefaultMode);
 
 		/* Create a matching dictionary that will find any USB device.
 		 * Interested in instances of class IOUSBDevice and its subclasses. kIOUSBDeviceClassName */
@@ -966,10 +974,10 @@ void *data_looper(void *arg) {
 		((struct port_info*) arg)->notification_port = IONotificationPortCreate(kIOMasterPortDefault);
 
 		/* CFRunLoopSource to be used to listen for notifications. */
-		run_loop_source = IONotificationPortGetRunLoopSource(((struct port_info*) arg)->notification_port);
+		usb_run_loop_source = IONotificationPortGetRunLoopSource(((struct port_info*) arg)->notification_port);
 
 		/* Adds a CFRunLoopSource object to a run loop mode. */
-		CFRunLoopAddSource(CFRunLoopGetCurrent(), run_loop_source, kCFRunLoopDefaultMode);
+		CFRunLoopAddSource(CFRunLoopGetCurrent(), usb_run_loop_source, kCFRunLoopDefaultMode);
 
 		/* Look up registered IOService objects that match a matching dictionary, and install a notification request of new IOServices that match.
 		 * It associates the matching dictionary with the notification port (and run loop source), allocates and returns an iterator object.

@@ -41,6 +41,14 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINati
 
 /*
  * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
+ * Method:    listUSBdevicesWithInfo
+ * Signature: (Lcom/embeddedunveiled/serial/SerialComRetStatus;)[Ljava/lang/String;
+ */
+JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_listUSBdevicesWithInfo
+  (JNIEnv *, jobject, jobject);
+
+/*
+ * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
  * Method:    registerHotPlugEventListener
  * Signature: (Lcom/embeddedunveiled/serial/ISerialComHotPlugListener;II)[I
  */

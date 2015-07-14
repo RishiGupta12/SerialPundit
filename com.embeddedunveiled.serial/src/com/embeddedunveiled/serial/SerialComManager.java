@@ -510,9 +510,43 @@ public final class SerialComManager {
 			return availablePorts;
 		}else {
 			if(retStatus.status == 1) {
-				return new String[]{};
+				return new String[] { };
 			}else if(retStatus.status < 0) {
 				throw new SerialComException("listAvailableComPorts()", mErrMapper.getMappedError(retStatus.status));
+			}else {
+			}
+		}
+		return null;		
+	}
+	
+	/**
+	 * <p>Returns an array containing information about all the USB devices found by this library. Application can call various 
+	 * methods on returned SerialComUSBdevice class objects to get specific information like vendor id and product id etc.</p>
+	 * 
+	 * @return Available UART style ports name for windows, full path with name for Unix like OS, returns empty array if no ports found.
+	 * @throws SerialComException if an I/O error occurs.
+	 */
+	public SerialComUSBdevice[] listUSBdevicesWithInfo() throws SerialComException {
+		int numOfDevices = 0;
+		int i = 0;
+		SerialComUSBdevice[] usbDevicesFound = null;
+		SerialComRetStatus retStatus = new SerialComRetStatus(1);
+		String[] usbDevicesInfo = mNativeInterface.listUSBdevicesWithInfo(retStatus);
+				
+		if(usbDevicesInfo != null) {
+			numOfDevices = usbDevicesInfo.length / 5;
+			usbDevicesFound = new SerialComUSBdevice[numOfDevices];
+			for(int x=0; x<numOfDevices; x++) {
+				usbDevicesFound[x] = new SerialComUSBdevice(usbDevicesInfo[i], usbDevicesInfo[i+1], usbDevicesInfo[i+2], 
+															usbDevicesInfo[i+3], usbDevicesInfo[i+4]);
+				i = i + 5;
+			}
+			return usbDevicesFound;
+		}else {
+			if(retStatus.status == 1) {
+				return new SerialComUSBdevice[] { };
+			}else if(retStatus.status < 0) {
+				throw new SerialComException("listUSBdevicesWithInfo()", mErrMapper.getMappedError(retStatus.status));
 			}else {
 			}
 		}

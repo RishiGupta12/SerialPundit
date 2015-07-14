@@ -60,6 +60,7 @@
 #include <time.h>
 #include <regex.h>
 #include <stddef.h>         /* Avoid OS/lib implementation specific dependencies. */
+#include <libudev.h>
 #endif
 
 #if defined (__APPLE__)
@@ -584,37 +585,38 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINati
 	total_ports = sys_ports_found + regex_ports_found + pts_ports_found;
 	jobjectArray portsFound = (*env)->NewObjectArray(env, (jsize)total_ports, strClass, NULL);
 	if((*env)->ExceptionOccurred(env)) {
+		(*env)->ExceptionClear(env);
 		set_error_status(env, obj, status, E_NEWOBJECTARRAY);
 		free_allocated_memory(have_sys_ports, sys_ports_found, sys_ports_base, have_regex_ports, regex_ports_found, regex_ports_base, have_pts_ports, pts_ports_found, pts_ports_base);
-		(*env)->ExceptionClear(env);
 		return NULL;
 	}
 
-	/* Prepare full path to device node as per Linux standard. */
 	for (i=0; i < sys_ports_found; i++) {
 		(*env)->SetObjectArrayElement(env, portsFound, i, (*env)->NewStringUTF(env, sys_ports_base[i]));
 		if((*env)->ExceptionOccurred(env)) {
-			free_allocated_memory(have_sys_ports, sys_ports_found, sys_ports_base, have_regex_ports, regex_ports_found, regex_ports_base, have_pts_ports, pts_ports_found, pts_ports_base);
 			(*env)->ExceptionClear(env);
+			free_allocated_memory(have_sys_ports, sys_ports_found, sys_ports_base, have_regex_ports, regex_ports_found, regex_ports_base, have_pts_ports, pts_ports_found, pts_ports_base);
 			return NULL;
 		}
 	}
+
 	x = sys_ports_found;
 	for (i=0; i < regex_ports_found; i++) {
 		(*env)->SetObjectArrayElement(env, portsFound, x, (*env)->NewStringUTF(env, regex_ports_base[i]));
 		if((*env)->ExceptionOccurred(env)) {
-			free_allocated_memory(have_sys_ports, sys_ports_found, sys_ports_base, have_regex_ports, regex_ports_found, regex_ports_base, have_pts_ports, pts_ports_found, pts_ports_base);
 			(*env)->ExceptionClear(env);
+			free_allocated_memory(have_sys_ports, sys_ports_found, sys_ports_base, have_regex_ports, regex_ports_found, regex_ports_base, have_pts_ports, pts_ports_found, pts_ports_base);
 			return NULL;
 		}
 		x++;
 	}
+
 	x = sys_ports_found + regex_ports_found;
 	for (i=0; i < pts_ports_found; i++) {
 		(*env)->SetObjectArrayElement(env, portsFound, x, (*env)->NewStringUTF(env, pts_ports_base[i]));
 		if((*env)->ExceptionOccurred(env)) {
-			free_allocated_memory(have_sys_ports, sys_ports_found, sys_ports_base, have_regex_ports, regex_ports_found, regex_ports_base, have_pts_ports, pts_ports_found, pts_ports_base);
 			(*env)->ExceptionClear(env);
+			free_allocated_memory(have_sys_ports, sys_ports_found, sys_ports_base, have_regex_ports, regex_ports_found, regex_ports_base, have_pts_ports, pts_ports_found, pts_ports_base);
 			return NULL;
 		}
 		x++;
@@ -713,6 +715,15 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINati
 	}
 	return portsFound;
 #endif
+}
+
+/*
+ * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
+ * Method:    listUSBdevicesWithInfo
+ * Signature: (Lcom/embeddedunveiled/serial/SerialComRetStatus;)[Ljava/lang/String;
+ */
+JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_listUSBdevicesWithInfo(JNIEnv *env, jobject obj, jobject status) {
+	return list_usb_devices(env, obj, status);
 }
 
 /*
