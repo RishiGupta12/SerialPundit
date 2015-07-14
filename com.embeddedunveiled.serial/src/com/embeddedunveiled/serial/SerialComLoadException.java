@@ -25,8 +25,8 @@ import java.io.IOException;
  */
 public final class SerialComLoadException extends IOException {
 
-	private static final long serialVersionUID = -2454774135396601242L;
-	
+	private static final long serialVersionUID = -6165344434639999351L;
+
 	/**
      * <p>Constructs an SerialComLoadException object with the specified detail message.</p>
      *

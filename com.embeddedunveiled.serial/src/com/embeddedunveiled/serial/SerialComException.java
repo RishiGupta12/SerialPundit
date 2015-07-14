@@ -24,7 +24,7 @@ import java.io.IOException;
  */
 public final class SerialComException extends IOException {
 
-	private static final long serialVersionUID = -2454774155396601296L;
+	private static final long serialVersionUID = 6726733939021298461L;
 	private String portName;
 	private String methodName;
 	private String exceptionMsg;

@@ -25,10 +25,10 @@ import java.io.IOException;
  */
 public final class SerialComUnexpectedException extends IOException {
 
-	private static final long serialVersionUID = -2454774135396601246L;
-	
+	private static final long serialVersionUID = 3250678728644547668L;
+
 	/**
-     * <p>Constructs an SerialComUnexpectedException object with the specified detail message.</p>
+     * <p>Constructs and allocate a SerialComUnexpectedException object with the specified details.</p>
      *
      * @param methodName name of method where exception occurred
      * @param exceptionMsg message describing reason for exception
