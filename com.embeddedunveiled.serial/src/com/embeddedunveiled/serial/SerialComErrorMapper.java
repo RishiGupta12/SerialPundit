@@ -19,25 +19,11 @@ package com.embeddedunveiled.serial;
 
 /**
  * <p>This class helps in consistent error reporting in java layer mapping OS specific error numbers.</p>
- * <p>Errors or exceptions are detected and reported as specific as possibel to accelerate debugging.</p>
+ * <p>Errors or exceptions are detected and reported as specific as possible to accelerate debugging.</p>
  */
 public final class SerialComErrorMapper {
+	
 	private int osType = 0;
-	public static final String ERR_USER_DIR_NOT_EXIST_TMP = "User home directory does not exist. Also unable to access tmp/temp directory";
-	public static final String ERR_USER_IS_NOT_DIR_TMP = "User home directory is not A directory. Also unable to access tmp/temp directory";
-	public static final String ERR_USER_DIR_NOT_WRITABLE_TMP = "User home directory is not writeable (permissions ??). Also unable to access tmp/temp directory";
-	public static final String ERR_CREATE_UNIQUE_DIR_TMP = "Can not create scm_tuartx1 unique directory in temp directory";
-	public static final String ERR_CREATE_UNIQUE_DIR_USER = "Can not create scm_tuartx1 unique directory in user home directory";
-	public static final String ERR_GIVEN_DIR_NOT_EXIST = "Given directory does not exist";
-	public static final String ERR_GIVEN_IS_NOT_DIR = "Given directory is not a directory";
-	public static final String ERR_GIVEN_DIR_NOT_WRITABLE = "Given directory is not writeable";
-	public static final String ERR_NULL_POINTER_FOR_DIRPATH = "The directory path can not be null";
-	public static final String ERR_NULL_POINTER_FOR_LIBNAME = "The library can not be null";
-	public static final String ERR_EMPTY_PATH_FOR_DIRPATH = "The directory path can not be empty";
-	public static final String ERR_EMPTY_NAME_FOR_LIBNAME = "The library name can not be empty";
-	public static final String ERR_CANNOT_EXTRACT_LIB = "Can not extract native library from jar";
-	public static final String ERR_CAN_NOT_LOAD_NATIVE_LIB = "Could not load a native library:";
-	public static final String ERR_CANNOT_RES_AS_STREAM = "Can not get shared library resource as stream from jar using class loader";
 
 	/**
 	 * <p>Allocates a new SerialComErrorMapper object.</p>

@@ -392,15 +392,17 @@ public final class SerialComManager {
 	private static boolean nativeLibLoadAndInitAlready = false;
 
 	/**
-	 * <p>Allocates a new SerialComManager object. Identify operating system type, initialize various 
-	 * classes and initiate loading of native library.</p>
+	 * <p>Allocates a new SerialComManager object. Identify operating system type, CPU architecture, prepares 
+	 * environment required for running this library, initiates extraction and loading of native libraries.</p>
+	 * 
+	 * <p>The native shared library will be extracted in folder named 'scm_tuartx1' inside system/user 'temp' folder 
+	 * or user home folder if access to 'temp' folder is denied.</p>
+	 * 
 	 * @throws SerialComUnexpectedException
 	 * @throws SerialComLoadException 
 	 * @throws SecurityException 
 	 */
 	public SerialComManager() throws SerialComUnexpectedException, SerialComException, SecurityException, SerialComLoadException {
-		/* First let the instance be created totally and then call required methods to increase security.
-		 * Platform need to be identified only once, so if more scm instance are created pass them pre-calculated values. */
 		mSerialComSystemProperty = new SerialComSystemProperty();
 		synchronized(lockA) {
 			if(osType <= 0) {
@@ -414,24 +416,43 @@ public final class SerialComManager {
 		if(nativeLibLoadAndInitAlready == false) {
 			SerialComJNINativeInterface.loadNativeLibrary(null, null, mSerialComSystemProperty, osType, cpuArch);
 			mNativeInterface.initNativeLib();
+			nativeLibLoadAndInitAlready = true;
 		}
 		mEventCompletionDispatcher = new SerialComCompletionDispatcher(mNativeInterface, mErrMapper, mPortHandleInfo);
 		mSerialComPortsList = new SerialComPortsList(mNativeInterface, osType);
 	}
 	
+	/**
+	 * <p>Allocates a new SerialComManager object. Identify operating system type, CPU architecture, prepares 
+	 * environment required for running this library, initiates extraction and loading of native libraries.</p>
+	 * 
+	 * <p>This constructor extracts native shared library in the folder specified by argument directoryPath and 
+	 * gives library name specified by loadedLibName. This helps in increasing isolation as completely independent 
+	 * applications might also be using this library. Using different folders make sure that independent applications 
+	 * unaware if each other does not override shared library file in file system.</p>
+	 * 
+	 * <p>This also increase security as the folder may be given specific user permissions.</p>
+	 * 
+	 * @param directoryPath absolute path of directory for extraction
+	 * @param loadedLibName library name without extension (do not append .so, .dll or .dylib etc.)
+	 * @throws SerialComUnexpectedException
+	 * @throws SerialComLoadException 
+	 * @throws SecurityException 
+	 */
 	public SerialComManager(String directoryPath, String loadedLibName) throws SerialComUnexpectedException, SerialComException, SecurityException, SerialComLoadException {
 		if(directoryPath == null) {
-			throw new IllegalArgumentException("SerialComManager() " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_DIRPATH);
+			throw new IllegalArgumentException("SerialComManager() " + "Argument directoryPath can not be null");
 		}
 		if(directoryPath.length() == 0) {
-			throw new IllegalArgumentException("SerialComManager(), " + SerialComErrorMapper.ERR_EMPTY_PATH_FOR_DIRPATH);
+			throw new IllegalArgumentException("SerialComManager(), " + "The directory path can not be empty");
 		}
 		if(loadedLibName == null) {
-			throw new IllegalArgumentException("SerialComManager() " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_LIBNAME);
+			throw new IllegalArgumentException("SerialComManager() " + "Argument loadedLibName can not be null");
 		}
 		if(loadedLibName.length() == 0) {
-			throw new IllegalArgumentException("SerialComManager(), " + SerialComErrorMapper.ERR_EMPTY_NAME_FOR_LIBNAME);
+			throw new IllegalArgumentException("SerialComManager(), " + "The library name can not be empty");
 		}
+		mSerialComSystemProperty = new SerialComSystemProperty();
 		synchronized(lockA) {
 			if(osType <= 0) {
 				mSerialComPlatform = new SerialComPlatform(mSerialComSystemProperty);
@@ -444,16 +465,17 @@ public final class SerialComManager {
 		if(nativeLibLoadAndInitAlready == false) {
 			SerialComJNINativeInterface.loadNativeLibrary(directoryPath, loadedLibName, mSerialComSystemProperty, osType, cpuArch);
 			mNativeInterface.initNativeLib();
+			nativeLibLoadAndInitAlready = true;
 		}
 		mEventCompletionDispatcher = new SerialComCompletionDispatcher(mNativeInterface, mErrMapper, mPortHandleInfo);
 		mSerialComPortsList = new SerialComPortsList(mNativeInterface, osType);
 	}
 
 	/**
-	 * <p>Gives library versions of java and native modules.</p>
+	 * <p>Gives library versions of java and native library implementations.</p>
 	 * 
 	 * @return Java and C library versions implementing this library.
-	 * @throws SerialComException 
+	 * @throws SerialComException if native library version could not be determined
 	 */
 	public String getLibraryVersions() throws SerialComException {
 		String version = null;
