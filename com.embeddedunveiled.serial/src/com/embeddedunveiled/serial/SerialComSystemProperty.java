@@ -28,14 +28,16 @@ public final class SerialComSystemProperty {
 	
 	SecurityManager securityManager = null;
 	
-	/** <p>Allocates a new SerialComSystemProperty object.</p> */
+	/** 
+	 * <p>Allocates a new SerialComSystemProperty object.</p>
+	 */
 	public SerialComSystemProperty() {
 		securityManager = System.getSecurityManager();
 	}
 	
-	/** <p>Identifies CPU architecture scm library is running on.</p>
-	 * @return 
-	 * @throws SecurityException
+	/** <p>Identifies operating system this library is running on.</p>
+	 * @return operating system identified
+	 * @throws SecurityException if security manager does not allow access to system property
 	 */
 	String getOSName() throws SecurityException {
 		if(securityManager == null) {
@@ -49,9 +51,9 @@ public final class SerialComSystemProperty {
 		}
 	}
 	
-	/** <p>Identifies CPU architecture scm library is running on.</p>
-	 * @return 
-	 * @throws SecurityException
+	/** <p>Identifies CPU architecture of the platform in use.</p>
+	 * @return architecture of processor
+	 * @throws SecurityException if security manager does not allow access to system property
 	 */
 	String getOSArch() throws SecurityException {
 		if(securityManager == null) {
@@ -65,9 +67,9 @@ public final class SerialComSystemProperty {
 		}
 	}
 	
-	/** <p>Identifies CPU architecture scm library is running on.</p>
-	 * @return 
-	 * @throws SecurityException
+	/** <p>Gives the vendor of java virtual machine in use.</p>
+	 * @return vendor of JVM
+	 * @throws SecurityException if security manager does not allow access to system property
 	 */
 	String getJavaVmVendor() throws SecurityException {
 		if(securityManager == null) {
@@ -81,9 +83,9 @@ public final class SerialComSystemProperty {
 		}
 	}
 	
-	/** <p>Identifies CPU architecture scm library is running on.</p>
-	 * @return 
-	 * @throws SecurityException
+	/** <p>Locate home directory for Java.</p>
+	 * @return home directory for Java stuff
+	 * @throws SecurityException if security manager does not allow access to system property
 	 */
 	String getJavaHome() throws SecurityException {
 		if(securityManager == null) {
@@ -97,9 +99,9 @@ public final class SerialComSystemProperty {
 		}
 	}
 	
-	/** <p>Identifies CPU architecture scm library is running on.</p>
-	 * @return 
-	 * @throws SecurityException
+	/** <p>Gives system/user temp directory as returned by JVM.</p>
+	 * @return tmp directory for Java operations
+	 * @throws SecurityException if security manager does not allow access to system property
 	 */
 	String getJavaIOTmpDir() throws SecurityException {
 		if(securityManager == null) {
@@ -113,9 +115,9 @@ public final class SerialComSystemProperty {
 		}
 	}
 	
-	/** <p>Identifies CPU architecture scm library is running on.</p>
-	 * @return 
-	 * @throws SecurityException
+	/** <p>Gives home directory of the user currently associated with this process.</p>
+	 * @return home directory of current user
+	 * @throws SecurityException if security manager does not allow access to system property
 	 */
 	String getUserHome() throws SecurityException {
 		if(securityManager == null) {
@@ -129,9 +131,9 @@ public final class SerialComSystemProperty {
 		}
 	}
 	
-	/** <p>Identifies CPU architecture scm library is running on.</p>
-	 * @return 
-	 * @throws SecurityException
+	/** <p>Gives platform specific file separator.</p>
+	 * @return platform specific file separator
+	 * @throws SecurityException if security manager does not allow access to system property
 	 */
 	String getfileSeparator() throws SecurityException {
 		if(securityManager == null) {
@@ -144,4 +146,5 @@ public final class SerialComSystemProperty {
 			});
 		}
 	}
+	
 }
