@@ -30,7 +30,7 @@ public final class SerialComException extends IOException {
 	private String exceptionMsg;
 
 	/**
-     * <p>Constructs an SerialComException object with the specified detail message.</p>
+     * <p>Constructs and allocate a new SerialComException object with the specified detail message.</p>
      *
      * @param methodName name of method where exception occurred
      * @param exceptionMsg message describing reason for exception
@@ -78,4 +78,5 @@ public final class SerialComException extends IOException {
 	public String getExceptionMsg() {
 		return exceptionMsg;
 	}
+	
 }

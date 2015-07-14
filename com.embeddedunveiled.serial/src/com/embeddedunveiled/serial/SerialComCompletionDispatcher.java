@@ -106,7 +106,7 @@ public final class SerialComCompletionDispatcher {
 			}
 		}
 		if(handle == -1) {
-			throw new SerialComException("destroyDataLooper()", SerialComErrorMapper.ERR_WRONG_LISTENER_PASSED);
+			throw new SerialComException("destroyDataLooper()", "This listener is not registered");
 		}
 
 		// We got valid handle so destroy native threads for this listener.
@@ -184,7 +184,7 @@ public final class SerialComCompletionDispatcher {
 			}
 		}
 		if(handle == -1) {
-			throw new SerialComException(" destroyEventLooper()", SerialComErrorMapper.ERR_WRONG_LISTENER_PASSED);
+			throw new SerialComException("destroyEventLooper()", "This listener is not registered");
 		}
 
 		// We got valid handle so destroy native threads for this listener.
@@ -235,7 +235,7 @@ public final class SerialComCompletionDispatcher {
 				throw new SerialComException("pauseListeningEvents()", mErrMapper.getMappedError(ret));
 			}
 		}else {
-			throw new SerialComException("pauseListeningEvents()", SerialComErrorMapper.ERR_WRONG_LISTENER_PASSED);
+			throw new SerialComException("pauseListeningEvents()", "This listener is not registered");
 		}
 	}
 
@@ -269,7 +269,7 @@ public final class SerialComCompletionDispatcher {
 				throw new SerialComException("resumeListeningEvents()", mErrMapper.getMappedError(ret));
 			}
 		}else {
-			throw new SerialComException("resumeListeningEvents()", SerialComErrorMapper.ERR_WRONG_LISTENER_PASSED);
+			throw new SerialComException("resumeListeningEvents()", "This listener is not registered");
 		}
 	}
 }

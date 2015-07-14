@@ -72,7 +72,7 @@ public final class SerialComPortHandleInfo {
 	 */
 	public boolean containsPort(String portName) throws IllegalArgumentException {
 		if(portName == null) {
-			throw new IllegalArgumentException("containsPort(), " + SerialComErrorMapper.ERR_PORT_NAME_NULL);
+			throw new IllegalArgumentException("containsPort(), " + "Name of the port can not be null");
 		}
 		if(mOpenedPortName != null) {
 			if(portName.equals(mOpenedPortName)) {

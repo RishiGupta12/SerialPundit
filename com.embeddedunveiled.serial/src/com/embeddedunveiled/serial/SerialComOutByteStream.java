@@ -41,7 +41,7 @@ public final class SerialComOutByteStream extends OutputStream {
 	@Override
 	public void write(int data) throws IOException {
 		if(isOpened != true) {
-			throw new IOException(SerialComErrorMapper.ERR_BYTE_STREAM_IS_CLOSED);
+			throw new IOException("The byte stream has been closed");
 		}
 		try {
 			scm.writeSingleByte(handle, (byte)data);
@@ -61,13 +61,13 @@ public final class SerialComOutByteStream extends OutputStream {
 	@Override
 	public void write(byte[] data) throws IOException {
 		if(isOpened != true) {
-			throw new IOException(SerialComErrorMapper.ERR_BYTE_STREAM_IS_CLOSED);
+			throw new IOException("The byte stream has been closed");
 		}
 		if(data == null) {
-			throw new NullPointerException("write(), " + SerialComErrorMapper.ERR_WRITE_NULL_DATA_PASSED);
+			throw new NullPointerException("write(), " + "Argument data can not be null");
 		}
 		if(!(data instanceof byte[])) {
-			throw new IllegalArgumentException("write()," + SerialComErrorMapper.ERR_ARG_NOT_BYTE_ARRAY);
+			throw new IllegalArgumentException("write()," + "Argument data is not byte type array");
 		}
 		try {
 			scm.writeBytes(handle, data, 0);
@@ -94,16 +94,16 @@ public final class SerialComOutByteStream extends OutputStream {
 	@Override
 	public void write(byte[] data, int off, int len) throws IOException, IndexOutOfBoundsException {
 		if(isOpened != true) {
-			throw new IOException(SerialComErrorMapper.ERR_BYTE_STREAM_IS_CLOSED);
+			throw new IOException("The byte stream has been closed");
 		}
 		if(data == null) {
-			throw new NullPointerException("write(), " + SerialComErrorMapper.ERR_WRITE_NULL_DATA_PASSED);
+			throw new NullPointerException("write(), " + "Argument data can not be null");
 		}
 		if((off < 0) || (len < 0) || ((off+len) > data.length)) {
-			throw new IndexOutOfBoundsException("write(), " + SerialComErrorMapper.ERR_INDEX_VIOLATION);
+			throw new IndexOutOfBoundsException("write(), " + "index violation detected");
 		}
 		if(!(data instanceof byte[])) {
-			throw new IllegalArgumentException("write()," + SerialComErrorMapper.ERR_ARG_NOT_BYTE_ARRAY);
+			throw new IllegalArgumentException("write()," + "Argument data is not byte type array");
 		}
 		
 		try {
@@ -128,7 +128,7 @@ public final class SerialComOutByteStream extends OutputStream {
 	@Override
 	public void flush() throws IOException {
 		if(isOpened != true) {
-			throw new IOException(SerialComErrorMapper.ERR_BYTE_STREAM_IS_CLOSED);
+			throw new IOException("The byte stream has been closed");
 		}
 	}
 	
@@ -141,7 +141,7 @@ public final class SerialComOutByteStream extends OutputStream {
 	@Override
 	public void close() throws IOException {
 		if(isOpened != true) {
-			throw new IOException(SerialComErrorMapper.ERR_BYTE_STREAM_IS_CLOSED);
+			throw new IOException("The byte stream has been closed");
 		}
 		scm.destroyOutputByteStream(this);
 		isOpened = false;

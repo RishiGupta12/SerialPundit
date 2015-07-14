@@ -85,14 +85,14 @@ public final class SerialComLineEvent {
 	 * @return 0 if DCD is not changed, 1 if DCD went from 0 to 1, 2 if DCD went from 1 to 0
 	 */
 	public int getDCD() {
-		if((mChanged & SerialComManager.DCD) == SerialComManager.DCD) {			   // DCD has changed
+		if((mChanged & SerialComManager.DCD) == SerialComManager.DCD) {			// DCD has changed
 			if((mNewLineEvent  & SerialComManager.DCD) == SerialComManager.DCD) {
-				return 1; 											               // DCD went from 0 to 1
+				return 1; 											                // DCD went from 0 to 1
 			}else {
-				return 2; 											               // DCD went from 1 to 0
+				return 2; 											                // DCD went from 1 to 0
 			}
 		}else {
-			return 0;     											               // DCD is not changed
+			return 0;     											                // DCD is not changed
 		}
 	}
 

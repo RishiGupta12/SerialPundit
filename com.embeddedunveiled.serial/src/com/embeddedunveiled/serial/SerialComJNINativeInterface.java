@@ -62,7 +62,7 @@ public final class SerialComJNINativeInterface {
 			// user did not supplied any directory path so try tmp and user home
 			javaTmpDir = serialComSystemProperty.getJavaIOTmpDir();
 			if(javaTmpDir == null) {
-				throw new SerialComUnexpectedException("loadNativeLibrary()", SerialComErrorMapper.ERR_PROP_JAVA_IO_TMPDIR);
+				throw new SerialComUnexpectedException("loadNativeLibrary()", "The java.io.tmpdir java system property is null in the system");
 			}
 			
 			baseDir = new File(javaTmpDir);
@@ -73,7 +73,7 @@ public final class SerialComJNINativeInterface {
 				// access to temp directory failed, let us try access to user's home directory
 				userHomeDir = serialComSystemProperty.getUserHome();
 				if(userHomeDir == null) {
-					throw new SerialComUnexpectedException("loadNativeLibrary()", SerialComErrorMapper.ERR_PROP_USER_HOME);
+					throw new SerialComUnexpectedException("loadNativeLibrary()", "The user.home java system property is null in the system");
 				}
 				baseDir = new File(userHomeDir);
 				if(!baseDir.exists()) {
@@ -103,7 +103,7 @@ public final class SerialComJNINativeInterface {
 		
 		fileSeparator = serialComSystemProperty.getfileSeparator();
 		if(fileSeparator == null) {
-			throw new SerialComUnexpectedException("loadNativeLibrary()", SerialComErrorMapper.ERR_PROP_FILE_SEPARATOR);
+			throw new SerialComUnexpectedException("loadNativeLibrary()", "The file.separator java system property is null in the system");
 		}
 		
 		if((isTmpDir == true) || (isUserHomeDir == true)) {

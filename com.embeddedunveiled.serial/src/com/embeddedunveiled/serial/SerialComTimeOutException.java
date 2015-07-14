@@ -35,4 +35,5 @@ public final class SerialComTimeOutException extends IOException {
 	public SerialComTimeOutException(String methodName, String exceptionMsg) {
 		super(exceptionMsg + " in method " + methodName);
 	}
+	
 }

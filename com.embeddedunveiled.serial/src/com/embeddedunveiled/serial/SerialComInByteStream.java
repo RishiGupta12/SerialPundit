@@ -67,7 +67,7 @@ public final class SerialComInByteStream extends InputStream {
 	@Override
 	public int available() throws IOException {
 		if(isOpened != true) {
-			throw new IOException(SerialComErrorMapper.ERR_BYTE_STREAM_IS_CLOSED);
+			throw new IOException("The byte stream has been closed");
 		}
 		
 		int[] numBytesAvailable = new int[2];
@@ -86,7 +86,7 @@ public final class SerialComInByteStream extends InputStream {
 	@Override
 	public void close() throws IOException {
 		if(isOpened != true) {
-			throw new IOException(SerialComErrorMapper.ERR_BYTE_STREAM_IS_CLOSED);
+			throw new IOException("The byte stream has been closed");
 		}
 		scm.destroyInputByteStream(this);
 		isOpened = false;
@@ -122,7 +122,7 @@ public final class SerialComInByteStream extends InputStream {
 	@Override
 	public int read() throws IOException {
 		if(isOpened != true) {
-			throw new IOException(SerialComErrorMapper.ERR_BYTE_STREAM_IS_CLOSED);
+			throw new IOException("The byte stream has been closed");
 		}
 		
 		byte[] data = new byte[1];
@@ -132,7 +132,7 @@ public final class SerialComInByteStream extends InputStream {
 				if(data != null) {
 					return (int)data[0];
 				}else {
-					throw new IOException(SerialComErrorMapper.ERR_UNKNOWN_OCCURED);
+					throw new IOException("Unknown error occured");
 				}
 			}else {
 				data = scm.readBytes(handle, 1);
@@ -198,19 +198,19 @@ public final class SerialComInByteStream extends InputStream {
 	@Override
 	public int read(byte b[], int off, int len) throws IOException {
 		if(isOpened != true) {
-			throw new IOException(SerialComErrorMapper.ERR_BYTE_STREAM_IS_CLOSED);
+			throw new IOException("The byte stream has been closed");
 		}
 		if(b == null) {
-			throw new NullPointerException("read(), " + SerialComErrorMapper.ERR_READ_NULL_DATA_PASSED);
+			throw new NullPointerException("read(), " + "null data buffer passed to read operation");
 		}
 		if((off < 0) || (len < 0) || (len > (b.length - off))) {
-			throw new IndexOutOfBoundsException("read(), " + SerialComErrorMapper.ERR_INDEX_VIOLATION);
+			throw new IndexOutOfBoundsException("read(), " + "index violation detected in given byte array");
 		}
 		if(len == 0) {
 			return 0;
 		}
 		if(!(b instanceof byte[])) {
-			throw new IllegalArgumentException(SerialComErrorMapper.ERR_ARG_NOT_BYTE_ARRAY);
+			throw new IllegalArgumentException("The given data array is not byte type array");
 		}
 		
 		int i = off;
@@ -224,7 +224,7 @@ public final class SerialComInByteStream extends InputStream {
 					}
 					return data.length;
 				}else {
-					throw new IOException(SerialComErrorMapper.ERR_UNKNOWN_OCCURED);
+					throw new IOException("Unknown error occured");
 				}
 			}else {
 				byte[] data = scm.readBytes(handle, len);

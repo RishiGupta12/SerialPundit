@@ -36,4 +36,5 @@ public final class SerialComLoadException extends IOException {
 	public SerialComLoadException(String methodName, String exceptionMsg) {
 		super(exceptionMsg + " in method " + methodName);
 	}
+	
 }

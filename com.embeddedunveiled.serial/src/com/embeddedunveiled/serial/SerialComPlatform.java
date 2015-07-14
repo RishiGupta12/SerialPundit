@@ -42,7 +42,7 @@ public final class SerialComPlatform {
 		
 		String osName = mSerialComSystemProperty.getOSName();
 		if(osName == null) {
-			throw new SerialComUnexpectedException("getOSType()", SerialComErrorMapper.ERR_PROP_OS_NAME);
+			throw new SerialComUnexpectedException("getOSType()", "The os.name java system property is null in the system");
 		}
 		
 		if(osName.contains("windows")) {
@@ -83,7 +83,7 @@ public final class SerialComPlatform {
 		
 		String osArch = mSerialComSystemProperty.getOSArch();
 		if(osArch == null) {
-			throw new SerialComUnexpectedException("getCPUArch()", SerialComErrorMapper.ERR_PROP_OS_ARCH);
+			throw new SerialComUnexpectedException("getCPUArch()", "The os.arch java system property is null in the system");
 		}
 		
 		if(osArch.equals("x86") || osArch.equals("i386") || osArch.equals("i486") || osArch.equals("i586") || osArch.equals("i686") 
@@ -127,7 +127,7 @@ public final class SerialComPlatform {
 		// java.vm.vendor system property in android always returns The Android Project as per android javadocs.
 		String osVendor = mSerialComSystemProperty.getJavaVmVendor();
 		if(osVendor == null) {
-			throw new SerialComUnexpectedException("isAndroid()", SerialComErrorMapper.ERR_PROP_VM_VENDOR);
+			throw new SerialComUnexpectedException("isAndroid()", "The java.vm.vendor java system property is null in the system");
 		}
 		
 		if(osVendor.contains("android")) {
@@ -145,7 +145,7 @@ public final class SerialComPlatform {
 		int abiType = SerialComManager.ABI_ARMEL;
 		String javaHome = mSerialComSystemProperty.getJavaHome();
 		if(javaHome == null) {
-			throw new SerialComUnexpectedException("getARMABIType()", SerialComErrorMapper.ERR_PROP_JAVA_HOME);
+			throw new SerialComUnexpectedException("getARMABIType()", "The java.home java system property is null in the system");
 		}
 		
 	    try {

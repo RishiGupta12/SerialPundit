@@ -36,4 +36,5 @@ public final class SerialComUnexpectedException extends IOException {
 	public SerialComUnexpectedException(String methodName, String exceptionMsg) {
 		super(exceptionMsg + " in method " + methodName);
 	}
+	
 }
