@@ -86,11 +86,11 @@ public final class SerialComUSBdevice {
 	 * <p>Prints information about this device on console.</p>
 	 */
 	public void dumpDeviceInfo() {
-		System.out.println("Vendor id : 0x" + idVendor);
-		System.out.println("Product id : 0x" + idProduct);
-		System.out.println("Serial number : " + serial);
-		System.out.println("Product : " + product);
-		System.out.println("Manufacturer : " + manufacturer);
+		System.out.println("\nVendor id : 0x" + idVendor + 
+				            "\nProduct id : 0x" + idProduct + 
+				            "\nSerial number : " + serial + 
+				            "\nProduct : " + product + 
+				            "\nManufacturer : " + manufacturer);
 	}
 	
 }
