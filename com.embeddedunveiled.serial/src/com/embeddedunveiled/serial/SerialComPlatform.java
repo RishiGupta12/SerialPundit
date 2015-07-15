@@ -19,7 +19,8 @@ package com.embeddedunveiled.serial;
 import java.io.IOException;
 
 /**
- * <p>This class identifies various hardware and software platform attributes like operating system and CPU architecture etc.</p>
+ * <p>This class identifies various hardware and software platform attributes 
+ * like operating system and CPU architecture etc.</p>
  */
 public final class SerialComPlatform {
 	
@@ -27,6 +28,7 @@ public final class SerialComPlatform {
 	
 	/**
 	 * <p>Allocates a new SerialComPlatform object.</p>
+	 * @param mSerialComSystemProperty instance which gives various info about system properties
 	 */
 	public SerialComPlatform(SerialComSystemProperty mSerialComSystemProperty) {
 		this.mSerialComSystemProperty = mSerialComSystemProperty;
@@ -163,4 +165,5 @@ public final class SerialComPlatform {
 	    }
 	    return abiType;
 	}
+	
 }

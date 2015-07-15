@@ -22,27 +22,22 @@ import java.nio.ByteBuffer;
 import java.io.InputStream;
 import java.io.FileOutputStream;
 
-/* Load OS specific C-library. Extract native library in our unique "_tuartx1" directory inside 
- * OS/User specific tmp directory and load from here.
- * http://docs.oracle.com/javase/7/docs/api/ */
-
 /**
- * <p>This class load native library and is an interface between java and native shared library.</p>
- * <p>1. Extract from jar.</p>
- * <p>2. Locate in user specific temp folder.</p>
- * <p>3. Try to load native shared library.</p>
- * <p>4. Try to link functions. </p>
+ * <p>This class is an interface between java and native shared library.</p>
  */
 public final class SerialComJNINativeInterface {
 	
 	/**
 	 * <p>Allocates a new SerialComJNINativeInterface object.</p>
-	 * @param loadedLibName 
-	 * @param directoryPath 
 	 */
 	public SerialComJNINativeInterface() {
 	}
 	
+	/**
+	 * <p>Extract native library from jar in a working directory and load it.</p> 
+	 * @param directoryPath null for default directory or user supplied directory path
+	 * @param loadedLibName null for default name or user supplied name of loaded library
+	 */
 	public static boolean loadNativeLibrary(String directoryPath, String loadedLibName, SerialComSystemProperty serialComSystemProperty, int osType, int cpuArch) throws
 						SerialComUnexpectedException, SecurityException, SerialComLoadException, UnsatisfiedLinkError {
 		String javaTmpDir = null;
@@ -57,6 +52,11 @@ public final class SerialComJNINativeInterface {
 		String libExtension = null;
 		InputStream input = null;
 		FileOutputStream output = null;
+		
+		fileSeparator = serialComSystemProperty.getfileSeparator();
+		if(fileSeparator == null) {
+			throw new SerialComUnexpectedException("loadNativeLibrary()", "The file.separator java system property is null in the system");
+		}
 		
 		/* Prepare directory in which native shared library will be extracted from jar */
 		if(directoryPath == null) {
@@ -88,26 +88,7 @@ public final class SerialComJNINativeInterface {
 				}
 				isUserHomeDir = true;
 			}
-		}else {
-			// user specified directory, so try it
-			baseDir = new File(directoryPath);
-			if(!baseDir.exists()) {
-				throw new SerialComLoadException("loadNativeLibrary()", "Given " + directoryPath + " directory does not exist");
-			}
-			if(!baseDir.isDirectory()) {
-				throw new SerialComLoadException("loadNativeLibrary()", "Given " + directoryPath + " is not a directory");
-			}
-			if(!baseDir.canWrite()) {
-				throw new SerialComLoadException("loadNativeLibrary()", "Given " + directoryPath + " directory is not writeable");
-			}
-		}
-		
-		fileSeparator = serialComSystemProperty.getfileSeparator();
-		if(fileSeparator == null) {
-			throw new SerialComUnexpectedException("loadNativeLibrary()", "The file.separator java system property is null in the system");
-		}
-		
-		if((isTmpDir == true) || (isUserHomeDir == true)) {
+			
 			// for tmp or user home create unique directory inside them for our use only
 			workingDir = new File(baseDir.toString() + fileSeparator + "scm_tuartx1");
 			if(!workingDir.exists()) {
@@ -121,6 +102,18 @@ public final class SerialComJNINativeInterface {
 				}
 			}
 		}else {
+			// user specified directory, so try it
+			baseDir = new File(directoryPath);
+			if(!baseDir.exists()) {
+				throw new SerialComLoadException("loadNativeLibrary()", "Given " + directoryPath + " directory does not exist");
+			}
+			if(!baseDir.isDirectory()) {
+				throw new SerialComLoadException("loadNativeLibrary()", "Given " + directoryPath + " is not a directory");
+			}
+			if(!baseDir.canWrite()) {
+				throw new SerialComLoadException("loadNativeLibrary()", "Given " + directoryPath + " directory is not writeable");
+			}
+			
 			// for user specified directory base itself will be working directory
 			workingDir = baseDir;
 		}
