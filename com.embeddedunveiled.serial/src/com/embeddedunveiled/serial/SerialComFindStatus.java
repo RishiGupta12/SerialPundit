@@ -26,11 +26,12 @@ public final class SerialComFindStatus {
 	int status = 1; // package-private access
 
 	/**
-     * Constructs an SerialComFindStatus with integer value supplied.
+     * Construct and allocates a new SerialComFindStatus object with the integer value supplied.
      *
      * @param status initial status value
      */
 	public SerialComFindStatus(int status) {
 		this.status = status;
 	}
+	
 }

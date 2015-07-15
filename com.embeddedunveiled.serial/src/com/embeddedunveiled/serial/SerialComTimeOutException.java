@@ -24,8 +24,8 @@ import java.io.IOException;
  */
 public final class SerialComTimeOutException extends IOException {
 
-	private static final long serialVersionUID = -2454774135396601296L;
-	
+	private static final long serialVersionUID = -8224480728363463690L;
+
 	/**
      * <p>Constructs an SerialComTimeOutException object with the specified detail message.</p>
      *
@@ -35,4 +35,5 @@ public final class SerialComTimeOutException extends IOException {
 	public SerialComTimeOutException(String methodName, String exceptionMsg) {
 		super(exceptionMsg + " in method " + methodName);
 	}
+	
 }

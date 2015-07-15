@@ -392,15 +392,17 @@ public final class SerialComManager {
 	private static boolean nativeLibLoadAndInitAlready = false;
 
 	/**
-	 * <p>Allocates a new SerialComManager object. Identify operating system type, initialize various 
-	 * classes and initiate loading of native library.</p>
+	 * <p>Allocates a new SerialComManager object. Identify operating system type, CPU architecture, prepares 
+	 * environment required for running this library, initiates extraction and loading of native libraries.</p>
+	 * 
+	 * <p>The native shared library will be extracted in folder named 'scm_tuartx1' inside system/user 'temp' folder 
+	 * or user home folder if access to 'temp' folder is denied.</p>
+	 * 
 	 * @throws SerialComUnexpectedException
 	 * @throws SerialComLoadException 
 	 * @throws SecurityException 
 	 */
 	public SerialComManager() throws SerialComUnexpectedException, SerialComException, SecurityException, SerialComLoadException {
-		/* First let the instance be created totally and then call required methods to increase security.
-		 * Platform need to be identified only once, so if more scm instance are created pass them pre-calculated values. */
 		mSerialComSystemProperty = new SerialComSystemProperty();
 		synchronized(lockA) {
 			if(osType <= 0) {
@@ -414,24 +416,43 @@ public final class SerialComManager {
 		if(nativeLibLoadAndInitAlready == false) {
 			SerialComJNINativeInterface.loadNativeLibrary(null, null, mSerialComSystemProperty, osType, cpuArch);
 			mNativeInterface.initNativeLib();
+			nativeLibLoadAndInitAlready = true;
 		}
 		mEventCompletionDispatcher = new SerialComCompletionDispatcher(mNativeInterface, mErrMapper, mPortHandleInfo);
 		mSerialComPortsList = new SerialComPortsList(mNativeInterface, osType);
 	}
 	
+	/**
+	 * <p>Allocates a new SerialComManager object. Identify operating system type, CPU architecture, prepares 
+	 * environment required for running this library, initiates extraction and loading of native libraries.</p>
+	 * 
+	 * <p>This constructor extracts native shared library in the folder specified by argument directoryPath and 
+	 * gives library name specified by loadedLibName. This helps in increasing isolation as completely independent 
+	 * applications might also be using this library. Using different folders make sure that independent applications 
+	 * unaware if each other does not override shared library file in file system.</p>
+	 * 
+	 * <p>This also increase security as the folder may be given specific user permissions.</p>
+	 * 
+	 * @param directoryPath absolute path of directory for extraction
+	 * @param loadedLibName library name without extension (do not append .so, .dll or .dylib etc.)
+	 * @throws SerialComUnexpectedException
+	 * @throws SerialComLoadException 
+	 * @throws SecurityException 
+	 */
 	public SerialComManager(String directoryPath, String loadedLibName) throws SerialComUnexpectedException, SerialComException, SecurityException, SerialComLoadException {
 		if(directoryPath == null) {
-			throw new IllegalArgumentException("SerialComManager() " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_DIRPATH);
+			throw new IllegalArgumentException("SerialComManager() " + "Argument directoryPath can not be null");
 		}
 		if(directoryPath.length() == 0) {
-			throw new IllegalArgumentException("SerialComManager(), " + SerialComErrorMapper.ERR_EMPTY_PATH_FOR_DIRPATH);
+			throw new IllegalArgumentException("SerialComManager(), " + "The directory path can not be empty");
 		}
 		if(loadedLibName == null) {
-			throw new IllegalArgumentException("SerialComManager() " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_LIBNAME);
+			throw new IllegalArgumentException("SerialComManager() " + "Argument loadedLibName can not be null");
 		}
 		if(loadedLibName.length() == 0) {
-			throw new IllegalArgumentException("SerialComManager(), " + SerialComErrorMapper.ERR_EMPTY_NAME_FOR_LIBNAME);
+			throw new IllegalArgumentException("SerialComManager(), " + "The library name can not be empty");
 		}
+		mSerialComSystemProperty = new SerialComSystemProperty();
 		synchronized(lockA) {
 			if(osType <= 0) {
 				mSerialComPlatform = new SerialComPlatform(mSerialComSystemProperty);
@@ -444,16 +465,17 @@ public final class SerialComManager {
 		if(nativeLibLoadAndInitAlready == false) {
 			SerialComJNINativeInterface.loadNativeLibrary(directoryPath, loadedLibName, mSerialComSystemProperty, osType, cpuArch);
 			mNativeInterface.initNativeLib();
+			nativeLibLoadAndInitAlready = true;
 		}
 		mEventCompletionDispatcher = new SerialComCompletionDispatcher(mNativeInterface, mErrMapper, mPortHandleInfo);
 		mSerialComPortsList = new SerialComPortsList(mNativeInterface, osType);
 	}
 
 	/**
-	 * <p>Gives library versions of java and native modules.</p>
+	 * <p>Gives library versions of java and native library implementations.</p>
 	 * 
 	 * @return Java and C library versions implementing this library.
-	 * @throws SerialComException 
+	 * @throws SerialComException if native library version could not be determined
 	 */
 	public String getLibraryVersions() throws SerialComException {
 		String version = null;
@@ -582,11 +604,11 @@ public final class SerialComManager {
 	public long openComPort(String portName, boolean enableRead, boolean enableWrite, boolean exclusiveOwnerShip) throws SerialComException {
 		long handle = 0;
 		if(portName == null) {
-			throw new IllegalArgumentException("openComPort(), " + SerialComErrorMapper.ERR_PORT_NAME_NULL);
+			throw new IllegalArgumentException("openComPort(), " + "Argument portName can not be null");
 		}
 		portName = portName.trim();
 		if(portName.length() == 0) {
-			throw new IllegalArgumentException("openComPort(), " + SerialComErrorMapper.ERR_EMPTY_PORT_NAME);
+			throw new IllegalArgumentException("openComPort(), " + "Name of the port to be opened can not be empty string");
 		}
 		if((enableRead == false) && (enableWrite == false)) {
 			throw new SerialComException(portName, "openComPort()",  "Enable at-least read, write or both.");
@@ -595,7 +617,7 @@ public final class SerialComManager {
 		// For windows COM port can not be shared, so throw exception
 		if(getOSType() == OS_WINDOWS) {
 			if(exclusiveOwnerShip == false) {
-				throw new SerialComException(portName, "openComPort()",  SerialComErrorMapper.ERR_WIN_OWNERSHIP);
+				throw new SerialComException(portName, "openComPort()", "Windows OS does not allow port sharing; exclusiveOwnerShip must be true");
 			}
 		}
 		
@@ -604,7 +626,7 @@ public final class SerialComManager {
 			if(exclusiveOwnerShip == true) {
 				for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
 					if(mInfo.containsPort(portName)) {
-						throw new SerialComException(portName, "openComPort()", SerialComErrorMapper.ERR_PORT_ALREADY_OPEN);
+						throw new SerialComException(portName, "openComPort()", "Given port is already opened");
 					}
 				}
 			}
@@ -617,7 +639,7 @@ public final class SerialComManager {
 			boolean added = mPortHandleInfo.add(new SerialComPortHandleInfo(portName, handle, null, null, null));
 			if(added != true) {
 				closeComPort(handle);
-				throw new SerialComException(portName, "openComPort()",  SerialComErrorMapper.ERR_SCM_NOT_STORE_PORTINFO);
+				throw new SerialComException(portName, "openComPort()", "Could not save info locally, please retry opening port");
 			}
 		}
 
@@ -625,7 +647,7 @@ public final class SerialComManager {
 	}
 
 	/**
-	 * <p>Close the serial port. Application should unregister listeners if it has registered any.</p>
+	 * <p>Close the serial port. Application should unregister listeners if it has registered any before calling this method.</p>
 	 * 
 	 * <p>DTR line is dropped when port is closed.</p>
 	 * 
@@ -650,15 +672,15 @@ public final class SerialComManager {
 			}
 	
 			if(handlefound == false) {
-				throw new SerialComException("closeComPort()", SerialComErrorMapper.ERR_WRONG_HANDLE);
+				throw new SerialComException("closeComPort()", "Wrong port handle passed");
 			}
 	
 			if(mHandleInfo.getDataListener() != null) {
 				/* Proper clean up requires that, native thread should be destroyed before closing port. */
-				throw new IllegalStateException("closeComPort() " + SerialComErrorMapper.ERR_CLOSE_WITHOUT_UNREG_DATA);
+				throw new IllegalStateException("closeComPort() " + "Closing port without unregistering data listener is not allowed");
 			}
 			if(mHandleInfo.getEventListener() != null) {
-				throw new IllegalStateException("closeComPort() " + SerialComErrorMapper.ERR_CLOSE_WITHOUT_UNREG_EVENT);
+				throw new IllegalStateException("closeComPort() " + "Closing port without unregistering event listener is not allowed");
 			}
 	
 			int ret = mNativeInterface.closeComPort(handle);
@@ -696,13 +718,13 @@ public final class SerialComManager {
 	 */
 	public boolean writeBytes(long handle, byte[] buffer, int delay) throws SerialComException {
 		if(buffer == null) {
-			throw new IllegalArgumentException("writeBytes(), " + SerialComErrorMapper.ERR_WRITE_NULL_DATA_PASSED);
+			throw new IllegalArgumentException("writeBytes(), " + "The argumenet buffer can not be null");
 		}
 		if(buffer.length == 0) {
 			return false;
 		}
 		if(delay < 0) {
-			throw new IllegalArgumentException("writeBytes(), " + SerialComErrorMapper.ERR_DELAY_CAN_NOT_NEG);
+			throw new IllegalArgumentException("writeBytes(), " + "Argument delay can not be negative");
 		}
 		int ret = mNativeInterface.writeBytes(handle, buffer, delay);
 		if(ret < 0) {
@@ -753,7 +775,7 @@ public final class SerialComManager {
 	 */
 	public boolean writeString(long handle, String data, int delay) throws SerialComException {
 		if(data == null) {
-			throw new IllegalArgumentException("writeString(), " + SerialComErrorMapper.ERR_WRITE_NULL_DATA_PASSED);
+			throw new IllegalArgumentException("writeString(), " + "Argument data can not be null");
 		}
 		return writeBytes(handle, data.getBytes(), delay);
 	}
@@ -772,7 +794,7 @@ public final class SerialComManager {
 	 */
 	public boolean writeString(long handle, String data, Charset charset, int delay) throws UnsupportedEncodingException, SerialComException {
 		if(data == null) {
-			throw new IllegalArgumentException("writeString(), " + SerialComErrorMapper.ERR_WRITE_NULL_DATA_PASSED);
+			throw new IllegalArgumentException("writeString(), " + "Argument data can not be null");
 		}
 		return writeBytes(handle, data.getBytes(charset), delay);
 	}
@@ -803,10 +825,10 @@ public final class SerialComManager {
 		byte[] buffer = null;
 		
 		if(endianness == null) {
-			throw new IllegalArgumentException("writeSingleInt() " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_ENDIAN);
+			throw new IllegalArgumentException("writeSingleInt() " + "Argument endianness can not be null");
 		}
 		if(numOfBytes == null) {
-			throw new IllegalArgumentException("writeSingleInt() " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_NUMBYTE);
+			throw new IllegalArgumentException("writeSingleInt() " + "Argument numOfBytes can not be null");
 		}
 
 		if(numOfBytes.getValue() == 2) {             // conversion to two bytes data
@@ -853,10 +875,10 @@ public final class SerialComManager {
 		byte[] localBuf = null;
 		
 		if(endianness == null) {
-			throw new IllegalArgumentException("writeIntArray() " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_ENDIAN);
+			throw new IllegalArgumentException("writeIntArray() " + "Argument endianness can not be null");
 		}
 		if(numOfBytes == null) {
-			throw new IllegalArgumentException("writeIntArray() " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_NUMBYTE);
+			throw new IllegalArgumentException("writeIntArray() " + "Argument numOfBytes can not be null");
 		}
 
 		if(numOfBytes.getValue() == 2) {
@@ -1079,16 +1101,16 @@ public final class SerialComManager {
 		int baudRateGiven = 0;
 		
 		if(dataBits == null) {
-			throw new IllegalArgumentException("configureComPortData() " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_DBITS);
+			throw new IllegalArgumentException("configureComPortData() " + "Argument dataBits can not be null");
 		}
 		if(stopBits == null) {
-			throw new IllegalArgumentException("configureComPortData() " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_SBITS);
+			throw new IllegalArgumentException("configureComPortData() " + "Argument stopBits can not be null");
 		}
 		if(parity == null) {
-			throw new IllegalArgumentException("configureComPortData() " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_PARITY);
+			throw new IllegalArgumentException("configureComPortData() " + "Argument parity can not be null");
 		}
 		if(baudRate == null) {
-			throw new IllegalArgumentException("configureComPortData() " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_BRATE);
+			throw new IllegalArgumentException("configureComPortData() " + "Argument baudRate can not be null");
 		}
 
 		boolean handlefound = false;
@@ -1099,7 +1121,7 @@ public final class SerialComManager {
 			}
 		}
 		if(handlefound == false) {
-			throw new SerialComException("configureComPortData()", SerialComErrorMapper.ERR_WRONG_HANDLE);
+			throw new SerialComException("configureComPortData()", "Wrong port handle passed for the requested operations");
 		}
 
 		baudRateGiven = baudRate.getValue();
@@ -1109,7 +1131,7 @@ public final class SerialComManager {
 		}else {
 			// custom baud rate
 			if(custBaud <= 0) {
-				throw new IllegalArgumentException("configureComPortData() " + SerialComErrorMapper.ERR_CUSTB_CAN_NOT_NEG_ZERO);
+				throw new IllegalArgumentException("configureComPortData() " + "Baudrate can not be negative or zero");
 			}
 			baudRateTranslated = baudRateGiven;
 			custBaudTranslated = custBaud;
@@ -1141,7 +1163,7 @@ public final class SerialComManager {
 		boolean handlefound = false;
 		
 		if(flowctrl == null) {
-			throw new IllegalArgumentException("configureComPortControl() " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_FLOWCTRL);
+			throw new IllegalArgumentException("configureComPortControl() " + "Argument flowctrl can not be null");
 		}
 		
 		for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
@@ -1151,7 +1173,7 @@ public final class SerialComManager {
 			}
 		}
 		if(handlefound == false) {
-			throw new SerialComException("configureComPortControl()", SerialComErrorMapper.ERR_WRONG_HANDLE);
+			throw new SerialComException("configureComPortControl()", "Wrong port handle passed for the requested operations");
 		}
 
 		int ret = mNativeInterface.configureComPortControl(handle, flowctrl.getValue(), xon, xoff, ParFraError, overFlowErr);
@@ -1189,7 +1211,7 @@ public final class SerialComManager {
 			}
 		}
 		if(handlefound == false) {
-			throw new SerialComException("getCurrentConfiguration()", SerialComErrorMapper.ERR_WRONG_HANDLE);
+			throw new SerialComException("getCurrentConfiguration()", "Wrong port handle passed for the requested operations");
 		}
 
 		if(getOSType() != OS_WINDOWS) {
@@ -1282,7 +1304,7 @@ public final class SerialComManager {
 		SerialComPortHandleInfo mHandleInfo = null;
 
 		if(dataListener == null) {
-			throw new IllegalArgumentException("registerDataListener(), " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_LISTENER);
+			throw new IllegalArgumentException("registerDataListener(), " + "Argument dataListener can not be null");
 		}
 		
 		synchronized(lockB) {
@@ -1290,7 +1312,7 @@ public final class SerialComManager {
 				if(mInfo.containsHandle(handle)) {
 					handlefound = true;
 					if(mInfo.getDataListener() != null) {
-						throw new SerialComException("registerDataListener()", SerialComErrorMapper.ERR_DATA_LISTENER_ALREADY_EXIST);
+						throw new SerialComException("registerDataListener()", "Data listener already exist. Only one listener allowed.");
 					}else {
 						mHandleInfo = mInfo;
 					}
@@ -1299,7 +1321,7 @@ public final class SerialComManager {
 			}
 	
 			if(handlefound == false) {
-				throw new SerialComException("registerDataListener()", SerialComErrorMapper.ERR_WRONG_HANDLE);
+				throw new SerialComException("registerDataListener()", "Wrong port handle passed for the requested operations");
 			}
 	
 			return mEventCompletionDispatcher.setUpDataLooper(handle, mHandleInfo, dataListener);
@@ -1319,7 +1341,7 @@ public final class SerialComManager {
 	 */
 	public boolean unregisterDataListener(ISerialComDataListener dataListener) throws SerialComException {
 		if(dataListener == null) {
-			throw new IllegalArgumentException("unregisterDataListener(), " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_LISTENER);
+			throw new IllegalArgumentException("unregisterDataListener(), " + "Argument dataListener can not be null");
 		}
 
 		synchronized(lockB) {
@@ -1357,7 +1379,7 @@ public final class SerialComManager {
 		SerialComPortHandleInfo mHandleInfo = null;
 
 		if(eventListener == null) {
-			throw new IllegalArgumentException("registerLineEventListener(), " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_LISTENER);
+			throw new IllegalArgumentException("registerLineEventListener(), " + "Argument eventListener can not be null");
 		}
 
 		synchronized(lockB) {
@@ -1365,7 +1387,7 @@ public final class SerialComManager {
 				if(mInfo.containsHandle(handle)) {
 					handlefound = true;
 					if(mInfo.getEventListener() != null) {
-						throw new SerialComException("registerLineEventListener()", SerialComErrorMapper.ERR_LISTENER_ALREADY_EXIST);
+						throw new SerialComException("registerLineEventListener()", "Event listener already exist. Only one listener allowed");
 					}else {
 						mHandleInfo = mInfo;
 					}
@@ -1374,7 +1396,7 @@ public final class SerialComManager {
 			}
 	
 			if(handlefound == false) {
-				throw new SerialComException("registerLineEventListener()", SerialComErrorMapper.ERR_WRONG_HANDLE);
+				throw new SerialComException("registerLineEventListener()", "Wrong port handle passed for the requested operations");
 			}
 	
 			return mEventCompletionDispatcher.setUpEventLooper(handle, mHandleInfo, eventListener);
@@ -1393,7 +1415,7 @@ public final class SerialComManager {
 	 */
 	public boolean unregisterLineEventListener(ISerialComEventListener eventListener) throws SerialComException {
 		if(eventListener == null) {
-			throw new IllegalArgumentException("unregisterLineEventListener(), " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_LISTENER);
+			throw new IllegalArgumentException("unregisterLineEventListener(), " + "Argument eventListener can not be null");
 		}
 		synchronized(lockB) {
 			if(mEventCompletionDispatcher.destroyEventLooper(eventListener)) {
@@ -1406,7 +1428,7 @@ public final class SerialComManager {
 
 
 	/**
-	 * <p>The user don't need data for some time or he may be managing data more efficiently.</p>
+	 * <p>This pauses delivering events to application. The events kept accumulating in queue.</p>
 	 * 
 	 * @param eventListener instance of class which implemented ISerialComEventListener interface
 	 * @return true on success false otherwise
@@ -1415,7 +1437,7 @@ public final class SerialComManager {
 	 */
 	public boolean pauseListeningEvents(ISerialComEventListener eventListener) throws SerialComException {
 		if(eventListener == null) {
-			throw new IllegalArgumentException("pauseListeningEvents(), " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_LISTENER);
+			throw new IllegalArgumentException("pauseListeningEvents(), " + "Argument eventListener can not be null");
 
 		}
 		if(mEventCompletionDispatcher.pauseListeningEvents(eventListener)) {
@@ -1426,10 +1448,7 @@ public final class SerialComManager {
 	}
 
 	/**
-	 * <p>The user don't need data for some time or he may be managing data more efficiently.
-	 * Note that the native thread will continue to receive events and data, it will pass this data to
-	 * java layer. User must be careful that new data will exist in queue if received after pausing, but
-	 * it will not get delivered to application.</p>
+	 * <p>Resume delivering events kept in queue to application.</p>
 	 * 
 	 * @param eventListener is an instance of class which implements ISerialComEventListener
 	 * @return true on success false otherwise
@@ -1438,7 +1457,7 @@ public final class SerialComManager {
 	 */
 	public boolean resumeListeningEvents(ISerialComEventListener eventListener) throws SerialComException {
 		if(eventListener == null) {
-			throw new IllegalArgumentException("pauseListeningEvents(), " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_LISTENER);
+			throw new IllegalArgumentException("resumeListeningEvents(), " + "Argument eventListener can not be null");
 
 		}
 		if(mEventCompletionDispatcher.resumeListeningEvents(eventListener)) {
@@ -1471,14 +1490,14 @@ public final class SerialComManager {
 		boolean handlefound = false;		
 		if(osType == SerialComManager.OS_WINDOWS) {
 			if((rit < 0) || (rttm < 0) || (rttc < 0)) {
-				throw new IllegalArgumentException("fineTuneRead(), " + SerialComErrorMapper.ERR_ARG_CAN_NOT_NEGATIVE);
+				throw new IllegalArgumentException("fineTuneRead(), " + "Argument(s) rit, rttm and rttc can not be neagative");
 			}
 		}else {
 			if((vmin == 0) && (vtime == 0)) {
-				throw new IllegalArgumentException("fineTuneRead(), " + SerialComErrorMapper.ERR_INVALID_COMBINATION_ARG);
+				throw new IllegalArgumentException("fineTuneRead(), " + "Invalid combination of vmin and vtime arguments passed");
 			}
 			if((vmin < 0) || (vtime < 0)) {
-				throw new IllegalArgumentException("fineTuneRead(), " + SerialComErrorMapper.ERR_ARG_CAN_NOT_NEGATIVE);
+				throw new IllegalArgumentException("fineTuneRead(), " + "Argument(s) vmin and vtime can not be negative");
 			}
 		}
 
@@ -1490,7 +1509,7 @@ public final class SerialComManager {
 		}
 
 		if(handlefound == false) {
-			throw new SerialComException("fineTuneRead()", SerialComErrorMapper.ERR_WRONG_HANDLE);
+			throw new SerialComException("fineTuneRead()", "Wrong port handle passed for the requested operations");
 		}
 
 		int ret = mNativeInterface.fineTuneRead(handle, vmin, vtime, rit, rttm, rttc);
@@ -1519,7 +1538,7 @@ public final class SerialComManager {
 		ISerialComEventListener mEventListener = null;
 
 		if(eventListener == null) {
-			throw new IllegalArgumentException("setEventsMask(), " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_LISTENER);
+			throw new IllegalArgumentException("setEventsMask(), " + "Argument eventListener can not be null");
 		}
 
 		for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
@@ -1534,7 +1553,7 @@ public final class SerialComManager {
 			looper.setEventsMask(newMask);
 			return true;
 		}else {
-			throw new SerialComException("setEventsMask()", SerialComErrorMapper.ERR_WRONG_LISTENER_PASSED);
+			throw new SerialComException("setEventsMask()", "This listener is not registered");
 		}
 	}
 
@@ -1552,7 +1571,7 @@ public final class SerialComManager {
 		ISerialComEventListener mEventListener = null;
 
 		if(eventListener == null) {
-			throw new IllegalArgumentException("getEventsMask(), " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_LISTENER);
+			throw new IllegalArgumentException("getEventsMask(), " + "Argument eventListener can not be null");
 		}
 
 		for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
@@ -1566,7 +1585,7 @@ public final class SerialComManager {
 		if(looper != null && mEventListener != null) {
 			return looper.getEventsMask();
 		}else {
-			throw new SerialComException("setEventsMask()", SerialComErrorMapper.ERR_WRONG_LISTENER_PASSED);
+			throw new SerialComException("setEventsMask()", "This listener is not registered");
 		}
 	}
 
@@ -1592,7 +1611,7 @@ public final class SerialComManager {
 			}
 		}
 		if(handlefound == false) {
-			throw new SerialComException("clearPortIOBuffers()", SerialComErrorMapper.ERR_WRONG_HANDLE);
+			throw new SerialComException("clearPortIOBuffers()", "Wrong port handle passed for the requested operations");
 		}
 
 		if(clearRxPort == true || clearTxPort == true) {
@@ -1633,11 +1652,11 @@ public final class SerialComManager {
 			}
 		}
 		if(handlefound == false) {
-			throw new SerialComException("sendBreak()", SerialComErrorMapper.ERR_WRONG_HANDLE);
+			throw new SerialComException("sendBreak()", "Wrong port handle passed for the requested operations");
 		}
 		
 		if((duration < 0) || (duration == 0)) {
-			throw new IllegalArgumentException("sendBreak(), " + SerialComErrorMapper.ERR_DUR_CAN_NOT_NEG_ZERO);
+			throw new IllegalArgumentException("sendBreak(), " + "Argument duration can not be negative or zero");
 		}
 
 		int ret = mNativeInterface.sendBreak(handle, duration);
@@ -1673,7 +1692,7 @@ public final class SerialComManager {
 			}
 		}
 		if(handlefound == false) {
-			throw new SerialComException("getInterruptCount()", SerialComErrorMapper.ERR_WRONG_HANDLE);
+			throw new SerialComException("getInterruptCount()", "Wrong port handle passed for the requested operations");
 		}
 
 		ret = mNativeInterface.getInterruptCount(handle);
@@ -1713,7 +1732,7 @@ public final class SerialComManager {
 			}
 		}
 		if(handlefound == false) {
-			throw new SerialComException("getLinesStatus()", SerialComErrorMapper.ERR_WRONG_HANDLE);
+			throw new SerialComException("getLinesStatus()", "Wrong port handle passed for the requested operations");
 		}
 
 		ret = mNativeInterface.getLinesStatus(handle);
@@ -1752,7 +1771,7 @@ public final class SerialComManager {
 			}
 		}
 		if(handlefound == false) {
-			throw new SerialComException("getByteCountInPortIOBuffer()", SerialComErrorMapper.ERR_WRONG_HANDLE);
+			throw new SerialComException("getByteCountInPortIOBuffer()", "Wrong port handle passed for the requested operations");
 		}
 
 		// sequence returned : ret[0]=error info, ret[1]=byte count in input buffer, ret[2]=byte count in output buffer
@@ -1793,11 +1812,11 @@ public final class SerialComManager {
 	 */
 	public boolean registerHotPlugEventListener(ISerialComHotPlugListener hotPlugListener, int filterVID, int filterPID) throws SerialComException {
 		if(hotPlugListener == null) {
-			throw new IllegalArgumentException("registerHotplugEventListener(), " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_HOT_LISTENER);
+			throw new IllegalArgumentException("registerHotplugEventListener(), " + "Argument hotPlugListener can not be null");
 		}
 		
 		if((filterVID < 0) || (filterPID < 0)) {
-			throw new IllegalArgumentException("registerHotplugEventListener(), " + SerialComErrorMapper.ERR_VID_PID_CANNOT_NEGATIVE);
+			throw new IllegalArgumentException("registerHotplugEventListener(), " + "USB VID or PID can not be negative number(s)");
 		}
 		
 		synchronized(lockB) {
@@ -1809,7 +1828,7 @@ public final class SerialComManager {
 			boolean added = mHotPlugListenerInfo.add(new SerialComHotPlugInfo(hotPlugListener, ret[1]));
 			if(added != true) {
 				unregisterHotPlugEventListener(hotPlugListener);
-				throw new SerialComException("registerHotPlugEventListener()",  SerialComErrorMapper.ERR_SCM_NOT_STORE_HOTPLUGINFO);
+				throw new SerialComException("registerHotPlugEventListener()",  "Could not save info about hot plug listener locally. Please retry registering hot plug listener");
 			}
 		}
 
@@ -1829,7 +1848,7 @@ public final class SerialComManager {
 		int index = -1;
 		SerialComHotPlugInfo mListenerInfo = null;
 		if(hotPlugListener == null) {
-			throw new IllegalArgumentException("unregisterHotplugEventListener(), " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_HOT_LISTENER);
+			throw new IllegalArgumentException("unregisterHotplugEventListener(), " + "Argument hotPlugListener can not be null");
 		}
 		
 		for(SerialComHotPlugInfo mInfo: mHotPlugListenerInfo){
@@ -1840,7 +1859,7 @@ public final class SerialComManager {
 			}
 		}
 		if(index == -1) {
-			throw new SerialComException("unregisterHotPlugEventListener()", SerialComErrorMapper.ERR_WRONG_LISTENER_PASSED);
+			throw new SerialComException("unregisterHotPlugEventListener()", "This listener is not registered");
 		}
 		
 		synchronized(lockB) {
@@ -1858,7 +1877,7 @@ public final class SerialComManager {
 
 	/**
 	 * <p>This method gives the port name with which given handle is associated. If the given handle is
-	 * unknown to scm library, null is returned. The port is known to scm if it was opened using scm.</p>
+	 * unknown to SCM library, null is returned. A serial port is known to SCM if it was opened using this library.</p>
 	 * 
 	 * @param handle for which the port name is to be found
 	 * @return port name if port found for given handle or null if not found
@@ -1904,16 +1923,16 @@ public final class SerialComManager {
 		boolean result = false;
 		
 		if(fileToSend == null) {
-			throw new IllegalArgumentException("sendFile()" + SerialComErrorMapper.ERR_NULL_POINTER_FOR_FILE_SEND);
+			throw new IllegalArgumentException("sendFile()" + "Argument fileToSend can not be null");
 		}
 		if(ftpProto == null) {
-			throw new IllegalArgumentException("sendFile() " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_PROTOCOL);
+			throw new IllegalArgumentException("sendFile() " + "Argument ftpProto can not be null");
 		}
 		if(ftpVariant == null) {
-			throw new IllegalArgumentException("sendFile() " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_VARIANT);
+			throw new IllegalArgumentException("sendFile() " + "Argument ftpVariant can not be null");
 		}
 		if(ftpMode == null) {
-			throw new IllegalArgumentException("sendFile() " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_MODE);
+			throw new IllegalArgumentException("sendFile() " + "Argument ftpMode can not be null");
 		}
 
 		for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
@@ -1923,7 +1942,7 @@ public final class SerialComManager {
 			}
 		}
 		if(handlefound == false) {
-			throw new SerialComException("sendFile()", SerialComErrorMapper.ERR_WRONG_HANDLE);
+			throw new SerialComException("sendFile()", "Wrong port handle passed for the requested operations");
 		}
 
 		protocol = ftpProto.getValue();
@@ -1976,16 +1995,16 @@ public final class SerialComManager {
 		boolean result = false;
 		
 		if(fileToReceive == null) {
-			throw new IllegalArgumentException("receiveFile()" + SerialComErrorMapper.ERR_NULL_POINTER_FOR_FILE_RECEIVE);
+			throw new IllegalArgumentException("receiveFile()" + "Argument fileToReceive can not be null");
 		}
 		if(ftpProto == null) {
-			throw new IllegalArgumentException("receiveFile() " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_PROTOCOL);
+			throw new IllegalArgumentException("receiveFile() " + "Argument ftpProto can not be null");
 		}
 		if(ftpVariant == null) {
-			throw new IllegalArgumentException("receiveFile() " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_VARIANT);
+			throw new IllegalArgumentException("receiveFile() " + "Argument ftpVariant can not be null");
 		}
 		if(ftpMode == null) {
-			throw new IllegalArgumentException("receiveFile() " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_MODE);
+			throw new IllegalArgumentException("receiveFile() " + "Argument ftpMode can not be null");
 		}
 		
 		for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
@@ -1995,7 +2014,7 @@ public final class SerialComManager {
 			}
 		}
 		if(handlefound == false) {
-			throw new SerialComException("receiveFile()", SerialComErrorMapper.ERR_WRONG_HANDLE);
+			throw new SerialComException("receiveFile()", "Wrong port handle passed for the requested operations");
 		}
 
 		protocol = ftpProto.getValue();
@@ -2038,7 +2057,7 @@ public final class SerialComManager {
 	 */
 	public boolean writeBytesBulk(long handle, ByteBuffer buffer) throws SerialComException {
 		if(buffer == null) {
-			throw new IllegalArgumentException("writeBytesBulk(), " + SerialComErrorMapper.ERR_WRITE_NULL_DATA_PASSED);
+			throw new IllegalArgumentException("writeBytesBulk(), " + "Null data buffer passed to write operation");
 		}
 
 		int ret = mNativeInterface.writeBytesBulk(handle, buffer);
@@ -2065,7 +2084,7 @@ public final class SerialComManager {
 		SerialComPortHandleInfo mHandleInfo = null;
 		
 		if(streamMode == null) {
-			throw new IllegalArgumentException("createInputByteStream() " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_SMODE);
+			throw new IllegalArgumentException("createInputByteStream() " + "Argument streamMode can not be null");
 		}
 
 		for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
@@ -2077,7 +2096,7 @@ public final class SerialComManager {
 			}
 		}
 		if(handlefound == false) {
-			throw new SerialComException("createInputByteStream()", SerialComErrorMapper.ERR_WRONG_HANDLE);
+			throw new SerialComException("createInputByteStream()", "Wrong port handle passed for the requested operations");
 		}
 		
 		if(scis == null) {
@@ -2085,7 +2104,7 @@ public final class SerialComManager {
 			mHandleInfo.setSerialComInByteStream(scis);
 		}else {
 			// if 2nd attempt is made to create already existing input stream, throw exception
-			throw new SerialComException("createInputByteStream()", SerialComErrorMapper.ERR_IN_STREAM_ALREADY_EXIST);
+			throw new SerialComException("createInputByteStream()", "Input stream already exist for this handle");
 		}
 		
 		return scis;
@@ -2111,7 +2130,7 @@ public final class SerialComManager {
 		SerialComPortHandleInfo mHandleInfo = null;
 		
 		if(streamMode == null) {
-			throw new IllegalArgumentException("createOutputByteStream() " + SerialComErrorMapper.ERR_NULL_POINTER_FOR_SMODE);
+			throw new IllegalArgumentException("createOutputByteStream() " + "Argument streamMode can not be null");
 		}
 
 		for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
@@ -2123,7 +2142,7 @@ public final class SerialComManager {
 			}
 		}
 		if(handlefound == false) {
-			throw new SerialComException("createOutputByteStream()", SerialComErrorMapper.ERR_WRONG_HANDLE);
+			throw new SerialComException("createOutputByteStream()", "Wrong port handle passed for the requested operations");
 		}
 		
 		if(scos == null) {
@@ -2131,7 +2150,7 @@ public final class SerialComManager {
 			mHandleInfo.setSerialComOutByteStream(scos);
 		}else {
 			// if 2nd attempt is made to create already existing output stream, throw exception
-			throw new SerialComException("createOutputByteStream()", SerialComErrorMapper.ERR_OUT_STREAM_ALREADY_EXIST);
+			throw new SerialComException("createOutputByteStream()", "Output stream already exist for this handle");
 		}
 		
 		return scos;
@@ -2173,7 +2192,7 @@ public final class SerialComManager {
 			}
 		}
 		if(handlefound == false) {
-			throw new SerialComException("getIOCTLExecutor()", SerialComErrorMapper.ERR_WRONG_HANDLE);
+			throw new SerialComException("getIOCTLExecutor()", "Wrong port handle passed for the requested operations");
 		}
 		
 		return new SerialComIOCTLExecutor(mNativeInterface, mErrMapper);

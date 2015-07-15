@@ -24,13 +24,13 @@ import java.io.IOException;
  */
 public final class SerialComException extends IOException {
 
-	private static final long serialVersionUID = -2454774155396601296L;
+	private static final long serialVersionUID = 6726733939021298461L;
 	private String portName;
 	private String methodName;
 	private String exceptionMsg;
 
 	/**
-     * <p>Constructs an SerialComException object with the specified detail message.</p>
+     * <p>Constructs and allocate a new SerialComException object with the specified detail message.</p>
      *
      * @param methodName name of method where exception occurred
      * @param exceptionMsg message describing reason for exception
@@ -78,4 +78,5 @@ public final class SerialComException extends IOException {
 	public String getExceptionMsg() {
 		return exceptionMsg;
 	}
+	
 }

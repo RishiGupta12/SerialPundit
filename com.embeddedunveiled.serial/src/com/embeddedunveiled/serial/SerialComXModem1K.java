@@ -70,6 +70,8 @@ public final class SerialComXModem1K {
 
 	/**
 	 * <p>Represents actions to execute in state machine to implement xmodem-1k protocol for sending files.</p>
+	 * @return true on success
+	 * @throws TODO
 	 */
 	public boolean sendFileX() throws SecurityException, IOException, SerialComException {
 
@@ -123,7 +125,7 @@ public final class SerialComXModem1K {
 							}
 							// abort if timed-out while waiting for C character
 							if((cReceived != true) && (System.currentTimeMillis() >= responseWaitTimeOut)) {
-								errMsg = SerialComErrorMapper.ERR_TIMEOUT_RECEIVER_CONNECT;
+								errMsg = "Timedout while waiting for file receiver to initiate connection setup";
 								state = ABORT;
 								break;
 							}
@@ -143,7 +145,7 @@ public final class SerialComXModem1K {
 					break;
 				case RESEND:
 					if(retryCount > 10) {
-						errMsg = SerialComErrorMapper.ERR_MAX_TX_RETRY_REACHED;
+						errMsg = "Maximum number of retries reached while sending same data block";
 						state = ABORT;
 						break;
 					}
@@ -187,9 +189,9 @@ public final class SerialComXModem1K {
 							}
 							if(System.currentTimeMillis() >= responseWaitTimeOut) {
 								if(noMoreData == true) {
-									errMsg = SerialComErrorMapper.ERR_TIMEOUT_ACKNOWLEDGE_EOT;
+									errMsg = "Timedout while waiting for EOT reception acknowledgement from file receiver";
 								}else {
-									errMsg = SerialComErrorMapper.ERR_TIMEOUT_ACKNOWLEDGE_BLOCK;
+									errMsg = "Timedout while waiting for block reception acknowledgement from file receiver";
 								}
 								state = ABORT;
 								break;
@@ -205,7 +207,7 @@ public final class SerialComXModem1K {
 								retryCount++;
 								state = RESEND;
 							}else{
-								errMsg = SerialComErrorMapper.ERR_UNKNOWN_OCCURED;
+								errMsg = "Unknown error occured";
 								state = ABORT;
 							}
 						}else {
@@ -214,7 +216,7 @@ public final class SerialComXModem1K {
 								return true; // successfully sent file, let's go back home happily
 							}else{
 								if(System.currentTimeMillis() >= eotAckWaitTimeOutValue) {
-									errMsg = SerialComErrorMapper.ERR_TIMEOUT_ACKNOWLEDGE_EOT;
+									errMsg = "Timedout while waiting for EOT reception acknowledgement from file receiver";
 									state = ABORT;
 								}else {
 									state = ENDTX;
@@ -302,6 +304,7 @@ public final class SerialComXModem1K {
 
 	/**
 	 * <p>Represents actions to execute in state machine to implement xmodem protocol for receiving files.</p>
+	 * @ return true on success
 	 * @throws IOException 
 	 */
 	public boolean receiveFileX() throws IOException, SerialComException {
@@ -446,7 +449,7 @@ public final class SerialComXModem1K {
 						}else {
 							if(firstBlock == false) {
 								if(System.currentTimeMillis() > nextDataRecvTimeOut) {
-									errMsg = SerialComErrorMapper.ERR_TIMEOUT_RECV_FROM_SENDER;
+									errMsg = "Timedout while trying to receive next data byte from file sender";
 									state = ABORT;
 									break;
 								}
@@ -469,7 +472,7 @@ public final class SerialComXModem1K {
 						isDuplicateBlock = true;
 						duplicateBlockRetryCount++;
 						if(duplicateBlockRetryCount > 10) {
-							errMsg = SerialComErrorMapper.ERR_MAX_RX_RETRY_REACHED;
+							errMsg = "Maximum number of retries reached while receiving same data block";
 							state = ABORT;
 						}
 						break;
@@ -543,4 +546,5 @@ public final class SerialComXModem1K {
 			}
 		}
 	}
+	
 }

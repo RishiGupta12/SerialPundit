@@ -65,7 +65,7 @@ public final class SerialComUtil {
 	 */
 	public static String byteArrayToHexString(byte[] data, String separator) {
 		if(data == null) {
-			throw new IllegalArgumentException("byteArrayToHexStr(), " + SerialComErrorMapper.ERR_CAN_NOT_BE_NULL);
+			throw new IllegalArgumentException("byteArrayToHexStr(), " + "Argument data can not be null");
 		}
 		
 		if(data.length > 0) {
@@ -103,13 +103,13 @@ public final class SerialComUtil {
         byte checkSum = 0;
         
 		if(data == null) {
-			throw new NullPointerException("LRCCheckSum(), " + SerialComErrorMapper.ERR_NULL_DATA_PASSED);
+			throw new NullPointerException("LRCCheckSum(), " + "Argument data can not be null");
 		}
 		if((offset < 0) || (length < 0) || (length > (data.length - offset))) {
-			throw new IndexOutOfBoundsException("LRCCheckSum(), " + SerialComErrorMapper.ERR_INDEX_VIOLATION);
+			throw new IndexOutOfBoundsException("LRCCheckSum(), " + "Index violation detected");
 		}
 		if(!(data instanceof byte[])) {
-			throw new IllegalArgumentException(SerialComErrorMapper.ERR_ARG_NOT_BYTE_ARRAY);
+			throw new IllegalArgumentException("Argument data is not byte type array");
 		}
 		
         for (int i = offset; i < offset + length; i++) {

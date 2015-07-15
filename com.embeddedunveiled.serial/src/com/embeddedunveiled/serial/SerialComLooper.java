@@ -29,7 +29,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public final class SerialComLooper {
 
-	private final boolean DEBUG = true;
 	private final int MAX_NUM_EVENTS = 5000;
 	private SerialComJNINativeInterface mNativeInterface = null;
 	private SerialComErrorMapper mErrMapper = null;
@@ -77,8 +76,6 @@ public final class SerialComLooper {
 					} catch (InterruptedException e) {
 						if(exitDataThread.get() == true) {
 							break;
-						}else {
-							if(DEBUG) e.printStackTrace();
 						}
 					}
 				}
@@ -106,8 +103,6 @@ public final class SerialComLooper {
 					} catch (InterruptedException e) {
 						if(exitDataErrorThread.get() == true) {
 							break;
-						}else {
-							if(DEBUG) e.printStackTrace();
 						}
 					}
 				}
@@ -131,8 +126,6 @@ public final class SerialComLooper {
 					} catch (InterruptedException e) {
 						if(exitEventThread.get() == true) {
 							break;
-						}else {
-							if(DEBUG) e.printStackTrace();
 						}
 					}
 			}
@@ -162,7 +155,6 @@ public final class SerialComLooper {
 		try {
 			mDataQueue.offer(new SerialComDataEvent(newData));
 		} catch (Exception e) {
-			if(DEBUG) e.printStackTrace();
 		}
 	}
 	
@@ -177,7 +169,6 @@ public final class SerialComLooper {
 		try {
 			mDataErrorQueue.offer(errorNum);
 		} catch (Exception e) {
-			if(DEBUG) e.printStackTrace();
 		}
 	}
 
@@ -194,7 +185,6 @@ public final class SerialComLooper {
 		try {
 			mEventQueue.offer(new SerialComLineEvent(oldLineState, newLineState));
 		} catch (Exception e) {
-			if(DEBUG) e.printStackTrace();
 		}
 		oldLineState = newLineState;
 	}
@@ -215,7 +205,6 @@ public final class SerialComLooper {
 			mDataLooperThread.start();
 			mDataErrorLooperThread.start();
 		} catch (Exception e) {
-			if(DEBUG) e.printStackTrace();
 		}
 	}
 	
@@ -230,7 +219,6 @@ public final class SerialComLooper {
 			mDataLooperThread.interrupt();
 			mDataErrorLooperThread.interrupt();
 		} catch (Exception e) {
-			if(DEBUG) e.printStackTrace();
 		}
 	}
 
@@ -260,7 +248,6 @@ public final class SerialComLooper {
 			mEventLooperThread = new Thread(new EventLooper(), "SCM EventLooper for handle " + handle + " and port " + portName);
 			mEventLooperThread.start();
 		} catch (Exception e) {
-			if(DEBUG) e.printStackTrace();
 		}
 	}
 
@@ -273,7 +260,6 @@ public final class SerialComLooper {
 			exitEventThread.set(true);
 			mEventLooperThread.interrupt();
 		} catch (Exception e) {
-			if(DEBUG) e.printStackTrace();
 		}
 	}
 
