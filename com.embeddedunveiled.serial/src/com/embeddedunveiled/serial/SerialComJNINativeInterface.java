@@ -38,7 +38,8 @@ public final class SerialComJNINativeInterface {
 	 * @param directoryPath null for default directory or user supplied directory path
 	 * @param loadedLibName null for default name or user supplied name of loaded library
 	 */
-	public static boolean loadNativeLibrary(String directoryPath, String loadedLibName, SerialComSystemProperty serialComSystemProperty, int osType, int cpuArch) throws
+	public static boolean loadNativeLibrary(String directoryPath, String loadedLibName, SerialComSystemProperty serialComSystemProperty,
+			                                   int osType, int cpuArch, int javaABIType) throws
 						SerialComUnexpectedException, SecurityException, SerialComLoadException, UnsatisfiedLinkError {
 		String javaTmpDir = null;
 		String userHomeDir = null;
@@ -151,10 +152,32 @@ public final class SerialComJNINativeInterface {
 					break;
 				default :
 			}
-		}else if(cpuArch == SerialComManager.ARCH_IA64) {
-			
+		}else if(cpuArch == SerialComManager.ARCH_ARMV7) {
+			if(osType == SerialComManager.OS_LINUX) {
+				libExtension = ".so";
+				if(javaABIType == SerialComManager.ABI_ARMHF) {
+					libToExtractFromJar = "linux_" + SerialComManager.JAVA_LIB_VERSION + "_armv7hf.so";
+				}else if(javaABIType == SerialComManager.ABI_ARMEL) {
+					libToExtractFromJar = "linux_" + SerialComManager.JAVA_LIB_VERSION + "_armv7el.so";
+				}else {
+				}
+			}
+		}else if(cpuArch == SerialComManager.ARCH_ARMV6) {
+			if(osType == SerialComManager.OS_LINUX) {
+				libExtension = ".so";
+				if(javaABIType == SerialComManager.ABI_ARMHF) {
+					libToExtractFromJar = "linux_" + SerialComManager.JAVA_LIB_VERSION + "_armv6hf.so";
+				}else if(javaABIType == SerialComManager.ABI_ARMEL) {
+					libToExtractFromJar = "linux_" + SerialComManager.JAVA_LIB_VERSION + "_armv6el.so";
+				}else {
+				}
+			}
+		}else if(cpuArch == SerialComManager.ARCH_ARMV5) {
+			if(osType == SerialComManager.OS_LINUX) {
+				libExtension = ".so";
+				libToExtractFromJar = "linux_" + SerialComManager.JAVA_LIB_VERSION + "_armv5.so";
+			}
 		}else {
-			//TODO for more platforms
 		}
 		
 		/* Extract shared library from jar into working directory */

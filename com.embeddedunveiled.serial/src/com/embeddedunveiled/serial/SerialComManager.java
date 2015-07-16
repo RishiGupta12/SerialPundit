@@ -320,16 +320,10 @@ public final class SerialComManager {
 	public static final int ARCH_ARMV5 = 0x0D;
 	
 	/** <p>The value indicating that the library is running on a ARMv6 soft float based JVM. Integer constant with value 0x0E. </p>*/
-	public static final int ARCH_ARMV6_SF = 0x0E;
-	
-	/** <p>The value indicating that the library is running on a ARMv6 hard float based JVM. Integer constant with value 0x0F. </p>*/
-	public static final int ARCH_ARMV6_HF = 0x0F;
+	public static final int ARCH_ARMV6 = 0x0E;
 	
 	/** <p>The value indicating that the library is running on a ARMv7 soft float based JVM. Integer constant with value 0x10. </p>*/
-	public static final int ARCH_ARMV7_SF = 0x10;
-	
-	/** <p>The value indicating that the library is running on a ARMv7 hard float based JVM. Integer constant with value 0x11. </p>*/
-	public static final int ARCH_ARMV7_HF = 0x11;
+	public static final int ARCH_ARMV7 = 0x0F;
 	
 	/** <p>The value indicating hard float ABI. </p>*/
 	public static final int ABI_ARMHF =  0x01;
@@ -389,6 +383,7 @@ public final class SerialComManager {
 	private static Object lockA = new Object();
 	private static int osType = -1;
 	private static int cpuArch = -1;
+	private static int javaABIType = -1;
 	private static boolean nativeLibLoadAndInitAlready = false;
 
 	/**
@@ -398,23 +393,27 @@ public final class SerialComManager {
 	 * <p>The native shared library will be extracted in folder named 'scm_tuartx1' inside system/user 'temp' folder 
 	 * or user home folder if access to 'temp' folder is denied.</p>
 	 * 
-	 * @throws SerialComUnexpectedException
-	 * @throws SerialComLoadException 
 	 * @throws SecurityException 
+	 * @throws IOException 
 	 */
-	public SerialComManager() throws SerialComUnexpectedException, SerialComException, SecurityException, SerialComLoadException {
+	public SerialComManager() throws SecurityException, IOException {
 		mSerialComSystemProperty = new SerialComSystemProperty();
 		synchronized(lockA) {
 			if(osType <= 0) {
 				mSerialComPlatform = new SerialComPlatform(mSerialComSystemProperty);
 				osType = mSerialComPlatform.getOSType();
-				cpuArch = mSerialComPlatform.getCPUArch();
+				cpuArch = mSerialComPlatform.getCPUArch(osType);
+				if((cpuArch == ARCH_ARMV7) || (cpuArch == ARCH_ARMV6) || (cpuArch == ARCH_ARMV5)) {
+					if(osType == OS_LINUX) {
+						javaABIType = mSerialComPlatform.getJAVAABIType();
+					}
+				}
 			}
 		}
 		mErrMapper = new SerialComErrorMapper(osType);
 		mNativeInterface = new SerialComJNINativeInterface();
 		if(nativeLibLoadAndInitAlready == false) {
-			SerialComJNINativeInterface.loadNativeLibrary(null, null, mSerialComSystemProperty, osType, cpuArch);
+			SerialComJNINativeInterface.loadNativeLibrary(null, null, mSerialComSystemProperty, osType, cpuArch, javaABIType);
 			mNativeInterface.initNativeLib();
 			nativeLibLoadAndInitAlready = true;
 		}
@@ -435,11 +434,10 @@ public final class SerialComManager {
 	 * 
 	 * @param directoryPath absolute path of directory for extraction
 	 * @param loadedLibName library name without extension (do not append .so, .dll or .dylib etc.)
-	 * @throws SerialComUnexpectedException
-	 * @throws SerialComLoadException 
 	 * @throws SecurityException 
+	 * @throws IOException 
 	 */
-	public SerialComManager(String directoryPath, String loadedLibName) throws SerialComUnexpectedException, SerialComException, SecurityException, SerialComLoadException {
+	public SerialComManager(String directoryPath, String loadedLibName) throws SecurityException, IOException {
 		if(directoryPath == null) {
 			throw new IllegalArgumentException("SerialComManager() " + "Argument directoryPath can not be null");
 		}
@@ -457,13 +455,18 @@ public final class SerialComManager {
 			if(osType <= 0) {
 				mSerialComPlatform = new SerialComPlatform(mSerialComSystemProperty);
 				osType = mSerialComPlatform.getOSType();
-				cpuArch = mSerialComPlatform.getCPUArch();
+				cpuArch = mSerialComPlatform.getCPUArch(osType);
+				if((cpuArch == ARCH_ARMV7) || (cpuArch == ARCH_ARMV6) || (cpuArch == ARCH_ARMV5)) {
+					if(osType == OS_LINUX) {
+						javaABIType = mSerialComPlatform.getJAVAABIType();
+					}
+				}
 			}
 		}
 		mErrMapper = new SerialComErrorMapper(osType);
 		mNativeInterface = new SerialComJNINativeInterface();
 		if(nativeLibLoadAndInitAlready == false) {
-			SerialComJNINativeInterface.loadNativeLibrary(directoryPath, loadedLibName, mSerialComSystemProperty, osType, cpuArch);
+			SerialComJNINativeInterface.loadNativeLibrary(directoryPath, loadedLibName, mSerialComSystemProperty, osType, cpuArch, javaABIType);
 			mNativeInterface.initNativeLib();
 			nativeLibLoadAndInitAlready = true;
 		}
