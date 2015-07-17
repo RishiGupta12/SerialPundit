@@ -19,11 +19,15 @@
 #ifndef UNIX_LIKE_SERIAL_LIB_H_
 #define UNIX_LIKE_SERIAL_LIB_H_
 
-#if defined (__linux__) || defined (__APPLE__) || defined (__SunOS) || defined(__sun) || defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__) || defined(__hpux__) || defined(__hpux) || defined(_AIX)
-
 #include <pthread.h>
 #if defined (__APPLE__)
+#include <CoreFoundation/CoreFoundation.h>
+#include <IOKit/IOKitLib.h>
+#include <IOKit/serial/IOSerialKeys.h>
+#include <IOKit/serial/ioss.h>
+#include <IOKit/IOBSD.h>
 #include <IOKit/IOMessage.h>
+#include <IOKit/usb/IOUSBLib.h>
 #endif
 #include <jni.h>
 
@@ -42,6 +46,7 @@
 #define E_UDEVNEW             (ERROR_OFFSET + 11) /* Could not create udev context. */
 #define E_UDEVNETLINK         (ERROR_OFFSET + 12) /* Could not initialize udev monitor. */
 #define E_ENBLPARCHK          (ERROR_OFFSET + 13) /* Enable parity checking in configureComPortData method first. */
+#define E_IOSRVMATUSBDEV      (ERROR_OFFSET + 14) /* IOServiceMatching("IOUSBDevice") failed. */
 
 /* Structure representing data that is passed to each data looper thread with info corresponding to that file descriptor. */
 struct com_thread_params {
@@ -67,25 +72,28 @@ struct com_thread_params {
 		jobject usbHotPlugEventListener;
 		jint filterVID;
 		jint filterPID;
-		int evfd;
 		int thread_exit;
 		pthread_t thread_id;
 		pthread_attr_t thread_attr;
 		pthread_mutex_t *mutex;
 		int init_done;
+		int evfd;
 #elif defined (__APPLE__)
 		JavaVM *jvm;
-		JNIEnv* env;
-		const char *port_name;
-		int fd;
+		jobject usbHotPlugEventListener;
+		jint filterVID;
+		jint filterPID;
 		int thread_exit;
-		jobject port_listener;
-		jmethodID mid;
 		pthread_t thread_id;
+		pthread_attr_t thread_attr;
 		pthread_mutex_t *mutex;
+		int init_done;
+		CFRunLoopSourceRef exit_run_loop_source;
+		CFRunLoopRef run_loop;
 		struct port_info *data;
 		IONotificationPortRef notification_port;
-		int tempVal;
+		int temp_val;
+		jmethodID mid;
 #elif defined (__SunOS)
 #else
 #endif
@@ -100,24 +108,30 @@ struct com_thread_params {
 	};
 #endif
 
-	/* This holds information for implementing dynamically growing array in C. */
-	struct array_list {
-		char **base;      /* pointer to an array of pointers to string */
-		int index;        /* array element index                       */
-		int current_size; /* size of this array                        */
-	};
+/* This holds information for implementing dynamically growing array in C. */
+struct array_list {
+	char **base;      /* pointer to an array of pointers to string */
+	int index;        /* array element index                       */
+	int current_size; /* size of this array                        */
+};
 
-/* function prototypes */
-extern void *data_looper(void *params);
-extern void *event_looper(void *params);
-extern void *usb_hot_plug_monitor(void *params);
-extern int serial_delay(unsigned usecs);
+/* function prototypes (declared in reverse order of use) */
 extern int set_error_status(JNIEnv *env, jobject obj, jobject status, int error_number);
 extern void init_array_list(struct array_list *al, int initial_size);
 extern void insert_array_list(struct array_list *al, char *element);
 extern void free_array_list(struct array_list *al);
+#if defined (__linux__)
+extern void linux_free_allocated_memory(int hs, int spf, char **sys_ports_base, int hr, int rpf, char **regex_ports_base, int hp, int ppf, char **pts_ports_base);
+#endif
+#if defined (__APPLE__)
+void mac_indicate_thread_exit(void *info);
+void mac_usb_device_added(void *refCon, io_iterator_t iterator);
+void mac_usb_device_removed(void *refCon, io_service_t service, natural_t messageType, void *messageArgument);
+#endif
 extern jobjectArray list_usb_devices(JNIEnv *env, jobject obj, jobject status);
+extern int serial_delay(unsigned usecs);
+extern void *data_looper(void *params);
+extern void *event_looper(void *params);
+extern void *usb_hot_plug_monitor(void *params);
 
 #endif /* UNIX_LIKE_SERIAL_LIB_H_ */
-
-#endif /* end compiling for Unix-like OS */
