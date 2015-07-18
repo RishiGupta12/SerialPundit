@@ -249,21 +249,21 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINati
 		while(num_of_dir_found--) {
 			memset(path, '\0', sizeof(path));
 			if(strcmp(namelist[num_of_dir_found]->d_name, "..") && strcmp(namelist[num_of_dir_found]->d_name, ".")) {
-				strcpy(path, sysfspath);
-				strcat(path, namelist[num_of_dir_found]->d_name);
-				strcat(path, "/device");
+				strncpy(path, sysfspath, strlen(sysfspath));
+				strncat(path, namelist[num_of_dir_found]->d_name, strlen(namelist[num_of_dir_found]->d_name));
+				strncat(path, "/device", strlen("/device"));
 				errno = 0;
 				ret = lstat(path, &statbuf);
 				if(ret >= 0) {
 					if(S_ISLNK(statbuf.st_mode)) {
 						memset(buffer, '\0', sizeof(buffer));
 						strncpy(path, path, strlen(path));
-						strcat(path, "/driver");
+						strncat(path, "/driver", strlen("/driver"));
 						ret = readlink(path, buffer, sizeof(buffer));
 						if(ret >= 0) {
 							if(strlen(buffer) > 0) {
 								memset(namewithpath, '\0', sizeof(namewithpath));
-								strcat(strcpy(namewithpath, "/dev/"), namelist[num_of_dir_found]->d_name);
+								strncat(strncpy(namewithpath, "/dev/", strlen("/dev/")), namelist[num_of_dir_found]->d_name, strlen(namelist[num_of_dir_found]->d_name));
 								serial_device = (*env)->NewStringUTF(env, namewithpath);
 								insert_jstrarraylist(&list, serial_device);
 							}
@@ -311,7 +311,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINati
 					ret = regexec(&regex, result->d_name, 0, NULL, 0);
 					if(ret == 0) {
 						memset(namewithpath, '\0', sizeof(namewithpath));
-						strcat(strcpy(namewithpath, "/dev/"), result->d_name);
+						strncat(strncpy(namewithpath, "/dev/", strlen("/dev/")), result->d_name, strlen(result->d_name));
 						serial_device = (*env)->NewStringUTF(env, namewithpath);
 						insert_jstrarraylist(&list, serial_device);
 					}
@@ -344,8 +344,8 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINati
 		while(num_of_dir_found--) {
 			memset(namewithpath, '\0', sizeof(namewithpath));
 			if(strcmp(namelist[num_of_dir_found]->d_name, "..") && strcmp(namelist[num_of_dir_found]->d_name, ".")) {
-				strcpy(namewithpath, ptspath);
-				strcat(namewithpath, namelist[num_of_dir_found]->d_name);
+				strncpy(namewithpath, ptspath, strlen(ptspath));
+				strncat(namewithpath, namelist[num_of_dir_found]->d_name, strlen(namelist[num_of_dir_found]->d_name));
 				errno = 0;
 				ret = lstat(namewithpath, &statbuf);
 				if(ret >= 0) {
@@ -444,6 +444,8 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINati
  * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
  * Method:    listUSBdevicesWithInfo
  * Signature: (Lcom/embeddedunveiled/serial/SerialComRetStatus;)[Ljava/lang/String;
+ *
+ * Find USB devices with information about them using platform specific facilities.
  */
 JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_listUSBdevicesWithInfo(JNIEnv *env, jobject obj, jobject status) {
 	return list_usb_devices(env, obj, status);
