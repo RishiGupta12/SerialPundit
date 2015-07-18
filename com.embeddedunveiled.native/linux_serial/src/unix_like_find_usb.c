@@ -20,7 +20,6 @@
 #include <string.h>
 #include <unistd.h>
 #include <stdio.h>
-
 #if defined (__linux__)
 #include <libudev.h>
 #endif
@@ -33,14 +32,18 @@
 #include <IOKit/IOMessage.h>
 #include <IOKit/usb/IOUSBLib.h>
 #endif
-
 #include <jni.h>
 #include "unix_like_serial_lib.h"
 
+/*
+ * Finds information about USB devices using operating system specific facilities and API.
+ * The sequence of entries in array must match with what java layer expect. If a particular USB attribute
+ * is not set in descriptor or can not be obtained "---" is placed in its place.
+ */
 jobjectArray list_usb_devices(JNIEnv *env, jobject obj, jobject status) {
 	int x = 0;
-	struct array_list list = {0};
-	char *usb_dev_info;
+	struct jstrarray_list list = {0};
+	jstring usb_dev_info;
 	jclass strClass = NULL;
 	jobjectArray usbDevicesFound = NULL;
 
@@ -49,18 +52,25 @@ jobjectArray list_usb_devices(JNIEnv *env, jobject obj, jobject status) {
 	struct udev_enumerate *enumerator;
 	struct udev_list_entry *devices, *dev_list_entry;
 	const char *sysattr_val;
+	const char *path;
+	struct udev_device *udev_device;
 #endif
 #if defined (__APPLE__)
 	kern_return_t kr;
 	CFDictionaryRef matching_dictionary = NULL;
 	io_iterator_t iterator = 0;
 	io_service_t usb_dev_obj;
+	CFNumberRef num_ref;
+	CFStringRef str_ref;
 	int result;
 	char hexcharbuffer[5];
-	size_t size_to_allocate;
+
+	/* For storing USB descriptor attributes string like manufacturer, product, serial number etc.
+	 * in any encoding 1024 is sufficient. We prevented malloc() every time for every new attribute. */
+	char charbuffer[1024];
 #endif
 
-	init_array_list(&list, 100);
+	init_jstrarraylist(&list, 100);
 
 #if defined (__linux__)
 	udev_ctx = udev_new();
@@ -70,8 +80,6 @@ jobjectArray list_usb_devices(JNIEnv *env, jobject obj, jobject status) {
 	devices = udev_enumerate_get_list_entry(enumerator);
 
 	udev_list_entry_foreach(dev_list_entry, devices) {
-		const char *path;
-		struct udev_device *udev_device;
 		path = udev_list_entry_get_name(dev_list_entry);
 		udev_device = udev_device_new_from_syspath(udev_enumerate_get_udev(enumerator), path);
 		if(udev_device == NULL) {
@@ -81,43 +89,43 @@ jobjectArray list_usb_devices(JNIEnv *env, jobject obj, jobject status) {
 		if(strcmp("usb_device", udev_device_get_devtype(udev_device)) == 0) {
 			sysattr_val = udev_device_get_sysattr_value(udev_device, "idVendor");
 			if(sysattr_val != NULL) {
-				usb_dev_info = strdup(sysattr_val);
+				usb_dev_info = (*env)->NewStringUTF(env, sysattr_val);
 			}else {
-				usb_dev_info = strdup("---");
+				usb_dev_info = (*env)->NewStringUTF(env, "---");
 			}
-			insert_array_list(&list, usb_dev_info);
+			insert_jstrarraylist(&list, usb_dev_info);
 
 			sysattr_val = udev_device_get_sysattr_value(udev_device, "idProduct");
 			if(sysattr_val != NULL) {
-				usb_dev_info = strdup(sysattr_val);
+				usb_dev_info = (*env)->NewStringUTF(env, sysattr_val);
 			}else {
-				usb_dev_info = strdup("---");
+				usb_dev_info = (*env)->NewStringUTF(env, "---");
 			}
-			insert_array_list(&list, usb_dev_info);
+			insert_jstrarraylist(&list, usb_dev_info);
 
 			sysattr_val = udev_device_get_sysattr_value(udev_device, "serial");
 			if(sysattr_val != NULL) {
-				usb_dev_info = strdup(sysattr_val);
+				usb_dev_info = (*env)->NewStringUTF(env, sysattr_val);
 			}else {
-				usb_dev_info = strdup("---");
+				usb_dev_info = (*env)->NewStringUTF(env, "---");
 			}
-			insert_array_list(&list, usb_dev_info);
+			insert_jstrarraylist(&list, usb_dev_info);
 
 			sysattr_val = udev_device_get_sysattr_value(udev_device, "product");
 			if(sysattr_val != NULL) {
-				usb_dev_info = strdup(sysattr_val);
+				usb_dev_info = (*env)->NewStringUTF(env, sysattr_val);
 			}else {
-				usb_dev_info = strdup("---");
+				usb_dev_info = (*env)->NewStringUTF(env, "---");
 			}
-			insert_array_list(&list, usb_dev_info);
+			insert_jstrarraylist(&list, usb_dev_info);
 
 			sysattr_val = udev_device_get_sysattr_value(udev_device, "manufacturer");
 			if(sysattr_val != NULL) {
-				usb_dev_info = strdup(sysattr_val);
+				usb_dev_info = (*env)->NewStringUTF(env, sysattr_val);
 			}else {
-				usb_dev_info = strdup("---");
+				usb_dev_info = (*env)->NewStringUTF(env, "---");
 			}
-			insert_array_list(&list, usb_dev_info);
+			insert_jstrarraylist(&list, usb_dev_info);
 		}
 		udev_device_unref(udev_device);
 	}
@@ -135,76 +143,72 @@ jobjectArray list_usb_devices(JNIEnv *env, jobject obj, jobject status) {
 		/* handle error*/
 	}
 	if(!iterator) {
-		fprintf(stderr,"No devices matched\n");
-		fflush(stderr);
-		return NULL;
+		/* handle error*/
 	}
 
 	while((usb_dev_obj = IOIteratorNext(iterator)) != 0) {
 
 		memset(hexcharbuffer, '\0', sizeof(hexcharbuffer));
-		CFNumberRef vid_num_ref = (CFNumberRef) IORegistryEntrySearchCFProperty(usb_dev_obj, kIOServicePlane, CFSTR("idVendor"),
+		num_ref = (CFNumberRef) IORegistryEntrySearchCFProperty(usb_dev_obj, kIOServicePlane, CFSTR("idVendor"),
 				                                        NULL, kIORegistryIterateRecursively | kIORegistryIterateParents);
-		if(vid_num_ref) {
-			CFNumberGetValue(vid_num_ref, kCFNumberSInt32Type, &result);
+		if(num_ref) {
+			CFNumberGetValue(num_ref, kCFNumberSInt32Type, &result);
 			snprintf(hexcharbuffer, 5, "%04X", result & 0x0000FFFF);
-			usb_dev_info = strdup(hexcharbuffer);
-			fflush(stderr);
-			CFRelease(vid_num_ref);
-			fflush(stderr);
+			usb_dev_info = (*env)->NewStringUTF(env, hexcharbuffer);
+			CFRelease(num_ref);
 		}else {
-			usb_dev_info = strdup("---");
+			usb_dev_info = (*env)->NewStringUTF(env, "---");
 		}
-		insert_array_list(&list, usb_dev_info);
+		insert_jstrarraylist(&list, usb_dev_info);
 
 		memset(hexcharbuffer, '\0', sizeof(hexcharbuffer));
-		CFNumberRef pid_num_ref = (CFNumberRef) IORegistryEntrySearchCFProperty(usb_dev_obj, kIOServicePlane, CFSTR("idProduct"),
+		num_ref = (CFNumberRef) IORegistryEntrySearchCFProperty(usb_dev_obj, kIOServicePlane, CFSTR("idProduct"),
 				                                        NULL, kIORegistryIterateRecursively | kIORegistryIterateParents);
-		if(pid_num_ref) {
-			CFNumberGetValue(pid_num_ref, kCFNumberSInt32Type, &result);
+		if(num_ref) {
+			CFNumberGetValue(num_ref, kCFNumberSInt32Type, &result);
 			snprintf(hexcharbuffer, 5, "%04X", result & 0x0000FFFF);
-			usb_dev_info = strdup(hexcharbuffer);
-			CFRelease(pid_num_ref);
+			usb_dev_info = (*env)->NewStringUTF(env, hexcharbuffer);
+			CFRelease(num_ref);
 		}else {
-			usb_dev_info = strdup("---");
+			usb_dev_info = (*env)->NewStringUTF(env, "---");
 		}
-		insert_array_list(&list, usb_dev_info);
+		insert_jstrarraylist(&list, usb_dev_info);
 
-		CFStringRef serial_str_ref = (CFStringRef) IORegistryEntrySearchCFProperty(usb_dev_obj, kIOServicePlane, CFSTR("USB Serial Number"),
+		str_ref = (CFStringRef) IORegistryEntrySearchCFProperty(usb_dev_obj, kIOServicePlane, CFSTR("USB Serial Number"),
 				                                        NULL, kIORegistryIterateRecursively | kIORegistryIterateParents);
-		if(serial_str_ref) {
-			size_to_allocate = CFStringGetMaximumSizeForEncoding(CFStringGetLength(serial_str_ref), kCFStringEncodingUTF8);
-			usb_dev_info = (char *) malloc(size_to_allocate);
-			CFStringGetCString(serial_str_ref, usb_dev_info, size_to_allocate, kCFStringEncodingUTF8);
-			CFRelease(serial_str_ref);
+		if(str_ref) {
+			memset(charbuffer, '\0', sizeof(charbuffer));
+			CFStringGetCString(str_ref, charbuffer, sizeof(charbuffer), kCFStringEncodingUTF8);
+			usb_dev_info = (*env)->NewStringUTF(env, charbuffer);
+			CFRelease(str_ref);
 		}else {
-			usb_dev_info = strdup("---");
+			usb_dev_info = (*env)->NewStringUTF(env, "---");
 		}
-		insert_array_list(&list, usb_dev_info);
+		insert_jstrarraylist(&list, usb_dev_info);
 
-		CFStringRef product_str_ref = (CFStringRef) IORegistryEntrySearchCFProperty(usb_dev_obj, kIOServicePlane, CFSTR("USB Product Name"),
+		str_ref = (CFStringRef) IORegistryEntrySearchCFProperty(usb_dev_obj, kIOServicePlane, CFSTR("USB Product Name"),
 				                                        NULL, kIORegistryIterateRecursively | kIORegistryIterateParents);
-		if(product_str_ref) {
-			size_to_allocate = CFStringGetMaximumSizeForEncoding(CFStringGetLength(product_str_ref), kCFStringEncodingUTF8);
-			usb_dev_info = (char *) malloc(size_to_allocate);
-			CFStringGetCString(product_str_ref, usb_dev_info, size_to_allocate, kCFStringEncodingUTF8);
-			CFRelease(product_str_ref);
+		if(str_ref) {
+			memset(charbuffer, '\0', sizeof(charbuffer));
+			CFStringGetCString(str_ref, charbuffer, sizeof(charbuffer), kCFStringEncodingUTF8);
+			usb_dev_info = (*env)->NewStringUTF(env, charbuffer);
+			CFRelease(str_ref);
 		}else {
-			usb_dev_info = strdup("---");
+			usb_dev_info = (*env)->NewStringUTF(env, "---");
 		}
-		insert_array_list(&list, usb_dev_info);
+		insert_jstrarraylist(&list, usb_dev_info);
 
-		CFStringRef manufacturer_str_ref = (CFStringRef) IORegistryEntrySearchCFProperty(usb_dev_obj, kIOServicePlane, CFSTR("USB Vendor Name"),
+		str_ref = (CFStringRef) IORegistryEntrySearchCFProperty(usb_dev_obj, kIOServicePlane, CFSTR("USB Vendor Name"),
 				                                        NULL, kIORegistryIterateRecursively | kIORegistryIterateParents);
-		if(manufacturer_str_ref) {
-			size_to_allocate = CFStringGetMaximumSizeForEncoding(CFStringGetLength(manufacturer_str_ref), kCFStringEncodingUTF8);
-			usb_dev_info = (char *) malloc(size_to_allocate);
-			CFStringGetCString(manufacturer_str_ref, usb_dev_info, size_to_allocate, kCFStringEncodingUTF8);
-			CFRelease(manufacturer_str_ref);
+		if(str_ref) {
+			memset(charbuffer, '\0', sizeof(charbuffer));
+			CFStringGetCString(str_ref, charbuffer, sizeof(charbuffer), kCFStringEncodingUTF8);
+			usb_dev_info = (*env)->NewStringUTF(env, charbuffer);
+			CFRelease(str_ref);
 		}else {
-			usb_dev_info = strdup("---");
+			usb_dev_info = (*env)->NewStringUTF(env, "---");
 		}
-		insert_array_list(&list, usb_dev_info);
+		insert_jstrarraylist(&list, usb_dev_info);
 
 		IOObjectRelease(usb_dev_obj);
 	}
@@ -218,7 +222,7 @@ jobjectArray list_usb_devices(JNIEnv *env, jobject obj, jobject status) {
 	if((*env)->ExceptionOccurred(env)) {
 		(*env)->ExceptionClear(env);
 		set_error_status(env, obj, status, E_FINDCLASS);
-		free_array_list(&list);
+		free_jstrarraylist(&list);
 		return NULL;
 	}
 
@@ -226,19 +230,19 @@ jobjectArray list_usb_devices(JNIEnv *env, jobject obj, jobject status) {
 	if((*env)->ExceptionOccurred(env)) {
 		(*env)->ExceptionClear(env);
 		set_error_status(env, obj, status, E_NEWOBJECTARRAY);
-		free_array_list(&list);
+		free_jstrarraylist(&list);
 		return NULL;
 	}
 
 	for (x=0; x < list.index; x++) {
-		(*env)->SetObjectArrayElement(env, usbDevicesFound, x, (*env)->NewStringUTF(env, list.base[x]));
+		(*env)->SetObjectArrayElement(env, usbDevicesFound, x, list.base[x]);
 		if((*env)->ExceptionOccurred(env)) {
 			(*env)->ExceptionClear(env);
-			free_array_list(&list);
+			free_jstrarraylist(&list);
 			return NULL;
 		}
 	}
 
-	free_array_list(&list);
+	free_jstrarraylist(&list);
 	return usbDevicesFound;
 }
