@@ -80,7 +80,9 @@ struct com_thread_params {
 		int evfd;
 #elif defined (__APPLE__)
 		JavaVM *jvm;
+		JNIEnv* env;
 		jobject usbHotPlugEventListener;
+		jmethodID onHotPlugEventMethodID;
 		jint filterVID;
 		jint filterPID;
 		int thread_exit;
@@ -92,7 +94,8 @@ struct com_thread_params {
 		CFRunLoopRef run_loop;
 		struct port_info *data;
 		IONotificationPortRef notification_port;
-		int temp_val;
+		int empty_iterator_added;
+		int empty_iterator_removed;
 		jmethodID mid;
 #elif defined (__SunOS)
 #else
@@ -108,25 +111,22 @@ struct com_thread_params {
 	};
 #endif
 
-/* This holds information for implementing dynamically growing array in C. */
-struct array_list {
-	char **base;      /* pointer to an array of pointers to string */
+/* This holds information for implementing dynamically growing array in C language. */
+struct jstrarray_list {
+	jstring *base;      /* pointer to an array of pointers to string */
 	int index;        /* array element index                       */
 	int current_size; /* size of this array                        */
 };
 
 /* function prototypes (declared in reverse order of use) */
 extern int set_error_status(JNIEnv *env, jobject obj, jobject status, int error_number);
-extern void init_array_list(struct array_list *al, int initial_size);
-extern void insert_array_list(struct array_list *al, char *element);
-extern void free_array_list(struct array_list *al);
-#if defined (__linux__)
-extern void linux_free_allocated_memory(int hs, int spf, char **sys_ports_base, int hr, int rpf, char **regex_ports_base, int hp, int ppf, char **pts_ports_base);
-#endif
+extern void init_jstrarraylist(struct jstrarray_list *al, int initial_size);
+extern void insert_jstrarraylist(struct jstrarray_list *al, jstring element);
+extern void free_jstrarraylist(struct jstrarray_list *al);
 #if defined (__APPLE__)
 void mac_indicate_thread_exit(void *info);
 void mac_usb_device_added(void *refCon, io_iterator_t iterator);
-void mac_usb_device_removed(void *refCon, io_service_t service, natural_t messageType, void *messageArgument);
+void mac_usb_device_removed(void *refCon, io_iterator_t iterator);
 #endif
 extern jobjectArray list_usb_devices(JNIEnv *env, jobject obj, jobject status);
 extern int serial_delay(unsigned usecs);
@@ -135,3 +135,4 @@ extern void *event_looper(void *params);
 extern void *usb_hot_plug_monitor(void *params);
 
 #endif /* UNIX_LIKE_SERIAL_LIB_H_ */
+
