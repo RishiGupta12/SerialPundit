@@ -120,7 +120,7 @@ public final class SerialComIOCTLExecutor {
      *
      * @param handle handle of the port on which to execute this ioctl operation
      * @param operationCode unique ioctl operation code
-     * @param value the value to be passed to the IOCTL operation
+     * @param values the value to be passed to the IOCTL operation
      * @return true if operation executed successfully
 	 * @throws SerialComException if the operation can not be completed as requested
      */
@@ -141,7 +141,7 @@ public final class SerialComIOCTLExecutor {
      *
      * @param handle handle of the port on which to execute this ioctl operation
      * @param operationCode unique ioctl operation code
-     * @param value the value to be passed to the IOCTL operation
+     * @param values the value to be passed to the IOCTL operation
      * @return true if operation executed successfully
 	 * @throws SerialComException if the operation can not be completed as requested
      */

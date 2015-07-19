@@ -228,7 +228,7 @@ public final class SerialComUtil {
 	
 	/**
 	 * <p>Converts the given long value to hex string.</p>
-	 * @param data the long type value to convert.
+	 * @param num the long type value to convert.
 	 * @return a string representing given long number in hexadecimal format
 	 */
 	public static String longToHexString(long num) {
@@ -237,7 +237,7 @@ public final class SerialComUtil {
 	
 	/**
 	 * <p>Converts the given integer value to hex string.</p>
-	 * @param data the integer type value to convert.
+	 * @param num the integer type value to convert.
 	 * @return a string representing given int number in hexadecimal format
 	 */
 	public static String intToHexString(int num) {
@@ -246,7 +246,7 @@ public final class SerialComUtil {
 	
 	/**
 	 * <p>Converts the given short value to hex string.</p>
-	 * @param data the short type value to convert.
+	 * @param num the short type value to convert.
 	 * @return a string representing given short number in hexadecimal format
 	 */
 	public static String shortToHexString(short num) {
@@ -255,7 +255,7 @@ public final class SerialComUtil {
 	
 	/**
 	 * <p>Converts the given byte value to hex string.</p>
-	 * @param data the byte type value to convert.
+	 * @param num the byte type value to convert.
 	 * @return a string representing given byte value in hexadecimal format
 	 */
 	public static String byteToHexString(byte num) {

@@ -304,7 +304,7 @@ public final class SerialComXModem1K {
 
 	/**
 	 * <p>Represents actions to execute in state machine to implement xmodem protocol for receiving files.</p>
-	 * @ return true on success
+	 * @return true on success
 	 * @throws IOException 
 	 */
 	public boolean receiveFileX() throws IOException, SerialComException {

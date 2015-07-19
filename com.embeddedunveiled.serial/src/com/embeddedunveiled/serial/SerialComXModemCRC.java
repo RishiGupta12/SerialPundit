@@ -69,8 +69,8 @@ public final class SerialComXModemCRC {
 
 	/**
 	 * <p>Represents actions to execute in state machine to implement xmodem/crc protocol for sending files.</p>
-	 * @ return true on success
-	 * @ throws TODO
+	 * @return true on success
+	 * @throws TODO
 	 */
 	public boolean sendFileX() throws SecurityException, IOException, SerialComException {
 
@@ -303,7 +303,7 @@ public final class SerialComXModemCRC {
 
 	/**
 	 * <p>Represents actions to execute in state machine to implement xmodem protocol for receiving files.</p>
-	 * @ return true on success
+	 * @return true on success
 	 * @throws IOException 
 	 */
 	public boolean receiveFileX() throws IOException, SerialComException {
