@@ -26,13 +26,17 @@ public class Test57 {
 	public static void main(String[] args) {
 		try {
 			SerialComManager scm = new SerialComManager();
-			SerialComUSBdevice[] usbDevices = scm.listUSBdevicesWithInfo();
+			SerialComUSBdevice[] usbDevices;
+			usbDevices = scm.listUSBdevicesWithInfo();
 			for(int x=0; x< usbDevices.length; x++) {
 				usbDevices[x].dumpDeviceInfo();
 			}
+			for(int a=0; a<50000; a++) {
+				usbDevices = scm.listUSBdevicesWithInfo();
+			}
+			
 		}catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 }
-

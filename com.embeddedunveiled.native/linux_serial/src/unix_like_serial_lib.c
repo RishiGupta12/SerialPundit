@@ -563,7 +563,7 @@ void *data_looper(void *arg) {
 			/* Pass this to java layer inserting event in event queue. */
 			(*env)->CallVoidMethod(env, looper, mid, event);
 			if((*env)->ExceptionOccurred(env)) {
-				LOGE(env);
+				(*env)->ExceptionClear(env);
 			}
 #endif
 #if defined (__APPLE__)
@@ -763,7 +763,9 @@ void *data_looper(void *arg) {
 			pthread_exit((void *)0);
 		}
 		env =  (JNIEnv*) env1;
+#if defined (__APPLE__)
 		((struct port_info*) arg)->env = (JNIEnv*) env1;
+#endif
 
 		usbHotPlugEventListenerClass = (*env)->GetObjectClass(env, usbHotPlugEventListenerObj);
 		if(usbHotPlugEventListenerClass == NULL) {

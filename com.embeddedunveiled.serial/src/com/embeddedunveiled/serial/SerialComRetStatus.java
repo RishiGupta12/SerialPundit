@@ -23,9 +23,11 @@ package com.embeddedunveiled.serial;
  */
 public final class SerialComRetStatus {
 
-	int status = 1; // package-private access
+	public int status = 1; // package-private access
+	public String str = null;
 
 	public SerialComRetStatus(int status) {
 		this.status = status;
 	}
+	
 }

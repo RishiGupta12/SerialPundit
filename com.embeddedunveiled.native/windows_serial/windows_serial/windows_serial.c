@@ -41,7 +41,7 @@ int setupLooperThread(JNIEnv *env, jobject obj, jlong handle, jobject looper_obj
 #define DBG 1
 
 #undef  UART_NATIVE_LIB_VERSION
-#define UART_NATIVE_LIB_VERSION "1.0.3"
+#define UART_NATIVE_LIB_VERSION "1.0.4"
 
 #define CommInBufSize 8192
 #define CommOutBufSize 3072

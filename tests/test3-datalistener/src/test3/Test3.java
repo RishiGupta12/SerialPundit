@@ -34,7 +34,7 @@ class Data implements ISerialComDataListener{
 	}
 	@Override
 	public void onDataListenerError(int arg0) {
-		System.out.println("onDataListenerError called");
+		System.out.println("onDataListenerError called " + arg0);
 	}
 }
 
