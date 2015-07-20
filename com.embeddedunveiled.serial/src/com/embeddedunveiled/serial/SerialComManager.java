@@ -549,7 +549,10 @@ public final class SerialComManager {
 	 * <p>Returns an array containing information about all the USB devices found by this library. Application can call various 
 	 * methods on returned SerialComUSBdevice class objects to get specific information like vendor id and product id etc.</p>
 	 * 
-	 * @return Available UART style ports name for windows, full path with name for Unix like OS, returns empty array if no ports found.
+	 * <p>The USB vendor id, USB product id, serial number, product name and manufacturer information is encapsulated in the 
+	 * object of class SerialComUSBdevice returned.</p>
+	 * 
+	 * @return list of all USB devices with information about them
 	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public SerialComUSBdevice[] listUSBdevicesWithInfo() throws SerialComException {
@@ -573,6 +576,59 @@ public final class SerialComManager {
 				return new SerialComUSBdevice[] { };
 			}else if(retStatus.status < 0) {
 				throw new SerialComException("listUSBdevicesWithInfo()", mErrMapper.getMappedError(retStatus.status));
+			}else {
+			}
+		}
+		return null;		
+	}
+	
+	/**
+	 * <p>Gives COM port (device node) assigned by operating system to the given USB-UART device.</p>
+	 * 
+	 * <p>Assume a bar code scanner using FTDI chip FT232R is to be used by application at point of sale.
+	 * First we need to know whether it is connect to system or not. This can be done using listUSBdevicesWithInfo() 
+	 * or by using hot plug listener depending upon application design.</p>
+	 * 
+	 * <p>Once it is known that the device is connected to system, we application need to open it. For this, application 
+	 * needs to know the COM port number or device node corresponding to the scanner. It is for this purpose this method 
+	 * can be used.</p>
+	 * 
+	 * <p>Another use case of this API is to align application design with true spirit of hot plugging in operating system. 
+	 * When a USB-UART device is connected, OS may assign different COM port number or device node to the same device 
+	 * depending upon system scenario. Generally we need to write custom udev rules so that device node will be same. 
+	 * Using this API this limitation can be overcome.
+	 * 
+	 * <p>The reason why this method returns array instead of string is that two or more USB-UART converters connected 
+	 * to system might have exactly same USB attributes. So this will list COM ports assigned to all of them.<p>
+	 * 
+	 * @param usbVidToMatch USB vendor id of the device to match
+	 * @param usbPidToMatch USB product id of the device to match
+	 * @param serialNumber USB serial number of device to match (case insensitive) or null if not to be matched
+	 * @return list of COM port(s) (device node) for given USB device
+	 * @throws SerialComException if an I/O error occurs.
+	 * @throws IllegalArgumentException if usbVidToMatch or usbPidToMatch is negative
+	 */
+	public String[] listComPortFromUSBAttributes(int usbVidToMatch, int usbPidToMatch, final String serialNumber) throws SerialComException {
+		if(usbVidToMatch < 0) {
+			throw new IllegalArgumentException("listComPortFromUSBAttributes(), " + "Argument usbVidToMatch can not be negative");
+		}
+		if(usbPidToMatch < 0) {
+			throw new IllegalArgumentException("listComPortFromUSBAttributes(), " + "Argument usbPidToMatch can not be negative");
+		}
+		
+		SerialComRetStatus retStatus = new SerialComRetStatus(1);
+		String serialNum = null;
+		if(serialNumber != null) {
+			serialNum = serialNumber.toLowerCase();
+		}
+		String[] comPortsInfo = mNativeInterface.listComPortFromUSBAttributes(usbVidToMatch, usbPidToMatch, serialNum, retStatus);
+		if(comPortsInfo != null) {
+			return comPortsInfo;
+		}else {
+			if(retStatus.status == 1) {
+				return new String[] { };
+			}else if(retStatus.status < 0) {
+				throw new SerialComException("listComPortFromUSBAttributes()", mErrMapper.getMappedError(retStatus.status));
 			}else {
 			}
 		}
