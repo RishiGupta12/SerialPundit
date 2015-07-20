@@ -31,10 +31,6 @@ public class Test57 {
 			for(int x=0; x< usbDevices.length; x++) {
 				usbDevices[x].dumpDeviceInfo();
 			}
-			for(int a=0; a<50000; a++) {
-				usbDevices = scm.listUSBdevicesWithInfo();
-			}
-			
 		}catch (Exception e) {
 			e.printStackTrace();
 		}
