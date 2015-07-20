@@ -453,6 +453,17 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINati
 
 /*
  * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
+ * Method:    listComPortFromUSBAttributes
+ * Signature: (IILjava/lang/String;Lcom/embeddedunveiled/serial/SerialComRetStatus;)[Ljava/lang/String;
+ *
+ * Find the COM Port/ device node assigned to USB-UART converter device using platform specific facilities.
+ */
+JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_listComPortFromUSBAttributes(JNIEnv *env, jobject obj, jint vid, jint pid, jstring serial, jobject status) {
+	return vcp_node_from_usb_attributes(env, obj, vid, pid, serial, status);
+}
+
+/*
+ * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
  * Method:    openComPort
  * Signature: (Ljava/lang/String;ZZZ)J
  *

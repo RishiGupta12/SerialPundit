@@ -73,6 +73,7 @@ jobjectArray list_usb_devices(JNIEnv *env, jobject obj, jobject status) {
 	init_jstrarraylist(&list, 100);
 
 #if defined (__linux__)
+	/* libudev is reference counted. Memory is freed when counts reach to zero. */
 	udev_ctx = udev_new();
 	enumerator = udev_enumerate_new(udev_ctx);
 	udev_enumerate_add_match_subsystem(enumerator, "usb");
