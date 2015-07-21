@@ -22,9 +22,11 @@ package com.embeddedunveiled.serial;
  * to get notified whenever a specified USB device is added to the system or removed from the system.</p>
  * 
  * <p>Application should call registerHotPlugEventListener method in SerialComManager class to register 
- * listener.</p>
+ * listener. Whenever an event occurs callback method onHotPlugEvent() gets called containing event that 
+ * occurred.</p>
  * 
- * <p>Whenever an event occurs callback method onHotPlugEvent() gets called containing event that occurred.</p>
+ * <p>During development avoid connecting more than one device containing the same VID, PID, and serial 
+ * number combination.</p>
  */
 public interface ISerialComHotPlugListener {
 
