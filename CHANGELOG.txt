@@ -1,5 +1,6 @@
 
 v1.0.4 (TODO RELEASE DATE)
+	- added API to find virtual com port assigned to a particular USB-UART bridge IC
 	- added API to find USB-UART devices with detailed information about them
 	- added support for raspberry pi and beagle bone embedded linux boards
 	- added support for platform specific IOCTL calls
