@@ -36,7 +36,6 @@ BaseSerialTest:
 	- SerialData7PortHandler				Virtual Ports
 		- portName() 																										-- Test40 --
 		- sendEspecialCharacters() 																							-- Test41 --
-		- cycleInstance()																									-- Test45 --
 		- bytesShouldBeSame() 																								-- Test46 --
 		- reOpeningPort() 																									-- Test47 --
 		- writeDelay() 																										-- Test49 --
@@ -55,7 +54,6 @@ BaseSerialEventListenerTest
 BaseSerial2Test:
 	- SerialData5EventTest  				
 		- softwareControl() 				DIGI										  									-- Test20 -- 
-		- portWatcherControl()				DIGI																		   	-- Test21 --
 		- setDTEEvent						*									   											-- Test22 --  
 		- setDTE()							DIGI			 		  														-- Test23 --
 		- doubleEventLink()					*								   												-- Test24 --  

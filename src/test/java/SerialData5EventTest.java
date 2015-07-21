@@ -73,23 +73,6 @@ public class SerialData5EventTest extends BaseSerial2Test{
 	}
 	
 	/*
-	 * portWatcherControl Test 21
-	 */
-	@Test
-	public void portWatcherControl() throws SerialComException, InterruptedException{
-		LOG.debug("portWatcherControl()");
-		portWatcher pw = new portWatcher();
-
-		scm.configureComPortData(receiverHandle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
-		scm.configureComPortControl(receiverHandle, FLOWCONTROL.NONE, '$', '$', false, false);
-		scm.registerPortMonitorListener(receiverHandle, pw);
-		
-		Thread.sleep(500);
-
-		scm.unregisterPortMonitorListener(receiverHandle);
-	}
-	
-	/*
 	 * setDTEEvent 22
 	 */	
 	@Test

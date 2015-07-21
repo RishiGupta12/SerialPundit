@@ -87,7 +87,7 @@ public class SerialData6CheckWR extends BaseSerial1Test {
 			LOG.debug("Iteration : " + x);
 			scm.writeString(handle1, "1111111111", 0);
 			
-			int soType = SerialComManager.getOSType();
+			int soType = scm.getOSType();
 			if(soType == SerialComManager.OS_LINUX) {
 				Thread.sleep(10);
 			}else if(soType == SerialComManager.OS_WINDOWS) {

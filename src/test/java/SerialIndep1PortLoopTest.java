@@ -17,6 +17,7 @@
 
 package com.embeddedunveiled.serial;
 
+import java.io.IOException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.junit.Test;
@@ -54,7 +55,8 @@ public class SerialIndep1PortLoopTest {
 			try {
 				scm = new SerialComManager();
 				//scm.enableDebugging(true);
-					int osType = SerialComManager.getOSType();
+					//int osType = SerialComManager.getOSType();
+				int osType = SerialComManager.OS_LINUX;
 				if(osType == SerialComManager.OS_LINUX) { 
 					/*
 					 *  Use:
@@ -112,97 +114,101 @@ public class SerialIndep1PortLoopTest {
 		}
 	}
 	@Test
-	public void checkOS() throws SerialComException, InterruptedException{
+	public void checkOS() throws SerialComException, InterruptedException, SerialComUnexpectedException, SecurityException, SerialComLoadException{
 		LOG.debug("checkOS()");
-		SerialComManager scm = new SerialComManager();
-		
-		int x = 0;
-		for(x=0; x<1000; x++) {
-			LOG.debug("\n" + "Iteration : " + x);
-			try {
-				DataListener dataListener = new DataListener();
+		try{
+			SerialComManager scm = new SerialComManager();
+			
+			int x = 0;
+			for(x=0; x<1000; x++) {
+				LOG.debug("\n" + "Iteration : " + x);
+				try {
+					DataListener dataListener = new DataListener();
+					int osType = SerialComManager.OS_LINUX;
+					//int osType = SerialComManager.getOSType();
+					if(osType == SerialComManager.OS_LINUX) { 
+						/*
+						 *  Use:
+						 *  socat PTY,link=/dev/ttyS98 PTY,link=/dev/ttyS99
+						 *  socat -d -v -x PTY,link=/tmp/serial,wait-slave,raw /dev/tty_dgrp_a_9,raw
+						 *  
+						 */
+						PORT1 = "/dev/ttyS98";
+						PORT2 = "/dev/ttyS99";
+					}else if(osType == SerialComManager.OS_WINDOWS) {
+						PORT1 = "COM51";
+						PORT2 = "COM52";
+					}else if(osType == SerialComManager.OS_MAC_OS_X) {
+						PORT1 = "/dev/cu.usbserial-A70362A3";
+						PORT2 = "/dev/cu.usbserial-A602RDCH";
+					}else if(osType == SerialComManager.OS_SOLARIS) {
+						PORT1 = null;
+						PORT2 = null;
+					}else{
+						
+					}	
 	
-				int osType = SerialComManager.getOSType();
-				if(osType == SerialComManager.OS_LINUX) { 
-					/*
-					 *  Use:
-					 *  socat PTY,link=/dev/ttyS98 PTY,link=/dev/ttyS99
-					 *  socat -d -v -x PTY,link=/tmp/serial,wait-slave,raw /dev/tty_dgrp_a_9,raw
-					 *  
-					 */
-					PORT1 = "/dev/ttyS98";
-					PORT2 = "/dev/ttyS99";
-				}else if(osType == SerialComManager.OS_WINDOWS) {
-					PORT1 = "COM51";
-					PORT2 = "COM52";
-				}else if(osType == SerialComManager.OS_MAC_OS_X) {
-					PORT1 = "/dev/cu.usbserial-A70362A3";
-					PORT2 = "/dev/cu.usbserial-A602RDCH";
-				}else if(osType == SerialComManager.OS_SOLARIS) {
-					PORT1 = null;
-					PORT2 = null;
-				}else{
+					long handle = scm.openComPort(PORT1, true, true, true);
+					scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
+					scm.configureComPortControl(handle, FLOWCONTROL.NONE, 'x', 'x', false, false);
+					long handle1 = scm.openComPort(PORT2, true, true, true);
+					scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
+					scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	
+					LOG.debug("main thread register  : " + scm.registerDataListener(handle, dataListener));
 					
-				}	
-
-				long handle = scm.openComPort(PORT1, true, true, true);
-				scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
-				scm.configureComPortControl(handle, FLOWCONTROL.NONE, 'x', 'x', false, false);
-				long handle1 = scm.openComPort(PORT2, true, true, true);
-				scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
-				scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
-
-				LOG.debug("main thread register  : " + scm.registerDataListener(handle, dataListener));
-				
-				if(osType == SerialComManager.OS_WINDOWS) {
-					Thread.sleep(500);
-				}
-				
-				scm.writeString(handle1, "22222222222222222222", 0); // length of this string is 20
-				
-				// wait till data listener has received all the data
-				while(exit.get() == false) { 
+					if(osType == SerialComManager.OS_WINDOWS) {
+						Thread.sleep(500);
+					}
+					
+					scm.writeString(handle1, "22222222222222222222", 0); // length of this string is 20
+					
+					// wait till data listener has received all the data
+					while(exit.get() == false) { 
+						if(osType == SerialComManager.OS_LINUX) {
+							Thread.sleep(1);
+						}else if(osType == SerialComManager.OS_WINDOWS) {
+							Thread.sleep(600);
+						}else if(osType == SerialComManager.OS_MAC_OS_X) {
+							Thread.sleep(500);
+						}else if(osType == SerialComManager.OS_SOLARIS) {
+							Thread.sleep(500);
+						}else{
+						}
+						scm.writeString(handle1, "22222222222222222222", 0);
+					}
+					exit.set(false);                                     // reset flag
+					
+					LOG.debug("main thread unregister : " + scm.unregisterDataListener(dataListener));
 					if(osType == SerialComManager.OS_LINUX) {
 						Thread.sleep(1);
 					}else if(osType == SerialComManager.OS_WINDOWS) {
-						Thread.sleep(600);
+						Thread.sleep(500);
 					}else if(osType == SerialComManager.OS_MAC_OS_X) {
 						Thread.sleep(500);
 					}else if(osType == SerialComManager.OS_SOLARIS) {
 						Thread.sleep(500);
 					}else{
 					}
-					scm.writeString(handle1, "22222222222222222222", 0);
+					
+					scm.closeComPort(handle);
+					scm.closeComPort(handle1);
+					if(osType == SerialComManager.OS_LINUX) {
+						Thread.sleep(1);
+					}else if(osType == SerialComManager.OS_WINDOWS) {
+						Thread.sleep(500);
+					}else if(osType == SerialComManager.OS_MAC_OS_X) {
+						Thread.sleep(500);
+					}else if(osType == SerialComManager.OS_SOLARIS) {
+						Thread.sleep(500);
+					}else{
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
 				}
-				exit.set(false);                                     // reset flag
-				
-				LOG.debug("main thread unregister : " + scm.unregisterDataListener(dataListener));
-				if(osType == SerialComManager.OS_LINUX) {
-					Thread.sleep(1);
-				}else if(osType == SerialComManager.OS_WINDOWS) {
-					Thread.sleep(500);
-				}else if(osType == SerialComManager.OS_MAC_OS_X) {
-					Thread.sleep(500);
-				}else if(osType == SerialComManager.OS_SOLARIS) {
-					Thread.sleep(500);
-				}else{
-				}
-				
-				scm.closeComPort(handle);
-				scm.closeComPort(handle1);
-				if(osType == SerialComManager.OS_LINUX) {
-					Thread.sleep(1);
-				}else if(osType == SerialComManager.OS_WINDOWS) {
-					Thread.sleep(500);
-				}else if(osType == SerialComManager.OS_MAC_OS_X) {
-					Thread.sleep(500);
-				}else if(osType == SerialComManager.OS_SOLARIS) {
-					Thread.sleep(500);
-				}else{
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
 			}
+		}catch(IOException e){
+			LOG.error("BaseSerial1Test: " + e);
 		}
 	}
 }

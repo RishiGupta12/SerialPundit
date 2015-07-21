@@ -73,7 +73,7 @@ public abstract class BaseSerialEventListenerTest {
 		try {
 			scm = new SerialComManager();
 			//scm.enableDebugging(true);
-				int osType = SerialComManager.getOSType();
+			int osType = scm.getOSType();
 			if(osType == SerialComManager.OS_LINUX) { 
 				/*
 				 *  Use:
@@ -96,7 +96,9 @@ public abstract class BaseSerialEventListenerTest {
 				PORT2 = null;
 			}else{
 				
-			}	
+			}
+		}catch(IOException e){
+			LOG.error("BaseSerial1Test: " + e);
 		}finally{
 		
 		}

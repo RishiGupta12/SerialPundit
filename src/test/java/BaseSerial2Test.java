@@ -72,19 +72,13 @@ public class BaseSerial2Test {
 		}
 	}
 	
-	class portWatcher implements ISerialComPortMonitor{
-		@Override
-		public void onPortMonitorEvent(int event) {
-			LOG.debug("==" + event);
-		}
-	}
 	
 	@BeforeClass
 	public static void beforeClass(){
 		try {
 			scm = new SerialComManager();
 			//scm.enableDebugging(true);
-			int osType = SerialComManager.getOSType();
+			int osType = scm.getOSType();
 			if(osType == SerialComManager.OS_LINUX) { 
 				/*
 				 *  Use:
@@ -107,7 +101,9 @@ public class BaseSerial2Test {
 				PORT2 = null;
 			}else{
 				
-			}	
+			}
+		}catch(IOException e){
+			LOG.error("BaseSerial1Test: " + e);
 		}finally{
 		
 		}

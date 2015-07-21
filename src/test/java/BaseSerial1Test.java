@@ -38,7 +38,7 @@ import com.embeddedunveiled.serial.SerialComManager.STOPBITS;
 public abstract class BaseSerial1Test{
 	
 	protected static Logger LOG = LoggerFactory.getLogger(BaseSerial1Test.class);
-	
+	 
 	static SerialComManager scm;	
 	
 	static String PORT1 = null;
@@ -76,19 +76,14 @@ public abstract class BaseSerial1Test{
 	
 	//ExecuteShellComand shell = new ExecuteShellComand();
 	
-	class portWatcher implements ISerialComPortMonitor{
-		@Override
-		public void onPortMonitorEvent(int event) {
-			System.out.println("==" + event);
-		}
-	}
+	
 	
 	@BeforeClass
 	public static void beforeClass(){
 		try {
 			scm = new SerialComManager();
 			//scm.enableDebugging(true);
-				int osType = SerialComManager.getOSType();
+			int osType = scm.getOSType();
 			if(osType == SerialComManager.OS_LINUX) { 
 				/*
 				 *  Use:
@@ -113,6 +108,8 @@ public abstract class BaseSerial1Test{
 			}else{
 				
 			}	
+		}catch(IOException e){
+			LOG.error("BaseSerial1Test: " + e);
 		}finally{
 		
 		}

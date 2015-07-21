@@ -17,7 +17,6 @@
 
 package com.embeddedunveiled.serial;
 
-import org.junit.Assert;
 import org.junit.Test;
 
 import com.embeddedunveiled.serial.SerialComManager.SMODE;

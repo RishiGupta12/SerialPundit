@@ -117,7 +117,7 @@ public class SerialData1StartTest  extends BaseSerial1Test{
 		scm.writeString(handle2, "test string", 0);
 		Thread.sleep(1000); // wait for data to be displayed on console
 		
-		int soType = SerialComManager.getOSType();
+		int soType = scm.getOSType();
 		if(soType == SerialComManager.OS_LINUX) {
 			scm.fineTuneRead(handle1, 5, 1, 0, 0, 0);
 		}

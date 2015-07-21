@@ -20,11 +20,6 @@ package com.embeddedunveiled.serial;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.embeddedunveiled.serial.SerialComManager.BAUDRATE;
-import com.embeddedunveiled.serial.SerialComManager.DATABITS;
-import com.embeddedunveiled.serial.SerialComManager.FLOWCONTROL;
-import com.embeddedunveiled.serial.SerialComManager.PARITY;
-import com.embeddedunveiled.serial.SerialComManager.STOPBITS;
 
 
 
@@ -75,28 +70,6 @@ public class SerialData7PortHandler extends BaseSerial1Test {
 		}
 		Assert.assertEquals(6, data.length);
 		Thread.sleep(100);		
-	}
-	
-	/*
-	 * cycleInstance() Test45
-	 */
-	@Test
-	public void cycleInstance() throws SerialComException, InterruptedException{
-		LOG.debug("cycleInstance()");
-		int x = 0;
-		for (x=0; x<100; x++) {
-			System.out.println("Iteration :" + x);
-			if (x == 0){scm.closeComPort(handle1);}
-			handle1 = scm.openComPort(PORT1, true, true, true);
-			scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
-			scm.configureComPortControl(handle1, FLOWCONTROL.NONE, '$', '$', false, false);
-			portWatcher pw = new portWatcher();
-			scm.registerPortMonitorListener(handle1, pw);
-			Thread.sleep(100);
-			scm.unregisterPortMonitorListener(handle1);
-			Thread.sleep(100);
-			if (x != 99){scm.closeComPort(handle1);}
-		}	
 	}
 	
 	/*
