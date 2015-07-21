@@ -237,7 +237,7 @@ public final class SerialComJNINativeInterface {
 	public native String getNativeLibraryVersion(SerialComRetStatus retStatus);
 	public native boolean debug(boolean enableDebug);
 	public native String[] listAvailableComPorts(SerialComRetStatus retStatus);
-	public native String[] listUSBdevicesWithInfo(SerialComRetStatus retStatus);
+	public native String[] listUSBdevicesWithInfo(SerialComRetStatus retStatus, int vendorFilter);
 	public native String[] listComPortFromUSBAttributes(int usbVidToMatch, int usbPidToMatch, String serialNumber, SerialComRetStatus retStatus);
 
 	public native int[] registerHotPlugEventListener(ISerialComHotPlugListener hotPlugListener, int filterVID, int filterPID);

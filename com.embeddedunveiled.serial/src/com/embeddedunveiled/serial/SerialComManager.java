@@ -547,20 +547,32 @@ public final class SerialComManager {
 	
 	/**
 	 * <p>Returns an array containing information about all the USB devices found by this library. Application can call various 
-	 * methods on returned SerialComUSBdevice class objects to get specific information like vendor id and product id etc.</p>
+	 * methods on returned SerialComUSBdevice class objects to get specific information like vendor id and product id etc. The 
+	 * GUI applications may display a dialogue asking user to connect the end product.</p>
 	 * 
 	 * <p>The USB vendor id, USB product id, serial number, product name and manufacturer information is encapsulated in the 
 	 * object of class SerialComUSBdevice returned.</p>
 	 * 
-	 * @return list of all USB devices with information about them
+	 * <p>Some USB-UART chip manufactures may give some unique USB PID(s) to end product manufactures at minimal or no cost. 
+	 * Applications written for these end products may be interested in finding devices only from the USB-UART chip manufacturer.
+	 * For example, an application built for finger print scanner based on FT232 IC will like to list only those devices whose 
+	 * VID matches VID of FTDI. Then further application may verify PID by calling methods on the USBDevice object. For this 
+	 * purpose argument vendorFilter may be used.</p>
+	 * 
+	 * @param vendorFilter vendor whose devices should be listed (one of the constants SerialComUSB.V_xxxxx or any valid USB VID)
+	 * @return list of the USB devices with information about them
 	 * @throws SerialComException if an I/O error occurs.
+	 * @throws IllegalArgumentException if vendorFilter is negative
 	 */
-	public SerialComUSBdevice[] listUSBdevicesWithInfo() throws SerialComException {
-		int numOfDevices = 0;
+	public SerialComUSBdevice[] listUSBdevicesWithInfo(int vendorFilter) throws SerialComException {
 		int i = 0;
+		int numOfDevices = 0;
 		SerialComUSBdevice[] usbDevicesFound = null;
+		if((vendorFilter < 0) || (vendorFilter > 0XFFFF)) {
+			throw new IllegalArgumentException("listUSBdevicesWithInfo(), " + "Argument vendorFilter can not be negative or greater tha 0xFFFF");
+		}
 		SerialComRetStatus retStatus = new SerialComRetStatus(1);
-		String[] usbDevicesInfo = mNativeInterface.listUSBdevicesWithInfo(retStatus);
+		String[] usbDevicesInfo = mNativeInterface.listUSBdevicesWithInfo(retStatus, vendorFilter);
 				
 		if(usbDevicesInfo != null) {
 			numOfDevices = usbDevicesInfo.length / 5;
