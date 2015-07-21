@@ -20,8 +20,6 @@
  * and that the thread is responsible for cleaning them before exiting. As appropriate a policy is
  * followed that if listener exist and port is removed, CPU usage does not go very high. */
 
-#if defined (__linux__) || defined (__APPLE__) || defined (__SunOS)
-
 #include <unistd.h>     	/* UNIX standard function definitions */
 #include <stdio.h>
 #include <stdlib.h>     	/* Standard ANSI routines             */
@@ -44,6 +42,7 @@
 #include <signal.h>
 #include <libudev.h>
 #include <locale.h>
+#include <time.h>
 #endif
 
 #if defined (__APPLE__)
@@ -74,26 +73,40 @@
 #define DBG 1
 
 JavaVM *jvm_event;
-JavaVM *jvm_port;
 
-#if defined (__APPLE__)
-/* Holds information for port monitor facility. */
-int pm_index = 0;
-struct driver_ref* pm_info[2048] = {0};
-#endif
-
-/* Do not let any exception propagate. Handle and clear it. */
-void LOGE(JNIEnv *env) {
-	(*env)->ExceptionDescribe(env);
-	(*env)->ExceptionClear(env);
+/* This function set error field so as to inform exact error code to java layer. The error field is returned as negative number. */
+int set_error_status(JNIEnv *env, jobject obj, jobject status, int error_number) {
+	int negative = -1;
+	jclass statusClass = (*env)->GetObjectClass(env, status);
+	if(statusClass == NULL) {
+		if(DBG) fprintf(stderr, "%s\n", "NATIVE getSerialPortNames() could not get class of object of type SerialComRetStatus !");
+		if(DBG) fflush(stderr);
+		return -1;
+	}
+	jfieldID statusFid = (*env)->GetFieldID(env, statusClass, "status", "I");
+	if(statusFid == NULL) {
+		if(DBG) fprintf(stderr, "%s\n", "NATIVE getSerialPortNames() failed to retrieve field id of field status in class SerialComRetStatus !");
+		if(DBG) fflush(stderr);
+		return -1;
+	}
+	if((*env)->ExceptionOccurred(env) != NULL) {
+		(*env)->ExceptionClear(env);
+	}
+	(*env)->SetIntField(env, status, statusFid, (negative * error_number));
+	return 0;
 }
 
 /* pselect() is used to provide delay whenever required. */
 int serial_delay(unsigned milliSeconds) {
+	int ret = 0;
 	struct timespec t;
 	t.tv_sec  = milliSeconds/1000;
 	t.tv_nsec = 0;
-	pselect(1, 0, 0, 0, &t, 0);
+	errno = 0;
+	ret = pselect(1, 0, 0, 0, &t, 0);
+	if(ret < 0) {
+		return (-1 * errno);
+	}
 	return 0;
 }
 
@@ -101,12 +114,11 @@ int serial_delay(unsigned milliSeconds) {
  * For unrecoverable errors thread would like to exit and try again. */
 void *data_looper(void *arg) {
 	int i = -1;
-	int negative = -1;
 	int index = 0;
-	int partialData = -1;
-	int errorCount = 0;
+	int partial_data = -1;
+	int error_count = 0;
 	ssize_t ret = -1;
-	jbyte buffer[1024];
+	jbyte buffer[2 * 1024];
 	jbyte final_buf[1024 * 3]; 	  /* Sufficient enough to deal with consecutive multiple partial reads. */
 	jbyteArray dataRead;
 	int data_available = 0;
@@ -121,7 +133,7 @@ void *data_looper(void *arg) {
 	struct epoll_event ev_port;
 	struct epoll_event ev_exit;
 	struct epoll_event event;
-	struct epoll_event *events = calloc(MAXEVENTS, sizeof(event));
+	struct epoll_event *events = calloc(MAXEVENTS, sizeof(event)); /*todo return err if fail*/
 #endif
 #if defined (__APPLE__)
 	/* Kqueue is used for MAC OS X systems. */
@@ -143,94 +155,79 @@ void *data_looper(void *arg) {
 	void* env1;
 	JNIEnv* env;
 	if((*jvm)->AttachCurrentThread(jvm, &env1, NULL) != JNI_OK) {
-		if(DBG) fprintf(stderr, "%s \n", "NATIVE data_looper() thread failed to attach itself to JVM to access JNI ENV. Please RETRY registering data listener !");
-		if(DBG) fflush(stderr);
-		((struct com_thread_params*) arg)->data_init_done = -240;
+		((struct com_thread_params*) arg)->data_init_done = E_ATTACHCURRENTTHREAD;
 		pthread_mutex_unlock(((struct com_thread_params*) arg)->mutex);
 		pthread_exit((void *)0);
 	}
 
 	env = (JNIEnv*) env1;
+
 	/* Local references are valid for the duration of a native method call.
-	   They are freed automatically after the native method returns. */
+	   They are freed automatically after the native method returns.
+	   Local references are only valid in the thread in which they are created.
+	   The native code must not pass local references from one thread to another if required. */
 	jclass SerialComLooper = (*env)->GetObjectClass(env, looper);
 	if(SerialComLooper == NULL) {
-		if(DBG) fprintf(stderr, "%s \n", "NATIVE data_looper() thread could not get class of object of type looper. Please RETRY registering data listener !");
-		if(DBG) fflush(stderr);
-		((struct com_thread_params*) arg)->data_init_done = -240;
 		(*jvm)->DetachCurrentThread(jvm);
+		((struct com_thread_params*) arg)->data_init_done = E_GETOBJECTCLASS;
 		pthread_mutex_unlock(((struct com_thread_params*) arg)->mutex);
 		pthread_exit((void *)0);
 	}
 
 	jmethodID mid = (*env)->GetMethodID(env, SerialComLooper, "insertInDataQueue", "([B)V");
 	if((*env)->ExceptionOccurred(env)) {
-		LOGE(env);
+		(*env)->ExceptionClear(env);
 	}
 	if(mid == NULL) {
-		if(DBG) fprintf(stderr, "%s \n", "NATIVE data_looper() thread failed to retrieve method id of method insertInDataQueue in class SerialComLooper. Please RETRY registering data listener !");
-		if(DBG) fflush(stderr);
-		((struct com_thread_params*) arg)->data_init_done = -240;
 		(*jvm)->DetachCurrentThread(jvm);
+		((struct com_thread_params*) arg)->data_init_done = E_GETMETHODID;
 		pthread_mutex_unlock(((struct com_thread_params*) arg)->mutex);
 		pthread_exit((void *)0);
 	}
 
 	jmethodID mide = (*env)->GetMethodID(env, SerialComLooper, "insertInDataErrorQueue", "(I)V");
 	if((*env)->ExceptionOccurred(env)) {
-		LOGE(env);
+		(*env)->ExceptionClear(env);
 	}
 	if(mide == NULL) {
-		if(DBG) fprintf(stderr, "%s \n", "NATIVE data_looper() thread failed to retrieve method id of method insertInDataErrorQueue in class SerialComLooper. Please RETRY registering data listener !");
-		if(DBG) fflush(stderr);
-		((struct com_thread_params*) arg)->data_init_done = -240;
 		(*jvm)->DetachCurrentThread(jvm);
+		((struct com_thread_params*) arg)->data_init_done = E_GETMETHODID;
 		pthread_mutex_unlock(((struct com_thread_params*) arg)->mutex);
 		pthread_exit((void *)0);
 	}
 
 #if defined (__linux__)
 	errno = 0;
-	ret  = eventfd(0, EFD_NONBLOCK);
-	if(ret < 0) {
-		if(DBG) fprintf(stderr, "%s %d\n", "NATIVE data_looper() thread failed to create eventfd with error number : -", errno);
-		if(DBG) fprintf(stderr, "%s \n", "NATIVE data_looper() thread exiting. Please RETRY registering data listener !");
-		if(DBG) fflush(stderr);
-		((struct com_thread_params*) arg)->data_init_done = negative * errno;
+	evfd  = eventfd(0, 0);
+	if(evfd < 0) {
 		(*jvm)->DetachCurrentThread(jvm);
+		((struct com_thread_params*) arg)->data_init_done = errno;
 		pthread_mutex_unlock(((struct com_thread_params*) arg)->mutex);
 		pthread_exit((void *)0);
 	}
-	((struct com_thread_params*) arg)->evfd = ret;  /* Save evfd for cleanup. */
-	evfd = ((struct com_thread_params*) arg)->evfd;
+	((struct com_thread_params*) arg)->evfd = evfd;  /* Save evfd for cleanup. */
 
 	errno = 0;
 	epfd = epoll_create(2);
 	if(epfd < 0) {
-		if(DBG) fprintf(stderr, "%s%d\n", "NATIVE data_looper() thread failed in epoll_create() with error number : -", errno);
-		if(DBG) fprintf(stderr, "%s \n", "NATIVE data_looper() thread exiting. Please RETRY registering data listener !");
-		if(DBG) fflush(stderr);
-		close(((struct com_thread_params*) arg)->evfd);
-		((struct com_thread_params*) arg)->data_init_done = negative * errno;
 		(*jvm)->DetachCurrentThread(jvm);
+		close(((struct com_thread_params*) arg)->evfd);
+		((struct com_thread_params*) arg)->data_init_done = errno;
 		pthread_mutex_unlock(((struct com_thread_params*) arg)->mutex);
 		pthread_exit((void *)0);
 	}
 
-	/* add serial port to epoll wait mechanism. Use level triggered (returned immediately if there is data in read buffer)
+	/* Add serial port to epoll wait mechanism. Use level triggered (returned immediately if there is data in read buffer)
 	 * epoll mechanism.  */
 	ev_port.events = (EPOLLIN | EPOLLPRI | EPOLLERR | EPOLLHUP);
 	ev_port.data.fd = fd;
 	errno = 0;
 	ret = epoll_ctl(epfd, EPOLL_CTL_ADD, fd, &ev_port);
 	if(ret < 0) {
-		if(DBG) fprintf(stderr, "%s%d\n", "NATIVE data_looper() thread failed in epoll_ctl() for adding serial port with error number : -", errno);
-		if(DBG) fprintf(stderr, "%s \n", "NATIVE data_looper() thread exiting. Please RETRY registering data listener !");
-		if(DBG) fflush(stderr);
+		(*jvm)->DetachCurrentThread(jvm);
 		close(epfd);
 		close(((struct com_thread_params*) arg)->evfd);
-		((struct com_thread_params*) arg)->data_init_done = negative * errno;
-		(*jvm)->DetachCurrentThread(jvm);
+		((struct com_thread_params*) arg)->data_init_done = errno;
 		pthread_mutex_unlock(((struct com_thread_params*) arg)->mutex);
 		pthread_exit((void *)0);
 	}
@@ -241,13 +238,10 @@ void *data_looper(void *arg) {
 	errno = 0;
 	ret = epoll_ctl(epfd, EPOLL_CTL_ADD, ((struct com_thread_params*) arg)->evfd, &ev_exit);
 	if(ret < 0) {
-		if(DBG) fprintf(stderr, "%s%d\n", "NATIVE data_looper() thread failed in epoll_ctl() for adding exit event evfd with error number : -", errno);
-		if(DBG) fprintf(stderr, "%s \n", "NATIVE data_looper() thread exiting. Please RETRY registering data listener !");
-		if(DBG) fflush(stderr);
+		(*jvm)->DetachCurrentThread(jvm);
 		close(epfd);
 		close(((struct com_thread_params*) arg)->evfd);
-		((struct com_thread_params*) arg)->data_init_done = negative * errno;
-		(*jvm)->DetachCurrentThread(jvm);
+		((struct com_thread_params*) arg)->data_init_done = errno;
 		pthread_mutex_unlock(((struct com_thread_params*) arg)->mutex);
 		pthread_exit((void *)0);
 	}
@@ -256,11 +250,8 @@ void *data_looper(void *arg) {
 	errno = 0;
 	ret = pipe(pipe1);
 	if(ret < 0) {
-		if(DBG) fprintf(stderr, "%s%d\n", "NATIVE data_looper() thread failed in pipe() with error number : -", errno);
-		if(DBG) fprintf(stderr, "%s \n", "NATIVE data_looper() thread exiting. Please RETRY registering data listener !");
-		if(DBG) fflush(stderr);
-		((struct com_thread_params*) arg)->data_init_done = negative * errno;
 		(*jvm)->DetachCurrentThread(jvm);
+		((struct com_thread_params*) arg)->data_init_done = errno;
 		pthread_mutex_unlock(((struct com_thread_params*) arg)->mutex);
 		pthread_exit((void *)0);
 	}
@@ -270,32 +261,33 @@ void *data_looper(void *arg) {
 	errno = 0;
 	kq = kqueue();
 	if(kq < 0) {
-		if(DBG) fprintf(stderr, "%s%d\n", "NATIVE data_looper() thread failed in kevent() for adding serial port with error number : -", errno);
-		if(DBG) fprintf(stderr, "%s \n", "NATIVE data_looper() thread exiting. Please RETRY registering data listener !");
-		if(DBG) fflush(stderr);
-		((struct com_thread_params*) arg)->data_init_done = negative * errno;
+		(*jvm)->DetachCurrentThread(jvm);
+		((struct com_thread_params*) arg)->data_init_done = errno;
 		close(pipe1[0]);
 		close(pipe1[1]);
-		(*jvm)->DetachCurrentThread(jvm);
 		pthread_mutex_unlock(((struct com_thread_params*) arg)->mutex);
 		pthread_exit((void *)0);
 	}
 
-	/* Initialize what changes to be monitor on which fd. */
+	/* Initialize what changes to be monitor on which file descriptor. */
 	EV_SET(&chlist[0], fd, EVFILT_READ, EV_ADD , 0, 0, NULL);
 	EV_SET(&chlist[1], pipe1[0], EVFILT_READ, EV_ADD , 0, 0, NULL);
 #endif
 
 	/* indicate success to caller so it can return success to java layer */
-	((struct com_thread_params*) arg)->data_init_done = 1;
+	((struct com_thread_params*) arg)->data_init_done = 0;
 	pthread_mutex_unlock(((struct com_thread_params*) arg)->mutex);
 
 	/* This keep looping until listener is unregistered, waiting for data and passing it to java layer. */
 	while(1) {
+		index = 0;           /* reset */
+		partial_data = 0;    /* reset */
+		data_available = 0;  /* reset */
 
 #if defined (__linux__)
 		errno = 0;
 		ret = epoll_wait(epfd, events, MAXEVENTS, -1);
+
 		if(ret <= 0) {
 			/* ret < 0 if error occurs, ret = 0 if no fd available for read.
 			 * for error (unlikely to happen) just restart looping. */
@@ -314,13 +306,10 @@ void *data_looper(void *arg) {
 		if((events[0].data.fd == evfd) || (events[1].data.fd == evfd)) {
 			/* check if thread should exit due to un-registration of listener. */
 			if(1 == ((struct com_thread_params*) arg)->data_thread_exit) {
+				(*jvm)->DetachCurrentThread(jvm);
 				close(epfd);
 				close(((struct com_thread_params*) arg)->evfd);
-				ret = (*jvm)->DetachCurrentThread(jvm);
-				if(ret != JNI_OK) {
-					if(DBG) fprintf(stderr, "%s %d\n", "NATIVE data_looper() failed to exit data monitor thread with JNI error ", (int)ret);
-					if(DBG) fflush(stderr);
-				}
+				free(events);
 				pthread_exit((void *)0);
 			}
 		}
@@ -331,14 +320,10 @@ void *data_looper(void *arg) {
 		if((evlist[0].ident == pipe1[0]) || (evlist[1].ident == pipe1[0])) {
 			/* check if thread should exit due to un-registration of listener. */
 			if(1 == ((struct com_thread_params*) arg)->data_thread_exit) {
+				(*jvm)->DetachCurrentThread(jvm);
 				close(kq);
 				close(pipe1[0]);
 				close(pipe1[1]);
-				ret = (*jvm)->DetachCurrentThread(jvm);
-				if(ret != JNI_OK) {
-					if(DBG) fprintf(stderr, "%s %d\n", "NATIVE data_looper() failed to exit data monitor thread with JNI error ", (ssize_t)ret);
-					if(DBG) fflush(stderr);
-				}
 				pthread_exit((void *)0);
 			}
 		}
@@ -352,19 +337,18 @@ void *data_looper(void *arg) {
 #endif
 				/* input event happened, no error occurred, we have data to read on file descriptor. */
 				do {
-
-					data_available = 0;
 					errno = 0;
 					ret = read(fd, buffer, sizeof(buffer));
 					if(ret > 0 && errno == 0) {
 						/* This indicates we got success and have read data. */
 						/* If there is partial data read previously, append this data. */
-						if(partialData == 1) {
-							for(i = index; i < ret; i++) {
-								final_buf[i] = buffer[i];
+						if(partial_data == 1) {
+							for(i = 0; i < ret; i++) {
+								final_buf[index] = buffer[i];
+								index++;
 							}
-							dataRead = (*env)->NewByteArray(env, index + ret);
-							(*env)->SetByteArrayRegion(env, dataRead, 0, index + ret, final_buf);
+							dataRead = (*env)->NewByteArray(env, index);
+							(*env)->SetByteArrayRegion(env, dataRead, 0, index, final_buf);
 							data_available = 1;
 							break;
 						}else {
@@ -377,11 +361,11 @@ void *data_looper(void *arg) {
 					}else if(ret > 0 && errno == EINTR) {
 						/* This indicates, there is data to read, however, we got interrupted before we finish reading
 						 * all of the available data. So we need to save this partial data and get back to read remaining. */
-						for(i = index; i < ret; i++) {
-							final_buf[i] = buffer[i];
+						for(i = 0; i < ret; i++) {
+							final_buf[index] = buffer[i];
+							index++;
 						}
-						index = ret;
-						partialData = 1;
+						partial_data = 1;
 						continue;
 					}else if(ret < 0) {
 						if(errno == EINTR) {
@@ -389,21 +373,10 @@ void *data_looper(void *arg) {
 							continue;
 						}else {
 							/* This indicates, there was data to read but we got an error during read operation, notify application. */
-#if defined (__linux__)
 							(*env)->CallVoidMethod(env, looper, mide, errno);
 							if((*env)->ExceptionOccurred(env)) {
-								LOGE(env);
+								(*env)->ExceptionClear(env);
 							}
-#endif
-#if defined (__APPLE__)
-							(*env)->CallVoidMethod(env, looper, mide, errno);
-							if((*env)->ExceptionOccurred(env)) {
-								LOGE(env);
-							}
-#endif
-#if defined (__SunOS)
-//TODO solaris
-#endif
 							break;
 						}
 					}else if(ret == 0) {
@@ -417,39 +390,39 @@ void *data_looper(void *arg) {
 					/* once we have successfully read the data, let us pass this to java layer. */
 					(*env)->CallVoidMethod(env, looper, mid, dataRead);
 					if((*env)->ExceptionOccurred(env)) {
-						LOGE(env);
+						(*env)->ExceptionClear(env);
 					}
 				}
 
 			}else {
 #if defined (__linux__)
 				if(events[0].events & (EPOLLERR|EPOLLHUP)) {
-					errorCount++;
+					error_count++;
 					/* minimize JNI transition by setting threshold for when application will be called. */
-					if(errorCount == 100) {
+					if(error_count == 100) {
 						(*env)->CallVoidMethod(env, looper, mide, events[0].events);
 						if((*env)->ExceptionOccurred(env)) {
-							LOGE(env);
+							(*env)->ExceptionClear(env);
 						}
-						errorCount = 0; // reset error count
+						error_count = 0; // reset error count
 					}
 				}
 #endif
 #if defined (__APPLE__)
 				if(evlist[0].flags & EV_ERROR) {
-					errorCount++;
+					error_count++;
 					/* minimize JNI transition by setting threshold for when application will be called. */
-					if(errorCount == 100) {
+					if(error_count == 100) {
 						(*env)->CallVoidMethod(env, looper, mide, evlist[0].data);
 						if((*env)->ExceptionOccurred(env)) {
-							LOGE(env);
+							(*env)->ExceptionClear(env);
 						}
-						errorCount = 0; // reset error count
+						error_count = 0; // reset error count
 					}
 				}
 #endif
 #if defined (__SunOS)
-//TODO solaris
+				//TODO solaris
 #endif
 			}
 		} /* Go back to loop (while loop) again waiting for the data, available to read. */
@@ -461,10 +434,9 @@ void *data_looper(void *arg) {
 	void event_exit_signal_handler(int signal_number) {
 		int ret = -1;
 		if(signal_number == SIGUSR1) {
-			ret = (*jvm_port)->DetachCurrentThread(jvm_port);
+			ret = (*jvm_event)->DetachCurrentThread(jvm_event);
 			if(ret != JNI_OK) {
-				if(DBG) fprintf(stderr, "%s %d\n", "NATIVE exit_signal_handler() failed to exit event thread with JNI error ", ret);
-				if(DBG) fflush(stderr);
+				/* todo think */
 			}
 			pthread_exit((void *)0);
 		}
@@ -498,9 +470,7 @@ void *data_looper(void *arg) {
 		void* env1;
 		JNIEnv* env;
 		if((*jvm)->AttachCurrentThread(jvm, &env1, NULL) != JNI_OK) {
-			if(DBG) fprintf(stderr, "%s \n", "NATIVE event_looper() thread failed to attach itself to JVM. RETRY registering event listener !");
-			if(DBG) fflush(stderr);
-			((struct com_thread_params*) arg)->event_init_done = -240;
+			((struct com_thread_params*) arg)->event_init_done = E_ATTACHCURRENTTHREAD;
 			pthread_mutex_unlock(((struct com_thread_params*) arg)->mutex);
 			pthread_exit((void *)0);
 		}
@@ -508,33 +478,27 @@ void *data_looper(void *arg) {
 
 		jclass SerialComLooper = (*env)->GetObjectClass(env, looper);
 		if(SerialComLooper == NULL) {
-			if(DBG) fprintf(stderr, "%s \n", "NATIVE event_looper() thread could not get class of object of type looper. RETRY registering event listener !");
-			if(DBG) fflush(stderr);
-			((struct com_thread_params*) arg)->event_init_done = -240;
 			(*jvm)->DetachCurrentThread(jvm);
+			((struct com_thread_params*) arg)->event_init_done = E_GETOBJECTCLASS;
 			pthread_mutex_unlock(((struct com_thread_params*) arg)->mutex);
 			pthread_exit((void *)0);
 		}
 
 		jmethodID mid = (*env)->GetMethodID(env, SerialComLooper, "insertInEventQueue", "(I)V");
 		if((*env)->ExceptionOccurred(env)) {
-			LOGE(env);
+			(*env)->ExceptionClear(env);
 		}
 		if(mid == NULL) {
-			if(DBG) fprintf(stderr, "%s \n", "NATIVE data_looper() thread failed to retrieve method id of method insertInDataQueue in class SerialComLooper. RETRY registering data listener !");
-			if(DBG) fflush(stderr);
-			((struct com_thread_params*) arg)->event_init_done = -240;
 			(*jvm)->DetachCurrentThread(jvm);
+			((struct com_thread_params*) arg)->event_init_done = E_GETMETHODID;
 			pthread_mutex_unlock(((struct com_thread_params*) arg)->mutex);
 			pthread_exit((void *)0);
 		}
 
 		/* Install signal handler that will be invoked to indicate that the thread should exit. */
 		if(signal(SIGUSR1, event_exit_signal_handler) == SIG_ERR) {
-			if(DBG) fprintf(stderr, "%s\n", "Unable to create handler for SIGUSR1. RETRY registering data listener !");
-			if(DBG) fflush(stderr);
-			((struct com_thread_params*) arg)->event_init_done = -240;
 			(*jvm)->DetachCurrentThread(jvm);
+			((struct com_thread_params*) arg)->event_init_done = -240;
 			pthread_mutex_unlock(((struct com_thread_params*) arg)->mutex);
 			pthread_exit((void *)0);
 		}
@@ -559,22 +523,21 @@ void *data_looper(void *arg) {
 			errno = 0;
 			ret = ioctl(fd, TIOCMIWAIT, TIOCM_DSR | TIOCM_CTS | TIOCM_CD | TIOCM_RNG);
 			if(ret < 0) {
-				if(DBG) fprintf(stderr, "%s%d\n", "NATIVE event_looper() failed in ioctl TIOCMIWAIT with error number : -", errno);
-				if(DBG) fflush(stderr);
+				/*if(DBG) fprintf(stderr, "%s%d\n", "NATIVE event_looper() failed in ioctl TIOCMIWAIT with error number : -", errno);
+				if(DBG) fflush(stderr);*/
 				continue;
 			}
 
 #endif
 #if defined (__APPLE__)
-			usleep(500000); /* 0.5 seconds */
+			usleep(500000); /* 500 milliseconds */
 #endif
 
 			/* Something happened on status line so get it. */
 			errno = 0;
 			ret = ioctl(fd, TIOCMGET, &lines_status);
 			if(ret < 0) {
-				if(DBG) fprintf(stderr, "%s%d\n", "NATIVE event_looper() failed in ioctl TIOCMGET with error number : -", errno);
-				if(DBG) fflush(stderr);
+				/* todo consider error reporting like data looper here. data and event error may be mutually exclusive*/
 				continue;
 			}
 
@@ -597,23 +560,19 @@ void *data_looper(void *arg) {
 			}
 
 #if defined (__linux__)
-			if(DBG) fprintf(stderr, "%s %d\n", "NATIVE event_looper() sending bit mapped events ", event);
-			if(DBG) fflush(stderr);
 			/* Pass this to java layer inserting event in event queue. */
 			(*env)->CallVoidMethod(env, looper, mid, event);
 			if((*env)->ExceptionOccurred(env)) {
-				LOGE(env);
+				(*env)->ExceptionClear(env);
 			}
 #endif
 #if defined (__APPLE__)
 			newstate = event;
 			if(newstate != oldstate) {
-				if(DBG) fprintf(stderr, "%s %d\n", "NATIVE event_looper() sending bit mapped events ", event);
-				if(DBG) fflush(stderr);
 				/* Pass this to java layer inserting event in event queue. */
 				(*env)->CallVoidMethod(env, looper, mid, event);
 				if((*env)->ExceptionOccurred(env)) {
-					LOGE(env);
+					(*env)->ExceptionClear(env);
 				}
 				oldstate = newstate;
 			}
@@ -623,344 +582,378 @@ void *data_looper(void *arg) {
 		return ((void *)0);
 	}
 
-	/* This handler is invoked whenever application unregisters port monitor listener.
-	 * In future this function may be replaced with some new mechanism. */
-	void exitMonitor_signal_handler(int signal_number) {
-		int ret = -1;
-		if(signal_number == SIGUSR1) {
-#if defined (__linux__)
-			ret = (*jvm_port)->DetachCurrentThread(jvm_port);
-			if(ret != JNI_OK) {
-				if(DBG) fprintf(stderr, "%s %d\n", "NATIVE exitMonitor_signal_handler() failed to exit port monitor thread with JNI error ", ret);
-				if(DBG) fflush(stderr);
-			}
-			pthread_exit((void *)0);
-#endif
 #if defined (__APPLE__)
-			int x=0;
-			struct driver_ref* ptr;
-			pthread_t tid  = pthread_self();
-			for (x=0; x < 2048; x++) {
-				ptr = pm_info[x];
-				if(pm_info[x] == 0) {
-					continue;
-				}
-				if((*ptr->data).thread_id == tid) {
-					IOObjectRelease(ptr->notification); /* Remove the driver state change notification.        */
-					IOObjectRelease(ptr->service);      /* Release our reference to the driver object.         */
-					free(ptr);                          /* Release structure that holds the driver connection. */
-				}
-				pm_info[x] = 0;
-			}
-
-			pthread_exit((void *)0);
-#endif
-		}
+	/* Each thread has exactly one run loop associated with it. This forces run loop to stop running and return
+	 * control to the function that called CFRunLoopRun i.e. this thread's usb_hot_plug_monitor(). The function
+	 * CFRunLoopStop() may not be thread safe so we invoke/execute it from worker thread itself to prevent
+	 * thread deadlock between main and worker thread. */
+	void mac_indicate_thread_exit(void *info) {
+		CFRunLoopStop(CFRunLoopGetCurrent());
 	}
 
-#if defined (__APPLE__)
-	/* Callback associated with run loop which will be invoked whenever a device is removed from system.
-	 * In order to keep our device removal detection independent from system, we used stat on file path. */
-	void device_removed(void *refCon, io_service_t service, natural_t messageType, void *messageArgument) {
-		int ret = 0;
-		struct stat st;
-		struct driver_ref* driver_reference = (struct driver_ref*) refCon;
+	/* Callback associated with run loop which will be invoked whenever
+	 * a matching USB device is removed from system. */
+	void mac_usb_device_removed(void *refCon, io_iterator_t iterator) {
+		int usb_vid;
+		int usb_pid;
+		CFNumberRef num_ref;
+		io_service_t usb_dev_obj = 0;
+		int USB_DEV_ANY = 0x00;
+		int USB_DEV_REMOVED = 0x02;
+		JNIEnv* env = ((struct port_info*) refCon)->env;
 
-		if(messageType == kIOMessageServiceIsTerminated) {
-			errno = 0;
-			ret = stat((*driver_reference->data).port_name, &st);
-			if(ret == 0) {
-			}else {
-				if(errno == EACCES) {
-					if(DBG) fprintf(stderr, "%s %d\n", "NATIVE port_monitor does not have permission to stat port error : ", errno);
-					if(DBG) fflush(stderr);
-				}else if(errno == ELOOP) {
-					if(DBG) fprintf(stderr, "%s %d\n", "NATIVE port_monitor encountered too many symbolic links while traversing the path error : ", errno);
-					if(DBG) fflush(stderr);
-				}else if(errno == ENAMETOOLONG) {
-					if(DBG) fprintf(stderr, "%s %d\n", "NATIVE port_monitor path is too long error : ", errno);
-					if(DBG) fflush(stderr);
-				}else if(errno == ENOMEM) {
-					if(DBG) fprintf(stderr, "%s %d\n", "NATIVE port_monitor Out of memory (i.e. kernel memory) error : ", errno);
-					if(DBG) fflush(stderr);
-				}else if(errno == ENOTDIR) {
-					if(DBG) fprintf(stderr, "%s %d\n", "NATIVE port_monitor a component of the path prefix of path is not a directory error : ", errno);
-					if(DBG) fflush(stderr);
-				}else if(errno == EOVERFLOW) {
-					if(DBG) fprintf(stderr, "%s %d\n", "NATIVE port_monitor improper data size handling/definition error : ", errno);
-					if(DBG) fflush(stderr);
-				}else if(errno == EFAULT) {
-					if(DBG) fprintf(stderr, "%s %d\n", "NATIVE port_monitor bad address error : ", errno);
-					if(DBG) fflush(stderr);
-				}else {
-					JNIEnv* env = (*driver_reference->data).env;
-					jclass port_listener = (*driver_reference->data).port_listener;
-					jmethodID mid = (*driver_reference->data).mid;
-					(*env)->CallVoidMethod(env, port_listener, mid, 2); /* arg 2 represent device remove action */
-					if((*env)->ExceptionOccurred(env)) {
-						LOGE(env);
+		if(((struct port_info*) refCon)->empty_iterator_removed != 0) {
+			while ((usb_dev_obj = IOIteratorNext(iterator)) != 0) {
+				if(((struct port_info*) refCon)->filterVID != USB_DEV_ANY) {
+					num_ref = (CFNumberRef) IORegistryEntrySearchCFProperty(usb_dev_obj, kIOServicePlane, CFSTR("idVendor"),
+							                               NULL, kIORegistryIterateRecursively | kIORegistryIterateParents);
+					if(num_ref) {
+						CFNumberGetValue(num_ref, kCFNumberSInt32Type, &usb_vid);
+						CFRelease(num_ref);
+						if(((struct port_info*) refCon)->filterVID != usb_vid) {
+							IOObjectRelease(usb_dev_obj);
+							continue;
+						}
 					}
 				}
-			}
-		}
-	}
+				if(((struct port_info*) refCon)->filterPID != USB_DEV_ANY) {
+					num_ref = (CFNumberRef) IORegistryEntrySearchCFProperty(usb_dev_obj, kIOServicePlane, CFSTR("idProduct"),
+							                               NULL, kIORegistryIterateRecursively | kIORegistryIterateParents);
+					if(num_ref) {
+						CFNumberGetValue(num_ref, kCFNumberSInt32Type, &usb_pid);
+						CFRelease(num_ref);
+						if(((struct port_info*) refCon)->filterPID != usb_pid) {
+							IOObjectRelease(usb_dev_obj);
+							continue;
+						}
+					}
+				}
+				/* Reaching here means both USB VID and PID criteria is met. */
+				(*env)->CallVoidMethod(env, ((struct port_info*) refCon)->usbHotPlugEventListener,
+						      ((struct port_info*) refCon)->onHotPlugEventMethodID, USB_DEV_REMOVED);
+				if((*env)->ExceptionOccurred(env)) {
+					(*env)->ExceptionClear(env);
+				}
 
-	/* Callback associated with run loop which will be invoked whenever a device is added into system.
-	 * When program starts, we manually call this function, and therefore addition of device event
-	 * gets sent to application. To prevent this, on very first run we detect value of tempVal
-	 * and y pass notification. */
-	void device_added(void *refCon, io_iterator_t iterator) {
-		io_service_t service = 0;
-		kern_return_t kr;
-		struct driver_ref dref;
-
-		/* call the application */
-		if(((struct port_info*) refCon)->tempVal != 0) {
-			JNIEnv* env = ((struct port_info*) refCon)->env;
-			jclass port_listener = ((struct port_info*) refCon)->port_listener;
-			jmethodID mid = ((struct port_info*) refCon)->mid;
-			(*env)->CallVoidMethod(env, port_listener, mid, 1);  /* arg 1 represent device added into system */
-			if((*env)->ExceptionOccurred(env)) {
-				LOGE(env);
+				IOObjectRelease(usb_dev_obj);
 			}
 		}else {
-			((struct port_info*) refCon)->tempVal = 1;
-		}
-
-		/* Iterate over all matching objects. */
-		while ((service = IOIteratorNext(iterator)) != 0) {
-
-			/* create arguments to be passed to call back. */
-			struct driver_ref *driver_reference = (struct driver_ref *) malloc(sizeof(dref));
-
-			/* pass common global info */
-			driver_reference->data = ((struct port_info*) refCon)->data;
-
-			/* Save the io_service_t for this driver instance. */
-			driver_reference->service = service;
-
-			/* Install a callback to receive notification of driver state changes. */
-			kr = IOServiceAddInterestNotification(((struct port_info*) refCon)->notification_port,
-					service,                            /* driver object */
-					kIOGeneralInterest,
-					device_removed,                     /* callback */
-					driver_reference,                   /* refCon passed to device_removed callback */
-					&driver_reference->notification);
-
-			/* update global data which will be used when unregistering listener. */
-			pm_info[pm_index] = driver_reference;
-			pm_index++;
+			/* empty the iterator for the very first time this function is called */
+			while ((usb_dev_obj = IOIteratorNext(iterator)) != 0) {
+				IOObjectRelease(usb_dev_obj);
+			}
+			((struct port_info*) refCon)->empty_iterator_removed = 1;
 		}
 	}
 
+	/* Callback associated with run loop which will be invoked whenever
+	 * a matching USB device is added into system. */
+	void mac_usb_device_added(void *refCon, io_iterator_t iterator) {
+		int usb_vid;
+		int usb_pid;
+		CFNumberRef num_ref;
+		io_service_t usb_dev_obj = 0;
+		int USB_DEV_ANY = 0x00;
+		int USB_DEV_ADDED = 0x01;
+		JNIEnv* env = ((struct port_info*) refCon)->env;
+
+		if(((struct port_info*) refCon)->empty_iterator_added != 0) {
+			while ((usb_dev_obj = IOIteratorNext(iterator)) != 0) {
+				if(((struct port_info*) refCon)->filterVID != USB_DEV_ANY) {
+					num_ref = (CFNumberRef) IORegistryEntrySearchCFProperty(usb_dev_obj, kIOServicePlane, CFSTR("idVendor"),
+							                               NULL, kIORegistryIterateRecursively | kIORegistryIterateParents);
+					if(num_ref) {
+						CFNumberGetValue(num_ref, kCFNumberSInt32Type, &usb_vid);
+						CFRelease(num_ref);
+						if(((struct port_info*) refCon)->filterVID != usb_vid) {
+							IOObjectRelease(usb_dev_obj);
+							continue;
+						}
+					}
+				}
+				if(((struct port_info*) refCon)->filterPID != USB_DEV_ANY) {
+					num_ref = (CFNumberRef) IORegistryEntrySearchCFProperty(usb_dev_obj, kIOServicePlane, CFSTR("idProduct"),
+							                               NULL, kIORegistryIterateRecursively | kIORegistryIterateParents);
+					if(num_ref) {
+						CFNumberGetValue(num_ref, kCFNumberSInt32Type, &usb_pid);
+						CFRelease(num_ref);
+						if(((struct port_info*) refCon)->filterPID != usb_pid) {
+							IOObjectRelease(usb_dev_obj);
+							continue;
+						}
+					}
+				}
+				/* Reaching here means both USB VID and PID criteria is met. */
+				(*env)->CallVoidMethod(env, ((struct port_info*) refCon)->usbHotPlugEventListener,
+						      ((struct port_info*) refCon)->onHotPlugEventMethodID, USB_DEV_ADDED);
+				if((*env)->ExceptionOccurred(env)) {
+					(*env)->ExceptionClear(env);
+				}
+
+				IOObjectRelease(usb_dev_obj);
+			}
+		}else {
+			/* empty the iterator for the very first time this function is called */
+			while ((usb_dev_obj = IOIteratorNext(iterator)) != 0) {
+				IOObjectRelease(usb_dev_obj);
+			}
+			((struct port_info*) refCon)->empty_iterator_added = 1;
+		}
+	}
 #endif
 
-	/* This thread keep polling for the physical existence of a port/file/device. When port removal is detected, this
-	 * informs java listener and exit. We need to ensure that stat() itself does not fail.
-	 * It has been assumed that till this thread has initialized, port will not be unplugged from system.
-	 * Link against libudev which provides a set of functions for accessing the udev database and querying sysfs. */
-	void *port_monitor(void *arg) {
+	/*
+	 * This worker thread monitors usb events and notifies application as appropriate. Platform specific facility
+	 * has been used to terminate thread with any thread dead-lock and ensuring resource clean up.
+	 *
+	 * For Linux : libudev is used to monitor events, extract info about events etc. To destroy this thread main thread
+	 * causes dummy event on evfd which makes select come out of blocking state.
+	 *
+	 * For MAC OS X : There is exactly one CFRunLoop for each thread. Prepare this run loop to listen to add and remove
+	 * notifications from kernel and callbacks gets called as appropriate. Signal and wake up runloop when hot plug listener
+	 * is un-registered to get out of waiting state.
+	 */
+	void *usb_hot_plug_monitor(void *arg) {
 		struct port_info* params = (struct port_info*) arg;
-		JavaVM *jvm = (*params).jvm;
-		jvm_port = (*params).jvm;
-		jobject port_listener = (*params).port_listener;
 		void* env1;
+		jclass usbHotPlugEventListenerClass;
+		JavaVM *jvm = (*params).jvm;
+		jobject usbHotPlugEventListenerObj = (*params).usbHotPlugEventListener;
 		JNIEnv* env;
-		jclass portListener;
-		jmethodID mid;
 
 #if defined (__linux__)
-		struct stat st;
+		jmethodID onHotPlugEventMethodID;
+		int filterVID = (*params).filterVID;
+		int filterPID = (*params).filterPID;
+		int USB_DEV_ANY = 0x00;     /* must match value in SerialComManager class. */
+		int USB_DEV_ADDED = 0x01;   /* must match value in SerialComManager class. */
+		int USB_DEV_REMOVED = 0x02; /* must match value in SerialComManager class. */
 		int ret = 0;
-		int fd;
+		int evfd = 0;
+		int udev_monitor_fd;
 		fd_set fds;
-		struct udev *udev;
-		struct udev_device *device;
-		struct udev_monitor *monitor;
-		char action[32];
-		const char *SUBSYSTEM_USB = "usb";
-		const char *DEVICE_TYPE_USB = "usb_device";
+		int maxfd = 0;
+		struct udev *udev_ctx = NULL;
+		struct udev_device *udev_device;
+		struct udev_monitor *udev_monitor;
+		const char* udev_action_str;
+		char udev_action[128];
+		const char* usb_vid_str;
+		const char* usb_pid_str;
+		int usb_vid = 0;
+		int usb_pid = 0;
 #endif
 #if defined (__APPLE__)
-		CFDictionaryRef matching_dictionary = NULL;
-		io_iterator_t iter = 0;
-		CFRunLoopSourceRef run_loop_source;
 		kern_return_t kr;
+		io_iterator_t added_iterator = 0;
+		io_iterator_t removed_iterator = 0;
+		CFRunLoopSourceRef usb_run_loop_source;
+		CFRunLoopSourceContext exit_source_context;
+		/* Use separate dictionary, reusing same may not work.
+		 * OS is responsible for releasing dictionary. */
+		CFDictionaryRef added_matching_dict = NULL;
+		CFDictionaryRef removed_matching_dict = NULL;
 #endif
 #if defined (__SunOS)
 		/* TODO solaris */
 #endif
 
 		if((*jvm)->AttachCurrentThread(jvm, &env1, NULL) != JNI_OK) {
-			if(DBG) fprintf(stderr, "%s \n", "NATIVE event_looper() thread failed to attach itself to JVM.");
-			if(DBG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread exiting. Please RETRY registering port listener !");
-			if(DBG) fflush(stderr);
-			/*todo make this robust as data listner wait till register complete and delete globalref*/
+			((struct port_info*) arg)->init_done = E_ATTACHCURRENTTHREAD;
 			pthread_exit((void *)0);
 		}
-		env = (JNIEnv*) env1;
+		env =  (JNIEnv*) env1;
+#if defined (__APPLE__)
+		((struct port_info*) arg)->env = (JNIEnv*) env1;
+#endif
 
-		portListener = (*env)->GetObjectClass(env, port_listener);
-		if(portListener == NULL) {
-			if(DBG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread could not get class of object of type IPortMonitor !");
-			if(DBG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread exiting. Please RETRY registering port listener !");
-			if(DBG) fflush(stderr);
-			pthread_exit((void *)0);
-		}
-
-		mid = (*env)->GetMethodID(env, portListener, "onPortMonitorEvent", "(I)V");
-		if((*env)->ExceptionOccurred(env)) {
-			LOGE(env);
-		}
-		if(mid == NULL) {
-			if(DBG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread failed to retrieve method id of method onPortRemovedEvent !");
-			if(DBG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread exiting. Please RETRY registering port listener !");
-			if(DBG) fflush(stderr);
+		usbHotPlugEventListenerClass = (*env)->GetObjectClass(env, usbHotPlugEventListenerObj);
+		if(usbHotPlugEventListenerClass == NULL) {
+			(*jvm)->DetachCurrentThread(jvm);
+			((struct port_info*) arg)->init_done = E_GETOBJECTCLASS;
 			pthread_exit((void *)0);
 		}
 
 #if defined (__linux__)
-		/* Create the udev object */
-		udev = udev_new();
-		if(!udev) {
-			if(DBG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread failed to create udev object !");
-			if(DBG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread exiting. Please RETRY registering port listener !");
-			if(DBG) fflush(stderr);
+		onHotPlugEventMethodID = (*env)->GetMethodID(env, usbHotPlugEventListenerClass, "onHotPlugEvent", "(I)V");
+#endif
+#if defined (__APPLE__)
+		((struct port_info*) arg)->onHotPlugEventMethodID = (*env)->GetMethodID(env, usbHotPlugEventListenerClass, "onHotPlugEvent", "(I)V");
+#endif
+		if((*env)->ExceptionOccurred(env)) {
+			(*env)->ExceptionClear(env);
+		}
+#if defined (__linux__)
+		if(onHotPlugEventMethodID == NULL) {
+#endif
+#if defined (__APPLE__)
+		if(((struct port_info*) arg)->onHotPlugEventMethodID == NULL) {
+#endif
+			(*jvm)->DetachCurrentThread(jvm);
+			((struct port_info*) arg)->init_done = E_GETMETHODID;
 			pthread_exit((void *)0);
 		}
 
-		/* Create new udev monitor and connect to a specified event source. Applications should usually not
-	   connect directly to the "kernel" events, because the devices might not be usable at that time,
-	   before udev has configured them, and created device nodes. Accessing devices at the same time as
-	   udev, might result in unpredictable behavior. The "udev" events are sent out after udev has
-	   finished its event processing, all rules have been processed, and needed device nodes are created. */
-		monitor = udev_monitor_new_from_netlink(udev, "udev");
-		if(monitor == NULL) {
-			if(DBG) fprintf(stderr, "%s %d\n", "NATIVE port_monitor failed to create udev monitor with error ", ret);
-			if(DBG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread exiting. Please RETRY registering port listener !");
-			if(DBG) fflush(stderr);
+#if defined (__linux__)
+		errno = 0;
+		evfd  = eventfd(0, 0);
+		if(evfd < 0) {
+			(*jvm)->DetachCurrentThread(jvm);
+			((struct port_info*) arg)->init_done = errno;
+			pthread_exit((void *)0);
+		}
+		((struct port_info*) arg)->evfd = evfd;
+
+		/* Create udev library context. Reads the udev configuration file, fills in the default values and return pointer to it. */
+		udev_ctx = udev_new();
+		if(!udev_ctx) {
+			(*jvm)->DetachCurrentThread(jvm);
+			((struct port_info*) arg)->init_done = E_UDEVNEW;
 			pthread_exit((void *)0);
 		}
 
-		/* This filter is efficiently executed inside the kernel, and libudev subscribers will
-	   usually not be woken up for devices which do not match. The filter must be installed
-	   before the monitor is switched to listening mode. */
-		ret = udev_monitor_filter_add_match_subsystem_devtype(monitor, SUBSYSTEM_USB, DEVICE_TYPE_USB);
-		if(ret != 0) {
-			if(DBG) fprintf(stderr, "%s %d\n", "NATIVE port_monitor failed to install filter for udev with error ", ret);
-			if(DBG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread exiting. Please RETRY registering port listener !");
-			if(DBG) fflush(stderr);
+		/* Create new udev monitor and connect to a specified event source. Applications should usually not connect directly to the "kernel" events,
+		 * because the devices might not be usable at that time, before udev has configured them, and created device nodes. Accessing devices at the
+		 * same time as udev, might result in unpredictable behavior. The "udev" events are sent out after udev has finished its event processing,
+		 * all rules have been processed, and needed device nodes are created. This returns a pointer to the allocated udev monitor. */
+		udev_monitor = udev_monitor_new_from_netlink(udev_ctx, "udev");
+		if(udev_monitor == NULL) {
+			(*jvm)->DetachCurrentThread(jvm);
+			udev_unref(udev_ctx);
+			((struct port_info*) arg)->init_done = E_UDEVNETLINK;
+			pthread_exit((void *)0);
+		}
+
+		/* This filter is efficiently executed inside the kernel, and libudev subscribers will usually not be woken up for devices which do not match.
+		 * The filter must be installed before the monitor is switched to listening mode. */
+		ret = udev_monitor_filter_add_match_subsystem_devtype(udev_monitor, "usb", "usb_device");
+		if(ret < 0) {
+			(*jvm)->DetachCurrentThread(jvm);
+			udev_monitor_unref(udev_monitor);
+			udev_unref(udev_ctx);
+			((struct port_info*) arg)->init_done = -1 * ret;
 			pthread_exit((void *)0);
 		}
 
 		/* Binds the udev_monitor socket to the event source. */
-		ret = udev_monitor_enable_receiving(monitor);
-		if(ret != 0) {
-			if(DBG) fprintf(stderr, "%s %d\n", "NATIVE port_monitor failed to bind udev socket to monitor with error ", ret);
-			if(DBG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread exiting. Please RETRY registering port listener !");
-			if(DBG) fflush(stderr);
+		ret = udev_monitor_enable_receiving(udev_monitor);
+		if(ret < 0) {
+			(*jvm)->DetachCurrentThread(jvm);
+			udev_monitor_unref(udev_monitor);
+			udev_unref(udev_ctx);
+			((struct port_info*) arg)->init_done = -1 * ret;
 			pthread_exit((void *)0);
 		}
 
 		/* Retrieve the socket file descriptor associated with the monitor. This fd will get passed to select(). */
-		fd = udev_monitor_get_fd(monitor);
+		udev_monitor_fd = udev_monitor_get_fd(udev_monitor);
 		FD_ZERO(&fds);
-		FD_SET(fd, &fds);
-
-		/* Install signal handler that will be invoked to indicate that the thread should exit. */
-		if(signal(SIGUSR1, exitMonitor_signal_handler) == SIG_ERR) {
-			if(DBG) fprintf(stderr, "%s\n", "Unable to create handler for thread exit !");
-			if(DBG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread exiting. Please RETRY registering port listener !");
-			if(DBG) fflush(stderr);
-			pthread_exit((void *)0);
+		FD_SET(evfd, &fds);
+		FD_SET(udev_monitor_fd, &fds);
+		if(evfd > udev_monitor_fd) {
+			maxfd = evfd;
+		}else {
+			maxfd = udev_monitor_fd;
 		}
 
+		((struct port_info*) arg)->init_done = 0; /* tell main thread thread initialization successfully completed */
+
 		while(1) {
-			ret = select(fd+1, &fds, NULL, NULL, NULL);
+			ret = select(maxfd + 1, &fds, NULL, NULL, NULL);
 
-			/* Check no error occured, and udev file descriptor indicates event. */
-			if((ret > 0) && FD_ISSET(fd, &fds)) {
-				device = udev_monitor_receive_device(monitor);
-				if(device) {
-					memset(action, '\0', sizeof(action));
-					strcpy(action, udev_device_get_action(device));
-					serial_delay(500);  /* let udev execute udev rules completely (500 milliseconds delay). */
-					udev_device_unref(device);
+			/* Check if thread should exit. If yes, do clean up and exit. */
+			if((ret > 0) && FD_ISSET(evfd, &fds)) {
+				if(((struct port_info*) arg)->thread_exit == 1) {
+					(*jvm)->DetachCurrentThread(jvm);
+					close(((struct port_info*) arg)->evfd);
+					udev_monitor_unref(udev_monitor);
+					udev_unref(udev_ctx);
+					pthread_exit((void *)0);
+				}
+			}
 
-					/* Based on use case and more robust design, notification for plugging port will be
-					 * developed in future. As of now we just notify app that some device has been added to system.
-					 * In Linux, port name will change, for example at the time of registering this listener
-					 * if it was ttyUSB0, then after re-insertion, it will be ttyUSB1. */
-					if(strcmp(action, "add") == 0) {
-						(*env)->CallVoidMethod(env, port_listener, mid, 1); /* arg 1 represent device add action */
-						if((*env)->ExceptionOccurred(env)) {
-							LOGE(env);
+			/* Check no error occurred, and udev file descriptor indicates event. */
+			if((ret > 0) && FD_ISSET(udev_monitor_fd, &fds)) {
+				udev_device = udev_monitor_receive_device(udev_monitor);
+				if(udev_device) {
+					udev_action_str = udev_device_get_action(udev_device); /* This is only valid if the device was received through a monitor. */
+					if(udev_action == NULL) {
+						udev_device_unref(udev_device);
+						continue;
+					}
+					memset(udev_action, '\0', sizeof(udev_action));
+					strcpy(udev_action, udev_action_str);
+
+					usb_vid_str = udev_device_get_property_value(udev_device, "ID_VENDOR_ID");
+					if(usb_vid_str != NULL) {
+						usb_vid = strtoul(usb_vid_str, NULL, 16);
+					}
+
+					usb_pid_str = udev_device_get_property_value(udev_device, "ID_MODEL_ID");
+					if(usb_pid_str != NULL) {
+						usb_pid = strtoul(usb_pid_str, NULL, 16);
+					}
+
+					udev_device_unref(udev_device);
+
+					if(filterVID != USB_DEV_ANY) {
+						if(filterVID != usb_vid) {
+							continue;
 						}
-					}else if(strcmp(action, "remove") == 0) {
-						errno = 0;
-						ret = stat((*params).port_name, &st);
-						if(ret == 0) {
-						}else {
-							if(errno == EACCES) {
-								if(DBG) fprintf(stderr, "%s %d\n", "NATIVE port_monitor does not have permission to stat port error : ", errno);
-								if(DBG) fflush(stderr);
-							}else if(errno == ELOOP) {
-								if(DBG) fprintf(stderr, "%s %d\n", "NATIVE port_monitor encountered too many symbolic links while traversing the path error : ", errno);
-								if(DBG) fflush(stderr);
-							}else if(errno == ENAMETOOLONG) {
-								if(DBG) fprintf(stderr, "%s %d\n", "NATIVE port_monitor path is too long error : ", errno);
-								if(DBG) fflush(stderr);
-							}else if(errno == ENOMEM) {
-								if(DBG) fprintf(stderr, "%s %d\n", "NATIVE port_monitor Out of memory (i.e., kernel memory) error : ", errno);
-								if(DBG) fflush(stderr);
-							}else if(errno == ENOTDIR) {
-								if(DBG) fprintf(stderr, "%s %d\n", "NATIVE port_monitor a component of the path prefix of path is not a directory error : ", errno);
-								if(DBG) fflush(stderr);
-							}else if(errno == EOVERFLOW) {
-								if(DBG) fprintf(stderr, "%s %d\n", "NATIVE port_monitor improper data size handling/definition error : ", errno);
-								if(DBG) fflush(stderr);
-							}else if(errno == EFAULT) {
-								if(DBG) fprintf(stderr, "%s %d\n", "NATIVE port_monitor bad address error : ", errno);
-								if(DBG) fflush(stderr);
-							}else {
-								(*env)->CallVoidMethod(env, port_listener, mid, 2); /* arg 2 represent device remove action */
-								if((*env)->ExceptionOccurred(env)) {
-									LOGE(env);
-								}
-							}
+					}
+					if(filterPID != USB_DEV_ANY) {
+						if(filterPID != usb_pid) {
+							continue;
+						}
+					}
+
+					/* reaching here means vip/pid matching criteria is fulfilled, so notify application about it. */
+					if(strcmp(udev_action, "add") == 0) {
+						(*env)->CallVoidMethod(env, usbHotPlugEventListenerObj, onHotPlugEventMethodID, USB_DEV_ADDED);
+						if((*env)->ExceptionOccurred(env)) {
+							(*env)->ExceptionClear(env);
+						}
+					}else if(strcmp(udev_action, "remove") == 0) {
+						(*env)->CallVoidMethod(env, usbHotPlugEventListenerObj, onHotPlugEventMethodID, USB_DEV_REMOVED);
+						if((*env)->ExceptionOccurred(env)) {
+							(*env)->ExceptionClear(env);
 						}
 					}else {
-						/* neither add nor remove action, do nothing. */
+						/* ignore */
 					}
 				}
 			}
-		}
+		} /* go back to loop again */
 
 		return ((void *)0);
 #endif
 
 #if defined (__APPLE__)
-
-		((struct port_info*) arg)->env = env;
-		((struct port_info*) arg)->port_listener = port_listener;
-		((struct port_info*) arg)->mid = mid;
-		((struct port_info*) arg)->tempVal = 0;
-
-		/* Install signal handler that will be invoked to indicate that the thread should exit. */
-		if(signal(SIGUSR1, exitMonitor_signal_handler) == SIG_ERR) {
-			if(DBG) fprintf(stderr, "%s\n", "Unable to create handler for thread's exit !");
-			if(DBG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread exiting. Please RETRY registering port listener !");
-			if(DBG) fflush(stderr);
-			pthread_exit((void *)0);
-		}
+		/* Install custom input source in run loop of worker thread. Run loop execute sources in order of priority so give it more priority than
+		 * usb events source. */
+		((struct port_info*) arg)->run_loop = CFRunLoopGetCurrent();
+		exit_source_context.perform = mac_indicate_thread_exit;
+		((struct port_info*) arg)->exit_run_loop_source = CFRunLoopSourceCreate(NULL, 1, &exit_source_context);
+		CFRunLoopAddSource(((struct port_info*) arg)->run_loop, ((struct port_info*) arg)->exit_run_loop_source, kCFRunLoopCommonModes);
 
 		/* Create a matching dictionary that will find any USB device.
-		 * Interested in instances of class IOUSBDevice and its subclasses. kIOUSBDeviceClassName */
-		matching_dictionary = IOServiceMatching("IOUSBDevice");
-		if(matching_dictionary == NULL) {
-			if(DBG) fprintf(stderr, "%s \n", "NATIVE port_monitor failed to create matching dictionary !");
-			if(DBG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread exiting. Please RETRY registering port listener !");
-			if(DBG) fflush(stderr);
+		 * Interested in instances of class IOUSBDevice and its subclasses.*/
+		added_matching_dict = IOServiceMatching("IOUSBDevice");
+		if(added_matching_dict == NULL) {
+			(*jvm)->DetachCurrentThread(jvm);
+			CFRunLoopRemoveSource(((struct port_info*) arg)->run_loop, ((struct port_info*) arg)->exit_run_loop_source, kCFRunLoopCommonModes);
+			CFRelease(((struct port_info*) arg)->exit_run_loop_source);
+			CFRelease(((struct port_info*) arg)->run_loop);
+			((struct port_info*) arg)->init_done = E_IOSRVMATUSBDEV;
+			pthread_exit((void *)0);
+		}
+		removed_matching_dict = IOServiceMatching("IOUSBDevice");
+		if(removed_matching_dict == NULL) {
+			(*jvm)->DetachCurrentThread(jvm);
+			CFRunLoopRemoveSource(((struct port_info*) arg)->run_loop, ((struct port_info*) arg)->exit_run_loop_source, kCFRunLoopCommonModes);
+			CFRelease(((struct port_info*) arg)->exit_run_loop_source);
+			CFRelease(((struct port_info*) arg)->run_loop);
+			((struct port_info*) arg)->init_done = E_IOSRVMATUSBDEV;
 			pthread_exit((void *)0);
 		}
 
@@ -968,33 +961,49 @@ void *data_looper(void *arg) {
 		((struct port_info*) arg)->notification_port = IONotificationPortCreate(kIOMasterPortDefault);
 
 		/* CFRunLoopSource to be used to listen for notifications. */
-		run_loop_source = IONotificationPortGetRunLoopSource(((struct port_info*) arg)->notification_port);
+		usb_run_loop_source = IONotificationPortGetRunLoopSource(((struct port_info*) arg)->notification_port);
 
 		/* Adds a CFRunLoopSource object to a run loop mode. */
-		CFRunLoopAddSource(CFRunLoopGetCurrent(), run_loop_source, kCFRunLoopDefaultMode);
+		CFRunLoopAddSource(((struct port_info*) arg)->run_loop, usb_run_loop_source, kCFRunLoopCommonModes);
 
 		/* Look up registered IOService objects that match a matching dictionary, and install a notification request of new IOServices that match.
 		 * It associates the matching dictionary with the notification port (and run loop source), allocates and returns an iterator object.
 		 * The kIOFirstMatchNotification is delivered when an IOService has had all matching drivers in the kernel probed and started, but only
 		 * once per IOService instance. Some IOService's may be re-registered when their state is changed.*/
-		kr = IOServiceAddMatchingNotification(((struct port_info*) arg)->notification_port, kIOFirstMatchNotification, matching_dictionary, device_added, ((struct port_info*) arg)->data, &iter);
+		kr = IOServiceAddMatchingNotification(((struct port_info*) arg)->notification_port, kIOFirstMatchNotification, added_matching_dict,
+				mac_usb_device_added, ((struct port_info*) arg)->data, &added_iterator);
+		if(kr != KERN_SUCCESS) {
+			/* handle error */
+		}
+		kr = IOServiceAddMatchingNotification(((struct port_info*) arg)->notification_port, kIOTerminatedNotification, removed_matching_dict,
+				mac_usb_device_removed, ((struct port_info*) arg)->data, &removed_iterator);
+		if(kr != KERN_SUCCESS) {
+			/* handle error */
+		}
 
-		/* Iterate once to get already-present devices and arm the notification. */
-		device_added(((struct port_info*) arg)->data, iter);
+		/* Iterate once explicitly to empty iterator. */
+		mac_usb_device_added(((struct port_info*) arg)->data, added_iterator);
+		mac_usb_device_removed(((struct port_info*) arg)->data, removed_iterator);
+
+		/* notify main thread, initialization successfully completed */
+		((struct port_info*) arg)->init_done = 0;
 
 		/* Start the run loop to begin receiving notifications. */
 		CFRunLoopRun();
 
-		/* We should never get here. */
-		if(DBG) fprintf(stderr, "Unexpectedly returned from CFRunLoopRun(). Something went wrong !\n");
-		if(DBG) fflush(stderr);
-		return ((void *)0);
+		/* Reaching here means run loop is stopped; thread is asked to exit.
+		 * Clean up. */
+		(*jvm)->DetachCurrentThread(jvm);
+		CFRunLoopRemoveSource(((struct port_info*) arg)->run_loop, ((struct port_info*) arg)->exit_run_loop_source, kCFRunLoopCommonModes);
+		CFRelease(((struct port_info*) arg)->exit_run_loop_source);
+		IONotificationPortDestroy(((struct port_info*) arg)->notification_port); /* will also release usb_run_loop_source */
+		CFRunLoopRemoveSource(((struct port_info*) arg)->run_loop, usb_run_loop_source, kCFRunLoopCommonModes);
+		IOObjectRelease(added_iterator);
+		IOObjectRelease(removed_iterator);
 
+		return ((void *)0);
 #endif
 
 #if defined (__SunOS)
 #endif
 	}
-
-#endif /* End compiling for Unix-like OS. */
-

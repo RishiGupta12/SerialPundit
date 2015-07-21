@@ -31,12 +31,12 @@ import com.embeddedunveiled.serial.SerialComManager.STOPBITS;
 class DataListener extends Test50 implements ISerialComDataListener{
 
 	int y = 0;
-	
+
 	@Override
 	public void onNewSerialDataAvailable(SerialComDataEvent data) {
 		byte[] buf = data.getDataBytes();
 		System.out.println("length : " + buf.length + " data : " + new String(buf));
-		
+
 		y = y + buf.length;
 		if(y >= 2) {
 			exit.set(true);
@@ -50,63 +50,61 @@ class DataListener extends Test50 implements ISerialComDataListener{
 
 // whole cycle create instance of scm, open, configure, write, listener, close repeated many times.
 public class Test50 {
-	
+
 	protected static AtomicBoolean exit = new AtomicBoolean(false);
-	
+
 	public static void main(String[] args) {
-		
-		SerialComManager scm = new SerialComManager();
-		DataListener dataListener = new DataListener();
-		DataListener dataListener1 = new DataListener();
-		
-		int x = 0;
-		for(x=0; x<5000; x++) {
-			System.out.println("\n" + "Iteration : " + x);
-			try {
-				String PORT = null;
-				String PORT1 = null;
-				int osType = SerialComManager.getOSType();
-				if(osType == SerialComManager.OS_LINUX) {
-					PORT = "/dev/ttyUSB0";
-					PORT1 = "/dev/ttyUSB1";
-				}else if(osType == SerialComManager.OS_WINDOWS) {
-					PORT = "COM51";
-					PORT1 = "COM52";
-				}else if(osType == SerialComManager.OS_MAC_OS_X) {
-					PORT = "/dev/cu.usbserial-A70362A3";
-					PORT1 = "/dev/cu.usbserial-A602RDCH";
-				}else if(osType == SerialComManager.OS_SOLARIS) {
-					PORT = null;
-					PORT1 = null;
-				}else{
-				}
+		try {
+			SerialComManager scm = new SerialComManager();
+			DataListener dataListener = new DataListener();
+			DataListener dataListener1 = new DataListener();
+			String PORT = null;
+			String PORT1 = null;
+			int osType = scm.getOSType();
+			if(osType == SerialComManager.OS_LINUX) {
+				PORT = "/dev/ttyUSB0";
+				PORT1 = "/dev/ttyUSB1";
+			}else if(osType == SerialComManager.OS_WINDOWS) {
+				PORT = "COM51";
+				PORT1 = "COM52";
+			}else if(osType == SerialComManager.OS_MAC_OS_X) {
+				PORT = "/dev/cu.usbserial-A70362A3";
+				PORT1 = "/dev/cu.usbserial-A602RDCH";
+			}else if(osType == SerialComManager.OS_SOLARIS) {
+				PORT = null;
+				PORT1 = null;
+			}else{
+			}
 
-				long handle = scm.openComPort(PORT, true, true, true);
-				scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
-				scm.configureComPortControl(handle, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
-				long handle1 = scm.openComPort(PORT1, true, true, true);
-				scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
-				scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+			long handle = scm.openComPort(PORT, true, true, true);
+			scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
+			scm.configureComPortControl(handle, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+			long handle1 = scm.openComPort(PORT1, true, true, true);
+			scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
+			scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
 
+			int x = 0;
+			for(x=0; x<5000; x++) {
+				System.out.println("\n" + "Iteration : " + x);
+				
 				System.out.println("main thread register  : " + scm.registerDataListener(handle, dataListener));
 				System.out.println("main thread register  : " + scm.registerDataListener(handle1, dataListener1));
-				
+
 				scm.writeString(handle1, "2", 0); 
-				
+
 				// wait till data listener has received all the data
 				while(exit.get() == false) { 
 					scm.writeString(handle1, "2", 0);
 				}
 				exit.set(false); // reset flag
-				
+
 				System.out.println("main thread unregister : " + scm.unregisterDataListener(dataListener));
 				System.out.println("main thread unregister : " + scm.unregisterDataListener(dataListener1));
-				
-				scm.closeComPort(handle);
-				scm.closeComPort(handle1);
-			} catch (Exception e) {
-				e.printStackTrace();
 			}
+			scm.closeComPort(handle);
+			scm.closeComPort(handle1);
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 }

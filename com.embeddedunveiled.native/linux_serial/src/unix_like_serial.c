@@ -23,7 +23,8 @@
  * - Wherever possible avoid JNI data types.
  * - Sometimes, the JNI does not like some pointer arithmetic so it is avoided wherever possible. */
 
-#if defined (__linux__) || defined (__APPLE__) || defined (__SunOS) || defined(__sun) || defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__) || defined(__hpux__) || defined(__hpux) || defined(_AIX)
+#if defined (__linux__) || defined (__APPLE__) || defined (__SunOS) || defined(__sun) || defined(__FreeBSD__) \
+	|| defined(__OpenBSD__) || defined(__NetBSD__) || defined(__hpux__) || defined(_AIX)
 
 /* Make primitives such as read and write resume, in case they are interrupted by signal,
  * before they actually start reading or writing data. The partial success case are handled
@@ -57,10 +58,10 @@
 #include <sys/eventfd.h>    /* Linux eventfd for event notification. */
 #include <signal.h>
 #include <sys/uio.h>
-#include <time.h>
 #include <regex.h>
 #include <stddef.h>         /* Avoid OS/lib implementation specific dependencies. */
 #include <libudev.h>
+#include <time.h>
 #endif
 
 #if defined (__APPLE__)
@@ -82,6 +83,7 @@
 #include <sys/filio.h>
 #endif
 
+/* jni_md.h contains the machine-dependent typedefs for data types. Instruct compiler to include it. */
 #include <jni.h>
 #include "unix_like_serial_lib.h"
 
@@ -180,33 +182,11 @@ JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInt
 	jstring version = NULL;
 	version = (*env)->NewStringUTF(env, UART_NATIVE_LIB_VERSION);
 	if((*env)->ExceptionOccurred(env) != NULL) {
-		set_error_status(env, obj, status, E_NEWSTRUTF);
 		(*env)->ExceptionClear(env);
+		set_error_status(env, obj, status, E_NEWSTRUTF);
 		return NULL;
 	}
 	return version;
-}
-
-void free_allocated_memory(int hs, int spf, char **sys_ports_base, int hr, int rpf, char **regex_ports_base, int hp, int ppf, char **pts_ports_base) {
-	int i = 0;
-	if(hs == 1) {
-		for (i=0; i < spf; i++) {
-			free(sys_ports_base[i]);
-		}
-		free(sys_ports_base);
-	}
-	if(hr == 1) {
-		for (i=0; i < rpf; i++) {
-			free(regex_ports_base[i]);
-		}
-		free(regex_ports_base);
-	}
-	if(hp == 1) {
-		for (i=0; i < ppf; i++) {
-			free(pts_ports_base[i]);
-		}
-		free(pts_ports_base);
-	}
 }
 
 /*
@@ -224,96 +204,68 @@ void free_allocated_memory(int hs, int spf, char **sys_ports_base, int hr, int r
  * (2) Identify serial devices using regex expression for example ttytxXXXX is usually device files made by perle port servers.
  * (3) Identify pseudo terminals using lstat.
  *
- * FOR MAC OS X :
+ * FOR MAC OS X : Use IOKit matching dictionary to detect all devices who claims themselves to be serial devices or modem.
  *
  * For SOLARIS : this is handled in java layer itself as of now.
  */
 JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_listAvailableComPorts(JNIEnv *env, jobject obj, jobject status) {
-#if defined (__linux__)
-	int i = 0;
 	int x = 0;
+	struct jstrarray_list list = {0};
+	jstring serial_device;
+	jclass strClass = NULL;
+	jobjectArray serialDevicesFound = NULL;
+
+#if defined (__linux__)
 	int ret = -1;
 	int num_of_dir_found = 0;
-	int total_ports = 0;
-	char path[1024];
-	char buffer[1024];
 	char* sysfspath = "/sys/class/tty/";
+	char* ptspath = "/dev/pts/";
 	struct dirent **namelist;
-	struct stat statbuf = {0};
-	char devbase[1024];
-	int sys_ports_found = 0;
-	int have_sys_ports = 0;
-	char **sys_ports_base = ((void *)0);
-	char* fullpath = ((void *)0);
-
 	DIR *dir_stream = NULL;
 	struct dirent entry;
 	struct dirent *result;
-	int have_regex_ports = 0;
-	int regex_ports_found = 0;
-	char **regex_ports_base = ((void *)0);
-	int dev_files_count = 0;
 	regex_t regex;
-	char *port_name = ((void *)0);
+	struct stat statbuf = {0};
+	char path[1024];
+	char buffer[1024];
+	char namewithpath[1024];
+#endif
+#if defined (__APPLE__)
+	CFMutableDictionaryRef matching_dictionary = NULL;
+	io_iterator_t iterator;
+	io_service_t service = 0;
+	kern_return_t kr = 0;;
+	CFStringRef cf_callout_path;
+	char callout_path[512];
+#endif
 
-	int pts_ports_found = 0;
-	int have_pts_ports = 0;
-	char* ptspath = "/dev/pts/";
-	char **pts_ports_base = ((void *)0);
+	init_jstrarraylist(&list, 100);
 
+#if defined (__linux__)
 	/* (1) $ readlink /sys/class/tty/XXXXXX/device/driver */
 	errno = 0;
 	num_of_dir_found = scandir(sysfspath, &namelist, NULL, NULL);
 	if(num_of_dir_found > 0) {
-		errno = 0;
-		sys_ports_base = (char **) calloc(num_of_dir_found, sizeof(char *));
-		if(sys_ports_base == NULL) {
-			if(errno == 0) {
-				/* If OS/lib does not set exact error code we set it explicitly to maintain consistency and portability. */
-				set_error_status(env, obj, status, ENOMEM);
-			}else {
-				set_error_status(env, obj, status, errno);
-			}
-			return NULL;
-		}
-		have_sys_ports = 1;
-		sys_ports_found = 0; /* initialize */
 		while(num_of_dir_found--) {
 			memset(path, '\0', sizeof(path));
 			if(strcmp(namelist[num_of_dir_found]->d_name, "..") && strcmp(namelist[num_of_dir_found]->d_name, ".")) {
-				strcpy(path, sysfspath);
-				strcat(path, namelist[num_of_dir_found]->d_name);
-				strcat(path, "/device");
+				strncpy(path, sysfspath, strlen(sysfspath));
+				strncat(path, namelist[num_of_dir_found]->d_name, strlen(namelist[num_of_dir_found]->d_name));
+				strncat(path, "/device", strlen("/device"));
 				errno = 0;
 				ret = lstat(path, &statbuf);
 				if(ret >= 0) {
 					if(S_ISLNK(statbuf.st_mode)) {
 						memset(buffer, '\0', sizeof(buffer));
 						strncpy(path, path, strlen(path));
-						strcat(path, "/driver");
+						strncat(path, "/driver", strlen("/driver"));
 						ret = readlink(path, buffer, sizeof(buffer));
 						if(ret >= 0) {
 							if(strlen(buffer) > 0) {
-								memset(devbase, '\0', sizeof(devbase));
-								fullpath = strcat(strcpy(devbase, "/dev/"), namelist[num_of_dir_found]->d_name);
-								x = strlen(fullpath);
-								errno = 0;
-								port_name = (char *) calloc(1, (x + 1));
-								if(port_name == NULL) {
-									if(errno == 0) {
-										set_error_status(env, obj, status, ENOMEM);
-									}else {
-										set_error_status(env, obj, status, errno);
-									}
-									for (i=0; i < sys_ports_found; i++) {
-										free(sys_ports_base[i]);
-									}
-									free(sys_ports_base);
-									return NULL;
-								}
-								memcpy(port_name, fullpath, (x + 1));
-								sys_ports_base[sys_ports_found] = port_name;
-								sys_ports_found++;
+								memset(namewithpath, '\0', sizeof(namewithpath));
+								strncat(strncpy(namewithpath, "/dev/", strlen("/dev/")), namelist[num_of_dir_found]->d_name, strlen(namelist[num_of_dir_found]->d_name));
+								serial_device = (*env)->NewStringUTF(env, namewithpath);
+								insert_jstrarraylist(&list, serial_device);
 							}
 						}
 					}
@@ -338,12 +290,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINati
 	ret = regcomp(&regex, "ttytx[0-9]" , 0);
 	if(ret != 0) {
 		set_error_status(env, obj, status, ret);
-		if(have_sys_ports == 1) {
-			for (i=0; i < sys_ports_found; i++) {
-				free(sys_ports_base[i]);
-			}
-			free(sys_ports_base);
-		}
+		free_jstrarraylist(&list);
 		return NULL;
 	}
 
@@ -351,204 +298,65 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINati
 	dir_stream = opendir("/dev");
 	if(dir_stream == NULL) {
 		set_error_status(env, obj, status, errno);
-		if(have_sys_ports == 1) {
-			for (i=0; i < sys_ports_found; i++) {
-				free(sys_ports_base[i]);
-			}
-			free(sys_ports_base);
-		}
+		free_jstrarraylist(&list);
 		return NULL;
 	}
 
-	/* loop recursively and count number of device files under /dev directory. */
-	dev_files_count = 0;
-	for (;;) {
-		ret = readdir_r(dir_stream, &entry, &result);
+	while(1) {
+		/* Length of d_name field in Linux is 255 and no dynamic calculation is needed. */
+		ret = readdir_r(dir_stream, &entry, &result);      /* thread-safe & reentrant */
 		if(ret == 0) {
 			if(result != NULL) {
-				dev_files_count++;
+				if((result->d_type == DT_CHR) || (result->d_type == DT_LNK)) {
+					ret = regexec(&regex, result->d_name, 0, NULL, 0);
+					if(ret == 0) {
+						memset(namewithpath, '\0', sizeof(namewithpath));
+						strncat(strncpy(namewithpath, "/dev/", strlen("/dev/")), result->d_name, strlen(result->d_name));
+						serial_device = (*env)->NewStringUTF(env, namewithpath);
+						insert_jstrarraylist(&list, serial_device);
+					}
+				}
 			}else {
-				break;
+				break; /* end of the directory stream is reached */
 			}
 		}else if(ret > 0) {
 			set_error_status(env, obj, status, EBADF);
-			if(have_sys_ports == 1) {
-				for (i=0; i < sys_ports_found; i++) {
-					free(sys_ports_base[i]);
-				}
-				free(sys_ports_base);
-			}
+			free_jstrarraylist(&list);
 			return NULL;
 		}else {
 		}
 	}
 
-	rewinddir(dir_stream);
-
-	if(dev_files_count > 0) {
-		errno = 0;
-		regex_ports_base = (char **) calloc(dev_files_count, sizeof(char *));
-		if(regex_ports_base == NULL) {
-			if(errno == 0) {
-				set_error_status(env, obj, status, ENOMEM);
-			}else {
-				set_error_status(env, obj, status, errno);
-			}
-			if(have_sys_ports == 1) {
-				for (i=0; i < sys_ports_found; i++) {
-					free(sys_ports_base[i]);
-				}
-				free(sys_ports_base);
-			}
-			return NULL;
-		}
-		have_regex_ports = 1;
-		regex_ports_found = 0; /* initialize */
-		for (i=0; i<dev_files_count; i++) {
-			/* Length of d_name field in Linux is 255 and no dynamic calculation is needed. */
-			ret = readdir_r(dir_stream, &entry, &result);      /* thread-safe & reentrant */
-			if(ret == 0) {
-				if(result != NULL) {
-					if((result->d_type == DT_CHR) || (result->d_type == DT_LNK)) {
-						ret = regexec(&regex, result->d_name, 0, NULL, 0);
-						if(ret == 0) {
-							memset(devbase, '\0', sizeof(devbase));
-							fullpath = strcat(strcpy(devbase, "/dev/"), result->d_name);
-							x = strlen(fullpath);
-							errno = 0;
-							port_name = (char *) calloc(1, (x + 1));
-							if(port_name == NULL) {
-								if(errno == 0) {
-									set_error_status(env, obj, status, ENOMEM);
-								}else {
-									set_error_status(env, obj, status, errno);
-								}
-								if(have_sys_ports == 1) {
-									for (i=0; i < sys_ports_found; i++) {
-										free(sys_ports_base[i]);
-									}
-									free(sys_ports_base);
-								}
-								for (i=0; i < regex_ports_found; i++) {
-									free(regex_ports_base[i]);
-								}
-								free(regex_ports_base);
-								return NULL;
-							}
-							memcpy(port_name, fullpath, (x + 1));
-							regex_ports_base[regex_ports_found] = port_name;
-							regex_ports_found++;
-						}
-					}
-				}else {
-					break;
-				}
-			}else if(ret > 0) {
-				set_error_status(env, obj, status, EBADF);
-				if(have_sys_ports == 1) {
-					for (i=0; i < sys_ports_found; i++) {
-						free(sys_ports_base[i]);
-					}
-					free(sys_ports_base);
-				}
-				return NULL;
-			}else {
-			}
-		}
-	}
-
+	/* clean up */
 	regfree(&regex);
 	errno = 0;
 	ret = closedir(dir_stream);
 	if(ret < 0) {
 		set_error_status(env, obj, status, errno);
-		if(have_sys_ports == 1) {
-			for (i=0; i < sys_ports_found; i++) {
-				free(sys_ports_base[i]);
-			}
-			free(sys_ports_base);
-		}
-		if(have_regex_ports == 1) {
-			for (i=0; i < regex_ports_found; i++) {
-				free(regex_ports_base[i]);
-			}
-			free(regex_ports_base);
-		}
+		free_jstrarraylist(&list);
 		return NULL;
 	}
 
 	/* (3) $ lstat /dev/pts/X for pseudo terminals */
 	errno = 0;
-	num_of_dir_found = 0;
 	num_of_dir_found = scandir(ptspath, &namelist, NULL, NULL);
 	if(num_of_dir_found > 0) {
-		errno = 0;
-		pts_ports_base = (char **) calloc(num_of_dir_found, sizeof(char *));
-		if(pts_ports_base == NULL) {
-			if(errno == 0) {
-				set_error_status(env, obj, status, ENOMEM);
-			}else {
-				set_error_status(env, obj, status, errno);
-			}
-			if(have_sys_ports == 1) {
-				for (i=0; i < sys_ports_found; i++) {
-					free(sys_ports_base[i]);
-				}
-				free(sys_ports_base);
-			}
-			if(have_regex_ports == 1) {
-				for (i=0; i < regex_ports_found; i++) {
-					free(regex_ports_base[i]);
-				}
-				free(regex_ports_base);
-			}
-			return NULL;
-		}
-		have_pts_ports = 1;
-		pts_ports_found = 0; /* initialize */
 		while(num_of_dir_found--) {
-			memset(path, '\0', sizeof(path));
+			memset(namewithpath, '\0', sizeof(namewithpath));
 			if(strcmp(namelist[num_of_dir_found]->d_name, "..") && strcmp(namelist[num_of_dir_found]->d_name, ".")) {
-				strcpy(path, ptspath);
-				strcat(path, namelist[num_of_dir_found]->d_name);
+				strncpy(namewithpath, ptspath, strlen(ptspath));
+				strncat(namewithpath, namelist[num_of_dir_found]->d_name, strlen(namelist[num_of_dir_found]->d_name));
 				errno = 0;
-				ret = lstat(path, &statbuf);
+				ret = lstat(namewithpath, &statbuf);
 				if(ret >= 0) {
 					if(S_ISLNK(statbuf.st_mode) || S_ISCHR(statbuf.st_mode)) {
-						x = strlen(path);
-						errno = 0;
-						port_name = (char *) calloc(1, (x + 1));
-						if(port_name == NULL) {
-							if(errno == 0) {
-								set_error_status(env, obj, status, ENOMEM);
-							}else {
-								set_error_status(env, obj, status, errno);
-							}
-							if(have_sys_ports == 1) {
-								for (i=0; i < sys_ports_found; i++) {
-									free(sys_ports_base[i]);
-								}
-								free(sys_ports_base);
-							}
-							if(have_regex_ports == 1) {
-								for (i=0; i < regex_ports_found; i++) {
-									free(regex_ports_base[i]);
-								}
-								free(regex_ports_base);
-							}
-							for (i=0; i < pts_ports_found; i++) {
-								free(pts_ports_base[i]);
-							}
-							free(pts_ports_base);
-							return NULL;
-						}
-						memcpy(port_name, path, (x + 1));
-						pts_ports_base[pts_ports_found] = port_name;
-						pts_ports_found++;
+						serial_device = (*env)->NewStringUTF(env, namewithpath);
+						insert_jstrarraylist(&list, serial_device);
 					}
 				}else {
 					if(errno != ENOENT) {
 						set_error_status(env, obj, status, errno);
+						free_jstrarraylist(&list);
 						return NULL;
 					}
 				}
@@ -558,172 +366,100 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINati
 		free(namelist);
 	}else {
 		set_error_status(env, obj, status, errno);
-		if(have_sys_ports == 1) {
-			for (i=0; i < sys_ports_found; i++) {
-				free(sys_ports_base[i]);
-			}
-			free(sys_ports_base);
-		}
-		if(have_regex_ports == 1) {
-			for (i=0; i < regex_ports_found; i++) {
-				free(regex_ports_base[i]);
-			}
-			free(regex_ports_base);
-		}
+		free_jstrarraylist(&list);
 		return NULL;
 	}
-
-	/* Create a JAVA/JNI style array of String object, populate it and return to java layer. */
-	jclass strClass = (*env)->FindClass(env, "java/lang/String");
-	if((*env)->ExceptionOccurred(env)) {
-		set_error_status(env, obj, status, E_FINDCLASS);
-		free_allocated_memory(have_sys_ports, sys_ports_found, sys_ports_base, have_regex_ports, regex_ports_found, regex_ports_base, have_pts_ports, pts_ports_found, pts_ports_base);
-		(*env)->ExceptionClear(env);
-		return NULL;
-	}
-
-	total_ports = sys_ports_found + regex_ports_found + pts_ports_found;
-	jobjectArray portsFound = (*env)->NewObjectArray(env, (jsize)total_ports, strClass, NULL);
-	if((*env)->ExceptionOccurred(env)) {
-		(*env)->ExceptionClear(env);
-		set_error_status(env, obj, status, E_NEWOBJECTARRAY);
-		free_allocated_memory(have_sys_ports, sys_ports_found, sys_ports_base, have_regex_ports, regex_ports_found, regex_ports_base, have_pts_ports, pts_ports_found, pts_ports_base);
-		return NULL;
-	}
-
-	for (i=0; i < sys_ports_found; i++) {
-		(*env)->SetObjectArrayElement(env, portsFound, i, (*env)->NewStringUTF(env, sys_ports_base[i]));
-		if((*env)->ExceptionOccurred(env)) {
-			(*env)->ExceptionClear(env);
-			free_allocated_memory(have_sys_ports, sys_ports_found, sys_ports_base, have_regex_ports, regex_ports_found, regex_ports_base, have_pts_ports, pts_ports_found, pts_ports_base);
-			return NULL;
-		}
-	}
-
-	x = sys_ports_found;
-	for (i=0; i < regex_ports_found; i++) {
-		(*env)->SetObjectArrayElement(env, portsFound, x, (*env)->NewStringUTF(env, regex_ports_base[i]));
-		if((*env)->ExceptionOccurred(env)) {
-			(*env)->ExceptionClear(env);
-			free_allocated_memory(have_sys_ports, sys_ports_found, sys_ports_base, have_regex_ports, regex_ports_found, regex_ports_base, have_pts_ports, pts_ports_found, pts_ports_base);
-			return NULL;
-		}
-		x++;
-	}
-
-	x = sys_ports_found + regex_ports_found;
-	for (i=0; i < pts_ports_found; i++) {
-		(*env)->SetObjectArrayElement(env, portsFound, x, (*env)->NewStringUTF(env, pts_ports_base[i]));
-		if((*env)->ExceptionOccurred(env)) {
-			(*env)->ExceptionClear(env);
-			free_allocated_memory(have_sys_ports, sys_ports_found, sys_ports_base, have_regex_ports, regex_ports_found, regex_ports_base, have_pts_ports, pts_ports_found, pts_ports_base);
-			return NULL;
-		}
-		x++;
-	}
-
-	/* free/release memories allocated finally (Top command will show memory accumulation if it not freed for debugging). */
-	free_allocated_memory(have_sys_ports, sys_ports_found, sys_ports_base, have_regex_ports, regex_ports_found, regex_ports_base, have_pts_ports, pts_ports_found, pts_ports_base);
-	return portsFound;
 #endif
 
 #if defined (__APPLE__)
-	int negative = -1;
-	CFMutableDictionaryRef matchingDict = NULL;
-	io_iterator_t iter = 0;
-	io_service_t service = 0;
-	kern_return_t kr = 0;;
-	CFStringRef cfCalloutPath;
-	CFStringRef cfDeviceName;
-	char calloutPath[512];
-	char deviceName[512];
-	int i = 0;
-	jstring ports_identified[1024];
-	int portsadded = 0;
-	jclass strClass;
-	jobjectArray portsFound;
-
-	/* Create a matching dictionary that will find any serial device. */
-	matchingDict = IOServiceMatching(kIOSerialBSDServiceValue);
-	if(matchingDict == NULL) {
-		/* TODO return custom err num */
-		if(DBG) fprintf(stderr, "%s\n", "IOServiceMatching could not create dictionary.");
-		if(DBG) fflush(stderr);
+	/* Set up a dictionary that matches all devices with a provider class of IOSerialBSDClient.*/
+	matching_dictionary = IOServiceMatching(kIOSerialBSDServiceValue);
+	if(matching_dictionary == NULL) {
+		/* handle error */
 	}
-	kr = IOServiceGetMatchingServices(kIOMasterPortDefault, matchingDict, &iter);
+	kr = IOServiceGetMatchingServices(kIOMasterPortDefault, matching_dictionary, &iterator);
 	if(kr != KERN_SUCCESS) {
-		if(DBG) fprintf(stderr, "%s %d \n", "NATIVE getSerialPortNames() failed in IOServiceGetMatchingServices() with error", kr);
-		if(DBG) fflush(stderr);
-		jclass statusClass = (*env)->GetObjectClass(env, status);
-		if(statusClass == NULL) {
-			if(DBG) fprintf(stderr, "%s\n", "NATIVE getSerialPortNames() could not get class of object of type SerialComRetStatus !");
-			if(DBG) fflush(stderr);
-			return NULL;
-		}
-		jfieldID status_fid = (*env)->GetFieldID(env, statusClass, "status", "I");
-		if(status_fid == NULL) {
-			if(DBG) fprintf(stderr, "%s\n", "NATIVE getSerialPortNames() failed to retrieve field id of field status in class SerialComRetStatus !");
-			if(DBG) fflush(stderr);
-			return NULL;
-		}
-		if((*env)->ExceptionOccurred(env)) {
-			LOGE(env);
-		}
-		(*env)->SetIntField(env, status, status_fid, (negative*kr));
+		set_error_status(env, obj, status, kr);
+		free_jstrarraylist(&list);
 		return NULL;
+	}
+	if(!iterator) {
+		/* handle error*/
 	}
 
 	/* Iterate over all matching objects. */
-	while((service = IOIteratorNext(iter)) != 0) {
-		/* clear out buffers to remove garbage. */
-		memset(calloutPath, 0, sizeof(calloutPath));
-		memset(deviceName, 0, sizeof(deviceName));
+	while((service = IOIteratorNext(iterator)) != 0) {
+		memset(callout_path, 0, sizeof(callout_path));
 
-		/* Get the device name in UTF-8 encoding. */
-		cfDeviceName = IORegistryEntryCreateCFProperty(service, CFSTR(kIOTTYDeviceKey), kCFAllocatorDefault, 0);
-		CFStringGetCString(cfDeviceName, deviceName, sizeof(deviceName), kCFStringEncodingUTF8);
-		CFRelease(cfDeviceName);
+		/* Get the character device path in UTF-8 encoding. In mac os x each serial device shows up twice in /dev,
+		 * once as a tty.* and once as a cu.*. The TTY devices are for calling into UNIX systems, whereas CU (Call-Up)
+		 * devices are for calling out from them (for example, modems). The technical difference is that /dev/tty.*
+		 * devices will wait (or listen) for DCD (data-carrier-detect), for example someone calling in, before responding.
+		 * The /dev/cu.* devices on the other hand do not assert DCD, so they will always connect (respond or succeed)
+		 * immediately. */
+		cf_callout_path = IORegistryEntryCreateCFProperty(service, CFSTR(kIOCalloutDeviceKey), kCFAllocatorDefault, 0);
+		CFStringGetCString(cf_callout_path, callout_path, sizeof(callout_path), kCFStringEncodingUTF8);
+		CFRelease(cf_callout_path);
+		serial_device = (*env)->NewStringUTF(env, callout_path);
+		insert_jstrarraylist(&list, serial_device);
 
-		/* Get the character device path in UTF-8 encoding. */
-		cfCalloutPath = IORegistryEntryCreateCFProperty(service, CFSTR(kIOCalloutDeviceKey), kCFAllocatorDefault, 0);
-		CFStringGetCString(cfCalloutPath, calloutPath, sizeof(calloutPath), kCFStringEncodingUTF8);
-		CFRelease(cfDeviceName);
-
-		IOObjectRelease(service);   /* The I/O Registry object is no longer needed. */
-
-		/* Save the found port. */
-		ports_identified[portsadded] =  (*env)->NewStringUTF(env, calloutPath);
-		portsadded++;
+		IOObjectRelease(service);
 	}
 
-	IOObjectRelease(iter);   /* Release iterator. */
+	IOObjectRelease(iterator);   /* Release iterator. */
+#endif
 
-	/* Prepare the array, populate it and return to java layer. */
+	/* Create a JAVA/JNI style array of String object, populate it and return to java layer. */
 	strClass = (*env)->FindClass(env, "java/lang/String");
 	if((*env)->ExceptionOccurred(env)) {
-		LOGE(env);
+		(*env)->ExceptionClear(env);
+		set_error_status(env, obj, status, E_FINDCLASS);
+		free_jstrarraylist(&list);
+		return NULL;
 	}
-	portsFound = (*env)->NewObjectArray(env, (jsize)portsadded, strClass, NULL);
+
+	serialDevicesFound = (*env)->NewObjectArray(env, (jsize) list.index, strClass, NULL);
 	if((*env)->ExceptionOccurred(env)) {
-		LOGE(env);
+		(*env)->ExceptionClear(env);
+		set_error_status(env, obj, status, E_NEWOBJECTARRAY);
+		free_jstrarraylist(&list);
+		return NULL;
 	}
-	for (i=0; i < portsadded; i++) {
-		(*env)->SetObjectArrayElement(env, portsFound, i, ports_identified[i]);
+
+	for (x=0; x < list.index; x++) {
+		(*env)->SetObjectArrayElement(env, serialDevicesFound, x, list.base[x]);
 		if((*env)->ExceptionOccurred(env)) {
-			LOGE(env);
+			(*env)->ExceptionClear(env);
+			free_jstrarraylist(&list);
+			return NULL;
 		}
 	}
-	return portsFound;
-#endif
+
+	/* free/release memories allocated finally (Top command will show memory accumulation if it not freed for debugging). */
+	free_jstrarraylist(&list);
+	return serialDevicesFound;
 }
 
 /*
  * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
  * Method:    listUSBdevicesWithInfo
  * Signature: (Lcom/embeddedunveiled/serial/SerialComRetStatus;)[Ljava/lang/String;
+ *
+ * Find USB devices with information about them using platform specific facilities.
  */
 JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_listUSBdevicesWithInfo(JNIEnv *env, jobject obj, jobject status) {
 	return list_usb_devices(env, obj, status);
+}
+
+/*
+ * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
+ * Method:    listComPortFromUSBAttributes
+ * Signature: (IILjava/lang/String;Lcom/embeddedunveiled/serial/SerialComRetStatus;)[Ljava/lang/String;
+ *
+ * Find the COM Port/ device node assigned to USB-UART converter device using platform specific facilities.
+ */
+JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_listComPortFromUSBAttributes(JNIEnv *env, jobject obj, jint vid, jint pid, jstring serial, jobject status) {
+	return vcp_node_from_usb_attributes(env, obj, vid, pid, serial, status);
 }
 
 /*
@@ -2198,10 +1934,14 @@ JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeI
 	params.filterVID = filterVID;
 	params.filterPID = filterPID;
 	params.thread_exit = 0;
-	params.evfd = 0;
 	params.init_done = -1;
 	params.mutex = &mutex;
+#if defined (__linux__)
+	params.evfd = 0;
+#endif
 #if defined (__APPLE__)
+	params.empty_iterator_added = 0;
+	params.empty_iterator_removed = 0;
 	if(empty_index_found == 1) {
 		params.data = &port_monitor_info[x];
 	}else {
@@ -2271,16 +2011,21 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 #endif
 
 	pthread_mutex_lock(&mutex);
-
 	ptr->thread_exit = 1;                          /* Set the flag that will be checked by thread to check for exit condition. */
 
 #if defined (__linux__)
+	/* make epoll come out of waiting state through event on evfd. */
 	errno = 0;
 	ret = write(ptr->evfd, &value, sizeof(value));
 	if(ret < 0) {
 		pthread_mutex_unlock(&mutex);
 		return (-1 * errno);
 	}
+#endif
+#if defined (__APPLE__)
+	/* tell run loop to come out of waiting state and exit looping. */
+	CFRunLoopSourceSignal(ptr->exit_run_loop_source);
+	CFRunLoopWakeUp(ptr->run_loop);
 #endif
 
 	ret = pthread_join(ptr->thread_id, &status); /* Join the thread (waits for the thread specified to terminate). */

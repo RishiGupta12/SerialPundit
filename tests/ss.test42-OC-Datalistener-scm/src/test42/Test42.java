@@ -39,7 +39,7 @@ class DataListener extends Test42 implements ISerialComDataListener{
 		System.out.println("DataListener : " + buf.length);
 		
 		y = y + buf.length;
-		if(y >= 20) {
+		if(y >= 5) {
 			exit.set(true);
 		}
 	}
@@ -63,12 +63,12 @@ public class Test42 {
 		for(x=0; x<5000; x++) {
 			System.out.println("\n" + "Iteration : " + x);
 			try {
-				scm = new SerialComManager();
+				scm = new SerialComManager("/home/r/ws-host-uart", "mylib");
 				dataListener = new DataListener();
 	
 				String PORT = null;
 				String PORT1 = null;
-				int osType = SerialComManager.getOSType();
+				int osType = scm.getOSType();
 				if(osType == SerialComManager.OS_LINUX) {
 					PORT = "/dev/ttyUSB0";
 					PORT1 = "/dev/ttyUSB1";
@@ -92,49 +92,18 @@ public class Test42 {
 				scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
 
 				System.out.println("main thread register  : " + scm.registerDataListener(handle, dataListener));
-				Thread.sleep(500);
-				scm.writeString(handle1, "22222222222222222222", 0); // length of this string is 20
+				scm.writeString(handle1, "22222222222222", 0); // length of this string is 20
 				
 				// wait till data listener has received all the data
 				while(exit.get() == false) { 
-					if(osType == SerialComManager.OS_LINUX) {
-						Thread.sleep(250);
-					}else if(osType == SerialComManager.OS_WINDOWS) {
-						Thread.sleep(600);
-					}else if(osType == SerialComManager.OS_MAC_OS_X) {
-						Thread.sleep(500);
-					}else if(osType == SerialComManager.OS_SOLARIS) {
-						Thread.sleep(500);
-					}else{
-					}
-					scm.writeString(handle1, "22222222222222222222", 0);
+					scm.writeString(handle1, "22222222222", 0);
 				}
 				exit.set(false);                                     // reset flag
 
 				System.out.println("main thread unregister : " + scm.unregisterDataListener(dataListener));
-				if(osType == SerialComManager.OS_LINUX) {
-					Thread.sleep(10);
-				}else if(osType == SerialComManager.OS_WINDOWS) {
-					Thread.sleep(500);
-				}else if(osType == SerialComManager.OS_MAC_OS_X) {
-					Thread.sleep(500);
-				}else if(osType == SerialComManager.OS_SOLARIS) {
-					Thread.sleep(500);
-				}else{
-				}
 				
 				scm.closeComPort(handle);
 				scm.closeComPort(handle1);
-				if(osType == SerialComManager.OS_LINUX) {
-					Thread.sleep(10);
-				}else if(osType == SerialComManager.OS_WINDOWS) {
-					Thread.sleep(500);
-				}else if(osType == SerialComManager.OS_MAC_OS_X) {
-					Thread.sleep(500);
-				}else if(osType == SerialComManager.OS_SOLARIS) {
-					Thread.sleep(500);
-				}else{
-				}
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

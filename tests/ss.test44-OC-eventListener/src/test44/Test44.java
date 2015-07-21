@@ -18,10 +18,7 @@
 package test44;
 
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import com.embeddedunveiled.serial.ISerialComDataListener;
 import com.embeddedunveiled.serial.ISerialComEventListener;
-import com.embeddedunveiled.serial.SerialComDataEvent;
 import com.embeddedunveiled.serial.SerialComLineEvent;
 import com.embeddedunveiled.serial.SerialComManager;
 import com.embeddedunveiled.serial.SerialComManager.BAUDRATE;
@@ -31,7 +28,6 @@ import com.embeddedunveiled.serial.SerialComManager.PARITY;
 import com.embeddedunveiled.serial.SerialComManager.STOPBITS;
 
 class EventListener extends Test44 implements ISerialComEventListener{
-	@Override
 	public void onNewSerialEvent(SerialComLineEvent lineEvent) {
 		System.out.println("eventCTS : " + lineEvent.getCTS());
 		exit.set(true);
@@ -70,7 +66,7 @@ public class Test44 {
 					PORT1 = null;
 				}else{
 				}
-
+				
 				long handle = scm.openComPort(PORT, true, true, true);
 				scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
 				scm.configureComPortControl(handle, FLOWCONTROL.NONE, 'x', 'x', false, false);
@@ -79,21 +75,19 @@ public class Test44 {
 				scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
 
 				System.out.println("register  : " + scm.registerLineEventListener(handle, eventListener));
-				
+				Thread.sleep(50); //TODO removing this line causes jni crash
 				scm.setRTS(handle1, true);
-				
 				while(exit.get() == false) { 
 					Thread.sleep(50);
 					scm.setRTS(handle1, true);
+					Thread.sleep(50);
 					scm.setRTS(handle1, false);
 				}
 				exit.set(false); // reset flag
 				
 				System.out.println("unregister : " + scm.unregisterLineEventListener(eventListener));
-				scm.setRTS(handle1, false);
 				scm.closeComPort(handle);
 				scm.closeComPort(handle1);
-				Thread.sleep(100);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
