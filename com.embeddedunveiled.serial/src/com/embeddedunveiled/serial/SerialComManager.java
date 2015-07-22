@@ -333,15 +333,6 @@ public final class SerialComManager {
 
 	/** <p>Default number of bytes (1024) to read from serial port. </p>*/
 	public static final int DEFAULT_READBYTECOUNT = 1024;
-	
-	/** <p>The value indicating that the USB device can have any vendor id and product id. </p>*/
-	public static final int USB_DEV_ANY = 0x00;
-	
-	/** <p>The value indicating that a USB device has been added into system. </p>*/
-	public static final int USB_DEV_ADDED = 0x01;
-	
-	/** <p>The value indicating that a USB device has been removed from system. </p>*/
-	public static final int USB_DEV_REMOVED  = 0x02;
 
 	/** <p>Clear to send mask bit constant for UART control line. </p>*/
 	public static final int CTS =  0x01;  // 0000001
@@ -547,20 +538,32 @@ public final class SerialComManager {
 	
 	/**
 	 * <p>Returns an array containing information about all the USB devices found by this library. Application can call various 
-	 * methods on returned SerialComUSBdevice class objects to get specific information like vendor id and product id etc.</p>
+	 * methods on returned SerialComUSBdevice class objects to get specific information like vendor id and product id etc. The 
+	 * GUI applications may display a dialogue asking user to connect the end product.</p>
 	 * 
 	 * <p>The USB vendor id, USB product id, serial number, product name and manufacturer information is encapsulated in the 
 	 * object of class SerialComUSBdevice returned.</p>
 	 * 
-	 * @return list of all USB devices with information about them
+	 * <p>Some USB-UART chip manufactures may give some unique USB PID(s) to end product manufactures at minimal or no cost. 
+	 * Applications written for these end products may be interested in finding devices only from the USB-UART chip manufacturer.
+	 * For example, an application built for finger print scanner based on FT232 IC will like to list only those devices whose 
+	 * VID matches VID of FTDI. Then further application may verify PID by calling methods on the USBDevice object. For this 
+	 * purpose argument vendorFilter may be used.</p>
+	 * 
+	 * @param vendorFilter vendor whose devices should be listed (one of the constants SerialComUSB.V_xxxxx or any valid USB VID)
+	 * @return list of the USB devices with information about them
 	 * @throws SerialComException if an I/O error occurs.
+	 * @throws IllegalArgumentException if vendorFilter is negative
 	 */
-	public SerialComUSBdevice[] listUSBdevicesWithInfo() throws SerialComException {
-		int numOfDevices = 0;
+	public SerialComUSBdevice[] listUSBdevicesWithInfo(int vendorFilter) throws SerialComException {
 		int i = 0;
+		int numOfDevices = 0;
 		SerialComUSBdevice[] usbDevicesFound = null;
+		if((vendorFilter < 0) || (vendorFilter > 0XFFFF)) {
+			throw new IllegalArgumentException("listUSBdevicesWithInfo(), " + "Argument vendorFilter can not be negative or greater tha 0xFFFF");
+		}
 		SerialComRetStatus retStatus = new SerialComRetStatus(1);
-		String[] usbDevicesInfo = mNativeInterface.listUSBdevicesWithInfo(retStatus);
+		String[] usbDevicesInfo = mNativeInterface.listUSBdevicesWithInfo(retStatus, vendorFilter);
 				
 		if(usbDevicesInfo != null) {
 			numOfDevices = usbDevicesInfo.length / 5;
@@ -1852,16 +1855,16 @@ public final class SerialComManager {
 	 * detect and identify it and launch appropriate service.</p>
 	 * 
 	 * <p>Application must implement ISerialComHotPlugListener interface and override onHotPlugEvent method. The event value 
-	 * SerialComManager.USB_DEV_ADDED indicates USB device has been added to the system. The event value SerialComManager.USB_DEV_REMOVED 
+	 * SerialComUSB.DEV_ADDED indicates USB device has been added to the system. The event value SerialComUSB.DEV_REMOVED 
 	 * indicates USB device has been removed from system.</p>
 	 * 
 	 * <p>Application can specify the usb device for which callback should be called based on USB VID and USB PID. If the value of 
-	 * filterVID is specified however the value of filterPID is constant SerialComManager.USB_DEV_ANY, then callback will be called 
+	 * filterVID is specified however the value of filterPID is constant SerialComUSB.DEV_ANY, then callback will be called 
 	 * for USB device which matches given VID and its PID can have any value. If the value of filterPID is specified however the 
-	 * value of filterVID is constant SerialComManager.USB_DEV_ANY, then callback will be called for USB device which matches given PID 
+	 * value of filterVID is constant SerialComUSB.DEV_ANY, then callback will be called for USB device which matches given PID 
 	 * and its VID can have any value.</p>
 	 * 
-	 * <p>If both filterVID and filterPID are set to SerialComManager.USB_DEV_ANY, then callback will be called for every USB device.</p>
+	 * <p>If both filterVID and filterPID are set to SerialComUSB.DEV_ANY, then callback will be called for every USB device.</p>
 	 * 
 	 * @param hotPlugListener object of class which implements ISerialComHotPlugListener interface
 	 * @param filterVID USB vendor ID to match
@@ -2260,5 +2263,12 @@ public final class SerialComManager {
 		}
 		mSerialComIOCTLExecutor = new SerialComIOCTLExecutor(mNativeInterface, mErrMapper);
 		return mSerialComIOCTLExecutor;
+	}
+	
+	/**
+	 * <p></p>
+	 */
+	public SerialComIOCTLExecutor getVendorLibInstance(int vendorLib, String absoluteLibPath) throws SerialComException {
+		
 	}
 }

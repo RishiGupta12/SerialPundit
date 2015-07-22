@@ -19,6 +19,7 @@ package test57;
 
 import com.embeddedunveiled.serial.SerialComManager;
 import com.embeddedunveiled.serial.SerialComUSBdevice;
+import com.embeddedunveiled.serial.SerialComUSB;
 
 /*
  */
@@ -27,7 +28,29 @@ public class Test57 {
 		try {
 			SerialComManager scm = new SerialComManager();
 			SerialComUSBdevice[] usbDevices;
-			usbDevices = scm.listUSBdevicesWithInfo();
+			usbDevices = scm.listUSBdevicesWithInfo(SerialComUSB.V_ALL);
+			for(int x=0; x< usbDevices.length; x++) {
+				usbDevices[x].dumpDeviceInfo();
+			}
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		try {
+			SerialComManager scm = new SerialComManager();
+			SerialComUSBdevice[] usbDevices;
+			usbDevices = scm.listUSBdevicesWithInfo(SerialComUSB.V_FTDI);
+			for(int x=0; x< usbDevices.length; x++) {
+				usbDevices[x].dumpDeviceInfo();
+			}
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		try {
+			SerialComManager scm = new SerialComManager();
+			SerialComUSBdevice[] usbDevices;
+			usbDevices = scm.listUSBdevicesWithInfo(SerialComUSB.V_PL);
 			for(int x=0; x< usbDevices.length; x++) {
 				usbDevices[x].dumpDeviceInfo();
 			}

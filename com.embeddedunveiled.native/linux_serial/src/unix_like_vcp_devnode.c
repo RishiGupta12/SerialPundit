@@ -43,7 +43,7 @@
  * The USB strings are Unicode, UCS2 encoded, but the strings returned from udev_device_get_sysattr_value() are UTF-8 encoded.
  * GetStringUTFChars() returns in modified UTF-8 encoding.
  */
-jobjectArray vcp_node_from_usb_attributes(JNIEnv *env, jobject obj, int usbvid_to_match, int usbpid_to_match, jstring serial_num, jobject status) {
+jobjectArray vcp_node_from_usb_attributes(JNIEnv *env, jobject obj, jint usbvid_to_match, jint usbpid_to_match, jstring serial_num, jobject status) {
 	int x = 0;
 	struct jstrarray_list list = {0};
 	jclass strClass = NULL;
