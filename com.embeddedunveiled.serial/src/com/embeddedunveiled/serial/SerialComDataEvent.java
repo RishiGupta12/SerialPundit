@@ -18,7 +18,7 @@
 package com.embeddedunveiled.serial;
 
 /**
- * <p>This class encapsulate data received from serial port. Application can call getDataBytes() method
+ * <p>Encapsulates data received from serial port. Application can call getDataBytes() method
  * on an instance of this class to retrieve data.</p>
  */
 public final class SerialComDataEvent {

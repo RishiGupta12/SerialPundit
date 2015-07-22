@@ -27,9 +27,10 @@ import java.io.IOException;
 import com.embeddedunveiled.serial.SerialComManager.FTPMODE;
 import com.embeddedunveiled.serial.SerialComManager.FTPPROTO;
 import com.embeddedunveiled.serial.SerialComManager.FTPVAR;
+import com.embeddedunveiled.serial.internal.SerialComCRC;
 
 /**
- * <p>This class realizes state machine for XMODEM-1k file transfer protocol in Java.</p>
+ * <p>Implements state machine for XMODEM-1k file transfer protocol in Java.</p>
  * <p>Increase in block size increases overall throughput.</p>
  */
 public final class SerialComXModem1K {

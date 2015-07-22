@@ -22,7 +22,7 @@ import java.io.InputStream;
 import com.embeddedunveiled.serial.SerialComManager.SMODE;
 
 /**
- * <p>This class represents an input stream of bytes which is received from serial port.</p>
+ * <p>Represents an input stream of bytes which is received from serial port.</p>
  * 
  * 
  * <p>Application design should make sure that the port is not closed if there exist a read method

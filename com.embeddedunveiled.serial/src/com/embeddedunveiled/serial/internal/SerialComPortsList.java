@@ -15,7 +15,7 @@
  * along with serial communication manager. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.embeddedunveiled.serial;
+package com.embeddedunveiled.serial.internal;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -24,8 +24,11 @@ import java.util.Comparator;
 import java.util.TreeSet;
 import java.util.regex.Pattern;
 
+import com.embeddedunveiled.serial.SerialComJNINativeInterface;
+import com.embeddedunveiled.serial.SerialComManager;
+
 /**
- * <p>This class finds all serial ports known to system and return them in sorted alphanumeric order.</p>
+ * <p>Finds all serial ports known to system and return them in sorted alphanumeric order.</p>
  */
 public final class SerialComPortsList {
 	

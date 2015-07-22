@@ -18,7 +18,7 @@
 package com.embeddedunveiled.serial;
 
 /**
- * <p>This class provides common utility functions for serial port communication related projects.</p>
+ * <p>Provides common utility functions for serial port communication related projects.</p>
  */
 public final class SerialComUtil {
 	

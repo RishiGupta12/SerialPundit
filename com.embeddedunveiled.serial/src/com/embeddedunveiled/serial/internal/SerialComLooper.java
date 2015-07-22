@@ -15,16 +15,26 @@
  * along with serial communication manager. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.embeddedunveiled.serial;
+package com.embeddedunveiled.serial.internal;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import com.embeddedunveiled.serial.ISerialComDataListener;
+import com.embeddedunveiled.serial.ISerialComEventListener;
+import com.embeddedunveiled.serial.SerialComDataEvent;
+import com.embeddedunveiled.serial.SerialComException;
+import com.embeddedunveiled.serial.SerialComJNINativeInterface;
+import com.embeddedunveiled.serial.SerialComLineEvent;
+import com.embeddedunveiled.serial.SerialComManager;
+
 /**
- * <p>This class runs in as a different thread context and keep looping over data/event queue, 
- * delivering data/events to the intended registered listener (data/event handler) one by one. 
- * The rate of delivery of data/events are directly proportional to how fast listener finishes
+ * <p>Encapsulates environment for data and event looper implementation. This runs in as a 
+ * different thread context and keep looping over data/event queue, delivering data/events 
+ * to the intended registered listener (data/event handler) one by one.</p>
+ * 
+ * <p>The rate of delivery of data/events are directly proportional to how fast listener finishes
  * his job and let us return.</p>
  */
 public final class SerialComLooper {

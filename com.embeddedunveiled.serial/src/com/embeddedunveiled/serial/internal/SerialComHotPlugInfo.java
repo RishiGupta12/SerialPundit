@@ -15,10 +15,12 @@
  * along with serial communication manager. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.embeddedunveiled.serial;
+package com.embeddedunveiled.serial.internal;
+
+import com.embeddedunveiled.serial.ISerialComHotPlugListener;
 
 /**
- * <p>This class encapsulates the information associated with hot plug listener and its native part.</p>
+ * <p>Encapsulates the information associated with hot plug listener and its native part.</p>
  */
 public final class SerialComHotPlugInfo {
 	

@@ -17,8 +17,10 @@
 
 package com.embeddedunveiled.serial;
 
+import com.embeddedunveiled.serial.internal.SerialComErrorMapper;
+
 /**
- * <p>This class helps in implementing device specific IOCTL calls. The default/VCP/CDC-ACM driver 
+ * <p>Provide routines to execute device or driver specific IOCTL calls. The default/VCP/CDC-ACM driver 
  * has limited capabilities to control specific devices. The IOCTL calls helps to use more functionality 
  * built into the chip. It provide access to UART registers in the chip.</p>
  * 

@@ -26,9 +26,23 @@ import java.util.Collections;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.embeddedunveiled.serial.internal.SerialComCompletionDispatcher;
+import com.embeddedunveiled.serial.internal.SerialComErrorMapper;
+import com.embeddedunveiled.serial.internal.SerialComHotPlugInfo;
+import com.embeddedunveiled.serial.internal.SerialComLooper;
+import com.embeddedunveiled.serial.internal.SerialComPlatform;
+import com.embeddedunveiled.serial.internal.SerialComPortHandleInfo;
+import com.embeddedunveiled.serial.internal.SerialComPortsList;
+import com.embeddedunveiled.serial.internal.SerialComReadStatus;
+import com.embeddedunveiled.serial.internal.SerialComRetStatus;
+import com.embeddedunveiled.serial.internal.SerialComSystemProperty;
+import com.embeddedunveiled.serial.usb.SerialComUSBdevice;
+
 /**
- * <p>This class is the root of scm library. The applications should call methods defined in this class only.</p>
+ * <p>Root of this library.</p>
  * <p>The WIKI page for this project is here : http://www.embeddedunveiled.com/ </p>
+ * 
+ * @author Rishi Gupta
  */
 public final class SerialComManager {
 
@@ -2265,10 +2279,4 @@ public final class SerialComManager {
 		return mSerialComIOCTLExecutor;
 	}
 	
-	/**
-	 * <p></p>
-	 */
-	public SerialComIOCTLExecutor getVendorLibInstance(int vendorLib, String absoluteLibPath) throws SerialComException {
-		
-	}
 }

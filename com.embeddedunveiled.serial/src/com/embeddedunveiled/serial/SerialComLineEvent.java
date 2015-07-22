@@ -18,7 +18,7 @@
 package com.embeddedunveiled.serial;
 
 /**
- * <p>This class encapsulate events that happens on serial port control lines. Application can call various
+ * <p>Encapsulate events that happens on serial port control lines. Application can call various
  * methods on an instance of this class to know which event has happen and to get its details.
  * Whenever an event happens, an object of this class containing details about the event is passed to
  * registered listener.</p>

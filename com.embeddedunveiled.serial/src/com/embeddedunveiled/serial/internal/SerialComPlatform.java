@@ -14,15 +14,18 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with serial communication manager. If not, see <http://www.gnu.org/licenses/>.
  */
-package com.embeddedunveiled.serial;
+package com.embeddedunveiled.serial.internal;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Locale;
 
+import com.embeddedunveiled.serial.SerialComManager;
+import com.embeddedunveiled.serial.SerialComUnexpectedException;
+
 /**
- * <p>This class identifies various hardware and software platform attributes 
+ * <p>Identifies various hardware and software platform attributes 
  * like operating system and CPU architecture etc.</p>
  */
 public final class SerialComPlatform {
