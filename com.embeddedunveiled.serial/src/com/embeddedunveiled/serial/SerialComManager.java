@@ -17,6 +17,7 @@
 
 package com.embeddedunveiled.serial;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -37,6 +38,7 @@ import com.embeddedunveiled.serial.internal.SerialComReadStatus;
 import com.embeddedunveiled.serial.internal.SerialComRetStatus;
 import com.embeddedunveiled.serial.internal.SerialComSystemProperty;
 import com.embeddedunveiled.serial.usb.SerialComUSBdevice;
+import com.embeddedunveiled.serial.vendor.SerialComVendorLib;
 
 /**
  * <p>Root of this library.</p>
@@ -391,6 +393,7 @@ public final class SerialComManager {
 	private static int cpuArch = -1;
 	private static int javaABIType = -1;
 	private static boolean nativeLibLoadAndInitAlready = false;
+	private static SerialComVendorLib mSerialComVendorLib = null;
 
 	/**
 	 * <p>Allocates a new SerialComManager object. Identify operating system type, CPU architecture, prepares 
@@ -2305,6 +2308,35 @@ public final class SerialComManager {
 			return true;
 		}
 		return false;
+	}
+	
+	/**
+	 * <p>Gives an instance on which vendor specific method calls can be made.</p>
+	 * 
+	 * @param vendorLibIdentifier one of the constant VLI_xxx_xxx in SerialComVendorLib class
+	 * @param libDirectory absolute directory path where vendor library is placed
+	 * @return true is device is connected otherwise false
+	 * @throws SerialComException if an I/O error occurs.
+	 * @throws SerialComLoadException if the library can not be extracted or loaded
+	 * @throws IllegalArgumentException if productID or vendorID is negative or invalid
+	 */
+	public SerialComVendorLib getVendorLibInstance(int vendorLibIdentifier, String libDirectory) throws SerialComException, SerialComLoadException {
+		File baseDir = new File(libDirectory.trim());
+		if(!baseDir.exists()) {
+			throw new SerialComLoadException("getVendorLibInstance()", "given directory does not exist.");
+		}
+		if(!baseDir.isDirectory()) {
+			throw new SerialComLoadException("getVendorLibInstance()", "given directory is not a directory.");
+		}
+		if(!baseDir.canWrite()) {
+			throw new SerialComLoadException("getVendorLibInstance()", "given directory is not writeable (permissions ??).");
+		}
+		
+		if(mSerialComVendorLib != null) {
+			return mSerialComVendorLib.getVendorLibInstance(vendorLibIdentifier, baseDir);
+		}
+		mSerialComVendorLib = new SerialComVendorLib();
+		return mSerialComVendorLib.getVendorLibInstance(vendorLibIdentifier, baseDir);
 	}
 	
 }
