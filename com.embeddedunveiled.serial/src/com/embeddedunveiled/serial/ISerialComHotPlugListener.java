@@ -34,8 +34,8 @@ public interface ISerialComHotPlugListener {
 	 * <p>Whenever a USB device is plugged into system or unplugged from system, onHotPlugEvent() method will
 	 * be called by native layer.</p>
 	 * 
-	 * <p>The event value SerialComManager.USB_DEV_ADDED indicates USB device has been added to the system. 
-	 * The event value SerialComManager.USB_DEV_REMOVED indicates USB device has been removed from system.</p>
+	 * <p>The event value SerialComUSB.DEV_ADDED indicates USB device has been added to the system. 
+	 * The event value SerialComUSB.DEV_REMOVED indicates USB device has been removed from system.</p>
 	 * 
 	 * @param event integer value indicating whether device was plugged or un-plugged from system
 	 */

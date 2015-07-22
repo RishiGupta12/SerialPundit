@@ -333,15 +333,6 @@ public final class SerialComManager {
 
 	/** <p>Default number of bytes (1024) to read from serial port. </p>*/
 	public static final int DEFAULT_READBYTECOUNT = 1024;
-	
-	/** <p>The value indicating that the USB device can have any vendor id and product id. </p>*/
-	public static final int USB_DEV_ANY = 0x00;
-	
-	/** <p>The value indicating that a USB device has been added into system. </p>*/
-	public static final int USB_DEV_ADDED = 0x01;
-	
-	/** <p>The value indicating that a USB device has been removed from system. </p>*/
-	public static final int USB_DEV_REMOVED  = 0x02;
 
 	/** <p>Clear to send mask bit constant for UART control line. </p>*/
 	public static final int CTS =  0x01;  // 0000001
@@ -1864,16 +1855,16 @@ public final class SerialComManager {
 	 * detect and identify it and launch appropriate service.</p>
 	 * 
 	 * <p>Application must implement ISerialComHotPlugListener interface and override onHotPlugEvent method. The event value 
-	 * SerialComManager.USB_DEV_ADDED indicates USB device has been added to the system. The event value SerialComManager.USB_DEV_REMOVED 
+	 * SerialComUSB.DEV_ADDED indicates USB device has been added to the system. The event value SerialComUSB.DEV_REMOVED 
 	 * indicates USB device has been removed from system.</p>
 	 * 
 	 * <p>Application can specify the usb device for which callback should be called based on USB VID and USB PID. If the value of 
-	 * filterVID is specified however the value of filterPID is constant SerialComManager.USB_DEV_ANY, then callback will be called 
+	 * filterVID is specified however the value of filterPID is constant SerialComUSB.DEV_ANY, then callback will be called 
 	 * for USB device which matches given VID and its PID can have any value. If the value of filterPID is specified however the 
-	 * value of filterVID is constant SerialComManager.USB_DEV_ANY, then callback will be called for USB device which matches given PID 
+	 * value of filterVID is constant SerialComUSB.DEV_ANY, then callback will be called for USB device which matches given PID 
 	 * and its VID can have any value.</p>
 	 * 
-	 * <p>If both filterVID and filterPID are set to SerialComManager.USB_DEV_ANY, then callback will be called for every USB device.</p>
+	 * <p>If both filterVID and filterPID are set to SerialComUSB.DEV_ANY, then callback will be called for every USB device.</p>
 	 * 
 	 * @param hotPlugListener object of class which implements ISerialComHotPlugListener interface
 	 * @param filterVID USB vendor ID to match
@@ -2272,5 +2263,12 @@ public final class SerialComManager {
 		}
 		mSerialComIOCTLExecutor = new SerialComIOCTLExecutor(mNativeInterface, mErrMapper);
 		return mSerialComIOCTLExecutor;
+	}
+	
+	/**
+	 * <p></p>
+	 */
+	public SerialComIOCTLExecutor getVendorLibInstance(int vendorLib, String absoluteLibPath) throws SerialComException {
+		
 	}
 }

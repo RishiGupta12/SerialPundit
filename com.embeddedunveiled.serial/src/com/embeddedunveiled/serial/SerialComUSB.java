@@ -67,6 +67,15 @@ public class SerialComUSB {
 	
 	/** <p>Value indicating vendor - Renesas electronics (NEC electronics). It manufactures μPD78F0730 microcontroller which can be used as USB-UART converter.</p>*/
 	public static final int V_RNSAS = 0x0409;
+	
+	/** <p>The value indicating that the USB device can have any vendor id and product id. </p>*/
+	public static final int DEV_ANY = 0x00;
+	
+	/** <p>The value indicating that a USB device has been added into system. </p>*/
+	public static final int DEV_ADDED = 0x01;
+	
+	/** <p>The value indicating that a USB device has been removed from system. </p>*/
+	public static final int DEV_REMOVED  = 0x02;
 
 	/**
 	 * <p>Allocates a new SerialComUSB object.</p>
