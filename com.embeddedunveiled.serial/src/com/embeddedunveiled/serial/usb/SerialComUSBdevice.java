@@ -15,10 +15,12 @@
  * along with serial communication manager. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.embeddedunveiled.serial;
+package com.embeddedunveiled.serial.usb;
+
+import com.embeddedunveiled.serial.SerialComUtil;
 
 /**
- * <p>This class represents a USB device with information about it.</p>
+ * <p>Represents a USB device with information about it.</p>
  */
 public final class SerialComUSBdevice {
 	

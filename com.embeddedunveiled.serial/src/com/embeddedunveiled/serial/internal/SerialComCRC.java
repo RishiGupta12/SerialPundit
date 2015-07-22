@@ -15,10 +15,10 @@
  * along with serial communication manager. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.embeddedunveiled.serial;
+package com.embeddedunveiled.serial.internal;
 
 /**
- * <p>This class helps in calculating CRC-CCITT value speedily using table based algorithm.
+ * <p>Helps in calculating CRC-CCITT value speedily using table based algorithm.
  *  It is used for checking data integrity of the data bytes communicated over serial port.</p>
  */
 public final class SerialComCRC {

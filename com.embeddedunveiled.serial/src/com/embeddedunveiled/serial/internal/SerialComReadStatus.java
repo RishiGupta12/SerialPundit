@@ -14,20 +14,18 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with serial communication manager. If not, see <http://www.gnu.org/licenses/>.
  */
-package com.embeddedunveiled.serial;
+package com.embeddedunveiled.serial.internal;
 
 /**
  * <p>This class acts as a status messenger between native and java layer.
  * If an error occurs native layer put error number into the status field
  * of this class.</p>
  */
-public final class SerialComRetStatus {
+public final class SerialComReadStatus {
 
-	public int status = 1; // package-private access
-	public String str = null;
+	public int status = 1;
 
-	public SerialComRetStatus(int status) {
+	public SerialComReadStatus(int status) {
 		this.status = status;
 	}
-	
 }

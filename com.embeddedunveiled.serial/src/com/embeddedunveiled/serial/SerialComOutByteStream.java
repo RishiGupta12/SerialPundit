@@ -6,7 +6,7 @@ import java.io.OutputStream;
 import com.embeddedunveiled.serial.SerialComManager.SMODE;
 
 /**
- * <p>This class represents an output stream of bytes that gets sent over to serial port for transmission.</p>
+ * <p>Represents an output stream of bytes that gets sent over to serial port for transmission.</p>
  */
 public final class SerialComOutByteStream extends OutputStream {
 

@@ -15,7 +15,7 @@
  * along with serial communication manager. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.embeddedunveiled.serial;
+package com.embeddedunveiled.serial.usb;
 
 /**
  * <p>Encapsulates USB related operations and values.</p>

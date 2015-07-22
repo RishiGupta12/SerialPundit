@@ -14,18 +14,9 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with serial communication manager. If not, see <http://www.gnu.org/licenses/>.
  */
-package com.embeddedunveiled.serial;
 
 /**
- * <p>This class acts as a status messenger between native and java layer.
- * If an error occurs native layer put error number into the status field
- * of this class.</p>
+ * <p>Encapsulates behavior and environment centered around serial port communication 
+ * involving use of USB port and services.</p>
  */
-public final class SerialComReadStatus {
-
-	int status = 1; // package-private access
-
-	public SerialComReadStatus(int status) {
-		this.status = status;
-	}
-}
+package com.embeddedunveiled.serial.usb;

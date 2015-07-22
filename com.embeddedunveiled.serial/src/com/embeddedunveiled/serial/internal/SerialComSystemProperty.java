@@ -15,14 +15,14 @@
  * along with serial communication manager. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.embeddedunveiled.serial;
+package com.embeddedunveiled.serial.internal;
 
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Locale;
 
 /** 
- * <p>This class provide java system properties to the callers in a unified way. </p>
+ * <p>Provides java system properties to the callers in a unified way. </p>
  */
 public final class SerialComSystemProperty {
 	
@@ -39,7 +39,7 @@ public final class SerialComSystemProperty {
 	 * @return operating system identified
 	 * @throws SecurityException if security manager does not allow access to system property
 	 */
-	String getOSName() throws SecurityException {
+	public String getOSName() throws SecurityException {
 		if(securityManager == null) {
 			return System.getProperty("os.name").toLowerCase(Locale.ENGLISH).trim();
 		}else {
@@ -55,7 +55,7 @@ public final class SerialComSystemProperty {
 	 * @return architecture of processor
 	 * @throws SecurityException if security manager does not allow access to system property
 	 */
-	String getOSArch() throws SecurityException {
+	public String getOSArch() throws SecurityException {
 		if(securityManager == null) {
 			return System.getProperty("os.arch").toLowerCase(Locale.ENGLISH).trim();
 		}else {
@@ -71,7 +71,7 @@ public final class SerialComSystemProperty {
 	 * @return vendor of JVM
 	 * @throws SecurityException if security manager does not allow access to system property
 	 */
-	String getJavaVmVendor() throws SecurityException {
+	public String getJavaVmVendor() throws SecurityException {
 		if(securityManager == null) {
 			return System.getProperty("java.vm.vendor").toLowerCase(Locale.ENGLISH).trim();
 		}else {
@@ -87,7 +87,7 @@ public final class SerialComSystemProperty {
 	 * @return home directory for Java stuff
 	 * @throws SecurityException if security manager does not allow access to system property
 	 */
-	String getJavaHome() throws SecurityException {
+	public String getJavaHome() throws SecurityException {
 		if(securityManager == null) {
 			return System.getProperty("java.home");
 		}else {
@@ -103,7 +103,7 @@ public final class SerialComSystemProperty {
 	 * @return tmp directory for Java operations
 	 * @throws SecurityException if security manager does not allow access to system property
 	 */
-	String getJavaIOTmpDir() throws SecurityException {
+	public String getJavaIOTmpDir() throws SecurityException {
 		if(securityManager == null) {
 			return System.getProperty("java.io.tmpdir");
 		}else {
@@ -119,7 +119,7 @@ public final class SerialComSystemProperty {
 	 * @return home directory of current user
 	 * @throws SecurityException if security manager does not allow access to system property
 	 */
-	String getUserHome() throws SecurityException {
+	public String getUserHome() throws SecurityException {
 		if(securityManager == null) {
 			return System.getProperty("user.home");
 		}else {
@@ -135,7 +135,7 @@ public final class SerialComSystemProperty {
 	 * @return platform specific file separator
 	 * @throws SecurityException if security manager does not allow access to system property
 	 */
-	String getfileSeparator() throws SecurityException {
+	public String getfileSeparator() throws SecurityException {
 		if(securityManager == null) {
 			return System.getProperty("file.separator");
 		}else {

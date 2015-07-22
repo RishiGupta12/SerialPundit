@@ -15,12 +15,17 @@
  * along with serial communication manager. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.embeddedunveiled.serial;
+package com.embeddedunveiled.serial.internal;
 
 import java.util.List;
 
+import com.embeddedunveiled.serial.ISerialComDataListener;
+import com.embeddedunveiled.serial.ISerialComEventListener;
+import com.embeddedunveiled.serial.SerialComException;
+import com.embeddedunveiled.serial.SerialComJNINativeInterface;
+
 /**
- * This class represents Proactor in our IO design pattern.
+ * Represents Proactor in our IO design pattern.
  * 
  * <p>An application may register data listener only, event listener only or both listeners. A single dedicated looper handles both the listeners.
  * We first check if a looper exist for given handle or not. If it does not exist we create and start looper thread which loops over data or event 

@@ -21,6 +21,10 @@ import java.io.File;
 import java.nio.ByteBuffer;
 import java.io.InputStream;
 import java.io.FileOutputStream;
+import com.embeddedunveiled.serial.internal.SerialComLooper;
+import com.embeddedunveiled.serial.internal.SerialComReadStatus;
+import com.embeddedunveiled.serial.internal.SerialComRetStatus;
+import com.embeddedunveiled.serial.internal.SerialComSystemProperty;
 
 /**
  * <p>This class is an interface between java and native shared library.</p>

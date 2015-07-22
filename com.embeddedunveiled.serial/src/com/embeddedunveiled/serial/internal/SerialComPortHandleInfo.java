@@ -15,10 +15,15 @@
  * along with serial communication manager. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.embeddedunveiled.serial;
+package com.embeddedunveiled.serial.internal;
+
+import com.embeddedunveiled.serial.ISerialComDataListener;
+import com.embeddedunveiled.serial.ISerialComEventListener;
+import com.embeddedunveiled.serial.SerialComInByteStream;
+import com.embeddedunveiled.serial.SerialComOutByteStream;
 
 /**
- * <p>This class encapsulates the information like port handle, looper object, event listener, 
+ * <p>Encapsulates the information like port handle, looper object, event listener, 
  * data listener, port name etc associated with a particular port.</p>
  */
 public final class SerialComPortHandleInfo {
