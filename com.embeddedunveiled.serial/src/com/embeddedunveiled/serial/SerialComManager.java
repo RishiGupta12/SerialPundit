@@ -2279,4 +2279,32 @@ public final class SerialComManager {
 		return mSerialComIOCTLExecutor;
 	}
 	
+	/**
+	 * <p>Checks whether a particular USB device identified by vendor id and product id is connected to 
+	 * the system or not.</p>
+	 * 
+	 * @param vendorID USB-IF vendor ID of the device to match
+	 * @param vendorID product ID of the device to match
+	 * @return true is device is connected otherwise false
+	 * @throws SerialComException if an I/O error occurs.
+	 * @throws IllegalArgumentException if productID or vendorID is negative or invalid
+	 */
+	public boolean isUSBDevConnected(int vendorID, int productID) throws SerialComException {
+		if((vendorID < 0) || (vendorID > 0XFFFF)) {
+			throw new IllegalArgumentException("listUSBdevicesWithInfo(), " + "Argument vendorID can not be negative or greater tha 0xFFFF");
+		}
+		if((productID < 0) || (productID > 0XFFFF)) {
+			throw new IllegalArgumentException("listUSBdevicesWithInfo(), " + "Argument productID can not be negative or greater tha 0xFFFF");
+		}
+		SerialComRetStatus retStatus = new SerialComRetStatus(1);
+		
+		int ret = mNativeInterface.isUSBDevConnected(vendorID, productID, retStatus);
+		if(ret < 0) {
+			throw new SerialComException("isUSBDevConnected()",  mErrMapper.getMappedError(ret));
+		}else if(ret > 1) {
+			return true;
+		}
+		return false;
+	}
+	
 }
