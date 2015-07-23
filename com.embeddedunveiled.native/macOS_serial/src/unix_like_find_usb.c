@@ -40,7 +40,7 @@
  * The sequence of entries in array must match with what java layer expect. If a particular USB attribute
  * is not set in descriptor or can not be obtained "---" is placed in its place.
  */
-jobjectArray list_usb_devices(JNIEnv *env, jobject obj, jobject status) {
+jobjectArray list_usb_devices(JNIEnv *env, jobject obj, jobject status, jint vendor_to_match) {
 	int x = 0;
 	struct jstrarray_list list = {0};
 	jstring usb_dev_info;
@@ -54,6 +54,7 @@ jobjectArray list_usb_devices(JNIEnv *env, jobject obj, jobject status) {
 	const char *sysattr_val;
 	const char *path;
 	struct udev_device *udev_device;
+	char *endptr;
 #endif
 #if defined (__APPLE__)
 	kern_return_t kr;
@@ -73,6 +74,7 @@ jobjectArray list_usb_devices(JNIEnv *env, jobject obj, jobject status) {
 	init_jstrarraylist(&list, 100);
 
 #if defined (__linux__)
+	/* libudev is reference counted. Memory is freed when counts reach to zero. */
 	udev_ctx = udev_new();
 	enumerator = udev_enumerate_new(udev_ctx);
 	udev_enumerate_add_match_subsystem(enumerator, "usb");
@@ -89,6 +91,13 @@ jobjectArray list_usb_devices(JNIEnv *env, jobject obj, jobject status) {
 		if(strcmp("usb_device", udev_device_get_devtype(udev_device)) == 0) {
 			sysattr_val = udev_device_get_sysattr_value(udev_device, "idVendor");
 			if(sysattr_val != NULL) {
+				if(vendor_to_match != 0) {
+					/* we need to apply filter for identify specific vendor */
+					if(vendor_to_match != (0x0000FFFF & (int)strtol(sysattr_val, &endptr, 16))) {
+						udev_device_unref(udev_device);
+						continue;
+					}
+				}
 				usb_dev_info = (*env)->NewStringUTF(env, sysattr_val);
 			}else {
 				usb_dev_info = (*env)->NewStringUTF(env, "---");
@@ -153,6 +162,14 @@ jobjectArray list_usb_devices(JNIEnv *env, jobject obj, jobject status) {
 				                                        NULL, kIORegistryIterateRecursively | kIORegistryIterateParents);
 		if(num_ref) {
 			CFNumberGetValue(num_ref, kCFNumberSInt32Type, &result);
+			if(vendor_to_match != 0) {
+				/* we need to apply filter for identify specific vendor */
+				if(vendor_to_match != (result & 0x0000FFFF)) {
+					CFRelease(num_ref);
+					IOObjectRelease(usb_dev_obj);
+					continue;
+				}
+			}
 			snprintf(hexcharbuffer, 5, "%04X", result & 0x0000FFFF);
 			usb_dev_info = (*env)->NewStringUTF(env, hexcharbuffer);
 			CFRelease(num_ref);

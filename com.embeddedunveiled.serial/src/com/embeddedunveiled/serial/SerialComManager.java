@@ -26,13 +26,13 @@ import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.ArrayList;
 import java.util.List;
-
 import com.embeddedunveiled.serial.internal.SerialComCompletionDispatcher;
 import com.embeddedunveiled.serial.internal.SerialComErrorMapper;
 import com.embeddedunveiled.serial.internal.SerialComHotPlugInfo;
 import com.embeddedunveiled.serial.internal.SerialComLooper;
 import com.embeddedunveiled.serial.internal.SerialComPlatform;
 import com.embeddedunveiled.serial.internal.SerialComPortHandleInfo;
+import com.embeddedunveiled.serial.internal.SerialComPortJNIBridge;
 import com.embeddedunveiled.serial.internal.SerialComPortsList;
 import com.embeddedunveiled.serial.internal.SerialComReadStatus;
 import com.embeddedunveiled.serial.internal.SerialComRetStatus;
@@ -382,7 +382,7 @@ public final class SerialComManager {
 	private SerialComIOCTLExecutor mSerialComIOCTLExecutor = null;
 	private SerialComPlatform mSerialComPlatform = null;
 	private final SerialComSystemProperty mSerialComSystemProperty;
-	private final SerialComJNINativeInterface mNativeInterface;
+	private final SerialComPortJNIBridge mComPortJNIBridge;
 	private final SerialComErrorMapper mErrMapper;
 	private final SerialComCompletionDispatcher mEventCompletionDispatcher;
 	private final SerialComPortsList mSerialComPortsList;
@@ -420,14 +420,14 @@ public final class SerialComManager {
 			}
 		}
 		mErrMapper = new SerialComErrorMapper(osType);
-		mNativeInterface = new SerialComJNINativeInterface();
+		mComPortJNIBridge = new SerialComPortJNIBridge();
 		if(nativeLibLoadAndInitAlready == false) {
-			SerialComJNINativeInterface.loadNativeLibrary(null, null, mSerialComSystemProperty, osType, cpuArch, javaABIType);
-			mNativeInterface.initNativeLib();
+			SerialComPortJNIBridge.loadNativeLibrary(null, null, mSerialComSystemProperty, osType, cpuArch, javaABIType);
+			mComPortJNIBridge.initNativeLib();
 			nativeLibLoadAndInitAlready = true;
 		}
-		mEventCompletionDispatcher = new SerialComCompletionDispatcher(mNativeInterface, mErrMapper, mPortHandleInfo);
-		mSerialComPortsList = new SerialComPortsList(mNativeInterface, osType);
+		mEventCompletionDispatcher = new SerialComCompletionDispatcher(mComPortJNIBridge, mErrMapper, mPortHandleInfo);
+		mSerialComPortsList = new SerialComPortsList(mComPortJNIBridge, osType);
 	}
 	
 	/**
@@ -473,14 +473,14 @@ public final class SerialComManager {
 			}
 		}
 		mErrMapper = new SerialComErrorMapper(osType);
-		mNativeInterface = new SerialComJNINativeInterface();
+		mComPortJNIBridge = new SerialComPortJNIBridge();
 		if(nativeLibLoadAndInitAlready == false) {
-			SerialComJNINativeInterface.loadNativeLibrary(directoryPath, loadedLibName, mSerialComSystemProperty, osType, cpuArch, javaABIType);
-			mNativeInterface.initNativeLib();
+			SerialComPortJNIBridge.loadNativeLibrary(directoryPath, loadedLibName, mSerialComSystemProperty, osType, cpuArch, javaABIType);
+			mComPortJNIBridge.initNativeLib();
 			nativeLibLoadAndInitAlready = true;
 		}
-		mEventCompletionDispatcher = new SerialComCompletionDispatcher(mNativeInterface, mErrMapper, mPortHandleInfo);
-		mSerialComPortsList = new SerialComPortsList(mNativeInterface, osType);
+		mEventCompletionDispatcher = new SerialComCompletionDispatcher(mComPortJNIBridge, mErrMapper, mPortHandleInfo);
+		mSerialComPortsList = new SerialComPortsList(mComPortJNIBridge, osType);
 	}
 
 	/**
@@ -492,7 +492,7 @@ public final class SerialComManager {
 	public String getLibraryVersions() throws SerialComException {
 		String version = null;
 		SerialComRetStatus retStatus = new SerialComRetStatus(0);
-		String nativeLibversion = mNativeInterface.getNativeLibraryVersion(retStatus);
+		String nativeLibversion = mComPortJNIBridge.getNativeLibraryVersion(retStatus);
 		if(nativeLibversion != null) {
 			version = "Java lib version: " + JAVA_LIB_VERSION + "\n" + "Native lib version: " + nativeLibversion;
 		}else if(retStatus.status < 0){
@@ -580,7 +580,7 @@ public final class SerialComManager {
 			throw new IllegalArgumentException("listUSBdevicesWithInfo(), " + "Argument vendorFilter can not be negative or greater tha 0xFFFF");
 		}
 		SerialComRetStatus retStatus = new SerialComRetStatus(1);
-		String[] usbDevicesInfo = mNativeInterface.listUSBdevicesWithInfo(retStatus, vendorFilter);
+		String[] usbDevicesInfo = mComPortJNIBridge.listUSBdevicesWithInfo(retStatus, vendorFilter);
 				
 		if(usbDevicesInfo != null) {
 			numOfDevices = usbDevicesInfo.length / 5;
@@ -641,7 +641,7 @@ public final class SerialComManager {
 		if(serialNumber != null) {
 			serialNum = serialNumber.toLowerCase();
 		}
-		String[] comPortsInfo = mNativeInterface.listComPortFromUSBAttributes(usbVidToMatch, usbPidToMatch, serialNum, retStatus);
+		String[] comPortsInfo = mComPortJNIBridge.listComPortFromUSBAttributes(usbVidToMatch, usbPidToMatch, serialNum, retStatus);
 		if(comPortsInfo != null) {
 			return comPortsInfo;
 		}else {
@@ -711,7 +711,7 @@ public final class SerialComManager {
 				}
 			}
 			
-			handle = mNativeInterface.openComPort(portNameVal, enableRead, enableWrite, exclusiveOwnerShip);
+			handle = mComPortJNIBridge.openComPort(portNameVal, enableRead, enableWrite, exclusiveOwnerShip);
 			if(handle < 0) {
 				throw new SerialComException(portName, "openComPort()",  mErrMapper.getMappedError(handle));
 			}
@@ -763,7 +763,7 @@ public final class SerialComManager {
 				throw new IllegalStateException("closeComPort() " + "Closing port without unregistering event listener is not allowed");
 			}
 	
-			int ret = mNativeInterface.closeComPort(handle);
+			int ret = mComPortJNIBridge.closeComPort(handle);
 			// native close() returns 0 on success
 			if(ret < 0) {
 				throw new SerialComException("closeComPort()",  mErrMapper.getMappedError(ret));
@@ -806,7 +806,7 @@ public final class SerialComManager {
 		if(delay < 0) {
 			throw new IllegalArgumentException("writeBytes(), " + "Argument delay can not be negative");
 		}
-		int ret = mNativeInterface.writeBytes(handle, buffer, delay);
+		int ret = mComPortJNIBridge.writeBytes(handle, buffer, delay);
 		if(ret < 0) {
 			throw new SerialComException("write",  mErrMapper.getMappedError(ret));
 		}
@@ -1030,9 +1030,9 @@ public final class SerialComManager {
 		byte[] buffer = null;
 		SerialComReadStatus retStatus = new SerialComReadStatus(1);
 		if(osType == SerialComManager.OS_WINDOWS) {
-			buffer = mNativeInterface.readBytesBlocking(handle, byteCount, retStatus);
+			buffer = mComPortJNIBridge.readBytesBlocking(handle, byteCount, retStatus);
 		}else {
-			buffer = mNativeInterface.readBytes(handle, byteCount, retStatus);
+			buffer = mComPortJNIBridge.readBytes(handle, byteCount, retStatus);
 		}
 		
 		// data read from serial port, pass to application
@@ -1068,7 +1068,7 @@ public final class SerialComManager {
 	public byte[] readBytes(long handle, int byteCount) throws SerialComException {
 		
 		SerialComReadStatus retStatus = new SerialComReadStatus(1);
-		byte[] buffer = mNativeInterface.readBytes(handle, byteCount, retStatus);
+		byte[] buffer = mComPortJNIBridge.readBytes(handle, byteCount, retStatus);
 
 		// data read from serial port, pass to application
 		if(buffer != null) {
@@ -1217,7 +1217,7 @@ public final class SerialComManager {
 			custBaudTranslated = custBaud;
 		}
 
-		int ret = mNativeInterface.configureComPortData(handle, dataBits.getValue(), stopBits.getValue(), parity.getValue(), baudRateTranslated, custBaudTranslated);
+		int ret = mComPortJNIBridge.configureComPortData(handle, dataBits.getValue(), stopBits.getValue(), parity.getValue(), baudRateTranslated, custBaudTranslated);
 		if(ret < 0) {
 			throw new SerialComException("configureComPortData()", mErrMapper.getMappedError(ret));
 		}
@@ -1256,7 +1256,7 @@ public final class SerialComManager {
 			throw new SerialComException("configureComPortControl()", "Wrong port handle passed for the requested operations");
 		}
 
-		int ret = mNativeInterface.configureComPortControl(handle, flowctrl.getValue(), xon, xoff, ParFraError, overFlowErr);
+		int ret = mComPortJNIBridge.configureComPortControl(handle, flowctrl.getValue(), xon, xoff, ParFraError, overFlowErr);
 		if(ret < 0) {
 			throw new SerialComException("configureComPortControl()", mErrMapper.getMappedError(ret));
 		}
@@ -1296,7 +1296,7 @@ public final class SerialComManager {
 
 		if(getOSType() != OS_WINDOWS) {
 			// for unix-like os
-			int[] config = mNativeInterface.getCurrentConfigurationU(handle);
+			int[] config = mComPortJNIBridge.getCurrentConfigurationU(handle);
 			String[] configuration = new String[config.length];
 			if(config[0] < 0) {
 				throw new SerialComException("getCurrentConfiguration()", mErrMapper.getMappedError(config[0]));
@@ -1308,7 +1308,7 @@ public final class SerialComManager {
 			return configuration;
 		}else {
 			// for windows os
-			String[] configuration = mNativeInterface.getCurrentConfigurationW(handle);
+			String[] configuration = mComPortJNIBridge.getCurrentConfigurationW(handle);
 			return configuration;
 		}
 	}
@@ -1336,7 +1336,7 @@ public final class SerialComManager {
 	 * @throws SerialComException if system is unable to complete requested operation
 	 */
 	public boolean setRTS(long handle, boolean enabled) throws SerialComException {
-		int ret = mNativeInterface.setRTS(handle, enabled);
+		int ret = mComPortJNIBridge.setRTS(handle, enabled);
 		if(ret < 0) {
 			throw new SerialComException("setRTS()", mErrMapper.getMappedError(ret));
 		}
@@ -1355,7 +1355,7 @@ public final class SerialComManager {
 	 * @throws SerialComException if system is unable to complete requested operation
 	 */
 	public boolean setDTR(long handle, boolean enabled) throws SerialComException {
-		int ret = mNativeInterface.setDTR(handle, enabled);
+		int ret = mComPortJNIBridge.setDTR(handle, enabled);
 		if(ret < 0) {
 			throw new SerialComException("setDTR()", mErrMapper.getMappedError(ret));
 		}
@@ -1592,7 +1592,7 @@ public final class SerialComManager {
 			throw new SerialComException("fineTuneRead()", "Wrong port handle passed for the requested operations");
 		}
 
-		int ret = mNativeInterface.fineTuneRead(handle, vmin, vtime, rit, rttm, rttc);
+		int ret = mComPortJNIBridge.fineTuneRead(handle, vmin, vtime, rit, rttm, rttc);
 		if(ret < 0) {
 			throw new SerialComException("fineTuneRead()",  mErrMapper.getMappedError(ret));
 		}
@@ -1695,7 +1695,7 @@ public final class SerialComManager {
 		}
 
 		if(clearRxPort == true || clearTxPort == true) {
-			int ret = mNativeInterface.clearPortIOBuffers(handle, clearRxPort, clearTxPort);
+			int ret = mComPortJNIBridge.clearPortIOBuffers(handle, clearRxPort, clearTxPort);
 			if(ret < 0) {
 				throw new SerialComException("clearPortIOBuffers()", mErrMapper.getMappedError(ret));
 			}
@@ -1739,7 +1739,7 @@ public final class SerialComManager {
 			throw new IllegalArgumentException("sendBreak(), " + "Argument duration can not be negative or zero");
 		}
 
-		int ret = mNativeInterface.sendBreak(handle, duration);
+		int ret = mComPortJNIBridge.sendBreak(handle, duration);
 		if(ret < 0) {
 			throw new SerialComException("sendBreak()", mErrMapper.getMappedError(ret));
 		}
@@ -1775,7 +1775,7 @@ public final class SerialComManager {
 			throw new SerialComException("getInterruptCount()", "Wrong port handle passed for the requested operations");
 		}
 
-		ret = mNativeInterface.getInterruptCount(handle);
+		ret = mComPortJNIBridge.getInterruptCount(handle);
 		if(ret[0] < 0) {
 			throw new SerialComException("getInterruptCount()", mErrMapper.getMappedError(ret[0]));
 		}
@@ -1815,7 +1815,7 @@ public final class SerialComManager {
 			throw new SerialComException("getLinesStatus()", "Wrong port handle passed for the requested operations");
 		}
 
-		ret = mNativeInterface.getLinesStatus(handle);
+		ret = mComPortJNIBridge.getLinesStatus(handle);
 		if(ret[0] < 0) {
 			throw new SerialComException("getLinesStatus()", mErrMapper.getMappedError(ret[0]));
 		}
@@ -1855,7 +1855,7 @@ public final class SerialComManager {
 		}
 
 		// sequence returned : ret[0]=error info, ret[1]=byte count in input buffer, ret[2]=byte count in output buffer
-		ret = mNativeInterface.getByteCount(handle);
+		ret = mComPortJNIBridge.getByteCount(handle);
 		if(ret[0] < 0) {
 			throw new SerialComException("getByteCountInPortIOBuffer()", mErrMapper.getMappedError(ret[0]));
 		}
@@ -1900,7 +1900,7 @@ public final class SerialComManager {
 		}
 		
 		synchronized(lockB) {
-			int[] ret = mNativeInterface.registerHotPlugEventListener(hotPlugListener, filterVID, filterPID);
+			int[] ret = mComPortJNIBridge.registerHotPlugEventListener(hotPlugListener, filterVID, filterPID);
 			if(ret[0] < 0) {
 				throw new SerialComException("registerHotPlugEventListener()", mErrMapper.getMappedError(ret[0]));
 			}
@@ -1943,7 +1943,7 @@ public final class SerialComManager {
 		}
 		
 		synchronized(lockB) {
-			ret = mNativeInterface.unregisterHotPlugEventListener(index);
+			ret = mComPortJNIBridge.unregisterHotPlugEventListener(index);
 			if(ret < 0) {
 				throw new SerialComException("unregisterHotPlugEventListener()", mErrMapper.getMappedError(ret));
 			}
@@ -2123,6 +2123,9 @@ public final class SerialComManager {
 	}
 
 	/**
+	 * 
+	 * <p>under development.</p>
+	 * 
 	 * <p>This method writes bytes from the specified byte type buffer. If the method returns false, the application
 	 * should try to re-send bytes. The data has been transmitted out of serial port when this method returns.</p>
 	 * 
@@ -2140,7 +2143,7 @@ public final class SerialComManager {
 			throw new IllegalArgumentException("writeBytesBulk(), " + "Null data buffer passed to write operation");
 		}
 
-		int ret = mNativeInterface.writeBytesBulk(handle, buffer);
+		int ret = mComPortJNIBridge.writeBytesBulk(handle, buffer);
 		if(ret < 0) {
 			throw new SerialComException("writeBytesBulk()",  mErrMapper.getMappedError(ret));
 		}
@@ -2278,7 +2281,7 @@ public final class SerialComManager {
 		if(mSerialComIOCTLExecutor != null) {
 			return mSerialComIOCTLExecutor;
 		}
-		mSerialComIOCTLExecutor = new SerialComIOCTLExecutor(mNativeInterface, mErrMapper);
+		mSerialComIOCTLExecutor = new SerialComIOCTLExecutor(mComPortJNIBridge, mErrMapper);
 		return mSerialComIOCTLExecutor;
 	}
 	
@@ -2301,7 +2304,7 @@ public final class SerialComManager {
 		}
 		SerialComRetStatus retStatus = new SerialComRetStatus(1);
 		
-		int ret = mNativeInterface.isUSBDevConnected(vendorID, productID, retStatus);
+		int ret = mComPortJNIBridge.isUSBDevConnected(vendorID, productID, retStatus);
 		if(ret < 0) {
 			throw new SerialComException("isUSBDevConnected()",  mErrMapper.getMappedError(ret));
 		}else if(ret > 1) {

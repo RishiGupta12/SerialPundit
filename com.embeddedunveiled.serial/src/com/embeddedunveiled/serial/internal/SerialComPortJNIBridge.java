@@ -15,12 +15,16 @@
  * along with serial communication manager. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.embeddedunveiled.serial;
+package com.embeddedunveiled.serial.internal;
 
 import java.io.File;
 import java.nio.ByteBuffer;
 import java.io.InputStream;
 import java.io.FileOutputStream;
+import com.embeddedunveiled.serial.ISerialComHotPlugListener;
+import com.embeddedunveiled.serial.SerialComLoadException;
+import com.embeddedunveiled.serial.SerialComManager;
+import com.embeddedunveiled.serial.SerialComUnexpectedException;
 import com.embeddedunveiled.serial.internal.SerialComLooper;
 import com.embeddedunveiled.serial.internal.SerialComReadStatus;
 import com.embeddedunveiled.serial.internal.SerialComRetStatus;
@@ -29,12 +33,12 @@ import com.embeddedunveiled.serial.internal.SerialComSystemProperty;
 /**
  * <p>This class is an interface between java and native shared library.</p>
  */
-public final class SerialComJNINativeInterface {
+public final class SerialComPortJNIBridge {
 	
 	/**
-	 * <p>Allocates a new SerialComJNINativeInterface object.</p>
+	 * <p>Allocates a new SerialComPortJNIBridge object.</p>
 	 */
-	public SerialComJNINativeInterface() {
+	public SerialComPortJNIBridge() {
 	}
 	
 	/**
@@ -192,7 +196,7 @@ public final class SerialComJNINativeInterface {
 				libFile = new File(workingDir.getAbsolutePath() + fileSeparator + loadedLibName.trim() + libExtension);
 			}
 			
-			input = SerialComJNINativeInterface.class.getResourceAsStream("/libs/" + libToExtractFromJar);
+			input = SerialComPortJNIBridge.class.getResourceAsStream("/libs/" + libToExtractFromJar);
 			output = new FileOutputStream(libFile);
 			if(input != null) {
 				int read;
@@ -239,7 +243,6 @@ public final class SerialComJNINativeInterface {
 
 	public native int initNativeLib();
 	public native String getNativeLibraryVersion(SerialComRetStatus retStatus);
-	public native boolean debug(boolean enableDebug);
 	public native String[] listAvailableComPorts(SerialComRetStatus retStatus);
 	public native String[] listUSBdevicesWithInfo(SerialComRetStatus retStatus, int vendorFilter);
 	public native String[] listComPortFromUSBAttributes(int usbVidToMatch, int usbPidToMatch, String serialNumber, SerialComRetStatus retStatus);

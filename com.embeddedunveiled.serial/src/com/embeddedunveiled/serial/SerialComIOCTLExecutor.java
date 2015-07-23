@@ -18,6 +18,7 @@
 package com.embeddedunveiled.serial;
 
 import com.embeddedunveiled.serial.internal.SerialComErrorMapper;
+import com.embeddedunveiled.serial.internal.SerialComPortJNIBridge;
 
 /**
  * <p>Provide routines to execute device or driver specific IOCTL calls. The default/VCP/CDC-ACM driver 
@@ -30,16 +31,16 @@ import com.embeddedunveiled.serial.internal.SerialComErrorMapper;
  */
 public final class SerialComIOCTLExecutor {
 	
-	private SerialComJNINativeInterface mNativeInterface = null;
+	private SerialComPortJNIBridge mComPortJNIBridge = null;
 	private SerialComErrorMapper mErrMapper = null;
 
 	/**
      * <p>Allocates a new SerialComIOCTLExecutor object.</p>
-     * @param mNativeInterface interface used to invoke appropriate native function
+     * @param mComPortJNIBridge interface used to invoke appropriate native function
      * @param mErrMapper mapper to map error code into meaningful info
      */
-	public SerialComIOCTLExecutor(SerialComJNINativeInterface mNativeInterface, SerialComErrorMapper mErrMapper) {
-		this.mNativeInterface = mNativeInterface;
+	public SerialComIOCTLExecutor(SerialComPortJNIBridge mComPortJNIBridge, SerialComErrorMapper mErrMapper) {
+		this.mComPortJNIBridge = mComPortJNIBridge;
 		this.mErrMapper = mErrMapper;
 	}
 	
@@ -53,7 +54,7 @@ public final class SerialComIOCTLExecutor {
      */
 	public boolean ioctlExecuteOperation(long handle, long operationCode) throws SerialComException {
 		long ret = 0;
-		ret = mNativeInterface.ioctlExecuteOperation(handle, operationCode);
+		ret = mComPortJNIBridge.ioctlExecuteOperation(handle, operationCode);
 		if(ret < 0) {
 			throw new SerialComException("ioctlExecuteOperation()", mErrMapper.getMappedError(ret));
 		}
@@ -87,7 +88,7 @@ public final class SerialComIOCTLExecutor {
      */
 	public boolean ioctlSetValue(long handle, long operationCode, long value) throws SerialComException {
 		long ret = 0;
-		ret = mNativeInterface.ioctlSetValue(handle, operationCode, value);
+		ret = mComPortJNIBridge.ioctlSetValue(handle, operationCode, value);
 		if(ret < 0) {
 			throw new SerialComException("ioctlSetValue()", mErrMapper.getMappedError(ret));
 		}
@@ -110,7 +111,7 @@ public final class SerialComIOCTLExecutor {
      */
 	public long ioctlGetValue(long handle, long operationCode) throws SerialComException {
 		long ret = 0;
-		ret = mNativeInterface.ioctlGetValue(handle, operationCode);
+		ret = mComPortJNIBridge.ioctlGetValue(handle, operationCode);
 		if(ret < 0) {
 			throw new SerialComException("ioctlGetValue()", mErrMapper.getMappedError(ret));
 		}
@@ -128,7 +129,7 @@ public final class SerialComIOCTLExecutor {
      */
 	public boolean ioctlSetValueIntArray(long handle, long operationCode, int[] values) throws SerialComException {
 		long ret = 0;
-		ret = mNativeInterface.ioctlSetValueIntArray(handle, operationCode, values);
+		ret = mComPortJNIBridge.ioctlSetValueIntArray(handle, operationCode, values);
 		if(ret < 0) {
 			throw new SerialComException("ioctlSetValueIntArray()", mErrMapper.getMappedError(ret));
 		}
@@ -149,7 +150,7 @@ public final class SerialComIOCTLExecutor {
      */
 	public boolean ioctlSetValueCharArray(long handle, long operationCode, byte[] values) throws SerialComException {
 		long ret = 0;
-		ret = mNativeInterface.ioctlSetValueCharArray(handle, operationCode, values);
+		ret = mComPortJNIBridge.ioctlSetValueCharArray(handle, operationCode, values);
 		if(ret < 0) {
 			throw new SerialComException("ioctlSetValueCharArray()", mErrMapper.getMappedError(ret));
 		}

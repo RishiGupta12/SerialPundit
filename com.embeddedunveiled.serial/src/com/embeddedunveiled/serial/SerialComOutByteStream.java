@@ -2,7 +2,6 @@ package com.embeddedunveiled.serial;
 
 import java.io.IOException;
 import java.io.OutputStream;
-
 import com.embeddedunveiled.serial.SerialComManager.SMODE;
 
 /**

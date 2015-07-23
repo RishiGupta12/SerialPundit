@@ -23,8 +23,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.TreeSet;
 import java.util.regex.Pattern;
-
-import com.embeddedunveiled.serial.SerialComJNINativeInterface;
 import com.embeddedunveiled.serial.SerialComManager;
 
 /**
@@ -33,9 +31,9 @@ import com.embeddedunveiled.serial.SerialComManager;
 public final class SerialComPortsList {
 	
 	private int osType = -1;
+	private SerialComPortJNIBridge mComPortJNIBridge = null;
 	private static final Pattern Sol_regExpPattern = Pattern.compile("[0-9]*|[a-z]*");
 	private static final String Sol_search_path = "/dev/term/";
-	private SerialComJNINativeInterface mNativeInterface = null;
 
 	private static final Comparator<String> comparator = new Comparator<String>() {
 
@@ -102,8 +100,8 @@ public final class SerialComPortsList {
 	};
 
 	/** Allocates a new SerialComPortsList object. */
-	public SerialComPortsList(SerialComJNINativeInterface nativeInterface, int osType) {
-		this.mNativeInterface = nativeInterface;
+	public SerialComPortsList(SerialComPortJNIBridge mComPortJNIBridge, int osType) {
+		this.mComPortJNIBridge = mComPortJNIBridge;
 		this.osType = osType;
 	}
 
@@ -117,7 +115,7 @@ public final class SerialComPortsList {
 	public String[] listAvailableComPorts(SerialComRetStatus retStatus) {
 		if(osType != SerialComManager.OS_SOLARIS) {                         // For Linux, Mac, Windows get list from native library
 			ArrayList<String> portsIdentified = new ArrayList<String>();
-			String[] ports = mNativeInterface.listAvailableComPorts(retStatus);
+			String[] ports = mComPortJNIBridge.listAvailableComPorts(retStatus);
 			if(ports != null) {
 				for(String portName : ports){
 					portsIdentified.add(portName);
