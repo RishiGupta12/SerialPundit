@@ -26,9 +26,9 @@ package com.embeddedunveiled.serial;
 
 public final class SerialComLineEvent {
 
-	private int mOldLineEvent = -1;
-	private int mNewLineEvent = -1;
-	private int mChanged = -1;
+	private int mOldLineEvent;
+	private int mNewLineEvent;
+	private int mChanged;
 
 	/**
 	 * <p>The looper object remembers state of lines and pass both previous and new state.</p>

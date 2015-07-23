@@ -35,16 +35,16 @@ public final class SerialComXModem {
 	private final byte NAK = 0x15;  // Negative-acknowledge character
 	private final byte SUB = 0x1A;  // Substitute/CTRL+Z
 
-	private SerialComManager scm = null;
-	private long handle = 0;
-	private File fileToProcess = null;
-	private int mode = 0;
+	private SerialComManager scm;
+	private long handle;
+	private File fileToProcess;
+	private int mode;
 
-	private int blockNumber = -1;
-	private byte[] block = new byte[132];            // 132 bytes xmodem block/packet
-	private BufferedInputStream inStream = null;     // sent file from local to remote system
-	private BufferedOutputStream outStream = null;   // received file from remote to local system
-	private boolean noMoreData = false;
+	private int blockNumber;
+	private byte[] block = new byte[132];  // 132 bytes xmodem block/packet
+	private BufferedInputStream inStream;   // sent file from local to remote system
+	private BufferedOutputStream outStream; // received file from remote to local system
+	private boolean noMoreData;
 
 
 	/**

@@ -379,8 +379,8 @@ public final class SerialComManager {
 	private ArrayList<SerialComHotPlugInfo> hotPlugListenerInfo = new ArrayList<SerialComHotPlugInfo>();
 	private List<SerialComHotPlugInfo> mHotPlugListenerInfo = Collections.synchronizedList(hotPlugListenerInfo);
 	
-	private SerialComIOCTLExecutor mSerialComIOCTLExecutor = null;
-	private SerialComPlatform mSerialComPlatform = null;
+	private SerialComIOCTLExecutor mSerialComIOCTLExecutor;
+	private SerialComPlatform mSerialComPlatform;
 	private final SerialComSystemProperty mSerialComSystemProperty;
 	private final SerialComPortJNIBridge mComPortJNIBridge;
 	private final SerialComErrorMapper mErrMapper;
@@ -388,12 +388,12 @@ public final class SerialComManager {
 	private final SerialComPortsList mSerialComPortsList;
 	private final Object lockB = new Object();
 	
+	private static int osType;
+	private static int cpuArch;
+	private static int javaABIType;
+	private static SerialComVendorLib mSerialComVendorLib;
 	private static final Object lockA = new Object();
-	private static int osType = -1;
-	private static int cpuArch = -1;
-	private static int javaABIType = -1;
 	private static boolean nativeLibLoadAndInitAlready = false;
-	private static SerialComVendorLib mSerialComVendorLib = null;
 
 	/**
 	 * <p>Allocates a new SerialComManager object. Identify operating system type, CPU architecture, prepares 
