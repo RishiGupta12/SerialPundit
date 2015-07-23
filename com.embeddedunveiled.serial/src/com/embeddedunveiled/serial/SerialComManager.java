@@ -2307,7 +2307,7 @@ public final class SerialComManager {
 		int ret = mComPortJNIBridge.isUSBDevConnected(vendorID, productID, retStatus);
 		if(ret < 0) {
 			throw new SerialComException("isUSBDevConnected()",  mErrMapper.getMappedError(ret));
-		}else if(ret > 1) {
+		}else if(ret == 1) {
 			return true;
 		}
 		return false;
