@@ -223,6 +223,10 @@ public final class SerialComPortJNIBridge {
 				if(output != null) {
 					output.close();
 				}
+			} catch (Exception e) {
+				// ignore
+			}
+			try {
 				if(input != null) {
 					input.close();
 				}
