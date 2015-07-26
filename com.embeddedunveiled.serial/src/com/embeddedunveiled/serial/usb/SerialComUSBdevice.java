@@ -17,6 +17,7 @@
 
 package com.embeddedunveiled.serial.usb;
 
+import com.embeddedunveiled.serial.SerialComException;
 import com.embeddedunveiled.serial.SerialComUtil;
 
 /**
@@ -30,6 +31,16 @@ public final class SerialComUSBdevice {
 	private String product = null;
 	private String manufacturer = null;
 
+	/**
+	 * <p>Construct and allocates a new SerialComUSBdevice object with given details.</p>
+	 * 
+	 * @param idVendor USB-IF unique vendor id of this device
+	 * @param idProduct USB product id of this device
+	 * @param serial serial number of this device
+	 * @param product product identifier/description of this device
+	 * @param manufacturer company manufacturing of this device
+	 * @throws SerialComException if serial port can not be configured for specified read behavior
+	 */
 	public SerialComUSBdevice(String idVendor, String idProduct, String serial, String product, String manufacturer) {
 		this.idVendor = idVendor;
 		this.idProduct = idProduct;
@@ -40,22 +51,26 @@ public final class SerialComUSBdevice {
 	
 	/** 
 	 * <p>Retrieves the vendor id of the USB device</p>
+	 * 
 	 * @return vendor id of the USB device
+	 * @throws NumberFormatException if the USB vendor id hex string can not be converted into numerical representation
 	 */
 	public int getVendorId() {
 		if("---".equals(idVendor)) {
-			return -1;
+			return 0;
 		}
 		return (int) SerialComUtil.hexStrToLongNumber(idVendor);
 	}
 	
 	/** 
 	 * <p>Retrieves the product id of the USB device</p>
+	 * 
 	 * @return product id of the USB device
+	 * @throws NumberFormatException if the USB product id hex string can not be converted into numerical representation
 	 */
 	public int getProductId() {
 		if("---".equals(idProduct)) {
-			return -1;
+			return 0;
 		}
 		return (int) SerialComUtil.hexStrToLongNumber(idProduct);
 	}
@@ -70,6 +85,7 @@ public final class SerialComUSBdevice {
 	
 	/** 
 	 * <p>Retrieves the product string of the USB device</p>
+	 * 
 	 * @return serial number string of the USB device
 	 */
 	public String getProductString() {
@@ -78,6 +94,7 @@ public final class SerialComUSBdevice {
 	
 	/** 
 	 * <p>Retrieves the manufacturer string of the USB device</p>
+	 * 
 	 * @return serial number string of the USB device
 	 */
 	public String getManufacturerString() {
