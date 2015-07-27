@@ -19,9 +19,6 @@ package com.embeddedunveiled.serial.internal;
 
 import java.io.File;
 
-import com.embeddedunveiled.serial.SerialComLoadException;
-import com.embeddedunveiled.serial.SerialComUnexpectedException;
-
 /**
  * <p>This class is an interface between java and native shared library.</p>
  */
@@ -41,6 +38,6 @@ public final class SerialComMCHPSIOJNIBridge {
 		return false;
 	}
 	
-	public native int initMCP2200(int vendorID, int productID, SerialComRetStatus retStatus);
+	public native int initMCP2200(int vendorID, int productID);
 
 }

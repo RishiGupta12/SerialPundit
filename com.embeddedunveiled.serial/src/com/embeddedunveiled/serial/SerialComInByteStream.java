@@ -37,7 +37,8 @@ public final class SerialComInByteStream extends InputStream {
 	private boolean isBlocking;
 
 	/**
-	 * <p>Allocates a new SerialComInByteStream object.</p>
+	 * <p>Construct and allocates a new SerialComInByteStream object with given details.</p>
+	 * 
 	 * @param scm instance of SerialComManager class with which this stream will associate itself
 	 * @param handle handle of the serial port on which to read data bytes
 	 * @param streamMode indicates blocking or non-blocking behavior of stream

@@ -112,10 +112,10 @@ public final class SerialComPortsList {
 	 * 
 	 * @return array of ports found on system or null
 	 */
-	public String[] listAvailableComPorts(SerialComRetStatus retStatus) {
+	public String[] listAvailableComPorts() {
 		if(osType != SerialComManager.OS_SOLARIS) {                         // For Linux, Mac, Windows get list from native library
 			ArrayList<String> portsIdentified = new ArrayList<String>();
-			String[] ports = mComPortJNIBridge.listAvailableComPorts(retStatus);
+			String[] ports = mComPortJNIBridge.listAvailableComPorts();
 			if(ports != null) {
 				for(String portName : ports){
 					portsIdentified.add(portName);

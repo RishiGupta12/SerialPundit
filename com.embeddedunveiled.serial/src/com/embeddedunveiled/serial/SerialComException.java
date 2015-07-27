@@ -28,6 +28,16 @@ public final class SerialComException extends IOException {
 	private String portName;
 	private String methodName;
 	private String exceptionMsg;
+	
+	/**
+     * <p>Constructs and allocate a new SerialComException object with the specified detail message.</p>
+     * 
+     * @param exceptionMsg message describing reason for exception
+     */
+	public SerialComException(String exceptionMsg) {
+		super(exceptionMsg);
+		this.exceptionMsg = exceptionMsg;
+	}
 
 	/**
      * <p>Constructs and allocate a new SerialComException object with the specified detail message.</p>

@@ -18,8 +18,8 @@
 package test57;
 
 import com.embeddedunveiled.serial.SerialComManager;
-import com.embeddedunveiled.serial.SerialComUSBdevice;
-import com.embeddedunveiled.serial.SerialComUSB;
+import com.embeddedunveiled.serial.usb.SerialComUSB;
+import com.embeddedunveiled.serial.usb.SerialComUSBdevice;
 
 /*
  */
@@ -57,5 +57,16 @@ public class Test57 {
 		}catch (Exception e) {
 			e.printStackTrace();
 		}
+		
+		try {
+			SerialComManager scm = new SerialComManager();
+			for(long a=0; a<50000; a++) {
+				scm.listUSBdevicesWithInfo(SerialComUSB.V_ALL);
+			}
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		System.out.println("done");
 	}
 }
