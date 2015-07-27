@@ -43,7 +43,7 @@
  * The USB strings are Unicode, UCS2 encoded, but the strings returned from udev_device_get_sysattr_value() are UTF-8 encoded.
  * GetStringUTFChars() returns in modified UTF-8 encoding.
  */
-jobjectArray vcp_node_from_usb_attributes(JNIEnv *env, jobject obj, jint usbvid_to_match, jint usbpid_to_match, jstring serial_num, jobject status) {
+jobjectArray vcp_node_from_usb_attributes(JNIEnv *env, jobject obj, jint usbvid_to_match, jint usbpid_to_match, jstring serial_num) {
 	int x = 0;
 	struct jstrarray_list list = {0};
 	jclass strClass = NULL;
@@ -61,7 +61,7 @@ jobjectArray vcp_node_from_usb_attributes(JNIEnv *env, jobject obj, jint usbvid_
 	int usb_vid;
 	int usb_pid;
 	char *endptr;
-	int matched;
+	int matched = 0;
 #endif
 #if defined (__APPLE__)
 	kern_return_t kr;
@@ -81,8 +81,10 @@ jobjectArray vcp_node_from_usb_attributes(JNIEnv *env, jobject obj, jint usbvid_
 	init_jstrarraylist(&list, 50);
 	if(serial_num != NULL) {
 		serial_to_match = (*env)->GetStringUTFChars(env, serial_num, NULL);
-		if(serial_to_match == NULL) {
-			/* handle error */
+		if((serial_to_match == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+			free_jstrarraylist(&list);
+			throw_serialcom_exception(env, 3, 0, E_GETSTRUTFCHARSTR);
+			return NULL;
 		}
 	}
 
@@ -158,32 +160,38 @@ jobjectArray vcp_node_from_usb_attributes(JNIEnv *env, jobject obj, jint usbvid_
 	/* TODO */
 #endif
 
-	/* Create a JAVA/JNI style array of String object, populate it and return to java layer. */
-	strClass = (*env)->FindClass(env, "java/lang/String");
-	if((*env)->ExceptionOccurred(env)) {
-		(*env)->ExceptionClear(env);
-		set_error_status(env, obj, status, E_FINDCLASS);
-		free_jstrarraylist(&list);
-		return NULL;
-	}
-
-	vcpPortsFound = (*env)->NewObjectArray(env, (jsize) list.index, strClass, NULL);
-	if((*env)->ExceptionOccurred(env)) {
-		(*env)->ExceptionClear(env);
-		set_error_status(env, obj, status, E_NEWOBJECTARRAY);
-		free_jstrarraylist(&list);
-		return NULL;
-	}
-
-	for (x=0; x < list.index; x++) {
-		(*env)->SetObjectArrayElement(env, vcpPortsFound, x, list.base[x]);
-		if((*env)->ExceptionOccurred(env)) {
+	if(matched == 1) {
+		/* Matching node found, create a JAVA/JNI style array of String object,
+		 * populate it and return to java layer. */
+		strClass = (*env)->FindClass(env, JAVALSTRING);
+		if((strClass == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
 			(*env)->ExceptionClear(env);
 			free_jstrarraylist(&list);
+			throw_serialcom_exception(env, 3, 0, E_FINDCLASSSSTRINGSTR);
 			return NULL;
 		}
+
+		vcpPortsFound = (*env)->NewObjectArray(env, (jsize) list.index, strClass, NULL);
+		if((vcpPortsFound == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+			(*env)->ExceptionClear(env);
+			free_jstrarraylist(&list);
+			throw_serialcom_exception(env, 3, 0, E_NEWOBJECTARRAYSTR);
+			return NULL;
+		}
+
+		for (x=0; x < list.index; x++) {
+			(*env)->SetObjectArrayElement(env, vcpPortsFound, x, list.base[x]);
+			if((*env)->ExceptionOccurred(env)) {
+				(*env)->ExceptionClear(env);
+				free_jstrarraylist(&list);
+				throw_serialcom_exception(env, 3, 0, E_SETOBJECTARRAYSTR);
+				return NULL;
+			}
+		}
+
+		free_jstrarraylist(&list);
+		return vcpPortsFound;
 	}
 
-	free_jstrarraylist(&list);
-	return vcpPortsFound;
+	return NULL;
 }

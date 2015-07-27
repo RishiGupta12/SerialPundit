@@ -18,49 +18,49 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
  * Method:    getNativeLibraryVersion
- * Signature: (Lcom/embeddedunveiled/serial/internal/SerialComRetStatus;)Ljava/lang/String;
+ * Signature: ()Ljava/lang/String;
  */
 JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_getNativeLibraryVersion
-  (JNIEnv *, jobject, jobject);
+  (JNIEnv *, jobject);
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
  * Method:    listAvailableComPorts
- * Signature: (Lcom/embeddedunveiled/serial/internal/SerialComRetStatus;)[Ljava/lang/String;
+ * Signature: ()[Ljava/lang/String;
  */
 JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_listAvailableComPorts
-  (JNIEnv *, jobject, jobject);
+  (JNIEnv *, jobject);
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
  * Method:    listUSBdevicesWithInfo
- * Signature: (Lcom/embeddedunveiled/serial/internal/SerialComRetStatus;I)[Ljava/lang/String;
+ * Signature: (I)[Ljava/lang/String;
  */
 JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_listUSBdevicesWithInfo
-  (JNIEnv *, jobject, jobject, jint);
+  (JNIEnv *, jobject, jint);
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
  * Method:    listComPortFromUSBAttributes
- * Signature: (IILjava/lang/String;Lcom/embeddedunveiled/serial/internal/SerialComRetStatus;)[Ljava/lang/String;
+ * Signature: (IILjava/lang/String;)[Ljava/lang/String;
  */
 JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_listComPortFromUSBAttributes
-  (JNIEnv *, jobject, jint, jint, jstring, jobject);
+  (JNIEnv *, jobject, jint, jint, jstring);
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
  * Method:    isUSBDevConnected
- * Signature: (IILcom/embeddedunveiled/serial/internal/SerialComRetStatus;)I
+ * Signature: (II)I
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_isUSBDevConnected
-  (JNIEnv *, jobject, jint, jint, jobject);
+  (JNIEnv *, jobject, jint, jint);
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
  * Method:    registerHotPlugEventListener
- * Signature: (Lcom/embeddedunveiled/serial/ISerialComHotPlugListener;II)[I
+ * Signature: (Lcom/embeddedunveiled/serial/ISerialComHotPlugListener;II)I
  */
-JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_registerHotPlugEventListener
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_registerHotPlugEventListener
   (JNIEnv *, jobject, jobject, jint, jint);
 
 /*
@@ -90,18 +90,18 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
  * Method:    readBytes
- * Signature: (JILcom/embeddedunveiled/serial/internal/SerialComReadStatus;)[B
+ * Signature: (JI)[B
  */
 JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_readBytes
-  (JNIEnv *, jobject, jlong, jint, jobject);
+  (JNIEnv *, jobject, jlong, jint);
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
  * Method:    readBytesBlocking
- * Signature: (JILcom/embeddedunveiled/serial/internal/SerialComReadStatus;)[B
+ * Signature: (JI)[B
  */
 JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_readBytesBlocking
-  (JNIEnv *, jobject, jlong, jint, jobject);
+  (JNIEnv *, jobject, jlong, jint);
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
