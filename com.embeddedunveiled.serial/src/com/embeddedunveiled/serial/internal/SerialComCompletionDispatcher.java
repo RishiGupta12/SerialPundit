@@ -18,11 +18,9 @@
 package com.embeddedunveiled.serial.internal;
 
 import java.util.List;
-
 import com.embeddedunveiled.serial.ISerialComDataListener;
 import com.embeddedunveiled.serial.ISerialComEventListener;
 import com.embeddedunveiled.serial.SerialComException;
-import com.embeddedunveiled.serial.SerialComJNINativeInterface;
 
 /**
  * Represents Proactor in our IO design pattern.
@@ -38,19 +36,19 @@ import com.embeddedunveiled.serial.SerialComJNINativeInterface;
  */
 public final class SerialComCompletionDispatcher {
 
-	private SerialComJNINativeInterface mNativeInterface = null;
+	private SerialComPortJNIBridge mComPortJNIBridge = null;
 	private SerialComErrorMapper mErrMapper = null;
 	private List<SerialComPortHandleInfo> mPortHandleInfo = null;
 
 	/**
 	 * <p>Allocates a new SerialComCompletionDispatcher object.</p>
 	 * 
-	 * @param nativeInterface reference to nativeInterface object to call native functions
+	 * @param mComPortJNIBridge interface used to invoke appropriate native function
 	 * @param errMapper reference to errMapper object to get and map error information
 	 * @param portHandleInfo reference to portHandleInfo object to get/set information about handle/port
 	 */
-	public SerialComCompletionDispatcher(SerialComJNINativeInterface nativeInterface, SerialComErrorMapper errMapper, List<SerialComPortHandleInfo> portHandleInfo) {
-		this.mNativeInterface = nativeInterface;
+	public SerialComCompletionDispatcher(SerialComPortJNIBridge mComPortJNIBridge, SerialComErrorMapper errMapper, List<SerialComPortHandleInfo> portHandleInfo) {
+		this.mComPortJNIBridge = mComPortJNIBridge;
 		this.mErrMapper = errMapper;
 		this.mPortHandleInfo = portHandleInfo;
 	}
@@ -71,7 +69,7 @@ public final class SerialComCompletionDispatcher {
 
 		// Create looper for this handle and listener, if it does not exist.
 		if(looper == null) {
-			looper = new SerialComLooper(mNativeInterface, mErrMapper);
+			looper = new SerialComLooper(mComPortJNIBridge, mErrMapper);
 			mHandleInfo.setLooper(looper);
 		}
 
@@ -79,7 +77,7 @@ public final class SerialComCompletionDispatcher {
 		looper.startDataLooper(handle, dataListener, mHandleInfo.getOpenedPortName());
 		mHandleInfo.setDataListener(dataListener);
 
-		int ret = mNativeInterface.setUpDataLooperThread(handle, looper);
+		int ret = mComPortJNIBridge.setUpDataLooperThread(handle, looper);
 		if(ret < 0) {
 			looper.stopDataLooper();
 			mHandleInfo.setDataListener(null);
@@ -115,7 +113,7 @@ public final class SerialComCompletionDispatcher {
 		}
 
 		// We got valid handle so destroy native threads for this listener.
-		int ret = mNativeInterface.destroyDataLooperThread(handle);
+		int ret = mComPortJNIBridge.destroyDataLooperThread(handle);
 		if(ret < 0) {
 			throw new SerialComException("destroyDataLooper()", mErrMapper.getMappedError(ret));
 		}
@@ -150,14 +148,14 @@ public final class SerialComCompletionDispatcher {
 
 		// Create looper for this handle and listener, if it does not exist.
 		if(looper == null) {
-			looper = new SerialComLooper(mNativeInterface, mErrMapper);
+			looper = new SerialComLooper(mComPortJNIBridge, mErrMapper);
 			mHandleInfo.setLooper(looper);
 		}
 
 		looper.startEventLooper(handle, eventListener, mHandleInfo.getOpenedPortName());
 		mHandleInfo.setEventListener(eventListener);
 
-		int ret = mNativeInterface.setUpEventLooperThread(handle, looper);
+		int ret = mComPortJNIBridge.setUpEventLooperThread(handle, looper);
 		if(ret < 0) {
 			looper.stopEventLooper();
 			mHandleInfo.setEventListener(null);
@@ -193,7 +191,7 @@ public final class SerialComCompletionDispatcher {
 		}
 
 		// We got valid handle so destroy native threads for this listener.
-		int ret = mNativeInterface.destroyEventLooperThread(handle);
+		int ret = mComPortJNIBridge.destroyEventLooperThread(handle);
 		if(ret < 0) {
 			throw new SerialComException("destroyDataLooper()", mErrMapper.getMappedError(ret));
 		}
@@ -232,7 +230,7 @@ public final class SerialComCompletionDispatcher {
 
 		if(handle != -1) {
 			// We got a valid handle, so pause native threads for this listener first.
-			int ret = mNativeInterface.pauseListeningEvents(handle);
+			int ret = mComPortJNIBridge.pauseListeningEvents(handle);
 			if(ret > 0) {
 				looper.pause(); // now pause corresponding looper thread.
 				return true;
@@ -267,7 +265,7 @@ public final class SerialComCompletionDispatcher {
 			looper.resume();
 
 			// now resume native subsystem.
-			int ret = mNativeInterface.resumeListeningEvents(handle);
+			int ret = mComPortJNIBridge.resumeListeningEvents(handle);
 			if(ret > 0) {
 				return true;
 			}else {

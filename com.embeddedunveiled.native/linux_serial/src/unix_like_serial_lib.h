@@ -128,6 +128,7 @@ void mac_indicate_thread_exit(void *info);
 void mac_usb_device_added(void *refCon, io_iterator_t iterator);
 void mac_usb_device_removed(void *refCon, io_iterator_t iterator);
 #endif
+extern jint is_usb_dev_connected(JNIEnv *env, jobject obj, jint vid, jint pid, jobject status);
 extern jobjectArray list_usb_devices(JNIEnv *env, jobject obj, jobject status, jint vendor_filter);
 extern jobjectArray vcp_node_from_usb_attributes(JNIEnv *env, jobject obj, jint usbvid_to_match, jint usbpid_to_match, jstring serial_num, jobject status);
 extern int serial_delay(unsigned usecs);

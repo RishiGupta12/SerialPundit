@@ -25,7 +25,6 @@ import com.embeddedunveiled.serial.ISerialComDataListener;
 import com.embeddedunveiled.serial.ISerialComEventListener;
 import com.embeddedunveiled.serial.SerialComDataEvent;
 import com.embeddedunveiled.serial.SerialComException;
-import com.embeddedunveiled.serial.SerialComJNINativeInterface;
 import com.embeddedunveiled.serial.SerialComLineEvent;
 import com.embeddedunveiled.serial.SerialComManager;
 
@@ -40,7 +39,7 @@ import com.embeddedunveiled.serial.SerialComManager;
 public final class SerialComLooper {
 
 	private final int MAX_NUM_EVENTS = 5000;
-	private SerialComJNINativeInterface mNativeInterface = null;
+	private SerialComPortJNIBridge mComPortJNIBridge = null;
 	private SerialComErrorMapper mErrMapper = null;
 
 	private BlockingQueue<SerialComDataEvent> mDataQueue = null;
@@ -146,11 +145,11 @@ public final class SerialComLooper {
 
 	/**
 	 * <p>Allocates a new SerialComLooper object.</p>
-	 * @param nativeInterface reference to nativeInterface object to call native functions
+	 * @param mComPortJNIBridge interface used to invoke appropriate native function
 	 * @param errMapper reference to errMapper object to get and map error information
 	 */
-	public SerialComLooper(SerialComJNINativeInterface nativeInterface, SerialComErrorMapper errMapper) { 
-		mNativeInterface = nativeInterface;
+	public SerialComLooper(SerialComPortJNIBridge mComPortJNIBridge, SerialComErrorMapper errMapper) { 
+		this.mComPortJNIBridge = mComPortJNIBridge;
 		mErrMapper = errMapper;
 	}
 
@@ -243,7 +242,7 @@ public final class SerialComLooper {
 		int[] linestate = new int[8];
 
 		try {
-			linestate = mNativeInterface.getLinesStatus(handle);
+			linestate = mComPortJNIBridge.getLinesStatus(handle);
 			if (linestate[0] < 0) {
 				throw new SerialComException("getLinesStatus()", mErrMapper.getMappedError(linestate[0]));
 			}

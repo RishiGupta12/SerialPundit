@@ -88,7 +88,7 @@
 #include "unix_like_serial_lib.h"
 
 /* Common interface with java layer for supported OS types. */
-#include "../../com_embeddedunveiled_serial_SerialComJNINativeInterface.h"
+#include "../../com_embeddedunveiled_serial_internal_SerialComPortJNIBridge.h"
 
 #undef  UART_NATIVE_LIB_VERSION
 #define UART_NATIVE_LIB_VERSION "1.0.4"
@@ -144,7 +144,7 @@ __attribute__((destructor)) static void exit_scmlib() {
 }
 
 /*
- * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
  * Method:    initNativeLib
  * Signature: ()I
  *
@@ -152,7 +152,7 @@ __attribute__((destructor)) static void exit_scmlib() {
  * can be used across native library, threads etc. It creates and prepares mutex object to synchronize access to global data.
  * Clear all exceptions.
  */
-JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_initNativeLib(JNIEnv *env, jobject obj) {
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_initNativeLib(JNIEnv *env, jobject obj) {
 	int ret = 0;
 	ret = (*env)->GetJavaVM(env, &jvm);
 	if(ret < 0) {
@@ -172,13 +172,13 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 }
 
 /*
- * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
  * Method:    getNativeLibraryVersion
- * Signature: (Lcom/embeddedunveiled/serial/SerialComRetStatus;)Ljava/lang/String;
+ * Signature: (Lcom/embeddedunveiled/serial/internal/SerialComRetStatus;)Ljava/lang/String;
  *
  * Returns library version or null (setting error code).
  */
-JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_getNativeLibraryVersion(JNIEnv *env, jobject obj, jobject status) {
+JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_getNativeLibraryVersion(JNIEnv *env, jobject obj, jobject status) {
 	jstring version = NULL;
 	version = (*env)->NewStringUTF(env, UART_NATIVE_LIB_VERSION);
 	if((*env)->ExceptionOccurred(env) != NULL) {
@@ -190,9 +190,9 @@ JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInt
 }
 
 /*
- * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
  * Method:    listAvailableComPorts
- * Signature: (Lcom/embeddedunveiled/serial/SerialComRetStatus;)[Ljava/lang/String;
+ * Signature: (Lcom/embeddedunveiled/serial/internal/SerialComRetStatus;)[Ljava/lang/String;
  *
  * Use OS specific way to detect/identify serial ports known to system at the instant this function is called. Do not try to open any
  * port as for bluetooth this may result in system trying to make BT connection and failing with time out.
@@ -208,7 +208,7 @@ JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInt
  *
  * For SOLARIS : this is handled in java layer itself as of now.
  */
-JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_listAvailableComPorts(JNIEnv *env, jobject obj, jobject status) {
+JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_listAvailableComPorts(JNIEnv *env, jobject obj, jobject status) {
 	int x = 0;
 	struct jstrarray_list list = {0};
 	jstring serial_device;
@@ -441,29 +441,40 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINati
 }
 
 /*
- * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
  * Method:    listUSBdevicesWithInfo
- * Signature: (Lcom/embeddedunveiled/serial/SerialComRetStatus;I)[Ljava/lang/String;
+ * Signature: (Lcom/embeddedunveiled/serial/internal/SerialComRetStatus;I)[Ljava/lang/String;
  *
  * Find USB devices with information about them using platform specific facilities.
  */
-JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_listUSBdevicesWithInfo(JNIEnv *env, jobject obj, jobject status, jint vendorFilter) {
+JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_listUSBdevicesWithInfo(JNIEnv *env, jobject obj, jobject status, jint vendorFilter) {
 	return list_usb_devices(env, obj, status, vendorFilter);
 }
 
 /*
- * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
  * Method:    listComPortFromUSBAttributes
- * Signature: (IILjava/lang/String;Lcom/embeddedunveiled/serial/SerialComRetStatus;)[Ljava/lang/String;
+ * Signature: (IILjava/lang/String;Lcom/embeddedunveiled/serial/internal/SerialComRetStatus;)[Ljava/lang/String;
  *
  * Find the COM Port/ device node assigned to USB-UART converter device using platform specific facilities.
  */
-JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_listComPortFromUSBAttributes(JNIEnv *env, jobject obj, jint vid, jint pid, jstring serial, jobject status) {
+JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_listComPortFromUSBAttributes(JNIEnv *env, jobject obj, jint vid, jint pid, jstring serial, jobject status) {
 	return vcp_node_from_usb_attributes(env, obj, vid, pid, serial, status);
 }
 
 /*
- * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
+ * Method:    isUSBDevConnected
+ * Signature: (IILcom/embeddedunveiled/serial/internal/SerialComRetStatus;)I
+ *
+ * Enumerate and check if given usb device identified by its USB-IF VID and PID is connected to system or not.
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_isUSBDevConnected(JNIEnv *env, jobject obj, jint vid, jint pid, jobject status) {
+	return is_usb_dev_connected(env, obj, vid, pid, status);
+}
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
  * Method:    openComPort
  * Signature: (Ljava/lang/String;ZZZ)J
  *
@@ -473,7 +484,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINati
  * Note that all the bit mask may have been defined using OCTAL representation of number system.
  *
  */
-JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_openComPort(JNIEnv *env, jobject obj, jstring portName, jboolean enableRead, jboolean enableWrite, jboolean exclusiveOwner) {
+JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_openComPort(JNIEnv *env, jobject obj, jstring portName, jboolean enableRead, jboolean enableWrite, jboolean exclusiveOwner) {
 	int ret = -1;
 	jlong fd = -1;
 	int OPEN_MODE = -1;
@@ -527,14 +538,14 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInter
 }
 
 /*
- * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
  * Method:    closeComPort
  * Signature: (J)I
  *
  * Free the file descriptor for reuse and tell kernel to free up structures associated with this file. In scenarios like if the port has
  * been removed from the system physically or tty structures have been de-allocated etc. we proceed to close ignoring some errors.
  */
-JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_closeComPort(JNIEnv *env, jobject obj, jlong fd) {
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_closeComPort(JNIEnv *env, jobject obj, jlong fd) {
 	int ret = -1;
 	int exit_loop = 0;
 
@@ -576,9 +587,9 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 }
 
 /*
- * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
  * Method:    readBytes
- * Signature: (JI)[B
+ * Signature: (JILcom/embeddedunveiled/serial/internal/SerialComReadStatus;)[B
  *
  * The maximum number of bytes that read system call can read is the value that can be stored in an object of type ssize_t.
  * In JNI programming 'jbyte' is 'signed char'. Default count is set to 1024 in java layer.
@@ -598,7 +609,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
  * 2. Partial read followed by complete read
  * 3. Partial read followed by partial read then complete read
  */
-JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_readBytes(JNIEnv *env, jobject obj, jlong fd, jint count, jobject status) {
+JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_readBytes(JNIEnv *env, jobject obj, jlong fd, jint count, jobject status) {
 	int i = -1;
 	int index = 0;
 	int partial_data = -1;
@@ -670,7 +681,18 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINative
 }
 
 /*
- * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
+ * Method:    readBytesBlocking
+ * Signature: (JILcom/embeddedunveiled/serial/internal/SerialComReadStatus;)[B
+ *
+ * Not implemented as normal readBytes() function will act as blocking when vmin and vtime is configured correctly.
+ */
+JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_readBytesBlocking(JNIEnv *env, jobject obj, jlong handle, jint count, jobject status) {
+	return NULL;
+}
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
  * Method:    writeBytes
  * Signature: (J[BI)I
  *
@@ -681,7 +703,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINative
  *
  * Do not block any signals. If the read/write are working as expected using pseudo terminals (/dev/pts/1) then check termios structure settings.
  */
-JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_writeBytes(JNIEnv *env, jobject obj, jlong fd, jbyteArray buffer, jint delay) {
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_writeBytes(JNIEnv *env, jobject obj, jlong fd, jbyteArray buffer, jint delay) {
 	int ret = -1;
 	int index = 0;
 	int status = 0;
@@ -736,11 +758,20 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 }
 
 /*
- * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
+ * Method:    writeBytesBulk
+ * Signature: (JLjava/nio/ByteBuffer;)I
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_writeBytesBulk(JNIEnv *env, jobject obj, jlong fd, jobject status) {
+	return -1;
+}
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
  * Method:    configureComPortData
  * Signature: (JIIIII)I
  */
-JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_configureComPortData(JNIEnv *env, jobject obj, jlong fd, jint dataBits, jint stopBits, jint parity, jint baudRateTranslated, jint custBaudTranslated) {
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_configureComPortData(JNIEnv *env, jobject obj, jlong fd, jint dataBits, jint stopBits, jint parity, jint baudRateTranslated, jint custBaudTranslated) {
 	int ret = 0;
 
 #if defined (__linux__)
@@ -977,7 +1008,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 }
 
 /*
- * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
  * Method:    configureComPortControl
  * Signature: (JICCZZ)I
  *
@@ -987,7 +1018,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
  * TTY blocks writes by the program when the device to which it is connected cannot keep up with it. If IXANY is set, then any character
  * received by the TTY from the device restarts the output that has been suspended.
  */
-JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_configureComPortControl(JNIEnv *env, jobject obj, jlong fd, jint flowctrl, jchar xon, jchar xoff, jboolean ParFraError, jboolean overFlowErr) {
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_configureComPortControl(JNIEnv *env, jobject obj, jlong fd, jint flowctrl, jchar xon, jchar xoff, jboolean ParFraError, jboolean overFlowErr) {
 	int ret = 0;
 
 #if defined (__linux__)
@@ -1134,79 +1165,13 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 }
 
 /*
- * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
- * Method:    setRTS
- * Signature: (JZ)I
- *
- * Sets the RTS line to low or high voltages as defined by enabled argument.
- */
-JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_setRTS(JNIEnv *env, jobject obj, jlong fd, jboolean enabled) {
-	int ret = -1;
-	int status = -1;
-
-	/* Get current configuration. */
-	errno = 0;
-	ret = ioctl(fd, TIOCMGET, &status);
-	if(ret < 0) {
-		return (-1 * errno);
-	}
-
-	if(enabled == JNI_TRUE) {
-		status |= TIOCM_RTS;
-	}else {
-		status &= ~TIOCM_RTS;
-	}
-
-	/* Update RTS line to desired state. */
-	errno = 0;
-	ret = ioctl(fd, TIOCMSET, &status);
-	if(ret < 0) {
-		return (-1 * errno);
-	}
-
-	return 0;
-}
-
-/*
- * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
- * Method:    setDTR
- * Signature: (JZ)I
- *
- * Sets the DTR line to low or high voltages as defined by enabled argument.
- */
-JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_setDTR(JNIEnv *env, jobject obj, jlong fd, jboolean enabled) {
-	int ret = -1;
-	int status = -1;
-
-	errno = 0;
-	ret = ioctl(fd, TIOCMGET, &status);
-	if(ret < 0) {
-		return (-1 * errno);
-	}
-
-	if(enabled == JNI_TRUE) {
-		status |= TIOCM_DTR;
-	}else {
-		status &= ~TIOCM_DTR;
-	}
-
-	errno = 0;
-	ret = ioctl(fd, TIOCMSET, &status);
-	if(ret < 0) {
-		return (-1 * errno);
-	}
-
-	return 0;
-}
-
-/*
- * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
  * Method:    getCurrentConfigurationU
  * Signature: (J)[I
  *
  * We return the bit mask as it is with out interpretation so that application can manipulate easily using mathematics.
  */
-JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_getCurrentConfigurationU(JNIEnv *env, jobject obj, jlong fd) {
+JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_getCurrentConfigurationU(JNIEnv *env, jobject obj, jlong fd) {
 	int ret = -1;
 	jint err[] = {-1};
 	jintArray errr;
@@ -1301,13 +1266,24 @@ JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeI
 }
 
 /*
- * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
+ * Method:    getCurrentConfigurationW
+ * Signature: (J)[Ljava/lang/String;
+ *
+ * Required for Windows only.
+ */
+JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_getCurrentConfigurationW(JNIEnv *env, jobject obj, jlong fd) {
+	return NULL;
+}
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
  * Method:    getByteCount
  * Signature: (J)[I
  *
  * Return array's sequence is error number, number of input bytes, number of output bytes in tty buffers.
  */
-JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_getByteCount(JNIEnv *env, jobject obj, jlong fd) {
+JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_getByteCount(JNIEnv *env, jobject obj, jlong fd) {
 	int ret = -1;
 	jint val[3] = {0, 0, 0};
 	jintArray byteCounts = (*env)->NewIntArray(env, 3);
@@ -1333,14 +1309,14 @@ JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeI
 }
 
 /*
- * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
  * Method:    clearPortIOBuffers
  * Signature: (JZZ)I
  *
  * This will discard all pending data in given buffers. Received data therefore can not be read by application or/and data to be transmitted
  * in output buffer will get discarded i.e. not transmitted.
  */
-JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_clearPortIOBuffers(JNIEnv *env, jobject obj, jlong fd, jboolean rxPortbuf, jboolean txPortbuf) {
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_clearPortIOBuffers(JNIEnv *env, jobject obj, jlong fd, jboolean rxPortbuf, jboolean txPortbuf) {
 	int ret = -1;
 
 	if((rxPortbuf == JNI_TRUE) && (txPortbuf == JNI_TRUE)) {
@@ -1368,14 +1344,80 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 }
 
 /*
- * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
+ * Method:    setRTS
+ * Signature: (JZ)I
+ *
+ * Sets the RTS line to low or high voltages as defined by enabled argument.
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_setRTS(JNIEnv *env, jobject obj, jlong fd, jboolean enabled) {
+	int ret = -1;
+	int status = -1;
+
+	/* Get current configuration. */
+	errno = 0;
+	ret = ioctl(fd, TIOCMGET, &status);
+	if(ret < 0) {
+		return (-1 * errno);
+	}
+
+	if(enabled == JNI_TRUE) {
+		status |= TIOCM_RTS;
+	}else {
+		status &= ~TIOCM_RTS;
+	}
+
+	/* Update RTS line to desired state. */
+	errno = 0;
+	ret = ioctl(fd, TIOCMSET, &status);
+	if(ret < 0) {
+		return (-1 * errno);
+	}
+
+	return 0;
+}
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
+ * Method:    setDTR
+ * Signature: (JZ)I
+ *
+ * Sets the DTR line to low or high voltages as defined by enabled argument.
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_setDTR(JNIEnv *env, jobject obj, jlong fd, jboolean enabled) {
+	int ret = -1;
+	int status = -1;
+
+	errno = 0;
+	ret = ioctl(fd, TIOCMGET, &status);
+	if(ret < 0) {
+		return (-1 * errno);
+	}
+
+	if(enabled == JNI_TRUE) {
+		status |= TIOCM_DTR;
+	}else {
+		status &= ~TIOCM_DTR;
+	}
+
+	errno = 0;
+	ret = ioctl(fd, TIOCMSET, &status);
+	if(ret < 0) {
+		return (-1 * errno);
+	}
+
+	return 0;
+}
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
  * Method:    getLinesStatus
  * Signature: (J)[I
  *
  * The status of modem/control lines is returned as array of integers where '1' means line is asserted and '0' means de-asserted.
  * The sequence of lines matches in both java layer and native layer.
  */
-JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_getLinesStatus(JNIEnv *env, jobject obj, jlong fd) {
+JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_getLinesStatus(JNIEnv *env, jobject obj, jlong fd) {
 	int ret = -1;
 	int lines_status = 0;
 	jint status[8] = {0};
@@ -1403,7 +1445,7 @@ JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeI
 }
 
 /*
- * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
  * Method:    sendBreak
  * Signature: (JI)I
  *
@@ -1411,7 +1453,7 @@ JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeI
  * time, this is a break condition that can be detected by the UART.
  * Use this for testing timing fprintf(stderr, "%u\n", (unsigned)time(NULL));
  */
-JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_sendBreak(JNIEnv *env, jobject obj, jlong fd, jint duration) {
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_sendBreak(JNIEnv *env, jobject obj, jlong fd, jint duration) {
 	int ret = -1;
 
 	/* Set break condition. */
@@ -1437,7 +1479,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 }
 
 /*
- * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
  * Method:    getInterruptCount
  * Signature: (J)[I
  *
@@ -1448,7 +1490,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
  *
  * Not supported by Solaris and Mac OS itself (this function will return NULL).
  */
-JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_getInterruptCount(JNIEnv *env, jobject obj, jlong fd) {
+JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_getInterruptCount(JNIEnv *env, jobject obj, jlong fd) {
 	jint count_info[11] = {0};
 	jintArray interrupt_info = (*env)->NewIntArray(env, 11);
 
@@ -1486,13 +1528,13 @@ JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeI
 }
 
 /*
- * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
  * Method:    fineTuneRead
  * Signature: (JIIIII)I
  *
  * This function gives more precise control over the behavior of read operation in terms of timeout and number of bytes.
  */
-JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_fineTuneRead(JNIEnv *env, jobject obj, jlong fd, jint vmin, jint vtime, jint a, jint b, jint c) {
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_fineTuneRead(JNIEnv *env, jobject obj, jlong fd, jint vmin, jint vtime, jint a, jint b, jint c) {
 	int ret = -1;
 
 #if defined (__linux__)
@@ -1534,14 +1576,14 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 }
 
 /*
- * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
  * Method:    setUpDataLooperThread
- * Signature: (JLcom/embeddedunveiled/serial/SerialComLooper;)I
+ * Signature: (JLcom/embeddedunveiled/serial/internal/SerialComLooper;)I
  *
  * Creates new native thread.
  * Note that, GetMethodID() causes an uninitialized class to be initialized. However in our case we have already initialized classes required.
  */
-JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_setUpDataLooperThread(JNIEnv *env, jobject obj, jlong fd, jobject looper) {
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_setUpDataLooperThread(JNIEnv *env, jobject obj, jlong fd, jobject looper) {
 	int ret = -1;
 	int x = -1;
 	struct com_thread_params *ptr;
@@ -1650,13 +1692,13 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 }
 
 /*
- * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
  * Method:    destroyDataLooperThread
  * Signature: (J)I
  *
  * Terminates native thread.
  */
-JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_destroyDataLooperThread(JNIEnv *env, jobject obj, jlong fd) {
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_destroyDataLooperThread(JNIEnv *env, jobject obj, jlong fd) {
 	int ret = -1;
 	int x = -1;
 	struct com_thread_params *ptr;
@@ -1716,11 +1758,11 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 }
 
 /*
- * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
  * Method:    setUpEventLooperThread
- * Signature: (JLcom/embeddedunveiled/serial/SerialComLooper;)I
+ * Signature: (JLcom/embeddedunveiled/serial/internal/SerialComLooper;)I
  */
-JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_setUpEventLooperThread(JNIEnv *env, jobject obj, jlong fd, jobject looper) {
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_setUpEventLooperThread(JNIEnv *env, jobject obj, jlong fd, jobject looper) {
 	int ret = -1;
 	int x = -1;
 	struct com_thread_params *ptr;
@@ -1831,9 +1873,11 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 }
 
 /*
- * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
  * Method:    destroyEventLooperThread
  * Signature: (J)I
+ *
+ * Terminates the event looper worker thread.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_destroyEventLooperThread(JNIEnv *env, jobject obj, jlong fd) {
 	int ret = -1;
@@ -1890,14 +1934,14 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 }
 
 /*
- * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
  * Method:    registerHotPlugEventListener
  * Signature: (Lcom/embeddedunveiled/serial/ISerialComHotPlugListener;II)[I
  *
  * Create a native thread that works with operating system specific mechanism for USB hot plug facility.
  * In thread_info array, location 0 contains return code while location 1 contains index of global array at which info about thread is stored.
  */
-JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_registerHotPlugEventListener(JNIEnv *env, jobject obj, jobject hotPlugListener, jint filterVID, jint filterPID) {
+JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_registerHotPlugEventListener(JNIEnv *env, jobject obj, jobject hotPlugListener, jint filterVID, jint filterPID) {
 	int ret = -1;
 	int x = 0;
 	int empty_index_found = 0;
@@ -1994,13 +2038,13 @@ JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeI
 }
 
 /*
- * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
  * Method:    unregisterHotPlugEventListener
  * Signature: (I)I
  *
  * Destroy worker thread used for USB hot plug monitoring. The java layer sends index in array where info about the thread to be destroyed is stored.
  */
-JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_unregisterHotPlugEventListener(JNIEnv *env, jobject obj, jint index) {
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_unregisterHotPlugEventListener(JNIEnv *env, jobject obj, jint index) {
 #if defined (__linux__) || defined (__APPLE__)
 	int ret = -1;
 	struct port_info *ptr;
@@ -2050,15 +2094,66 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 }
 
 /*
- * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
- * Method:    readBytes
- * Signature: (JI)[B
- *
- * Not implemented as normal readBytes() function will act as blocking when vmin and vtime is configured correctly.
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
+ * Method:    pauseListeningEvents
+ * Signature: (J)I
  */
-JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_readBytesBlocking(JNIEnv *env, jobject obj, jlong handle, jint count, jobject status) {
-	return NULL;
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_pauseListeningEvents(JNIEnv *env, jobject obj, jlong fd) {
+	return -1;
+}
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
+ * Method:    resumeListeningEvents
+ * Signature: (J)I
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_resumeListeningEvents(JNIEnv *env, jobject obj, jlong fd) {
+	return -1;
+}
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
+ * Method:    ioctlExecuteOperation
+ * Signature: (JJ)J
+ */
+JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_ioctlExecuteOperation(JNIEnv *env, jobject obj, jlong a, jlong b) {
+	return -1;
+}
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
+ * Method:    ioctlSetValue
+ * Signature: (JJJ)J
+ */
+JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_ioctlSetValue(JNIEnv *env, jobject obj, jlong g, jlong a, jlong b) {
+	return -1;
+}
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
+ * Method:    ioctlGetValue
+ * Signature: (JJ)J
+ */
+JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_ioctlGetValue(JNIEnv *env, jobject obj, jlong v, jlong b) {
+	return -1;
+}
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
+ * Method:    ioctlSetValueIntArray
+ * Signature: (JJ[I)J
+ */
+JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_ioctlSetValueIntArray(JNIEnv *env, jobject obj, jlong v, jlong f, jintArray r) {
+	return -1;
+}
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
+ * Method:    ioctlSetValueCharArray
+ * Signature: (JJ[B)J
+ */
+JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_ioctlSetValueCharArray(JNIEnv *env, jobject obj, jlong q, jlong c, jbyteArray v) {
+	return -1;
 }
 
 #endif /* End compiling for Unix-like OS. */
-

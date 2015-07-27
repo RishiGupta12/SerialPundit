@@ -7,6 +7,7 @@ C_SRCS += \
 ../src/unix_like_find_usb.c \
 ../src/unix_like_serial.c \
 ../src/unix_like_serial_lib.c \
+../src/unix_like_usb_connected.c \
 ../src/unix_like_util.c \
 ../src/unix_like_vcp_devnode.c 
 
@@ -14,6 +15,7 @@ OBJS += \
 ./src/unix_like_find_usb.o \
 ./src/unix_like_serial.o \
 ./src/unix_like_serial_lib.o \
+./src/unix_like_usb_connected.o \
 ./src/unix_like_util.o \
 ./src/unix_like_vcp_devnode.o 
 
@@ -21,6 +23,7 @@ C_DEPS += \
 ./src/unix_like_find_usb.d \
 ./src/unix_like_serial.d \
 ./src/unix_like_serial_lib.d \
+./src/unix_like_usb_connected.d \
 ./src/unix_like_util.d \
 ./src/unix_like_vcp_devnode.d 
 

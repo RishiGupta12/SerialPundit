@@ -5,6 +5,7 @@ v1.0.3 (27 May 2015)
 =======
 =======
 v1.0.4 (TODO RELEASE DATE)
+	- added support for MCP2200 SimpleIO-UM.dll library from microchip
 	- added API to find virtual com port assigned to a particular USB-UART bridge IC
 	- added API to find USB-UART devices with detailed information about them
 	- added support for raspberry pi and beagle bone embedded linux boards
@@ -22,7 +23,7 @@ v1.0.4 (TODO RELEASE DATE)
 	- fixed memory release for epoll implementations
 	- implemented partial read scenario for unix-like OS
 	- worker threads in Windows OS now exit gracefully
-	- various code improvements and optimizations
+	- various code improvements, optimizations, restructuring
 	- javadocs and source code comments updated
 	- added utility class SerialComUtil for common operations
 	- added new exceptions to deal with java security manager if exist
