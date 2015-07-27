@@ -1119,7 +1119,7 @@ public final class SerialComManager {
 	 * 
 	 * <p>Its effect is same as readBytes(handle, 1)</p>
 	 * 
-	 * @param handle of the port from which to read bytes
+	 * @param handle of the port from which to read byte
 	 * @return array of length 1 representing 1 byte data read from serial port or null
 	 * @throws SerialComException if an I/O error occurs.
 	 */
