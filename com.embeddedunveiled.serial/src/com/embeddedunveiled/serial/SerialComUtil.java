@@ -32,12 +32,13 @@ public final class SerialComUtil {
 	
 	/**
 	 * <p>This method is for internal use.</p>
+	 * 
 	 * @param num the long number to convert
 	 * @param paddingChar the character to use for padding
 	 * @param min the minimum length of the resulting String
 	 * @param max the maximum length of the resulting String
 	 */
-	private static String toHexString(long num, char paddingChar, int min, int max) {
+	private static String toHexString(final long num, final char paddingChar, int min, int max) {
 		/* Formats a long number into the specified length hex String. This is identical to Long.toHexString() 
 		 * except that it pads (with 0's), or truncates, to the specified size. If max < min, the functionality is 
 		 * exactly as Long.toHexString(). */
@@ -63,7 +64,7 @@ public final class SerialComUtil {
 	 * @return constructed hex string if data.length > 0 otherwise empty string
 	 * @throws IllegalArgumentException if data is null
 	 */
-	public static String byteArrayToHexString(byte[] data, String separator) {
+	public static String byteArrayToHexString(final byte[] data, final String separator) {
 		if(data == null) {
 			throw new IllegalArgumentException("byteArrayToHexStr(), " + "Argument data can not be null");
 		}
@@ -89,6 +90,33 @@ public final class SerialComUtil {
 	}
 	
 	/**
+	 * <p>Converts given string in hexa-decimal representation to equivalent byte array.</p>
+	 * 
+	 * @param hexStringData string in hexa-decimal format to be converted into equivalent byte array
+	 * @return constructed byte array from given hex string
+	 * @throws IllegalArgumentException if hexStringData is null
+	 */
+	public static byte[] hexStringToByteArray(final String hexStringData) {
+		int i = 0;
+		int j = 0;
+		if(hexStringData == null) {
+			throw new IllegalArgumentException("hexStringToByteArray(), " + "Argument hexStringData can not be null");
+		}
+
+		String hexStr = hexStringData.trim().replaceAll("0x", "");
+		hexStr = hexStr.replaceAll("\\s+","");
+		byte[] data = new byte[hexStr.length()/2];
+		
+		while(i <= hexStr.length()-1) {
+			byte character = (byte) Integer.parseInt(hexStr.substring(i, i+2), 16);
+			data[j] = character;
+			j++;
+			i += 2;
+		}
+		return data;
+	}
+	
+	/**
 	 * <p>Calculates Longitudinal redundancy checksum value for the given byte array.</p>
 	 * 
 	 * @param data byte type buffer for whom LRC checksum is to be calculated
@@ -99,7 +127,7 @@ public final class SerialComUtil {
 	 * @throws IndexOutOfBoundsException if offset is negative, length is negative, or length is greater than data.length - offset
 	 * @throws IllegalArgumentException if data is not a byte type array
 	 */
-	public static byte calculateLRCCheckSum(byte[] data, int offset, int length) {
+	public static byte calculateLRCCheckSum(final byte[] data, int offset, int length) {
         byte checkSum = 0;
         
 		if(data == null) {
@@ -121,6 +149,7 @@ public final class SerialComUtil {
 	/**
 	 * <p>Converts the given byte's value to an unsigned integer number. The least significant byte (8 bits) of the integer number
 	 * will be identical to the byte (8 bits) provided, and the most significant 3 bytes (24 bits) of the integer will be zero.</p>
+	 * 
 	 * @param data the byte to convert.
 	 * @return An unsigned integer number representing the given byte.
 	 */
@@ -131,6 +160,7 @@ public final class SerialComUtil {
 	/**
 	 * <p>Converts the given byte's value to an unsigned long number. The least significant byte (8 bits) of the long number 
 	 * will be identical to the byte (8 bits) provided, and the most significant 7 bytes (56 bits) of the long will be zero.</p>
+	 * 
 	 * @param data the byte to convert.
 	 * @return An unsigned long number representing the given byte.
 	 */
@@ -140,6 +170,7 @@ public final class SerialComUtil {
 	
 	/**
 	 * <p>Extract and returns the low byte from the short type number passed.</p>
+	 * 
 	 * @return the low byte of the short value passed
 	 * @param data the short value from whom low byte is to be extracted
 	 */
@@ -149,6 +180,7 @@ public final class SerialComUtil {
 
 	/**
 	 * <p>Extract and returns the high byte from the short type number passed.</p>
+	 * 
 	 * @return the high byte of the short value passed
 	 * @param data the short value from whom high byte is to be extracted
 	 */
@@ -160,6 +192,7 @@ public final class SerialComUtil {
 	 * <p>Converts the given short's value to an unsigned integer number. The least significant 2 byte (16 bits) of the integer number
 	 * will be identical to the least significant 2 byte (16 bits) of the short number and the most significant 2 bytes (16 bits) of 
 	 * the integer will be zero.</p>
+	 * 
 	 * @param data the short type value to convert.
 	 * @return An unsigned integer number representing the given short number.
 	 */
@@ -171,6 +204,7 @@ public final class SerialComUtil {
 	 * <p>Converts the given short's value to an unsigned long number. The least significant 2 byte (16 bits) of the long number
 	 * will be identical to the least significant 2 byte (16 bits) of the short number and the most significant 6 bytes (48 bits) of 
 	 * the long number will be zero.</p>
+	 * 
 	 * @param data the short type value to convert.
 	 * @return An unsigned long number representing the given short number.
 	 */
@@ -180,6 +214,7 @@ public final class SerialComUtil {
 	
 	/**
 	 * <p>Converts the given short value to a byte type array in Little endian order.</p>
+	 * 
 	 * @param data the short type value to convert.
 	 * @return a byte array representing given short number
 	 */
@@ -194,6 +229,7 @@ public final class SerialComUtil {
 	 * <p>Converts the given integer value to an unsigned long number. The least significant 4 bytes (32 bits) of the long number
 	 * will be identical to the least significant 4 bytes (32 bits) of the integer number and the most significant 4 bytes (32 bits) of 
 	 * the long number will be zero.</p>
+	 * 
 	 * @param data the int type value to convert.
 	 * @return An unsigned long number representing the given int number.
 	 */
@@ -203,6 +239,7 @@ public final class SerialComUtil {
 	
 	/**
 	 * <p>Converts the given integer value to a byte type array in Little endian order.</p>
+	 * 
 	 * @param data the short type value to convert.
 	 * @return a byte array representing given short number
 	 */
@@ -218,16 +255,18 @@ public final class SerialComUtil {
 	/**
 	 * <p>This converts a number represented in hex string to decimal number. It parses the string 
 	 * argument as a signed long with radix as 16.</p>
+	 * 
 	 * @param hexNumStr hex-string to be converted
 	 * @return a long type number repressing given hex string
-	 * TODO NumberFormatException
+	 * @throws NumberFormatException if the given hex string can not be converted into numerical representation
 	 */
-	public static long hexStrToLongNumber(String hexNumStr) {
+	public static long hexStrToLongNumber(final String hexNumStr) {
 		return Long.parseLong(hexNumStr, 16);
 	}
 	
 	/**
 	 * <p>Converts the given long value to hex string.</p>
+	 * 
 	 * @param num the long type value to convert.
 	 * @return a string representing given long number in hexadecimal format
 	 */
@@ -237,6 +276,7 @@ public final class SerialComUtil {
 	
 	/**
 	 * <p>Converts the given integer value to hex string.</p>
+	 * 
 	 * @param num the integer type value to convert.
 	 * @return a string representing given int number in hexadecimal format
 	 */
@@ -246,6 +286,7 @@ public final class SerialComUtil {
 	
 	/**
 	 * <p>Converts the given short value to hex string.</p>
+	 * 
 	 * @param num the short type value to convert.
 	 * @return a string representing given short number in hexadecimal format
 	 */
@@ -255,6 +296,7 @@ public final class SerialComUtil {
 	
 	/**
 	 * <p>Converts the given byte value to hex string.</p>
+	 * 
 	 * @param num the byte type value to convert.
 	 * @return a string representing given byte value in hexadecimal format
 	 */

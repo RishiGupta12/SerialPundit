@@ -9,9 +9,9 @@ import com.embeddedunveiled.serial.SerialComManager.SMODE;
  */
 public final class SerialComOutByteStream extends OutputStream {
 
-	private SerialComManager scm = null;
-	private long handle = 0;
-	private boolean isOpened = false;
+	private SerialComManager scm;
+	private long handle;
+	private boolean isOpened;
 	/* private boolean isBlocking = false; */
 
 	/**

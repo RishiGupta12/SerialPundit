@@ -31,8 +31,8 @@ import com.embeddedunveiled.serial.internal.SerialComPortJNIBridge;
  */
 public final class SerialComIOCTLExecutor {
 	
-	private SerialComPortJNIBridge mComPortJNIBridge = null;
-	private SerialComErrorMapper mErrMapper = null;
+	private SerialComPortJNIBridge mComPortJNIBridge;
+	private SerialComErrorMapper mErrMapper;
 
 	/**
      * <p>Allocates a new SerialComIOCTLExecutor object.</p>

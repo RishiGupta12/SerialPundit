@@ -34,10 +34,10 @@ import com.embeddedunveiled.serial.SerialComManager.SMODE;
  */
 public final class SerialComInByteStream extends InputStream {
 
-	private SerialComManager scm = null;
-	private long handle = 0;
-	private boolean isOpened = false;
-	private boolean isBlocking = false;
+	private SerialComManager scm;
+	private long handle;
+	private boolean isOpened;
+	private boolean isBlocking;
 
 	/**
 	 * <p>Allocates a new SerialComInByteStream object.</p>

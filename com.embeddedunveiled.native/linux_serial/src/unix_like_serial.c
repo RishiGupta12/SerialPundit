@@ -179,14 +179,30 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
  * Returns library version or null (setting error code).
  */
 JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_getNativeLibraryVersion(JNIEnv *env, jobject obj, jobject status) {
-	jstring version = NULL;
+
+
+	jclass exClass = (*env)->FindClass(env, "java/lang/Exception");
+	if (exClass == NULL) {
+		jthrowable ex;
+		if ( (ex = (*env)->ExceptionOccurred(env)) != NULL) {
+			(*env)->Throw(env, ex);
+			return NULL;
+		}
+		write(STDERR_FILENO,"Couldn't load java.lang.Exception!\n",35);
+		exit(1);
+	}
+	(*env)->ThrowNew(env, exClass,"Test Exception");
+
+
+
+/*	jstring version = NULL;
 	version = (*env)->NewStringUTF(env, UART_NATIVE_LIB_VERSION);
 	if((*env)->ExceptionOccurred(env) != NULL) {
 		(*env)->ExceptionClear(env);
 		set_error_status(env, obj, status, E_NEWSTRUTF);
 		return NULL;
 	}
-	return version;
+	return version;*/
 }
 
 /*

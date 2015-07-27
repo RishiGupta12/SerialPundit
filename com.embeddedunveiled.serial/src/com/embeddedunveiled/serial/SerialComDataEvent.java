@@ -23,7 +23,7 @@ package com.embeddedunveiled.serial;
  */
 public final class SerialComDataEvent {
 
-	private byte[] mData = null;
+	private byte[] mData;
 
 	public SerialComDataEvent(byte[] data){
 		this.mData = data;
