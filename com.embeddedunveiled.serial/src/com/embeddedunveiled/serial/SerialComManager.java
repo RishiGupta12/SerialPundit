@@ -1012,6 +1012,89 @@ public final class SerialComManager {
 		}
 	}
 	
+	/**
+	 * <p>Writes the bytes from the given direct byte buffer using facilities of the underlying JVM and operating system. 
+	 * When this method returns data would have sent out of serial port physically.</p>
+	 * 
+	 * <p>Consider using this method when developing applications based on Bluetooth serial port profile or applications 
+	 * like printing document using printer.</p>
+	 * 
+	 * <p>This method does not modify the direct byte buffer attributes position, capacity, limit and mark. The application 
+	 * design is expected to take care of this as and when required in appropriate manner. Further, this method does not 
+	 * consume or modify the data in the given buffer.</p>
+	 * 
+	 * @param handle handle of the serial port on which to write bytes
+	 * @param direct byte buffer containing bytes to be written to port
+	 * @param offset location from where to start sending data out of serial port
+	 * @param length number of bytes from offset to sent to serial port
+	 * @return number of bytes sent to serial port, 0 if length is 0
+	 * @throws SerialComException if an I/O error occurs.
+	 * @throws IllegalArgumentException if buffer is null, or if position or limit is negative, 
+	 *          or if given buffer is not direct byte buffer, or if length > (buffer.capacity() - offset)
+	 */
+	public int writeBytesDirect(long handle, ByteBuffer buffer, int offset, int length) throws SerialComException {
+		if(buffer == null) {
+			throw new IllegalArgumentException("writeBytesDirect(), " + "Argument buffer can not be null !");
+		}
+		if((offset < 0) || (length < 0)) {
+			throw new IllegalArgumentException("writeBytesDirect(), " + "Argument offset or length can not be negative !");
+		}
+		if(!buffer.isDirect()) {
+			throw new IllegalArgumentException("writeBytesDirect(), " + "Given buffer is not direct byte buffer !");
+		}
+		if(length > (buffer.capacity() - offset)) {
+			throw new IllegalArgumentException("writeBytesDirect(), " + "Index violation detected !");
+		}
+		if(length == 0) {
+			return 0;
+		}
+
+		int ret = mComPortJNIBridge.writeBytesDirect(handle, buffer, offset, length);
+		if(ret < 0) {
+			throw new SerialComException("writeBytesDirect()", "Could not write given data to serial port. Please retry !");
+		}
+		return ret;
+	}
+	
+	/**
+	 * <p>Reads the bytes from the serial port into the given direct byte buffer using facilities of the underlying 
+	 * JVM and operating system.</p>
+	 * 
+	 * <p>This method does not modify the direct byte buffer attributes position, capacity, limit and mark. The application 
+	 * design is expected to take care of this as and when required in appropriate manner.</p>
+	 * 
+	 * @param handle handle of the serial port from which to read data bytes
+	 * @param direct byte buffer into which data bytes will be placed
+	 * @param offset location in byte buffer from which to start saving data
+	 * @param length number of bytes from offset to read in buffer
+	 * @return number of bytes read from serial port, 0 if length is 0
+	 * @throws SerialComException if an I/O error occurs.
+	 * @throws IllegalArgumentException if buffer is null, or if position or limit is negative, or if given buffer is not direct byte buffer
+	 */
+	public int readBytesDirect(long handle, ByteBuffer buffer, int offset, int length) throws SerialComException {
+		if(buffer == null) {
+			throw new IllegalArgumentException("readBytesDirect(), " + "Argument buffer can not be null !");
+		}
+		if((offset < 0) || (length < 0)) {
+			throw new IllegalArgumentException("readBytesDirect(), " + "Argument offset or length can not be negative !");
+		}
+		if(!buffer.isDirect()) {
+			throw new IllegalArgumentException("readBytesDirect(), " + "Argument buffer is not direct byte buffer !");
+		}
+		if(length > (buffer.capacity() - offset)) {
+			throw new IllegalArgumentException("readBytesDirect(), " + "Index violation detected !");
+		}
+		if(length == 0) {
+			return 0;
+		}
+
+		int ret = mComPortJNIBridge.readBytesDirect(handle, buffer, offset, length);
+		if(ret < 0) {
+			throw new SerialComException("writeBytesDirect()", "Could not write given data to serial port. Please retry !");
+		}
+		return ret;
+	}
+	
 	/** 
 	 * <p>Read specified number of bytes from given serial port and stay blocked till bytes arrive at serial port.</p>
 	 * <p>1. If data is read from serial port, array of bytes containing data is returned.</p>
