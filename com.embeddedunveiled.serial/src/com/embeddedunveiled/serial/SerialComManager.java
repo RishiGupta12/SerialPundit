@@ -1025,9 +1025,12 @@ public final class SerialComManager {
 	 * @param handle of the serial port from which to read bytes
 	 * @param byteCount number of bytes to read from serial port
 	 * @return array of bytes read from port or null
-	 * @throws SerialComException if an I/O error occurs.
+	 * @throws SerialComException if an I/O error occurs or if byteCount is greater than 2048
 	 */
 	public byte[] readBytesBlocking(long handle, int byteCount) throws SerialComException {
+		if(byteCount > 2048) {
+			throw new SerialComException("Number of bytes to read can not be greater than 2048 !");
+		}
 		byte[] buffer = null;
 		if(osType == SerialComManager.OS_WINDOWS) {
 			buffer = mComPortJNIBridge.readBytesBlocking(handle, byteCount);
@@ -1055,9 +1058,12 @@ public final class SerialComManager {
 	 * @param handle of the serial port from which to read bytes
 	 * @param byteCount number of bytes to read from serial port
 	 * @return array of bytes read from port or null
-	 * @throws SerialComException if an I/O error occurs.
+	 * @throws SerialComException if an I/O error occurs or if byteCount is greater than 2048
 	 */
 	public byte[] readBytes(long handle, int byteCount) throws SerialComException {
+		if(byteCount > 2048) {
+			throw new SerialComException("Number of bytes to read can not be greater than 2048 !");
+		}
 		byte[] buffer = mComPortJNIBridge.readBytes(handle, byteCount);
 		if(buffer != null) {
 			return buffer; // data read from serial port, pass it the to application
@@ -1088,7 +1094,7 @@ public final class SerialComManager {
 	 * @param handle of port from which to read bytes
 	 * @param byteCount number of bytes to read from this port
 	 * @return string constructed from data read from serial port or null
-	 * @throws SerialComException if an I/O error occurs.
+	 * @throws SerialComException if an I/O error occurs or if byteCount is greater than 2048
 	 */
 	public String readString(long handle, int byteCount) throws SerialComException {
 		byte[] buffer = readBytes(handle, byteCount);
@@ -2060,31 +2066,6 @@ public final class SerialComManager {
 		}
 
 		return result;
-	}
-
-	/**
-	 * 
-	 * <p>under development.</p>
-	 * 
-	 * <p>This method writes bytes from the specified byte type buffer. If the method returns false, the application
-	 * should try to re-send bytes. The data has been transmitted out of serial port when this method returns.</p>
-	 * 
-	 * <p>This method may be used for Internet of things applications, large data transfer, implementing userspace drivers,
-	 * middleware frameworks, quick prototyping of Wifi/BT modules connected to UART port.</p>
-	 * 
-	 * @param handle handle of the opened port on which to write bytes
-	 * @param buffer byte type buffer containing bytes to be written to port
-	 * @return true on success, false on failure or if empty buffer is passed
-	 * @throws SerialComException - if an I/O error occurs.
-	 * @throws IllegalArgumentException if buffer is null
-	 */
-	public boolean writeBytesBulk(long handle, ByteBuffer buffer) throws SerialComException {
-		if(buffer == null) {
-			throw new IllegalArgumentException("writeBytesBulk(), " + "Null data buffer passed to write operation");
-		}
-
-		mComPortJNIBridge.writeBytesBulk(handle, buffer);
-		return true;
 	}
 	
 	/**
