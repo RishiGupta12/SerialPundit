@@ -15,7 +15,9 @@
  * along with serial communication manager. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package test3;
+package test61;
+
+import java.nio.ByteBuffer;
 
 import com.embeddedunveiled.serial.SerialComManager;
 import com.embeddedunveiled.serial.SerialComManager.BAUDRATE;
@@ -23,26 +25,11 @@ import com.embeddedunveiled.serial.SerialComManager.DATABITS;
 import com.embeddedunveiled.serial.SerialComManager.FLOWCONTROL;
 import com.embeddedunveiled.serial.SerialComManager.PARITY;
 import com.embeddedunveiled.serial.SerialComManager.STOPBITS;
-import com.embeddedunveiled.serial.ISerialComDataListener;
-import com.embeddedunveiled.serial.SerialComDataEvent;
 
-class Data implements ISerialComDataListener{
-	@Override
-	public void onNewSerialDataAvailable(SerialComDataEvent data) {
-		System.out.println("Read from serial port : " + new String(data.getDataBytes()));
-		System.out.println("data length : " + data.getDataBytesLength() );
-	}
-	@Override
-	public void onDataListenerError(int arg0) {
-		System.out.println("onDataListenerError called " + arg0);
-	}
-}
-
-public class Test3 {
+public final class Test61 {
 	public static void main(String[] args) {
 		try {
 			SerialComManager scm = new SerialComManager();
-			
 			String PORT = null;
 			String PORT1 = null;
 			int osType = scm.getOSType();
@@ -60,36 +47,59 @@ public class Test3 {
 				PORT1 = null;
 			}else{
 			}
-
-			// instantiate class which is will implement ISerialComDataListener interface
-			Data dataListener = new Data();
-
-			// open and configure port that will listen data
-			long handle = scm.openComPort(PORT, true, true, true);
+			
+			PORT = "/dev/pts/1";
+			PORT1 = "/dev/pts/3";
+			long handle = scm.openComPort(PORT, true, true, false);
 			scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
 			scm.configureComPortControl(handle, FLOWCONTROL.NONE, 'x', 'x', false, false);
-			
-			scm.registerDataListener(handle, dataListener);    // register data listener for this port
-
-			// open and configure port which will send data
-			long handle1 = scm.openComPort(PORT1, true, true, true);
+			long handle1 = scm.openComPort(PORT1, true, true, false);
 			scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
 			scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
 			
-			scm.writeString(handle1, "test string", 0);
-			Thread.sleep(1000); // wait for data to be displayed on console
-			
-			if(osType == SerialComManager.OS_LINUX) {
-				scm.fineTuneRead(handle, 5, 1, 0, 0, 0);
+			ByteBuffer writeBuffer = ByteBuffer.allocateDirect(10 * 1024);
+			ByteBuffer readBuffer = ByteBuffer.allocateDirect(10 * 1024);
+//			ByteBuffer buffer = ByteBuffer.allocate(10 * 1024); this should throw exception as it is not direct
+
+			for(int x=0; x<205; x++) {
+				writeBuffer.put("--Practising-meditation-will-lead-to-Nirvana--".getBytes());
 			}
 			
-			scm.writeString(handle1, "test string", 0);
-			Thread.sleep(1000); // wait for data to be displayed on console
+			System.out.println("Capacity : " + writeBuffer.capacity());
+			System.out.println("Position : " + writeBuffer.position());
+			System.out.println("" + writeBuffer.get(5) + "," + writeBuffer.get(6) + "," + writeBuffer.get(7));
 			
-			scm.unregisterDataListener(dataListener); // unregister data listener
-			scm.closeComPort(handle);                 // close the port releasing handle
+			scm.writeBytesDirect(handle, writeBuffer, 0, 4 * 1023);
+			Thread.sleep(1000);
+			System.out.println(scm.readString(handle1, 2 * 1024));
+			System.out.println(scm.readString(handle1, 2 * 1024));
+			System.out.println(scm.readString(handle1, 2 * 1024));
+			
+			System.out.println("Capacity : " + writeBuffer.capacity());
+			System.out.println("Position : " + writeBuffer.position());
+			System.out.println("" + writeBuffer.get(5));
+			
+			// read from same locations where data was written
+			System.out.println("\n");
+			writeBuffer.clear();
+			for(int x=0; x<205; x++) {
+				writeBuffer.put("--Practising-meditation-will-lead-to-Nirvana--".getBytes());
+			}
+			System.out.println("Capacity : " + writeBuffer.capacity());
+			System.out.println("Position : " + writeBuffer.position());
+			System.out.println("" + writeBuffer.get(5) + "," + writeBuffer.get(6) + "," + writeBuffer.get(7));
+			scm.writeBytesDirect(handle, writeBuffer, 0, 4 * 1023);
+			Thread.sleep(1000);
+			System.out.println("Capacity : " + readBuffer.capacity());
+			System.out.println("Position : " + readBuffer.position());
+			scm.readBytesDirect(handle1, readBuffer, 0, 9000);
+			System.out.println("Capacity : " + readBuffer.capacity());
+			System.out.println("Position : " + readBuffer.position());
+			System.out.println("" + readBuffer.get(5) + "," + readBuffer.get(6) + "," + readBuffer.get(7));
+
+			scm.closeComPort(handle);
 			scm.closeComPort(handle1);
-		}catch (Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}

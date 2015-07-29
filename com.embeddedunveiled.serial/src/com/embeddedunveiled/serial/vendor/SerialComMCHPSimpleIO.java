@@ -21,7 +21,6 @@ import java.io.File;
 
 import com.embeddedunveiled.serial.SerialComException;
 import com.embeddedunveiled.serial.internal.SerialComMCHPSIOJNIBridge;
-import com.embeddedunveiled.serial.internal.SerialComRetStatus;
 
 /**
  * <p>Super class for all classes which implements vendor specific API to talk to 
@@ -67,8 +66,8 @@ public final class SerialComMCHPSimpleIO extends SerialComVendorLib {
 		if((productID < 0) || (productID > 0XFFFF)) {
 			throw new IllegalArgumentException("initMCP2200(), " + "Argument productID can not be negative or greater tha 0xFFFF");
 		}
-		SerialComRetStatus retStatus = new SerialComRetStatus(1);
-		int ret = mSerialComMCHPSIOJNIBridge.initMCP2200(vendorID, productID, retStatus);
+
+		int ret = mSerialComMCHPSIOJNIBridge.initMCP2200(vendorID, productID);
 		if(ret < 0) {
 			
 		}

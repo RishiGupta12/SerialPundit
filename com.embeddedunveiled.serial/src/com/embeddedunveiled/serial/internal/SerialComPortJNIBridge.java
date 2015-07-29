@@ -21,13 +21,12 @@ import java.io.File;
 import java.nio.ByteBuffer;
 import java.io.InputStream;
 import java.io.FileOutputStream;
+
 import com.embeddedunveiled.serial.ISerialComHotPlugListener;
 import com.embeddedunveiled.serial.SerialComLoadException;
 import com.embeddedunveiled.serial.SerialComManager;
 import com.embeddedunveiled.serial.SerialComUnexpectedException;
 import com.embeddedunveiled.serial.internal.SerialComLooper;
-import com.embeddedunveiled.serial.internal.SerialComReadStatus;
-import com.embeddedunveiled.serial.internal.SerialComRetStatus;
 import com.embeddedunveiled.serial.internal.SerialComSystemProperty;
 
 /**
@@ -42,13 +41,18 @@ public final class SerialComPortJNIBridge {
 	}
 	
 	/**
-	 * <p>Extract native library from jar in a working directory and load it.</p> 
+	 * <p>Extract native library from jar in a working directory, load and link it.</p> 
+	 * 
 	 * @param directoryPath null for default directory or user supplied directory path
 	 * @param loadedLibName null for default name or user supplied name of loaded library
+	 * @throws SecurityException if java system properties can not be  accessed
+	 * @throws SerialComUnexpectedException if java system property is null
+	 * @throws SerialComLoadException if any file system related issue occurs
+	 * @throws UnsatisfiedLinkError if loading/linking shared library fails
 	 */
 	public static boolean loadNativeLibrary(String directoryPath, String loadedLibName, SerialComSystemProperty serialComSystemProperty,
-			                                   int osType, int cpuArch, int javaABIType) throws
-						SerialComUnexpectedException, SecurityException, SerialComLoadException, UnsatisfiedLinkError {
+			                                   int osType, int cpuArch, int javaABIType) throws SecurityException, SerialComUnexpectedException, 
+			                                   SerialComLoadException, UnsatisfiedLinkError {
 		String javaTmpDir = null;
 		String userHomeDir = null;
 		String fileSeparator = null;
@@ -246,21 +250,22 @@ public final class SerialComPortJNIBridge {
 	}
 
 	public native int initNativeLib();
-	public native String getNativeLibraryVersion(SerialComRetStatus retStatus);
-	public native String[] listAvailableComPorts(SerialComRetStatus retStatus);
-	public native String[] listUSBdevicesWithInfo(SerialComRetStatus retStatus, int vendorFilter);
-	public native String[] listComPortFromUSBAttributes(int usbVidToMatch, int usbPidToMatch, String serialNumber, SerialComRetStatus retStatus);
-	public native int isUSBDevConnected(int vendorID, int productID, SerialComRetStatus retStatus);
+	public native String getNativeLibraryVersion();
+	public native String[] listAvailableComPorts();
+	public native String[] listUSBdevicesWithInfo(int vendorFilter);
+	public native String[] listComPortFromUSBAttributes(int usbVidToMatch, int usbPidToMatch, String serialNumber);
+	public native int isUSBDevConnected(int vendorID, int productID);
 
-	public native int[] registerHotPlugEventListener(ISerialComHotPlugListener hotPlugListener, int filterVID, int filterPID);
+	public native int registerHotPlugEventListener(ISerialComHotPlugListener hotPlugListener, int filterVID, int filterPID);
 	public native int unregisterHotPlugEventListener(int index);
 
 	public native long openComPort(String portName, boolean enableRead, boolean enableWrite, boolean exclusiveOwner);
 	public native int closeComPort(long handle);
-	public native byte[] readBytes(long handle, int byteCount, SerialComReadStatus retStatus);
-	public native byte[] readBytesBlocking(long handle, int byteCount, SerialComReadStatus retStatus);
+	public native byte[] readBytes(long handle, int byteCount);
+	public native byte[] readBytesBlocking(long handle, int byteCount);
 	public native int writeBytes(long handle, byte[] buffer, int delay);
-	public native int writeBytesBulk(long handle, ByteBuffer buffer);
+	public native int writeBytesDirect(long handle, ByteBuffer buffer, int offset, int length);
+	public native int readBytesDirect(long handle, ByteBuffer buffer, int offset, int length);
 
 	public native int configureComPortData(long handle, int dataBits, int stopBits, int parity, int baudRateTranslated, int custBaudTranslated);
 	public native int configureComPortControl(long handle, int flowctrl, char xon, char xoff, boolean ParFraError, boolean overFlowErr);

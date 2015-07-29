@@ -36,11 +36,55 @@
 #include "unix_like_serial_lib.h"
 
 /*
+ * Cleans up resources and set exception that will get thrown upon return to java layer.
+ */
+#if defined (__linux__)
+jstring linux_clean_up_and_throw_exp(JNIEnv *env, int task, const char *expmsg, struct jstrarray_list *list, struct udev_device *udev_device,
+		                                 struct udev_enumerate *enumerator, struct udev *udev_ctx) {
+#endif
+#if defined (__APPLE__)
+jstring mac_clean_up_and_throw_exp(JNIEnv *env, int task, const char *expmsg, struct jstrarray_list *list, io_service_t usb_dev_obj, io_iterator_t iterator) {
+#endif
+
+	(*env)->ExceptionClear(env);
+	free_jstrarraylist(list);
+
+	/* free memory first, so even if throwing JNI exception fails, this succeeds. */
+	if(task == 1) {
+#if defined (__linux__)
+		udev_device_unref(udev_device);
+		udev_enumerate_unref(enumerator);
+		udev_unref(udev_ctx);
+#endif
+#if defined (__APPLE__)
+		IOObjectRelease(usb_dev_obj);
+		IOObjectRelease(iterator);
+#endif
+	}else {
+	}
+
+	jclass serialComExceptionClass = (*env)->FindClass(env, SCOMEXPCLASS);
+	if((serialComExceptionClass == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+		(*env)->ExceptionClear(env);
+		LOGE(E_FINDCLASSSCOMEXPSTR);
+		return NULL;
+	}
+
+	if(task == 1) {
+		(*env)->ThrowNew(env, serialComExceptionClass, E_NEWSTRUTFSTR);
+	}else {
+		(*env)->ThrowNew(env, serialComExceptionClass, expmsg);
+	}
+
+	return NULL;
+}
+
+/*
  * Finds information about USB devices using operating system specific facilities and API.
  * The sequence of entries in array must match with what java layer expect. If a particular USB attribute
  * is not set in descriptor or can not be obtained "---" is placed in its place.
  */
-jobjectArray list_usb_devices(JNIEnv *env, jobject obj, jobject status, jint vendor_to_match) {
+jobjectArray list_usb_devices(JNIEnv *env, jobject obj, jint vendor_to_match) {
 	int x = 0;
 	struct jstrarray_list list = {0};
 	jstring usb_dev_info;
@@ -65,7 +109,6 @@ jobjectArray list_usb_devices(JNIEnv *env, jobject obj, jobject status, jint ven
 	CFStringRef str_ref;
 	int result;
 	char hexcharbuffer[5];
-
 	/* For storing USB descriptor attributes string like manufacturer, product, serial number etc.
 	 * in any encoding 1024 is sufficient. We prevented malloc() every time for every new attribute. */
 	char charbuffer[1024];
@@ -99,40 +142,70 @@ jobjectArray list_usb_devices(JNIEnv *env, jobject obj, jobject status, jint ven
 					}
 				}
 				usb_dev_info = (*env)->NewStringUTF(env, sysattr_val);
+				if((usb_dev_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+					return linux_clean_up_and_throw_exp(env, 1, NULL, &list, udev_device, enumerator, udev_ctx);
+				}
 			}else {
 				usb_dev_info = (*env)->NewStringUTF(env, "---");
+				if((usb_dev_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+					return linux_clean_up_and_throw_exp(env, 1, NULL, &list, udev_device, enumerator, udev_ctx);
+				}
 			}
 			insert_jstrarraylist(&list, usb_dev_info);
 
 			sysattr_val = udev_device_get_sysattr_value(udev_device, "idProduct");
 			if(sysattr_val != NULL) {
 				usb_dev_info = (*env)->NewStringUTF(env, sysattr_val);
+				if((usb_dev_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+					return linux_clean_up_and_throw_exp(env, 1, NULL, &list, udev_device, enumerator, udev_ctx);
+				}
 			}else {
 				usb_dev_info = (*env)->NewStringUTF(env, "---");
+				if((usb_dev_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+					return linux_clean_up_and_throw_exp(env, 1, NULL, &list, udev_device, enumerator, udev_ctx);
+				}
 			}
 			insert_jstrarraylist(&list, usb_dev_info);
 
 			sysattr_val = udev_device_get_sysattr_value(udev_device, "serial");
 			if(sysattr_val != NULL) {
 				usb_dev_info = (*env)->NewStringUTF(env, sysattr_val);
+				if((usb_dev_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+					return linux_clean_up_and_throw_exp(env, 1, NULL, &list, udev_device, enumerator, udev_ctx);
+				}
 			}else {
 				usb_dev_info = (*env)->NewStringUTF(env, "---");
+				if((usb_dev_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+					return linux_clean_up_and_throw_exp(env, 1, NULL, &list, udev_device, enumerator, udev_ctx);
+				}
 			}
 			insert_jstrarraylist(&list, usb_dev_info);
 
 			sysattr_val = udev_device_get_sysattr_value(udev_device, "product");
 			if(sysattr_val != NULL) {
 				usb_dev_info = (*env)->NewStringUTF(env, sysattr_val);
+				if((usb_dev_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+					return linux_clean_up_and_throw_exp(env, 1, NULL, &list, udev_device, enumerator, udev_ctx);
+				}
 			}else {
 				usb_dev_info = (*env)->NewStringUTF(env, "---");
+				if((usb_dev_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+					return linux_clean_up_and_throw_exp(env, 1, NULL, &list, udev_device, enumerator, udev_ctx);
+				}
 			}
 			insert_jstrarraylist(&list, usb_dev_info);
 
 			sysattr_val = udev_device_get_sysattr_value(udev_device, "manufacturer");
 			if(sysattr_val != NULL) {
 				usb_dev_info = (*env)->NewStringUTF(env, sysattr_val);
+				if((usb_dev_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+					return linux_clean_up_and_throw_exp(env, 1, NULL, &list, udev_device, enumerator, udev_ctx);
+				}
 			}else {
 				usb_dev_info = (*env)->NewStringUTF(env, "---");
+				if((usb_dev_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+					return linux_clean_up_and_throw_exp(env, 1, NULL, &list, udev_device, enumerator, udev_ctx);
+				}
 			}
 			insert_jstrarraylist(&list, usb_dev_info);
 		}
@@ -142,6 +215,7 @@ jobjectArray list_usb_devices(JNIEnv *env, jobject obj, jobject status, jint ven
 	udev_unref(udev_ctx);
 
 #endif
+
 #if defined (__APPLE__)
 	matching_dictionary = IOServiceMatching("IOUSBDevice");
 	if(matching_dictionary == NULL) {
@@ -170,11 +244,17 @@ jobjectArray list_usb_devices(JNIEnv *env, jobject obj, jobject status, jint ven
 					continue;
 				}
 			}
+			CFRelease(num_ref);
 			snprintf(hexcharbuffer, 5, "%04X", result & 0x0000FFFF);
 			usb_dev_info = (*env)->NewStringUTF(env, hexcharbuffer);
-			CFRelease(num_ref);
+			if((usb_dev_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+				return mac_clean_up_and_throw_exp(env, 1, NULL, &list, usb_dev_obj, iterator);
+			}
 		}else {
 			usb_dev_info = (*env)->NewStringUTF(env, "---");
+			if((usb_dev_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+				return mac_clean_up_and_throw_exp(env, 1, NULL, &list, usb_dev_obj, iterator);
+			}
 		}
 		insert_jstrarraylist(&list, usb_dev_info);
 
@@ -183,11 +263,17 @@ jobjectArray list_usb_devices(JNIEnv *env, jobject obj, jobject status, jint ven
 				                                        NULL, kIORegistryIterateRecursively | kIORegistryIterateParents);
 		if(num_ref) {
 			CFNumberGetValue(num_ref, kCFNumberSInt32Type, &result);
+			CFRelease(num_ref);
 			snprintf(hexcharbuffer, 5, "%04X", result & 0x0000FFFF);
 			usb_dev_info = (*env)->NewStringUTF(env, hexcharbuffer);
-			CFRelease(num_ref);
+			if((usb_dev_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+				return mac_clean_up_and_throw_exp(env, 1, NULL, &list, usb_dev_obj, iterator);
+			}
 		}else {
 			usb_dev_info = (*env)->NewStringUTF(env, "---");
+			if((usb_dev_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+				return mac_clean_up_and_throw_exp(env, 1, NULL, &list, usb_dev_obj, iterator);
+			}
 		}
 		insert_jstrarraylist(&list, usb_dev_info);
 
@@ -196,10 +282,16 @@ jobjectArray list_usb_devices(JNIEnv *env, jobject obj, jobject status, jint ven
 		if(str_ref) {
 			memset(charbuffer, '\0', sizeof(charbuffer));
 			CFStringGetCString(str_ref, charbuffer, sizeof(charbuffer), kCFStringEncodingUTF8);
-			usb_dev_info = (*env)->NewStringUTF(env, charbuffer);
 			CFRelease(str_ref);
+			usb_dev_info = (*env)->NewStringUTF(env, charbuffer);
+			if((usb_dev_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+				return mac_clean_up_and_throw_exp(env, 1, NULL, &list, usb_dev_obj, iterator);
+			}
 		}else {
 			usb_dev_info = (*env)->NewStringUTF(env, "---");
+			if((usb_dev_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+				return mac_clean_up_and_throw_exp(env, 1, NULL, &list, usb_dev_obj, iterator);
+			}
 		}
 		insert_jstrarraylist(&list, usb_dev_info);
 
@@ -208,10 +300,16 @@ jobjectArray list_usb_devices(JNIEnv *env, jobject obj, jobject status, jint ven
 		if(str_ref) {
 			memset(charbuffer, '\0', sizeof(charbuffer));
 			CFStringGetCString(str_ref, charbuffer, sizeof(charbuffer), kCFStringEncodingUTF8);
-			usb_dev_info = (*env)->NewStringUTF(env, charbuffer);
 			CFRelease(str_ref);
+			usb_dev_info = (*env)->NewStringUTF(env, charbuffer);
+			if((usb_dev_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+				return mac_clean_up_and_throw_exp(env, 1, NULL, &list, usb_dev_obj, iterator);
+			}
 		}else {
 			usb_dev_info = (*env)->NewStringUTF(env, "---");
+			if((usb_dev_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+				return mac_clean_up_and_throw_exp(env, 1, NULL, &list, usb_dev_obj, iterator);
+			}
 		}
 		insert_jstrarraylist(&list, usb_dev_info);
 
@@ -220,10 +318,16 @@ jobjectArray list_usb_devices(JNIEnv *env, jobject obj, jobject status, jint ven
 		if(str_ref) {
 			memset(charbuffer, '\0', sizeof(charbuffer));
 			CFStringGetCString(str_ref, charbuffer, sizeof(charbuffer), kCFStringEncodingUTF8);
-			usb_dev_info = (*env)->NewStringUTF(env, charbuffer);
 			CFRelease(str_ref);
+			usb_dev_info = (*env)->NewStringUTF(env, charbuffer);
+			if((usb_dev_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+				return mac_clean_up_and_throw_exp(env, 1, NULL, &list, usb_dev_obj, iterator);
+			}
 		}else {
 			usb_dev_info = (*env)->NewStringUTF(env, "---");
+			if((usb_dev_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+				return mac_clean_up_and_throw_exp(env, 1, NULL, &list, usb_dev_obj, iterator);
+			}
 		}
 		insert_jstrarraylist(&list, usb_dev_info);
 
@@ -235,28 +339,35 @@ jobjectArray list_usb_devices(JNIEnv *env, jobject obj, jobject status, jint ven
 #endif
 
 	/* Create a JAVA/JNI style array of String object, populate it and return to java layer. */
-	strClass = (*env)->FindClass(env, "java/lang/String");
-	if((*env)->ExceptionOccurred(env)) {
-		(*env)->ExceptionClear(env);
-		set_error_status(env, obj, status, E_FINDCLASS);
-		free_jstrarraylist(&list);
-		return NULL;
+	strClass = (*env)->FindClass(env, JAVALSTRING);
+	if((strClass == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+#if defined (__linux__)
+		return linux_clean_up_and_throw_exp(env, 2, E_FINDCLASSSSTRINGSTR, &list, NULL, NULL, NULL);
+#endif
+#if defined (__APPLE__)
+		return mac_clean_up_and_throw_exp(env, 2, E_FINDCLASSSSTRINGSTR, &list, NULL, NULL);
+#endif
 	}
 
 	usbDevicesFound = (*env)->NewObjectArray(env, (jsize) list.index, strClass, NULL);
-	if((*env)->ExceptionOccurred(env)) {
-		(*env)->ExceptionClear(env);
-		set_error_status(env, obj, status, E_NEWOBJECTARRAY);
-		free_jstrarraylist(&list);
-		return NULL;
+	if((usbDevicesFound == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+#if defined (__linux__)
+		return linux_clean_up_and_throw_exp(env, 2, E_NEWOBJECTARRAYSTR, &list, NULL, NULL, NULL);
+#endif
+#if defined (__APPLE__)
+		return mac_clean_up_and_throw_exp(env, 2, E_NEWOBJECTARRAYSTR, &list, NULL, NULL);
+#endif
 	}
 
 	for (x=0; x < list.index; x++) {
 		(*env)->SetObjectArrayElement(env, usbDevicesFound, x, list.base[x]);
 		if((*env)->ExceptionOccurred(env)) {
-			(*env)->ExceptionClear(env);
-			free_jstrarraylist(&list);
-			return NULL;
+#if defined (__linux__)
+			return linux_clean_up_and_throw_exp(env, 2, E_SETOBJECTARRAYSTR, &list, NULL, NULL, NULL);
+#endif
+#if defined (__APPLE__)
+			return mac_clean_up_and_throw_exp(env, 2, E_SETOBJECTARRAYSTR, &list, NULL, NULL);
+#endif
 		}
 	}
 

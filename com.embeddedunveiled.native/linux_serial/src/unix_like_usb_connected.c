@@ -40,9 +40,9 @@
  * The sequence of entries in array must match with what java layer expect. If a particular USB attribute
  * is not set in descriptor or can not be obtained "---" is placed in its place.
  *
- * Returns 1 if device is connected, returns 0 if not connected and -1 if error occurs.
+ * Returns 1 if device is connected, returns 0 if not connected
  */
-jint is_usb_dev_connected(JNIEnv *env, jobject obj, jint usbvid_to_match, jint usbpid_to_match, jobject status) {
+jint is_usb_dev_connected(JNIEnv *env, jobject obj, jint usbvid_to_match, jint usbpid_to_match) {
 
 #if defined (__linux__)
 	int vid = 0;

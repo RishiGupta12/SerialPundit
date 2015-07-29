@@ -17,6 +17,7 @@
 package com.embeddedunveiled.serial.internal;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Locale;
@@ -45,7 +46,8 @@ public final class SerialComPlatform {
 	 * <p>Identifies the operating system on which scm library is running.</p>
 	 * 
 	 * @return SerialComManager.OS_UNKNOWN if platform is unknown to scm otherwise one of the SerialComManager.OS_XXXX constant
-	 * @throws SerialComUnexpectedException if os.name system property is null
+	 * @throws SecurityException if java system properties can not be  accessed
+	 * @throws SerialComUnexpectedException if the "os.name" java system property is null
 	 */
 	public final int getOSType() throws SecurityException, SerialComUnexpectedException {
 		int osType = SerialComManager.OS_UNKNOWN;
@@ -87,9 +89,12 @@ public final class SerialComPlatform {
 	 * Packages that are compiled for x86_64 architecture are compatible with amd64 architecture.</p>
 	 * 
 	 * @return SerialComManager.ARCH_UNKNOWN if platform is unknown to scm otherwise one of the SerialComManager.ARCH_XXXX constant
-	 * @throws IOException 
+	 * @throws SecurityException if java system properties can not be  accessed
+	 * @throws SerialComUnexpectedException if the "os.arch" java system property is null
+	 * @throws FileNotFoundException if file "/proc/cpuinfo" can not be found for Linux on ARM platform
+	 * @throws IOException if file operations on "/proc/cpuinfo" fails for Linux on ARM platform
 	 */
-	public final int getCPUArch(int osType) throws IOException {
+	public final int getCPUArch(int osType) throws SecurityException, SerialComUnexpectedException, FileNotFoundException, IOException {
 		int cpuArch = SerialComManager.ARCH_UNKNOWN;
 		BufferedReader cpuProperties = null;
 		String line = null;
@@ -156,7 +161,7 @@ public final class SerialComPlatform {
 	 * <p>Identifies whether library is running on an android platform.</p>
 	 * 
 	 * @return true if platform is android false otherwise
-	 * @throws SerialComUnexpectedException if java.vm.vendor system property is null
+	 * @throws SerialComUnexpectedException if "java.vm.vendor" java system property is null
 	 */
 	private boolean isAndroid() throws SerialComUnexpectedException {
 		// java.vm.vendor system property in android always returns The Android Project as per android javadocs.
@@ -176,7 +181,7 @@ public final class SerialComPlatform {
 	 * executable files built by different tool chains.</p>
 	 * 
 	 * @return either ABI_ARMHF or ABI_ARMEL constant value as per identification
-	 * @throws SerialComUnexpectedException if java.home system property is null
+	 * @throws SerialComUnexpectedException if "java.home" java system property is null
 	 */
 	public final int getJAVAABIType() throws SerialComUnexpectedException {
 		int abiType = SerialComManager.ABI_ARMEL;
