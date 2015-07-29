@@ -113,11 +113,19 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
- * Method:    writeBytesBulk
- * Signature: (JLjava/nio/ByteBuffer;)I
+ * Method:    writeBytesDirect
+ * Signature: (JLjava/nio/ByteBuffer;II)I
  */
-JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_writeBytesBulk
-  (JNIEnv *, jobject, jlong, jobject);
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_writeBytesDirect
+  (JNIEnv *, jobject, jlong, jobject, jint, jint);
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
+ * Method:    readBytesDirect
+ * Signature: (JLjava/nio/ByteBuffer;II)I
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_readBytesDirect
+  (JNIEnv *, jobject, jlong, jobject, jint, jint);
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge

@@ -24,7 +24,7 @@
  * - Sometimes, the JNI does not like some pointer arithmetic so it is avoided wherever possible. */
 
 #if defined (__linux__) || defined (__APPLE__) || defined (__SunOS) || defined(__sun) || defined(__FreeBSD__) \
-	|| defined(__OpenBSD__) || defined(__NetBSD__) || defined(__hpux__) || defined(_AIX)
+		|| defined(__OpenBSD__) || defined(__NetBSD__) || defined(__hpux__) || defined(_AIX)
 
 /* Make primitives such as read and write resume, in case they are interrupted by signal,
  * before they actually start reading or writing data. The partial success case are handled
@@ -134,7 +134,7 @@ JNIEXPORT void JNICALL JNI_OnUnload(JavaVM *vm, void *pvt) {
 }
 __attribute__((constructor)) static void init_scmlib() {
 }
-*/
+ */
 
 /* Release mutex when library is un-loaded. */
 __attribute__((destructor)) static void exit_scmlib() {
@@ -196,8 +196,8 @@ JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPor
 	jstring version = NULL;
 	version = (*env)->NewStringUTF(env, UART_NATIVE_LIB_VERSION);
 	if((version == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
-		 throw_serialcom_exception(env, 3, 0, E_NEWSTRUTFSTR);
-		 return NULL;
+		throw_serialcom_exception(env, 3, 0, E_NEWSTRUTFSTR);
+		return NULL;
 	}
 	return version;
 }
@@ -294,11 +294,11 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
 						}
 					}
 				}else {
-					 if(errno != ENOENT) {
-						 free_jstrarraylist(&list);
-						 throw_serialcom_exception(env, 1, errno, NULL);
-						 return NULL;
-					 }
+					if(errno != ENOENT) {
+						free_jstrarraylist(&list);
+						throw_serialcom_exception(env, 1, errno, NULL);
+						return NULL;
+					}
 				}
 
 			}
@@ -306,26 +306,26 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
 		}
 		free(namelist);
 	}else {
-		 free_jstrarraylist(&list);
-		 throw_serialcom_exception(env, 1, errno, NULL);
-		 return NULL;
+		free_jstrarraylist(&list);
+		throw_serialcom_exception(env, 1, errno, NULL);
+		return NULL;
 	}
 
 	/* (2) Identify serial devices using regex expression. */
 	/* /dev/ttytxXXXX for perle port server */
 	ret = regcomp(&regex, "ttytx[0-9]" , 0);
 	if(ret != 0) {
-		 free_jstrarraylist(&list);
-		 throw_serialcom_exception(env, 1, ret, NULL);
-		 return NULL;
+		free_jstrarraylist(&list);
+		throw_serialcom_exception(env, 1, ret, NULL);
+		return NULL;
 	}
 
 	errno = 0;
 	dir_stream = opendir("/dev");
 	if(dir_stream == NULL) {
-		 free_jstrarraylist(&list);
-		 throw_serialcom_exception(env, 1, errno, NULL);
-		 return NULL;
+		free_jstrarraylist(&list);
+		throw_serialcom_exception(env, 1, errno, NULL);
+		return NULL;
 	}
 
 	while(1) {
@@ -352,9 +352,9 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
 				break; /* end of the directory stream is reached */
 			}
 		}else if(ret > 0) {
-			 free_jstrarraylist(&list);
-			 throw_serialcom_exception(env, 1, EBADF, NULL);
-			 return NULL;
+			free_jstrarraylist(&list);
+			throw_serialcom_exception(env, 1, EBADF, NULL);
+			return NULL;
 		}else {
 		}
 	}
@@ -364,9 +364,9 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
 	errno = 0;
 	ret = closedir(dir_stream);
 	if(ret < 0) {
-		 free_jstrarraylist(&list);
-		 throw_serialcom_exception(env, 1, errno, NULL);
-		 return NULL;
+		free_jstrarraylist(&list);
+		throw_serialcom_exception(env, 1, errno, NULL);
+		return NULL;
 	}
 
 	/* (3) $ lstat /dev/pts/X for pseudo terminals */
@@ -393,9 +393,9 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
 					}
 				}else {
 					if(errno != ENOENT) {
-						 free_jstrarraylist(&list);
-						 throw_serialcom_exception(env, 1, errno, NULL);
-						 return NULL;
+						free_jstrarraylist(&list);
+						throw_serialcom_exception(env, 1, errno, NULL);
+						return NULL;
 					}
 				}
 			}
@@ -403,9 +403,9 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
 		}
 		free(namelist);
 	}else {
-		 free_jstrarraylist(&list);
-		 throw_serialcom_exception(env, 1, errno, NULL);
-		 return NULL;
+		free_jstrarraylist(&list);
+		throw_serialcom_exception(env, 1, errno, NULL);
+		return NULL;
 	}
 #endif
 
@@ -536,7 +536,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
  *
  */
 JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_openComPort(JNIEnv *env, jobject obj, jstring portName,
-		                                                                            jboolean enableRead, jboolean enableWrite, jboolean exclusiveOwner) {
+		jboolean enableRead, jboolean enableWrite, jboolean exclusiveOwner) {
 	int ret = -1;
 	jlong fd = -1;
 	int OPEN_MODE = -1;
@@ -692,7 +692,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialCom
 		errno = 0;
 		ret = read(fd, buffer, num_bytes_to_read);
 
-		if(ret > 0 && errno == 0) {
+		if((ret > 0) && (errno == 0)) {
 			total_read = total_read + ret;
 			/* This indicates we got success and have read data. */
 			/* If there is partial data read previously, append this data. */
@@ -727,7 +727,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialCom
 				}
 				return dataRead;
 			}
-		}else if(ret > 0 && errno == EINTR) {
+		}else if((ret > 0) && (errno == EINTR)) {
 			total_read = total_read + ret;
 			/* This indicates, there is data to read, however, we got interrupted before we finish reading
 			 * all of the available data. So we need to save this partial data and get back to read remaining. */
@@ -773,6 +773,189 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialCom
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
+ * Method:    readBytesDirect
+ * Signature: (JLjava/nio/ByteBuffer;II)I
+ *
+ * @return number of bytes read from serial port, 0 if there was no data in serial port buffer, -1 if error occurs
+ * @throws SerialComException if any JNI function, system call or C function fails.
+ *
+ * It does not modify the direct byte buffer attributes position, capacity, limit and mark. The application design is expected
+ * to take care of this as and when required in appropriate manner.
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_readBytesDirect(JNIEnv *env, jobject obj, jlong fd,
+		jobject buffer, jint offset, jint length) {
+	int ret = 0;
+	int num_bytes_to_read = 0;
+	int num_bytes_read_from_port = 0;
+	int index = 0;
+	jbyte* data_buf = NULL;
+
+	int i = 0;
+	int iovcount = 0;
+	struct iovec* vec = NULL;
+	struct iovec* vec_next = NULL;
+	int have_last_vec_length = 0;
+	int last_vector_length = 0;
+
+	/* get base address of this buffer */
+	data_buf = (jbyte *) (*env)->GetDirectBufferAddress(env, buffer);
+	if((data_buf == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+		throw_serialcom_exception(env, 3, 0, E_GETDIRCTBUFADDRSTR);
+		return -1;
+	}
+
+	if(length <= 3072) {
+		/* non-vectored read() operation is required */
+		index = offset;
+		num_bytes_to_read = length;
+		while(1) {
+			errno = 0;
+			ret = read(fd, &data_buf[index], num_bytes_to_read);
+			if((ret > 0) && (errno == 0)) {
+				/* This indicates we got success and have read data completely. */
+				num_bytes_read_from_port = num_bytes_read_from_port + ret;
+				return num_bytes_read_from_port;
+			}else if((ret > 0) && (errno == EINTR)) {
+				/* This indicates, there is data to read, however, we got interrupted before
+				 * we finish reading all of the available data. Partial read scenario. */
+				index = index + ret;
+				num_bytes_to_read = num_bytes_to_read - ret;
+				num_bytes_read_from_port = num_bytes_read_from_port + ret;
+				errno = 0;
+				continue;
+			}else if(ret == 0) {
+				/* this indicate there is no data in serial port buffer */
+				return 0;
+			}else if(ret < 0) {
+				if(errno == EINTR) {
+					/* This indicates that we should retry as we are just interrupted by a signal. */
+					errno = 0;
+					continue;
+				}else {
+					/* This indicates, irrespective of, there was data to read or not, we got an error
+					 * during operation. */
+					throw_serialcom_exception(env, 1, errno, NULL);
+					return -1;
+				}
+			}else {
+			}
+		}
+	}
+
+	/* reaching here means, vectored I/O read() operation is required */
+	iovcount = length / 3072;
+	last_vector_length = length % 3072;
+	if(last_vector_length > 0) {
+		iovcount = iovcount + 1;
+		have_last_vec_length = 1;
+	}
+	if(iovcount > 500) {
+		/* for insane values of length throw error */
+		throw_serialcom_exception(env, 3, 0, E_VIOVNTINVALIDSTR);
+		return -1;
+	}
+
+	vec = (struct iovec*) calloc(iovcount, sizeof(struct iovec));
+	if(vec == NULL) {
+		throw_serialcom_exception(env, 3, 0, E_CALLOCSTR);
+		return -1;
+	}
+
+	index = offset;
+	vec_next = vec;
+	for(i=0; i < iovcount; i++) {
+		vec_next->iov_base = &data_buf[index];
+		if(i != (iovcount - 1)) {
+			/* length of all blocks before last will be 3072 */
+			vec_next->iov_len = 3072;
+		}else {
+			/* length of last block may be 3072 or less than 3072 */
+			if(have_last_vec_length == 1) {
+				vec_next->iov_len = last_vector_length;
+			}else {
+				vec_next->iov_len = 3072;
+			}
+		}
+		++vec_next;
+		index = index + 3072;
+	}
+
+	index = offset;
+	while(1) {
+		errno = 0;
+		ret = readv(fd, vec, iovcount);
+		if((ret > 0) && (errno == 0)) {
+			/* This indicates we got success and have read data completely. */
+			free(vec);
+			return ret;
+		}else if((ret > 0) && (errno == EINTR)) {
+			/* This indicates, there is data to read, however, we got interrupted before
+			 * we finish reading all of the available data. Partial read scenario. */
+			index = index + ret;
+			num_bytes_to_read = num_bytes_to_read - ret;
+			num_bytes_read_from_port = num_bytes_read_from_port + ret;
+			while(1) {
+				errno = 0;
+				ret = read(fd, &data_buf[index], num_bytes_to_read);
+				if((ret > 0) && (errno == 0)) {
+					/* This indicates we got success and have read data completely. */
+					free(vec);
+					num_bytes_read_from_port = num_bytes_read_from_port + ret;
+					return num_bytes_read_from_port;
+				}else if((ret > 0) && (errno == EINTR)) {
+					/* This indicates, there is data to read, however, we got interrupted before
+					 * we finish reading all of the available data. Partial read scenario. */
+					index = index + ret;
+					num_bytes_to_read = num_bytes_to_read - ret;
+					num_bytes_read_from_port = num_bytes_read_from_port + ret;
+					errno = 0;
+					continue;
+				}else if(ret == 0) {
+					/* this indicate there is no data in serial port buffer */
+					free(vec);
+					return 0;
+				}else if(ret < 0) {
+					if(errno == EINTR) {
+						/* This indicates that we should retry as we are just interrupted by a signal. */
+						errno = 0;
+						continue;
+					}else {
+						/* This indicates, irrespective of, there was data to read or not, we got an error
+						 * during operation. */
+						free(vec);
+						throw_serialcom_exception(env, 1, errno, NULL);
+						return -1;
+					}
+				}else {
+				}
+			}
+		}else if(ret == 0) {
+			/* this indicate there is no data in serial port buffer */
+			free(vec);
+			return 0;
+		}else if(ret < 0) {
+			if(errno == EINTR) {
+				/* This indicates that we should retry as we are just interrupted by a signal
+				 * and have not read any data actually. */
+				errno = 0;
+				continue;
+			}else {
+				/* This indicates, irrespective of, there was data to read or not, we got an error
+				 * during operation. */
+				free(vec);
+				throw_serialcom_exception(env, 1, errno, NULL);
+				return -1;
+			}
+		}else {
+		}
+	}
+
+	free(vec);
+	return -1;
+}
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
  * Method:    writeBytes
  * Signature: (J[BI)I
  *
@@ -785,13 +968,17 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialCom
  * If the number of bytes to be written is 0, then behavior is undefined as per POSIX standard. Therefore we do not allow dummy writes with absolutely no data
  * at all and this is handled at java layer. This function does not block any signals.
  *
- * For debugging; check if the read/write are working as expected using pseudo terminals (/dev/pts/1) then check termios structure settings.
+ * To segregate issues with buffer size or handling from device or driver specific implementation consider using pseudo terminals (/dev/pts/1). If this works
+ * then check termios structure settings for real device.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_writeBytes(JNIEnv *env, jobject obj, jlong fd, jbyteArray buffer, jint delay) {
 	int ret = -1;
 	int index = 0;
 	int status = 0;
 	jbyte* data_buf = NULL;
+
+	/* The JVM may return pointer to original buffer or pointer to its copy depending upon
+	 * whether underlying garbage collector supports pinning or not. */
 	data_buf = (*env)->GetByteArrayElements(env, buffer, JNI_FALSE);
 	if((data_buf == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
 		throw_serialcom_exception(env, 3, 0, E_GETBYTEARRREGIONSTR);
@@ -812,8 +999,12 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
 					status = (-1 * errno);
 					break;
 				}
-
+			}else if(ret == 0) {
+				errno = 0;
+				continue;
+			}else {
 			}
+
 			count = count - ret;
 			index = index + ret;
 		}
@@ -831,8 +1022,12 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
 					status = (-1 * errno);
 					break;
 				}
-
+			}else if(ret == 0) {
+				errno = 0;
+				continue;
+			}else {
 			}
+
 			count = count - ret;
 			index = index + ret;
 			if(count != 0) {
@@ -852,15 +1047,205 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
- * Method:    writeBytesBulk
- * Signature: (JLjava/nio/ByteBuffer;)I
+ * Method:    writeBytesDirect
+ * Signature: (JLjava/nio/ByteBuffer;II)I
  *
- * @return 0 if function succeeds otherwise -1
+ * @return number of bytes written to serial port if function succeeds, -1 if function fails
  * @throws SerialComException if any JNI function, system call or C function fails.
  *
+ * Sends data bytes from Java NIO direct byte buffer out of serial port from the given position upto length number of bytes.
+ * If the number of bytes to be written is less than or equal to 3*1024 non-vectored write() is used otherwise vectored writev()
+ * is used.
+ *
+ * This function handles partial write scenario for both vectored and non-vectored write operations.
+ *
+ * It does not modify the direct byte buffer attributes position, capacity, limit and mark. The application design is expected
+ * to take care of this as and when required in appropriate manner. Also it does not consume or modify the data in the given buffer.
  */
-JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_writeBytesBulk(JNIEnv *env, jobject obj, jlong fd, jobject status) {
-	return -1;
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_writeBytesDirect(JNIEnv *env, jobject obj,
+		jlong fd, jobject buffer, jint offset, jint length) {
+	jbyte* data_buf = NULL;
+	int ret = 0;
+	int count = 0;
+	int index = 0;
+	int num_bytes_written = 0;
+
+	int i = 0;
+	int iovcount = 0;
+	struct iovec* vec = NULL;
+	struct iovec* vec_next = NULL;
+	int have_last_vec_length = 0;
+	int last_vector_length = 0;
+	int new_length = 0;
+
+	/* get base address of this buffer */
+	data_buf = (jbyte *) (*env)->GetDirectBufferAddress(env, buffer);
+	if((data_buf == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+		throw_serialcom_exception(env, 3, 0, E_GETDIRCTBUFADDRSTR);
+		return -1;
+	}
+
+	if(length <= 3072) {
+		/* non-vectored write() operation is required */
+		index = offset;
+		count = length;
+		while(count > 0) {
+			errno = 0;
+			ret = write(fd, &data_buf[index], (size_t)count);
+			if(ret < 0) {
+				if(errno == EINTR) {
+					errno = 0;
+					continue;
+				}else {
+					throw_serialcom_exception(env, 1, errno, NULL);
+					return -1;
+				}
+			}else if(ret == 0) {
+				errno = 0;
+				continue;
+			}else {
+			}
+			num_bytes_written = num_bytes_written + ret;
+			count = count - ret;
+			index = index + ret;
+			tcdrain(fd);
+		}
+		return num_bytes_written;
+	}
+
+	/* reaching here means, vectored I/O write() operation is required */
+	iovcount = length / 3072;
+	last_vector_length = length % 3072;
+	if(last_vector_length > 0) {
+		iovcount = iovcount + 1;
+		have_last_vec_length = 1;
+	}
+	if(iovcount > 500) {
+		/* for insane values of length throw error */
+		throw_serialcom_exception(env, 3, 0, E_VIOVNTINVALIDSTR);
+		return -1;
+	}
+
+	vec = (struct iovec*) calloc(iovcount, sizeof(struct iovec));
+	if(vec == NULL) {
+		throw_serialcom_exception(env, 3, 0, E_CALLOCSTR);
+		return -1;
+	}
+
+	index = offset;
+	vec_next = vec;
+	for(i=0; i < iovcount; i++) {
+		vec_next->iov_base = &data_buf[index];
+		if(i != (iovcount - 1)) {
+			/* length of all blocks before last will be 3072 */
+			vec_next->iov_len = 3072;
+		}else {
+			/* length of last block may be 3072 or less than 3072 */
+			if(have_last_vec_length == 1) {
+				vec_next->iov_len = last_vector_length;
+			}else {
+				vec_next->iov_len = 3072;
+			}
+		}
+		++vec_next;
+		index = index + 3072;
+	}
+
+	index = offset;
+	count = length;
+	while(count > 0) {
+		errno = 0;
+		ret = writev(fd, vec, iovcount);
+		if(ret < 0) {
+			if(errno == EINTR) {
+				errno = 0;
+				continue;
+			}else {
+				free(vec);
+				throw_serialcom_exception(env, 1, errno, NULL);
+				return -1;
+			}
+		}else if(ret == 0) {
+			errno = 0;
+			continue;
+		}else {
+		}
+		num_bytes_written = num_bytes_written + ret;
+		count = count - ret;
+		index = index + ret;
+		tcdrain(fd);
+
+		if(count > 0 ) {
+			/* reaching here means need to handle partial write scenario */
+			new_length = length - num_bytes_written;
+			iovcount = new_length / 3072;
+
+			if(iovcount == 0) {
+				/* reaching here means, number of bytes after partial write is less than 3072,
+				 * so use non-vectored write system call. */
+				while(count > 0) {
+					errno = 0;
+					ret = write(fd, &data_buf[index], (size_t)count);
+					if(ret < 0) {
+						if(errno == EINTR) {
+							errno = 0;
+							continue;
+						}else {
+							free(vec);
+							throw_serialcom_exception(env, 1, errno, NULL);
+							return -1;
+						}
+					}else if(ret == 0) {
+						errno = 0;
+						continue;
+					}else {
+					}
+					num_bytes_written = num_bytes_written + ret;
+					count = count - ret;
+					index = index + ret;
+					tcdrain(fd);
+				}
+				free(vec);
+				return num_bytes_written;
+			}
+
+			/* reaching here means vector IO operation is still required. */
+			have_last_vec_length = 0;
+			last_vector_length = new_length % 3072;
+			if(last_vector_length > 0) {
+				iovcount = iovcount + 1;
+				have_last_vec_length = 1;
+			}
+
+			free(vec);
+			vec = (struct iovec*) calloc(iovcount, sizeof(struct iovec));
+			if(vec == NULL) {
+				throw_serialcom_exception(env, 3, 0, E_CALLOCSTR);
+				return -1;
+			}
+
+			vec_next = vec;
+			for(i=0; i < iovcount; i++) {
+				vec_next->iov_base = &data_buf[index];
+				if(i != (iovcount - 1)) {
+					/* length of all blocks before last will be 3072 */
+					vec_next->iov_len = 3072;
+				}else {
+					/* length of last block may be 3072 or less than 3072 */
+					if(have_last_vec_length == 1) {
+						vec_next->iov_len = last_vector_length;
+					}else {
+						vec_next->iov_len = 3072;
+					}
+				}
+				++vec_next;
+				index = index + 3072;
+			}
+		}
+	}
+
+	free(vec);
+	return num_bytes_written;
 }
 
 /*
@@ -874,7 +1259,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
  * Configures format of data that will be exchanged through serial port electrically.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_configureComPortData(JNIEnv *env, jobject obj, jlong fd,
-		                                                      jint dataBits, jint stopBits, jint parity, jint baudRateTranslated, jint custBaudTranslated) {
+		jint dataBits, jint stopBits, jint parity, jint baudRateTranslated, jint custBaudTranslated) {
 	int ret = 0;
 
 #if defined (__linux__)
@@ -1125,7 +1510,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
  * received by the TTY from the device restarts the output that has been suspended.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_configureComPortControl(JNIEnv *env, jobject obj, jlong fd, jint flowctrl,
-		                                                                                 jchar xon, jchar xoff, jboolean ParFraError, jboolean overFlowErr) {
+		jchar xon, jchar xoff, jboolean ParFraError, jboolean overFlowErr) {
 	int ret = 0;
 
 #if defined (__linux__)
@@ -2189,7 +2574,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
  * In thread_info array, location 0 contains return code while location 1 contains index of global array at which info about thread is stored.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_registerHotPlugEventListener(JNIEnv *env, jobject obj,
-		                                                                                             jobject hotPlugListener, jint filterVID, jint filterPID) {
+		jobject hotPlugListener, jint filterVID, jint filterPID) {
 	int ret = -1;
 	int x = 0;
 	int empty_index_found = 0;

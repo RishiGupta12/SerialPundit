@@ -63,6 +63,8 @@
 #define E_UDEVNEWSTR "Could not create udev context !"
 #define E_UDEVNETLINKSTR "Could not create udev monitor !"
 #define E_IOSRVMATUSBDEVSTR "Function call IOServiceMatching('IOUSBDevice') failed !"
+#define E_GETDIRCTBUFADDRSTR "JNI call GetDirectBufferAddress failed !"
+#define E_VIOVNTINVALIDSTR "The length of data supplied exceeds maximum limit !"
 
 
 /* Custom error codes and messages for SCM library */

@@ -264,7 +264,8 @@ public final class SerialComPortJNIBridge {
 	public native byte[] readBytes(long handle, int byteCount);
 	public native byte[] readBytesBlocking(long handle, int byteCount);
 	public native int writeBytes(long handle, byte[] buffer, int delay);
-	public native int writeBytesBulk(long handle, ByteBuffer buffer);
+	public native int writeBytesDirect(long handle, ByteBuffer buffer, int offset, int length);
+	public native int readBytesDirect(long handle, ByteBuffer buffer, int offset, int length);
 
 	public native int configureComPortData(long handle, int dataBits, int stopBits, int parity, int baudRateTranslated, int custBaudTranslated);
 	public native int configureComPortControl(long handle, int flowctrl, char xon, char xoff, boolean ParFraError, boolean overFlowErr);
