@@ -15,13 +15,13 @@ import com.embeddedunveiled.serial.usb.SerialComUSBdevice;
 import static org.junit.Assert.*;
 
 public final class FuncTestSuiteA1Test {
-	
+
 	static SerialComManager scm;	
 	static String PORT1;
 	static String PORT2;
 	static Long handle1;
 	static Long handle2;
-	
+
 	@BeforeClass
 	public static void preparePorts() throws Exception {
 		try {
@@ -40,7 +40,7 @@ public final class FuncTestSuiteA1Test {
 				PORT1 = null;
 				PORT2 = null;
 			}else{
-				
+
 			}
 			handle1 = scm.openComPort(PORT1, true, true, false);
 			scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
@@ -53,54 +53,54 @@ public final class FuncTestSuiteA1Test {
 		}finally{
 		}
 	}
-	
+
 	@AfterClass
-    public static void closePorts() throws Exception {
+	public static void closePorts() throws Exception {
 		scm.closeComPort(handle1);
 		scm.closeComPort(handle2);
 	}
-	
+
 	@Test(timeout=100)
 	public void getLibraryVersions() throws SerialComException {
 		String version = scm.getLibraryVersions();
 		assertNotNull("getLibraryVersions() : ", version);
 	}
-	
+
 	@Test(timeout=100)
 	public void getOSType() {
 		int type = scm.getOSType();
 		assertTrue(type != SerialComManager.OS_UNKNOWN);
 	}
-	
+
 	@Test(timeout=100)
 	public void getCPUArchitecture() {
 		int arch = scm.getCPUArchitecture();
 		assertTrue(arch != SerialComManager.ARCH_UNKNOWN);
 	}
-	
+
 	@Test(timeout=100)
 	public void listAvailableComPorts() throws SerialComException {
 		String[] ports = scm.listAvailableComPorts();
 		assertTrue(ports != null);
 	}
-	
+
 	@Test(timeout=100)
 	public void listUSBdevicesWithInfo() throws SerialComException {
 		SerialComUSBdevice[] devices = scm.listUSBdevicesWithInfo(SerialComUSB.V_ALL);
 		assertTrue(devices != null);
 	}
-	
+
 	@Test(timeout=100)
 	public void listComPortFromUSBAttributes() throws SerialComException {
 		String[] ports = scm.listComPortFromUSBAttributes(0x0403, 0x6001, "A70362A3");
 		assertTrue(ports != null);
 	}
-	
+
 	@Test(timeout=100)
 	public void isUSBDevConnected() throws SerialComException {
 		assertTrue(scm.isUSBDevConnected(0x0403, 0x6001));
 	}
-	
+
 	@Test(timeout=800)
 	public void writeBytesA() throws SerialComException {
 		assertTrue(scm.writeBytes(handle1, "testing".getBytes(), 0));
@@ -110,7 +110,7 @@ public final class FuncTestSuiteA1Test {
 		}
 		assertNotNull(scm.readString(handle2));
 	}
-	
+
 	@Test(timeout=800)
 	public void writeStringA() throws SerialComException {
 		assertTrue(scm.writeString(handle1, "testing", 0));
@@ -122,7 +122,7 @@ public final class FuncTestSuiteA1Test {
 		assertNotNull(data);
 		assertEquals(data, "testing");
 	}
-	
+
 	@Test(timeout=800)
 	public void writeSingleByteA() throws SerialComException {
 		assertTrue(scm.writeSingleByte(handle1, (byte) 0x41));
