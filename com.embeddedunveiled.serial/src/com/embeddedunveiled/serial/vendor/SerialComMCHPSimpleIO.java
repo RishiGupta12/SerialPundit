@@ -23,9 +23,7 @@ import com.embeddedunveiled.serial.SerialComException;
 import com.embeddedunveiled.serial.internal.SerialComMCHPSIOJNIBridge;
 
 /**
- * <p>Super class for all classes which implements vendor specific API to talk to 
- * their devices using the libraries provided by vendor. These libraries from vendor 
- * may be propriety or not.</p>
+ * <p></p>
  */
 public final class SerialComMCHPSimpleIO extends SerialComVendorLib {
 	

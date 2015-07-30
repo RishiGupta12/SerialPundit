@@ -33,26 +33,30 @@ import com.embeddedunveiled.serial.internal.SerialComSystemProperty;
  * <p>This class is an interface between java and native shared library.</p>
  */
 public final class SerialComPortJNIBridge {
-	
+
 	/**
 	 * <p>Allocates a new SerialComPortJNIBridge object.</p>
 	 */
 	public SerialComPortJNIBridge() {
 	}
-	
+
 	/**
 	 * <p>Extract native library from jar in a working directory, load and link it.</p> 
 	 * 
 	 * @param directoryPath null for default directory or user supplied directory path
 	 * @param loadedLibName null for default name or user supplied name of loaded library
+	 * @param serialComSystemProperty instance of SerialComSystemProperty to get required java properties
+	 * @param cpuArch architecture of CPU this library is running on
+	 * @param osType operating system this library is running on
+	 * @param javaABIType binary application interface type to correctly link
 	 * @throws SecurityException if java system properties can not be  accessed
 	 * @throws SerialComUnexpectedException if java system property is null
 	 * @throws SerialComLoadException if any file system related issue occurs
 	 * @throws UnsatisfiedLinkError if loading/linking shared library fails
 	 */
 	public static boolean loadNativeLibrary(String directoryPath, String loadedLibName, SerialComSystemProperty serialComSystemProperty,
-			                                   int osType, int cpuArch, int javaABIType) throws SecurityException, SerialComUnexpectedException, 
-			                                   SerialComLoadException, UnsatisfiedLinkError {
+			int osType, int cpuArch, int javaABIType) throws SecurityException, SerialComUnexpectedException, 
+			SerialComLoadException, UnsatisfiedLinkError {
 		String javaTmpDir = null;
 		String userHomeDir = null;
 		String fileSeparator = null;
@@ -65,12 +69,12 @@ public final class SerialComPortJNIBridge {
 		String libExtension = null;
 		InputStream input = null;
 		FileOutputStream output = null;
-		
+
 		fileSeparator = serialComSystemProperty.getfileSeparator();
 		if(fileSeparator == null) {
 			throw new SerialComUnexpectedException("loadNativeLibrary()", "The file.separator java system property is null in the system");
 		}
-		
+
 		/* Prepare directory in which native shared library will be extracted from jar */
 		if(directoryPath == null) {
 			// user did not supplied any directory path so try tmp and user home
@@ -78,7 +82,7 @@ public final class SerialComPortJNIBridge {
 			if(javaTmpDir == null) {
 				throw new SerialComUnexpectedException("loadNativeLibrary()", "The java.io.tmpdir java system property is null in the system");
 			}
-			
+
 			baseDir = new File(javaTmpDir);
 			if(baseDir.exists() && baseDir.isDirectory() && baseDir.canWrite()) {
 				isTmpDir = true;
@@ -91,25 +95,25 @@ public final class SerialComPortJNIBridge {
 				}
 				baseDir = new File(userHomeDir);
 				if(!baseDir.exists()) {
-					throw new SerialComLoadException("loadNativeLibrary()", "User home directory does not exist. Also unable to access tmp/temp directory");
+					throw new SerialComLoadException("User home directory does not exist. Also unable to access tmp/temp directory");
 				}
 				if(!baseDir.isDirectory()) {
-					throw new SerialComLoadException("loadNativeLibrary()", "User home directory is not a directory. Also unable to access tmp/temp directory");
+					throw new SerialComLoadException("User home directory is not a directory. Also unable to access tmp/temp directory");
 				}
 				if(!baseDir.canWrite()) {
-					throw new SerialComLoadException("loadNativeLibrary()", "User home directory is not writeable (permissions ??). Also unable to access tmp/temp directory");
+					throw new SerialComLoadException("User home directory is not writeable (permissions ??). Also unable to access tmp/temp directory");
 				}
 				isUserHomeDir = true;
 			}
-			
+
 			// for tmp or user home create unique directory inside them for our use only
 			workingDir = new File(baseDir.toString() + fileSeparator + "scm_tuartx1");
 			if(!workingDir.exists()) {
 				if(!workingDir.mkdir()) {
 					if(isTmpDir == true) {
-						throw new SerialComLoadException("loadNativeLibrary()", "Can not create scm_tuartx1 unique directory in temp directory");
+						throw new SerialComLoadException("Can not create scm_tuartx1 unique directory in temp directory");
 					}else if(isUserHomeDir == true) {
-						throw new SerialComLoadException("loadNativeLibrary()", "Can not create scm_tuartx1 unique directory in user home directory");
+						throw new SerialComLoadException("Can not create scm_tuartx1 unique directory in user home directory");
 					}else {
 					}
 				}
@@ -118,15 +122,15 @@ public final class SerialComPortJNIBridge {
 			// user specified directory, so try it
 			baseDir = new File(directoryPath);
 			if(!baseDir.exists()) {
-				throw new SerialComLoadException("loadNativeLibrary()", "Given " + directoryPath + " directory does not exist");
+				throw new SerialComLoadException("Given " + directoryPath + " directory does not exist !");
 			}
 			if(!baseDir.isDirectory()) {
-				throw new SerialComLoadException("loadNativeLibrary()", "Given " + directoryPath + " is not a directory");
+				throw new SerialComLoadException("Given " + directoryPath + " is not a directory !");
 			}
 			if(!baseDir.canWrite()) {
-				throw new SerialComLoadException("loadNativeLibrary()", "Given " + directoryPath + " directory is not writeable");
+				throw new SerialComLoadException("Given " + directoryPath + " directory is not writeable !");
 			}
-			
+
 			// for user specified directory base itself will be working directory
 			workingDir = baseDir;
 		}
@@ -134,35 +138,35 @@ public final class SerialComPortJNIBridge {
 		/* Find the native library that will be extracted based on arch and os type */
 		if(cpuArch == SerialComManager.ARCH_AMD64) {
 			switch(osType) {
-				case SerialComManager.OS_WINDOWS:
-					libToExtractFromJar = "windows_" + SerialComManager.JAVA_LIB_VERSION + "_x86_64.dll";
-					libExtension = ".dll";
-					break;
-				case SerialComManager.OS_LINUX:
-					libToExtractFromJar = "linux_" + SerialComManager.JAVA_LIB_VERSION + "_x86_64.so";
-					libExtension = ".so";
-					break;
-				case SerialComManager.OS_MAC_OS_X:
-					libToExtractFromJar = "mac_" + SerialComManager.JAVA_LIB_VERSION + "_x86_64.dylib";
-					libExtension = ".dylib";
-					break;
-				default :
+			case SerialComManager.OS_WINDOWS:
+				libToExtractFromJar = "windows_" + SerialComManager.JAVA_LIB_VERSION + "_x86_64.dll";
+				libExtension = ".dll";
+				break;
+			case SerialComManager.OS_LINUX:
+				libToExtractFromJar = "linux_" + SerialComManager.JAVA_LIB_VERSION + "_x86_64.so";
+				libExtension = ".so";
+				break;
+			case SerialComManager.OS_MAC_OS_X:
+				libToExtractFromJar = "mac_" + SerialComManager.JAVA_LIB_VERSION + "_x86_64.dylib";
+				libExtension = ".dylib";
+				break;
+			default :
 			}
 		}else if(cpuArch == SerialComManager.ARCH_X86) {
 			switch(osType) {
-				case SerialComManager.OS_WINDOWS:
-					libToExtractFromJar = "windows_" + SerialComManager.JAVA_LIB_VERSION + "_x86.dll";
-					libExtension = ".dll";
-					break;
-				case SerialComManager.OS_LINUX:
-					libToExtractFromJar = "linux_" + SerialComManager.JAVA_LIB_VERSION + "_x86.so";
-					libExtension = ".so";
-					break;
-				case SerialComManager.OS_MAC_OS_X:
-					libToExtractFromJar = "mac_" + SerialComManager.JAVA_LIB_VERSION + "_x86.dylib";
-					libExtension = ".dylib";
-					break;
-				default :
+			case SerialComManager.OS_WINDOWS:
+				libToExtractFromJar = "windows_" + SerialComManager.JAVA_LIB_VERSION + "_x86.dll";
+				libExtension = ".dll";
+				break;
+			case SerialComManager.OS_LINUX:
+				libToExtractFromJar = "linux_" + SerialComManager.JAVA_LIB_VERSION + "_x86.so";
+				libExtension = ".so";
+				break;
+			case SerialComManager.OS_MAC_OS_X:
+				libToExtractFromJar = "mac_" + SerialComManager.JAVA_LIB_VERSION + "_x86.dylib";
+				libExtension = ".dylib";
+				break;
+			default :
 			}
 		}else if(cpuArch == SerialComManager.ARCH_ARMV7) {
 			if(osType == SerialComManager.OS_LINUX) {
@@ -191,7 +195,7 @@ public final class SerialComPortJNIBridge {
 			}
 		}else {
 		}
-		
+
 		/* Extract shared library from jar into working directory */
 		try {
 			if(loadedLibName == null) {
@@ -199,7 +203,7 @@ public final class SerialComPortJNIBridge {
 			}else {
 				libFile = new File(workingDir.getAbsolutePath() + fileSeparator + loadedLibName.trim() + libExtension);
 			}
-			
+
 			input = SerialComPortJNIBridge.class.getResourceAsStream("/libs/" + libToExtractFromJar);
 			output = new FileOutputStream(libFile);
 			if(input != null) {
@@ -211,17 +215,17 @@ public final class SerialComPortJNIBridge {
 				output.flush();
 				output.close();
 				output = null;
-				
+
 				if((libFile != null) && libFile.exists() && libFile.isFile()) {
 					// congratulations successfully extracted
 				}else {
-					throw new SerialComLoadException("loadNativeLibrary()", "Can not extract native shared library from scm-x.x.x.jar file");
+					throw new SerialComLoadException("Can not extract native shared library from scm-x.x.x.jar file !");
 				}
 			}else {
-				throw new SerialComLoadException("loadNativeLibrary()", "Can not get shared library resource as stream from scm-x.x.x.jar file using class loader");
+				throw new SerialComLoadException("Can not get shared library resource as stream from scm-x.x.x.jar file using class loader !");
 			}
 		} catch (Exception e) {
-			 throw (SerialComLoadException) new SerialComLoadException("loadNativeLibrary()", libFile.toString()).initCause(e);
+			throw (SerialComLoadException) new SerialComLoadException(libFile.toString()).initCause(e);
 		} finally {
 			try {
 				if(output != null) {
@@ -238,14 +242,14 @@ public final class SerialComPortJNIBridge {
 				// ignore
 			}
 		}
-		
+
 		/* Try loading the dynamic shared library from the local file system finally */
 		try {
 			System.load(libFile.toString());
 		} catch (Exception e) {
-			throw (UnsatisfiedLinkError) new UnsatisfiedLinkError("Could not load " + libFile.toString() + " native library:").initCause(e);
+			throw (UnsatisfiedLinkError) new UnsatisfiedLinkError("Could not load " + libFile.toString() + " native library !").initCause(e);
 		}
-		
+
 		return true;
 	}
 

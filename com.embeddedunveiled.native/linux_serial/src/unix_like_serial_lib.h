@@ -50,10 +50,12 @@
 #define E_SETINTARRREGIONSTR "JNI call SetIntArrayRegion failed !"
 #define E_NEWSTRUTFSTR "JNI call NewStringUTF failed !"
 #define E_GETSTRUTFCHARSTR "JNI call GetStringUTFChars failed !"
-#define E_GETBYTEARRREGIONSTR "JNI call GetByteArrayElements failed !"
+#define E_GETBYTEARRELEMTSTR "JNI call GetByteArrayElements failed !"
+#define E_GETBYTEARRREGIONSTR "JNI call GetByteArrayRegion failed !"
 #define E_NEWGLOBALREFSTR "JNI Call NewGlobalRef failed !"
 #define E_DELGLOBALREFSTR "JNI Call DeleteGlobalRef failed !"
-#define E_CALLOCSTR "Calloc() failed to allocate requested memory !"
+#define E_CALLOCSTR "calloc() failed to allocate requested memory !"
+#define E_REALLOCSTR "realloc() failed to allocate requested memory !"
 #define E_ATTACHCURRENTTHREADSTR "JNI call AttachCurrentThread failed !"
 #define E_GETOBJECTCLASSSTR "JNI call GetObjectClass failed !"
 #define E_GETMETHODIDSTR "JNI call GetMethodID failed !"
@@ -157,7 +159,6 @@ struct jstrarray_list {
 
 /* function prototypes (declared in reverse order of use) */
 extern int LOGE(const char *error_msg);
-extern int set_error_status(JNIEnv *env, jobject obj, jobject status, int error_number);
 extern void throw_serialcom_exception(JNIEnv *env, int type, int error_code, const char *);
 extern void free_jstrarraylist(struct jstrarray_list *al);
 extern void insert_jstrarraylist(struct jstrarray_list *al, jstring element);

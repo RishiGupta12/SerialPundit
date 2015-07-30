@@ -981,7 +981,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
 	 * whether underlying garbage collector supports pinning or not. */
 	data_buf = (*env)->GetByteArrayElements(env, buffer, JNI_FALSE);
 	if((data_buf == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
-		throw_serialcom_exception(env, 3, 0, E_GETBYTEARRREGIONSTR);
+		throw_serialcom_exception(env, 3, 0, E_GETBYTEARRELEMTSTR);
 		return -1;
 	}
 	size_t count = (size_t) (*env)->GetArrayLength(env, buffer);

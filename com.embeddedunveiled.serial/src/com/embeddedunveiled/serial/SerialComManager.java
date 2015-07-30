@@ -39,8 +39,6 @@ import com.embeddedunveiled.serial.internal.SerialComSystemProperty;
 import com.embeddedunveiled.serial.usb.SerialComUSBdevice;
 import com.embeddedunveiled.serial.vendor.SerialComVendorLib;
 
-
-
 /**
  * <p>Root of this library.</p>
  * <p>The WIKI page for this project is here : http://www.embeddedunveiled.com/ </p>
@@ -206,7 +204,7 @@ public final class SerialComManager {
 			return this.value;
 		}
 	}
-	
+
 	/** <p>Pre-defined enum constants for defining variant of file transfer protocol to use. </p>*/
 	public enum FTPVAR {
 		/** <p>Checksum for XMODEM protocol, 128 data byte block for YMODEM.  </p>*/ //TODO FOR zmodem
@@ -227,7 +225,7 @@ public final class SerialComManager {
 			return this.value;
 		}
 	}
-	
+
 	/** <p>Pre-defined enum constants for defining translation mode file transfer protocol to use. </p>*/ 
 	public enum FTPMODE {
 		/** <p>Specify translating of data as per the operating system on which receiver application is running. </p>*/
@@ -242,7 +240,7 @@ public final class SerialComManager {
 			return this.value;
 		}
 	}
-	
+
 	/** <p>Pre-defined enum constants for defining behavior of byte stream. </p>*/
 	public enum SMODE {
 		/** <p>Read will block till data is available. </p>*/
@@ -257,94 +255,94 @@ public final class SerialComManager {
 			return this.value;
 		}
 	}
-	
+
 	/** <p>The value indicating that operating system is unknown to SCM library. Integer constant with value 0x00. </p>*/
 	public static final int OS_UNKNOWN  = 0x00;
-	
+
 	/** <p>The value indicating the Linux operating system. Integer constant with value 0x01. </p>*/
 	public static final int OS_LINUX    = 0x01;
-	
+
 	/** <p>The value indicating the Windows operating system. Integer constant with value 0x02. </p>*/
 	public static final int OS_WINDOWS  = 0x02;
-	
+
 	/** <p>The value indicating the Solaris operating system. Integer constant with value 0x03. </p>*/
 	public static final int OS_SOLARIS  = 0x03;
-	
+
 	/** <p>The value indicating the Mac OS X operating system. Integer constant with value 0x04. </p>*/
 	public static final int OS_MAC_OS_X = 0x04;
-	
+
 	/** <p>The value indicating the FreeBSD operating system.. Integer constant with value 0x05. </p>*/
 	public static final int OS_FREEBSD  = 0x05;
-	
+
 	/** <p>The value indicating the NetBSD operating system. Integer constant with value 0x06. </p>*/
 	public static final int OS_NETBSD   = 0x06;
-	
+
 	/** <p>The value indicating the OpenBSD operating system. Integer constant with value 0x07. </p>*/
 	public static final int OS_OPENBSD  = 0x07;
-	
+
 	/** <p>The value indicating the IBM AIX operating system. Integer constant with value 0x08. </p>*/
 	public static final int OS_IBM_AIX  = 0x08;
-	
+
 	/** <p>The value indicating the HP-UX operating system. Integer constant with value 0x09. </p>*/
 	public static final int OS_HP_UX    = 0x09;
-	
+
 	/** <p>The value indicating the Android operating system. Integer constant with value 0x0A. </p>*/
 	public static final int OS_ANDROID  = 0x0A;
-	
+
 	/** <p>The value indicating that platform architecture is unknown to SCM library. Integer constant with value 0x00. </p>*/
 	public static final int ARCH_UNKNOWN  = 0x00;
-	
+
 	/** <p>The common value indicating that the library is running on a 32 bit Intel i386/i486/i586/i686/i786/i886/i986/IA-32 based architecture. Integer constant with value 0x01. </p>*/
 	public static final int ARCH_X86 = 0x01;
-	
+
 	/** <p>The common value indicating that the library is running on a 64 bit Intel x86_64 (x86-64/x64/Intel 64) and AMD amd64 based architecture. Integer constant with value 0x02. </p>*/
 	public static final int ARCH_AMD64 = 0x02;
-	
+
 	/** <p>The value indicating that the library is running on a 64 bit Intel/HP Itanium based architecture. Integer constant with value 0x03. </p>*/
 	public static final int ARCH_IA64 = 0x03;
-	
+
 	/** <p>The value indicating that the library is running on an IA64 32 bit based architecture. Integer constant with value 0x04. </p>*/
 	public static final int ARCH_IA64_32 = 0x04;
-	
+
 	/** <p>The value indicating that the library is running on a 32 bit PowerPC based architecture from Apple–IBM–Motorola. Integer constant with value 0x05. </p>*/
 	public static final int ARCH_PPC32 = 0x05;
-	
+
 	/** <p>The value indicating that the library is running on a 64 bit PowerPC based architecture from Apple–IBM–Motorola. Integer constant with value 0x06. </p>*/
 	public static final int ARCH_PPC64 = 0x06;
-	
+
 	/** <p>The value indicating that the library is running on a 64 bit PowerPC based architecture in little endian mode from Apple–IBM–Motorola. Integer constant with value 0x06. </p>*/
 	public static final int ARCH_PPC64LE = 0x06;
-	
+
 	/** <p>The value indicating that the library is running on a 32 bit Sparc based architecture from Sun Microsystems. Integer constant with value 0x07. </p>*/
 	public static final int ARCH_SPARC32 = 0x07;
-	
+
 	/** <p>The value indicating that the library is running on a 64 bit Sparc based architecture from Sun Microsystems. Integer constant with value 0x08. </p>*/
 	public static final int ARCH_SPARC64 = 0x08;
-	
+
 	/** <p>The value indicating that the library is running on a 32 bit PA-RISC based architecture. Integer constant with value 0x09. </p>*/
 	public static final int ARCH_PA_RISC32 = 0x09;
-	
+
 	/** <p>The value indicating that the library is running on a 64 bit PA-RISC based architecture. Integer constant with value 0x0A. </p>*/
 	public static final int ARCH_PA_RISC64 = 0x0A;
-	
+
 	/** <p>The value indicating that the library is running on a 32 bit IBM S/390 system. Integer constant with value 0x0B. </p>*/
 	public static final int ARCH_S390 = 0x0B;
-	
+
 	/** <p>The value indicating that the library is running on a 64 bit IBM S/390 system. Integer constant with value 0x0C. </p>*/
 	public static final int ARCH_S390X = 0x0C;
-	
+
 	/** <p>The value indicating that the library is running on a ARMv5 based architecture CPU. Integer constant with value 0x0D. </p>*/
 	public static final int ARCH_ARMV5 = 0x0D;
-	
+
 	/** <p>The value indicating that the library is running on a ARMv6 soft float based JVM. Integer constant with value 0x0E. </p>*/
 	public static final int ARCH_ARMV6 = 0x0E;
-	
+
 	/** <p>The value indicating that the library is running on a ARMv7 soft float based JVM. Integer constant with value 0x10. </p>*/
 	public static final int ARCH_ARMV7 = 0x0F;
-	
+
 	/** <p>The value indicating hard float ABI. </p>*/
 	public static final int ABI_ARMHF =  0x01;
-	
+
 	/** <p>The value indicating soft float ABI. </p>*/
 	public static final int ABI_ARMEL  = 0x02;
 
@@ -353,33 +351,33 @@ public final class SerialComManager {
 
 	/** <p>Clear to send mask bit constant for UART control line. </p>*/
 	public static final int CTS =  0x01;  // 0000001
-	
+
 	/** <p>Data set ready mask bit constant for UART control line. </p>*/
 	public static final int DSR =  0x02;  // 0000010
-	
+
 	/** <p>Data carrier detect mask bit constant for UART control line. </p>*/
 	public static final int DCD =  0x04;  // 0000100
-	
+
 	/** <p>Ring indicator mask bit constant for UART control line. </p>*/
 	public static final int RI  =  0x08;  // 0001000
-	
+
 	/** <p>Loop indicator mask bit constant for UART control line. </p>*/
 	public static final int LOOP = 0x10;  // 0010000
-	
+
 	/** <p>Request to send mask bit constant for UART control line. </p>*/
 	public static final int RTS =  0x20;  // 0100000
-	
+
 	/** <p>Data terminal ready mask bit constant for UART control line. </p>*/
 	public static final int DTR  = 0x40;  // 1000000
-	
+
 	/** <p>Maintain integrity and consistency among all operations, synchronize them for
 	 *  making structural changes. This array can be sorted array if scaled to large scale.</p>*/
 	private ArrayList<SerialComPortHandleInfo> handleInfo = new ArrayList<SerialComPortHandleInfo>();
 	private List<SerialComPortHandleInfo> mPortHandleInfo = Collections.synchronizedList(handleInfo);
-	
+
 	private ArrayList<SerialComHotPlugInfo> hotPlugListenerInfo = new ArrayList<SerialComHotPlugInfo>();
 	private List<SerialComHotPlugInfo> mHotPlugListenerInfo = Collections.synchronizedList(hotPlugListenerInfo);
-	
+
 	private SerialComIOCTLExecutor mSerialComIOCTLExecutor;
 	private SerialComPlatform mSerialComPlatform;
 	private final SerialComSystemProperty mSerialComSystemProperty;
@@ -388,7 +386,7 @@ public final class SerialComManager {
 	private final SerialComCompletionDispatcher mEventCompletionDispatcher;
 	private final SerialComPortsList mSerialComPortsList;
 	private final Object lockB = new Object();
-	
+
 	private static int osType;
 	private static int cpuArch;
 	private static int javaABIType;
@@ -412,7 +410,7 @@ public final class SerialComManager {
 	 * @throws SerialComException if initializing native library fails
 	 */
 	public SerialComManager() throws SecurityException, SerialComUnexpectedException, SerialComLoadException,
-	                           UnsatisfiedLinkError, SerialComException, FileNotFoundException, IOException {
+	UnsatisfiedLinkError, SerialComException, FileNotFoundException, IOException {
 		mSerialComSystemProperty = new SerialComSystemProperty();
 		synchronized(lockA) {
 			if(osType <= 0) {
@@ -442,7 +440,7 @@ public final class SerialComManager {
 		mEventCompletionDispatcher = new SerialComCompletionDispatcher(mComPortJNIBridge, mErrMapper, mPortHandleInfo);
 		mSerialComPortsList = new SerialComPortsList(mComPortJNIBridge, osType);
 	}
-	
+
 	/**
 	 * <p>Allocates a new SerialComManager object. Identify operating system type, CPU architecture, prepares 
 	 * environment required for running this library, initiates extraction and loading of native libraries.</p>
@@ -465,7 +463,7 @@ public final class SerialComManager {
 	 * @throws SerialComException if initializing native library fails
 	 */
 	public SerialComManager(String directoryPath, String loadedLibName) throws SecurityException, SerialComUnexpectedException, 
-	                        SerialComLoadException, UnsatisfiedLinkError, SerialComException, FileNotFoundException, IOException {
+	SerialComLoadException, UnsatisfiedLinkError, SerialComException, FileNotFoundException, IOException {
 		if(directoryPath == null) {
 			throw new IllegalArgumentException("SerialComManager() " + "Argument directoryPath can not be null");
 		}
@@ -524,7 +522,7 @@ public final class SerialComManager {
 		}
 		return version;
 	}
-	
+
 	/**
 	 * <p>Gives operating system type as identified by this library. To interpret return integer see constants defined
 	 * SerialComManager class.</p>
@@ -534,7 +532,7 @@ public final class SerialComManager {
 	public int getOSType() {
 		return osType;
 	}
-	
+
 	/**
 	 * <p>Gives CPU/Platform architecture as identified by this library. To interpret return integer see constants defined
 	 * SerialComManager class.</p>
@@ -568,7 +566,7 @@ public final class SerialComManager {
 			return new String[] { };
 		}	
 	}
-	
+
 	/**
 	 * <p>Returns an array containing information about all the USB devices found by this library. Application can call various 
 	 * methods on returned SerialComUSBdevice class objects to get specific information like vendor id and product id etc. The 
@@ -586,7 +584,7 @@ public final class SerialComManager {
 	 * @param vendorFilter vendor whose devices should be listed (one of the constants SerialComUSB.V_xxxxx or any valid USB VID)
 	 * @return list of the USB devices with information about them or empty array if no device matching given criteria found
 	 * @throws SerialComException if an I/O error occurs.
-	 * @throws IllegalArgumentException if vendorFilter is negative
+	 * @throws IllegalArgumentException if vendorFilter is negative or invalid number
 	 */
 	public SerialComUSBdevice[] listUSBdevicesWithInfo(int vendorFilter) throws SerialComException {
 		int i = 0;
@@ -596,13 +594,13 @@ public final class SerialComManager {
 			throw new IllegalArgumentException("listUSBdevicesWithInfo(), " + "Argument vendorFilter can not be negative or greater tha 0xFFFF");
 		}
 		String[] usbDevicesInfo = mComPortJNIBridge.listUSBdevicesWithInfo(vendorFilter);
-				
+
 		if(usbDevicesInfo != null) {
 			numOfDevices = usbDevicesInfo.length / 5;
 			usbDevicesFound = new SerialComUSBdevice[numOfDevices];
 			for(int x=0; x<numOfDevices; x++) {
 				usbDevicesFound[x] = new SerialComUSBdevice(usbDevicesInfo[i], usbDevicesInfo[i+1], usbDevicesInfo[i+2], 
-															usbDevicesInfo[i+3], usbDevicesInfo[i+4]);
+						usbDevicesInfo[i+3], usbDevicesInfo[i+4]);
 				i = i + 5;
 			}
 			return usbDevicesFound;
@@ -610,7 +608,7 @@ public final class SerialComManager {
 			return new SerialComUSBdevice[] { };
 		}	
 	}
-	
+
 	/**
 	 * <p>Gives COM port (device node) assigned by operating system to the given USB-UART device.</p>
 	 * 
@@ -635,7 +633,7 @@ public final class SerialComManager {
 	 * @param serialNumber USB serial number of device to match (case insensitive) or null if not to be matched
 	 * @return list of COM port(s) (device node) for given USB device or empty array if no com port is assigned
 	 * @throws SerialComException if an I/O error occurs.
-	 * @throws IllegalArgumentException if usbVidToMatch or usbPidToMatch is negative
+	 * @throws IllegalArgumentException if usbVidToMatch or usbPidToMatch is negative or or invalid number
 	 */
 	public String[] listComPortFromUSBAttributes(int usbVidToMatch, int usbPidToMatch, final String serialNumber) throws SerialComException {
 		if(usbVidToMatch < 0) {
@@ -644,7 +642,7 @@ public final class SerialComManager {
 		if(usbPidToMatch < 0) {
 			throw new IllegalArgumentException("listComPortFromUSBAttributes(), " + "Argument usbPidToMatch can not be negative");
 		}
-		
+
 		String serialNum = null;
 		if(serialNumber != null) {
 			serialNum = serialNumber.toLowerCase();
@@ -695,14 +693,14 @@ public final class SerialComManager {
 		if((enableRead == false) && (enableWrite == false)) {
 			throw new SerialComException(portName, "openComPort()",  "Enable at-least read, write or both.");
 		}
-		
+
 		if(getOSType() == OS_WINDOWS) {
 			// For windows COM port can not be shared, so throw exception
 			if(exclusiveOwnerShip == false) {
 				throw new SerialComException(portName, "openComPort()", "Windows OS does not allow port sharing; exclusiveOwnerShip must be true");
 			}
 		}
-		
+
 		synchronized(lockB) {
 			/* Try to reduce transitions from java to JNI layer as it is possible here by performing check in java layer itself. */
 			if(exclusiveOwnerShip == true) {
@@ -712,7 +710,7 @@ public final class SerialComManager {
 					}
 				}
 			}
-			
+
 			handle = mComPortJNIBridge.openComPort(portNameVal, enableRead, enableWrite, exclusiveOwnerShip);
 			if(handle < 0) {
 				/* JNI should have already thrown exception, this is an extra check to increase reliability of program */
@@ -752,11 +750,11 @@ public final class SerialComManager {
 					break;
 				}
 			}
-	
+
 			if(handlefound == false) {
 				throw new SerialComException("closeComPort()", "Wrong port handle passed");
 			}
-	
+
 			if(mHandleInfo.getDataListener() != null) {
 				/* Proper clean up requires that, native thread should be destroyed before closing port. */
 				throw new IllegalStateException("closeComPort() " + "Closing port without unregistering data listener is not allowed");
@@ -764,9 +762,9 @@ public final class SerialComManager {
 			if(mHandleInfo.getEventListener() != null) {
 				throw new IllegalStateException("closeComPort() " + "Closing port without unregistering event listener is not allowed");
 			}
-	
+
 			mComPortJNIBridge.closeComPort(handle);
-	
+
 			/* delete info about this port/handle from global info arraylist. */
 			mPortHandleInfo.remove(mHandleInfo);
 		}
@@ -804,7 +802,7 @@ public final class SerialComManager {
 		if(delay < 0) {
 			throw new IllegalArgumentException("writeBytes(), " + "Argument delay can not be negative");
 		}
-		
+
 		int ret = mComPortJNIBridge.writeBytes(handle, buffer, delay);
 		if(ret < 0) {
 			/* JNI should have already thrown exception, this is an extra check to increase reliability of program */
@@ -903,7 +901,7 @@ public final class SerialComManager {
 	 */
 	public boolean writeSingleInt(long handle, int data, int delay, ENDIAN endianness, NUMOFBYTES numOfBytes) throws SerialComException {
 		byte[] buffer = null;
-		
+
 		if(endianness == null) {
 			throw new IllegalArgumentException("writeSingleInt() " + "Argument endianness can not be null");
 		}
@@ -953,7 +951,7 @@ public final class SerialComManager {
 	 */
 	public boolean writeIntArray(long handle, final int[] buffer, int delay, ENDIAN endianness, NUMOFBYTES numOfBytes) throws SerialComException {
 		byte[] localBuf = null;
-		
+
 		if(endianness == null) {
 			throw new IllegalArgumentException("writeIntArray() " + "Argument endianness can not be null");
 		}
@@ -1011,7 +1009,7 @@ public final class SerialComManager {
 			return writeBytes(handle, localBuf, delay);
 		}
 	}
-	
+
 	/**
 	 * <p>Writes the bytes from the given direct byte buffer using facilities of the underlying JVM and operating system. 
 	 * When this method returns data would have sent out of serial port physically.</p>
@@ -1024,7 +1022,7 @@ public final class SerialComManager {
 	 * consume or modify the data in the given buffer.</p>
 	 * 
 	 * @param handle handle of the serial port on which to write bytes
-	 * @param direct byte buffer containing bytes to be written to port
+	 * @param buffer direct byte buffer containing bytes to be written to port
 	 * @param offset location from where to start sending data out of serial port
 	 * @param length number of bytes from offset to sent to serial port
 	 * @return number of bytes sent to serial port, 0 if length is 0
@@ -1055,7 +1053,7 @@ public final class SerialComManager {
 		}
 		return ret;
 	}
-	
+
 	/**
 	 * <p>Reads the bytes from the serial port into the given direct byte buffer using facilities of the underlying 
 	 * JVM and operating system.</p>
@@ -1064,7 +1062,7 @@ public final class SerialComManager {
 	 * design is expected to take care of this as and when required in appropriate manner.</p>
 	 * 
 	 * @param handle handle of the serial port from which to read data bytes
-	 * @param direct byte buffer into which data bytes will be placed
+	 * @param buffer direct byte buffer into which data bytes will be placed
 	 * @param offset location in byte buffer from which to start saving data
 	 * @param length number of bytes from offset to read in buffer
 	 * @return number of bytes read from serial port, 0 if length is 0
@@ -1094,7 +1092,7 @@ public final class SerialComManager {
 		}
 		return ret;
 	}
-	
+
 	/** 
 	 * <p>Read specified number of bytes from given serial port and stay blocked till bytes arrive at serial port.</p>
 	 * <p>1. If data is read from serial port, array of bytes containing data is returned.</p>
@@ -1120,7 +1118,7 @@ public final class SerialComManager {
 		}else {
 			buffer = mComPortJNIBridge.readBytes(handle, byteCount);
 		}
-		
+
 		// data read from serial port, pass to application
 		if(buffer != null) {
 			return buffer;
@@ -1172,7 +1170,7 @@ public final class SerialComManager {
 	 * <p>This method reads data from serial port and converts it into string. Caller has more finer control over the byte operation.</p>
 	 * 
 	 * <p> It Constructs a new string by decoding the specified array of bytes using the platform's default charset. The length of the new
-     * string is a function of the charset, and hence may not be equal to the length of the byte array read from serial port.</p>
+	 * string is a function of the charset, and hence may not be equal to the length of the byte array read from serial port.</p>
 	 * 
 	 * @param handle of port from which to read bytes
 	 * @param byteCount number of bytes to read from this port
@@ -1191,8 +1189,8 @@ public final class SerialComManager {
 	 * <p>This method reads data from serial port and converts it into string. Caller has more finer control over the byte operation.</p>
 	 * 
 	 * <p> It Constructs a new string by decoding the specified array of bytes using the platform's default charset. The length of the new
-     * string is a function of the charset, and hence may not be equal to the length of the byte array read from serial port.</p>
-     * 
+	 * string is a function of the charset, and hence may not be equal to the length of the byte array read from serial port.</p>
+	 * 
 	 * <p>Note that the length of data bytes read using this method can not be greater than DEFAULT_READBYTECOUNT i.e. 1024.</p>
 	 * 
 	 * @param handle of the port from which to read bytes
@@ -1248,7 +1246,7 @@ public final class SerialComManager {
 		int baudRateTranslated = 0;
 		int custBaudTranslated = 0;
 		int baudRateGiven = 0;
-		
+
 		if(dataBits == null) {
 			throw new IllegalArgumentException("configureComPortData() " + "Argument dataBits can not be null");
 		}
@@ -1310,11 +1308,11 @@ public final class SerialComManager {
 	 */
 	public boolean configureComPortControl(long handle, FLOWCONTROL flowctrl, char xon, char xoff, boolean ParFraError, boolean overFlowErr) throws SerialComException {
 		boolean handlefound = false;
-		
+
 		if(flowctrl == null) {
 			throw new IllegalArgumentException("configureComPortControl() " + "Argument flowctrl can not be null");
 		}
-		
+
 		for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
 			if(mInfo.containsHandle(handle)) {
 				handlefound = true;
@@ -1405,7 +1403,11 @@ public final class SerialComManager {
 	 * @throws SerialComException if system is unable to complete requested operation
 	 */
 	public boolean setRTS(long handle, boolean enabled) throws SerialComException {
-		mComPortJNIBridge.setRTS(handle, enabled);
+		int ret = mComPortJNIBridge.setRTS(handle, enabled);
+		if(ret < 0) {
+			/* JNI should have already thrown exception, this is an extra check to increase reliability of program */
+			throw new SerialComException("Could not set RTS line to desired state. Please retry !");
+		}
 		return true;
 	}
 
@@ -1421,7 +1423,11 @@ public final class SerialComManager {
 	 * @throws SerialComException if system is unable to complete requested operation
 	 */
 	public boolean setDTR(long handle, boolean enabled) throws SerialComException {
-		mComPortJNIBridge.setDTR(handle, enabled);
+		int ret = mComPortJNIBridge.setDTR(handle, enabled);
+		if(ret < 0) {
+			/* JNI should have already thrown exception, this is an extra check to increase reliability of program */
+			throw new SerialComException("Could not set DTR line to desired state. Please retry !");
+		}
 		return true;
 	}
 
@@ -1449,7 +1455,7 @@ public final class SerialComManager {
 		if(dataListener == null) {
 			throw new IllegalArgumentException("registerDataListener(), " + "Argument dataListener can not be null");
 		}
-		
+
 		synchronized(lockB) {
 			for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
 				if(mInfo.containsHandle(handle)) {
@@ -1462,11 +1468,11 @@ public final class SerialComManager {
 					break;
 				}
 			}
-	
+
 			if(handlefound == false) {
 				throw new SerialComException("registerDataListener()", "Wrong port handle passed for the requested operations");
 			}
-	
+
 			return mEventCompletionDispatcher.setUpDataLooper(handle, mHandleInfo, dataListener);
 		}
 	}
@@ -1537,11 +1543,11 @@ public final class SerialComManager {
 					break;
 				}
 			}
-	
+
 			if(handlefound == false) {
 				throw new SerialComException("registerLineEventListener()", "Wrong port handle passed for the requested operations");
 			}
-	
+
 			return mEventCompletionDispatcher.setUpEventLooper(handle, mHandleInfo, eventListener);
 		}
 	}
@@ -1609,7 +1615,7 @@ public final class SerialComManager {
 
 		return false;
 	}
-	
+
 	/**
 	 * <p>This method gives more fine tune control to application for tuning performance and behavior of read
 	 * operations to leverage OS specific facility for read operation. The read operations can be optimized for
@@ -1705,7 +1711,7 @@ public final class SerialComManager {
 	 * @throws IllegalArgumentException if eventListener is null
 	 */
 	public int getEventsMask(final ISerialComEventListener eventListener) throws SerialComException {
-		
+
 		SerialComLooper looper = null;
 		ISerialComEventListener mEventListener = null;
 
@@ -1790,7 +1796,7 @@ public final class SerialComManager {
 		if(handlefound == false) {
 			throw new SerialComException("sendBreak()", "Wrong port handle passed for the requested operations");
 		}
-		
+
 		if((duration < 0) || (duration == 0)) {
 			throw new IllegalArgumentException("sendBreak(), " + "Argument duration can not be negative or zero");
 		}
@@ -1927,17 +1933,17 @@ public final class SerialComManager {
 		if(hotPlugListener == null) {
 			throw new IllegalArgumentException("registerHotplugEventListener(), " + "Argument hotPlugListener can not be null");
 		}
-		
+
 		if((filterVID < 0) || (filterPID < 0)) {
 			throw new IllegalArgumentException("registerHotplugEventListener(), " + "USB VID or PID can not be negative number(s)");
 		}
-		
+
 		synchronized(lockB) {
 			int ret = mComPortJNIBridge.registerHotPlugEventListener(hotPlugListener, filterVID, filterPID);
 			if(ret < 0) {
 				throw new SerialComException("registerHotPlugEventListener()", "Failed to register hotplug listener. Please retry !");
 			}
-			
+
 			boolean added = mHotPlugListenerInfo.add(new SerialComHotPlugInfo(hotPlugListener, ret));
 			if(added != true) {
 				unregisterHotPlugEventListener(hotPlugListener);
@@ -1962,7 +1968,7 @@ public final class SerialComManager {
 		if(hotPlugListener == null) {
 			throw new IllegalArgumentException("unregisterHotplugEventListener(), " + "Argument hotPlugListener can not be null");
 		}
-		
+
 		for(SerialComHotPlugInfo mInfo: mHotPlugListenerInfo){
 			if(mInfo.getSerialComHotPlugListener() ==  hotPlugListener) {
 				index = mInfo.getSerialComHotPlugListenerIndex();
@@ -1973,10 +1979,10 @@ public final class SerialComManager {
 		if(index == -1) {
 			throw new SerialComException("unregisterHotPlugEventListener()", "This listener is not registered");
 		}
-		
+
 		synchronized(lockB) {
 			mComPortJNIBridge.unregisterHotPlugEventListener(index);
-			
+
 			/* delete info about this listener from global info arraylist. */
 			mHotPlugListenerInfo.remove(mListenerInfo);
 		}
@@ -2024,13 +2030,13 @@ public final class SerialComManager {
 	 * @throws IllegalArgumentException if fileToSend or ftpProto or ftpVariant or ftpMode argument is null
 	 */
 	public boolean sendFile(long handle, final java.io.File fileToSend, FTPPROTO ftpProto, FTPVAR ftpVariant, FTPMODE ftpMode) throws SerialComException, SecurityException,
-							  FileNotFoundException, SerialComTimeOutException, IOException {
+	FileNotFoundException, SerialComTimeOutException, IOException {
 		int protocol = 0;
 		int variant = 0;
 		int mode = 0;
 		boolean handlefound = false;
 		boolean result = false;
-		
+
 		if(fileToSend == null) {
 			throw new IllegalArgumentException("sendFile()" + "Argument fileToSend can not be null");
 		}
@@ -2070,12 +2076,12 @@ public final class SerialComManager {
 			}else {
 			}
 		}else if(protocol == 2) {
-			
+
 		}else if(protocol == 3) {
-			
+
 		}else {
 		}
-		
+
 		return result;
 	}
 
@@ -2096,13 +2102,13 @@ public final class SerialComManager {
 	 * @throws IllegalArgumentException if fileToReceive or ftpProto or ftpVariant or ftpMode argument is null
 	 */
 	public boolean receiveFile(long handle, final java.io.File fileToReceive, FTPPROTO ftpProto, FTPVAR ftpVariant, FTPMODE ftpMode) throws SerialComException,
-								SecurityException, FileNotFoundException, SerialComTimeOutException, IOException {
+	SecurityException, FileNotFoundException, SerialComTimeOutException, IOException {
 		int protocol = 0;
 		int variant = 0;
 		int mode = 0;
 		boolean handlefound = false;
 		boolean result = false;
-		
+
 		if(fileToReceive == null) {
 			throw new IllegalArgumentException("receiveFile()" + "Argument fileToReceive can not be null");
 		}
@@ -2115,7 +2121,7 @@ public final class SerialComManager {
 		if(ftpMode == null) {
 			throw new IllegalArgumentException("receiveFile() " + "Argument ftpMode can not be null");
 		}
-		
+
 		for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
 			if(mInfo.containsHandle(handle)) {
 				handlefound = true;
@@ -2142,15 +2148,15 @@ public final class SerialComManager {
 			}else {
 			}
 		}else if(protocol == 2) {
-			
+
 		}else if(protocol == 3) {
-			
+
 		}else {
 		}
 
 		return result;
 	}
-	
+
 	/**
 	 * <p>Prepares context and returns an input streams of bytes for receiving data bytes from the 
 	 * serial port.</p>
@@ -2166,7 +2172,7 @@ public final class SerialComManager {
 		boolean handlefound = false;
 		SerialComInByteStream scis = null;
 		SerialComPortHandleInfo mHandleInfo = null;
-		
+
 		if(streamMode == null) {
 			throw new IllegalArgumentException("createInputByteStream() " + "Argument streamMode can not be null");
 		}
@@ -2182,7 +2188,7 @@ public final class SerialComManager {
 		if(handlefound == false) {
 			throw new SerialComException("createInputByteStream()", "Wrong port handle passed for the requested operations");
 		}
-		
+
 		if(scis == null) {
 			scis = new SerialComInByteStream(this, handle, streamMode);
 			mHandleInfo.setSerialComInByteStream(scis);
@@ -2190,10 +2196,10 @@ public final class SerialComManager {
 			// if 2nd attempt is made to create already existing input stream, throw exception
 			throw new SerialComException("createInputByteStream()", "Input stream already exist for this handle");
 		}
-		
+
 		return scis;
 	}
-	
+
 	/**
 	 * <p>Prepares context and returns an output streams of bytes for transferring data bytes out of 
 	 * serial port.</p>
@@ -2212,7 +2218,7 @@ public final class SerialComManager {
 		boolean handlefound = false;
 		SerialComOutByteStream scos = null;
 		SerialComPortHandleInfo mHandleInfo = null;
-		
+
 		if(streamMode == null) {
 			throw new IllegalArgumentException("createOutputByteStream() " + "Argument streamMode can not be null");
 		}
@@ -2228,7 +2234,7 @@ public final class SerialComManager {
 		if(handlefound == false) {
 			throw new SerialComException("createOutputByteStream()", "Wrong port handle passed for the requested operations");
 		}
-		
+
 		if(scos == null) {
 			scos = new SerialComOutByteStream(this, handle, streamMode);
 			mHandleInfo.setSerialComOutByteStream(scos);
@@ -2236,10 +2242,10 @@ public final class SerialComManager {
 			// if 2nd attempt is made to create already existing output stream, throw exception
 			throw new SerialComException("createOutputByteStream()", "Output stream already exist for this handle");
 		}
-		
+
 		return scos;
 	}
-	
+
 	/** Internal use only */
 	public void destroyInputByteStream(SerialComInByteStream scis) {
 		for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
@@ -2249,7 +2255,7 @@ public final class SerialComManager {
 			}
 		}
 	}
-	
+
 	/** Internal use only */
 	public void destroyOutputByteStream(SerialComOutByteStream scos) {
 		for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
@@ -2259,7 +2265,7 @@ public final class SerialComManager {
 			}
 		}
 	}
-	
+
 	/**
 	 * <p>Prepares context for excuting IOCTL operations on the given port.</p>
 	 * 
@@ -2278,68 +2284,84 @@ public final class SerialComManager {
 		if(handlefound == false) {
 			throw new SerialComException("getIOCTLExecutor()", "Wrong port handle passed for the requested operations");
 		}
-		
+
 		if(mSerialComIOCTLExecutor != null) {
 			return mSerialComIOCTLExecutor;
 		}
 		mSerialComIOCTLExecutor = new SerialComIOCTLExecutor(mComPortJNIBridge, mErrMapper);
 		return mSerialComIOCTLExecutor;
 	}
-	
+
 	/**
 	 * <p>Checks whether a particular USB device identified by vendor id and product id is connected to 
 	 * the system or not.</p>
 	 * 
-	 * @param vendorID USB-IF vendor ID of the device to match
-	 * @param vendorID product ID of the device to match
+	 * @param vendorID USB-IF vendor ID of the USB device to match
+	 * @param productID product ID of the USB device to match
 	 * @return true is device is connected otherwise false
 	 * @throws SerialComException if an I/O error occurs.
 	 * @throws IllegalArgumentException if productID or vendorID is negative or invalid
 	 */
 	public boolean isUSBDevConnected(int vendorID, int productID) throws SerialComException {
 		if((vendorID < 0) || (vendorID > 0XFFFF)) {
-			throw new IllegalArgumentException("listUSBdevicesWithInfo(), " + "Argument vendorID can not be negative or greater tha 0xFFFF");
+			throw new IllegalArgumentException("listUSBdevicesWithInfo(), " + "Argument vendorID can not be negative or greater tha 0xFFFF !");
 		}
 		if((productID < 0) || (productID > 0XFFFF)) {
-			throw new IllegalArgumentException("listUSBdevicesWithInfo(), " + "Argument productID can not be negative or greater tha 0xFFFF");
+			throw new IllegalArgumentException("listUSBdevicesWithInfo(), " + "Argument productID can not be negative or greater tha 0xFFFF !");
 		}
-		
+
 		int ret = mComPortJNIBridge.isUSBDevConnected(vendorID, productID);
 		if(ret < 0) {
-			throw new SerialComException("isUSBDevConnected()", "Unknown error occurred !");
+			throw new SerialComException("isUSBDevConnected() ", "Unknown error occurred !");
 		}else if(ret == 1) {
 			return true;
 		}
 		return false;
 	}
-	
+
 	/**
-	 * <p>Gives an instance on which vendor specific method calls can be made.</p>
+	 * <p>Gives an instance of the class which implements API defined by vendor in their propriety library.</p>
 	 * 
-	 * @param vendorLibIdentifier one of the constant VLI_xxx_xxx in SerialComVendorLib class
+	 * <p>For FTDI d2xx, instance of SerialComFTDID2XX class is returned.</p>
+	 * 
+	 * @param vendorLibIdentifier one of the constant VLIB_XXXX_XXXX in SerialComVendorLib class
 	 * @param libDirectory absolute directory path where vendor library is placed
-	 * @return true is device is connected otherwise false
+	 * @param vlibName full name of the vendor library (for ex. libftd2xx.so.1.1.12)
+	 * @return object of class on which vendor specific API calls can be made otherwise null
+	 * @throws SerialComUnexpectedException if a critical java system property is null in system
+	 * @throws SecurityException if any java system property can not be accessed
+	 * @throws FileNotFoundException if the vendor library file is not found
+	 * @throws UnsatisfiedLinkError if loading/linking shared library fails
 	 * @throws SerialComException if an I/O error occurs.
-	 * @throws SerialComLoadException if the library can not be extracted or loaded
-	 * @throws IllegalArgumentException if productID or vendorID is negative or invalid
+	 * @throws SerialComLoadException if the library can not be found, extracted or loaded
+	 *                                 if the mentioned library is not supported by vendor for 
+	 *                                 operating system and cpu architecture combination
+	 * @throws IllegalArgumentException if argument vlibName is null or is an empty string
 	 */
-	public SerialComVendorLib getVendorLibInstance(int vendorLibIdentifier, String libDirectory) throws SerialComException, SerialComLoadException {
+	public SerialComVendorLib getVendorLibInstance(int vendorLibIdentifier, String libDirectory, String vlibName) throws UnsatisfiedLinkError,
+	SerialComLoadException, SerialComUnexpectedException, SecurityException, FileNotFoundException {
 		File baseDir = new File(libDirectory.trim());
 		if(!baseDir.exists()) {
-			throw new SerialComLoadException("getVendorLibInstance()", "given directory does not exist.");
+			throw new SerialComLoadException("Given directory does not exist !");
 		}
 		if(!baseDir.isDirectory()) {
-			throw new SerialComLoadException("getVendorLibInstance()", "given directory is not a directory.");
+			throw new SerialComLoadException("Given directory is not a directory !");
 		}
 		if(!baseDir.canWrite()) {
-			throw new SerialComLoadException("getVendorLibInstance()", "given directory is not writeable (permissions ??).");
+			throw new SerialComLoadException("Given directory is not writeable (permissions ??) !");
 		}
-		
+		if(vlibName == null) {
+			throw new IllegalArgumentException("Argument vlibName can not be null !");
+		}
+		if(vlibName.length() == 0) {
+			throw new IllegalArgumentException("Argument vlibName can not be empty string !");
+		}
+
 		if(mSerialComVendorLib != null) {
-			return mSerialComVendorLib.getVendorLibInstance(vendorLibIdentifier, baseDir);
+			return mSerialComVendorLib.getVendorLibInstance(vendorLibIdentifier, baseDir, vlibName, cpuArch, osType, mSerialComSystemProperty);
 		}
 		mSerialComVendorLib = new SerialComVendorLib();
-		return mSerialComVendorLib.getVendorLibInstance(vendorLibIdentifier, baseDir);
+		return mSerialComVendorLib.getVendorLibInstance(vendorLibIdentifier, baseDir, vlibName, cpuArch, osType, mSerialComSystemProperty);
 	}
-	
+
 }

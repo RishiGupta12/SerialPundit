@@ -77,6 +77,7 @@ public final class SerialComUSBdevice {
 
 	/** 
 	 * <p>Retrieves the serial number string of the USB device</p>
+	 * 
 	 * @return serial number string of the USB device
 	 */
 	public String getSerialNumber() {
