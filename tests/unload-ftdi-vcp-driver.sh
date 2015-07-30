@@ -32,7 +32,7 @@
 # It seems like FDTI D2XX uses user space USB drivers and depends upon libusb for its working. If any error
 # is encountered like permission denied place the following udev rules in in /etc/udev/rules.d/ for Ubuntu 
 # Linux distribution.
-# 
+# https://github.com/RishiGupta12/serial-communication-manager/blob/master/tests/scm-ftdi-d2xx.rules
 
 set -e
 modprobe -r ftdi_sio

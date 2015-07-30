@@ -14,7 +14,7 @@
 #
 # You should have received a copy of the GNU Lesser General Public License
 # along with serial communication manager. If not, see <http://www.gnu.org/licenses/>.
-#
+#################################################################################################
 
 # Steps are :
 # - generate header file
