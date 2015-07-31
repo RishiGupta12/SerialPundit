@@ -1232,10 +1232,10 @@ public final class SerialComManager {
 	 * <p>Take a look at http://www.ftdichip.com/Support/Documents/AppNotes/AN232B-05_BaudRates.pdf to understand using custom baud rates with USB-UART chips.</p>
 	 * 
 	 * @param handle of opened port to which this configuration applies to
-	 * @param dataBits number of data bits in one frame (refer DATABITS enum for this)
-	 * @param stopBits number of stop bits in one frame (refer STOPBITS enum for this)
-	 * @param parity of the frame (refer PARITY enum for this)
-	 * @param baudRate of the frame (refer BAUDRATE enum for this)
+	 * @param dataBits number of data bits in one frame (refer DATABITS enum in SerialComManager class for this)
+	 * @param stopBits number of stop bits in one frame (refer STOPBITS enum in SerialComManager class for this)
+	 * @param parity of the frame (refer PARITY enum in SerialComManager class for this)
+	 * @param baudRate of the frame (refer BAUDRATE enum in SerialComManager class for this)
 	 * @param custBaud custom baudrate if the desired rate is not included in BAUDRATE enum
 	 * @return true on success false otherwise
 	 * @throws SerialComException if invalid handle is passed or an error occurs in configuring the port
@@ -1742,12 +1742,13 @@ public final class SerialComManager {
 	 * first flush data and then call this method.</p>
 	 * 
 	 * @param handle of the opened port
-	 * @param clearRxPort if true receive buffer will be cleared otherwise will be left untouched 
-	 * @param clearTxPort if true transmit buffer will be cleared otherwise will be left untouched
-	 * @return true on success false otherwise
+	 * @param clearRxBuffer if true receive buffer will be cleared otherwise will be left untouched 
+	 * @param clearTxBuffer if true transmit buffer will be cleared otherwise will be left untouched
+	 * @return true on success
 	 * @throws SerialComException if invalid handle is passed or operation can not be completed successfully
+	 * @throws IllegalArgumentException if both purgeTxBuffer and purgeRxBuffer are false
 	 */
-	public boolean clearPortIOBuffers(long handle, boolean clearRxPort, boolean clearTxPort) throws SerialComException {
+	public boolean clearPortIOBuffers(long handle, boolean clearRxBuffer, boolean clearTxBuffer) throws SerialComException {
 		boolean handlefound = false;
 		for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
 			if(mInfo.containsHandle(handle)) {
@@ -1758,13 +1759,17 @@ public final class SerialComManager {
 		if(handlefound == false) {
 			throw new SerialComException("clearPortIOBuffers()", "Wrong port handle passed for the requested operations");
 		}
-
-		if(clearRxPort == true || clearTxPort == true) {
-			mComPortJNIBridge.clearPortIOBuffers(handle, clearRxPort, clearTxPort);
-			return true;
+		
+		if((clearRxBuffer == false) && (clearTxBuffer == false)) {
+			throw new IllegalArgumentException("Both arguments clearRxBuffer and clearTxBuffer can not be false !");
+		}
+		
+		int ret = mComPortJNIBridge.clearPortIOBuffers(handle, clearRxBuffer, clearTxBuffer);
+		if(ret < 0) {
+			throw new SerialComException("clearPortIOBuffers()", "Could not clear the buffers for the given port. Please retry !");
 		}
 
-		return false;
+		return true;
 	}
 
 	/**

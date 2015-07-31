@@ -32,6 +32,17 @@ public final class FTdevicelistInfoNode {
 	private String description = null;
 	private String ftHandle = null;
 
+	/**
+	 * <p>Construct and allocates a new FTdevicelistInfoNode object with given details.</p>
+	 * 
+	 * @param flags flags for this device
+	 * @param type device type
+	 * @param id device ID
+	 * @param locId location id of this device
+	 * @param serialNumber serial number of this device
+	 * @param description description of this device
+	 * @param ftHandle handle for this device
+	 */
 	public FTdevicelistInfoNode(String flags, String type, String id, String locId, String serialNumber, String description, String ftHandle) {
 		this.flags = flags;
 		this.type = type;

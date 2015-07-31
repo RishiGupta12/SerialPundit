@@ -21,7 +21,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.FileNotFoundException;
-
 import com.embeddedunveiled.serial.SerialComLoadException;
 import com.embeddedunveiled.serial.SerialComManager;
 import com.embeddedunveiled.serial.SerialComUnexpectedException;
@@ -147,10 +146,10 @@ public class SerialComFTDID2XXJNIBridge {
 		} catch (Exception e) {
 			throw (UnsatisfiedLinkError) new UnsatisfiedLinkError("Could not load " + libFile.toString() + " native library !").initCause(e);
 		}
-		
+
 		return true;
 	}
-	
+
 	// D2XX Classic Functions
 	public native int setVidPid(int vid, int pid);
 	public native int[] getVidPid();
@@ -164,8 +163,36 @@ public class SerialComFTDID2XXJNIBridge {
 	public native int read(long handle, byte[] buffer, int numOfBytesToRead);
 	public native int write(long handle, byte[] buffer, int numOfBytesToWrite);
 	public native int setBaudRate(long handle, int baudRate);
-	
-	
+	public native int setDivisor(long handle, int divisor);
+	public native int setDataCharacteristics(long handle, int dataBits, int stopBits, int parity);
+	public native int setTimeouts(long handle, long readTimeOut, long writeTimeOut);
+	public native int setFlowControl(long handle, int flctrl, char xon, char xoff);
+	public native int setDTR(long handle);
+	public native int clearDTR(long handle);
+	public native int setRTS(long handle);
+	public native int clearRTS(long handle);
+	public native int getModemStatus(long handle);
+	public native int getQueueStatus(long handle);
+	public native String[] getDeviceInfo(long handle);
+	public native long getDriverVersion(long handle);
+	public native long getLibraryVersion();
+	public native long getComPortNumber(long handle);
+	public native long[] getStatus(long handle);
+	// TODO FT_SetEventNotification
+	public native int setChars(long handle, char eventChar, char eventEnable, char errorChar, char errorEnable);
+	public native int setBreakOn(long handle);
+	public native int setBreakOff(long handle);
+	public native int purge(long handle, boolean purgeTxBuffer, boolean purgeRxBuffer);
+	public native int resetDevice(long handle);
+	public native int resetPort(long handle);
+	public native int cyclePort(long handle);
+	public native int rescan();
+	public native int reload(int vid, int pid);
+	public native int setResetPipeRetryCount(long handle, int count);
+	public native int stopInTask(long handle);
+	public native int restartInTask(long handle);
+	public native int setDeadmanTimeout(long handle, int count);
+
 	// EEPROM Programming Interface Functions
 
 	// Extended API Functions

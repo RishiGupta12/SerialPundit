@@ -87,6 +87,230 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_setBaudRate
   (JNIEnv *, jobject, jlong, jint);
 
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
+ * Method:    setDivisor
+ * Signature: (JI)I
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_setDivisor
+  (JNIEnv *, jobject, jlong, jint);
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
+ * Method:    setDataCharacteristics
+ * Signature: (JIII)I
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_setDataCharacteristics
+  (JNIEnv *, jobject, jlong, jint, jint, jint);
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
+ * Method:    setTimeouts
+ * Signature: (JJJ)I
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_setTimeouts
+  (JNIEnv *, jobject, jlong, jlong, jlong);
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
+ * Method:    setFlowControl
+ * Signature: (JICC)I
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_setFlowControl
+  (JNIEnv *, jobject, jlong, jint, jchar, jchar);
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
+ * Method:    setDTR
+ * Signature: (J)I
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_setDTR
+  (JNIEnv *, jobject, jlong);
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
+ * Method:    clearDTR
+ * Signature: (J)I
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_clearDTR
+  (JNIEnv *, jobject, jlong);
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
+ * Method:    setRTS
+ * Signature: (J)I
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_setRTS
+  (JNIEnv *, jobject, jlong);
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
+ * Method:    clearRTS
+ * Signature: (J)I
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_clearRTS
+  (JNIEnv *, jobject, jlong);
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
+ * Method:    getModemStatus
+ * Signature: (J)I
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_getModemStatus
+  (JNIEnv *, jobject, jlong);
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
+ * Method:    getQueueStatus
+ * Signature: (J)I
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_getQueueStatus
+  (JNIEnv *, jobject, jlong);
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
+ * Method:    getDeviceInfo
+ * Signature: (J)[Ljava/lang/String;
+ */
+JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_getDeviceInfo
+  (JNIEnv *, jobject, jlong);
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
+ * Method:    getDriverVersion
+ * Signature: (J)J
+ */
+JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_getDriverVersion
+  (JNIEnv *, jobject, jlong);
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
+ * Method:    getLibraryVersion
+ * Signature: ()J
+ */
+JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_getLibraryVersion
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
+ * Method:    getComPortNumber
+ * Signature: (J)J
+ */
+JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_getComPortNumber
+  (JNIEnv *, jobject, jlong);
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
+ * Method:    getStatus
+ * Signature: (J)[J
+ */
+JNIEXPORT jlongArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_getStatus
+  (JNIEnv *, jobject, jlong);
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
+ * Method:    setChars
+ * Signature: (JCCCC)I
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_setChars
+  (JNIEnv *, jobject, jlong, jchar, jchar, jchar, jchar);
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
+ * Method:    setBreakOn
+ * Signature: (J)I
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_setBreakOn
+  (JNIEnv *, jobject, jlong);
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
+ * Method:    setBreakOff
+ * Signature: (J)I
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_setBreakOff
+  (JNIEnv *, jobject, jlong);
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
+ * Method:    purge
+ * Signature: (JZZ)I
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_purge
+  (JNIEnv *, jobject, jlong, jboolean, jboolean);
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
+ * Method:    resetDevice
+ * Signature: (J)I
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_resetDevice
+  (JNIEnv *, jobject, jlong);
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
+ * Method:    resetPort
+ * Signature: (J)I
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_resetPort
+  (JNIEnv *, jobject, jlong);
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
+ * Method:    cyclePort
+ * Signature: (J)I
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_cyclePort
+  (JNIEnv *, jobject, jlong);
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
+ * Method:    rescan
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_rescan
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
+ * Method:    reload
+ * Signature: (II)I
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_reload
+  (JNIEnv *, jobject, jint, jint);
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
+ * Method:    setResetPipeRetryCount
+ * Signature: (JI)I
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_setResetPipeRetryCount
+  (JNIEnv *, jobject, jlong, jint);
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
+ * Method:    stopInTask
+ * Signature: (J)I
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_stopInTask
+  (JNIEnv *, jobject, jlong);
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
+ * Method:    restartInTask
+ * Signature: (J)I
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_restartInTask
+  (JNIEnv *, jobject, jlong);
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
+ * Method:    setDeadmanTimeout
+ * Signature: (JI)I
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_setDeadmanTimeout
+  (JNIEnv *, jobject, jlong, jint);
+
 #ifdef __cplusplus
 }
 #endif
