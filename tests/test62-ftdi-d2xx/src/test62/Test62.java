@@ -18,58 +18,152 @@
 package test62;
 
 import com.embeddedunveiled.serial.SerialComManager;
+import com.embeddedunveiled.serial.vendor.FTOpenedDeviceInfo;
 import com.embeddedunveiled.serial.vendor.FTdevicelistInfoNode;
 import com.embeddedunveiled.serial.vendor.SerialComFTDID2XX;
+import com.embeddedunveiled.serial.vendor.SerialComFTDID2XX.DATABITS;
+import com.embeddedunveiled.serial.vendor.SerialComFTDID2XX.FLOWCTRL;
+import com.embeddedunveiled.serial.vendor.SerialComFTDID2XX.PARITY;
+import com.embeddedunveiled.serial.vendor.SerialComFTDID2XX.STOPBITS;
 import com.embeddedunveiled.serial.vendor.SerialComVendorLib;
 
 public final class Test62 {
-	
+
 	static SerialComFTDID2XX d2xx = null;
-	static int ret = 0;
+	static long ret = 0;
 	static boolean result = false;
-	
+	static long handle = 0;
+	static FTdevicelistInfoNode node;
+	static int[] arrayInt = null;
+	static long[] arrayLong = null;
+
 	public static void main(String[] args) {
 		try {
 			SerialComManager scm = new SerialComManager();
 			d2xx = (SerialComFTDID2XX) scm.getVendorLibInstance(SerialComVendorLib.VLIB_FTDI_D2XX, "/home/r/ws-host-uart/tmp", "libftd2xx.so");
-			
+
 			result = d2xx.setVidPid(0x0403, 0x6001);
 			System.out.println("d2xx.setVidPid : " + result);
-			
+
 			int[] combination = d2xx.getVidPid();
 			System.out.println("VID : " + combination[0] + ", PID : " + combination[1]);
-			
+
 			int a = d2xx.createDeviceInfoList();
 			System.out.println("d2xx.createDeviceInfoList : " + a);
-			
+
 			FTdevicelistInfoNode[] list = d2xx.getDeviceInfoList(a);
 			for(int q=0; q<list.length; q++) {
 				list[q].dumpDeviceInfo();
 				String[] aa = list[q].interpretFlags();
 				System.out.println(aa[0] + ", " + aa[1]);
 			}
-			
+
 			FTdevicelistInfoNode node = d2xx.getDeviceInfoDetail(0);
 			node.dumpDeviceInfo();
-			
-			long handle = d2xx.open(0);
-			System.out.println("open : " + handle);
-			
+
+			handle = d2xx.open(0);
+			System.out.println("d2xx.open : " + handle);
+
+			node = d2xx.getDeviceInfoDetail(0);
+			node.dumpDeviceInfo();
+
 			byte[] buff = new byte[1000];
 			int ret = d2xx.write(handle, buff, 100);
 			System.out.println("d2xx.write : " + ret);
-			
+
 			byte[] buf = new byte[1000];
 			ret = d2xx.read(handle, buf, 100);
 			System.out.println("d2xx.read : " + ret);
-			
+
 			result = d2xx.setBaudRate(handle, 115200);
 			System.out.println("d2xx.setBaudRate : " + result);
-			
+
+			result = d2xx.setDataCharacteristics(handle, DATABITS.FT_BITS_8, STOPBITS.FT_STOP_BITS_1, PARITY.FT_PARITY_NONE);
+			System.out.println("d2xx.setDataCharacteristics : " + result);
+
+			result = d2xx.setDivisor(handle, 30000);
+			System.out.println("d2xx.setDivisor : " + result);
+
+			result = d2xx.setTimeouts(handle, 5, 5);
+			System.out.println("d2xx.setTimeouts : " + result);
+
+			result = d2xx.setFlowControl(handle, FLOWCTRL.FT_FLOW_NONE, 'x', 'x');
+			System.out.println("d2xx.setFlowControl : " + result);
+
+			result = d2xx.setDTR(handle);
+			System.out.println("d2xx.setDTR : " + result);
+
+			result = d2xx.clearDTR(handle);
+			System.out.println("d2xx.clearDTR : " + result);
+
+			result = d2xx.setRTS(handle);
+			System.out.println("d2xx.setRTS : " + result);
+
+			result = d2xx.clearRTS(handle);
+			System.out.println("d2xx.clearRTS : " + result);
+
+			ret = d2xx.getModemStatus(handle);
+			System.out.println("d2xx.getModemStatus : " + ret);
+
+			ret = d2xx.getQueueStatus(handle);
+			System.out.println("d2xx.getQueueStatus : " + ret);
+
+			FTOpenedDeviceInfo info = d2xx.getDeviceInfo(handle);
+			info.dumpDeviceInfo();
+
+			ret = d2xx.getDriverVersion(handle);
+			System.out.println("d2xx.getDriverVersion : " + ret);
+
+			ret = d2xx.getLibraryVersion();
+			System.out.println("d2xx.getLibraryVersion : " + ret);
+
+			arrayLong = d2xx.getStatus(handle);
+			System.out.println("d2xx.getStatus : " + arrayLong[0] + arrayLong[1] + arrayLong[2]);
+
+			result = d2xx.setChars(handle, 'a', 'w', 's', 'w');
+			System.out.println("d2xx.setChars : " + result);
+
+			result = d2xx.setBreakOn(handle);
+			System.out.println("d2xx.setBreakOn : " + result);
+
+			result = d2xx.setBreakOff(handle);
+			System.out.println("d2xx.setBreakOff : " + result);
+
+			result = d2xx.purge(handle, true, true);
+			System.out.println("d2xx.purge : " + result);
+
+			result = d2xx.resetDevice(handle);
+			System.out.println("d2xx.resetDevice : " + result);
+
+			result = d2xx.stopInTask(handle);
+			System.out.println("d2xx.stopInTask : " + result);
+
+			result = d2xx.restartInTask(handle);
+			System.out.println("d2xx.restartInTask : " + result);			
+
+			result = d2xx.setDeadmanTimeout(handle, 5000);
+			System.out.println("d2xx.setDeadmanTimeout : " + result);	
+
+			// windows only
+			//			ret = d2xx.getComPortNumber(handle);
+			//			System.out.println("d2xx.getComPortNumber : " + ret);
+
+			//			result = d2xx.resetPort(handle);
+			//			System.out.println("d2xx.resetPort : " + result);
+
+			//			result = d2xx.rescan();
+			//			System.out.println("d2xx.rescan : " + result);
+
+			//			result = d2xx.reload(0x0403, 0x6001);
+			//			System.out.println("d2xx.reload : " + result);
+
+			//			result = d2xx.setResetPipeRetryCount(handle, 5);
+			//			System.out.println("d2xx.setResetPipeRetryCount : " + result);			
+
+
+			System.out.println("\nbye");
 			result = d2xx.close(handle);
 			System.out.println("d2xx.close : " + result);
-			
-			System.out.println("\nbye");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
