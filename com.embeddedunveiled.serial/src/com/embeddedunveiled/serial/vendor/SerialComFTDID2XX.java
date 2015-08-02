@@ -135,6 +135,24 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 			return this.value;
 		}
 	}
+	
+	/**<p>Bit mask to represent FT_LIST_NUMBER_ONLY in D2XX terminology. </p>*/
+	public static final int FT_LIST_NUMBER_ONLY = 0x01;  // 0000001
+
+	/**<p>Bit mask to represent FT_LIST_BY_INDEX in D2XX terminology. </p>*/
+	public static final int FT_LIST_BY_INDEX = 0x02;  // 0000010
+
+	/**<p>Bit mask to represent FT_LIST_ALL in D2XX terminology. </p>*/
+	public static final int FT_LIST_ALL = 0x04;  // 0000100
+
+	/**<p>Bit mask to represent FT_OPEN_BY_SERIAL_NUMBER in D2XX terminology. </p>*/
+	public static final int FT_OPEN_BY_SERIAL_NUMBER  = 0x08;  // 0001000
+
+	/**<p>Bit mask to represent FT_OPEN_BY_DESCRIPTION in D2XX terminology. </p>*/
+	public static final int FT_OPEN_BY_DESCRIPTION = 0x10;  // 0010000
+
+	/**<p>Bit mask to represent FT_OPEN_BY_LOCATION in D2XX terminology. </p>*/
+	public static final int FT_OPEN_BY_LOCATION = 0x20;  // 0100000
 
 	private final SerialComFTDID2XXJNIBridge mFTDID2XXJNIBridge;
 
@@ -283,7 +301,44 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 		}
 	}
 
-	//TODO FT_ListDevices, DYNAMICALLY GET VALUES OF CONSTANT TO BE PASSED AS ARG
+	/**
+	 * <p>Executes FT_ListDevices function of D2XX library.</p>
+	 * 
+	 * <p>Gets information concerning the devices currently connected. This function can return information 
+	 * such as the number of devices connected, the device serial number and device description strings, and 
+	 * the location IDs of connected devices.</p>
+	 * 
+	 * <p>The value of dwFlags bit mask can be composed or one or more of these constants: FT_LIST_NUMBER_ONLY, 
+	 * FT_LIST_BY_INDEX, FT_LIST_ALL, FT_OPEN_BY_SERIAL_NUMBER, FT_OPEN_BY_DESCRIPTION, FT_OPEN_BY_LOCATION.</p>
+	 * 
+	 * <p>Length of the returned array indicates number of FT devices found.</p>
+	 * 
+	 * @param pvArg1 index in FT device list
+	 * @param dwFlags flag specifying what operation should be performed
+	 * @return array of FTdeviceInfo types representing information requested or null if something fails.
+	 * @throws SerialComException if an I/O error occurs.
+	 * @throws IllegalArgumentException if pvArg1 is negative or dwFlags is not one of the valid constants.
+	 */
+	public FTdeviceInfo[] listDevices(final int pvArg1, final int dwFlags) throws SerialComException {
+		int i = 0;
+		int numOfDev = 0;
+		FTdeviceInfo[] infoList = null;
+		if((pvArg1 < 0) || (dwFlags <= 0)) {
+			throw new IllegalArgumentException("listDevices(), " + "Argument(s) are not as per specification !");
+		}
+		String[] rawDataList = mFTDID2XXJNIBridge.listDevices(pvArg1, dwFlags);
+		if(rawDataList != null) {
+			numOfDev = rawDataList.length / 3;
+			infoList = new FTdeviceInfo[numOfDev];
+			for(int x=0; x<numOfDev; x++) {
+				infoList[x] = new FTdeviceInfo(rawDataList[i], rawDataList[i+1], rawDataList[i+2]);
+				i = i + 3;
+			}
+			return infoList;
+		}else {
+			return new FTdeviceInfo[] { };
+		}
+	}
 
 	/**
 	 * <p>Executes FT_Open function of D2XX library.</p>
@@ -291,7 +346,7 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 * <p>Open the device and return a handle which will be used for subsequent accesses.</p>
 	 * 
 	 * @param index in list corresponding to the device that needs to be opened
-	 * @return hand;e of the opened device or -1 if method fails
+	 * @return handle of the opened device or -1 if method fails
 	 * @throws SerialComException if an I/O error occurs
 	 * @throws IllegalArgumentException if index is negative
 	 */
@@ -301,13 +356,34 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 		}
 		long handle = mFTDID2XXJNIBridge.open(index);
 		if(handle < 0) {
-			throw new SerialComException("Could not open the requested device. Please retry !");
+			throw new SerialComException("Could not open the requested device at given index. Please retry !");
 		}else {
 			return handle;
 		}
 	}
 
-	//TODO FT_OpenEx
+	/**
+	 * <p>Executes FT_OpenEx function of D2XX library.</p>
+	 * 
+	 * <p>Open the specified device and return a handle that will be used for subsequent accesses. 
+	 * The device can be specified by its serial number, device description or location.</p>
+	 * 
+	 * <p>The value of dwFlags bit mask can be composed or one or more of these constants: 
+	 * FT_OPEN_BY_SERIAL_NUMBER, FT_OPEN_BY_DESCRIPTION, FT_OPEN_BY_LOCATION.</p>
+	 * 
+	 * @param serialOrDescription serial number string or description string to identify the device to be opened.
+	 * @param locationId location ID of the device if it is to be opened using location ID.
+	 * @param dwFlags flag specifying what operation should be performed.
+	 * @return true on success
+	 * @throws SerialComException if an I/O error occurs
+	 */
+	public long openEx(final String serialOrDescription, long locationId, int dwFlags) throws SerialComException {
+		long ret = mFTDID2XXJNIBridge.openEx(serialOrDescription, locationId, dwFlags);
+		if(ret < 0) {
+			throw new SerialComException("Could not open the requested device using given " + serialOrDescription + ". Please retry !");
+		}
+		return ret;
+	}
 
 	/**
 	 * <p>Executes FT_Close function of D2XX library.</p>

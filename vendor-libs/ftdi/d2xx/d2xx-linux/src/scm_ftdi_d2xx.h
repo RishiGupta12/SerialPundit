@@ -58,6 +58,7 @@
 #define E_IOSRVMATUSBDEVSTR "Function call IOServiceMatching('IOUSBDevice') failed !"
 #define E_GETDIRCTBUFADDRSTR "JNI call GetDirectBufferAddress failed !"
 #define E_VIOVNTINVALIDSTR "The length of data supplied exceeds maximum limit !"
+#define E_IllegalARG "Illegal argument !"
 
 /* This holds information for implementing dynamically growing array in C language. */
 struct jstrarray_list {

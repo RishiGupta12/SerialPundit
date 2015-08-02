@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.FileNotFoundException;
+
 import com.embeddedunveiled.serial.SerialComLoadException;
 import com.embeddedunveiled.serial.SerialComManager;
 import com.embeddedunveiled.serial.SerialComUnexpectedException;
@@ -156,9 +157,9 @@ public class SerialComFTDID2XXJNIBridge {
 	public native int createDeviceInfoList();
 	public native String[] getDeviceInfoList(int numOfDevices);
 	public native String[] getDeviceInfoDetail(int index);
-	//TODO FT_ListDevices
+	public native String[] listDevices(int pvArg1, int dwFlags);
 	public native long open(int index);
-	//TODO FT_OpenEx
+	public native long openEx(String serialOrDescription, long locationId, int dwFlags);
 	public native int close(long handle);
 	public native int read(long handle, byte[] buffer, int numOfBytesToRead);
 	public native int write(long handle, byte[] buffer, int numOfBytesToWrite);
@@ -192,7 +193,7 @@ public class SerialComFTDID2XXJNIBridge {
 	public native int stopInTask(long handle);
 	public native int restartInTask(long handle);
 	public native int setDeadmanTimeout(long handle, int count);
-
+	
 	// EEPROM Programming Interface Functions
 
 	// Extended API Functions

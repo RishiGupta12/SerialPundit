@@ -20,7 +20,7 @@ package com.embeddedunveiled.serial;
 import java.io.IOException;
 
 /** 
- * <p>Limit the scope of exceptions in context of serial port operation only.</p>
+ * <p>Limit the scope of exceptions in context of serial port communication only.</p>
  */
 public final class SerialComException extends IOException {
 

@@ -124,10 +124,10 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
 JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_getDeviceInfoList(JNIEnv *env, jobject obj, jint numOfDevices) {
 	FT_STATUS ftStatus = 0;
 	FT_DEVICE_LIST_INFO_NODE *devInfo;
-	unsigned int num_of_devices = numOfDevices;
 	int i = 0;
 	char hexcharbuffer[256];
 	struct jstrarray_list list = {0};
+	unsigned int num_of_devices = numOfDevices;
 	jstring info;
 	jclass strClass = NULL;
 	jobjectArray devicesFound = NULL;
@@ -140,6 +140,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
 
 	ftStatus = FT_GetDeviceInfoList(devInfo, &num_of_devices);
 	if(ftStatus != FT_OK) {
+		free(devInfo);
 		throw_serialcom_exception(env, 2, ftStatus, NULL);
 		return NULL;
 	}
@@ -148,7 +149,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
 
 	for (i = 0; i < num_of_devices; i++) {
 		memset(hexcharbuffer, '\0', sizeof(hexcharbuffer));
-		snprintf(hexcharbuffer, 256, "%x", devInfo[i].Flags);
+		snprintf(hexcharbuffer, 256, "%lX", devInfo[i].Flags);
 		info = (*env)->NewStringUTF(env, hexcharbuffer);
 		if((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
 			free(devInfo);
@@ -159,7 +160,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
 		insert_jstrarraylist(&list, info);
 
 		memset(hexcharbuffer, '\0', sizeof(hexcharbuffer));
-		snprintf(hexcharbuffer, 256, "%x", devInfo[i].Type);
+		snprintf(hexcharbuffer, 256, "%lX", devInfo[i].Type);
 		info = (*env)->NewStringUTF(env, hexcharbuffer);
 		if((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
 			free(devInfo);
@@ -170,7 +171,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
 		insert_jstrarraylist(&list, info);
 
 		memset(hexcharbuffer, '\0', sizeof(hexcharbuffer));
-		snprintf(hexcharbuffer, 256, "%x", devInfo[i].ID);
+		snprintf(hexcharbuffer, 256, "%lX", devInfo[i].ID);
 		info = (*env)->NewStringUTF(env, hexcharbuffer);
 		if((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
 			free(devInfo);
@@ -181,7 +182,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
 		insert_jstrarraylist(&list, info);
 
 		memset(hexcharbuffer, '\0', sizeof(hexcharbuffer));
-		snprintf(hexcharbuffer, 256, "%x", devInfo[i].LocId);
+		snprintf(hexcharbuffer, 256, "%X", (unsigned int)devInfo[i].LocId);
 		info = (*env)->NewStringUTF(env, hexcharbuffer);
 		if((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
 			free(devInfo);
@@ -210,7 +211,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
 		insert_jstrarraylist(&list, info);
 
 		memset(hexcharbuffer, '\0', sizeof(hexcharbuffer));
-		snprintf(hexcharbuffer, 256, "%x", devInfo[i].ftHandle);
+		snprintf(hexcharbuffer, 256, "%lX", devInfo[i].ftHandle);
 		info = (*env)->NewStringUTF(env, hexcharbuffer);
 		if((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
 			free(devInfo);
@@ -289,7 +290,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
 	init_jstrarraylist(&list, 10);
 
 	memset(hexcharbuffer, '\0', sizeof(hexcharbuffer));
-	snprintf(hexcharbuffer, 256, "%x", devInfo->Flags);
+	snprintf(hexcharbuffer, 256, "%lX", devInfo->Flags);
 	info = (*env)->NewStringUTF(env, hexcharbuffer);
 	if((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
 		free(devInfo);
@@ -299,7 +300,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
 	}
 	insert_jstrarraylist(&list, info);
 	memset(hexcharbuffer, '\0', sizeof(hexcharbuffer));
-	snprintf(hexcharbuffer, 256, "%x", devInfo->Type);
+	snprintf(hexcharbuffer, 256, "%lX", devInfo->Type);
 	info = (*env)->NewStringUTF(env, hexcharbuffer);
 	if((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
 		free(devInfo);
@@ -309,7 +310,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
 	}
 	insert_jstrarraylist(&list, info);
 	memset(hexcharbuffer, '\0', sizeof(hexcharbuffer));
-	snprintf(hexcharbuffer, 256, "%x", devInfo->ID);
+	snprintf(hexcharbuffer, 256, "%lX", devInfo->ID);
 	info = (*env)->NewStringUTF(env, hexcharbuffer);
 	if((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
 		free(devInfo);
@@ -319,7 +320,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
 	}
 	insert_jstrarraylist(&list, info);
 	memset(hexcharbuffer, '\0', sizeof(hexcharbuffer));
-	snprintf(hexcharbuffer, 256, "%x", devInfo->LocId);
+	snprintf(hexcharbuffer, 256, "%X", (unsigned int)devInfo->LocId);
 	info = (*env)->NewStringUTF(env, hexcharbuffer);
 	if((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
 		free(devInfo);
@@ -345,7 +346,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
 	}
 	insert_jstrarraylist(&list, info);
 	memset(hexcharbuffer, '\0', sizeof(hexcharbuffer));
-	snprintf(hexcharbuffer, 256, "%x", devInfo->ftHandle);
+	snprintf(hexcharbuffer, 256, "%lX", devInfo->ftHandle);
 	info = (*env)->NewStringUTF(env, hexcharbuffer);
 	if((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
 		free(devInfo);
@@ -388,6 +389,529 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
+ * Method:    listDevices
+ * Signature: (II)[Ljava/lang/String;
+ *
+ * @return array of string containing info about the device(s) or NULL if something fails.
+ * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
+ *
+ * Operations are of 3 types :
+ * 1) find number of devices connected only.
+ * 2) find a particular info about a device at a particular index
+ * 3) find info about all devices
+ *
+ * It constructs  string array in following sequence per device : String id, String serialNumber, String description.
+ */
+JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_listDevices(JNIEnv *env, jobject obj, jint pvArg1, jint dwFlags) {
+	FT_STATUS ftStatus = 0;
+	DWORD num_of_dev_connected = 0;
+	DWORD num_dev_found = 0;
+	int x = 0;
+	int y = 0;
+	int operation = 0;
+	long locid = 0;
+	char buffer[256];
+	struct jstrarray_list list = {0};
+	jstring info = NULL;
+	jclass strClass = NULL;
+	jobjectArray infoFound = NULL;
+	int have_str = 0;
+	int have_long = 0;
+
+	/* pointer to an array of pointer to string/long for dynamic allocation */
+	char **base_str = ((void *)0);
+	long *base_long = ((void *)0);
+
+	init_jstrarraylist(&list, 50);
+
+	/* the constant values defined in SerialComFTDID2XX class are
+	 * bitwise-OR to know what operation user has requested. For ex;
+	 * SerialComFTDID2XX.FT_LIST_ALL | SerialComFTDID2XX.FT_OPEN_BY_SERIAL_NUMBER == 0x0C */
+	if((dwFlags & 0x01) == 0x01) {
+		operation = 1; /* FT_LIST_NUMBER_ONLY */
+	}else if(dwFlags == 0x0A) {
+		operation = 2; /* FT_LIST_BY_INDEX | FT_OPEN_BY_SERIAL_NUMBER */
+	}else if(dwFlags == 0x12) {
+		operation = 3; /* FT_LIST_BY_INDEX | FT_OPEN_BY_DESCRIPTION */
+	}else if(dwFlags == 0x22) {
+		operation = 4; /* FT_LIST_BY_INDEX | FT_OPEN_BY_LOCATION */
+	}else if(dwFlags == 0x0C) {
+		operation = 5; /* FT_LIST_ALL | FT_OPEN_BY_SERIAL_NUMBER */
+	}else if(dwFlags == 0x14) {
+		operation = 6; /* FT_LIST_ALL | FT_OPEN_BY_DESCRIPTION */
+	}else if(dwFlags == 0x24) {
+		operation = 7; /* FT_LIST_ALL | FT_OPEN_BY_LOCATION */
+	}else {
+		return NULL;
+	}
+
+	if(operation == 1) {
+		/* FT_LIST_NUMBER_ONLY */
+		ftStatus = FT_ListDevices(&num_of_dev_connected, NULL, FT_LIST_NUMBER_ONLY);
+		if(ftStatus != FT_OK) {
+			free_jstrarraylist(&list);
+			throw_serialcom_exception(env, 2, ftStatus, NULL);
+			return NULL;
+		}
+		for (x = 0; x < num_of_dev_connected; x++) {
+			for (y = 0; y < 3; y++) {
+				info = (*env)->NewStringUTF(env, "---");
+				if((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+					free_jstrarraylist(&list);
+					throw_serialcom_exception(env, 3, 0, E_NEWSTRUTFSTR);
+					return NULL;
+				}
+				insert_jstrarraylist(&list, info);
+			}
+		}
+
+	}else if(operation == 2) {
+		/* FT_LIST_BY_INDEX | FT_OPEN_BY_SERIAL_NUMBER */
+		memset(buffer, '\0', sizeof(buffer));
+		ftStatus = FT_ListDevices((PVOID)pvArg1, buffer, FT_LIST_BY_INDEX | FT_OPEN_BY_SERIAL_NUMBER);
+		if(ftStatus != FT_OK) {
+			free_jstrarraylist(&list);
+			throw_serialcom_exception(env, 2, ftStatus, NULL);
+			return NULL;
+		}
+		info = (*env)->NewStringUTF(env, "---");
+		if((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+			free_jstrarraylist(&list);
+			throw_serialcom_exception(env, 3, 0, E_NEWSTRUTFSTR);
+			return NULL;
+		}
+		insert_jstrarraylist(&list, info);
+		info = (*env)->NewStringUTF(env, buffer);
+		if((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+			free_jstrarraylist(&list);
+			throw_serialcom_exception(env, 3, 0, E_NEWSTRUTFSTR);
+			return NULL;
+		}
+		insert_jstrarraylist(&list, info);
+		info = (*env)->NewStringUTF(env, "---");
+		if((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+			free_jstrarraylist(&list);
+			throw_serialcom_exception(env, 3, 0, E_NEWSTRUTFSTR);
+			return NULL;
+		}
+		insert_jstrarraylist(&list, info);
+
+	}else if(operation == 3) {
+		/* FT_LIST_BY_INDEX | FT_OPEN_BY_DESCRIPTION */
+		memset(buffer, '\0', sizeof(buffer));
+		ftStatus = FT_ListDevices((PVOID)pvArg1, buffer, FT_LIST_BY_INDEX | FT_OPEN_BY_DESCRIPTION);
+		if(ftStatus != FT_OK) {
+			free_jstrarraylist(&list);
+			throw_serialcom_exception(env, 2, ftStatus, NULL);
+			return NULL;
+		}
+		info = (*env)->NewStringUTF(env, "---");
+		if((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+			free_jstrarraylist(&list);
+			throw_serialcom_exception(env, 3, 0, E_NEWSTRUTFSTR);
+			return NULL;
+		}
+		insert_jstrarraylist(&list, info);
+		info = (*env)->NewStringUTF(env, "---");
+		if((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+			free_jstrarraylist(&list);
+			throw_serialcom_exception(env, 3, 0, E_NEWSTRUTFSTR);
+			return NULL;
+		}
+		insert_jstrarraylist(&list, info);
+		info = (*env)->NewStringUTF(env, buffer);
+		if((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+			free_jstrarraylist(&list);
+			throw_serialcom_exception(env, 3, 0, E_NEWSTRUTFSTR);
+			return NULL;
+		}
+		insert_jstrarraylist(&list, info);
+
+	}else if(operation == 4) {
+		/* FT_LIST_BY_INDEX | FT_OPEN_BY_LOCATION */
+		ftStatus = FT_ListDevices((PVOID)pvArg1, &locid, FT_LIST_BY_INDEX | FT_OPEN_BY_LOCATION);
+		if(ftStatus != FT_OK) {
+			free_jstrarraylist(&list);
+			throw_serialcom_exception(env, 2, ftStatus, NULL);
+			return NULL;
+		}
+		memset(buffer, '\0', sizeof(buffer));
+		snprintf(buffer, sizeof(buffer), "%lX", locid);
+		info = (*env)->NewStringUTF(env, buffer);
+		if((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+			free_jstrarraylist(&list);
+			throw_serialcom_exception(env, 3, 0, E_NEWSTRUTFSTR);
+			return NULL;
+		}
+		insert_jstrarraylist(&list, info);
+		info = (*env)->NewStringUTF(env, "---");
+		if((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+			free_jstrarraylist(&list);
+			throw_serialcom_exception(env, 3, 0, E_NEWSTRUTFSTR);
+			return NULL;
+		}
+		insert_jstrarraylist(&list, info);
+		info = (*env)->NewStringUTF(env, "---");
+		if((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+			free_jstrarraylist(&list);
+			throw_serialcom_exception(env, 3, 0, E_NEWSTRUTFSTR);
+			return NULL;
+		}
+		insert_jstrarraylist(&list, info);
+
+	}else if(operation == 5) {
+		/* FT_LIST_ALL | FT_OPEN_BY_SERIAL_NUMBER */
+		ftStatus = FT_ListDevices(&num_of_dev_connected, NULL, FT_LIST_NUMBER_ONLY);
+		if(ftStatus != FT_OK) {
+			free_jstrarraylist(&list);
+			throw_serialcom_exception(env, 2, ftStatus, NULL);
+			return NULL;
+		}
+
+		/* if there is no FT device return NULL */
+		if(num_of_dev_connected == 0) {
+			free_jstrarraylist(&list);
+			return NULL;
+		}
+
+		/* Create array of pointers to string */
+		base_str = (char **) calloc((num_of_dev_connected + 1), sizeof(char *));
+		if(base_str == NULL) {
+			free_jstrarraylist(&list);
+			throw_serialcom_exception(env, 3, 0, E_CALLOCSTR);
+			return NULL;
+		}
+		have_str = 1;
+
+		/* put address of each string in array */
+		for (x=0; x<num_of_dev_connected; x++) {
+			base_str[x] = (char *) calloc(128, sizeof(char));
+		}
+
+		/* last entry in this array should be null as per documentation */
+		base_str[num_of_dev_connected] = NULL;
+
+		ftStatus = FT_ListDevices(base_str, &num_dev_found, FT_LIST_ALL | FT_OPEN_BY_SERIAL_NUMBER);
+		if(ftStatus != FT_OK) {
+			free(base_str);
+			free_jstrarraylist(&list);
+			throw_serialcom_exception(env, 2, ftStatus, NULL);
+			return NULL;
+		}
+
+		/* user might insert or remove devices during the time we calculated how many devices
+		 * are connected and just before FT_ListDevices is called again to get serial description,
+		 * so we need to handle this. */
+		if(num_dev_found >= num_of_dev_connected) {
+			for (x=0; x<num_of_dev_connected; x++) {
+				info = (*env)->NewStringUTF(env, "---");
+				if((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+					free(base_str);
+					free_jstrarraylist(&list);
+					throw_serialcom_exception(env, 3, 0, E_NEWSTRUTFSTR);
+					return NULL;
+				}
+				insert_jstrarraylist(&list, info);
+				info = (*env)->NewStringUTF(env, base_str[x]);
+				if((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+					free(base_str);
+					free_jstrarraylist(&list);
+					throw_serialcom_exception(env, 3, 0, E_NEWSTRUTFSTR);
+					return NULL;
+				}
+				insert_jstrarraylist(&list, info);
+				info = (*env)->NewStringUTF(env, "---");
+				if((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+					free(base_str);
+					free_jstrarraylist(&list);
+					throw_serialcom_exception(env, 3, 0, E_NEWSTRUTFSTR);
+					return NULL;
+				}
+				insert_jstrarraylist(&list, info);
+			}
+		}else {
+			for (x=0; x<num_dev_found; x++) {
+				info = (*env)->NewStringUTF(env, "---");
+				if((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+					free(base_str);
+					free_jstrarraylist(&list);
+					throw_serialcom_exception(env, 3, 0, E_NEWSTRUTFSTR);
+					return NULL;
+				}
+				insert_jstrarraylist(&list, info);
+				info = (*env)->NewStringUTF(env, base_str[x]);
+				if((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+					free(base_str);
+					free_jstrarraylist(&list);
+					throw_serialcom_exception(env, 3, 0, E_NEWSTRUTFSTR);
+					return NULL;
+				}
+				insert_jstrarraylist(&list, info);
+				info = (*env)->NewStringUTF(env, "---");
+				if((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+					free(base_str);
+					free_jstrarraylist(&list);
+					throw_serialcom_exception(env, 3, 0, E_NEWSTRUTFSTR);
+					return NULL;
+				}
+				insert_jstrarraylist(&list, info);
+			}
+		}
+
+	}else if(operation == 6) {
+		/* FT_LIST_ALL | FT_OPEN_BY_DESCRIPTION */
+		ftStatus = FT_ListDevices(&num_of_dev_connected, NULL, FT_LIST_NUMBER_ONLY);
+		if(ftStatus != FT_OK) {
+			free_jstrarraylist(&list);
+			throw_serialcom_exception(env, 2, ftStatus, NULL);
+			return NULL;
+		}
+
+		/* if there is no FT device return NULL */
+		if(num_of_dev_connected == 0) {
+			free_jstrarraylist(&list);
+			return NULL;
+		}
+
+		/* Create array of pointers to string */
+		base_str = (char **) calloc((num_of_dev_connected + 1), sizeof(char *));
+		if(base_str == NULL) {
+			free_jstrarraylist(&list);
+			throw_serialcom_exception(env, 3, 0, E_CALLOCSTR);
+			return NULL;
+		}
+		have_str = 1;
+
+		/* put address of each string in array */
+		for (x=0; x<num_of_dev_connected; x++) {
+			base_str[x] = (char *) calloc(128, sizeof(char));
+		}
+
+		/* last entry in this array should be null as per documentation */
+		base_str[num_of_dev_connected] = NULL;
+
+		ftStatus = FT_ListDevices(base_str, &num_dev_found, FT_LIST_ALL | FT_OPEN_BY_DESCRIPTION);
+		if(ftStatus != FT_OK) {
+			free(base_str);
+			free_jstrarraylist(&list);
+			throw_serialcom_exception(env, 2, ftStatus, NULL);
+			return NULL;
+		}
+
+		/* user might insert or remove devices during the time we calculated how many devices
+		 * are connected and just before FT_ListDevices is called again to get serial description,
+		 * so we need to handle this. */
+		if(num_dev_found >= num_of_dev_connected) {
+			for (x=0; x<num_of_dev_connected; x++) {
+				info = (*env)->NewStringUTF(env, "---");
+				if((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+					free(base_str);
+					free_jstrarraylist(&list);
+					throw_serialcom_exception(env, 3, 0, E_NEWSTRUTFSTR);
+					return NULL;
+				}
+				insert_jstrarraylist(&list, info);
+				info = (*env)->NewStringUTF(env, "---");
+				if((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+					free(base_str);
+					free_jstrarraylist(&list);
+					throw_serialcom_exception(env, 3, 0, E_NEWSTRUTFSTR);
+					return NULL;
+				}
+				insert_jstrarraylist(&list, info);
+				info = (*env)->NewStringUTF(env, base_str[x]);
+				if((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+					free(base_str);
+					free_jstrarraylist(&list);
+					throw_serialcom_exception(env, 3, 0, E_NEWSTRUTFSTR);
+					return NULL;
+				}
+				insert_jstrarraylist(&list, info);
+			}
+		}else {
+			for (x=0; x<num_dev_found; x++) {
+				info = (*env)->NewStringUTF(env, "---");
+				if((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+					free(base_str);
+					free_jstrarraylist(&list);
+					throw_serialcom_exception(env, 3, 0, E_NEWSTRUTFSTR);
+					return NULL;
+				}
+				insert_jstrarraylist(&list, info);
+				info = (*env)->NewStringUTF(env, "---");
+				if((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+					free(base_str);
+					free_jstrarraylist(&list);
+					throw_serialcom_exception(env, 3, 0, E_NEWSTRUTFSTR);
+					return NULL;
+				}
+				insert_jstrarraylist(&list, info);
+				info = (*env)->NewStringUTF(env, base_str[x]);
+				if((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+					free(base_str);
+					free_jstrarraylist(&list);
+					throw_serialcom_exception(env, 3, 0, E_NEWSTRUTFSTR);
+					return NULL;
+				}
+				insert_jstrarraylist(&list, info);
+			}
+		}
+
+	}else if(operation == 7) {
+		/* FT_LIST_ALL | FT_OPEN_BY_LOCATION */
+		ftStatus = FT_ListDevices(&num_of_dev_connected, NULL, FT_LIST_NUMBER_ONLY);
+		if(ftStatus != FT_OK) {
+			free_jstrarraylist(&list);
+			throw_serialcom_exception(env, 2, ftStatus, NULL);
+			return NULL;
+		}
+
+		/* if there is no FT device return NULL */
+		if(num_of_dev_connected == 0) {
+			free_jstrarraylist(&list);
+			return NULL;
+		}
+
+		/* Create array of pointers to unsigned long */
+		base_long = (long *) calloc((num_of_dev_connected + 1), sizeof(long));
+		if(base_long == NULL) {
+			free_jstrarraylist(&list);
+			throw_serialcom_exception(env, 3, 0, E_CALLOCSTR);
+			return NULL;
+		}
+		have_long = 1;
+
+		/* last entry in this array should be null as per documentation */
+		base_long[num_of_dev_connected] = NULL;
+
+		ftStatus = FT_ListDevices(base_long, &num_dev_found, FT_LIST_ALL | FT_OPEN_BY_LOCATION);
+		if(ftStatus != FT_OK) {
+			free(base_long);
+			free_jstrarraylist(&list);
+			throw_serialcom_exception(env, 2, ftStatus, NULL);
+			return NULL;
+		}
+
+		/* user might insert or remove devices during the time we calculated how many devices
+		 * are connected and just before FT_ListDevices is called again to get serial description,
+		 * so we need to handle this. */
+		if(num_dev_found >= num_of_dev_connected) {
+			for (x=0; x<num_of_dev_connected; x++) {
+				memset(buffer, '\0', sizeof(buffer));
+				snprintf(buffer, sizeof(buffer), "%lX", base_long[x]);
+				info = (*env)->NewStringUTF(env, buffer);
+				if((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+					free(base_long);
+					free_jstrarraylist(&list);
+					throw_serialcom_exception(env, 3, 0, E_NEWSTRUTFSTR);
+					return NULL;
+				}
+				insert_jstrarraylist(&list, info);
+				info = (*env)->NewStringUTF(env, "---");
+				if((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+					free(base_long);
+					free_jstrarraylist(&list);
+					throw_serialcom_exception(env, 3, 0, E_NEWSTRUTFSTR);
+					return NULL;
+				}
+				insert_jstrarraylist(&list, info);
+				info = (*env)->NewStringUTF(env, "---");
+				if((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+					free(base_long);
+					free_jstrarraylist(&list);
+					throw_serialcom_exception(env, 3, 0, E_NEWSTRUTFSTR);
+					return NULL;
+				}
+				insert_jstrarraylist(&list, info);
+			}
+		}else {
+			for (x=0; x<num_dev_found; x++) {
+				memset(buffer, '\0', sizeof(buffer));
+				snprintf(buffer, sizeof(buffer), "%lX", base_long[x]);
+				info = (*env)->NewStringUTF(env, buffer);
+				if((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+					free(base_long);
+					free_jstrarraylist(&list);
+					throw_serialcom_exception(env, 3, 0, E_NEWSTRUTFSTR);
+					return NULL;
+				}
+				insert_jstrarraylist(&list, info);
+				info = (*env)->NewStringUTF(env, "---");
+				if((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+					free(base_long);
+					free_jstrarraylist(&list);
+					throw_serialcom_exception(env, 3, 0, E_NEWSTRUTFSTR);
+					return NULL;
+				}
+				insert_jstrarraylist(&list, info);
+				info = (*env)->NewStringUTF(env, "---");
+				if((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+					free(base_long);
+					free_jstrarraylist(&list);
+					throw_serialcom_exception(env, 3, 0, E_NEWSTRUTFSTR);
+					return NULL;
+				}
+				insert_jstrarraylist(&list, info);
+			}
+		}
+
+	}else {
+		return NULL;
+	}
+
+	strClass = (*env)->FindClass(env, "java/lang/String");
+	if((strClass == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+		if(have_str == 1) {
+			free(base_str);
+		}
+		if(have_long == 1) {
+			free(base_long);
+		}
+		free_jstrarraylist(&list);
+		throw_serialcom_exception(env, 3, 0, E_FINDCLASSSSTRINGSTR);
+		return NULL;
+	}
+
+	infoFound = (*env)->NewObjectArray(env, (jsize) list.index, strClass, NULL);
+	if((infoFound == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+		if(have_str == 1) {
+			free(base_str);
+		}
+		if(have_long == 1) {
+			free(base_long);
+		}
+		free_jstrarraylist(&list);
+		throw_serialcom_exception(env, 3, 0, E_NEWOBJECTARRAYSTR);
+		return NULL;
+	}
+
+	for (x=0; x < list.index; x++) {
+		(*env)->SetObjectArrayElement(env, infoFound, x, list.base[x]);
+		if((*env)->ExceptionOccurred(env)) {
+			if(have_str == 1) {
+				free(base_str);
+			}
+			if(have_long == 1) {
+				free(base_long);
+			}
+			free_jstrarraylist(&list);
+			throw_serialcom_exception(env, 3, 0, E_SETOBJECTARRAYSTR);
+			return NULL;
+		}
+	}
+
+	if(have_str == 1) {
+		free(base_str);
+	}
+	if(have_long == 1) {
+		free(base_long);
+	}
+	free_jstrarraylist(&list);
+	return infoFound;
+}
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
  * Method:    open
  * Signature: (I)J
  *
@@ -404,6 +928,60 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID
 		return -1;
 	}
 
+	return (long)ftHandle;
+}
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
+ * Method:    openEx
+ * Signature: (Ljava/lang/String;JI)J
+ *
+ * @return handle on success otherwise -1 if error occurs.
+ * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
+ */
+JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_openEx(JNIEnv *env, jobject obj,
+		                                                               jstring serialOrDescription, jlong locationId, jint dwFlags) {
+	FT_HANDLE ftHandle;
+	FT_STATUS ftStatus = 0;
+	const char* ser_or_desc;
+
+	if(dwFlags == 0x08) {
+		if(serialOrDescription == NULL) {
+			throw_serialcom_exception(env, 3, 0, E_IllegalARG);
+			return -1;
+		}
+		ser_or_desc = (*env)->GetStringUTFChars(env, serialOrDescription, NULL);
+		if((ser_or_desc == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+			throw_serialcom_exception(env, 3, 0, E_GETSTRUTFCHARSTR);
+			return -1;
+		}
+		ftStatus = FT_OpenEx((char*)ser_or_desc, FT_OPEN_BY_SERIAL_NUMBER, &ftHandle);
+	}else if(dwFlags == 0x10) {
+		if(serialOrDescription == NULL) {
+			throw_serialcom_exception(env, 3, 0, E_IllegalARG);
+			return -1;
+		}
+		ser_or_desc = (*env)->GetStringUTFChars(env, serialOrDescription, NULL);
+		if((ser_or_desc == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+			throw_serialcom_exception(env, 3, 0, E_GETSTRUTFCHARSTR);
+			return -1;
+		}
+		ftStatus = FT_OpenEx((char*)ser_or_desc, FT_OPEN_BY_DESCRIPTION, &ftHandle);
+	}else if(dwFlags == 0x20) {
+		if(locationId < 0) {
+			throw_serialcom_exception(env, 3, 0, E_IllegalARG);
+			return -1;
+		}
+		ftStatus = FT_OpenEx(locationId, FT_OPEN_BY_LOCATION, &ftHandle);
+	}else {
+		throw_serialcom_exception(env, 3, 0, E_IllegalARG);
+		return -1;
+	}
+
+	if(ftStatus != FT_OK) {
+		throw_serialcom_exception(env, 2, ftStatus, NULL);
+		return -1;
+	}
 	return (long)ftHandle;
 }
 

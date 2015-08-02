@@ -49,11 +49,27 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
+ * Method:    listDevices
+ * Signature: (II)[Ljava/lang/String;
+ */
+JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_listDevices
+  (JNIEnv *, jobject, jint, jint);
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
  * Method:    open
  * Signature: (I)J
  */
 JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_open
   (JNIEnv *, jobject, jint);
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
+ * Method:    openEx
+ * Signature: (Ljava/lang/String;JI)J
+ */
+JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_openEx
+  (JNIEnv *, jobject, jstring, jlong, jint);
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
