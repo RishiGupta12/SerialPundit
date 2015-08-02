@@ -135,14 +135,14 @@ public class SerialComFTDID2XXJNIBridge {
 
 		// load libraries in reverse order of dependencies
 		try {
-			// vendor library
+			// vendor supplied shared library
 			vlibFile = new File(libDirectory.getAbsolutePath() + fileSeparator + vlibName);
 			System.load(vlibFile.toString());
 		} catch (Exception e) {
 			throw (UnsatisfiedLinkError) new UnsatisfiedLinkError("Could not load " + vlibFile.toString() + " native library !").initCause(e);
 		}
 		try {
-			// scm JNI glue library
+			// scm JNI glue shared library
 			System.load(libFile.toString());
 		} catch (Exception e) {
 			throw (UnsatisfiedLinkError) new UnsatisfiedLinkError("Could not load " + libFile.toString() + " native library !").initCause(e);

@@ -38,8 +38,9 @@ import com.embeddedunveiled.serial.internal.SerialComSystemProperty;
  * <p>More information about D2XX is here : http://www.ftdichip.com/Drivers/D2XX.htm </p>
  * 
  * <p>[1] Developers are requested to check with vendor library documentation if a particular function is supported
- * for desired platform or not and also how does a particular API will behave. For FTDI d2xx the API guide is 
- * here : http://www.ftdichip.com/Support/Documents/ProgramGuides/D2XX_Programmer's_Guide(FT_000071).pdf</p>
+ * for desired platform or not and also how does a particular API will behave. Also consider paying attention to 
+ * valid values and range when passing arguments to a method. For FTDI d2xx the API guide is here : 
+ * http://www.ftdichip.com/Support/Documents/ProgramGuides/D2XX_Programmer's_Guide(FT_000071).pdf </p>
  * 
  * <p>[2] The VCP and D2XX drivers are mutually exclusive and therefore use this script to unload VCP drivers :
  * https://github.com/RishiGupta12/serial-communication-manager/blob/master/tests/unload-ftdi-vcp-driver.sh</p>
@@ -50,7 +51,7 @@ import com.embeddedunveiled.serial.internal.SerialComSystemProperty;
  * 
  * <p>[4] The application notes for FTDI devices are here : http://www.ftdichip.com/Support/Documents/AppNotes.htm</p>
  * 
- * <p>This library is linked against d2xx 1.1.12 version for Linux, 2.12.06 for Windows and 1.2.2 for Mac os x.</p>
+ * <p>SCM version 1.0.4 is linked against d2xx 1.1.12 version for Linux, 2.12.06 for Windows and 1.2.2 for Mac os x.</p>
  */
 public final class SerialComFTDID2XX extends SerialComVendorLib {
 

@@ -70,13 +70,23 @@ public class SerialComVendorLib {
 		SerialComVendorLib vendorLib = null;
 		if(vendorLibIdentifier == VLIB_FTDI_D2XX) {
 			if(!((cpuArch == SerialComManager.ARCH_AMD64) || (cpuArch == SerialComManager.ARCH_X86))) {
-				throw new SerialComLoadException("Given vendor library is not supported for this CPU architecture !");
+				throw new SerialComLoadException("FTDI D2XX library is not supported for this CPU architecture !");
 			}
 			if(!((osType == SerialComManager.OS_WINDOWS) || (osType == SerialComManager.OS_LINUX) || (osType == SerialComManager.OS_MAC_OS_X))) {
-				throw new SerialComLoadException("Given vendor library is not supported for this operating system !");
+				throw new SerialComLoadException("FTDI D2XX library is not supported for this operating system !");
 			}
 			vendorLib = new SerialComFTDID2XX(libDirectory, vlibName, cpuArch, osType, serialComSystemProperty);
 			return vendorLib;
+		}else if(vendorLibIdentifier == VLIB_MCHP_SIMPLEIO) {
+			if(!((cpuArch == SerialComManager.ARCH_AMD64) || (cpuArch == SerialComManager.ARCH_X86))) {
+				throw new SerialComLoadException("Microchio SimpleIO library is not supported for this CPU architecture !");
+			}
+			if(osType != SerialComManager.OS_WINDOWS) {
+				throw new SerialComLoadException("Microchio SimpleIO library is not supported for this operating system !");
+			}
+			vendorLib = new SerialComMCHPSimpleIO(libDirectory, vlibName, cpuArch, osType, serialComSystemProperty);
+			return vendorLib;
+		}else {
 		}
 
 		return null;
