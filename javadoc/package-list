@@ -1,1 +1,4 @@
 com.embeddedunveiled.serial
+com.embeddedunveiled.serial.internal
+com.embeddedunveiled.serial.usb
+com.embeddedunveiled.serial.vendor
