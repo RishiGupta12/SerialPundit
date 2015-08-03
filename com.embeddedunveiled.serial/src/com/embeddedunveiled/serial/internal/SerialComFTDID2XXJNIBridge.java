@@ -29,7 +29,7 @@ import com.embeddedunveiled.serial.SerialComUnexpectedException;
 /**
  * <p>This class is an interface between java and native shared library.</p>
  */
-public class SerialComFTDID2XXJNIBridge {
+public final class SerialComFTDID2XXJNIBridge {
 
 	/**
 	 * <p>Allocates a new SerialComFTDID2XXJNIBridge object.</p>

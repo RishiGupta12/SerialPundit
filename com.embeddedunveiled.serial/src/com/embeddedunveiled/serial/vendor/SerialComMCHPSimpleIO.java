@@ -33,7 +33,7 @@ import com.embeddedunveiled.serial.internal.SerialComSystemProperty;
  * for desired platform or not and also how does a particular API will behave. Also consider paying attention to 
  * valid values and range when passing arguments to a method.</p>
  * 
- * <p>SCM version 1.0.4 is linked against 1.4.0 of SimpleIO library.</p>
+ * <p>SCM version 1.0.4 is linked to 1.4.0 version of SimpleIO library.</p>
  */
 public final class SerialComMCHPSimpleIO extends SerialComVendorLib {
 

@@ -38,6 +38,9 @@ public class SerialComVendorLib {
 
 	/**<p>The value indicating 'SimpleIO-UM.dll' library from Microchip Technology Inc.</p>*/
 	public static final int VLIB_MCHP_SIMPLEIO = 0x02;
+	
+	/**<p>The value indicating 'CP210xRuntime-DLL' library from Silicon Laboratories, Inc.</p>*/
+	public static final int VLIB_SLABS_CP210XRUNTIME = 0x03;
 
 	/**
 	 * <p>Allocates a new SerialComVendorLib object.</p>
@@ -79,14 +82,24 @@ public class SerialComVendorLib {
 			return vendorLib;
 		}else if(vendorLibIdentifier == VLIB_MCHP_SIMPLEIO) {
 			if(!((cpuArch == SerialComManager.ARCH_AMD64) || (cpuArch == SerialComManager.ARCH_X86))) {
-				throw new SerialComLoadException("Microchio SimpleIO library is not supported for this CPU architecture !");
+				throw new SerialComLoadException("Microchip SimpleIO library is not supported for this CPU architecture !");
 			}
 			if(osType != SerialComManager.OS_WINDOWS) {
-				throw new SerialComLoadException("Microchio SimpleIO library is not supported for this operating system !");
+				throw new SerialComLoadException("Microchip SimpleIO library is not supported for this operating system !");
 			}
 			vendorLib = new SerialComMCHPSimpleIO(libDirectory, vlibName, cpuArch, osType, serialComSystemProperty);
 			return vendorLib;
+		}else if(vendorLibIdentifier == VLIB_SLABS_CP210XRUNTIME) {
+			if(!((cpuArch == SerialComManager.ARCH_AMD64) || (cpuArch == SerialComManager.ARCH_X86))) {
+				throw new SerialComLoadException("Silicon labs cp210x runtime dll library is not supported for this CPU architecture !");
+			}
+			if(osType != SerialComManager.OS_WINDOWS) {
+				throw new SerialComLoadException("Silicon labs cp210x runtime dll library is not supported for this operating system !");
+			}
+			vendorLib = new SerialComSLabsCP210xRuntime(libDirectory, vlibName, cpuArch, osType, serialComSystemProperty);
+			return vendorLib;
 		}else {
+			
 		}
 
 		return null;

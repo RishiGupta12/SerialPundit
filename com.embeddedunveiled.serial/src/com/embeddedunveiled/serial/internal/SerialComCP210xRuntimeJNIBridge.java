@@ -29,12 +29,12 @@ import com.embeddedunveiled.serial.SerialComUnexpectedException;
 /**
  * <p>This class is an interface between java and native shared library.</p>
  */
-public final class SerialComMCHPSIOJNIBridge {
+public final class SerialComCP210xRuntimeJNIBridge {
 
 	/**
-	 * <p>Allocates a new SerialComMCHPSIOJNIBridge object.</p>
+	 * <p>Allocates a new SerialComCP210xRuntimeJNIBridge object.</p>
 	 */
-	public SerialComMCHPSIOJNIBridge() {
+	public SerialComCP210xRuntimeJNIBridge() {
 	}
 
 	/**
@@ -151,31 +151,10 @@ public final class SerialComMCHPSIOJNIBridge {
 		return true;
 	}
 
-	public native int initMCP2200(int vendorID, int productID);
-	public native int isConnected();
-	public native int configureMCP2200(byte ioMap, long baudRateParam, int rxLEDMode,
-			int txLEDMode, boolean flow, boolean uload, boolean sspnd, boolean invert);
-	public native int setPin(int pinNumber);
-	public native int clearPin(int pinNumber);
-	public native int readPinValue(int pinNumber);
-	public native int readPin(int pinNumber);
-	public native int writePort(int portValue);
-	public native int readPort();
-	public native int readPortValue();
-	public native int selectDevice(int uiDeviceNumber);
-	public native int getSelectedDevice();
-	public native int getNumOfDevices();
-	public native String getDeviceInfo(int uiDeviceNumber);
-	public native String getSelectedDeviceInfo();
-	public native int readEEPROM(int uiEEPAddress);
-	public native int writeEEPROM(int uiEEPAddress, short ucValue);
-	public native int fnRxLED(int mode);
-	public native int fnTxLED(int mode);
-	public native int hardwareFlowControl(int onOff);
-	public native int fnULoad(int onOff);
-	public native int fnSuspend(int onOff);
-	public native int fnInvertUartPol(int onOff);
-	public native int fnSetBaudRate(long baudRateParam);
-	public native int configureIO(short ioMap);
-	public native int configureIoDefaultOutput(short ioMap, short ucDefValue);
+	public native int readLatch(long handle);
+	public native boolean writeLatch(long handle, long mask, long latchValue);
+	public native int getPartNumber(long handle);
+	public native String getDeviceProductString(long handle);
+	public native String getDeviceSerialNumber(long handle);
+	public native String getDeviceInterfaceString(long handle);
 }
