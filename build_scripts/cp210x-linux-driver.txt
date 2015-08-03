@@ -66,7 +66,7 @@ This will result in following output from dmesg:
 [13767.939624] cp210x 3-4:1.0: device disconnected
 
 8. Insert our driver module as root user.
-# insmod /--/path to driver.ko
+# insmod /--/path-to/cp210x.ko
 
 This will result in following output from dmesg:
 

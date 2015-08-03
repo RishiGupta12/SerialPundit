@@ -69,13 +69,13 @@ public final class SerialComManager {
 
 	/** <p>Pre-defined enum constants for number of data bits in a serial frame. </p>*/
 	public enum DATABITS {
-		/** <p>Number of data bits in one frame is 5 bits. </p>*/
+		/** <p>Serial frame will contain 5 data bits. </p>*/
 		DB_5(5),
-		/** <p>Number of data bits in one frame is 6 bits. </p>*/
+		/** <p>Serial frame will contain 6 data bits. </p>*/
 		DB_6(6),
-		/** <p>Number of data bits in one frame is 7 bits. </p>*/
+		/** <p>Serial frame will contain 7 data bits. </p>*/
 		DB_7(7),
-		/** <p>Number of data bits in one frame is 8 bits. </p>*/
+		/** <p>Serial frame will contain 8 data bits. </p>*/
 		DB_8(8);
 		private int value;
 		private DATABITS(int value) {
