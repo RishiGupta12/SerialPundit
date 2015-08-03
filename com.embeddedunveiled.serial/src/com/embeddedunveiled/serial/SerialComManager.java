@@ -1359,7 +1359,7 @@ public final class SerialComManager {
 			}
 		}
 		if(handlefound == false) {
-			throw new SerialComException("getCurrentConfiguration()", "Wrong port handle passed for the requested operations");
+			throw new SerialComException("Wrong port handle passed for the requested operation 1");
 		}
 
 		if(getOSType() != OS_WINDOWS) {
@@ -1367,7 +1367,7 @@ public final class SerialComManager {
 			int[] config = mComPortJNIBridge.getCurrentConfigurationU(handle);
 			String[] configuration = new String[config.length];
 			if(config[0] < 0) {
-				throw new SerialComException("getCurrentConfiguration()", "Could not determine current configuration. Please retry !");
+				throw new SerialComException("Could not determine current configuration. Please retry !");
 			}
 			// if an error occurs, config[0] will contain error code, otherwise actual data
 			for(int x=0; x<config.length; x++) {
@@ -2199,7 +2199,7 @@ public final class SerialComManager {
 		}
 
 		if(scis == null) {
-			scis = new SerialComInByteStream(this, handle, streamMode);
+			scis = new SerialComInByteStream(this, mHandleInfo, handle, streamMode);
 			mHandleInfo.setSerialComInByteStream(scis);
 		}else {
 			// if 2nd attempt is made to create already existing input stream, throw exception
@@ -2245,7 +2245,7 @@ public final class SerialComManager {
 		}
 
 		if(scos == null) {
-			scos = new SerialComOutByteStream(this, handle, streamMode);
+			scos = new SerialComOutByteStream(this, mHandleInfo, handle, streamMode);
 			mHandleInfo.setSerialComOutByteStream(scos);
 		}else {
 			// if 2nd attempt is made to create already existing output stream, throw exception
@@ -2253,26 +2253,6 @@ public final class SerialComManager {
 		}
 
 		return scos;
-	}
-
-	/** Internal use only */
-	public void destroyInputByteStream(SerialComInByteStream scis) {
-		for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
-			if(mInfo.getSerialComInByteStream() == scis) {
-				mInfo.setSerialComInByteStream(null);
-				break;
-			}
-		}
-	}
-
-	/** Internal use only */
-	public void destroyOutputByteStream(SerialComOutByteStream scos) {
-		for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
-			if(mInfo.getSerialComOutByteStream() == scos) {
-				mInfo.setSerialComOutByteStream(null);
-				break;
-			}
-		}
 	}
 
 	/**

@@ -2,7 +2,9 @@ package com.embeddedunveiled.serial;
 
 import java.io.IOException;
 import java.io.OutputStream;
+
 import com.embeddedunveiled.serial.SerialComManager.SMODE;
+import com.embeddedunveiled.serial.internal.SerialComPortHandleInfo;
 
 /**
  * <p>Represents an output stream of bytes that gets sent over to serial port for transmission.</p>
@@ -10,6 +12,7 @@ import com.embeddedunveiled.serial.SerialComManager.SMODE;
 public final class SerialComOutByteStream extends OutputStream {
 
 	private SerialComManager scm;
+	private SerialComPortHandleInfo portHandleInfo;
 	private long handle;
 	private boolean isOpened;
 	/* private boolean isBlocking = false; */
@@ -22,8 +25,9 @@ public final class SerialComOutByteStream extends OutputStream {
 	 * @param streamMode indicates blocking or non-blocking behavior of stream.
 	 * @throws SerialComException if serial port can not be configured for specified write behavior.
 	 */
-	public SerialComOutByteStream(SerialComManager scm, long handle, SMODE streamMode) throws SerialComException {
+	public SerialComOutByteStream(SerialComManager scm, SerialComPortHandleInfo portHandleInfo, long handle, SMODE streamMode) throws SerialComException {
 		this.scm = scm;
+		this.portHandleInfo = portHandleInfo;
 		this.handle = handle;
 		isOpened = true;
 		/* if(streamMode.getValue() == 1) {
@@ -143,7 +147,7 @@ public final class SerialComOutByteStream extends OutputStream {
 		if(isOpened != true) {
 			throw new IOException("The byte stream has been closed !");
 		}
-		scm.destroyOutputByteStream(this);
+		portHandleInfo.setSerialComOutByteStream(null);
 		isOpened = false;
 	}
 }

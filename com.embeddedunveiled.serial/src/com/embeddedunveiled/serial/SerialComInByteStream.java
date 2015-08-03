@@ -18,8 +18,8 @@ package com.embeddedunveiled.serial;
 
 import java.io.IOException;
 import java.io.InputStream;
-
 import com.embeddedunveiled.serial.SerialComManager.SMODE;
+import com.embeddedunveiled.serial.internal.SerialComPortHandleInfo;
 
 /**
  * <p>Represents an input stream of bytes which is received from serial port.</p>
@@ -32,6 +32,7 @@ import com.embeddedunveiled.serial.SerialComManager.SMODE;
 public final class SerialComInByteStream extends InputStream {
 
 	private SerialComManager scm;
+	private SerialComPortHandleInfo portHandleInfo;
 	private long handle;
 	private boolean isOpened;
 	private boolean isBlocking;
@@ -44,8 +45,9 @@ public final class SerialComInByteStream extends InputStream {
 	 * @param streamMode indicates blocking or non-blocking behavior of stream.
 	 * @throws SerialComException if serial port can not be configured for specified read behavior.
 	 */
-	public SerialComInByteStream(SerialComManager scm, long handle, SMODE streamMode) throws SerialComException {
+	public SerialComInByteStream(SerialComManager scm, SerialComPortHandleInfo portHandleInfo, long handle, SMODE streamMode) throws SerialComException {
 		this.scm = scm;
+		this.portHandleInfo = portHandleInfo;
 		this.handle = handle;
 		isOpened = true;
 		
@@ -91,7 +93,7 @@ public final class SerialComInByteStream extends InputStream {
 		if(isOpened != true) {
 			throw new IOException("The byte stream has been closed !");
 		}
-		scm.destroyInputByteStream(this);
+		portHandleInfo.setSerialComInByteStream(null);
 		isOpened = false;
 	}
 	

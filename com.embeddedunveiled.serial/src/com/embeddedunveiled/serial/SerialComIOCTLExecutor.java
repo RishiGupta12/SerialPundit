@@ -56,7 +56,7 @@ public final class SerialComIOCTLExecutor {
 		long ret = 0;
 		ret = mComPortJNIBridge.ioctlExecuteOperation(handle, operationCode);
 		if(ret < 0) {
-			throw new SerialComException("ioctlExecuteOperation()", mErrMapper.getMappedError(ret));
+			throw new SerialComException(mErrMapper.getMappedError(ret));
 		}
 		return true;
 	}
@@ -90,7 +90,7 @@ public final class SerialComIOCTLExecutor {
 		long ret = 0;
 		ret = mComPortJNIBridge.ioctlSetValue(handle, operationCode, value);
 		if(ret < 0) {
-			throw new SerialComException("ioctlSetValue()", mErrMapper.getMappedError(ret));
+			throw new SerialComException(mErrMapper.getMappedError(ret));
 		}
 		return true;
 	}
@@ -113,7 +113,7 @@ public final class SerialComIOCTLExecutor {
 		long ret = 0;
 		ret = mComPortJNIBridge.ioctlGetValue(handle, operationCode);
 		if(ret < 0) {
-			throw new SerialComException("ioctlGetValue()", mErrMapper.getMappedError(ret));
+			throw new SerialComException(mErrMapper.getMappedError(ret));
 		}
 		return ret;
 	}
@@ -131,7 +131,7 @@ public final class SerialComIOCTLExecutor {
 		long ret = 0;
 		ret = mComPortJNIBridge.ioctlSetValueIntArray(handle, operationCode, values);
 		if(ret < 0) {
-			throw new SerialComException("ioctlSetValueIntArray()", mErrMapper.getMappedError(ret));
+			throw new SerialComException(mErrMapper.getMappedError(ret));
 		}
 		return true;
 	}
@@ -152,7 +152,7 @@ public final class SerialComIOCTLExecutor {
 		long ret = 0;
 		ret = mComPortJNIBridge.ioctlSetValueCharArray(handle, operationCode, values);
 		if(ret < 0) {
-			throw new SerialComException("ioctlSetValueCharArray()", mErrMapper.getMappedError(ret));
+			throw new SerialComException(mErrMapper.getMappedError(ret));
 		}
 		return true;
 	}
