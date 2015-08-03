@@ -35,13 +35,13 @@ public final class FTdevicelistInfoNode {
 	/**
 	 * <p>Construct and allocates a new FTdevicelistInfoNode object with given details.</p>
 	 * 
-	 * @param flags flags for this device
-	 * @param type device type
-	 * @param id device ID
-	 * @param locId location id of this device
-	 * @param serialNumber serial number of this device
-	 * @param description description of this device
-	 * @param ftHandle handle for this device
+	 * @param flags flags for this device.
+	 * @param type device type.
+	 * @param id device ID.
+	 * @param locId location id of this device.
+	 * @param serialNumber serial number of this device.
+	 * @param description description of this device.
+	 * @param ftHandle handle for this device.
 	 */
 	public FTdevicelistInfoNode(String flags, String type, String id, String locId, String serialNumber, String description, String ftHandle) {
 		this.flags = flags;
@@ -56,8 +56,8 @@ public final class FTdevicelistInfoNode {
 	/** 
 	 * <p>Retrieves the flags for this FT device info node.</p>
 	 * 
-	 * @return flags for this FT device info node
-	 * @throws NumberFormatException if the flags hex string can not be converted into numerical representation
+	 * @return flags for this FT device info node.
+	 * @throws NumberFormatException if the flags hex string can not be converted into numerical representation.
 	 */
 	public long getFlags() {
 		return SerialComUtil.hexStrToLongNumber(flags);
@@ -67,8 +67,8 @@ public final class FTdevicelistInfoNode {
 	 * <p>Interpret the flags of this device giving information about whether port is open or closed and 
 	 * is it enumerated as high speed or full speed usb device.</p>
 	 * 
-	 * @return Array of string with interpretation of this device flags field
-	 * @throws NumberFormatException if the flags hex string can not be converted into numerical representation
+	 * @return Array of string with interpretation of this device flags field.
+	 * @throws NumberFormatException if the flags hex string can not be converted into numerical representation.
 	 */
 	public String[] interpretFlags() {
 		String[] info = new String[2];
@@ -96,8 +96,8 @@ public final class FTdevicelistInfoNode {
 	/** 
 	 * <p>Retrieves the type for this FT device info node.</p>
 	 * 
-	 * @return type for this FT device info node
-	 * @throws NumberFormatException if the type hex string can not be converted into numerical representation
+	 * @return type for this FT device info node.
+	 * @throws NumberFormatException if the type hex string can not be converted into numerical representation.
 	 */
 	public long getType() {
 		return SerialComUtil.hexStrToLongNumber(type);
@@ -106,8 +106,8 @@ public final class FTdevicelistInfoNode {
 	/** 
 	 * <p>Retrieves the id for this FT device info node.</p>
 	 * 
-	 * @return id for this FT device info node
-	 * @throws NumberFormatException if the id hex string can not be converted into numerical representation
+	 * @return id for this FT device info node.
+	 * @throws NumberFormatException if the id hex string can not be converted into numerical representation.
 	 */
 	public long getId() {
 		return SerialComUtil.hexStrToLongNumber(id);
@@ -116,8 +116,8 @@ public final class FTdevicelistInfoNode {
 	/** 
 	 * <p>Retrieves the locId for this FT device info node.</p>
 	 * 
-	 * @return locId for this FT device info node
-	 * @throws NumberFormatException if the locId hex string can not be converted into numerical representation
+	 * @return locId for this FT device info node.
+	 * @throws NumberFormatException if the locId hex string can not be converted into numerical representation.
 	 */
 	public long getLocId() {
 		return SerialComUtil.hexStrToLongNumber(locId);
@@ -126,7 +126,7 @@ public final class FTdevicelistInfoNode {
 	/** 
 	 * <p>Retrieves the serial number string for this FT device info node.</p>
 	 * 
-	 * @return serial number string for this FT device info node
+	 * @return serial number string for this FT device info node.
 	 */
 	public String getSerialNumber() {
 		return serialNumber;
@@ -135,7 +135,7 @@ public final class FTdevicelistInfoNode {
 	/** 
 	 * <p>Retrieves the description for this FT device info node.</p>
 	 * 
-	 * @return description string for this FT device info node
+	 * @return description string for this FT device info node.
 	 */
 	public String getDescription() {
 		return description;
@@ -144,8 +144,8 @@ public final class FTdevicelistInfoNode {
 	/** 
 	 * <p>Retrieves the ftHandle for this FT device info node.</p>
 	 * 
-	 * @return ftHandle for this FT device info node
-	 * @throws NumberFormatException if the ftHandle hex string can not be converted into numerical representation
+	 * @return ftHandle for this FT device info node.
+	 * @throws NumberFormatException if the ftHandle hex string can not be converted into numerical representation.
 	 */
 	public long getFThandle() {
 		return SerialComUtil.hexStrToLongNumber(ftHandle);

@@ -32,7 +32,7 @@ public final class Test2 {
 
 			String PORT = null;
 			String PORT1 = null;
-			int osType = SerialComManager.getOSType();
+			int osType = scm.getOSType();
 			if(osType == SerialComManager.OS_LINUX) {
 				PORT = "/dev/ttyUSB0";
 				PORT1 = "/dev/ttyUSB1";

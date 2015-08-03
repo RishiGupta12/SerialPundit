@@ -31,7 +31,7 @@ public final class FTdeviceInfo {
 	/**
 	 * <p>Construct and allocates a new FTdeviceInfo object with given details.</p>
 	 * 
-	 * @param locId location ID of the device..
+	 * @param locId location ID of the device.
 	 * @param serialNumber serial number of this device.
 	 * @param description description of this device.
 	 */

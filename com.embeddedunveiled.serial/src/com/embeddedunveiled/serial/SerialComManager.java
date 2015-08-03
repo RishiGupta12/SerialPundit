@@ -465,16 +465,16 @@ public final class SerialComManager {
 	public SerialComManager(String directoryPath, String loadedLibName) throws SecurityException, SerialComUnexpectedException, 
 	SerialComLoadException, UnsatisfiedLinkError, SerialComException, FileNotFoundException, IOException {
 		if(directoryPath == null) {
-			throw new IllegalArgumentException("SerialComManager() " + "Argument directoryPath can not be null");
+			throw new IllegalArgumentException("Argument directoryPath can not be null !");
 		}
 		if(directoryPath.length() == 0) {
-			throw new IllegalArgumentException("SerialComManager(), " + "The directory path can not be empty");
+			throw new IllegalArgumentException("The directory path can not be empty !");
 		}
 		if(loadedLibName == null) {
-			throw new IllegalArgumentException("SerialComManager() " + "Argument loadedLibName can not be null");
+			throw new IllegalArgumentException("Argument loadedLibName can not be null !");
 		}
 		if(loadedLibName.length() == 0) {
-			throw new IllegalArgumentException("SerialComManager(), " + "The library name can not be empty");
+			throw new IllegalArgumentException("The library name can not be empty !");
 		}
 		mSerialComSystemProperty = new SerialComSystemProperty();
 		synchronized(lockA) {
@@ -591,7 +591,7 @@ public final class SerialComManager {
 		int numOfDevices = 0;
 		SerialComUSBdevice[] usbDevicesFound = null;
 		if((vendorFilter < 0) || (vendorFilter > 0XFFFF)) {
-			throw new IllegalArgumentException("listUSBdevicesWithInfo(), " + "Argument vendorFilter can not be negative or greater tha 0xFFFF");
+			throw new IllegalArgumentException("Argument vendorFilter can not be negative or greater tha 0xFFFF !");
 		}
 		String[] usbDevicesInfo = mComPortJNIBridge.listUSBdevicesWithInfo(vendorFilter);
 
@@ -637,10 +637,10 @@ public final class SerialComManager {
 	 */
 	public String[] listComPortFromUSBAttributes(int usbVidToMatch, int usbPidToMatch, final String serialNumber) throws SerialComException {
 		if(usbVidToMatch < 0) {
-			throw new IllegalArgumentException("listComPortFromUSBAttributes(), " + "Argument usbVidToMatch can not be negative");
+			throw new IllegalArgumentException("Argument usbVidToMatch can not be negative !");
 		}
 		if(usbPidToMatch < 0) {
-			throw new IllegalArgumentException("listComPortFromUSBAttributes(), " + "Argument usbPidToMatch can not be negative");
+			throw new IllegalArgumentException("Argument usbPidToMatch can not be negative !");
 		}
 
 		String serialNum = null;
@@ -673,31 +673,32 @@ public final class SerialComManager {
 	 * 
 	 * <p>This method is thread safe.</p>
 	 * 
-	 * @param portName name of the port to be opened for communication
-	 * @param enableRead allows application to read bytes from this port
-	 * @param enableWrite allows application to write bytes to this port
-	 * @param exclusiveOwnerShip application wants to become exclusive owner of this port or not
-	 * @return handle of the port successfully opened
-	 * @throws SerialComException if both enableWrite and enableRead are false, trying to become exclusive owner when port is already opened
-	 * @throws IllegalArgumentException if portName is null or invalid length
+	 * @param portName name of the port to be opened for communication.
+	 * @param enableRead allows application to read bytes from this port.
+	 * @param enableWrite allows application to write bytes to this port.
+	 * @param exclusiveOwnerShip application wants to become exclusive owner of this port or not.
+	 * @return handle of the port successfully opened.
+	 * @throws SerialComException if trying to become exclusive owner when port is already opened.
+	 * @throws IllegalArgumentException if portName is null or invalid length, or if both enableRead and enableWrite are set to false,
+	 *                                   if trying to open port in Windows without being exclusive owner.
 	 */
 	public long openComPort(final String portName, boolean enableRead, boolean enableWrite, boolean exclusiveOwnerShip) throws SerialComException {
 		long handle = 0;
 		if(portName == null) {
-			throw new IllegalArgumentException("openComPort(), " + "Argument portName can not be null");
+			throw new IllegalArgumentException("Argument portName can not be null !");
 		}
 		String portNameVal = portName.trim();
 		if(portNameVal.length() == 0) {
-			throw new IllegalArgumentException("openComPort(), " + "Name of the port to be opened can not be empty string");
+			throw new IllegalArgumentException("Name of the port to be opened can not be empty string !");
 		}
 		if((enableRead == false) && (enableWrite == false)) {
-			throw new SerialComException(portName, "openComPort()",  "Enable at-least read, write or both.");
+			throw new IllegalArgumentException("Arguments enableRead and enableWrite both can not be set to false !");
 		}
 
 		if(getOSType() == OS_WINDOWS) {
 			// For windows COM port can not be shared, so throw exception
 			if(exclusiveOwnerShip == false) {
-				throw new SerialComException(portName, "openComPort()", "Windows OS does not allow port sharing; exclusiveOwnerShip must be true");
+				throw new IllegalArgumentException("Windows OS does not allow port sharing; exclusiveOwnerShip must be true !");
 			}
 		}
 
@@ -706,7 +707,7 @@ public final class SerialComManager {
 			if(exclusiveOwnerShip == true) {
 				for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
 					if(mInfo.containsPort(portNameVal)) {
-						throw new SerialComException(portName, "openComPort()", "Given port is already opened");
+						throw new SerialComException("The port " + portNameVal + " is already opened. Exclusive ownership can not be claimed !");
 					}
 				}
 			}
@@ -714,12 +715,12 @@ public final class SerialComManager {
 			handle = mComPortJNIBridge.openComPort(portNameVal, enableRead, enableWrite, exclusiveOwnerShip);
 			if(handle < 0) {
 				/* JNI should have already thrown exception, this is an extra check to increase reliability of program */
-				throw new SerialComException(portName, "openComPort()", "Could not open port. Please retry !");
+				throw new SerialComException("Could not open the port " + portNameVal + " Please retry !");
 			}
 			boolean added = mPortHandleInfo.add(new SerialComPortHandleInfo(portNameVal, handle, null, null, null));
 			if(added != true) {
 				closeComPort(handle);
-				throw new SerialComException(portName, "openComPort()", "Could not save info locally, please retry opening port");
+				throw new SerialComException("Could not save info about port locally. Please retry opening port !");
 			}
 		}
 
@@ -733,10 +734,10 @@ public final class SerialComManager {
 	 * 
 	 * <p>This method is thread safe.</p>
 	 * 
-	 * @param handle of the port to be closed
-	 * @return Return true on success in closing the port false otherwise
-	 * @throws SerialComException if invalid handle is passed or when it fails in closing the port
-	 * @throws IllegalStateException if application tries to close port while data/event listener exist
+	 * @param handle of the port to be closed.
+	 * @return Return true on success in closing the port false otherwise.
+	 * @throws SerialComException if invalid handle is passed or when it fails in closing the port.
+	 * @throws IllegalStateException if application tries to close port while data/event listener exist.
 	 */
 	public boolean closeComPort(long handle) throws SerialComException {
 		boolean handlefound = false;
@@ -752,15 +753,15 @@ public final class SerialComManager {
 			}
 
 			if(handlefound == false) {
-				throw new SerialComException("closeComPort()", "Wrong port handle passed");
+				throw new SerialComException("Supplied handle is unknown. Please pass valid handle !");
 			}
 
 			if(mHandleInfo.getDataListener() != null) {
 				/* Proper clean up requires that, native thread should be destroyed before closing port. */
-				throw new IllegalStateException("closeComPort() " + "Closing port without unregistering data listener is not allowed");
+				throw new IllegalStateException("Closing port without unregistering data listener is not allowed to prevent inconsistency !");
 			}
 			if(mHandleInfo.getEventListener() != null) {
-				throw new IllegalStateException("closeComPort() " + "Closing port without unregistering event listener is not allowed");
+				throw new IllegalStateException("Closing port without unregistering event listener is not allowed to prevent inconsistency !");
 			}
 
 			mComPortJNIBridge.closeComPort(handle);
@@ -785,28 +786,28 @@ public final class SerialComManager {
 	 * condition, and writing causes an EIO error to be returned. The terminal device must be closed and reopened to
 	 * clear the condition.</p>
 	 * 
-	 * @param handle handle of the opened port on which to write bytes
-	 * @param buffer byte type buffer containing bytes to be written to port
-	 * @param delay  time gap between transmitting two successive bytes
-	 * @return true on success, false on failure or if empty buffer is passed
+	 * @param handle handle of the opened port on which to write bytes.
+	 * @param buffer byte type buffer containing bytes to be written to port.
+	 * @param delay  time gap between transmitting two successive bytes.
+	 * @return true on success, false on failure or if empty buffer is passed.
 	 * @throws SerialComException if an I/O error occurs.
-	 * @throws IllegalArgumentException if buffer is null or delay is negative
+	 * @throws IllegalArgumentException if buffer is null or delay is negative.
 	 */
 	public boolean writeBytes(long handle, final byte[] buffer, int delay) throws SerialComException {
 		if(buffer == null) {
-			throw new IllegalArgumentException("writeBytes(), " + "Argumenet buffer can not be null");
+			throw new IllegalArgumentException("Argumenet buffer can not be null !");
 		}
 		if(buffer.length == 0) {
 			return false;
 		}
 		if(delay < 0) {
-			throw new IllegalArgumentException("writeBytes(), " + "Argument delay can not be negative");
+			throw new IllegalArgumentException("Argument delay can not be negative !");
 		}
 
 		int ret = mComPortJNIBridge.writeBytes(handle, buffer, delay);
 		if(ret < 0) {
 			/* JNI should have already thrown exception, this is an extra check to increase reliability of program */
-			throw new SerialComException("writeBytes()", "Could not write data to serial port. Please retry !");
+			throw new SerialComException("Could not write data to serial port. Please retry !");
 		}
 		return true;
 	}
@@ -817,11 +818,11 @@ public final class SerialComManager {
 	 * as: </p>
 	 * <p>writeBytes(handle, buffer, 0) </p>
 	 * 
-	 * @param handle handle of the opened port on which to write bytes
-	 * @param buffer byte type buffer containing bytes to be written to port
-	 * @return true on success, false on failure or if empty buffer is passed
+	 * @param handle handle of the opened port on which to write bytes.
+	 * @param buffer byte type buffer containing bytes to be written to port.
+	 * @return true on success, false on failure or if empty buffer is passed.
 	 * @throws SerialComException if an I/O error occurs.
-	 * @throws IllegalArgumentException if buffer is null
+	 * @throws IllegalArgumentException if buffer is null.
 	 */
 	public boolean writeBytes(long handle, byte[] buffer) throws SerialComException {
 		return writeBytes(handle, buffer, 0);
@@ -831,9 +832,9 @@ public final class SerialComManager {
 	 * <p>This method writes a single byte to the specified port. The data has been transmitted out of serial port when 
 	 * this method returns.</p>
 	 * 
-	 * @param handle handle of the opened port on which to write byte
-	 * @param data byte to be written to port
-	 * @return true on success false otherwise
+	 * @param handle handle of the opened port on which to write byte.
+	 * @param data byte to be written to port.
+	 * @return true on success false otherwise.
 	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public boolean writeSingleByte(long handle, byte data) throws SerialComException {
@@ -844,12 +845,12 @@ public final class SerialComManager {
 	 * <p>This method writes a string to the specified port. The library internally converts string to byte buffer. 
 	 * The data has been transmitted out of serial port when this method returns.</p>
 	 * 
-	 * @param handle handle of the opened port on which to write byte
-	 * @param data the string to be send to port
-	 * @param delay interval between two successive bytes while sending string
-	 * @return true on success false otherwise
+	 * @param handle handle of the opened port on which to write byte.
+	 * @param data the string to be send to port.
+	 * @param delay interval between two successive bytes while sending string.
+	 * @return true on success false otherwise.
 	 * @throws SerialComException if an I/O error occurs.
-	 * @throws IllegalArgumentException if data is null
+	 * @throws IllegalArgumentException if data is null.
 	 */
 	public boolean writeString(long handle, String data, int delay) throws SerialComException {
 		if(data == null) {
@@ -862,17 +863,17 @@ public final class SerialComManager {
 	 * <p>This method writes a string to the specified port. The library internally converts string to byte buffer. 
 	 * The data has been transmitted out of serial port when this method returns.</p>
 	 * 
-	 * @param handle handle of the opened port on which to write byte
-	 * @param data the string to be send to port
-	 * @param charset the character set into which given string will be encoded
-	 * @param delay  time gap between transmitting two successive bytes in this string
-	 * @return true on success false otherwise
+	 * @param handle handle of the opened port on which to write byte.
+	 * @param data the string to be send to port.
+	 * @param charset the character set into which given string will be encoded.
+	 * @param delay  time gap between transmitting two successive bytes in this string.
+	 * @return true on success false otherwise.
 	 * @throws SerialComException if an I/O error occurs.
-	 * @throws IllegalArgumentException if data is null
+	 * @throws IllegalArgumentException if data is null.
 	 */
 	public boolean writeString(long handle, final String data, Charset charset, int delay) throws UnsupportedEncodingException, SerialComException {
 		if(data == null) {
-			throw new IllegalArgumentException("writeString(), " + "Argument data can not be null");
+			throw new IllegalArgumentException("Argument data can not be null !");
 		}
 		return writeBytes(handle, data.getBytes(charset), delay);
 	}
@@ -890,23 +891,23 @@ public final class SerialComManager {
 	 * <p>In java numbers are represented in 2's complement, so number 650 whose binary representation is 0000001010001010
 	 * is printed byte by byte, then will be printed as 1 and -118, because 10001010 in 2's complement is negative number.</p>
 	 * 
-	 * @param handle handle of the opened port on which to write byte
-	 * @param data an integer number to be sent to port
-	 * @param delay interval between two successive bytes 
-	 * @param endianness big or little endian sequence to be followed while sending bytes representing this integer
-	 * @param numOfBytes number of bytes this integer can be represented in
-	 * @return true on success false otherwise
+	 * @param handle handle of the opened port on which to write byte.
+	 * @param data an integer number to be sent to port.
+	 * @param delay interval between two successive bytes .
+	 * @param endianness big or little endian sequence to be followed while sending bytes representing this integer.
+	 * @param numOfBytes number of bytes this integer can be represented in.
+	 * @return true on success false otherwise.
 	 * @throws SerialComException if an I/O error occurs.
-	 * @throws IllegalArgumentException if endianness or numOfBytes is null
+	 * @throws IllegalArgumentException if endianness or numOfBytes is null.
 	 */
 	public boolean writeSingleInt(long handle, int data, int delay, ENDIAN endianness, NUMOFBYTES numOfBytes) throws SerialComException {
 		byte[] buffer = null;
 
 		if(endianness == null) {
-			throw new IllegalArgumentException("writeSingleInt() " + "Argument endianness can not be null");
+			throw new IllegalArgumentException("Argument endianness can not be null !");
 		}
 		if(numOfBytes == null) {
-			throw new IllegalArgumentException("writeSingleInt() " + "Argument numOfBytes can not be null");
+			throw new IllegalArgumentException("Argument numOfBytes can not be null !");
 		}
 
 		if(numOfBytes.getValue() == 2) {             // conversion to two bytes data
@@ -940,23 +941,23 @@ public final class SerialComManager {
 	 * <p>This method send an array of integers on the specified port. The data has been transmitted out of serial 
 	 * port when this method returns.</p>
 	 * 
-	 * @param handle handle of the opened port on which to write byte
-	 * @param buffer an array of integers to be sent to port
-	 * @param delay interval between two successive bytes 
-	 * @param endianness big or little endian sequence to be followed while sending bytes representing this integer
-	 * @param numOfBytes number of bytes this integer can be represented in
-	 * @return true on success false otherwise
+	 * @param handle handle of the opened port on which to write byte.
+	 * @param buffer an array of integers to be sent to port.
+	 * @param delay interval between two successive bytes .
+	 * @param endianness big or little endian sequence to be followed while sending bytes representing this integer.
+	 * @param numOfBytes number of bytes this integer can be represented in.
+	 * @return true on success false otherwise.
 	 * @throws SerialComException if an I/O error occurs.
-	 * @throws IllegalArgumentException if endianness or numOfBytes is null
+	 * @throws IllegalArgumentException if endianness or numOfBytes is null.
 	 */
 	public boolean writeIntArray(long handle, final int[] buffer, int delay, ENDIAN endianness, NUMOFBYTES numOfBytes) throws SerialComException {
 		byte[] localBuf = null;
 
 		if(endianness == null) {
-			throw new IllegalArgumentException("writeIntArray() " + "Argument endianness can not be null");
+			throw new IllegalArgumentException("Argument endianness can not be null !");
 		}
 		if(numOfBytes == null) {
-			throw new IllegalArgumentException("writeIntArray() " + "Argument numOfBytes can not be null");
+			throw new IllegalArgumentException("Argument numOfBytes can not be null !");
 		}
 
 		if(numOfBytes.getValue() == 2) {
@@ -1021,27 +1022,27 @@ public final class SerialComManager {
 	 * design is expected to take care of this as and when required in appropriate manner. Further, this method does not 
 	 * consume or modify the data in the given buffer.</p>
 	 * 
-	 * @param handle handle of the serial port on which to write bytes
-	 * @param buffer direct byte buffer containing bytes to be written to port
-	 * @param offset location from where to start sending data out of serial port
-	 * @param length number of bytes from offset to sent to serial port
-	 * @return number of bytes sent to serial port, 0 if length is 0
+	 * @param handle handle of the serial port on which to write bytes.
+	 * @param buffer direct byte buffer containing bytes to be written to port.
+	 * @param offset location from where to start sending data out of serial port.
+	 * @param length number of bytes from offset to sent to serial port.
+	 * @return number of bytes sent to serial port, 0 if length is 0.
 	 * @throws SerialComException if an I/O error occurs.
 	 * @throws IllegalArgumentException if buffer is null, or if position or limit is negative, 
-	 *          or if given buffer is not direct byte buffer, or if length > (buffer.capacity() - offset)
+	 *          or if given buffer is not direct byte buffer, or if length > (buffer.capacity() - offset).
 	 */
 	public int writeBytesDirect(long handle, ByteBuffer buffer, int offset, int length) throws SerialComException {
 		if(buffer == null) {
-			throw new IllegalArgumentException("writeBytesDirect(), " + "Argument buffer can not be null !");
+			throw new IllegalArgumentException("Argument buffer can not be null !");
 		}
 		if((offset < 0) || (length < 0)) {
-			throw new IllegalArgumentException("writeBytesDirect(), " + "Argument offset or length can not be negative !");
+			throw new IllegalArgumentException("Argument offset or length can not be negative !");
 		}
 		if(!buffer.isDirect()) {
-			throw new IllegalArgumentException("writeBytesDirect(), " + "Given buffer is not direct byte buffer !");
+			throw new IllegalArgumentException("Given buffer is not a direct byte buffer !");
 		}
 		if(length > (buffer.capacity() - offset)) {
-			throw new IllegalArgumentException("writeBytesDirect(), " + "Index violation detected !");
+			throw new IllegalArgumentException("Index violation detected !");
 		}
 		if(length == 0) {
 			return 0;
@@ -1049,7 +1050,7 @@ public final class SerialComManager {
 
 		int ret = mComPortJNIBridge.writeBytesDirect(handle, buffer, offset, length);
 		if(ret < 0) {
-			throw new SerialComException("writeBytesDirect()", "Could not write given data to serial port. Please retry !");
+			throw new SerialComException("Could not write given data to serial port. Please retry !");
 		}
 		return ret;
 	}
@@ -1061,26 +1062,26 @@ public final class SerialComManager {
 	 * <p>This method does not modify the direct byte buffer attributes position, capacity, limit and mark. The application 
 	 * design is expected to take care of this as and when required in appropriate manner.</p>
 	 * 
-	 * @param handle handle of the serial port from which to read data bytes
-	 * @param buffer direct byte buffer into which data bytes will be placed
-	 * @param offset location in byte buffer from which to start saving data
-	 * @param length number of bytes from offset to read in buffer
-	 * @return number of bytes read from serial port, 0 if length is 0
+	 * @param handle handle of the serial port from which to read data bytes.
+	 * @param buffer direct byte buffer into which data bytes will be placed.
+	 * @param offset location in byte buffer from which to start saving data.
+	 * @param length number of bytes from offset to read in buffer.
+	 * @return number of bytes read from serial port, 0 if length is 0.
 	 * @throws SerialComException if an I/O error occurs.
-	 * @throws IllegalArgumentException if buffer is null, or if position or limit is negative, or if given buffer is not direct byte buffer
+	 * @throws IllegalArgumentException if buffer is null, or if position or limit is negative, or if given buffer is not direct byte buffer.
 	 */
 	public int readBytesDirect(long handle, ByteBuffer buffer, int offset, int length) throws SerialComException {
 		if(buffer == null) {
-			throw new IllegalArgumentException("readBytesDirect(), " + "Argument buffer can not be null !");
+			throw new IllegalArgumentException("Argument buffer can not be null !");
 		}
 		if((offset < 0) || (length < 0)) {
-			throw new IllegalArgumentException("readBytesDirect(), " + "Argument offset or length can not be negative !");
+			throw new IllegalArgumentException("Argument offset or length can not be negative !");
 		}
 		if(!buffer.isDirect()) {
-			throw new IllegalArgumentException("readBytesDirect(), " + "Argument buffer is not direct byte buffer !");
+			throw new IllegalArgumentException("Argument buffer is not direct byte buffer !");
 		}
 		if(length > (buffer.capacity() - offset)) {
-			throw new IllegalArgumentException("readBytesDirect(), " + "Index violation detected !");
+			throw new IllegalArgumentException("Index violation detected !");
 		}
 		if(length == 0) {
 			return 0;
@@ -1088,7 +1089,7 @@ public final class SerialComManager {
 
 		int ret = mComPortJNIBridge.readBytesDirect(handle, buffer, offset, length);
 		if(ret < 0) {
-			throw new SerialComException("writeBytesDirect()", "Could not write given data to serial port. Please retry !");
+			throw new SerialComException("Could not read data from serial port and place into direct byte buffer. Please retry !");
 		}
 		return ret;
 	}
@@ -1103,10 +1104,10 @@ public final class SerialComManager {
 	 * This method may return less than the requested number of bytes due to reasons like, there is less data in operating system
 	 * buffer (serial port) or operating system returned less data which is also legal.</p>
 	 * 
-	 * @param handle of the serial port from which to read bytes
-	 * @param byteCount number of bytes to read from serial port
-	 * @return array of bytes read from port or null
-	 * @throws SerialComException if an I/O error occurs or if byteCount is greater than 2048
+	 * @param handle of the serial port from which to read bytes.
+	 * @param byteCount number of bytes to read from serial port.
+	 * @return array of bytes read from port or null.
+	 * @throws SerialComException if an I/O error occurs or if byteCount is greater than 2048.
 	 */
 	public byte[] readBytesBlocking(long handle, int byteCount) throws SerialComException {
 		if(byteCount > 2048) {
@@ -1136,10 +1137,10 @@ public final class SerialComManager {
 	 * This method may return less than the requested number of bytes due to reasons like, there is less data in operating system
 	 * buffer (serial port) or operating system returned less data which is also legal.</p>
 	 * 
-	 * @param handle of the serial port from which to read bytes
-	 * @param byteCount number of bytes to read from serial port
-	 * @return array of bytes read from port or null
-	 * @throws SerialComException if an I/O error occurs or if byteCount is greater than 2048
+	 * @param handle of the serial port from which to read bytes.
+	 * @param byteCount number of bytes to read from serial port.
+	 * @return array of bytes read from port or null.
+	 * @throws SerialComException if an I/O error occurs or if byteCount is greater than 2048.
 	 */
 	public byte[] readBytes(long handle, int byteCount) throws SerialComException {
 		if(byteCount > 2048) {
@@ -1158,8 +1159,8 @@ public final class SerialComManager {
 	 * 
 	 * <p>It has same effect as readBytes(handle, 1024)</p>
 	 * 
-	 * @param handle of the port from which to read bytes
-	 * @return array of bytes read from port or null
+	 * @param handle of the port from which to read bytes.
+	 * @return array of bytes read from port or null.
 	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public byte[] readBytes(long handle) throws SerialComException {
@@ -1172,10 +1173,10 @@ public final class SerialComManager {
 	 * <p> It Constructs a new string by decoding the specified array of bytes using the platform's default charset. The length of the new
 	 * string is a function of the charset, and hence may not be equal to the length of the byte array read from serial port.</p>
 	 * 
-	 * @param handle of port from which to read bytes
-	 * @param byteCount number of bytes to read from this port
-	 * @return string constructed from data read from serial port or null
-	 * @throws SerialComException if an I/O error occurs or if byteCount is greater than 2048
+	 * @param handle of port from which to read bytes.
+	 * @param byteCount number of bytes to read from this port.
+	 * @return string constructed from data read from serial port or null.
+	 * @throws SerialComException if an I/O error occurs or if byteCount is greater than 2048.
 	 */
 	public String readString(long handle, int byteCount) throws SerialComException {
 		byte[] buffer = readBytes(handle, byteCount);
@@ -1193,8 +1194,8 @@ public final class SerialComManager {
 	 * 
 	 * <p>Note that the length of data bytes read using this method can not be greater than DEFAULT_READBYTECOUNT i.e. 1024.</p>
 	 * 
-	 * @param handle of the port from which to read bytes
-	 * @return string constructed from data read from serial port or null
+	 * @param handle of the port from which to read bytes.
+	 * @return string constructed from data read from serial port or null.
 	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public String readString(long handle) throws SerialComException {
@@ -1206,8 +1207,8 @@ public final class SerialComManager {
 	 * 
 	 * <p>Its effect is same as readBytes(handle, 1)</p>
 	 * 
-	 * @param handle of the port from which to read byte
-	 * @return array of length 1 representing 1 byte data read from serial port or null
+	 * @param handle of the port from which to read byte.
+	 * @return array of length 1 representing 1 byte data read from serial port or null.
 	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public byte[] readSingleByte(long handle) throws SerialComException {
@@ -1231,15 +1232,15 @@ public final class SerialComManager {
 	 * 
 	 * <p>Take a look at http://www.ftdichip.com/Support/Documents/AppNotes/AN232B-05_BaudRates.pdf to understand using custom baud rates with USB-UART chips.</p>
 	 * 
-	 * @param handle of opened port to which this configuration applies to
-	 * @param dataBits number of data bits in one frame (refer DATABITS enum in SerialComManager class for this)
-	 * @param stopBits number of stop bits in one frame (refer STOPBITS enum in SerialComManager class for this)
-	 * @param parity of the frame (refer PARITY enum in SerialComManager class for this)
-	 * @param baudRate of the frame (refer BAUDRATE enum in SerialComManager class for this)
-	 * @param custBaud custom baudrate if the desired rate is not included in BAUDRATE enum
-	 * @return true on success false otherwise
-	 * @throws SerialComException if invalid handle is passed or an error occurs in configuring the port
-	 * @throws IllegalArgumentException if dataBits or stopBits or parity or baudRate is null, or if custBaud is zero or negative
+	 * @param handle of opened port to which this configuration applies to.
+	 * @param dataBits number of data bits in one frame (refer DATABITS enum in SerialComManager class for this).
+	 * @param stopBits number of stop bits in one frame (refer STOPBITS enum in SerialComManager class for this).
+	 * @param parity of the frame (refer PARITY enum in SerialComManager class for this).
+	 * @param baudRate of the frame (refer BAUDRATE enum in SerialComManager class for this).
+	 * @param custBaud custom baudrate if the desired rate is not included in BAUDRATE enum.
+	 * @return true on success false otherwise.
+	 * @throws SerialComException if invalid handle is passed or an error occurs in configuring the port.
+	 * @throws IllegalArgumentException if dataBits or stopBits or parity or baudRate is null, or if custBaud is zero or negative.
 	 */
 	public boolean configureComPortData(long handle, DATABITS dataBits, STOPBITS stopBits, PARITY parity, BAUDRATE baudRate, int custBaud) throws SerialComException {
 
@@ -1248,16 +1249,16 @@ public final class SerialComManager {
 		int baudRateGiven = 0;
 
 		if(dataBits == null) {
-			throw new IllegalArgumentException("configureComPortData() " + "Argument dataBits can not be null");
+			throw new IllegalArgumentException("Argument dataBits can not be null !");
 		}
 		if(stopBits == null) {
-			throw new IllegalArgumentException("configureComPortData() " + "Argument stopBits can not be null");
+			throw new IllegalArgumentException("Argument stopBits can not be null !");
 		}
 		if(parity == null) {
-			throw new IllegalArgumentException("configureComPortData() " + "Argument parity can not be null");
+			throw new IllegalArgumentException("Argument parity can not be null !");
 		}
 		if(baudRate == null) {
-			throw new IllegalArgumentException("configureComPortData() " + "Argument baudRate can not be null");
+			throw new IllegalArgumentException("Argument baudRate can not be null !");
 		}
 
 		boolean handlefound = false;
@@ -1268,7 +1269,7 @@ public final class SerialComManager {
 			}
 		}
 		if(handlefound == false) {
-			throw new SerialComException("configureComPortData()", "Wrong port handle passed for the requested operations");
+			throw new SerialComException("Invalid handle passed for the requested operation !");
 		}
 
 		baudRateGiven = baudRate.getValue();
@@ -1278,7 +1279,7 @@ public final class SerialComManager {
 		}else {
 			// custom baud rate
 			if(custBaud <= 0) {
-				throw new IllegalArgumentException("configureComPortData() " + "Baudrate can not be negative or zero");
+				throw new IllegalArgumentException("Argument baudRate can not be negative or zero !");
 			}
 			baudRateTranslated = baudRateGiven;
 			custBaudTranslated = custBaud;
@@ -1286,8 +1287,8 @@ public final class SerialComManager {
 
 		int ret = mComPortJNIBridge.configureComPortData(handle, dataBits.getValue(), stopBits.getValue(), parity.getValue(), baudRateTranslated, custBaudTranslated);
 		if(ret < 0) {
-			/* JNI should have already thrown exception, this is an extra check to increase reliability of program */
-			throw new SerialComException("configureComPortData()", "Could not configure serial port. Please retry !");
+			/* extra check */
+			throw new SerialComException("Could not configure the serial port. Please retry !");
 		}
 		return true;
 	}
@@ -1296,21 +1297,21 @@ public final class SerialComManager {
 	 * <p>This method configures the way data communication will be controlled between DTE and DCE. This specifies flow control and actions that will
 	 * be taken when an error is encountered in communication.</p>
 	 * 
-	 * @param handle of opened port to which this configuration applies to
-	 * @param flowctrl flow control, how data flow will be controlled (refer FLOWCONTROL enum for this)
-	 * @param xon character representing on condition if software flow control is used
-	 * @param xoff character representing off condition if software flow control is used
-	 * @param ParFraError true if parity and frame errors are to be checked false otherwise
-	 * @param overFlowErr true if overflow error is to be detected false otherwise
-	 * @return true on success false otherwise
-	 * @throws SerialComException if invalid handle is passed or an error occurs in configuring the port
-	 * @throws IllegalArgumentException if flowctrl is null
+	 * @param handle of opened port to which need to be coonfigured.
+	 * @param flowctrl flow control, how data flow will be controlled (refer FLOWCONTROL enum for this).
+	 * @param xon character representing on condition if software flow control is used.
+	 * @param xoff character representing off condition if software flow control is used.
+	 * @param ParFraError true if parity and frame errors are to be checked false otherwise.
+	 * @param overFlowErr true if overflow error is to be detected false otherwise.
+	 * @return true on success false otherwise.
+	 * @throws SerialComException if invalid handle is passed or an error occurs in configuring the port.
+	 * @throws IllegalArgumentException if flowctrl is null.
 	 */
 	public boolean configureComPortControl(long handle, FLOWCONTROL flowctrl, char xon, char xoff, boolean ParFraError, boolean overFlowErr) throws SerialComException {
 		boolean handlefound = false;
 
 		if(flowctrl == null) {
-			throw new IllegalArgumentException("configureComPortControl() " + "Argument flowctrl can not be null");
+			throw new IllegalArgumentException("Argument flowctrl can not be null !");
 		}
 
 		for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
@@ -1320,13 +1321,13 @@ public final class SerialComManager {
 			}
 		}
 		if(handlefound == false) {
-			throw new SerialComException("configureComPortControl()", "Wrong port handle passed for the requested operations");
+			throw new SerialComException("Invalid handle passed for the requested operation !");
 		}
 
 		int ret = mComPortJNIBridge.configureComPortControl(handle, flowctrl.getValue(), xon, xoff, ParFraError, overFlowErr);
 		if(ret < 0) {
-			/* JNI should have already thrown exception, this is an extra check to increase reliability of program */
-			throw new SerialComException("configureComPortData()", "Could not configure serial port. Please retry !");
+			/* extra check */
+			throw new SerialComException("Could not configure serial port. Please retry !");
 		}
 		return true;
 	}
@@ -1344,9 +1345,9 @@ public final class SerialComManager {
 	 * wReserved, XonLim, XoffLim, ByteSize, Parity, StopBits, XonChar, XoffChar, ErrorChar, StopBits, EvtChar,
 	 * wReserved1.</p>
 	 * 
-	 * @param handle of the opened port
-	 * @return array of string giving configuration
-	 * @throws SerialComException if invalid handle is passed or an error occurs while reading current settings
+	 * @param handle of the opened port.
+	 * @return array of string giving configuration.
+	 * @throws SerialComException if invalid handle is passed or an error occurs while reading current settings.
 	 */
 	public String[] getCurrentConfiguration(long handle) throws SerialComException {
 
@@ -1397,15 +1398,15 @@ public final class SerialComManager {
 	 * <p>On some hardware IC, signals may be active low and therefore for actual voltage datasheet should be consulted. Also please check if the 
 	 * driver supports setting RTS/DTR lines or not.<p>
 	 * 
-	 * @param handle of the opened port
-	 * @param enabled if true RTS will be asserted and vice-versa
-	 * @return true on success false otherwise
-	 * @throws SerialComException if system is unable to complete requested operation
+	 * @param handle of the opened port.
+	 * @param enabled if true RTS will be asserted and vice-versa.
+	 * @return true on success.
+	 * @throws SerialComException if system is unable to complete requested operation.
 	 */
 	public boolean setRTS(long handle, boolean enabled) throws SerialComException {
 		int ret = mComPortJNIBridge.setRTS(handle, enabled);
 		if(ret < 0) {
-			/* JNI should have already thrown exception, this is an extra check to increase reliability of program */
+			/* extra check  */
 			throw new SerialComException("Could not set RTS line to desired state. Please retry !");
 		}
 		return true;
@@ -1417,15 +1418,15 @@ public final class SerialComManager {
 	 * 
 	 * <p>RTS and DTR lines can be asserted or de-asserted even when using no flow control on serial port.</p>
 	 * 
-	 * @param handle of the opened port
-	 * @param enabled if true DTR will be asserted and vice-versa
-	 * @return true on success false otherwise
-	 * @throws SerialComException if system is unable to complete requested operation
+	 * @param handle of the opened port.
+	 * @param enabled if true DTR will be asserted and vice-versa.
+	 * @return true on success.
+	 * @throws SerialComException if system is unable to complete requested operation.
 	 */
 	public boolean setDTR(long handle, boolean enabled) throws SerialComException {
 		int ret = mComPortJNIBridge.setDTR(handle, enabled);
 		if(ret < 0) {
-			/* JNI should have already thrown exception, this is an extra check to increase reliability of program */
+			/* extra check */
 			throw new SerialComException("Could not set DTR line to desired state. Please retry !");
 		}
 		return true;
@@ -1438,14 +1439,15 @@ public final class SerialComManager {
 	 * 
 	 * <p>Application (listener) should implement ISerialComDataListener and override onNewSerialDataAvailable method.</p>
 	 * 
-	 * <p>The scm library can manage upto 1024 listeners corresponding to 1024 port handles.</p>
+	 * <p>The scm library can manage upto 1024 listeners corresponding to 1024 port handles. Application should not register 
+	 * data listener more than once for the same port otherwise it will lead to inconsistent state.</p>
 	 * <p>This method is thread safe.</p>
 	 * 
-	 * @param handle of the port opened
-	 * @param dataListener instance of class which implements ISerialComDataListener interface
-	 * @return true on success false otherwise
-	 * @throws SerialComException if invalid handle passed, handle is null or data listener already exist for this handle
-	 * @throws IllegalArgumentException if dataListener is null 
+	 * @param handle of the port opened.
+	 * @param dataListener instance of class which implements ISerialComDataListener interface.
+	 * @return true on success false otherwise.
+	 * @throws SerialComException if invalid handle passed, handle is null or data listener already exist for this handle.
+	 * @throws IllegalArgumentException if dataListener is null.
 	 */
 	public boolean registerDataListener(long handle, final ISerialComDataListener dataListener) throws SerialComException {
 
@@ -1453,7 +1455,7 @@ public final class SerialComManager {
 		SerialComPortHandleInfo mHandleInfo = null;
 
 		if(dataListener == null) {
-			throw new IllegalArgumentException("registerDataListener(), " + "Argument dataListener can not be null");
+			throw new IllegalArgumentException("Argument dataListener can not be null !");
 		}
 
 		synchronized(lockB) {
@@ -1461,7 +1463,7 @@ public final class SerialComManager {
 				if(mInfo.containsHandle(handle)) {
 					handlefound = true;
 					if(mInfo.getDataListener() != null) {
-						throw new SerialComException("registerDataListener()", "Data listener already exist. Only one listener allowed.");
+						throw new SerialComException("Data listener already exist. Only one listener allowed !");
 					}else {
 						mHandleInfo = mInfo;
 					}
@@ -1470,7 +1472,7 @@ public final class SerialComManager {
 			}
 
 			if(handlefound == false) {
-				throw new SerialComException("registerDataListener()", "Wrong port handle passed for the requested operations");
+				throw new SerialComException("Invalid handle passed for the requested operation !");
 			}
 
 			return mEventCompletionDispatcher.setUpDataLooper(handle, mHandleInfo, dataListener);
@@ -1483,14 +1485,14 @@ public final class SerialComManager {
 	 * 
 	 * <p>This method is thread safe.</p>
 	 * 
-	 * @param dataListener instance of class which implemented ISerialComDataListener interface
-	 * @return true on success false otherwise
-	 * @throws SerialComException if null value is passed in dataListener field
-	 * @throws IllegalArgumentException if dataListener is null 
+	 * @param dataListener instance of class which implemented ISerialComDataListener interface.
+	 * @return true on success false otherwise.
+	 * @throws SerialComException if null value is passed in dataListener field.
+	 * @throws IllegalArgumentException if dataListener is null.
 	 */
 	public boolean unregisterDataListener(final ISerialComDataListener dataListener) throws SerialComException {
 		if(dataListener == null) {
-			throw new IllegalArgumentException("unregisterDataListener(), " + "Argument dataListener can not be null");
+			throw new IllegalArgumentException("Argument dataListener can not be null !");
 		}
 
 		synchronized(lockB) {
@@ -1514,21 +1516,23 @@ public final class SerialComManager {
 	 * setEventsMask() method).</p>
 	 * 
 	 * <p>Before calling this method, make sure that port has been configured for hardware flow control using configureComPortControl
-	 * method.</p>
+	 * method. Application should not register event listener more than once for the same port otherwise it will lead to inconsistent 
+	 * state.</p>
+	 * 
 	 * <p>This method is thread safe.</p>
 	 * 
-	 * @param handle of the port opened
-	 * @param eventListener instance of class which implements ISerialComEventListener interface
-	 * @return true on success false otherwise
-	 * @throws SerialComException if invalid handle passed, handle is null or event listener already exist for this handle
-	 * @throws IllegalArgumentException if eventListener is null 
+	 * @param handle of the port opened.
+	 * @param eventListener instance of class which implements ISerialComEventListener interface.
+	 * @return true on success false otherwise.
+	 * @throws SerialComException if invalid handle passed, handle is null or event listener already exist for this handle.
+	 * @throws IllegalArgumentException if eventListener is null. 
 	 */
 	public boolean registerLineEventListener(long handle, final ISerialComEventListener eventListener) throws SerialComException {
 		boolean handlefound = false;
 		SerialComPortHandleInfo mHandleInfo = null;
 
 		if(eventListener == null) {
-			throw new IllegalArgumentException("registerLineEventListener(), " + "Argument eventListener can not be null");
+			throw new IllegalArgumentException("Argument eventListener can not be null !");
 		}
 
 		synchronized(lockB) {
@@ -1536,7 +1540,7 @@ public final class SerialComManager {
 				if(mInfo.containsHandle(handle)) {
 					handlefound = true;
 					if(mInfo.getEventListener() != null) {
-						throw new SerialComException("registerLineEventListener()", "Event listener already exist. Only one listener allowed");
+						throw new SerialComException("Event listener already exist. Only one listener allowed !");
 					}else {
 						mHandleInfo = mInfo;
 					}
@@ -1545,7 +1549,7 @@ public final class SerialComManager {
 			}
 
 			if(handlefound == false) {
-				throw new SerialComException("registerLineEventListener()", "Wrong port handle passed for the requested operations");
+				throw new SerialComException("Invalid handle passed for the requested operation !");
 			}
 
 			return mEventCompletionDispatcher.setUpEventLooper(handle, mHandleInfo, eventListener);
@@ -1557,14 +1561,14 @@ public final class SerialComManager {
 	 * effect on data looper subsystem.</p>
 	 * <p>This method is thread safe.</p>
 	 * 
-	 * @param eventListener instance of class which implemented ISerialComEventListener interface
-	 * @return true on success false otherwise
-	 * @throws SerialComException if null value is passed in eventListener field
-	 * @throws IllegalArgumentException if eventListener is null 
+	 * @param eventListener instance of class which implemented ISerialComEventListener interface.
+	 * @return true on success false otherwise.
+	 * @throws SerialComException if null value is passed in eventListener field.
+	 * @throws IllegalArgumentException if eventListener is null.
 	 */
 	public boolean unregisterLineEventListener(final ISerialComEventListener eventListener) throws SerialComException {
 		if(eventListener == null) {
-			throw new IllegalArgumentException("unregisterLineEventListener(), " + "Argument eventListener can not be null");
+			throw new IllegalArgumentException("Argument eventListener can not be null !");
 		}
 		synchronized(lockB) {
 			if(mEventCompletionDispatcher.destroyEventLooper(eventListener)) {
@@ -1579,14 +1583,14 @@ public final class SerialComManager {
 	/**
 	 * <p>This pauses delivering events to application. The events kept accumulating in queue.</p>
 	 * 
-	 * @param eventListener instance of class which implemented ISerialComEventListener interface
-	 * @return true on success false otherwise
-	 * @throws SerialComException if null is passed for eventListener field
-	 * @throws IllegalArgumentException if eventListener is null 
+	 * @param eventListener instance of class which implemented ISerialComEventListener interface.
+	 * @return true on success false otherwise.
+	 * @throws SerialComException if null is passed for eventListener field.
+	 * @throws IllegalArgumentException if eventListener is null.
 	 */
 	public boolean pauseListeningEvents(final ISerialComEventListener eventListener) throws SerialComException {
 		if(eventListener == null) {
-			throw new IllegalArgumentException("pauseListeningEvents(), " + "Argument eventListener can not be null");
+			throw new IllegalArgumentException("Argument eventListener can not be null !");
 
 		}
 		if(mEventCompletionDispatcher.pauseListeningEvents(eventListener)) {
@@ -1599,14 +1603,14 @@ public final class SerialComManager {
 	/**
 	 * <p>Resume delivering events kept in queue to application.</p>
 	 * 
-	 * @param eventListener is an instance of class which implements ISerialComEventListener
-	 * @return true on success false otherwise
-	 * @throws SerialComException if error occurs
-	 * @throws IllegalArgumentException if eventListener is null 
+	 * @param eventListener is an instance of class which implements ISerialComEventListener.
+	 * @return true on success false otherwise.
+	 * @throws SerialComException if error occurs.
+	 * @throws IllegalArgumentException if eventListener is null.
 	 */
 	public boolean resumeListeningEvents(final ISerialComEventListener eventListener) throws SerialComException {
 		if(eventListener == null) {
-			throw new IllegalArgumentException("resumeListeningEvents(), " + "Argument eventListener can not be null");
+			throw new IllegalArgumentException("Argument eventListener can not be null !");
 
 		}
 		if(mEventCompletionDispatcher.resumeListeningEvents(eventListener)) {
@@ -1625,28 +1629,28 @@ public final class SerialComManager {
 	 * 
 	 * <p>When this method is called application should make sure that previous read or write operation is not in progress.</p>
 	 * 
-	 * @param handle of the opened port
-	 * @param vmin c_cc[VMIN] field of termios structure
-	 * @param vtime c_cc[VTIME] field of termios structure (10th of a second)
-	 * @param rit ReadIntervalTimeout field of COMMTIMEOUTS structure
-	 * @param rttm ReadTotalTimeoutMultiplier field of COMMTIMEOUTS structure
-	 * @param rttc ReadTotalTimeoutConstant field of COMMTIMEOUTS structure
-	 * @return true on success false otherwise
-	 * @throws SerialComException if wrong handle is passed or operation can not be done successfully
-	 * @throws IllegalArgumentException if invalid combination of arguments is passed
+	 * @param handle of the opened port.
+	 * @param vmin c_cc[VMIN] field of termios structure.
+	 * @param vtime c_cc[VTIME] field of termios structure (10th of a second).
+	 * @param rit ReadIntervalTimeout field of COMMTIMEOUTS structure.
+	 * @param rttm ReadTotalTimeoutMultiplier field of COMMTIMEOUTS structure.
+	 * @param rttc ReadTotalTimeoutConstant field of COMMTIMEOUTS structure.
+	 * @return true on success false otherwise.
+	 * @throws SerialComException if wrong handle is passed or operation can not be done successfully.
+	 * @throws IllegalArgumentException if invalid combination of arguments is passed.
 	 */
 	public boolean fineTuneRead(long handle, int vmin, int vtime, int rit, int rttm, int rttc) throws SerialComException {
 		boolean handlefound = false;		
 		if(osType == SerialComManager.OS_WINDOWS) {
 			if((rit < 0) || (rttm < 0) || (rttc < 0)) {
-				throw new IllegalArgumentException("fineTuneRead(), " + "Argument(s) rit, rttm and rttc can not be neagative");
+				throw new IllegalArgumentException("Argument(s) rit, rttm and rttc can not be neagative !");
 			}
 		}else {
 			if((vmin == 0) && (vtime == 0)) {
-				throw new IllegalArgumentException("fineTuneRead(), " + "Invalid combination of vmin and vtime arguments passed");
+				throw new IllegalArgumentException("Invalid combination of vmin and vtime arguments passed !");
 			}
 			if((vmin < 0) || (vtime < 0)) {
-				throw new IllegalArgumentException("fineTuneRead(), " + "Argument(s) vmin and vtime can not be negative");
+				throw new IllegalArgumentException("Argument(s) vmin and vtime can not be negative !");
 			}
 		}
 
@@ -1658,7 +1662,7 @@ public final class SerialComManager {
 		}
 
 		if(handlefound == false) {
-			throw new SerialComException("fineTuneRead()", "Wrong port handle passed for the requested operations");
+			throw new SerialComException("Wrong port handle passed for the requested operations !");
 		}
 
 		mComPortJNIBridge.fineTuneRead(handle, vmin, vtime, rit, rttm, rttc);
@@ -1672,10 +1676,10 @@ public final class SerialComManager {
 	 * This filters what events should be sent to application. Note that, although we sent only those event
 	 * for which user has set mask, however native code send all the events to java layer as of now.</p>
 	 * 
-	 * @param eventListener instance of class which implemented ISerialComEventListener interface
-	 * @return true on success false otherwise
-	 * @throws SerialComException if null is passed for listener field or invalid listener is passed
-	 * @throws IllegalArgumentException if eventListener is null
+	 * @param eventListener instance of class which implemented ISerialComEventListener interface.
+	 * @return true on success false otherwise.
+	 * @throws SerialComException if invalid listener is passed.
+	 * @throws IllegalArgumentException if eventListener is null.
 	 */
 	public boolean setEventsMask(final ISerialComEventListener eventListener, int newMask) throws SerialComException {
 
@@ -1683,7 +1687,7 @@ public final class SerialComManager {
 		ISerialComEventListener mEventListener = null;
 
 		if(eventListener == null) {
-			throw new IllegalArgumentException("setEventsMask(), " + "Argument eventListener can not be null");
+			throw new IllegalArgumentException("Argument eventListener can not be null !");
 		}
 
 		for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
@@ -1698,17 +1702,17 @@ public final class SerialComManager {
 			looper.setEventsMask(newMask);
 			return true;
 		}else {
-			throw new SerialComException("setEventsMask()", "This listener is not registered");
+			throw new SerialComException("This listener is not registered !");
 		}
 	}
 
 	/**
 	 * <p>This method return currently applicable mask for events on serial port.</p>
 	 * 
-	 * @param eventListener instance of class which implemented ISerialComEventListener interface
-	 * @return an integer containing bit fields representing mask
-	 * @throws SerialComException if null or wrong listener is passed
-	 * @throws IllegalArgumentException if eventListener is null
+	 * @param eventListener instance of class which implemented ISerialComEventListener interface.
+	 * @return an integer containing bit fields representing mask.
+	 * @throws SerialComException if null or wrong listener is passed.
+	 * @throws IllegalArgumentException if eventListener is null.
 	 */
 	public int getEventsMask(final ISerialComEventListener eventListener) throws SerialComException {
 
@@ -1716,7 +1720,7 @@ public final class SerialComManager {
 		ISerialComEventListener mEventListener = null;
 
 		if(eventListener == null) {
-			throw new IllegalArgumentException("getEventsMask(), " + "Argument eventListener can not be null");
+			throw new IllegalArgumentException("Argument eventListener can not be null !");
 		}
 
 		for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
@@ -1730,7 +1734,7 @@ public final class SerialComManager {
 		if(looper != null && mEventListener != null) {
 			return looper.getEventsMask();
 		}else {
-			throw new SerialComException("setEventsMask()", "This listener is not registered");
+			throw new SerialComException("This listener is not registered !");
 		}
 	}
 
@@ -1741,12 +1745,12 @@ public final class SerialComManager {
 	 * If the application wants to make sure that all data has been transmitted before discarding anything, it must
 	 * first flush data and then call this method.</p>
 	 * 
-	 * @param handle of the opened port
-	 * @param clearRxBuffer if true receive buffer will be cleared otherwise will be left untouched 
-	 * @param clearTxBuffer if true transmit buffer will be cleared otherwise will be left untouched
-	 * @return true on success
-	 * @throws SerialComException if invalid handle is passed or operation can not be completed successfully
-	 * @throws IllegalArgumentException if both purgeTxBuffer and purgeRxBuffer are false
+	 * @param handle of the opened port.
+	 * @param clearRxBuffer if true receive buffer will be cleared otherwise will be left untouched.
+	 * @param clearTxBuffer if true transmit buffer will be cleared otherwise will be left untouched.
+	 * @return true on success.
+	 * @throws SerialComException if invalid handle is passed or operation can not be completed successfully.
+	 * @throws IllegalArgumentException if both purgeTxBuffer and purgeRxBuffer are false.
 	 */
 	public boolean clearPortIOBuffers(long handle, boolean clearRxBuffer, boolean clearTxBuffer) throws SerialComException {
 		boolean handlefound = false;
@@ -1757,7 +1761,7 @@ public final class SerialComManager {
 			}
 		}
 		if(handlefound == false) {
-			throw new SerialComException("clearPortIOBuffers()", "Wrong port handle passed for the requested operations");
+			throw new SerialComException("Invalid handle passed for the requested operation !");
 		}
 		
 		if((clearRxBuffer == false) && (clearTxBuffer == false)) {
@@ -1766,7 +1770,7 @@ public final class SerialComManager {
 		
 		int ret = mComPortJNIBridge.clearPortIOBuffers(handle, clearRxBuffer, clearTxBuffer);
 		if(ret < 0) {
-			throw new SerialComException("clearPortIOBuffers()", "Could not clear the buffers for the given port. Please retry !");
+			throw new SerialComException("Could not clear the buffers for the given port. Please retry !");
 		}
 
 		return true;
@@ -1784,11 +1788,11 @@ public final class SerialComManager {
 	 * current loop line is indicated by no current flowing, and a very long period of no current flowing is often
 	 * caused by a break or other fault in the line.</p>
 	 * 
-	 * @param handle of the opened port
-	 * @param duration the time in milliseconds for which break will be active
-	 * @return true on success
-	 * @throws SerialComException if invalid handle is passed or operation can not be successfully completed
-	 * @throws IllegalArgumentException if duration is zero or negative
+	 * @param handle of the opened port.
+	 * @param duration the time in milliseconds for which break will be active.
+	 * @return true on success.
+	 * @throws SerialComException if invalid handle is passed or operation can not be successfully completed.
+	 * @throws IllegalArgumentException if duration is zero or negative.
 	 */
 	public boolean sendBreak(long handle, int duration) throws SerialComException {
 		boolean handlefound = false;
@@ -1799,11 +1803,11 @@ public final class SerialComManager {
 			}
 		}
 		if(handlefound == false) {
-			throw new SerialComException("sendBreak()", "Wrong port handle passed for the requested operations");
+			throw new SerialComException("Invalid handle passed for the requested operation !");
 		}
 
 		if((duration < 0) || (duration == 0)) {
-			throw new IllegalArgumentException("sendBreak(), " + "Argument duration can not be negative or zero");
+			throw new IllegalArgumentException("Argument duration can not be negative or zero !");
 		}
 
 		mComPortJNIBridge.sendBreak(handle, duration);
@@ -1818,9 +1822,9 @@ public final class SerialComManager {
 	 * 
 	 * <p>Note: It is supported for Unix-like OS only. For other operating systems, this will return 0 for all the indexes.</p>
 	 * 
-	 * @param handle of the port opened on which interrupts might have occurred
-	 * @return array of integers containing values corresponding to each interrupt source
-	 * @throws SerialComException if invalid handle is passed or operation can not be completed
+	 * @param handle of the port opened on which interrupts might have occurred.
+	 * @return array of integers containing values corresponding to each interrupt source.
+	 * @throws SerialComException if invalid handle is passed or operation can not be performed successfully.
 	 */
 	public int[] getInterruptCount(long handle) throws SerialComException {
 		boolean handlefound = false;
@@ -1833,12 +1837,12 @@ public final class SerialComManager {
 			}
 		}
 		if(handlefound == false) {
-			throw new SerialComException("getInterruptCount()", "Wrong port handle passed for the requested operations");
+			throw new SerialComException("Invalid handle passed for the requested operation !");
 		}
 
 		interruptsCount = mComPortJNIBridge.getInterruptCount(handle);
 		if(interruptsCount == null) {
-			throw new SerialComException("getInterruptCount()", "Unknown error occurred !");
+			throw new SerialComException("Unknown error occurred !");
 		}
 		return interruptsCount;
 	}
@@ -1851,9 +1855,9 @@ public final class SerialComManager {
 	 * <p>MAC OS X &nbsp;&nbsp;:       CTS, DSR, DCD, RI, 0,    RTS, DTR respectively.</p>
 	 * <p>Windows OS :                 CTS, DSR, DCD, RI, 0,    0,   0   respectively.</p>
 	 * 
-	 * @param handle of the port whose status is to be read
-	 * @return status of UART port control lines
-	 * @throws SerialComException if invalid handle is passed or operation can not be completed successfully
+	 * @param handle of the port whose status is to be read.
+	 * @return status of UART port control lines.
+	 * @throws SerialComException if invalid handle is passed or operation can not be completed successfully.
 	 */
 	public int[] getLinesStatus(long handle) throws SerialComException {
 		boolean handlefound = false;
@@ -1866,12 +1870,12 @@ public final class SerialComManager {
 			}
 		}
 		if(handlefound == false) {
-			throw new SerialComException("getLinesStatus()", "Wrong port handle passed for the requested operations !");
+			throw new SerialComException("Invalid handle passed for the requested operation !");
 		}
 
 		status = mComPortJNIBridge.getLinesStatus(handle);
 		if(status == null) {
-			throw new SerialComException("getLinesStatus()", "Unknown error occurred !");
+			throw new SerialComException("Unknown error occurred !");
 		}
 		return status;
 	}
@@ -1884,9 +1888,9 @@ public final class SerialComManager {
 	 * itself. For example FT232R has internal buffers controlled by FIFO CONTROLLERS. For this reason this method
 	 * should be tested carefully if application is using USB-UART converters. This is driver and OS specific scenario.</p>
 	 * 
-	 * @param handle of the opened port for which counts need to be determined
-	 * @return array containing number of bytes in input and output buffer
-	 * @throws SerialComException if invalid handle is passed or operation can not be completed successfully
+	 * @param handle of the opened port for which counts need to be determined.
+	 * @return array containing number of bytes in input and output buffer.
+	 * @throws SerialComException if invalid handle is passed or operation can not be completed successfully.
 	 */
 	public int[] getByteCountInPortIOBuffer(long handle) throws SerialComException {
 		boolean handlefound = false;
@@ -1899,12 +1903,12 @@ public final class SerialComManager {
 			}
 		}
 		if(handlefound == false) {
-			throw new SerialComException("getByteCountInPortIOBuffer()", "Wrong port handle passed for the requested operations");
+			throw new SerialComException("Invalid handle passed for the requested operation !");
 		}
 
 		numBytesInfo = mComPortJNIBridge.getByteCount(handle);
 		if(numBytesInfo == null) {
-			throw new SerialComException("getByteCountInPortIOBuffer()", "Could not determine number of bytes in buffer. Please retry !");
+			throw new SerialComException("Could not determine number of bytes in buffer. Please retry !");
 		}
 
 		return numBytesInfo;
@@ -1927,32 +1931,32 @@ public final class SerialComManager {
 	 * 
 	 * <p>If both filterVID and filterPID are set to SerialComUSB.DEV_ANY, then callback will be called for every USB device.</p>
 	 * 
-	 * @param hotPlugListener object of class which implements ISerialComHotPlugListener interface
-	 * @param filterVID USB vendor ID to match
-	 * @param filterPID USB product ID to match
-	 * @return true on success
-	 * @throws SerialComException if registration fails due to some reason
-	 * @throws IllegalArgumentException if hotPlugListener is null
+	 * @param hotPlugListener object of class which implements ISerialComHotPlugListener interface.
+	 * @param filterVID USB vendor ID to match.
+	 * @param filterPID USB product ID to match.
+	 * @return true on success.
+	 * @throws SerialComException if registration fails due to some reason.
+	 * @throws IllegalArgumentException if hotPlugListener is null or if USB VID or USB PID are invalid numbers.
 	 */
 	public boolean registerHotPlugEventListener(final ISerialComHotPlugListener hotPlugListener, int filterVID, int filterPID) throws SerialComException {
 		if(hotPlugListener == null) {
-			throw new IllegalArgumentException("registerHotplugEventListener(), " + "Argument hotPlugListener can not be null");
+			throw new IllegalArgumentException("Argument hotPlugListener can not be null !");
 		}
 
 		if((filterVID < 0) || (filterPID < 0)) {
-			throw new IllegalArgumentException("registerHotplugEventListener(), " + "USB VID or PID can not be negative number(s)");
+			throw new IllegalArgumentException("USB VID or PID can not be negative number(s) !");
 		}
 
 		synchronized(lockB) {
 			int ret = mComPortJNIBridge.registerHotPlugEventListener(hotPlugListener, filterVID, filterPID);
 			if(ret < 0) {
-				throw new SerialComException("registerHotPlugEventListener()", "Failed to register hotplug listener. Please retry !");
+				throw new SerialComException("Failed to register hotplug listener. Please retry !");
 			}
 
 			boolean added = mHotPlugListenerInfo.add(new SerialComHotPlugInfo(hotPlugListener, ret));
 			if(added != true) {
 				unregisterHotPlugEventListener(hotPlugListener);
-				throw new SerialComException("registerHotPlugEventListener()",  "Could not save info about hot plug listener locally. Please retry registering hot plug listener");
+				throw new SerialComException("Could not save info about hot plug listener locally. Please retry !");
 			}
 		}
 
@@ -1962,16 +1966,16 @@ public final class SerialComManager {
 	/**
 	 * <p>This unregisters listener and terminate native thread used for monitoring specified hot plug events.</p>
 	 * 
-	 * @param hotPlugListener object of class which implemented ISerialComHotPlugListener interface
-	 * @return true on success
-	 * @throws SerialComException un-registration fails due to some reason
-	 * @throws IllegalArgumentException if hotPlugListener is null
+	 * @param hotPlugListener object of class which implemented ISerialComHotPlugListener interface.
+	 * @return true on success.
+	 * @throws SerialComException un-registration fails due to some reason.
+	 * @throws IllegalArgumentException if hotPlugListener is null.
 	 */
 	public boolean unregisterHotPlugEventListener(final ISerialComHotPlugListener hotPlugListener) throws SerialComException {
 		int index = -1;
 		SerialComHotPlugInfo mListenerInfo = null;
 		if(hotPlugListener == null) {
-			throw new IllegalArgumentException("unregisterHotplugEventListener(), " + "Argument hotPlugListener can not be null");
+			throw new IllegalArgumentException("Argument hotPlugListener can not be null !");
 		}
 
 		for(SerialComHotPlugInfo mInfo: mHotPlugListenerInfo){
@@ -1982,7 +1986,7 @@ public final class SerialComManager {
 			}
 		}
 		if(index == -1) {
-			throw new SerialComException("unregisterHotPlugEventListener()", "This listener is not registered");
+			throw new SerialComException("This listener is not registered !");
 		}
 
 		synchronized(lockB) {
@@ -1999,8 +2003,8 @@ public final class SerialComManager {
 	 * <p>This method gives the port name with which given handle is associated. If the given handle is
 	 * unknown to SCM library, null is returned. A serial port is known to SCM if it was opened using this library.</p>
 	 * 
-	 * @param handle for which the port name is to be found
-	 * @return port name if port found for given handle or null if not found
+	 * @param handle for which the port name is to be found.
+	 * @return port name if port found for given handle or null if not found.
 	 */
 	public String getPortName(long handle) {
 		String portName = null;
@@ -2021,18 +2025,18 @@ public final class SerialComManager {
 	/**
 	 * <p>Send given file using specified file transfer protocol.</p>
 	 * 
-	 * @param handle of the port on which file is to be sent
-	 * @param fileToSend File instance representing file to be sent
-	 * @param ftpProto file transfer protocol to use for communication over serial port
-	 * @param ftpVariant variant of file transfer protocol to use
-	 * @param ftpMode define whether data should be translated(ASCII mode) or not (binary mode)
-	 * @return true on success false otherwise
-	 * @throws SerialComException if invalid handle is passed
-	 * @throws SecurityException If a security manager exists and its SecurityManager.checkRead(java.lang.String) method denies read access to the file
+	 * @param handle of the port on which file is to be sent.
+	 * @param fileToSend File instance representing file to be sent.
+	 * @param ftpProto file transfer protocol to use for communication over serial port.
+	 * @param ftpVariant variant of file transfer protocol to use.
+	 * @param ftpMode define whether data should be translated(ASCII mode) or not (binary mode).
+	 * @return true on success false otherwise.
+	 * @throws SerialComException if invalid handle is passed.
+	 * @throws SecurityException If a security manager exists and its SecurityManager.checkRead(java.lang.String) method denies read access to the file.
 	 * @throws FileNotFoundException if the file does not exist, is a directory rather than a regular file, or for some other reason cannot be opened for reading.
-	 * @throws SerialComTimeOutException if timeout occurs as per file transfer protocol
-	 * @throws IOException if error occurs while reading data from file to be sent
-	 * @throws IllegalArgumentException if fileToSend or ftpProto or ftpVariant or ftpMode argument is null
+	 * @throws SerialComTimeOutException if timeout occurs as per file transfer protocol.
+	 * @throws IOException if error occurs while reading data from file to be sent.
+	 * @throws IllegalArgumentException if fileToSend or ftpProto or ftpVariant or ftpMode argument is null.
 	 */
 	public boolean sendFile(long handle, final java.io.File fileToSend, FTPPROTO ftpProto, FTPVAR ftpVariant, FTPMODE ftpMode) throws SerialComException, SecurityException,
 	FileNotFoundException, SerialComTimeOutException, IOException {
@@ -2043,16 +2047,16 @@ public final class SerialComManager {
 		boolean result = false;
 
 		if(fileToSend == null) {
-			throw new IllegalArgumentException("sendFile()" + "Argument fileToSend can not be null");
+			throw new IllegalArgumentException("Argument fileToSend can not be null !");
 		}
 		if(ftpProto == null) {
-			throw new IllegalArgumentException("sendFile() " + "Argument ftpProto can not be null");
+			throw new IllegalArgumentException("Argument ftpProto can not be null !");
 		}
 		if(ftpVariant == null) {
-			throw new IllegalArgumentException("sendFile() " + "Argument ftpVariant can not be null");
+			throw new IllegalArgumentException("Argument ftpVariant can not be null !");
 		}
 		if(ftpMode == null) {
-			throw new IllegalArgumentException("sendFile() " + "Argument ftpMode can not be null");
+			throw new IllegalArgumentException("Argument ftpMode can not be null !");
 		}
 
 		for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
@@ -2062,7 +2066,7 @@ public final class SerialComManager {
 			}
 		}
 		if(handlefound == false) {
-			throw new SerialComException("sendFile()", "Wrong port handle passed for the requested operations");
+			throw new SerialComException("Invalid handle passed for the requested operation !");
 		}
 
 		protocol = ftpProto.getValue();
@@ -2093,18 +2097,18 @@ public final class SerialComManager {
 	/**
 	 * <p>Receives file using specified file transfer protocol.</p>
 	 * 
-	 * @param handle of the port on which file is to be sent
-	 * @param fileToReceive File instance representing file to be sent
-	 * @param ftpProto file transfer protocol to use for communication over serial port
-	 * @param ftpVariant variant of file transfer protocol to use
-	 * @param ftpMode define whether data should be translated(ASCII mode) or not (binary mode)
-	 * @return true on success false otherwise
-	 * @throws SerialComException if invalid handle is passed
-	 * @throws SecurityException If a security manager exists and its SecurityManager.checkRead(java.lang.String) method denies read access to the file
+	 * @param handle of the port on which file is to be sent.
+	 * @param fileToReceive File instance representing file to be sent.
+	 * @param ftpProto file transfer protocol to use for communication over serial port.
+	 * @param ftpVariant variant of file transfer protocol to use.
+	 * @param ftpMode define whether data should be translated(ASCII mode) or not (binary mode).
+	 * @return true on success false otherwise.
+	 * @throws SerialComException if invalid handle is passed.
+	 * @throws SecurityException If a security manager exists and its SecurityManager.checkRead(java.lang.String) method denies read access to the file.
 	 * @throws FileNotFoundException if the file does not exist, is a directory rather than a regular file, or for some other reason cannot be opened for reading.
-	 * @throws SerialComTimeOutException if timeout occurs as per file transfer protocol
-	 * @throws IOException if error occurs while reading data from file to be sent
-	 * @throws IllegalArgumentException if fileToReceive or ftpProto or ftpVariant or ftpMode argument is null
+	 * @throws SerialComTimeOutException if timeout occurs as per file transfer protocol.
+	 * @throws IOException if error occurs while reading data from file to be sent.
+	 * @throws IllegalArgumentException if fileToReceive or ftpProto or ftpVariant or ftpMode argument is null.
 	 */
 	public boolean receiveFile(long handle, final java.io.File fileToReceive, FTPPROTO ftpProto, FTPVAR ftpVariant, FTPMODE ftpMode) throws SerialComException,
 	SecurityException, FileNotFoundException, SerialComTimeOutException, IOException {
@@ -2115,16 +2119,16 @@ public final class SerialComManager {
 		boolean result = false;
 
 		if(fileToReceive == null) {
-			throw new IllegalArgumentException("receiveFile()" + "Argument fileToReceive can not be null");
+			throw new IllegalArgumentException("Argument fileToReceive can not be null !");
 		}
 		if(ftpProto == null) {
-			throw new IllegalArgumentException("receiveFile() " + "Argument ftpProto can not be null");
+			throw new IllegalArgumentException("Argument ftpProto can not be null !");
 		}
 		if(ftpVariant == null) {
-			throw new IllegalArgumentException("receiveFile() " + "Argument ftpVariant can not be null");
+			throw new IllegalArgumentException("Argument ftpVariant can not be null !");
 		}
 		if(ftpMode == null) {
-			throw new IllegalArgumentException("receiveFile() " + "Argument ftpMode can not be null");
+			throw new IllegalArgumentException("Argument ftpMode can not be null !");
 		}
 
 		for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
@@ -2134,7 +2138,7 @@ public final class SerialComManager {
 			}
 		}
 		if(handlefound == false) {
-			throw new SerialComException("receiveFile()", "Wrong port handle passed for the requested operations");
+			throw new SerialComException("Invalid handle passed for the requested operation !");
 		}
 
 		protocol = ftpProto.getValue();
@@ -2168,10 +2172,10 @@ public final class SerialComManager {
 	 * 
 	 * <p>A handle can have only one input stream. Application should close stream after it is done.</p>
 	 * 
-	 * @param handle handle of the opened port from which to read data bytes
-	 * @return reference to an object of type SerialComInByteStream
-	 * @throws SerialComException if input stream already exist for this handle or invalid handle is passed
-	 * @throws IllegalArgumentException if streamMode is null
+	 * @param handle handle of the opened port from which to read data bytes.
+	 * @return reference to an object of type SerialComInByteStream.
+	 * @throws SerialComException if input stream already exist for this handle or invalid handle is passed.
+	 * @throws IllegalArgumentException if streamMode is null.
 	 */
 	public SerialComInByteStream createInputByteStream(long handle, SMODE streamMode) throws SerialComException {
 		boolean handlefound = false;
@@ -2179,7 +2183,7 @@ public final class SerialComManager {
 		SerialComPortHandleInfo mHandleInfo = null;
 
 		if(streamMode == null) {
-			throw new IllegalArgumentException("createInputByteStream() " + "Argument streamMode can not be null");
+			throw new IllegalArgumentException("Argument streamMode can not be null !");
 		}
 
 		for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
@@ -2191,7 +2195,7 @@ public final class SerialComManager {
 			}
 		}
 		if(handlefound == false) {
-			throw new SerialComException("createInputByteStream()", "Wrong port handle passed for the requested operations");
+			throw new SerialComException("Invalid handle passed for the requested operation !");
 		}
 
 		if(scis == null) {
@@ -2199,7 +2203,7 @@ public final class SerialComManager {
 			mHandleInfo.setSerialComInByteStream(scis);
 		}else {
 			// if 2nd attempt is made to create already existing input stream, throw exception
-			throw new SerialComException("createInputByteStream()", "Input stream already exist for this handle");
+			throw new SerialComException("Input byte stream already exist for this handle !");
 		}
 
 		return scis;
@@ -2214,10 +2218,10 @@ public final class SerialComManager {
 	 * <p>Using SerialComOutByteStream for writing data while not using SerialComInByteStream for
 	 * reading is a valid use case.</p>
 	 * 
-	 * @param handle handle of the opened port on which to write data bytes
-	 * @return reference to an object of type SerialComOutByteStream
-	 * @throws SerialComException if output stream already exist for this handle or invalid handle is passed
-	 * @throws IllegalArgumentException if streamMode is null
+	 * @param handle handle of the opened port on which to write data bytes.
+	 * @return reference to an object of type SerialComOutByteStream.
+	 * @throws SerialComException if output stream already exist for this handle or invalid handle is passed.
+	 * @throws IllegalArgumentException if streamMode is null.
 	 */
 	public SerialComOutByteStream createOutputByteStream(long handle, SMODE streamMode) throws SerialComException {
 		boolean handlefound = false;
@@ -2225,7 +2229,7 @@ public final class SerialComManager {
 		SerialComPortHandleInfo mHandleInfo = null;
 
 		if(streamMode == null) {
-			throw new IllegalArgumentException("createOutputByteStream() " + "Argument streamMode can not be null");
+			throw new IllegalArgumentException("Argument streamMode can not be null !");
 		}
 
 		for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
@@ -2237,7 +2241,7 @@ public final class SerialComManager {
 			}
 		}
 		if(handlefound == false) {
-			throw new SerialComException("createOutputByteStream()", "Wrong port handle passed for the requested operations");
+			throw new SerialComException("Invalid handle passed for the requested operation !");
 		}
 
 		if(scos == null) {
@@ -2245,7 +2249,7 @@ public final class SerialComManager {
 			mHandleInfo.setSerialComOutByteStream(scos);
 		}else {
 			// if 2nd attempt is made to create already existing output stream, throw exception
-			throw new SerialComException("createOutputByteStream()", "Output stream already exist for this handle");
+			throw new SerialComException("Output byte stream already exist for this handle !");
 		}
 
 		return scos;
@@ -2287,7 +2291,7 @@ public final class SerialComManager {
 			}
 		}
 		if(handlefound == false) {
-			throw new SerialComException("getIOCTLExecutor()", "Wrong port handle passed for the requested operations");
+			throw new SerialComException("Invalid handle passed for the requested operation !");
 		}
 
 		if(mSerialComIOCTLExecutor != null) {
@@ -2301,23 +2305,23 @@ public final class SerialComManager {
 	 * <p>Checks whether a particular USB device identified by vendor id and product id is connected to 
 	 * the system or not.</p>
 	 * 
-	 * @param vendorID USB-IF vendor ID of the USB device to match
-	 * @param productID product ID of the USB device to match
-	 * @return true is device is connected otherwise false
+	 * @param vendorID USB-IF vendor ID of the USB device to match.
+	 * @param productID product ID of the USB device to match.
+	 * @return true is device is connected otherwise false.
 	 * @throws SerialComException if an I/O error occurs.
-	 * @throws IllegalArgumentException if productID or vendorID is negative or invalid
+	 * @throws IllegalArgumentException if productID or vendorID is negative or invalid.
 	 */
 	public boolean isUSBDevConnected(int vendorID, int productID) throws SerialComException {
 		if((vendorID < 0) || (vendorID > 0XFFFF)) {
-			throw new IllegalArgumentException("listUSBdevicesWithInfo(), " + "Argument vendorID can not be negative or greater tha 0xFFFF !");
+			throw new IllegalArgumentException("Argument vendorID can not be negative or greater tha 0xFFFF !");
 		}
 		if((productID < 0) || (productID > 0XFFFF)) {
-			throw new IllegalArgumentException("listUSBdevicesWithInfo(), " + "Argument productID can not be negative or greater tha 0xFFFF !");
+			throw new IllegalArgumentException("Argument productID can not be negative or greater tha 0xFFFF !");
 		}
 
 		int ret = mComPortJNIBridge.isUSBDevConnected(vendorID, productID);
 		if(ret < 0) {
-			throw new SerialComException("isUSBDevConnected() ", "Unknown error occurred !");
+			throw new SerialComException("Unknown error occurred !");
 		}else if(ret == 1) {
 			return true;
 		}
@@ -2329,31 +2333,31 @@ public final class SerialComManager {
 	 * 
 	 * <p>For FTDI d2xx, instance of SerialComFTDID2XX class is returned.</p>
 	 * 
-	 * @param vendorLibIdentifier one of the constant VLIB_XXXX_XXXX in SerialComVendorLib class
-	 * @param libDirectory absolute directory path where vendor library is placed
-	 * @param vlibName full name of the vendor library (for ex. libftd2xx.so.1.1.12)
-	 * @return object of class on which vendor specific API calls can be made otherwise null
-	 * @throws SerialComUnexpectedException if a critical java system property is null in system
-	 * @throws SecurityException if any java system property can not be accessed
-	 * @throws FileNotFoundException if the vendor library file is not found
-	 * @throws UnsatisfiedLinkError if loading/linking shared library fails
+	 * @param vendorLibIdentifier one of the constant VLIB_XXXX_XXXX in SerialComVendorLib class.
+	 * @param libDirectory absolute directory path where vendor library is placed.
+	 * @param vlibName full name of the vendor library (for ex. libftd2xx.so.1.1.12).
+	 * @return object of class on which vendor specific API calls can be made otherwise null.
+	 * @throws SerialComUnexpectedException if a critical java system property is null in system.
+	 * @throws SecurityException if any java system property can not be accessed.
+	 * @throws FileNotFoundException if the vendor library file is not found.
+	 * @throws UnsatisfiedLinkError if loading/linking shared library fails.
 	 * @throws SerialComException if an I/O error occurs.
 	 * @throws SerialComLoadException if the library can not be found, extracted or loaded
 	 *                                 if the mentioned library is not supported by vendor for 
-	 *                                 operating system and cpu architecture combination
-	 * @throws IllegalArgumentException if argument vlibName is null or is an empty string
+	 *                                 operating system and cpu architecture combination.
+	 * @throws IllegalArgumentException if argument vlibName is null or is an empty string.
 	 */
 	public SerialComVendorLib getVendorLibInstance(int vendorLibIdentifier, String libDirectory, String vlibName) throws UnsatisfiedLinkError,
 	SerialComLoadException, SerialComUnexpectedException, SecurityException, FileNotFoundException {
 		File baseDir = new File(libDirectory.trim());
 		if(!baseDir.exists()) {
-			throw new SerialComLoadException("Given directory does not exist !");
+			throw new SerialComLoadException("The directory " + libDirectory + " does not exist !");
 		}
 		if(!baseDir.isDirectory()) {
-			throw new SerialComLoadException("Given directory is not a directory !");
+			throw new SerialComLoadException("The location " + libDirectory + " is not a directory !");
 		}
 		if(!baseDir.canWrite()) {
-			throw new SerialComLoadException("Given directory is not writeable (permissions ??) !");
+			throw new SerialComLoadException("The directory " + libDirectory + " is not writeable (permissions ??) !");
 		}
 		if(vlibName == null) {
 			throw new IllegalArgumentException("Argument vlibName can not be null !");

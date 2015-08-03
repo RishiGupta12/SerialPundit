@@ -44,17 +44,17 @@ public final class SerialComSLabsCP210xRuntime extends SerialComVendorLib {
 	/**
 	 * <p>Allocates a new SerialComSLabsCP210xRuntime object and extract and load shared libraries as required.</p>
 	 * 
-	 * @param libDirectory directory in which native library will be extracted and vendor library will be found
-	 * @param vlibName name of vendor library to load and link
-	 * @param cpuArch architecture of CPU this library is running on
-	 * @param osType operating system this library is running on
-	 * @param serialComSystemProperty instance of SerialComSystemProperty to get required java properties
-	 * @throws SerialComUnexpectedException if a critical java system property is null in system
-	 * @throws SecurityException if any java system property can not be accessed
-	 * @throws FileNotFoundException if the vendor library file is not found
-	 * @throws SerialComLoadException if any file system related issue occurs
-	 * @throws UnsatisfiedLinkError if loading/linking shared library fails
-	 * @throws SerialComException if initializing native library fails
+	 * @param libDirectory directory in which native library will be extracted and vendor library will be found.
+	 * @param vlibName name of vendor library to load and link.
+	 * @param cpuArch architecture of CPU this library is running on.
+	 * @param osType operating system this library is running on.
+	 * @param serialComSystemProperty instance of SerialComSystemProperty to get required java properties.
+	 * @throws SerialComUnexpectedException if a critical java system property is null in system.
+	 * @throws SecurityException if any java system property can not be accessed.
+	 * @throws FileNotFoundException if the vendor library file is not found.
+	 * @throws SerialComLoadException if any file system related issue occurs.
+	 * @throws UnsatisfiedLinkError if loading/linking shared library fails.
+	 * @throws SerialComException if initializing native library fails.
 	 */
 	public SerialComSLabsCP210xRuntime(File libDirectory, String vlibName, int cpuArch, int osType, SerialComSystemProperty serialComSystemProperty) 
 			throws UnsatisfiedLinkError, SerialComLoadException, SerialComUnexpectedException, SecurityException, FileNotFoundException {

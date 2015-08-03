@@ -30,7 +30,7 @@ public final class SerialComLoadException extends IOException {
 	/**
      * <p>Constructs an SerialComLoadException object with the specified detail message.</p>
      *
-     * @param exceptionMsg message describing reason for this exception
+     * @param exceptionMsg message describing reason for this exception.
      */
 	public SerialComLoadException(String exceptionMsg) {
 		super(exceptionMsg);

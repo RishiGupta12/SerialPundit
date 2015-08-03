@@ -190,11 +190,11 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 * other VID and PID combinations this method should be called so that the driver can 
 	 * update its internal device list table.</p>
 	 * 
-	 * @param vid USB-IF vendor id of the USB device
-	 * @param pid product id of the USB device
-	 * @return true if requested operation was successful
-	 * @throws SerialComException if an I/O error occurs
-	 * @throws IllegalArgumentException if vid or pid is negative or invalid number
+	 * @param vid USB-IF vendor id of the USB device.
+	 * @param pid product id of the USB device.
+	 * @return true if requested operation was successful.
+	 * @throws SerialComException if an I/O error occurs.
+	 * @throws IllegalArgumentException if vid or pid is negative or invalid number.
 	 */
 	public boolean setVidPid(int vid, int pid) throws SerialComException {
 		if((vid < 0) || (vid > 0XFFFF)) {
@@ -216,8 +216,8 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 * <p>Retrieves the current VID and PID combination from within the internal device 
 	 * list table. The sequence of return array is USB VID and USB PID.</p>
 	 * 
-	 * @return USB vid and pid combination from within the internal device list table
-	 * @throws SerialComException if an I/O error occurs
+	 * @return USB vid and pid combination from within the internal device list table.
+	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public int[] getVidPid() throws SerialComException {
 		int[] combination = null;
@@ -235,8 +235,8 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 * If any device is removed or added to the system this method should be 
 	 * called again so that internal list can be updated by driver.</p>
 	 * 
-	 * @return number of FTDI devices connected to the system at the time this method is called
-	 * @throws SerialComException if an I/O error occurs
+	 * @return number of FTDI devices connected to the system at the time this method is called.
+	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public int createDeviceInfoList() throws SerialComException {
 		int ret = mFTDID2XXJNIBridge.createDeviceInfoList();
@@ -252,10 +252,10 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 * <p>Retrieves information about the connected devices and populate them in FTdevicelistInfoNode 
 	 * class objects.</p>
 	 * 
-	 * @param numOfDevices number of FTDI devices connected to system
-	 * @return array of device info list (list of FT_DEVICE_LIST_INFO_NODE structure)
-	 * @throws SerialComException if an I/O error occurs
-	 * @throws IllegalArgumentException if numOfDevices is negative or zero
+	 * @param numOfDevices number of FTDI devices connected to system.
+	 * @return array of device info list (list of FT_DEVICE_LIST_INFO_NODE structure).
+	 * @throws SerialComException if an I/O error occurs.
+	 * @throws IllegalArgumentException if numOfDevices is negative or zero.
 	 */
 	public FTdevicelistInfoNode[] getDeviceInfoList(final int numOfDevices) throws SerialComException {
 		int i = 0;
@@ -287,10 +287,10 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 * 
 	 * <p>Retrieves information about the device at the given index.</p>
 	 * 
-	 * @param index in list corresponding to the device for which information is to be obtained
-	 * @return an object of type FTdevicelistInfoNode containing details of requested device or null
-	 * @throws SerialComException if an I/O error occurs
-	 * @throws IllegalArgumentException if index is negative
+	 * @param index in list corresponding to the device for which information is to be obtained.
+	 * @return an object of type FTdevicelistInfoNode containing details of requested device or null.
+	 * @throws SerialComException if an I/O error occurs.
+	 * @throws IllegalArgumentException if index is negative.
 	 */
 	public FTdevicelistInfoNode getDeviceInfoDetail(final int index) throws SerialComException {
 		if(index < 0) {
@@ -316,8 +316,8 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 * 
 	 * <p>Length of the returned array indicates number of FT devices found.</p>
 	 * 
-	 * @param pvArg1 index in FT device list
-	 * @param dwFlags flag specifying what operation should be performed
+	 * @param pvArg1 index in FT device list.
+	 * @param dwFlags flag specifying what operation should be performed.
 	 * @return array of FTdeviceInfo types representing information requested or null if something fails.
 	 * @throws SerialComException if an I/O error occurs.
 	 * @throws IllegalArgumentException if pvArg1 is negative or dwFlags is not one of the valid constants.
@@ -348,10 +348,10 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 * 
 	 * <p>Open the device and return a handle which will be used for subsequent accesses.</p>
 	 * 
-	 * @param index in list corresponding to the device that needs to be opened
-	 * @return handle of the opened device or -1 if method fails
-	 * @throws SerialComException if an I/O error occurs
-	 * @throws IllegalArgumentException if index is negative
+	 * @param index in list corresponding to the device that needs to be opened.
+	 * @return handle of the opened device or -1 if method fails.
+	 * @throws SerialComException if an I/O error occurs.
+	 * @throws IllegalArgumentException if index is negative.
 	 */
 	public long open(final int index) throws SerialComException {
 		if(index < 0) {
@@ -377,8 +377,8 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 * @param serialOrDescription serial number string or description string to identify the device to be opened.
 	 * @param locationId location ID of the device if it is to be opened using location ID.
 	 * @param dwFlags flag specifying what operation should be performed.
-	 * @return true on success
-	 * @throws SerialComException if an I/O error occurs
+	 * @return true on success.
+	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public long openEx(final String serialOrDescription, long locationId, int dwFlags) throws SerialComException {
 		long ret = mFTDID2XXJNIBridge.openEx(serialOrDescription, locationId, dwFlags);
@@ -393,9 +393,9 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 * 
 	 * <p>Closes an open FT device.</p>
 	 * 
-	 * @param handle of the device that is to be close
-	 * @return true on success
-	 * @throws SerialComException if an I/O error occurs
+	 * @param handle of the device that is to be close.
+	 * @return true on success.
+	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public boolean close(final long handle) throws SerialComException {
 		int ret = mFTDID2XXJNIBridge.close(handle);
@@ -411,12 +411,12 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 * 
 	 * <p>Read data from the device.</p>
 	 * 
-	 * @param handle handle of the device from which to read data
-	 * @param buffer byte buffer where data read will be placed
-	 * @param numOfBytesToRead number of bytes to be tried to read
-	 * @return number of bytes read
-	 * @throws SerialComException if an I/O error occurs
-	 * @throws IllegalArgumentException if buffer is null or numOfBytesToRead is negative or zero
+	 * @param handle handle of the device from which to read data.
+	 * @param buffer byte buffer where data read will be placed.
+	 * @param numOfBytesToRead number of bytes to be tried to read.
+	 * @return number of bytes read.
+	 * @throws SerialComException if an I/O error occurs.
+	 * @throws IllegalArgumentException if buffer is null or numOfBytesToRead is negative or zero.
 	 */
 	public int read(long handle, final byte[] buffer, int numOfBytesToRead) throws SerialComException {
 		if(buffer == null) {
@@ -438,12 +438,12 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 * 
 	 * <p>Write data from given buffer to the device.</p>
 	 * 
-	 * @param handle handle of the device to which data is to be sent
-	 * @param buffer byte buffer that contains the data to be written to the device
+	 * @param handle handle of the device to which data is to be sent.
+	 * @param buffer byte buffer that contains the data to be written to the device.
 	 * @param numOfBytesToWrite Number of bytes to write to the device.
-	 * @return number of bytes written to the device
-	 * @throws SerialComException if an I/O error occurs
-	 * @throws IllegalArgumentException if buffer is null or numOfBytesToWrite is negative or zero
+	 * @return number of bytes written to the device.
+	 * @throws SerialComException if an I/O error occurs.
+	 * @throws IllegalArgumentException if buffer is null or numOfBytesToWrite is negative or zero.
 	 */
 	public int write(long handle, final byte[] buffer, int numOfBytesToWrite) throws SerialComException {
 		if(buffer == null) {
@@ -465,11 +465,11 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 * 
 	 * <p>Sets the baud rate value for the given FT device.</p>
 	 * 
-	 * @param handle handle of the device whose baud rate need to be set
-	 * @param baudRate baud rate value to set
-	 * @return true if the operation executed successfully
-	 * @throws SerialComException if an I/O error occurs
-	 * @throws IllegalArgumentException if baudRate is negative
+	 * @param handle handle of the device whose baud rate need to be set.
+	 * @param baudRate baud rate value to set.
+	 * @return true if the operation executed successfully.
+	 * @throws SerialComException if an I/O error occurs.
+	 * @throws IllegalArgumentException if baudRate is negative.
 	 */
 	public boolean setBaudRate(final long handle, int baudRate) throws SerialComException {
 		if(baudRate < 0) {
@@ -488,11 +488,11 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 * 
 	 * <p>Sets the divisor value for the given FT device.</p>
 	 * 
-	 * @param handle handle of the device whose baud rate need to be set
-	 * @param divisor divisor to be used for setting correct custom baud rate
-	 * @return true if the operation executed successfully
-	 * @throws SerialComException if an I/O error occurs
-	 * @throws IllegalArgumentException if divisor is negative
+	 * @param handle handle of the device whose baud rate need to be set.
+	 * @param divisor divisor to be used for setting correct custom baud rate.
+	 * @return true if the operation executed successfully.
+	 * @throws SerialComException if an I/O error occurs.
+	 * @throws IllegalArgumentException if divisor is negative.
 	 */
 	public boolean setDivisor(final long handle, int divisor) throws SerialComException {
 		if(divisor < 0) {
@@ -511,13 +511,13 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 * 
 	 * <p>Sets the desired data characteristics for the given FT device.</p>
 	 * 
-	 * @param handle handle of the device whose data characteristics need to be set
-	 * @param dataBits number of data bits in one frame (refer DATABITS enum in SerialComFTDID2XX class for this)
-	 * @param stopBits number of stop bits in one frame (refer STOPBITS enum in SerialComFTDID2XX class for this)
-	 * @param parity of the frame (refer PARITY enum in SerialComFTDID2XX class for this)
-	 * @return true if the operation executed successfully
-	 * @throws SerialComException if an I/O error occurs
-	 * @throws IllegalArgumentException if dataBits, stopBits or parity is null
+	 * @param handle handle of the device whose data characteristics need to be set.
+	 * @param dataBits number of data bits in one frame (refer DATABITS enum in SerialComFTDID2XX class for this).
+	 * @param stopBits number of stop bits in one frame (refer STOPBITS enum in SerialComFTDID2XX class for this).
+	 * @param parity of the frame (refer PARITY enum in SerialComFTDID2XX class for this).
+	 * @return true if the operation executed successfully.
+	 * @throws SerialComException if an I/O error occurs.
+	 * @throws IllegalArgumentException if dataBits, stopBits or parity is null.
 	 */
 	public boolean setDataCharacteristics(final long handle, DATABITS dataBits, STOPBITS stopBits, PARITY parity) throws SerialComException {
 		if(dataBits == null) {
@@ -542,12 +542,12 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 * 
 	 * <p>Sets the read and write time out values for the given FT device.</p>
 	 * 
-	 * @param handle handle of the device whose baud rate need to be set
-	 * @param readTimeOut read time out in milliseconds
-	 * @param writeTimeOut write time out in milliseconds
-	 * @return true if the operation executed successfully
-	 * @throws SerialComException if an I/O error occurs
-	 * @throws IllegalArgumentException if divisor is negative
+	 * @param handle handle of the device whose baud rate need to be set.
+	 * @param readTimeOut read time out in milliseconds.
+	 * @param writeTimeOut write time out in milliseconds.
+	 * @return true if the operation executed successfully.
+	 * @throws SerialComException if an I/O error occurs.
+	 * @throws IllegalArgumentException if divisor is negative.
 	 */
 	public boolean setTimeouts(final long handle, long readTimeOut, long writeTimeOut) throws SerialComException {
 		if(readTimeOut < 0) {
@@ -569,13 +569,13 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 * 
 	 * <p>Sets the flow control mode for the given FT device.</p>
 	 * 
-	 * @param handle handle of the device whose baud rate need to be set
-	 * @param flctrl flow control of serial frame (refer FLOWCTRL enum in SerialComFTDID2XX class for this)
-	 * @param xon character used to signal Xon if software flow control is used
-	 * @param xoff character used to signal Xoff if software flow control is used
-	 * @return true if the operation executed successfully
-	 * @throws SerialComException if an I/O error occurs
-	 * @throws IllegalArgumentException if flctrl is null
+	 * @param handle handle of the device whose baud rate need to be set.
+	 * @param flctrl flow control of serial frame (refer FLOWCTRL enum in SerialComFTDID2XX class for this).
+	 * @param xon character used to signal Xon if software flow control is used.
+	 * @param xoff character used to signal Xoff if software flow control is used.
+	 * @return true if the operation executed successfully.
+	 * @throws SerialComException if an I/O error occurs.
+	 * @throws IllegalArgumentException if flctrl is null.
 	 */
 	public boolean setFlowControl(final long handle, FLOWCTRL flctrl, char xon, char xoff) throws SerialComException {
 		if(flctrl == null) {
@@ -594,9 +594,9 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 * 
 	 * <p>Sets the Data Terminal Ready (DTR) control signal.</p>
 	 * 
-	 * @param handle handle of the device for which DTR signal need to be set
-	 * @return true if the operation executed successfully
-	 * @throws SerialComException if an I/O error occurs
+	 * @param handle handle of the device for which DTR signal need to be set.
+	 * @return true if the operation executed successfully.
+	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public boolean setDTR(final long handle) throws SerialComException {
 		int ret = mFTDID2XXJNIBridge.setDTR(handle);
@@ -611,9 +611,9 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 * 
 	 * <p>This method clears the Data Terminal Ready (DTR) control signal.</p>
 	 * 
-	 * @param handle handle of the device for which DTR signal need to be cleared
-	 * @return true if the operation executed successfully
-	 * @throws SerialComException if an I/O error occurs
+	 * @param handle handle of the device for which DTR signal need to be cleared.
+	 * @return true if the operation executed successfully.
+	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public boolean clearDTR(final long handle) throws SerialComException {
 		int ret = mFTDID2XXJNIBridge.clearDTR(handle);
@@ -628,9 +628,9 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 * 
 	 * <p>Sets the Request To Send (RTS) control signal.</p>
 	 * 
-	 * @param handle handle of the device for which RTS signal need to be set
-	 * @return true if the operation executed successfully
-	 * @throws SerialComException if an I/O error occurs
+	 * @param handle handle of the device for which RTS signal need to be set.
+	 * @return true if the operation executed successfully.
+	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public boolean setRTS(final long handle) throws SerialComException {
 		int ret = mFTDID2XXJNIBridge.setRTS(handle);
@@ -645,9 +645,9 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 * 
 	 * <p>This method clears the Request To Send (RTS) control signal.</p>
 	 * 
-	 * @param handle handle of the device for which RTS signal need to be cleared
-	 * @return true if the operation executed successfully
-	 * @throws SerialComException if an I/O error occurs
+	 * @param handle handle of the device for which RTS signal need to be cleared.
+	 * @return true if the operation executed successfully.
+	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public boolean clearRTS(final long handle) throws SerialComException {
 		int ret = mFTDID2XXJNIBridge.clearRTS(handle);
@@ -662,9 +662,9 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 * 
 	 * <p>Gets the modem status and line status from the device.</p>
 	 * 
-	 * @param handle handle of the device whose status is to be observed
-	 * @return bit mapped status value
-	 * @throws SerialComException if an I/O error occurs
+	 * @param handle handle of the device whose status is to be observed.
+	 * @return bit mapped status value.
+	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public int getModemStatus(final long handle) throws SerialComException {
 		int ret = mFTDID2XXJNIBridge.getModemStatus(handle);
@@ -679,9 +679,9 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 * 
 	 * <p>Gets the number of bytes in the receive queue.</p>
 	 * 
-	 * @param handle handle of the device for whom number of bytes is to be calculated
-	 * @return number of bytes in receive queue
-	 * @throws SerialComException if an I/O error occurs
+	 * @param handle handle of the device for whom number of bytes is to be calculated.
+	 * @return number of bytes in receive queue.
+	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public int getQueueStatus(final long handle) throws SerialComException {
 		int ret = mFTDID2XXJNIBridge.getQueueStatus(handle);
@@ -696,9 +696,9 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 * 
 	 * <p>Get device information for an open device.</p>
 	 * 
-	 * @param handle of the device for which information is to be obtained
-	 * @return an object of type FTOpenedDeviceInfo containing details of requested device or null
-	 * @throws SerialComException if an I/O error occurs
+	 * @param handle of the device for which information is to be obtained.
+	 * @return an object of type FTOpenedDeviceInfo containing details of requested device or null.
+	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public FTOpenedDeviceInfo getDeviceInfo(final long handle) throws SerialComException {
 		String[] rawData = mFTDID2XXJNIBridge.getDeviceInfo(handle);
@@ -714,9 +714,9 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 * 
 	 * <p>Gets the D2XX driver version number.</p>
 	 * 
-	 * @param handle handle of the device for whom driver version is to found
-	 * @return driver version number for the requested device handle
-	 * @throws SerialComException if an I/O error occurs
+	 * @param handle handle of the device for whom driver version is to found.
+	 * @return driver version number for the requested device handle.
+	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public long getDriverVersion(final long handle) throws SerialComException {
 		long ret = mFTDID2XXJNIBridge.getDriverVersion(handle);
@@ -731,8 +731,8 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 * 
 	 * <p>Gets the D2XX DLL version number.</p>
 	 * 
-	 * @return driver version number for the requested device handle
-	 * @throws SerialComException if an I/O error occurs
+	 * @return driver version number for the requested device handle.
+	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public long getLibraryVersion() throws SerialComException {
 		long ret = mFTDID2XXJNIBridge.getLibraryVersion();
@@ -747,9 +747,9 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 * 
 	 * <p>Retrieves the COM port associated with a device.</p>
 	 * 
-	 * @param handle handle of the device for whom COM port is to found
-	 * @return COM Port number assigned or -1 if no COM Port number is assigned to this device
-	 * @throws SerialComException if an I/O error occurs
+	 * @param handle handle of the device for whom COM port is to found.
+	 * @return COM Port number assigned or -1 if no COM Port number is assigned to this device.
+	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public long getComPortNumber(final long handle) throws SerialComException {
 		long ret = mFTDID2XXJNIBridge.getComPortNumber(handle);
@@ -765,9 +765,9 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 * <p>Gets the device status including number of characters in the receive queue, number of 
 	 * characters in the transmit queue, and the current event status.</p>
 	 * 
-	 * @param handle handle of the device for whom information need to be found
-	 * @return array containing number of bytes in rx buffer, number of bytes in tx buffer, modem event status
-	 * @throws SerialComException if an I/O error occurs
+	 * @param handle handle of the device for whom information need to be found.
+	 * @return array containing number of bytes in rx buffer, number of bytes in tx buffer, modem event status.
+	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public long[] getStatus(long handle) throws SerialComException {
 		long[] info = mFTDID2XXJNIBridge.getStatus(handle);
@@ -784,9 +784,9 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 * 
 	 * <p>Sets the special characters for the device.</p>
 	 * 
-	 * @param handle handle of the device for which characters need to be set
-	 * @return true if the operation executed successfully
-	 * @throws SerialComException if an I/O error occurs
+	 * @param handle handle of the device for which characters need to be set..
+	 * @return true if the operation executed successfully.
+	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public boolean setChars(final long handle, char eventChar, char eventEnable, char errorChar, char errorEnable) throws SerialComException {
 		int ret = mFTDID2XXJNIBridge.setChars(handle, eventChar, eventEnable, errorChar, errorEnable);
@@ -801,9 +801,9 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 * 
 	 * <p>Sets the BREAK condition for the device.</p>
 	 * 
-	 * @param handle handle of the device for which break condition need to be set
-	 * @return true if the operation executed successfully
-	 * @throws SerialComException if an I/O error occurs
+	 * @param handle handle of the device for which break condition need to be set.
+	 * @return true if the operation executed successfully.
+	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public boolean setBreakOn(final long handle) throws SerialComException {
 		int ret = mFTDID2XXJNIBridge.setBreakOn(handle);
@@ -818,9 +818,9 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 * 
 	 * <p>Resets the BREAK condition for the device.</p>
 	 * 
-	 * @param handle handle of the device for which break condition need to be reset
-	 * @return true if the operation executed successfully
-	 * @throws SerialComException if an I/O error occurs
+	 * @param handle handle of the device for which break condition need to be reset.
+	 * @return true if the operation executed successfully.
+	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public boolean setBreakOff(final long handle) throws SerialComException {
 		int ret = mFTDID2XXJNIBridge.setBreakOff(handle);
@@ -835,12 +835,12 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 * 
 	 * <p>This method purges receive and transmit buffers in the device.</p>
 	 * 
-	 * @param handle handle of the device for which buffer need to be cleared
-	 * @param purgeTxBuffer true if transmit buffer need to be cleared
-	 * @param purgeRxBuffer true if receive buffer need to be cleared
-	 * @return true if the operation executed successfully
-	 * @throws SerialComException if an I/O error occurs
-	 * @throws IllegalArgumentException if both purgeTxBuffer and purgeRxBuffer are false
+	 * @param handle handle of the device for which buffer need to be cleared.
+	 * @param purgeTxBuffer true if transmit buffer need to be cleared.
+	 * @param purgeRxBuffer true if receive buffer need to be cleared.
+	 * @return true if the operation executed successfully.
+	 * @throws SerialComException if an I/O error occurs.
+	 * @throws IllegalArgumentException if both purgeTxBuffer and purgeRxBuffer are false.
 	 */
 	public boolean purge(final long handle, boolean purgeTxBuffer, boolean purgeRxBuffer) throws SerialComException {
 		if((purgeRxBuffer == false) && (purgeTxBuffer == false)) {
@@ -858,9 +858,9 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 * 
 	 * <p>This method sends a reset command to the device.</p>
 	 * 
-	 * @param handle handle of the device which need to be reset
-	 * @return true if the operation executed successfully
-	 * @throws SerialComException if an I/O error occurs
+	 * @param handle handle of the device which need to be reset.
+	 * @return true if the operation executed successfully.
+	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public boolean resetDevice(final long handle) throws SerialComException {
 		int ret = mFTDID2XXJNIBridge.resetDevice(handle);
@@ -875,9 +875,9 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 * 
 	 * <p>This method sends a reset command to the port.</p>
 	 * 
-	 * @param handle handle of the device whose port need to be reset
-	 * @return true if the operation executed successfully
-	 * @throws SerialComException if an I/O error occurs
+	 * @param handle handle of the device whose port need to be reset.
+	 * @return true if the operation executed successfully.
+	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public boolean resetPort(final long handle) throws SerialComException {
 		int ret = mFTDID2XXJNIBridge.resetPort(handle);
@@ -892,9 +892,9 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 * 
 	 * <p>Send a cycle command to the USB port.</p>
 	 * 
-	 * @param handle handle of the device who need to be cycled
-	 * @return true if the operation executed successfully
-	 * @throws SerialComException if an I/O error occurs
+	 * @param handle handle of the device who need to be cycled.
+	 * @return true if the operation executed successfully.
+	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public boolean cyclePort(final long handle) throws SerialComException {
 		int ret = mFTDID2XXJNIBridge.cyclePort(handle);
@@ -909,8 +909,8 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 * 
 	 * <p>Send a cycle command to the USB port.</p>
 	 * 
-	 * @return true if the operation executed successfully
-	 * @throws SerialComException if an I/O error occurs
+	 * @return true if the operation executed successfully.
+	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public boolean rescan() throws SerialComException {
 		int ret = mFTDID2XXJNIBridge.rescan();
@@ -925,10 +925,10 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 * 
 	 * <p>Send a cycle command to the USB port.</p>
 	 * 
-	 * @param vid Vendor ID of the devices to reload the driver for
+	 * @param vid Vendor ID of the devices to reload the driver for.
 	 * @param pid Product ID of the devices to reload the driver for.
-	 * @return true if the operation executed successfully
-	 * @throws SerialComException if an I/O error occurs
+	 * @return true if the operation executed successfully.
+	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public boolean reload(final int vid, final int pid) throws SerialComException {
 		int ret = mFTDID2XXJNIBridge.reload(vid, pid);
@@ -943,10 +943,10 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 * 
 	 * <p>Set the ResetPipeRetryCount value.</p>
 	 * 
-	 * @param handle handle of the device for which this count is to be set
-	 * @param count maximum number of times that the driver tries to reset a pipe on which an error has occurred
-	 * @return true if the operation executed successfully
-	 * @throws SerialComException if an I/O error occurs
+	 * @param handle handle of the device for which this count is to be set.
+	 * @param count maximum number of times that the driver tries to reset a pipe on which an error has occurred.
+	 * @return true if the operation executed successfully.
+	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public boolean setResetPipeRetryCount(final long handle, int count) throws SerialComException {
 		int ret = mFTDID2XXJNIBridge.setResetPipeRetryCount(handle, count);
@@ -961,9 +961,9 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 * 
 	 * <p>Stops the driver's IN task.</p>
 	 * 
-	 * @param handle handle of the device for which this count is to be set
-	 * @return true if the operation executed successfully
-	 * @throws SerialComException if an I/O error occurs
+	 * @param handle handle of the device for which this count is to be set.
+	 * @return true if the operation executed successfully.
+	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public boolean stopInTask(final long handle) throws SerialComException {
 		int ret = mFTDID2XXJNIBridge.stopInTask(handle);
@@ -978,9 +978,9 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 * 
 	 * <p>Stops the driver's IN task.</p>
 	 * 
-	 * @param handle handle of the device for which this count is to be set
-	 * @return true if the operation executed successfully
-	 * @throws SerialComException if an I/O error occurs
+	 * @param handle handle of the device for which this count is to be set.
+	 * @return true if the operation executed successfully.
+	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public boolean restartInTask(final long handle) throws SerialComException {
 		int ret = mFTDID2XXJNIBridge.restartInTask(handle);
@@ -996,10 +996,10 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 * <p>This method allows the maximum time in milliseconds that a USB request 
 	 * can remain outstanding to be set.</p>
 	 * 
-	 * @param handle handle of the device for which this time out is to be set
+	 * @param handle handle of the device for which this time out is to be set.
 	 * @param count timeout value in milliseconds. Default value is 5000.
-	 * @return true if the operation executed successfully
-	 * @throws SerialComException if an I/O error occurs
+	 * @return true if the operation executed successfully.
+	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public boolean setDeadmanTimeout(final long handle, int count) throws SerialComException {
 		int ret = mFTDID2XXJNIBridge.setDeadmanTimeout(handle, count);

@@ -56,11 +56,11 @@ public final class SerialComXModem1K {
 
 
 	/**
-	 * <p>Allocates object of this class and associate this object with the supplied scm object.</p>
+	 * <p>Allocates a new SerialComXModem1K object with given details and associate it object with the supplied scm object.</p>
 	 * 
-	 * @param scm SerialComManager instance associated with this handle
-	 * @param handle of the port on which file is to be communicated
-	 * @param fileToProcess File instance representing file to be communicated
+	 * @param scm SerialComManager instance associated with this handle.
+	 * @param handle of the port on which file is to be communicated.
+	 * @param fileToProcess File instance representing file to be communicated.
 	 */
 	public SerialComXModem1K(SerialComManager scm, long handle, File fileToProcess, int mode) {
 		this.scm = scm;
@@ -71,8 +71,8 @@ public final class SerialComXModem1K {
 
 	/**
 	 * <p>Represents actions to execute in state machine to implement xmodem-1k protocol for sending files.</p>
-	 * @return true on success
-	 * @throws TODO
+	 * @return true on success.
+	 * @throws TODO.
 	 */
 	public boolean sendFileX() throws SecurityException, IOException, SerialComException {
 
@@ -126,7 +126,7 @@ public final class SerialComXModem1K {
 							}
 							// abort if timed-out while waiting for C character
 							if((cReceived != true) && (System.currentTimeMillis() >= responseWaitTimeOut)) {
-								errMsg = "Timedout while waiting for file receiver to initiate connection setup";
+								errMsg = "Timedout while waiting for file receiver to initiate connection setup !";
 								state = ABORT;
 								break;
 							}
@@ -146,7 +146,7 @@ public final class SerialComXModem1K {
 					break;
 				case RESEND:
 					if(retryCount > 10) {
-						errMsg = "Maximum number of retries reached while sending same data block";
+						errMsg = "Maximum number of retries reached while sending same data block !";
 						state = ABORT;
 						break;
 					}
@@ -190,9 +190,9 @@ public final class SerialComXModem1K {
 							}
 							if(System.currentTimeMillis() >= responseWaitTimeOut) {
 								if(noMoreData == true) {
-									errMsg = "Timedout while waiting for EOT reception acknowledgement from file receiver";
+									errMsg = "Timedout while waiting for EOT reception acknowledgement from file receiver !";
 								}else {
-									errMsg = "Timedout while waiting for block reception acknowledgement from file receiver";
+									errMsg = "Timedout while waiting for block reception acknowledgement from file receiver !";
 								}
 								state = ABORT;
 								break;
@@ -217,7 +217,7 @@ public final class SerialComXModem1K {
 								return true; // successfully sent file, let's go back home happily
 							}else{
 								if(System.currentTimeMillis() >= eotAckWaitTimeOutValue) {
-									errMsg = "Timedout while waiting for EOT reception acknowledgement from file receiver";
+									errMsg = "Timedout while waiting for EOT reception acknowledgement from file receiver !";
 									state = ABORT;
 								}else {
 									state = ENDTX;
@@ -259,7 +259,7 @@ public final class SerialComXModem1K {
 					/* if IOexception occurs, control will not reach here instead exception would have been
 					 * thrown already. */
 					inStream.close();
-					throw new SerialComTimeOutException("sendFileX()", errMsg);
+					throw new SerialComTimeOutException(errMsg);
 				default:
 					break;
 			}
@@ -305,7 +305,8 @@ public final class SerialComXModem1K {
 
 	/**
 	 * <p>Represents actions to execute in state machine to implement xmodem protocol for receiving files.</p>
-	 * @return true on success
+	 * 
+	 * @return true on success.
 	 * @throws IOException 
 	 */
 	public boolean receiveFileX() throws IOException, SerialComException {
@@ -450,7 +451,7 @@ public final class SerialComXModem1K {
 						}else {
 							if(firstBlock == false) {
 								if(System.currentTimeMillis() > nextDataRecvTimeOut) {
-									errMsg = "Timedout while trying to receive next data byte from file sender";
+									errMsg = "Timedout while trying to receive next data byte from file sender !";
 									state = ABORT;
 									break;
 								}
@@ -473,7 +474,7 @@ public final class SerialComXModem1K {
 						isDuplicateBlock = true;
 						duplicateBlockRetryCount++;
 						if(duplicateBlockRetryCount > 10) {
-							errMsg = "Maximum number of retries reached while receiving same data block";
+							errMsg = "Maximum number of retries reached while receiving same data block !";
 							state = ABORT;
 						}
 						break;
@@ -541,7 +542,7 @@ public final class SerialComXModem1K {
 					/* if an IOexception occurs, control will not reach here instead exception would have been
 					 * thrown already. */
 					outStream.close();
-					throw new SerialComTimeOutException("receiveFileX()", errMsg);
+					throw new SerialComTimeOutException(errMsg);
 				default:
 					break;
 			}

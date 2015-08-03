@@ -51,21 +51,21 @@ public class SerialComVendorLib {
 	/**
 	 * <p>Gives an instance of the class which implements API defined by vendor in their propriety library.</p>
 	 * 
-	 * @param vendorLibIdentifier one of the constant VLIB_XXXX_XXXX in SerialComVendorLib class
-	 * @param libDirectory directory where vendor library is placed
-	 * @param vlibName full name of the vendor library (for ex. libftd2xx.so.1.1.12)
-	 * @param cpuArch architecture of CPU this library is running on
-	 * @param osType operating system this library is running on
-	 * @param serialComSystemProperty instance of SerialComSystemProperty to get required java properties
-	 * @return object of class on which vendor specific API calls can be made otherwise null
-	 * @throws SerialComUnexpectedException if a critical java system property is null in system
-	 * @throws SecurityException if any java system property can not be accessed
-	 * @throws FileNotFoundException if the vendor library file is not found
-	 * @throws UnsatisfiedLinkError if loading/linking shared library fails
+	 * @param vendorLibIdentifier one of the constant VLIB_XXXX_XXXX in SerialComVendorLib class.
+	 * @param libDirectory directory where vendor library is placed.
+	 * @param vlibName full name of the vendor library (for ex. libftd2xx.so.1.1.12).
+	 * @param cpuArch architecture of CPU this library is running on.
+	 * @param osType operating system this library is running on.
+	 * @param serialComSystemProperty instance of SerialComSystemProperty to get required java properties.
+	 * @return object of class on which vendor specific API calls can be made otherwise null.
+	 * @throws SerialComUnexpectedException if a critical java system property is null in system.
+	 * @throws SecurityException if any java system property can not be accessed.
+	 * @throws FileNotFoundException if the vendor library file is not found.
+	 * @throws UnsatisfiedLinkError if loading/linking shared library fails.
 	 * @throws SerialComException if an I/O error occurs.
 	 * @throws SerialComLoadException if the library can not be found, extracted or loaded
 	 *                                 if the mentioned library is not supported by vendor for 
-	 *                                 operating system and cpu architecture combination
+	 *                                 operating system and cpu architecture combination.
 	 */
 	public SerialComVendorLib getVendorLibInstance(int vendorLibIdentifier, File libDirectory, String vlibName, int cpuArch, int osType,
 			SerialComSystemProperty serialComSystemProperty) throws UnsatisfiedLinkError, 

@@ -32,7 +32,7 @@ public final class SerialComException extends IOException {
 	/**
      * <p>Constructs and allocate a new SerialComException object with the specified detail message.</p>
      * 
-     * @param exceptionMsg message describing reason for exception
+     * @param exceptionMsg message describing reason for exception.
      */
 	public SerialComException(String exceptionMsg) {
 		super(exceptionMsg);
@@ -42,8 +42,8 @@ public final class SerialComException extends IOException {
 	/**
      * <p>Constructs and allocate a new SerialComException object with the specified detail message.</p>
      *
-     * @param methodName name of method where exception occurred
-     * @param exceptionMsg message describing reason for exception
+     * @param methodName name of method where exception occurred.
+     * @param exceptionMsg message describing reason for exception.
      */
 	public SerialComException(String methodName, String exceptionMsg) {
 		super(exceptionMsg + " in method " + methodName);
@@ -54,9 +54,9 @@ public final class SerialComException extends IOException {
 	/**
      * <p>Constructs an SerialComException object with the specified detail message.</p>
      *
-     * @param portName name of the port on which this exception occurred
-     * @param methodName name of method where exception occurred
-     * @param exceptionMsg message describing reason for exception
+     * @param portName name of the port on which this exception occurred.
+     * @param methodName name of method where exception occurred.
+     * @param exceptionMsg message describing reason for exception.
      */
 	public SerialComException(String portName, String methodName, String exceptionMsg) {
 		super(exceptionMsg + " in method " + methodName + " for port " + portName);
@@ -67,7 +67,8 @@ public final class SerialComException extends IOException {
 
 	/** 
 	 * <p>Get port in use on which this exception occurred. </p>
-	 * @return portName serial port identifier
+	 * 
+	 * @return portName serial port identifier.
 	 */
 	public String getPortName() {
 		return portName;
@@ -75,7 +76,8 @@ public final class SerialComException extends IOException {
 
 	/** 
 	 * <p>Get method name during execution of which the exception occurred. </p>
-	 * @return method which had thrown this exception
+	 * 
+	 * @return method which had thrown this exception.
 	 */
 	public String getMethodName() {
 		return methodName;
@@ -83,7 +85,8 @@ public final class SerialComException extends IOException {
 
 	/** 
 	 * <p>Get the specific type of exception. </p>
-	 * @return exceptionMsg reason for exception
+	 * 
+	 * @return exceptionMsg reason for exception.
 	 */
 	public String getExceptionMsg() {
 		return exceptionMsg;
