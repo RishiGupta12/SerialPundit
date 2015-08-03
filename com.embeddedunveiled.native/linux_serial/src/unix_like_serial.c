@@ -2767,8 +2767,17 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
  * Method:    ioctlExecuteOperation
  * Signature: (JJ)J
  */
-JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_ioctlExecuteOperation(JNIEnv *env, jobject obj, jlong a, jlong b) {
-	return -1;
+JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_ioctlExecuteOperation(JNIEnv *env,
+		jobject obj, jlong fd, jlong operationCode) {
+	int ret = 0;
+
+	errno = 0;
+	ret = ioctl(fd, operationCode);
+	if(ret < 0) {
+		throw_serialcom_exception(env, 1, errno, NULL);
+		return -1;
+	}
+	return 0;
 }
 
 /*
@@ -2776,8 +2785,17 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJ
  * Method:    ioctlSetValue
  * Signature: (JJJ)J
  */
-JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_ioctlSetValue(JNIEnv *env, jobject obj, jlong g, jlong a, jlong b) {
-	return -1;
+JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_ioctlSetValue(JNIEnv *env, jobject obj,
+		jlong fd, jlong operationCode, jlong value) {
+	int ret = 0;
+
+	errno = 0;
+	ret = ioctl(fd, operationCode, value);
+	if(ret < 0) {
+		throw_serialcom_exception(env, 1, errno, NULL);
+		return -1;
+	}
+	return 0;
 }
 
 /*
@@ -2785,8 +2803,18 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJ
  * Method:    ioctlGetValue
  * Signature: (JJ)J
  */
-JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_ioctlGetValue(JNIEnv *env, jobject obj, jlong v, jlong b) {
-	return -1;
+JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_ioctlGetValue(JNIEnv *env, jobject obj,
+		jlong fd, jlong operationCode) {
+	int ret = 0;
+	long value = 0;
+
+	errno = 0;
+	ret = ioctl(fd, operationCode, &value);
+	if(ret < 0) {
+		throw_serialcom_exception(env, 1, errno, NULL);
+		return -1;
+	}
+	return value;
 }
 
 /*
