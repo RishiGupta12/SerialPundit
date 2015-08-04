@@ -1,5 +1,6 @@
 
 v1.0.4 (TODO RELEASE DATE)
+	- added support for Bluetooth serial port profile
 	- added support for FTDI D2XX propriety software interface
 	- added support for Silicon labs CP210XRuntime library
 	- added support for MCP2200 SimpleIO-UM.dll library from microchip

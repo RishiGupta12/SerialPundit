@@ -32,10 +32,10 @@ public final class FTOpenedDeviceInfo {
 	/**
 	 * <p>Construct and allocates a new FTOpenedDeviceInfo object with given details.</p>
 	 * 
-	 * @param type device type
-	 * @param id device ID
-	 * @param serialNumber serial number of this device
-	 * @param description description of this device
+	 * @param type device type.
+	 * @param id device ID.
+	 * @param serialNumber serial number of this device.
+	 * @param description description of this device.
 	 */
 	public FTOpenedDeviceInfo(String type, String id, String serialNumber, String description) {
 		this.type = type;
@@ -47,7 +47,7 @@ public final class FTOpenedDeviceInfo {
 	/** 
 	 * <p>Retrieves the type for this opened FT device.</p>
 	 * 
-	 * @return type for this FT device info node
+	 * @return type for this FT device info node.
 	 * @throws NumberFormatException if the type hex string can not be converted into numerical representation
 	 */
 	public long getType() {
@@ -67,7 +67,7 @@ public final class FTOpenedDeviceInfo {
 	/** 
 	 * <p>Retrieves the serial number string for this opened FT device.</p>
 	 * 
-	 * @return serial number string for this FT device info node
+	 * @return serial number string for this FT device info node.
 	 */
 	public String getSerialNumber() {
 		return serialNumber;
@@ -76,7 +76,7 @@ public final class FTOpenedDeviceInfo {
 	/** 
 	 * <p>Retrieves the description for this opened FT device.</p>
 	 * 
-	 * @return description string for this FT device info node
+	 * @return description string for this FT device info node.
 	 */
 	public String getDescription() {
 		return description;

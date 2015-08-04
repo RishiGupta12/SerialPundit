@@ -39,7 +39,7 @@ public final class SerialComUSBdevice {
 	 * @param serial serial number of this device.
 	 * @param product product identifier/description of this device.
 	 * @param manufacturer company manufacturing of this device.
-	 * @throws SerialComException if serial port can not be configured for specified read behavior.
+	 * @throws SerialComException if the object can not be constructed.
 	 */
 	public SerialComUSBdevice(String idVendor, String idProduct, String serial, String product, String manufacturer) {
 		this.idVendor = idVendor;
