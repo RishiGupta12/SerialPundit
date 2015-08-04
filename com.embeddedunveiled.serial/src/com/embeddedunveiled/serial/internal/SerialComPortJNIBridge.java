@@ -256,47 +256,56 @@ public final class SerialComPortJNIBridge {
 	public native int initNativeLib();
 	public native String getNativeLibraryVersion();
 	public native String[] listAvailableComPorts();
-	public native String[] listUSBdevicesWithInfo(int vendorFilter);
-	public native String[] listComPortFromUSBAttributes(int usbVidToMatch, int usbPidToMatch, String serialNumber);
-	public native int isUSBDevConnected(int vendorID, int productID);
-
-	public native int registerHotPlugEventListener(ISerialComHotPlugListener hotPlugListener, int filterVID, int filterPID);
-	public native int unregisterHotPlugEventListener(int index);
-
-	public native long openComPort(String portName, boolean enableRead, boolean enableWrite, boolean exclusiveOwner);
-	public native int closeComPort(long handle);
-	public native byte[] readBytes(long handle, int byteCount);
-	public native byte[] readBytesBlocking(long handle, int byteCount);
-	public native int writeBytes(long handle, byte[] buffer, int delay);
-	public native int writeBytesDirect(long handle, ByteBuffer buffer, int offset, int length);
-	public native int readBytesDirect(long handle, ByteBuffer buffer, int offset, int length);
-
-	public native int configureComPortData(long handle, int dataBits, int stopBits, int parity, int baudRateTranslated, int custBaudTranslated);
-	public native int configureComPortControl(long handle, int flowctrl, char xon, char xoff, boolean ParFraError, boolean overFlowErr);
-	public native int[] getCurrentConfigurationU(long handle);
-	public native String[] getCurrentConfigurationW(long handle);
 
 	public native int setUpDataLooperThread(long handle, SerialComLooper looper);
 	public native int setUpEventLooperThread(long handle, SerialComLooper looper);
 	public native int destroyDataLooperThread(long handle);
 	public native int destroyEventLooperThread(long handle);
-
 	public native int pauseListeningEvents(long handle);
 	public native int resumeListeningEvents(long handle);
-
+	
+	// Open-close-read-write
+	public native long openComPort(String portName, boolean enableRead, boolean enableWrite, boolean exclusiveOwner);
+	public native int closeComPort(long handle);
+	public native byte[] readBytes(long handle, int byteCount);
+	public native byte[] readBytesBlocking(long handle, int byteCount);
+	public native int readBytesDirect(long handle, ByteBuffer buffer, int offset, int length);
+	public native int writeBytes(long handle, byte[] buffer, int delay);
+	public native int writeBytesDirect(long handle, ByteBuffer buffer, int offset, int length);
+	
+	// Modem control, buffer
 	public native int setRTS(long handle, boolean enabled);
 	public native int setDTR(long handle, boolean enabled);
 	public native int[] getLinesStatus(long handle);
 	public native int[] getInterruptCount(long handle);
-
 	public native int sendBreak(long handle, int duration);
 	public native int[] getByteCount(long handle);
 	public native int clearPortIOBuffers(long handle, boolean rxPortbuf, boolean txPortbuf);
+	
+	// Hot-plug
+	public native int registerHotPlugEventListener(ISerialComHotPlugListener hotPlugListener, int filterVID, int filterPID);
+	public native int unregisterHotPlugEventListener(int index);
+	
+	// Configuration
+	public native int configureComPortData(long handle, int dataBits, int stopBits, int parity, int baudRateTranslated, int custBaudTranslated);
+	public native int configureComPortControl(long handle, int flowctrl, char xon, char xoff, boolean ParFraError, boolean overFlowErr);
+	public native int[] getCurrentConfigurationU(long handle);
+	public native String[] getCurrentConfigurationW(long handle);
 	public native int fineTuneRead(long handle, int vmin, int vtime, int rit, int rttm, int rttc);
 
+	// IOCTL
 	public native long ioctlExecuteOperation(long handle, long operationCode);
 	public native long ioctlSetValue(long handle, long operationCode, long value);
 	public native long ioctlGetValue(long handle, long operationCode);
 	public native long ioctlSetValueIntArray(long handle, long operationCode, int[] values);
 	public native long ioctlSetValueCharArray(long handle, long operationCode, byte[] values);
+	
+	// USB
+	public native String[] listUSBdevicesWithInfo(int vendorFilter);
+	public native String[] listComPortFromUSBAttributes(int usbVidToMatch, int usbPidToMatch, String serialNumber);
+	public native int isUSBDevConnected(int vendorID, int productID);
+	
+	// Bluetooth
+	public native String[] listBluetoothAdaptorsWithInfo();
+	
 }

@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.embeddedunveiled.serial.bluetooth.SerialComBluetooth;
 import com.embeddedunveiled.serial.internal.SerialComCompletionDispatcher;
 import com.embeddedunveiled.serial.internal.SerialComErrorMapper;
 import com.embeddedunveiled.serial.internal.SerialComHotPlugInfo;
@@ -42,6 +43,8 @@ import com.embeddedunveiled.serial.vendor.SerialComVendorLib;
 /**
  * <p>Root of this library.</p>
  * <p>The WIKI page for this project is here : http://www.embeddedunveiled.com/ </p>
+ * 
+ * <p>To get an instance of {@link SerialComIOCTLExecutor} call the {@link #getIOCTLExecutor} method.</p>
  * 
  * @author Rishi Gupta
  */
@@ -379,6 +382,7 @@ public final class SerialComManager {
 	private List<SerialComHotPlugInfo> mHotPlugListenerInfo = Collections.synchronizedList(hotPlugListenerInfo);
 
 	private SerialComIOCTLExecutor mSerialComIOCTLExecutor;
+	private SerialComBluetooth mSerialComBluetooth;
 	private SerialComPlatform mSerialComPlatform;
 	private final SerialComSystemProperty mSerialComSystemProperty;
 	private final SerialComPortJNIBridge mComPortJNIBridge;
@@ -2258,9 +2262,9 @@ public final class SerialComManager {
 	/**
 	 * <p>Prepares context for excuting IOCTL operations on the given port.</p>
 	 * 
-	 * @param handle handle of the opened port on which to execute ioctl operations
-	 * @return reference to an object of type SerialComIOCTLExecutor on which various ioctl methods can be invoked
-	 * @throws SerialComException if invalid handle is passed
+	 * @param handle handle of the opened port on which to execute ioctl operations.
+	 * @return reference to an object of type SerialComIOCTLExecutor on which various ioctl methods can be invoked.
+	 * @throws SerialComException if invalid handle is passed.
 	 */
 	public SerialComIOCTLExecutor getIOCTLExecutor(long handle) throws SerialComException {
 		boolean handlefound = false;
@@ -2351,6 +2355,20 @@ public final class SerialComManager {
 		}
 		mSerialComVendorLib = new SerialComVendorLib();
 		return mSerialComVendorLib.getVendorLibInstance(vendorLibIdentifier, baseDir, vlibName, cpuArch, osType, mSerialComSystemProperty);
+	}
+	
+	/**
+	 * <p>Prepares context for serial port communication over Bluetooth.</p>
+	 * 
+	 * @return reference to an object of type SerialComBluetooth on which various methods can be invoked.
+	 * @throws SerialComException if could not instantiate class due to some reason.
+	 */
+	public SerialComBluetooth getSerialComBluetoothInstance() throws SerialComException {
+		if(mSerialComBluetooth != null) {
+			return mSerialComBluetooth;
+		}
+		mSerialComBluetooth = new SerialComBluetooth(mComPortJNIBridge);
+		return mSerialComBluetooth;
 	}
 
 }
