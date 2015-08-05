@@ -34,7 +34,7 @@ public final class Test53 {
 
 			String PORT = null;
 			String PORT1 = null;
-			int osType = SerialComManager.getOSType();
+			int osType = scm.getOSType();
 			if(osType == SerialComManager.OS_LINUX) {
 				PORT = "/dev/ttyUSB0";
 				PORT1 = "/dev/ttyUSB1";
@@ -85,6 +85,14 @@ public final class Test53 {
 			
 			in.close();
 			out.close();
+			
+			for(int a=0; a<5000; a++) {
+				System.out.println("itertaion :" + a);
+				SerialComOutByteStream outa = scm.createOutputByteStream(handle, SMODE.NONBLOCKING);
+				SerialComInByteStream ina = scm.createInputByteStream(handle, SMODE.NONBLOCKING);
+				ina.close();
+				outa.close();
+			}
 			
 			scm.closeComPort(handle);
 			scm.closeComPort(handle1);

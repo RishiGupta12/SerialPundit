@@ -1,0 +1,78 @@
+#
+# Author : Rishi Gupta
+# 
+# This file is part of 'serial communication manager' library.
+#
+# The 'serial communication manager' is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by the Free Software 
+# Foundation, either version 3 of the License, or (at your option) any later version.
+#
+# The 'serial communication manager' is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
+# PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with serial communication manager. If not, see <http://www.gnu.org/licenses/>.
+#################################################################################################
+
+The VCP drivers provided by Linux kernel does not explore all the features of CP210X 
+USB-UART bridges. This document provides steps to build linux driver provided by Silicon 
+labs outside linux kernel repository.
+
+These steps must be executed on machine which will build and run the built driver. We 
+tested with Ubuntu 12.04 with 3.11.0-20-generic kernel version.
+
+1. Download and unpack Linux 3.x.x version of the driver from here :
+https://www.silabs.com/products/mcu/Pages/USBtoUARTBridgeVCPDrivers.aspx
+
+2. Install kernel headers for your machine on which this driver is supposed to be run.
+$ sudo apt-get install linux-headers-$(uname -r)
+
+3. Get the C source file corresponding to your kernel version. The line below is an example
+   for 3.11.0-20-generic kernel version. 
+$ wget https://git.kernel.org/cgit/linux/kernel/git/stable/linux-stable.git/plain/drivers/usb/serial/cp210x.c?h=linux-3.11.y -O cp210x.c
+
+4. Go to folder where you unpacked downloaded driver source files from silicon labs website.
+   Rename file Makefile26 to Makefile.
+
+5. Change PWD to directory and run configure script.
+$ cd /--/--/your-path
+$ ./configure
+
+6. Issue make
+$make
+
+This will build driver in PWD directory.
+
+make -C /lib/modules/3.11.0-20-generic/build -I /home/r/ws-host-uart/development/3-SILICON-LABS/custom-driver/cp210x-3.0.0/cp210x M=/home/r/ws-host-uart/development/3-SILICON-LABS/custom-driver/cp210x-3.0.0/cp210x modules
+make[1]: Entering directory `/usr/src/linux-headers-3.11.0-20-generic'
+  CC [M]  /home/r/ws-host-uart/development/3-SILICON-LABS/custom-driver/cp210x-3.0.0/cp210x/cp210x.o
+  Building modules, stage 2.
+  MODPOST 1 modules
+  CC      /home/r/ws-host-uart/development/3-SILICON-LABS/custom-driver/cp210x-3.0.0/cp210x/cp210x.mod.o
+  LD [M]  /home/r/ws-host-uart/development/3-SILICON-LABS/custom-driver/cp210x-3.0.0/cp210x/cp210x.ko
+make[1]: Leaving directory `/usr/src/linux-headers-3.11.0-20-generic'
+r@r-office:~/ws-host-uart/development/3-SILICON-LABS/custom-driver/cp210x-3.0.0/cp210x$ 
+
+7. When you insert CP210X device kernel will automatically load default drivers. So to use the driver
+we built unload the driver loaded by kernel using modprobe.
+$ modprobe -r cp210x
+
+This will result in following output from dmesg:
+
+[13767.939437] usbserial: USB Serial deregistering driver cp210x
+[13767.939583] cp210x ttyUSB0: cp210x converter now disconnected from ttyUSB0
+[13767.939597] usbcore: deregistering interface driver cp210x
+[13767.939624] cp210x 3-4:1.0: device disconnected
+
+8. Insert our driver module as root user.
+# insmod /--/path-to/cp210x.ko
+
+This will result in following output from dmesg:
+
+[14320.865198] cp210x 3-4:1.0: cp210x converter detected
+[14320.977521] usb 3-4: reset full-speed USB device number 14 using xhci_hcd
+[14320.994405] xhci_hcd 0000:00:14.0: xHCI xhci_drop_endpoint called with disabled ep ffff880260ee6ec0
+[14320.994415] xhci_hcd 0000:00:14.0: xHCI xhci_drop_endpoint called with disabled ep ffff880260ee6e80
+[14320.995147] usb 3-4: cp210x converter now attached to ttyUSB0
+

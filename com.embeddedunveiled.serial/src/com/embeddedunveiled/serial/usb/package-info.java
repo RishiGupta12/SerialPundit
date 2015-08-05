@@ -17,6 +17,6 @@
 
 /**
  * <p>Encapsulates behavior and environment centered around serial port communication 
- * involving use of USB port and services.</p>
+ * involving use of USB port and USB services.</p>
  */
 package com.embeddedunveiled.serial.usb;

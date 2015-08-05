@@ -34,12 +34,12 @@ public final class SerialComUSBdevice {
 	/**
 	 * <p>Construct and allocates a new SerialComUSBdevice object with given details.</p>
 	 * 
-	 * @param idVendor USB-IF unique vendor id of this device
-	 * @param idProduct USB product id of this device
-	 * @param serial serial number of this device
-	 * @param product product identifier/description of this device
-	 * @param manufacturer company manufacturing of this device
-	 * @throws SerialComException if serial port can not be configured for specified read behavior
+	 * @param idVendor USB-IF unique vendor id of this device.
+	 * @param idProduct USB product id of this device.
+	 * @param serial serial number of this device.
+	 * @param product product identifier/description of this device.
+	 * @param manufacturer company manufacturing of this device.
+	 * @throws SerialComException if the object can not be constructed.
 	 */
 	public SerialComUSBdevice(String idVendor, String idProduct, String serial, String product, String manufacturer) {
 		this.idVendor = idVendor;
@@ -52,8 +52,8 @@ public final class SerialComUSBdevice {
 	/** 
 	 * <p>Retrieves the vendor id of the USB device</p>
 	 * 
-	 * @return vendor id of the USB device
-	 * @throws NumberFormatException if the USB vendor id hex string can not be converted into numerical representation
+	 * @return vendor id of the USB device.
+	 * @throws NumberFormatException if the USB vendor id hex string can not be converted into numerical representation.
 	 */
 	public int getVendorId() {
 		if("---".equals(idVendor)) {
@@ -65,8 +65,8 @@ public final class SerialComUSBdevice {
 	/** 
 	 * <p>Retrieves the product id of the USB device</p>
 	 * 
-	 * @return product id of the USB device
-	 * @throws NumberFormatException if the USB product id hex string can not be converted into numerical representation
+	 * @return product id of the USB device.
+	 * @throws NumberFormatException if the USB product id hex string can not be converted into numerical representation.
 	 */
 	public int getProductId() {
 		if("---".equals(idProduct)) {
@@ -77,7 +77,8 @@ public final class SerialComUSBdevice {
 
 	/** 
 	 * <p>Retrieves the serial number string of the USB device</p>
-	 * @return serial number string of the USB device
+	 * 
+	 * @return serial number string of the USB device.
 	 */
 	public String getSerialNumber() {
 		return serial;
@@ -86,7 +87,7 @@ public final class SerialComUSBdevice {
 	/** 
 	 * <p>Retrieves the product string of the USB device</p>
 	 * 
-	 * @return serial number string of the USB device
+	 * @return serial number string of the USB device.
 	 */
 	public String getProductString() {
 		return product;
@@ -95,7 +96,7 @@ public final class SerialComUSBdevice {
 	/** 
 	 * <p>Retrieves the manufacturer string of the USB device</p>
 	 * 
-	 * @return serial number string of the USB device
+	 * @return serial number string of the USB device.
 	 */
 	public String getManufacturerString() {
 		return manufacturer;

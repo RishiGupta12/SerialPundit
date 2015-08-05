@@ -50,10 +50,13 @@
 #define E_SETINTARRREGIONSTR "JNI call SetIntArrayRegion failed !"
 #define E_NEWSTRUTFSTR "JNI call NewStringUTF failed !"
 #define E_GETSTRUTFCHARSTR "JNI call GetStringUTFChars failed !"
-#define E_GETBYTEARRREGIONSTR "JNI call GetByteArrayElements failed !"
+#define E_GETBYTEARRELEMTSTR "JNI call GetByteArrayElements failed !"
+#define E_GETBYTEARRREGIONSTR "JNI call GetByteArrayRegion failed !"
 #define E_NEWGLOBALREFSTR "JNI Call NewGlobalRef failed !"
 #define E_DELGLOBALREFSTR "JNI Call DeleteGlobalRef failed !"
-#define E_CALLOCSTR "Calloc() failed to allocate requested memory !"
+#define E_MALLOCSTR "malloc() failed to allocate requested memory !"
+#define E_CALLOCSTR "calloc() failed to allocate requested memory !"
+#define E_REALLOCSTR "realloc() failed to allocate requested memory !"
 #define E_ATTACHCURRENTTHREADSTR "JNI call AttachCurrentThread failed !"
 #define E_GETOBJECTCLASSSTR "JNI call GetObjectClass failed !"
 #define E_GETMETHODIDSTR "JNI call GetMethodID failed !"
@@ -65,6 +68,9 @@
 #define E_IOSRVMATUSBDEVSTR "Function call IOServiceMatching('IOUSBDevice') failed !"
 #define E_GETDIRCTBUFADDRSTR "JNI call GetDirectBufferAddress failed !"
 #define E_VIOVNTINVALIDSTR "The length of data supplied exceeds maximum limit !"
+#define E_HCIOPENDEV "Could not open BT HCI device !"
+#define E_HCIREADNAME "Could not read local name of BT HCI device !"
+#define E_HCIBTADDR "Could not determine address of BT HCI device !"
 
 
 /* Custom error codes and messages for SCM library */
@@ -157,7 +163,6 @@ struct jstrarray_list {
 
 /* function prototypes (declared in reverse order of use) */
 extern int LOGE(const char *error_msg);
-extern int set_error_status(JNIEnv *env, jobject obj, jobject status, int error_number);
 extern void throw_serialcom_exception(JNIEnv *env, int type, int error_code, const char *);
 extern void free_jstrarraylist(struct jstrarray_list *al);
 extern void insert_jstrarraylist(struct jstrarray_list *al, jstring element);
@@ -171,6 +176,7 @@ extern void mac_usb_device_removed(void *refCon, io_iterator_t iterator);
 extern jstring linux_clean_up_and_throw_exp(JNIEnv *env, int task, const char *expmsg, struct jstrarray_list *list, struct udev_device *udev_device, struct udev_enumerate *enumerator, struct udev *udev_ctx);
 extern jint is_usb_dev_connected(JNIEnv *env, jobject obj, jint vid, jint pid);
 extern jobjectArray list_usb_devices(JNIEnv *env, jobject obj, jint vendor_filter);
+extern jobjectArray list_local_bt_adaptors(JNIEnv *env, jobject obj);
 extern jobjectArray vcp_node_from_usb_attributes(JNIEnv *env, jobject obj, jint usbvid_to_match, jint usbpid_to_match, jstring serial_num);
 extern int serial_delay(unsigned usecs);
 extern void *data_looper(void *params);

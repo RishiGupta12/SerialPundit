@@ -30,8 +30,8 @@ public final class SerialComUnexpectedException extends IOException {
 	/**
      * <p>Constructs and allocate a SerialComUnexpectedException object with the specified details.</p>
      *
-     * @param methodName name of method where exception occurred
-     * @param exceptionMsg message describing reason for exception
+     * @param methodName name of method where exception occurred.
+     * @param exceptionMsg message describing reason for exception.
      */
 	public SerialComUnexpectedException(String methodName, String exceptionMsg) {
 		super(exceptionMsg + " in method " + methodName);

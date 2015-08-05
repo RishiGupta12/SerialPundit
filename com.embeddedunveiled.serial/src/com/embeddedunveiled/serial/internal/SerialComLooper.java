@@ -244,7 +244,7 @@ public final class SerialComLooper {
 		try {
 			linestate = mComPortJNIBridge.getLinesStatus(handle);
 			if (linestate[0] < 0) {
-				throw new SerialComException("getLinesStatus()", mErrMapper.getMappedError(linestate[0]));
+				throw new SerialComException(mErrMapper.getMappedError(linestate[0]));
 			}
 			// Bit mask CTS | DSR | DCD | RI
 			state = linestate[1] | linestate[2] | linestate[3] | linestate[4];

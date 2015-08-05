@@ -84,7 +84,7 @@ public final class SerialComCompletionDispatcher {
 			if(mHandleInfo.getEventListener() == null) {
 				mHandleInfo.setLooper(null);
 			}
-			throw new SerialComException("setUpDataLooper()", mErrMapper.getMappedError(ret));
+			throw new SerialComException(mErrMapper.getMappedError(ret));
 		}
 
 		return true;
@@ -109,13 +109,13 @@ public final class SerialComCompletionDispatcher {
 			}
 		}
 		if(handle == -1) {
-			throw new SerialComException("destroyDataLooper()", "This listener is not registered");
+			throw new SerialComException("This listener is not registered !");
 		}
 
 		// We got valid handle so destroy native threads for this listener.
 		int ret = mComPortJNIBridge.destroyDataLooperThread(handle);
 		if(ret < 0) {
-			throw new SerialComException("destroyDataLooper()", mErrMapper.getMappedError(ret));
+			throw new SerialComException(mErrMapper.getMappedError(ret));
 		}
 
 		// Destroy data looper thread.
@@ -162,7 +162,7 @@ public final class SerialComCompletionDispatcher {
 			if(mHandleInfo.getDataListener() == null) {
 				mHandleInfo.setLooper(null);
 			}
-			throw new SerialComException("setUpEventLooper()", mErrMapper.getMappedError(ret));
+			throw new SerialComException(mErrMapper.getMappedError(ret));
 		}
 
 		return true;
@@ -187,13 +187,13 @@ public final class SerialComCompletionDispatcher {
 			}
 		}
 		if(handle == -1) {
-			throw new SerialComException("destroyEventLooper()", "This listener is not registered");
+			throw new SerialComException("This listener is not registered !");
 		}
 
 		// We got valid handle so destroy native threads for this listener.
 		int ret = mComPortJNIBridge.destroyEventLooperThread(handle);
 		if(ret < 0) {
-			throw new SerialComException("destroyDataLooper()", mErrMapper.getMappedError(ret));
+			throw new SerialComException(mErrMapper.getMappedError(ret));
 		}
 		
 		// Destroy event looper thread.
@@ -235,10 +235,10 @@ public final class SerialComCompletionDispatcher {
 				looper.pause(); // now pause corresponding looper thread.
 				return true;
 			}else {
-				throw new SerialComException("pauseListeningEvents()", mErrMapper.getMappedError(ret));
+				throw new SerialComException(mErrMapper.getMappedError(ret));
 			}
 		}else {
-			throw new SerialComException("pauseListeningEvents()", "This listener is not registered");
+			throw new SerialComException("This listener is not registered !");
 		}
 	}
 
@@ -269,10 +269,10 @@ public final class SerialComCompletionDispatcher {
 			if(ret > 0) {
 				return true;
 			}else {
-				throw new SerialComException("resumeListeningEvents()", mErrMapper.getMappedError(ret));
+				throw new SerialComException(mErrMapper.getMappedError(ret));
 			}
 		}else {
-			throw new SerialComException("resumeListeningEvents()", "This listener is not registered");
+			throw new SerialComException("This listener is not registered !");
 		}
 	}
 }

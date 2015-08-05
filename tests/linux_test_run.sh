@@ -14,7 +14,9 @@
 #
 # You should have received a copy of the GNU Lesser General Public License
 # along with serial communication manager. If not, see <http://www.gnu.org/licenses/>.
-#
+#################################################################################################
+
+set -e
 
 cd /home/r/ws-host-uart/serial-communication-manager/tests/test1/bin/test1
 java -classpath . Test1

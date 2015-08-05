@@ -33,10 +33,10 @@ public final class SerialComUtil {
 	/**
 	 * <p>This method is for internal use.</p>
 	 * 
-	 * @param num the long number to convert
-	 * @param paddingChar the character to use for padding
-	 * @param min the minimum length of the resulting String
-	 * @param max the maximum length of the resulting String
+	 * @param num the long number to convert.
+	 * @param paddingChar the character to use for padding.
+	 * @param min the minimum length of the resulting String.
+	 * @param max the maximum length of the resulting String.
 	 */
 	private static String toHexString(final long num, final char paddingChar, int min, int max) {
 		/* Formats a long number into the specified length hex String. This is identical to Long.toHexString() 
@@ -59,14 +59,14 @@ public final class SerialComUtil {
 	 * <p>This method creates hex string from byte array. This is useful in bluetooth low energy applications where characteristics
 	 * returned are to be interpreted or for example Internet of things applications where sensor data is getting exchanged.</p>
 	 * 
-	 * @param data byte array to be converted into string
-	 * @param separator to be inserted after each hex value
-	 * @return constructed hex string if data.length > 0 otherwise empty string
-	 * @throws IllegalArgumentException if data is null
+	 * @param data byte array to be converted into string.
+	 * @param separator to be inserted after each hex value.
+	 * @return constructed hex string if data.length > 0 otherwise empty string.
+	 * @throws IllegalArgumentException if data is null.
 	 */
 	public static String byteArrayToHexString(final byte[] data, final String separator) {
 		if(data == null) {
-			throw new IllegalArgumentException("byteArrayToHexStr(), " + "Argument data can not be null");
+			throw new IllegalArgumentException("Argument data can not be null !");
 		}
 		
 		if(data.length > 0) {
@@ -92,15 +92,15 @@ public final class SerialComUtil {
 	/**
 	 * <p>Converts given string in hexa-decimal representation to equivalent byte array.</p>
 	 * 
-	 * @param hexStringData string in hexa-decimal format to be converted into equivalent byte array
-	 * @return constructed byte array from given hex string
-	 * @throws IllegalArgumentException if hexStringData is null
+	 * @param hexStringData string in hexa-decimal format to be converted into equivalent byte array.
+	 * @return constructed byte array from given hex string.
+	 * @throws IllegalArgumentException if hexStringData is null.
 	 */
 	public static byte[] hexStringToByteArray(final String hexStringData) {
 		int i = 0;
 		int j = 0;
 		if(hexStringData == null) {
-			throw new IllegalArgumentException("hexStringToByteArray(), " + "Argument hexStringData can not be null");
+			throw new IllegalArgumentException("Argument hexStringData can not be null !");
 		}
 
 		String hexStr = hexStringData.trim().replaceAll("0x", "");
@@ -119,25 +119,25 @@ public final class SerialComUtil {
 	/**
 	 * <p>Calculates Longitudinal redundancy checksum value for the given byte array.</p>
 	 * 
-	 * @param data byte type buffer for whom LRC checksum is to be calculated
-	 * @param offset position in supplied data buffer from where LRC calculation should start
-	 * @param length position in data buffer till which LRC should be calculated from offset
-	 * @return LRC checksum value for the given byte array
+	 * @param data byte type buffer for whom LRC checksum is to be calculated.
+	 * @param offset position in supplied data buffer from where LRC calculation should start.
+	 * @param length position in data buffer till which LRC should be calculated from offset.
+	 * @return LRC checksum value for the given byte array.
 	 * @throws NullPointerException if <code>data</code> is <code>null</code>.
-	 * @throws IndexOutOfBoundsException if offset is negative, length is negative, or length is greater than data.length - offset
-	 * @throws IllegalArgumentException if data is not a byte type array
+	 * @throws IndexOutOfBoundsException if offset is negative, length is negative, or length is greater than data.length - offset.
+	 * @throws IllegalArgumentException if data is not a byte type array.
 	 */
 	public static byte calculateLRCCheckSum(final byte[] data, int offset, int length) {
         byte checkSum = 0;
         
 		if(data == null) {
-			throw new NullPointerException("LRCCheckSum(), " + "Argument data can not be null");
+			throw new NullPointerException("Argument data can not be null !");
 		}
 		if((offset < 0) || (length < 0) || (length > (data.length - offset))) {
-			throw new IndexOutOfBoundsException("LRCCheckSum(), " + "Index violation detected");
+			throw new IndexOutOfBoundsException("Index violation detected !");
 		}
 		if(!(data instanceof byte[])) {
-			throw new IllegalArgumentException("Argument data is not byte type array");
+			throw new IllegalArgumentException("Argument data is not byte type array !");
 		}
 		
         for (int i = offset; i < offset + length; i++) {
@@ -171,8 +171,8 @@ public final class SerialComUtil {
 	/**
 	 * <p>Extract and returns the low byte from the short type number passed.</p>
 	 * 
-	 * @return the low byte of the short value passed
-	 * @param data the short value from whom low byte is to be extracted
+	 * @return the low byte of the short value passed.
+	 * @param data the short value from whom low byte is to be extracted.
 	 */
 	public static byte lowByteFromShort(short data) {
 		return (byte) data;
@@ -181,8 +181,8 @@ public final class SerialComUtil {
 	/**
 	 * <p>Extract and returns the high byte from the short type number passed.</p>
 	 * 
-	 * @return the high byte of the short value passed
-	 * @param data the short value from whom high byte is to be extracted
+	 * @return the high byte of the short value passed.
+	 * @param data the short value from whom high byte is to be extracted.
 	 */
 	public static byte highBytefromShort(short data) {
 		return (byte) (data >> 8);
@@ -216,7 +216,7 @@ public final class SerialComUtil {
 	 * <p>Converts the given short value to a byte type array in Little endian order.</p>
 	 * 
 	 * @param data the short type value to convert.
-	 * @return a byte array representing given short number
+	 * @return a byte array representing given short number.
 	 */
 	public static byte[] shortToByteArray(short data) {
 		byte[] result = new byte[2];
@@ -241,7 +241,7 @@ public final class SerialComUtil {
 	 * <p>Converts the given integer value to a byte type array in Little endian order.</p>
 	 * 
 	 * @param data the short type value to convert.
-	 * @return a byte array representing given short number
+	 * @return a byte array representing given short number.
 	 */
 	public static byte[] intToByteArray(int data) {
 		byte[] result = new byte[4];
@@ -256,9 +256,9 @@ public final class SerialComUtil {
 	 * <p>This converts a number represented in hex string to decimal number. It parses the string 
 	 * argument as a signed long with radix as 16.</p>
 	 * 
-	 * @param hexNumStr hex-string to be converted
-	 * @return a long type number repressing given hex string
-	 * @throws NumberFormatException if the given hex string can not be converted into numerical representation
+	 * @param hexNumStr hex-string to be converted.
+	 * @return a long type number repressing given hex string.
+	 * @throws NumberFormatException if the given hex string can not be converted into numerical representation.
 	 */
 	public static long hexStrToLongNumber(final String hexNumStr) {
 		return Long.parseLong(hexNumStr, 16);
@@ -268,7 +268,7 @@ public final class SerialComUtil {
 	 * <p>Converts the given long value to hex string.</p>
 	 * 
 	 * @param num the long type value to convert.
-	 * @return a string representing given long number in hexadecimal format
+	 * @return a string representing given long number in hexadecimal format.
 	 */
 	public static String longToHexString(long num) {
 		return toHexString(num, '0', 16, 16);
@@ -278,7 +278,7 @@ public final class SerialComUtil {
 	 * <p>Converts the given integer value to hex string.</p>
 	 * 
 	 * @param num the integer type value to convert.
-	 * @return a string representing given int number in hexadecimal format
+	 * @return a string representing given int number in hexadecimal format.
 	 */
 	public static String intToHexString(int num) {
 		return toHexString(intToUnsignedLong(num), '0', 8, 8);
@@ -288,7 +288,7 @@ public final class SerialComUtil {
 	 * <p>Converts the given short value to hex string.</p>
 	 * 
 	 * @param num the short type value to convert.
-	 * @return a string representing given short number in hexadecimal format
+	 * @return a string representing given short number in hexadecimal format.
 	 */
 	public static String shortToHexString(short num) {
 		return toHexString(shortToUnsignedLong(num), '0', 4, 4);
@@ -298,7 +298,7 @@ public final class SerialComUtil {
 	 * <p>Converts the given byte value to hex string.</p>
 	 * 
 	 * @param num the byte type value to convert.
-	 * @return a string representing given byte value in hexadecimal format
+	 * @return a string representing given byte value in hexadecimal format.
 	 */
 	public static String byteToHexString(byte num) {
 		return toHexString(byteToUnsignedLong(num), '0', 2, 2);

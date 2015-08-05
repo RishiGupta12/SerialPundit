@@ -18,9 +18,13 @@
 package com.embeddedunveiled.serial.vendor;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 
 import com.embeddedunveiled.serial.SerialComException;
 import com.embeddedunveiled.serial.SerialComLoadException;
+import com.embeddedunveiled.serial.SerialComManager;
+import com.embeddedunveiled.serial.SerialComUnexpectedException;
+import com.embeddedunveiled.serial.internal.SerialComSystemProperty;
 
 /**
  * <p>Super class for all classes which implements vendor specific API to talk to 
@@ -28,33 +32,76 @@ import com.embeddedunveiled.serial.SerialComLoadException;
  * may be propriety or not.</p>
  */
 public class SerialComVendorLib {
+
+	/**<p>The value indicating proprietary D2XX software interface from Future Technology Devices International Ltd.</p>*/
+	public static final int VLIB_FTDI_D2XX = 0x01;
+
+	/**<p>The value indicating 'SimpleIO-UM.dll' library from Microchip Technology Inc.</p>*/
+	public static final int VLIB_MCHP_SIMPLEIO = 0x02;
 	
-	/**<p> The value indicating 'SimpleIO-UM.dll' library from Microchip technology Inc. </p>*/
-	public static final int VLI_MCHP_SIMPLEIO =  0x01;
+	/**<p>The value indicating 'CP210xRuntime-DLL' library from Silicon Laboratories, Inc.</p>*/
+	public static final int VLIB_SLABS_CP210XRUNTIME = 0x03;
 
 	/**
 	 * <p>Allocates a new SerialComVendorLib object.</p>
 	 */
 	public SerialComVendorLib() {
 	}
-	
+
 	/**
-	 * <p>Gives an instance on which vendor specific method calls can be made.</p>
+	 * <p>Gives an instance of the class which implements API defined by vendor in their propriety library.</p>
 	 * 
-	 * @param vendorLibIdentifier one of the constant VLI_xxx_xxx in SerialComVendorLib class
-	 * @param libDirectory directory where vendor library is placed
-	 * @return true is device is connected otherwise false
+	 * @param vendorLibIdentifier one of the constant VLIB_XXXX_XXXX in SerialComVendorLib class.
+	 * @param libDirectory directory where vendor library is placed.
+	 * @param vlibName full name of the vendor library (for ex. libftd2xx.so.1.1.12).
+	 * @param cpuArch architecture of CPU this library is running on.
+	 * @param osType operating system this library is running on.
+	 * @param serialComSystemProperty instance of SerialComSystemProperty to get required java properties.
+	 * @return object of class on which vendor specific API calls can be made otherwise null.
+	 * @throws SerialComUnexpectedException if a critical java system property is null in system.
+	 * @throws SecurityException if any java system property can not be accessed.
+	 * @throws FileNotFoundException if the vendor library file is not found.
+	 * @throws UnsatisfiedLinkError if loading/linking shared library fails.
 	 * @throws SerialComException if an I/O error occurs.
-	 * @throws SerialComLoadException if the library can not be extracted or loaded
-	 * @throws IllegalArgumentException if productID or vendorID is negative or invalid
+	 * @throws SerialComLoadException if the library can not be found, extracted or loaded
+	 *                                 if the mentioned library is not supported by vendor for 
+	 *                                 operating system and cpu architecture combination.
 	 */
-	public SerialComVendorLib getVendorLibInstance(int vendorLibIdentifier, File libDirectory) throws SerialComException, SerialComLoadException {
+	public SerialComVendorLib getVendorLibInstance(int vendorLibIdentifier, File libDirectory, String vlibName, int cpuArch, int osType,
+			SerialComSystemProperty serialComSystemProperty) throws UnsatisfiedLinkError, 
+			SerialComLoadException, SerialComUnexpectedException, SecurityException, FileNotFoundException {
 		SerialComVendorLib vendorLib = null;
-		if(vendorLibIdentifier == VLI_MCHP_SIMPLEIO) {
-			vendorLib = new SerialComMCHPSimpleIO(libDirectory);
+		if(vendorLibIdentifier == VLIB_FTDI_D2XX) {
+			if(!((cpuArch == SerialComManager.ARCH_AMD64) || (cpuArch == SerialComManager.ARCH_X86))) {
+				throw new SerialComLoadException("FTDI D2XX library is not supported for this CPU architecture !");
+			}
+			if(!((osType == SerialComManager.OS_WINDOWS) || (osType == SerialComManager.OS_LINUX) || (osType == SerialComManager.OS_MAC_OS_X))) {
+				throw new SerialComLoadException("FTDI D2XX library is not supported for this operating system !");
+			}
+			vendorLib = new SerialComFTDID2XX(libDirectory, vlibName, cpuArch, osType, serialComSystemProperty);
 			return vendorLib;
+		}else if(vendorLibIdentifier == VLIB_MCHP_SIMPLEIO) {
+			if(!((cpuArch == SerialComManager.ARCH_AMD64) || (cpuArch == SerialComManager.ARCH_X86))) {
+				throw new SerialComLoadException("Microchip SimpleIO library is not supported for this CPU architecture !");
+			}
+			if(osType != SerialComManager.OS_WINDOWS) {
+				throw new SerialComLoadException("Microchip SimpleIO library is not supported for this operating system !");
+			}
+			vendorLib = new SerialComMCHPSimpleIO(libDirectory, vlibName, cpuArch, osType, serialComSystemProperty);
+			return vendorLib;
+		}else if(vendorLibIdentifier == VLIB_SLABS_CP210XRUNTIME) {
+			if(!((cpuArch == SerialComManager.ARCH_AMD64) || (cpuArch == SerialComManager.ARCH_X86))) {
+				throw new SerialComLoadException("Silicon labs cp210x runtime dll library is not supported for this CPU architecture !");
+			}
+			if(osType != SerialComManager.OS_WINDOWS) {
+				throw new SerialComLoadException("Silicon labs cp210x runtime dll library is not supported for this operating system !");
+			}
+			vendorLib = new SerialComSLabsCP210xRuntime(libDirectory, vlibName, cpuArch, osType, serialComSystemProperty);
+			return vendorLib;
+		}else {
+			
 		}
-		
+
 		return null;
 	}
 

@@ -18,8 +18,8 @@ package com.embeddedunveiled.serial;
 
 import java.io.IOException;
 import java.io.InputStream;
-
 import com.embeddedunveiled.serial.SerialComManager.SMODE;
+import com.embeddedunveiled.serial.internal.SerialComPortHandleInfo;
 
 /**
  * <p>Represents an input stream of bytes which is received from serial port.</p>
@@ -35,6 +35,7 @@ import com.embeddedunveiled.serial.SerialComManager.SMODE;
 public final class SerialComInByteStream extends InputStream {
 
 	private SerialComManager scm;
+	private SerialComPortHandleInfo portHandleInfo;
 	private long handle;
 	private boolean isOpened;
 	private boolean isBlocking;
@@ -42,13 +43,14 @@ public final class SerialComInByteStream extends InputStream {
 	/**
 	 * <p>Construct and allocates a new SerialComInByteStream object with given details.</p>
 	 * 
-	 * @param scm instance of SerialComManager class with which this stream will associate itself
-	 * @param handle handle of the serial port on which to read data bytes
-	 * @param streamMode indicates blocking or non-blocking behavior of stream
-	 * @throws SerialComException if serial port can not be configured for specified read behavior
+	 * @param scm instance of SerialComManager class with which this stream will associate itself.
+	 * @param handle handle of the serial port on which to read data bytes.
+	 * @param streamMode indicates blocking or non-blocking behavior of stream.
+	 * @throws SerialComException if serial port can not be configured for specified read behavior.
 	 */
-	public SerialComInByteStream(SerialComManager scm, long handle, SMODE streamMode) throws SerialComException {
+	public SerialComInByteStream(SerialComManager scm, SerialComPortHandleInfo portHandleInfo, long handle, SMODE streamMode) throws SerialComException {
 		this.scm = scm;
+		this.portHandleInfo = portHandleInfo;
 		this.handle = handle;
 		isOpened = true;
 		
@@ -65,13 +67,13 @@ public final class SerialComInByteStream extends InputStream {
 	 * <p>Returns an estimate of the minimum number of bytes that can be read from this input stream
 	 * without blocking by the next invocation of a method for this input stream.</p>
 	 * 
-	 * @return an estimate of the minimum number of bytes available for reading
-	 * @throws IOException if an I/O error occurs.
+	 * @return an estimate of the minimum number of bytes available for reading.
+	 * @throws IOException if an I/O error occurs or if stream has been closed already.
 	 */
 	@Override
 	public int available() throws IOException {
 		if(isOpened != true) {
-			throw new IOException("The byte stream has been closed");
+			throw new IOException("The byte stream has been closed !");
 		}
 		
 		int[] numBytesAvailable = new int[2];
@@ -86,18 +88,20 @@ public final class SerialComInByteStream extends InputStream {
 	/**
 	 * <p>This method releases the InputStream object associated with the operating handle.</p>
 	 * <p>To actually close the port closeComPort() method should be used.</p>
+	 * 
+	 * @throws IOException if an I/O error occurs or if stream has been closed already.
 	 */
 	@Override
 	public void close() throws IOException {
 		if(isOpened != true) {
-			throw new IOException("The byte stream has been closed");
+			throw new IOException("The byte stream has been closed !");
 		}
-		scm.destroyInputByteStream(this);
+		portHandleInfo.setSerialComInByteStream(null);
 		isOpened = false;
 	}
 	
 	/**
-	 * <p>scm does not support mark and reset of input stream. If required, it can be developed at application level.</p>
+	 * <p>SCM does not support mark and reset of input stream. If required, it can be developed at application level.</p>
 	 * 
 	 */
 	@Override
@@ -105,7 +109,7 @@ public final class SerialComInByteStream extends InputStream {
 	}
 
 	/**
-	 * <p>scm does not support mark and reset of input stream. If required, it can be developed at application level.</p>
+	 * <p>SCM does not support mark and reset of input stream. If required, it can be developed at application level.</p>
 	 * 
 	 * @return always returns false
 	 */
@@ -121,12 +125,12 @@ public final class SerialComInByteStream extends InputStream {
 	 * of data if it is available otherwise -1 if there is no data at serial port.</p>
 	 * 
 	 * @return the next byte of data or -1
-	 * @throws IOException if an I/O error occurs or if input stream has been closed
+	 * @throws IOException if an I/O error occurs or if stream has been closed already.
 	 */
 	@Override
 	public int read() throws IOException {
 		if(isOpened != true) {
-			throw new IOException("The byte stream has been closed");
+			throw new IOException("The byte stream has been closed !");
 		}
 		
 		byte[] data = new byte[1];
@@ -136,7 +140,7 @@ public final class SerialComInByteStream extends InputStream {
 				if(data != null) {
 					return (int)data[0];
 				}else {
-					throw new IOException("Unknown error occured");
+					throw new IOException("Unknown error occured !");
 				}
 			}else {
 				data = scm.readBytes(handle, 1);
@@ -164,8 +168,8 @@ public final class SerialComInByteStream extends InputStream {
      * <p>The read(b) method for class SerialComInByteStream has the same effect as : read(b, 0, b.length) </p>
      *
      * @param  b the buffer into which the data is read.
-     * @return the total number of bytes read into the buffer
-     * @throws IOException if an I/O error occurs or if input stream has been closed
+     * @return the total number of bytes read into the buffer.
+     * @throws IOException if an I/O error occurs or if input stream has been closed.
      * @throws NullPointerException  if <code>b</code> is <code>null</code>.
      */
 	@Override
@@ -194,27 +198,27 @@ public final class SerialComInByteStream extends InputStream {
      * @param off the start offset in array b at which the data is written.
      * @param len the maximum number of bytes to read.
      * @return the total number of bytes read into the buffer or 0 if len is zero or -1 if there is no data (non-blocking)
-     * @throws IOException if an I/O error occurs or if input stream has been closed
+     * @throws IOException if an I/O error occurs or if input stream has been closed.
      * @throws NullPointerException if <code>b</code> is <code>null</code>.
-     * @throws IllegalArgumentException if data is not a byte type array
-     * @throws IndexOutOfBoundsException if off is negative, len is negative, or len is greater than b.length - off 
+     * @throws IllegalArgumentException if data is not a byte type array.
+     * @throws IndexOutOfBoundsException if off is negative, len is negative, or len is greater than b.length - off.
      */
 	@Override
 	public int read(byte b[], int off, int len) throws IOException {
 		if(isOpened != true) {
-			throw new IOException("The byte stream has been closed");
+			throw new IOException("The byte stream has been closed !");
 		}
 		if(b == null) {
-			throw new NullPointerException("read(), " + "null data buffer passed to read operation");
+			throw new NullPointerException("Null data buffer passed to read operation !");
 		}
 		if((off < 0) || (len < 0) || (len > (b.length - off))) {
-			throw new IndexOutOfBoundsException("read(), " + "index violation detected in given byte array");
+			throw new IndexOutOfBoundsException("Index violation detected in given byte array !");
 		}
 		if(len == 0) {
 			return 0;
 		}
 		if(!(b instanceof byte[])) {
-			throw new IllegalArgumentException("The given data array is not byte type array");
+			throw new IllegalArgumentException("The given data array is not byte type array !");
 		}
 		
 		int i = off;
@@ -228,7 +232,7 @@ public final class SerialComInByteStream extends InputStream {
 					}
 					return data.length;
 				}else {
-					throw new IOException("Unknown error occured");
+					throw new IOException("Unknown error occured !");
 				}
 			}else {
 				byte[] data = scm.readBytes(handle, len);
@@ -248,14 +252,14 @@ public final class SerialComInByteStream extends InputStream {
     }
 	
 	/**
-	 * <p>The scm does not support reset. If required, it can be developed at application level.</p>
+	 * <p>SCM does not support reset. If required, it can be developed at application level.</p>
 	 */
 	@Override
     public synchronized void reset() throws IOException {
     }
 
 	/**
-	 * <p>The scm does not support skip. If required, it can be developed at application level.</p>
+	 * <p>SCM does not support skip. If required, it can be developed at application level.</p>
 	 * 
 	 * @param number of bytes to skip
 	 * @return always returns 0

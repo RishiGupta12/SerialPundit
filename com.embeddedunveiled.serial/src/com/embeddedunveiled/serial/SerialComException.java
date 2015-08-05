@@ -20,70 +20,27 @@ package com.embeddedunveiled.serial;
 import java.io.IOException;
 
 /** 
- * <p>Limit the scope of exceptions in context of serial port operation only.</p>
+ * <p>Limit the scope of exceptions in context of serial port communication only.</p>
  */
 public final class SerialComException extends IOException {
 
-	private static final long serialVersionUID = 6726733939021298461L;
-	private String portName;
-	private String methodName;
+	private static final long serialVersionUID = -6849706871605796050L;
 	private String exceptionMsg;
 	
 	/**
      * <p>Constructs and allocate a new SerialComException object with the specified detail message.</p>
      * 
-     * @param exceptionMsg message describing reason for exception
+     * @param exceptionMsg message describing reason for exception.
      */
 	public SerialComException(String exceptionMsg) {
 		super(exceptionMsg);
 		this.exceptionMsg = exceptionMsg;
 	}
 
-	/**
-     * <p>Constructs and allocate a new SerialComException object with the specified detail message.</p>
-     *
-     * @param methodName name of method where exception occurred
-     * @param exceptionMsg message describing reason for exception
-     */
-	public SerialComException(String methodName, String exceptionMsg) {
-		super(exceptionMsg + " in method " + methodName);
-		this.methodName = methodName;
-		this.exceptionMsg = exceptionMsg;
-	}
-
-	/**
-     * <p>Constructs an SerialComException object with the specified detail message.</p>
-     *
-     * @param portName name of the port on which this exception occurred
-     * @param methodName name of method where exception occurred
-     * @param exceptionMsg message describing reason for exception
-     */
-	public SerialComException(String portName, String methodName, String exceptionMsg) {
-		super(exceptionMsg + " in method " + methodName + " for port " + portName);
-		this.portName = portName;
-		this.methodName = methodName;
-		this.exceptionMsg = exceptionMsg;
-	}
-
-	/** 
-	 * <p>Get port in use on which this exception occurred. </p>
-	 * @return portName serial port identifier
-	 */
-	public String getPortName() {
-		return portName;
-	}
-
-	/** 
-	 * <p>Get method name during execution of which the exception occurred. </p>
-	 * @return method which had thrown this exception
-	 */
-	public String getMethodName() {
-		return methodName;
-	}
-
 	/** 
 	 * <p>Get the specific type of exception. </p>
-	 * @return exceptionMsg reason for exception
+	 * 
+	 * @return exceptionMsg reason for exception.
 	 */
 	public String getExceptionMsg() {
 		return exceptionMsg;

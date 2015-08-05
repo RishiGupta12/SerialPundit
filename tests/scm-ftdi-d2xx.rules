@@ -1,0 +1,26 @@
+#
+# Author : Rishi Gupta
+# 
+# This file is part of 'serial communication manager' library.
+#
+# The 'serial communication manager' is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by the Free Software 
+# Foundation, either version 3 of the License, or (at your option) any later version.
+#
+# The 'serial communication manager' is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
+# PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with serial communication manager. If not, see <http://www.gnu.org/licenses/>.
+#################################################################################################
+
+# This is for FTDI devices with VID 0x0403 not specific to any FTDI product (USB PID). Place this file 
+# in /etc/udev/rules.d/ for Ubuntu Linux distro. These rules make USB device accessible to non-root
+# users even without modifying our executable or running application as root user using sudo command.
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0403", MODE="0666"
+SUBSYSTEM=="usb_device", ATTRS{idVendor}=="0403", MODE="0666"
+
+# If we want to load these rules for a specific product here is how to do it.
+# SUBSYSTEM=="usb", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="002a", MODE="0666"
+# SUBSYSTEM=="usb_device", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="002a", MODE="0666"
