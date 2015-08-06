@@ -37,6 +37,7 @@ import com.embeddedunveiled.serial.internal.SerialComPortHandleInfo;
 import com.embeddedunveiled.serial.internal.SerialComPortJNIBridge;
 import com.embeddedunveiled.serial.internal.SerialComPortsList;
 import com.embeddedunveiled.serial.internal.SerialComSystemProperty;
+import com.embeddedunveiled.serial.usb.SerialComUSB;
 import com.embeddedunveiled.serial.usb.SerialComUSBdevice;
 import com.embeddedunveiled.serial.vendor.SerialComVendorLib;
 
@@ -383,6 +384,7 @@ public final class SerialComManager {
 
 	private SerialComIOCTLExecutor mSerialComIOCTLExecutor;
 	private SerialComBluetooth mSerialComBluetooth;
+	private SerialComUSB mSerialComUSB;
 	private SerialComPlatform mSerialComPlatform;
 	private final SerialComSystemProperty mSerialComSystemProperty;
 	private final SerialComPortJNIBridge mComPortJNIBridge;
@@ -1767,11 +1769,11 @@ public final class SerialComManager {
 		if(handlefound == false) {
 			throw new SerialComException("Invalid handle passed for the requested operation !");
 		}
-		
+
 		if((clearRxBuffer == false) && (clearTxBuffer == false)) {
 			throw new IllegalArgumentException("Both arguments clearRxBuffer and clearTxBuffer can not be false !");
 		}
-		
+
 		int ret = mComPortJNIBridge.clearPortIOBuffers(handle, clearRxBuffer, clearTxBuffer);
 		if(ret < 0) {
 			throw new SerialComException("Could not clear the buffers for the given port. Please retry !");
@@ -2356,7 +2358,7 @@ public final class SerialComManager {
 		mSerialComVendorLib = new SerialComVendorLib();
 		return mSerialComVendorLib.getVendorLibInstance(vendorLibIdentifier, baseDir, vlibName, cpuArch, osType, mSerialComSystemProperty);
 	}
-	
+
 	/**
 	 * <p>Prepares context for serial port communication over Bluetooth.</p>
 	 * 
@@ -2369,6 +2371,20 @@ public final class SerialComManager {
 		}
 		mSerialComBluetooth = new SerialComBluetooth(mComPortJNIBridge);
 		return mSerialComBluetooth;
+	}
+
+	/**
+	 * <p>Get an instnace of SerialComUSB for USB operations.</p>
+	 * 
+	 * @return reference to an object of type SerialComUSB on which various methods can be invoked.
+	 * @throws SerialComException if could not instantiate class due to some reason.
+	 */
+	public SerialComUSB getSerialComUSBInstance() throws SerialComException {
+		if(mSerialComUSB != null) {
+			return mSerialComUSB;
+		}
+		mSerialComUSB = new SerialComUSB(mComPortJNIBridge);
+		return mSerialComUSB;
 	}
 
 }

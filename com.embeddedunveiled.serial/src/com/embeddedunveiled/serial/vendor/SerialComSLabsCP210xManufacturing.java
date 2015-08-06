@@ -597,7 +597,7 @@ public final class SerialComSLabsCP210xManufacturing extends SerialComVendorLib 
 		}
 		return (byte)ret;
 	}
-	
+
 	/**
 	 * <p>Executes CP210x_Reset function of CP210xManufacturing library.</p>
 	 * 
@@ -631,29 +631,3 @@ public final class SerialComSLabsCP210xManufacturing extends SerialComVendorLib 
 		return true;
 	}
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
