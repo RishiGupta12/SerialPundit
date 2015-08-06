@@ -72,7 +72,7 @@ public final class SerialComPortJNIBridge {
 
 		fileSeparator = serialComSystemProperty.getfileSeparator();
 		if(fileSeparator == null) {
-			throw new SerialComUnexpectedException("loadNativeLibrary()", "The file.separator java system property is null in the system");
+			throw new SerialComUnexpectedException("The file.separator java system property is null in the system !");
 		}
 
 		/* Prepare directory in which native shared library will be extracted from jar */
@@ -80,7 +80,7 @@ public final class SerialComPortJNIBridge {
 			// user did not supplied any directory path so try tmp and user home
 			javaTmpDir = serialComSystemProperty.getJavaIOTmpDir();
 			if(javaTmpDir == null) {
-				throw new SerialComUnexpectedException("loadNativeLibrary()", "The java.io.tmpdir java system property is null in the system");
+				throw new SerialComUnexpectedException("The java.io.tmpdir java system property is null in the system !");
 			}
 
 			baseDir = new File(javaTmpDir);
@@ -91,17 +91,17 @@ public final class SerialComPortJNIBridge {
 				// access to temp directory failed, let us try access to user's home directory
 				userHomeDir = serialComSystemProperty.getUserHome();
 				if(userHomeDir == null) {
-					throw new SerialComUnexpectedException("loadNativeLibrary()", "The user.home java system property is null in the system");
+					throw new SerialComUnexpectedException("The user.home java system property is null in the system !");
 				}
 				baseDir = new File(userHomeDir);
 				if(!baseDir.exists()) {
-					throw new SerialComLoadException("User home directory does not exist. Also unable to access tmp/temp directory");
+					throw new SerialComLoadException("User home directory does not exist. Also unable to access tmp/temp directory !");
 				}
 				if(!baseDir.isDirectory()) {
-					throw new SerialComLoadException("User home directory is not a directory. Also unable to access tmp/temp directory");
+					throw new SerialComLoadException("User home directory is not a directory. Also unable to access tmp/temp directory !");
 				}
 				if(!baseDir.canWrite()) {
-					throw new SerialComLoadException("User home directory is not writeable (permissions ??). Also unable to access tmp/temp directory");
+					throw new SerialComLoadException("User home directory is not writeable (permissions ??). Also unable to access tmp/temp directory !");
 				}
 				isUserHomeDir = true;
 			}
@@ -111,9 +111,9 @@ public final class SerialComPortJNIBridge {
 			if(!workingDir.exists()) {
 				if(!workingDir.mkdir()) {
 					if(isTmpDir == true) {
-						throw new SerialComLoadException("Can not create scm_tuartx1 unique directory in temp directory");
+						throw new SerialComLoadException("Can not create scm_tuartx1 unique directory in temp directory !");
 					}else if(isUserHomeDir == true) {
-						throw new SerialComLoadException("Can not create scm_tuartx1 unique directory in user home directory");
+						throw new SerialComLoadException("Can not create scm_tuartx1 unique directory in user home directory !");
 					}else {
 					}
 				}

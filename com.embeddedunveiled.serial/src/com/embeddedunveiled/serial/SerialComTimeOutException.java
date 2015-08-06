@@ -20,19 +20,20 @@ package com.embeddedunveiled.serial;
 import java.io.IOException;
 
 /** 
- * <p>This limit the scope of exceptions in context of serial operation only. </p>
+ * <p>Exception thrown when a blocking operation times out. 
+ * This limit the scope of exceptions in context of serial operation only.</p>
  */
 public final class SerialComTimeOutException extends IOException {
 
 	private static final long serialVersionUID = -641684462902085593L;
 
 	/**
-     * <p>Constructs an SerialComTimeOutException object with the specified detail message.</p>
-     *
-     * @param exceptionMsg message describing reason for exception.
-     */
+	 * <p>Constructs an SerialComTimeOutException object with the specified detail message.</p>
+	 *
+	 * @param exceptionMsg message describing reason for exception.
+	 */
 	public SerialComTimeOutException(String exceptionMsg) {
 		super(exceptionMsg);
 	}
-	
+
 }

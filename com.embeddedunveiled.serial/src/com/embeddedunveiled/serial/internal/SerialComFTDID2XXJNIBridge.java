@@ -63,7 +63,7 @@ public final class SerialComFTDID2XXJNIBridge {
 
 		fileSeparator = serialComSystemProperty.getfileSeparator();
 		if(fileSeparator == null) {
-			throw new SerialComUnexpectedException("loadNativeLibrary()", "The file.separator java system property is null in the system !");
+			throw new SerialComUnexpectedException("The file.separator java system property is null in the system !");
 		}
 
 		/* Find the native library that will be extracted based on arch and os type */

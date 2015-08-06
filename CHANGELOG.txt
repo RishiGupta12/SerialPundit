@@ -1,5 +1,6 @@
 
 v1.0.4 (TODO RELEASE DATE)
+	- added support for Silicon labs CP210XManufacturing library
 	- added support for Bluetooth serial port profile
 	- added support for FTDI D2XX propriety software interface
 	- added support for Silicon labs CP210XRuntime library
@@ -8,23 +9,24 @@ v1.0.4 (TODO RELEASE DATE)
 	- added API to find USB-UART devices with detailed information about them
 	- added support for raspberry pi and beagle bone embedded linux boards
 	- added support for platform specific IOCTL calls
+	- added Junit test cases for continuos integration
+	- added utility class SerialComUtil for common operations
+	- added new exceptions to deal with java security manager if exist
+	- added XMODEM(checksum, CRC, 1K) support
+	- added method getCPUArchitecture()
+	- added check for incorrect arguments passing to methods
 	- implemented new powerful hot plug mechanism for USB port hot plug detection
 	- more CPU architecture and operating system detection in robust manner
 	- optimized memory allocation and de-allocation 
 	- extensive error detection and reporting (POSIX, JNI, C standard, Java, custom)
-	- added XMODEM(checksum, CRC, 1K) support
-	- added method getCPUArchitecture()
 	- byte steam now can be operated in 2 modes blocking or non-blocking
 	- fix issue for not returning null in windows in read function
-	- added test for XMODEM file transfer protocol
-	- added check for incorrect arguments passing to methods
 	- fixed memory release for epoll implementations
 	- implemented partial read scenario for unix-like OS
 	- worker threads in Windows OS now exit gracefully
 	- various code improvements, optimizations, restructuring
 	- javadocs and source code comments updated
-	- added utility class SerialComUtil for common operations
-	- added new exceptions to deal with java security manager if exist
+
 
 v1.0.3 (29 May 2015)
 	- added byteArrayToHexStr() utility method

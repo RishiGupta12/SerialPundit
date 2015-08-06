@@ -36,11 +36,14 @@ public class SerialComVendorLib {
 	/**<p>The value indicating proprietary D2XX software interface from Future Technology Devices International Ltd.</p>*/
 	public static final int VLIB_FTDI_D2XX = 0x01;
 
-	/**<p>The value indicating 'SimpleIO-UM.dll' library from Microchip Technology Inc.</p>*/
+	/**<p>The value indicating 'SimpleIO' library from Microchip Technology Inc.</p>*/
 	public static final int VLIB_MCHP_SIMPLEIO = 0x02;
 	
-	/**<p>The value indicating 'CP210xRuntime-DLL' library from Silicon Laboratories, Inc.</p>*/
+	/**<p>The value indicating 'CP210xRuntime' library from Silicon Laboratories, Inc.</p>*/
 	public static final int VLIB_SLABS_CP210XRUNTIME = 0x03;
+	
+	/**<p>The value indicating 'CP210xManufacturing' library from Silicon Laboratories, Inc.</p>*/
+	public static final int VLIB_SLABS_CP210XMANUFACTURING = 0x04;
 
 	/**
 	 * <p>Allocates a new SerialComVendorLib object.</p>
@@ -98,8 +101,16 @@ public class SerialComVendorLib {
 			}
 			vendorLib = new SerialComSLabsCP210xRuntime(libDirectory, vlibName, cpuArch, osType, serialComSystemProperty);
 			return vendorLib;
+		}else if(vendorLibIdentifier == VLIB_SLABS_CP210XMANUFACTURING) {
+			if(!((cpuArch == SerialComManager.ARCH_AMD64) || (cpuArch == SerialComManager.ARCH_X86))) {
+				throw new SerialComLoadException("Silicon labs cp210x manufacturing dll library is not supported for this CPU architecture !");
+			}
+			if(osType != SerialComManager.OS_WINDOWS) {
+				throw new SerialComLoadException("Silicon labs cp210x manufacturing dll library is not supported for this operating system !");
+			}
+			vendorLib = new SerialComSLabsCP210xManufacturing(libDirectory, vlibName, cpuArch, osType, serialComSystemProperty);
+			return vendorLib;
 		}else {
-			
 		}
 
 		return null;

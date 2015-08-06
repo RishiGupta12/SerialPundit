@@ -29,6 +29,10 @@ import com.embeddedunveiled.serial.internal.SerialComSystemProperty;
  * <p>Silicon labs Inc. provides libraries to communicate with their USB-UART devices. More information can 
  * be found here : https://www.silabs.com/products/mcu/Pages/USBtoUARTBridgeVCPDrivers.aspx</p>
  * 
+ * <p>[0] The data types used in java layer may be bigger in size than the native layer. For example; if native 
+ * function returns 16 bit signed integer, than java method will return 32 bit integer. This is done to make 
+ * sure that no data loss occur. This library take care of sign and their applicability internally.</p>
+ * 
  * <p>[1] Developers are requested to check with vendor library documentation if a particular function is supported
  * for desired platform or not and also how does a particular API will behave. Also consider paying attention to 
  * valid values and range when passing arguments to a method.</p>
@@ -98,7 +102,7 @@ public final class SerialComSLabsCP210xRuntime extends SerialComVendorLib {
 	
 	/**
 	 * <p>Executes CP210xRT_GetPartNumber function of CP210XRuntime library.</p>
-	 * <pGets the part number of the current device.</p>
+	 * <p>Gets the part number of the current device.</p>
 	 * 
 	 * @param handle handle of the opened COM port.
 	 * @return part number of the current device.

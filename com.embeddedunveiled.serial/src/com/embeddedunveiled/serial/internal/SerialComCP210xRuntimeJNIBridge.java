@@ -21,7 +21,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.FileNotFoundException;
-
 import com.embeddedunveiled.serial.SerialComLoadException;
 import com.embeddedunveiled.serial.SerialComManager;
 import com.embeddedunveiled.serial.SerialComUnexpectedException;
@@ -63,32 +62,32 @@ public final class SerialComCP210xRuntimeJNIBridge {
 
 		fileSeparator = serialComSystemProperty.getfileSeparator();
 		if(fileSeparator == null) {
-			throw new SerialComUnexpectedException("loadNativeLibrary()", "The file.separator java system property is null in the system !");
+			throw new SerialComUnexpectedException("The file.separator java system property is null in the system !");
 		}
 
 		/* Find the native library that will be extracted based on arch and os type */
 		if(cpuArch == SerialComManager.ARCH_AMD64) {
 			switch(osType) {
 			case SerialComManager.OS_WINDOWS:
-				libToExtractFromJar = "win_d2xx_" + SerialComManager.JAVA_LIB_VERSION + "_x86_64.dll";
+				libToExtractFromJar = "win_cp210xr_" + SerialComManager.JAVA_LIB_VERSION + "_x86_64.dll";
 				break;
 			case SerialComManager.OS_LINUX:
-				libToExtractFromJar = "linux_d2xx_" + SerialComManager.JAVA_LIB_VERSION + "_x86_64.so";
+				libToExtractFromJar = "linux_cp210xr_" + SerialComManager.JAVA_LIB_VERSION + "_x86_64.so";
 				break;
 			case SerialComManager.OS_MAC_OS_X:
-				libToExtractFromJar = "mac_d2xx_" + SerialComManager.JAVA_LIB_VERSION + "_x86_64.dylib";
+				libToExtractFromJar = "mac_cp210xr_" + SerialComManager.JAVA_LIB_VERSION + "_x86_64.dylib";
 			default:
 			}
 		}else if(cpuArch == SerialComManager.ARCH_X86) {
 			switch(osType) {
 			case SerialComManager.OS_WINDOWS:
-				libToExtractFromJar = "win_d2xx_" + SerialComManager.JAVA_LIB_VERSION + "_x86.dll";
+				libToExtractFromJar = "win_cp210xr_" + SerialComManager.JAVA_LIB_VERSION + "_x86.dll";
 				break;
 			case SerialComManager.OS_LINUX:
-				libToExtractFromJar = "linux_d2xx_" + SerialComManager.JAVA_LIB_VERSION + "_x86.so";
+				libToExtractFromJar = "linux_cp210xr_" + SerialComManager.JAVA_LIB_VERSION + "_x86.so";
 				break;
 			case SerialComManager.OS_MAC_OS_X:
-				libToExtractFromJar = "mac_d2xx_" + SerialComManager.JAVA_LIB_VERSION + "_x86.dylib";
+				libToExtractFromJar = "mac_cp210xr_" + SerialComManager.JAVA_LIB_VERSION + "_x86.dylib";
 			default:
 			}
 		}else {

@@ -37,6 +37,10 @@ import com.embeddedunveiled.serial.internal.SerialComSystemProperty;
  * 
  * <p>More information about D2XX is here : http://www.ftdichip.com/Drivers/D2XX.htm </p>
  * 
+ * <p>[0] The data types used in java layer may be bigger in size than the native layer. For example; if native 
+ * function returns 16 bit signed integer, than java method will return 32 bit integer. This is done to make 
+ * sure that no data loss occur. This library take care of sign and their applicability internally.</p>
+ * 
  * <p>[1] Developers are requested to check with vendor library documentation if a particular function is supported
  * for desired platform or not and also how does a particular API will behave. Also consider paying attention to 
  * valid values and range when passing arguments to a method. For FTDI d2xx the API guide is here : 
@@ -355,7 +359,7 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 */
 	public long open(final int index) throws SerialComException {
 		if(index < 0) {
-			throw new IllegalArgumentException("open(), " + "Argument index can not be zero !");
+			throw new IllegalArgumentException("Argument index can not be negative !");
 		}
 		long handle = mFTDID2XXJNIBridge.open(index);
 		if(handle < 0) {
@@ -420,10 +424,10 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 */
 	public int read(long handle, final byte[] buffer, int numOfBytesToRead) throws SerialComException {
 		if(buffer == null) {
-			throw new IllegalArgumentException("read(), " + "Argument buffer can not be null !");
+			throw new IllegalArgumentException("Argument buffer can not be null !");
 		}
 		if(numOfBytesToRead <= 0) {
-			throw new IllegalArgumentException("read(), " + "Argument numOfBytesToRead can not be negative or zero !");
+			throw new IllegalArgumentException("Argument numOfBytesToRead can not be negative or zero !");
 		}
 		int ret = mFTDID2XXJNIBridge.read(handle, buffer, numOfBytesToRead);
 		if(ret < 0) {
@@ -447,10 +451,10 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 */
 	public int write(long handle, final byte[] buffer, int numOfBytesToWrite) throws SerialComException {
 		if(buffer == null) {
-			throw new IllegalArgumentException("write(), " + "Argument buffer can not be null !");
+			throw new IllegalArgumentException("Argument buffer can not be null !");
 		}
 		if(numOfBytesToWrite <= 0) {
-			throw new IllegalArgumentException("write(), " + "Argument numOfBytesToWrite can not be negative or zero !");
+			throw new IllegalArgumentException("Argument numOfBytesToWrite can not be negative or zero !");
 		}
 		int ret = mFTDID2XXJNIBridge.write(handle, buffer, numOfBytesToWrite);
 		if(ret < 0) {
@@ -473,7 +477,7 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 */
 	public boolean setBaudRate(final long handle, int baudRate) throws SerialComException {
 		if(baudRate < 0) {
-			throw new IllegalArgumentException("setBaudRate(), " + "Argument baudRate can not be negative !");
+			throw new IllegalArgumentException("Argument baudRate can not be negative !");
 		}
 		int ret = mFTDID2XXJNIBridge.setBaudRate(handle, baudRate);
 		if(ret < 0) {
@@ -496,7 +500,7 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 */
 	public boolean setDivisor(final long handle, int divisor) throws SerialComException {
 		if(divisor < 0) {
-			throw new IllegalArgumentException("setDivisor(), " + "Argument divisor can not be negative !");
+			throw new IllegalArgumentException("Argument divisor can not be negative !");
 		}
 
 		int ret = mFTDID2XXJNIBridge.setDivisor(handle, divisor);
@@ -521,13 +525,13 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 */
 	public boolean setDataCharacteristics(final long handle, DATABITS dataBits, STOPBITS stopBits, PARITY parity) throws SerialComException {
 		if(dataBits == null) {
-			throw new IllegalArgumentException("setDataCharacteristics(), " + "Argument dataBits can not be null !");
+			throw new IllegalArgumentException("Argument dataBits can not be null !");
 		}
 		if(stopBits == null) {
-			throw new IllegalArgumentException("setDataCharacteristics(), " + "Argument stopBits can not be null !");
+			throw new IllegalArgumentException("Argument stopBits can not be null !");
 		}
 		if(parity == null) {
-			throw new IllegalArgumentException("setDataCharacteristics(), " + "Argument parity can not be null !");
+			throw new IllegalArgumentException("Argument parity can not be null !");
 		}
 
 		int ret = mFTDID2XXJNIBridge.setDataCharacteristics(handle, dataBits.getValue(), stopBits.getValue(), parity.getValue());
@@ -551,10 +555,10 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 */
 	public boolean setTimeouts(final long handle, long readTimeOut, long writeTimeOut) throws SerialComException {
 		if(readTimeOut < 0) {
-			throw new IllegalArgumentException("setTimeouts(), " + "Argument readTimeOut can not be negative !");
+			throw new IllegalArgumentException("Argument readTimeOut can not be negative !");
 		}
 		if(writeTimeOut < 0) {
-			throw new IllegalArgumentException("setTimeouts(), " + "Argument writeTimeOut can not be negative !");
+			throw new IllegalArgumentException("Argument writeTimeOut can not be negative !");
 		}
 
 		int ret = mFTDID2XXJNIBridge.setTimeouts(handle, readTimeOut, writeTimeOut);
@@ -579,7 +583,7 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 */
 	public boolean setFlowControl(final long handle, FLOWCTRL flctrl, char xon, char xoff) throws SerialComException {
 		if(flctrl == null) {
-			throw new IllegalArgumentException("setTimeouts(), " + "Argument flctrl can not be null !");
+			throw new IllegalArgumentException("Argument flctrl can not be null !");
 		}
 
 		int ret = mFTDID2XXJNIBridge.setFlowControl(handle, flctrl.getValue(), xon, xoff);
