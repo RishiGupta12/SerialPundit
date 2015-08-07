@@ -193,32 +193,46 @@ public final class SerialComFTDID2XXJNIBridge {
 	public native int stopInTask(long handle);
 	public native int restartInTask(long handle);
 	public native int setDeadmanTimeout(long handle, int count);
-	
+
 	// EEPROM Programming Interface Functions
+	public native int readEE(long handle, int offset);
+	public native int writeEE(long handle, int offset, int valueToWrite);
+	public native int eraseEE(long handle);
+	//TODO FT_EE_Read
+	//TODO FT_EE_Readex
+	//TODO FT_EE_program
+	//TODO FT_EE_programex
+	public native int eeUAsize(long handle);
+	public native int eeUAread(long handle, byte[] buffer, int length);
+	public native int eeUAwrite(long handle, byte[] buffer, int length);
 
 	// Extended API Functions
+	public native int setLatencyTimer(long handle, int value);
+	public native int getLatencyTimer(long handle);
+	public native int setBitMode(long handle, int mask, int mode);
+	public native int getBitMode(long handle);
+	public native int setUSBParameters(long handle, int inTransferSize, int outTransferSize);
 
 	// FT-Win32 API Functions
+	public native int w32CloseHandle(long handle);
+	public native int w32ReadFile(long handle, byte[] buffer, int numOfBytesToRead);
+	public native int w32WriteFile(long handle, byte[] buffer, int numOfBytesToWrite);
+	public native int w32GetOverlappedResult(long handle, boolean wait);
+	public native int w32EscapeCommFunction(long handle, short function);
+	public native int w32GetCommModemStatus(long handle);
+	public native int w32SetupComm(long handle, int readBufSize, int writeBufSize);
+	public native int w32SetCommState(long handle, String[] dcb);
+	public native String[] w32GetCommState(long handle);
+	public native int w32SetCommTimeouts(long handle, int readIntervalTimeout,
+			int readTotalTimeoutMultiplier, int readTotalTimeoutConstant,
+			int writeTotalTimeoutMultiplier, int writeTotalTimeoutConstant);
+	public native int[] w32GetCommTimeouts(long handle);
+	public native int w32SetCommBreak(long handle);
+	public native int w32ClearCommBreak(long handle);
+	public native int w32SetCommMask(long handle, int flag);
+	public native int w32GetCommMask(long handle);
+	public native int w32WaitCommEvent(long handle, int event);
+	public native int w32PurgeComm(long handle, int event);
+	public native String w32GetLastError(long handle);
+	public native String[] w32ClearCommError(long handle);	
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
