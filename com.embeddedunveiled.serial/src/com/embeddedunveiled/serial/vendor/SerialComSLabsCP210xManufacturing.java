@@ -105,11 +105,14 @@ public final class SerialComSLabsCP210xManufacturing extends SerialComVendorLib 
 
 	/**
 	 * <p>Executes CP210x_GetProductString function of CP210xManufacturing library.</p>
+	 * 
 	 * <p>Returns product description, serial number or full path based on flag passed.</p>
 	 * 
 	 * <p>The argument flag can be one of the constant CP210x_RETURN_SERIAL_NUMBER, 
 	 * CP210x_RETURN_DESCRIPTION or CP210x_RETURN_FULL_PATH.</p>
 	 * 
+	 * @param index index of device in list.
+	 * @param flag indicates which property is to be fetched.
 	 * @return product description, serial number or full path.
 	 * @throws SerialComException if an I/O error occurs.
 	 * @throws IllegalArgumentException if invalid flag is passed.
@@ -169,6 +172,7 @@ public final class SerialComSLabsCP210xManufacturing extends SerialComVendorLib 
 
 	/**
 	 * <p>Executes CP210x_GetPartNumber function of CP210xManufacturing library.</p>
+	 * 
 	 * <p>Returns the part number associated with the given handle.</p>
 	 * 
 	 * @return part number associated with the given handle.

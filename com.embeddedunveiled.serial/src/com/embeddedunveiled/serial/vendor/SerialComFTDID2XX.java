@@ -573,7 +573,7 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 * 
 	 * <p>Sets the divisor value for the given FT device.</p>
 	 * 
-	 * @param handle handle of the device whose baud rate need to be set.
+	 * @param handle handle of the device whose divisor is to be set.
 	 * @param divisor divisor to be used for setting correct custom baud rate.
 	 * @return true if the operation executed successfully.
 	 * @throws SerialComException if an I/O error occurs.
@@ -627,7 +627,7 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 * 
 	 * <p>Sets the read and write time out values for the given FT device.</p>
 	 * 
-	 * @param handle handle of the device whose baud rate need to be set.
+	 * @param handle handle of the device whose timeouts need to be set.
 	 * @param readTimeOut read time out in milliseconds.
 	 * @param writeTimeOut write time out in milliseconds.
 	 * @return true if the operation executed successfully.
@@ -654,7 +654,7 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 * 
 	 * <p>Sets the flow control mode for the given FT device.</p>
 	 * 
-	 * @param handle handle of the device whose baud rate need to be set.
+	 * @param handle handle of the device whose flow control is to be set.
 	 * @param flctrl flow control of serial frame (refer FLOWCTRL enum in SerialComFTDID2XX class for this).
 	 * @param xon character used to signal Xon if software flow control is used.
 	 * @param xoff character used to signal Xoff if software flow control is used.
@@ -816,6 +816,7 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 * 
 	 * <p>Gets the D2XX DLL version number.</p>
 	 * 
+	 * @param handle handle of device for which library version is to be found.
 	 * @return driver version number for the requested device handle.
 	 * @throws SerialComException if an I/O error occurs.
 	 */

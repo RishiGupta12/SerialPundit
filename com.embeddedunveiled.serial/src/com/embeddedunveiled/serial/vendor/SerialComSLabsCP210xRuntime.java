@@ -68,6 +68,7 @@ public final class SerialComSLabsCP210xRuntime extends SerialComVendorLib {
 
 	/**
 	 * <p>Executes CP210xRT_ReadLatch function of CP210XRuntime library.</p>
+	 * 
 	 * <p>Gets the current port latch value from the device.</p>
 	 * 
 	 * @param handle handle of the opened COM port.
@@ -84,6 +85,7 @@ public final class SerialComSLabsCP210xRuntime extends SerialComVendorLib {
 
 	/**
 	 * <p>Executes CP210xRT_WriteLatch function of CP210XRuntime library.</p>
+	 * 
 	 * <p>Sets the current port latch value for the device.</p>
 	 * 
 	 * @param handle handle of the opened COM port.
@@ -93,15 +95,16 @@ public final class SerialComSLabsCP210xRuntime extends SerialComVendorLib {
 	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public boolean writeLatch(final long handle, long mask, long latchValue) throws SerialComException {
-		boolean ret = mSerialComCP210xRuntimeJNIBridge.writeLatch(handle, mask, latchValue);
-		if(ret != true) {
+		int ret = mSerialComCP210xRuntimeJNIBridge.writeLatch(handle, mask, latchValue);
+		if(ret < 0) {
 			throw new SerialComException("Could not write the given latch value on the given device. Please retry !");
 		}
-		return ret;
+		return true;
 	}
 	
 	/**
 	 * <p>Executes CP210xRT_GetPartNumber function of CP210XRuntime library.</p>
+	 * 
 	 * <p>Gets the part number of the current device.</p>
 	 * 
 	 * @param handle handle of the opened COM port.
@@ -118,6 +121,7 @@ public final class SerialComSLabsCP210xRuntime extends SerialComVendorLib {
 	
 	/**
 	 * <p>Executes CP210xRT_GetDeviceProductString function of CP210XRuntime library.</p>
+	 * 
 	 * <p>Gets the product string in the current device.</p>
 	 * 
 	 * @param handle handle of the opened COM port.
@@ -134,6 +138,7 @@ public final class SerialComSLabsCP210xRuntime extends SerialComVendorLib {
 	
 	/**
 	 * <p>Executes CP210xRT_GetDeviceSerialNumber function of CP210XRuntime library.</p>
+	 * 
 	 * <p>Gets the serial number in the current device.</p>
 	 * 
 	 * @param handle handle of the opened COM port.
@@ -150,6 +155,7 @@ public final class SerialComSLabsCP210xRuntime extends SerialComVendorLib {
 	
 	/**
 	 * <p>Executes CP210xRT_GetDeviceInterfaceString function of CP210XRuntime library.</p>
+	 * 
 	 * <p>Gets the interface string of the current device.</p>
 	 * 
 	 * @param handle handle of the opened COM port.
