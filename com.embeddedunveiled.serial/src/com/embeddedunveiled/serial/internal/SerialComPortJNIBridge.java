@@ -72,7 +72,7 @@ public final class SerialComPortJNIBridge {
 
 		fileSeparator = serialComSystemProperty.getfileSeparator();
 		if(fileSeparator == null) {
-			throw new SerialComUnexpectedException("loadNativeLibrary()", "The file.separator java system property is null in the system");
+			throw new SerialComUnexpectedException("The file.separator java system property is null in the system !");
 		}
 
 		/* Prepare directory in which native shared library will be extracted from jar */
@@ -80,7 +80,7 @@ public final class SerialComPortJNIBridge {
 			// user did not supplied any directory path so try tmp and user home
 			javaTmpDir = serialComSystemProperty.getJavaIOTmpDir();
 			if(javaTmpDir == null) {
-				throw new SerialComUnexpectedException("loadNativeLibrary()", "The java.io.tmpdir java system property is null in the system");
+				throw new SerialComUnexpectedException("The java.io.tmpdir java system property is null in the system !");
 			}
 
 			baseDir = new File(javaTmpDir);
@@ -91,17 +91,17 @@ public final class SerialComPortJNIBridge {
 				// access to temp directory failed, let us try access to user's home directory
 				userHomeDir = serialComSystemProperty.getUserHome();
 				if(userHomeDir == null) {
-					throw new SerialComUnexpectedException("loadNativeLibrary()", "The user.home java system property is null in the system");
+					throw new SerialComUnexpectedException("The user.home java system property is null in the system !");
 				}
 				baseDir = new File(userHomeDir);
 				if(!baseDir.exists()) {
-					throw new SerialComLoadException("User home directory does not exist. Also unable to access tmp/temp directory");
+					throw new SerialComLoadException("User home directory does not exist. Also unable to access tmp/temp directory !");
 				}
 				if(!baseDir.isDirectory()) {
-					throw new SerialComLoadException("User home directory is not a directory. Also unable to access tmp/temp directory");
+					throw new SerialComLoadException("User home directory is not a directory. Also unable to access tmp/temp directory !");
 				}
 				if(!baseDir.canWrite()) {
-					throw new SerialComLoadException("User home directory is not writeable (permissions ??). Also unable to access tmp/temp directory");
+					throw new SerialComLoadException("User home directory is not writeable (permissions ??). Also unable to access tmp/temp directory !");
 				}
 				isUserHomeDir = true;
 			}
@@ -111,9 +111,9 @@ public final class SerialComPortJNIBridge {
 			if(!workingDir.exists()) {
 				if(!workingDir.mkdir()) {
 					if(isTmpDir == true) {
-						throw new SerialComLoadException("Can not create scm_tuartx1 unique directory in temp directory");
+						throw new SerialComLoadException("Can not create scm_tuartx1 unique directory in temp directory !");
 					}else if(isUserHomeDir == true) {
-						throw new SerialComLoadException("Can not create scm_tuartx1 unique directory in user home directory");
+						throw new SerialComLoadException("Can not create scm_tuartx1 unique directory in user home directory !");
 					}else {
 					}
 				}
@@ -263,7 +263,7 @@ public final class SerialComPortJNIBridge {
 	public native int destroyEventLooperThread(long handle);
 	public native int pauseListeningEvents(long handle);
 	public native int resumeListeningEvents(long handle);
-	
+
 	// Open-close-read-write
 	public native long openComPort(String portName, boolean enableRead, boolean enableWrite, boolean exclusiveOwner);
 	public native int closeComPort(long handle);
@@ -272,7 +272,7 @@ public final class SerialComPortJNIBridge {
 	public native int readBytesDirect(long handle, ByteBuffer buffer, int offset, int length);
 	public native int writeBytes(long handle, byte[] buffer, int delay);
 	public native int writeBytesDirect(long handle, ByteBuffer buffer, int offset, int length);
-	
+
 	// Modem control, buffer
 	public native int setRTS(long handle, boolean enabled);
 	public native int setDTR(long handle, boolean enabled);
@@ -281,11 +281,11 @@ public final class SerialComPortJNIBridge {
 	public native int sendBreak(long handle, int duration);
 	public native int[] getByteCount(long handle);
 	public native int clearPortIOBuffers(long handle, boolean rxPortbuf, boolean txPortbuf);
-	
+
 	// Hot-plug
 	public native int registerHotPlugEventListener(ISerialComHotPlugListener hotPlugListener, int filterVID, int filterPID);
 	public native int unregisterHotPlugEventListener(int index);
-	
+
 	// Configuration
 	public native int configureComPortData(long handle, int dataBits, int stopBits, int parity, int baudRateTranslated, int custBaudTranslated);
 	public native int configureComPortControl(long handle, int flowctrl, char xon, char xoff, boolean ParFraError, boolean overFlowErr);
@@ -299,13 +299,13 @@ public final class SerialComPortJNIBridge {
 	public native long ioctlGetValue(long handle, long operationCode);
 	public native long ioctlSetValueIntArray(long handle, long operationCode, int[] values);
 	public native long ioctlSetValueCharArray(long handle, long operationCode, byte[] values);
-	
+
 	// USB
 	public native String[] listUSBdevicesWithInfo(int vendorFilter);
 	public native String[] listComPortFromUSBAttributes(int usbVidToMatch, int usbPidToMatch, String serialNumber);
 	public native int isUSBDevConnected(int vendorID, int productID);
-	
+	public native int rescanUSBDevicesHW();
+
 	// Bluetooth
 	public native String[] listBluetoothAdaptorsWithInfo();
-	
 }

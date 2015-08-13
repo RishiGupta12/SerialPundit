@@ -1,3 +1,4 @@
+#!/bin/bash
 #
 # Author : Rishi Gupta
 # 
@@ -15,14 +16,14 @@
 # along with serial communication manager. If not, see <http://www.gnu.org/licenses/>.
 #################################################################################################
 
-# This is a udev rule file for all devices from FTDI with VID 0x0403 (not specific to any FTDI 
-# product (USB PID)). Place this file in /etc/udev/rules.d/ for Ubuntu Linux distro. These rules 
-# will grant read and write access to all users, include non-privileged users, for all USB devices
-# that have a matching Vendor ID according to the rules below. If required more restrictions on 
-# access to these devices can be achieved. Please learn more about writing udev rules in this case.
-SUBSYSTEM=="usb", ATTRS{idVendor}=="0403", MODE="0666"
-SUBSYSTEM=="usb_device", ATTRS{idVendor}=="0403", MODE="0666"
+# Generates JNI-C header file for Silicon labs USBXpress library SerialComSLabsUSBXpressJNIBridge java class.
 
-# If we want to load these rules for a specific USB product with product ID, here is how to do it.
-# SUBSYSTEM=="usb", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="002a", MODE="0666"
-# SUBSYSTEM=="usb_device", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="002a", MODE="0666"
+#set system specific absolute paths
+PROJECT_ROOT_DIR_PATH="/home/r/ws-host-uart/serial-communication-manager"
+JDK_INCLUDE_DIR="/home/r/packages/jdk1.7.0_75/include"
+JNI_HEADER_FILE_PATH="/home/r/packages/jdk1.7.0_75/include/jni.h"
+
+# Generating header file
+set -e
+javah -jni -d $PROJECT_ROOT_DIR_PATH/vendor-libs/silicon-labs/usbxpress -classpath $PROJECT_ROOT_DIR_PATH/com.embeddedunveiled.serial/src com.embeddedunveiled.serial.internal.SerialComSLabsUSBXpressJNIBridge
+echo "javah : Silicon labs SerialComSLabsUSBXpressJNIBridge done !"

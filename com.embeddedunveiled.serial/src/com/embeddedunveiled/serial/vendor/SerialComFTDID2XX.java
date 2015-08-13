@@ -37,6 +37,10 @@ import com.embeddedunveiled.serial.internal.SerialComSystemProperty;
  * 
  * <p>More information about D2XX is here : http://www.ftdichip.com/Drivers/D2XX.htm </p>
  * 
+ * <p>[0] The data types used in java layer may be bigger in size than the native layer. For example; if native 
+ * function returns 16 bit signed integer, than java method will return 32 bit integer. This is done to make 
+ * sure that no data loss occur. This library take care of sign and their applicability internally.</p>
+ * 
  * <p>[1] Developers are requested to check with vendor library documentation if a particular function is supported
  * for desired platform or not and also how does a particular API will behave. Also consider paying attention to 
  * valid values and range when passing arguments to a method. For FTDI d2xx the API guide is here : 
@@ -138,7 +142,7 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 			return this.value;
 		}
 	}
-	
+
 	/**<p>Bit mask to represent FT_LIST_NUMBER_ONLY in D2XX terminology. </p>*/
 	public static final int FT_LIST_NUMBER_ONLY = 0x01;  // 0000001
 
@@ -156,6 +160,87 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 
 	/**<p>Bit mask to represent FT_OPEN_BY_LOCATION in D2XX terminology. </p>*/
 	public static final int FT_OPEN_BY_LOCATION = 0x20;  // 0100000
+
+	/**<p>Constant indicating that the RTS signal need to be set. </p>*/
+	public static final int SETRTS = 1;
+
+	/**<p>Constant indicating that the RTS signal need to be un-set. </p>*/
+	public static final int CLRRTS = 2;
+
+	/**<p>Constant indicating that the DTR signal need to be set. </p>*/
+	public static final int SETDTR = 3;
+
+	/**<p>Constant indicating that the DTR signal need to be un-set. </p>*/
+	public static final int CLRDTR = 4;
+
+	/**<p>Constant indicating that the break condition need to be set. </p>*/
+	public static final int SETBREAK = 5;
+
+	/**<p>Constant indicating that the break condition need to be cleared. </p>*/
+	public static final int CLRBREAK = 6;
+
+	/**<p>Bit mask to represent modem status in D2XX terminology. </p>*/
+	public static final int MS_CTS_ON = 0x01;
+
+	/**<p>Bit mask to represent modem status in D2XX terminology. </p>*/
+	public static final int MS_DSR_ON = 0x02;
+
+	/**<p>Bit mask to represent modem status in D2XX terminology. </p>*/
+	public static final int MS_RING_ON = 0x04;
+
+	/**<p>Bit mask to represent modem status in D2XX terminology. </p>*/
+	public static final int MS_RLSD_ON = 0x08;
+
+	/**<p>Bit mask to represent an event in D2XX terminology. </p>*/
+	public static final int EV_RXCHAR = 0x0001;  // Any Character received
+
+	/**<p>Bit mask to represent an event in D2XX terminology. </p>*/
+	public static final int EV_RXFLAG = 0x0002;  // Received certain character
+
+	/**<p>Bit mask to represent an event in D2XX terminology. </p>*/
+	public static final int EV_TXEMPTY = 0x0004; // Transmit Queue Empty
+
+	/**<p>Bit mask to represent an event in D2XX terminology. </p>*/
+	public static final int EV_CTS = 0x0008;  // CTS changed state
+
+	/**<p>Bit mask to represent an event in D2XX terminology. </p>*/
+	public static final int EV_DSR = 0x0010;  // DSR changed state
+
+	/**<p>Bit mask to represent an event in D2XX terminology. </p>*/
+	public static final int EV_RLSD = 0x0020;  // RLSD changed state
+
+	/**<p>Bit mask to represent an event in D2XX terminology. </p>*/
+	public static final int EV_BREAK = 0x0040;  // BREAK received
+
+	/**<p>Bit mask to represent an event in D2XX terminology. </p>*/
+	public static final int EV_ERR = 0x0080;  // Line status error occurred
+
+	/**<p>Bit mask to represent an event in D2XX terminology. </p>*/
+	public static final int EV_RING = 0x0100;  // Ring signal detected
+
+	/**<p>Bit mask to represent an event in D2XX terminology. </p>*/
+	public static final int EV_PERR = 0x0200;  // Printer error occured
+
+	/**<p>Bit mask to represent an event in D2XX terminology. </p>*/
+	public static final int EV_RX80FULL  = 0x0400;  // Receive buffer is 80 percent full
+
+	/**<p>Bit mask to represent an event in D2XX terminology. </p>*/
+	public static final int EV_EVENT1  = 0x0800;  // Provider specific event 1
+
+	/**<p>Bit mask to represent an event in D2XX terminology. </p>*/
+	public static final int EV_EVENT2 = 0x1000; // Provider specific event 2
+
+	/**<p>Bit mask to represent killing all current and pending transmission operations in D2XX terminology. </p>*/
+	public static final int PURGE_TXABORT = 0x0001;
+
+	/**<p>Bit mask to represent killing all current and pending receive operations in D2XX terminology. </p>*/
+	public static final int PURGE_RXABORT = 0x0002;
+
+	/**<p>Bit mask to represent clearing transmit queue in D2XX terminology. </p>*/
+	public static final int PURGE_TXCLEAR = 0x0004;
+
+	/**<p>Bit mask to represent clearing receive queue in D2XX terminology. </p>*/
+	public static final int PURGE_RXCLEAR = 0x0008;
 
 	private final SerialComFTDID2XXJNIBridge mFTDID2XXJNIBridge;
 
@@ -355,7 +440,7 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 */
 	public long open(final int index) throws SerialComException {
 		if(index < 0) {
-			throw new IllegalArgumentException("open(), " + "Argument index can not be zero !");
+			throw new IllegalArgumentException("Argument index can not be negative !");
 		}
 		long handle = mFTDID2XXJNIBridge.open(index);
 		if(handle < 0) {
@@ -420,10 +505,10 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 */
 	public int read(long handle, final byte[] buffer, int numOfBytesToRead) throws SerialComException {
 		if(buffer == null) {
-			throw new IllegalArgumentException("read(), " + "Argument buffer can not be null !");
+			throw new IllegalArgumentException("Argument buffer can not be null !");
 		}
 		if(numOfBytesToRead <= 0) {
-			throw new IllegalArgumentException("read(), " + "Argument numOfBytesToRead can not be negative or zero !");
+			throw new IllegalArgumentException("Argument numOfBytesToRead can not be negative or zero !");
 		}
 		int ret = mFTDID2XXJNIBridge.read(handle, buffer, numOfBytesToRead);
 		if(ret < 0) {
@@ -447,10 +532,10 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 */
 	public int write(long handle, final byte[] buffer, int numOfBytesToWrite) throws SerialComException {
 		if(buffer == null) {
-			throw new IllegalArgumentException("write(), " + "Argument buffer can not be null !");
+			throw new IllegalArgumentException("Argument buffer can not be null !");
 		}
 		if(numOfBytesToWrite <= 0) {
-			throw new IllegalArgumentException("write(), " + "Argument numOfBytesToWrite can not be negative or zero !");
+			throw new IllegalArgumentException("Argument numOfBytesToWrite can not be negative or zero !");
 		}
 		int ret = mFTDID2XXJNIBridge.write(handle, buffer, numOfBytesToWrite);
 		if(ret < 0) {
@@ -473,7 +558,7 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 */
 	public boolean setBaudRate(final long handle, int baudRate) throws SerialComException {
 		if(baudRate < 0) {
-			throw new IllegalArgumentException("setBaudRate(), " + "Argument baudRate can not be negative !");
+			throw new IllegalArgumentException("Argument baudRate can not be negative !");
 		}
 		int ret = mFTDID2XXJNIBridge.setBaudRate(handle, baudRate);
 		if(ret < 0) {
@@ -488,7 +573,7 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 * 
 	 * <p>Sets the divisor value for the given FT device.</p>
 	 * 
-	 * @param handle handle of the device whose baud rate need to be set.
+	 * @param handle handle of the device whose divisor is to be set.
 	 * @param divisor divisor to be used for setting correct custom baud rate.
 	 * @return true if the operation executed successfully.
 	 * @throws SerialComException if an I/O error occurs.
@@ -496,7 +581,7 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 */
 	public boolean setDivisor(final long handle, int divisor) throws SerialComException {
 		if(divisor < 0) {
-			throw new IllegalArgumentException("setDivisor(), " + "Argument divisor can not be negative !");
+			throw new IllegalArgumentException("Argument divisor can not be negative !");
 		}
 
 		int ret = mFTDID2XXJNIBridge.setDivisor(handle, divisor);
@@ -521,13 +606,13 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 */
 	public boolean setDataCharacteristics(final long handle, DATABITS dataBits, STOPBITS stopBits, PARITY parity) throws SerialComException {
 		if(dataBits == null) {
-			throw new IllegalArgumentException("setDataCharacteristics(), " + "Argument dataBits can not be null !");
+			throw new IllegalArgumentException("Argument dataBits can not be null !");
 		}
 		if(stopBits == null) {
-			throw new IllegalArgumentException("setDataCharacteristics(), " + "Argument stopBits can not be null !");
+			throw new IllegalArgumentException("Argument stopBits can not be null !");
 		}
 		if(parity == null) {
-			throw new IllegalArgumentException("setDataCharacteristics(), " + "Argument parity can not be null !");
+			throw new IllegalArgumentException("Argument parity can not be null !");
 		}
 
 		int ret = mFTDID2XXJNIBridge.setDataCharacteristics(handle, dataBits.getValue(), stopBits.getValue(), parity.getValue());
@@ -542,7 +627,7 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 * 
 	 * <p>Sets the read and write time out values for the given FT device.</p>
 	 * 
-	 * @param handle handle of the device whose baud rate need to be set.
+	 * @param handle handle of the device whose timeouts need to be set.
 	 * @param readTimeOut read time out in milliseconds.
 	 * @param writeTimeOut write time out in milliseconds.
 	 * @return true if the operation executed successfully.
@@ -551,10 +636,10 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 */
 	public boolean setTimeouts(final long handle, long readTimeOut, long writeTimeOut) throws SerialComException {
 		if(readTimeOut < 0) {
-			throw new IllegalArgumentException("setTimeouts(), " + "Argument readTimeOut can not be negative !");
+			throw new IllegalArgumentException("Argument readTimeOut can not be negative !");
 		}
 		if(writeTimeOut < 0) {
-			throw new IllegalArgumentException("setTimeouts(), " + "Argument writeTimeOut can not be negative !");
+			throw new IllegalArgumentException("Argument writeTimeOut can not be negative !");
 		}
 
 		int ret = mFTDID2XXJNIBridge.setTimeouts(handle, readTimeOut, writeTimeOut);
@@ -569,7 +654,7 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 * 
 	 * <p>Sets the flow control mode for the given FT device.</p>
 	 * 
-	 * @param handle handle of the device whose baud rate need to be set.
+	 * @param handle handle of the device whose flow control is to be set.
 	 * @param flctrl flow control of serial frame (refer FLOWCTRL enum in SerialComFTDID2XX class for this).
 	 * @param xon character used to signal Xon if software flow control is used.
 	 * @param xoff character used to signal Xoff if software flow control is used.
@@ -579,7 +664,7 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 */
 	public boolean setFlowControl(final long handle, FLOWCTRL flctrl, char xon, char xoff) throws SerialComException {
 		if(flctrl == null) {
-			throw new IllegalArgumentException("setTimeouts(), " + "Argument flctrl can not be null !");
+			throw new IllegalArgumentException("Argument flctrl can not be null !");
 		}
 
 		int ret = mFTDID2XXJNIBridge.setFlowControl(handle, flctrl.getValue(), xon, xoff);
@@ -731,6 +816,7 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 * 
 	 * <p>Gets the D2XX DLL version number.</p>
 	 * 
+	 * @param handle handle of device for which library version is to be found.
 	 * @return driver version number for the requested device handle.
 	 * @throws SerialComException if an I/O error occurs.
 	 */
@@ -919,7 +1005,7 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 		}
 		return true;
 	}
-	
+
 	/**
 	 * <p>Executes FT_Reload function of D2XX library.</p>
 	 * 
@@ -937,7 +1023,7 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 		}
 		return true;
 	}
-	
+
 	/**
 	 * <p>Executes SetResetPipeRetryCount function of D2XX library.</p>
 	 * 
@@ -955,7 +1041,7 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 		}
 		return true;
 	}
-	
+
 	/**
 	 * <p>Executes FT_StopInTask function of D2XX library.</p>
 	 * 
@@ -972,7 +1058,7 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 		}
 		return true;
 	}
-	
+
 	/**
 	 * <p>Executes FT_StopInTask function of D2XX library.</p>
 	 * 
@@ -989,7 +1075,7 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 		}
 		return true;
 	}
-	
+
 	/**
 	 * <p>Executes FT_SetDeadmanTimeout function of D2XX library.</p>
 	 * 
@@ -1011,27 +1097,590 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 
 	// EEPROM Programming Interface Functions
 
+	/**
+	 * <p>Executes FT_ReadEE function of D2XX library.</p>
+	 * 
+	 * <p>Read a value from an EEPROM location.</p>
+	 * 
+	 * @param handle handle of the device whose EEPROM is to be read.
+	 * @param offset EEPROM location to read from.
+	 * @return value read at given address.
+	 * @throws SerialComException if an I/O error occurs.
+	 * @throws IllegalArgumentException if offset is negative.
+	 */
+	public int readEE(final long handle, int offset) throws SerialComException {
+		if(offset < 0) {
+			throw new IllegalArgumentException("Argument offset can not be negative !");
+		}
+		int ret = mFTDID2XXJNIBridge.readEE(handle, offset);
+		if(ret < 0) {
+			throw new SerialComException("Could not read the value from given address offset. Please retry !");
+		}
+		return ret;
+	}
+
+	/**
+	 * <p>Executes FT_WriteEE function of D2XX library.</p>
+	 * 
+	 * <p>Write a value to an EEPROM location.</p>
+	 * 
+	 * @param handle handle of the device whose EEPROM will be written.
+	 * @param offset EEPROM location to write at.
+	 * @param valueToWrite value to write at given address.
+	 * @return true if operation executed successfully.
+	 * @throws SerialComException if an I/O error occurs.
+	 * @throws IllegalArgumentException if offset is negative.
+	 */
+	public boolean writeEE(final long handle, int offset, int valueToWrite) throws SerialComException {
+		if(offset < 0) {
+			throw new IllegalArgumentException("Argument offset can not be negative !");
+		}
+		int ret = mFTDID2XXJNIBridge.writeEE(handle, offset, valueToWrite);
+		if(ret < 0) {
+			throw new SerialComException("Could not read the value from given address offset. Please retry !");
+		}
+		return true;
+	}
+
+	/**
+	 * <p>Executes FT_EraseEE function of D2XX library.</p>
+	 * 
+	 * <p>Erase the entire contents of an EEPROM, including the user area.</p>
+	 * 
+	 * @param handle handle of the device which need to be erased.
+	 * @return true if entire EEPROM has been erased successfully.
+	 * @throws SerialComException if an I/O error occurs.
+	 */
+	public boolean eraseEE(final long handle) throws SerialComException {
+		int ret = mFTDID2XXJNIBridge.eraseEE(handle);
+		if(ret < 0) {
+			throw new SerialComException("Could not erase the EEPROM. Please retry !");
+		}
+		return true;
+	}
+
+	//TODO FT_EE_Read
+	//TODO FT_EE_Readex
+	//TODO FT_EE_program
+	//TODO FT_EE_programex
+
+	/**
+	 * <p>Executes FT_EE_UASize function of D2XX library.</p>
+	 * 
+	 * <p>Get the available size of the EEPROM user area.</p>
+	 * 
+	 * @param handle handle of the device whose EEPROM area is to be calculated.
+	 * @return area in terms of number of bytes.
+	 * @throws SerialComException if an I/O error occurs.
+	 */
+	public int eeUAsize(final long handle) throws SerialComException {
+		int ret = mFTDID2XXJNIBridge.eeUAsize(handle);
+		if(ret < 0) {
+			throw new SerialComException("Could not determine the available size. Please retry !");
+		}
+		return ret;
+	}
+
+	/**
+	 * <p>Executes FT_EE_UARead function of D2XX library.</p>
+	 * 
+	 * <p>Get the available size of the EEPROM user area.</p>
+	 * 
+	 * @param handle handle of the device whose EEPROM area is to be read.
+	 * @param buffer byte buffer to store data.
+	 * @param length number of bytes to read from EEPROM.
+	 * @return number of bytes actually read.
+	 * @throws SerialComException if an I/O error occurs.
+	 */
+	public int eeUAread(final long handle, byte[] buffer, int length) throws SerialComException {
+		int ret = mFTDID2XXJNIBridge.eeUAread(handle, buffer, length);
+		if(ret < 0) {
+			throw new SerialComException("Could not read the EEPROM. Please retry !");
+		}
+		return ret;
+	}
+
+	/**
+	 * <p>Executes FT_EE_UAWrite function of D2XX library.</p>
+	 * 
+	 * <p>Write data into the EEPROM user area.</p>
+	 * 
+	 * @param handle handle of the device whose EEPROM area is to be written.
+	 * @param buffer byte buffer to containing data.
+	 * @param length number of bytes to write from buffer to EEPROM.
+	 * @return true on success.
+	 * @throws SerialComException if an I/O error occurs.
+	 */
+	public boolean eeUAwrite(final long handle, byte[] buffer, int length) throws SerialComException {
+		int ret = mFTDID2XXJNIBridge.eeUAwrite(handle, buffer, length);
+		if(ret < 0) {
+			throw new SerialComException("Could not read the EEPROM. Please retry !");
+		}
+		return true;
+	}
+
+	//todo FT_EEPROM_Read
+	//todo FT_EEPROM_Program
+
 	// Extended API Functions
+
+	/**
+	 * <p>Executes FT_SetLatencyTimer function of D2XX library.</p>
+	 * 
+	 * <p>Set the latency timer value.</p>
+	 * 
+	 * @param handle handle of the device whose timer need to be set.
+	 * @param value timer value.
+	 * @return true on success.
+	 * @throws SerialComException if an I/O error occurs.
+	 */
+	public boolean setLatencyTimer(final long handle, int value) throws SerialComException {
+		int ret = mFTDID2XXJNIBridge.setLatencyTimer(handle, value);
+		if(ret < 0) {
+			throw new SerialComException("Could not set the latency timer value. Please retry !");
+		}
+		return true;
+	}
+
+	/**
+	 * <p>Executes FT_GetLatencyTimer function of D2XX library.</p>
+	 * 
+	 * <p>Get the current value of the latency timer.</p>
+	 * 
+	 * @param handle handle of the device whose timer value is to be read.
+	 * @return current timer value.
+	 * @throws SerialComException if an I/O error occurs.
+	 */
+	public int getLatencyTimer(final long handle) throws SerialComException {
+		int ret = mFTDID2XXJNIBridge.getLatencyTimer(handle);
+		if(ret < 0) {
+			throw new SerialComException("Could not determine the latency timer value. Please retry !");
+		}
+		return ret;
+	}
+
+	/**
+	 * <p>Executes FT_SetBitMode function of D2XX library.</p>
+	 * 
+	 * <p>Enables different chip modes.</p>
+	 * 
+	 * @param handle handle of the device whose mode is to be set.
+	 * @param mask Required value for bit mode mask. This sets up which bits are inputs and outputs. A bit value 
+	 * of 0 sets the corresponding pin to an input, a bit value of 1 sets the corresponding pin to an output. In 
+	 * the case of CBUS Bit Bang, the upper nibble of this value controls which pins are inputs and outputs, while 
+	 * the lower nibble controls which of the outputs are high and low.
+	 * @param mode it should be one of the following : 0x0 for Reset, 0x1 for Asynchronous Bit Bang, 0x2 for MPSSE, 
+	 * 0x4 for Synchronous Bit Bang, 0x8 for MCU Host Bus Emulation Mode, 0x10 for Fast Opto-Isolated Serial Mode, 
+	 * 0x20 for CBUS Bit Bang Mode, 0x40 for Single Channel Synchronous 245 FIFO Mode.
+	 * @return true on success.
+	 * @throws SerialComException if an I/O error occurs.
+	 */
+	public boolean setBitMode(final long handle, int mask, int mode) throws SerialComException {
+		int ret = mFTDID2XXJNIBridge.setBitMode(handle, mask, mode);
+		if(ret < 0) {
+			throw new SerialComException("Could not set the given chip mode. Please retry !");
+		}
+		return true;
+	}
+
+	/**
+	 * <p>Executes FT_GetBitMode function of D2XX library.</p>
+	 * 
+	 * <p>Get the current chip mode.</p>
+	 * 
+	 * @param handle handle of the device whose mode is to be fetched.
+	 * @return current chip mode settings.
+	 * @throws SerialComException if an I/O error occurs.
+	 */
+	public int getBitMode(final long handle) throws SerialComException {
+		int ret = mFTDID2XXJNIBridge.getBitMode(handle);
+		if(ret < 0) {
+			throw new SerialComException("Could not get the given chip mode. Please retry !");
+		}
+		return ret;
+	}
+
+	/**
+	 * <p>Executes FT_SetUSBParameters function of D2XX library.</p>
+	 * 
+	 * <p>Set the USB request transfer size.</p>
+	 * 
+	 * @param handle handle of the device whose parameters is to be set.
+	 * @param inTransferSize Transfer size for USB IN request.
+	 * @param outTransferSize Transfer size for USB OUT request.
+	 * @return true on success.
+	 * @throws SerialComException if an I/O error occurs.
+	 */
+	public boolean setUSBParameters(final long handle, int inTransferSize, int outTransferSize) throws SerialComException {
+		int ret = mFTDID2XXJNIBridge.setUSBParameters(handle, inTransferSize, outTransferSize);
+		if(ret < 0) {
+			throw new SerialComException("Could not set the usb parameters. Please retry !");
+		}
+		return true;
+	}
 
 	// FT-Win32 API Functions
 
+	// createfile todo
+
+	/**
+	 * <p>Executes FT_W32_CloseHandle function of D2XX library.</p>
+	 * 
+	 * <p>Close the specified device handle.</p>
+	 * 
+	 * @param handle of the device that is to be close.
+	 * @return true on success.
+	 * @throws SerialComException if an I/O error occurs.
+	 */
+	public boolean w32CloseHandle(final long handle) throws SerialComException {
+		int ret = mFTDID2XXJNIBridge.w32CloseHandle(handle);
+		if(ret < 0) {
+			throw new SerialComException("Could not close the requested device. Please retry !");
+		}
+
+		return true;
+	}
+
+	/**
+	 * <p>Executes FT_W32_ReadFile function of D2XX library.</p>
+	 * 
+	 * <p>Read data from the device.</p>
+	 * 
+	 * @param handle handle of the device from which to read data.
+	 * @param buffer byte buffer where data read will be placed.
+	 * @param numOfBytesToRead number of bytes to be tried to read.
+	 * @return number of bytes read.
+	 * @throws SerialComException if an I/O error occurs.
+	 * @throws IllegalArgumentException if buffer is null or numOfBytesToRead is negative or zero.
+	 */
+	public int w32ReadFile(long handle, final byte[] buffer, int numOfBytesToRead) throws SerialComException {
+		if(buffer == null) {
+			throw new IllegalArgumentException("Argument buffer can not be null !");
+		}
+		if(numOfBytesToRead <= 0) {
+			throw new IllegalArgumentException("Argument numOfBytesToRead can not be negative or zero !");
+		}
+		int ret = mFTDID2XXJNIBridge.w32ReadFile(handle, buffer, numOfBytesToRead);
+		if(ret < 0) {
+			throw new SerialComException("Could not read the data from the requested device. Please retry !");
+		}
+
+		return ret;
+	}
+
+	/**
+	 * <p>Executes FT_W32_WriteFile function of D2XX library.</p>
+	 * 
+	 * <p>Write data from given buffer to the device.</p>
+	 * 
+	 * @param handle handle of the device to which data is to be sent.
+	 * @param buffer byte buffer that contains the data to be written to the device.
+	 * @param numOfBytesToWrite Number of bytes to write to the device.
+	 * @return number of bytes written to the device.
+	 * @throws SerialComException if an I/O error occurs.
+	 * @throws IllegalArgumentException if buffer is null or numOfBytesToWrite is negative or zero.
+	 */
+	public int w32WriteFile(long handle, final byte[] buffer, int numOfBytesToWrite) throws SerialComException {
+		if(buffer == null) {
+			throw new IllegalArgumentException("Argument buffer can not be null !");
+		}
+		if(numOfBytesToWrite <= 0) {
+			throw new IllegalArgumentException("Argument numOfBytesToWrite can not be negative or zero !");
+		}
+		int ret = mFTDID2XXJNIBridge.w32WriteFile(handle, buffer, numOfBytesToWrite);
+		if(ret < 0) {
+			throw new SerialComException("Could not send data to the requested device. Please retry !");
+		}
+
+		return ret;
+	}
+
+	/**
+	 * <p>Executes FT_W32_GetOverlappedResult function of D2XX library.</p>
+	 * 
+	 * <p>Gets the result of an overlapped operation.</p>
+	 * 
+	 * @param handle handle of the device whose baud rate need to be set.
+	 * @param wait Set to TRUE if the function does not return until the operation has been completed.
+	 * @return true if the operation executed successfully.
+	 * @throws SerialComException if an I/O error occurs.
+	 */
+	public boolean w32GetOverlappedResult(final long handle, boolean wait) throws SerialComException {
+		int ret = mFTDID2XXJNIBridge.w32GetOverlappedResult(handle, wait);
+		if(ret < 0) {
+			throw new SerialComException("Requested operation could not be executed successfully. Please retry !");
+		}
+		return true;
+	}
+
+	/**
+	 * <p>Executes FT_W32_EscapeCommFunction function of D2XX library.</p>
+	 * 
+	 * <p>Perform an extended function.</p>
+	 * 
+	 * @param handle handle of the device.
+	 * @param function can be one of the following constant : SETRTS, CLRRTS, SETDTR, CLRDTR and CLRBREAK defined in this class.
+	 * @return true if the operation executed successfully.
+	 * @throws SerialComException if an I/O error occurs.
+	 */
+	public boolean w32EscapeCommFunction(final long handle, short function) throws SerialComException {
+		int ret = mFTDID2XXJNIBridge.w32EscapeCommFunction(handle, function);
+		if(ret < 0) {
+			throw new SerialComException("Requested operation could not be executed successfully. Please retry !");
+		}
+		return true;
+	}
+
+	/**
+	 * <p>Executes FT_W32_GetCommModemStatus function of D2XX library.</p>
+	 * 
+	 * <p>Gets the current modem control value.</p>
+	 * 
+	 * @param handle handle of the device.
+	 * @return bit mask of the following constant : MS_CTS_ON, MS_DSR_ON, MS_RING_ON and MS_RLSD_ON.
+	 * @throws SerialComException if an I/O error occurs.
+	 */
+	public int w32GetCommModemStatus(final long handle) throws SerialComException {
+		int ret = mFTDID2XXJNIBridge.w32GetCommModemStatus(handle);
+		if(ret < 0) {
+			throw new SerialComException("Could not get the modem status. Please retry !");
+		}
+		return ret;
+	}
+
+	/**
+	 * <p>Executes FT_W32_SetupComm function of D2XX library.</p>
+	 * 
+	 * <p>Sets the read and write buffers.</p>
+	 * 
+	 * @param handle handle of the device.
+	 * @return true if buffer size is set as requested.
+	 * @throws SerialComException if an I/O error occurs.
+	 */
+	public boolean w32SetupComm(final long handle, int readBufSize, int writeBufSize) throws SerialComException {
+		int ret = mFTDID2XXJNIBridge.w32SetupComm(handle, readBufSize, writeBufSize);
+		if(ret < 0) {
+			throw new SerialComException("Could not set the buffer size. Please retry !");
+		}
+		return true;
+	}
+
+	/**
+	 * <p>Executes FT_W32_SetCommState function of D2XX library.</p>
+	 * 
+	 * <p>Sets the setting given in DCB structure.</p>
+	 * 
+	 * @param handle handle of the device.
+	 * @param dcb configuration values in following order : BaudRate, fBinary, fParity, fOutxCtsFlow, fOutxDsrFlow, 
+	 * fDtrControl, fDsrSensitivity, fTXContinueOnXoff, fOutX, fInX, fErrorChar, fNull, fRtsControl, fAbortOnError, 
+	 * XonLim, XoffLim, ByteSize, Parity, StopBits, XonChar, XoffChar, ErrorChar, EofChar and EvtChar.
+	 * @return true if operation executed successfully.
+	 * @throws SerialComException if an I/O error occurs.
+	 */
+	public boolean w32SetCommState(final long handle, String[] dcb) throws SerialComException {
+		int ret = mFTDID2XXJNIBridge.w32SetCommState(handle, dcb);
+		if(ret < 0) {
+			throw new SerialComException("Could not set the given settings values. Please retry !");
+		}
+		return true;
+	}
+
+	/**
+	 * <p>Executes FT_W32_GetCommState function of D2XX library.</p>
+	 * 
+	 * <p>Gets the current device state.</p>
+	 * 
+	 * @param handle handle of the device.
+	 * @return current setting as per DCB structure.
+	 * @throws SerialComException if an I/O error occurs.
+	 */
+	public String[] w32GetCommState(final long handle) throws SerialComException {
+		String[] ret = mFTDID2XXJNIBridge.w32GetCommState(handle);
+		if(ret == null) {
+			throw new SerialComException("Could not get the current state. Please retry !");
+		}
+		return ret;
+	}
+
+	/**
+	 * <p>Executes FT_W32_SetCommTimeouts function of D2XX library.</p>
+	 * 
+	 * <p>Sets the timeout parameters for I/O requests.</p>
+	 * 
+	 * @param handle handle of the device.
+	 * @param readIntervalTimeout The maximum time allowed to elapse before the arrival of the next byte on the communications line, in milliseconds.
+	 * @param readTotalTimeoutMultiplier The multiplier used to calculate the total time-out period for read operations, in milliseconds.
+	 * @param readTotalTimeoutConstant A constant used to calculate the total time-out period for read operations, in milliseconds. 
+	 * @param writeTotalTimeoutMultiplier The multiplier used to calculate the total time-out period for write operations, in milliseconds.
+	 * @param writeTotalTimeoutConstant A constant used to calculate the total time-out period for write operations, in milliseconds. 
+	 * @return true if operation executed successfully.
+	 * @throws SerialComException if an I/O error occurs.
+	 */
+	public boolean w32SetCommTimeouts(long handle, int readIntervalTimeout, int readTotalTimeoutMultiplier, 
+			int readTotalTimeoutConstant, int writeTotalTimeoutMultiplier, int writeTotalTimeoutConstant) throws SerialComException {
+		int ret = mFTDID2XXJNIBridge.w32SetCommTimeouts(handle, readIntervalTimeout, readTotalTimeoutMultiplier, 
+				readTotalTimeoutConstant, writeTotalTimeoutMultiplier, writeTotalTimeoutConstant);
+		if(ret < 0) {
+			throw new SerialComException("Could not set the given timeouts. Please retry !");
+		}
+		return true;
+	}
+
+	/**
+	 * <p>Executes FT_W32_GetCommTimeouts function of D2XX library.</p>
+	 * 
+	 * <p>Gets the timeout parameters for I/O requests.</p>
+	 * 
+	 * @param handle handle of the device whose timeout values is to be fetched.
+	 * @return array of integers with elements in following sequence : readIntervalTimeout, readTotalTimeoutMultiplier, 
+	 * readTotalTimeoutConstant, writeTotalTimeoutMultiplier and writeTotalTimeoutConstant.
+	 * @throws SerialComException if an I/O error occurs.
+	 */
+	public int[] w32GetCommTimeouts(long handle) throws SerialComException {
+		int[] ret = mFTDID2XXJNIBridge.w32GetCommTimeouts(handle);
+		if(ret == null) {
+			throw new SerialComException("Could not get the timeout values. Please retry !");
+		}
+		return ret;
+	}
+
+	/**
+	 * <p>Executes FT_W32_SetCommBreak function of D2XX library.</p>
+	 * 
+	 * <p>Puts the communications line in the BREAK state.</p>
+	 * 
+	 * @param handle handle of the device.
+	 * @return true if operation executed successfully.
+	 * @throws SerialComException if an I/O error occurs.
+	 */
+	public boolean w32SetCommBreak(long handle) throws SerialComException {
+		int ret = mFTDID2XXJNIBridge.w32SetCommBreak(handle);
+		if(ret < 0) {
+			throw new SerialComException("Could not set the break condition. Please retry !");
+		}
+		return true;
+	}
+
+	/**
+	 * <p>Executes FT_W32_ClearCommBreak function of D2XX library.</p>
+	 * 
+	 * <p>Puts the communications line in the non-BREAK state.</p>
+	 * 
+	 * @param handle handle of the device.
+	 * @return true if operation executed successfully.
+	 * @throws SerialComException if an I/O error occurs.
+	 */
+	public boolean w32ClearCommBreak(long handle) throws SerialComException {
+		int ret = mFTDID2XXJNIBridge.w32ClearCommBreak(handle);
+		if(ret < 0) {
+			throw new SerialComException("Could not un-set the break condition. Please retry !");
+		}
+		return true;
+	}
+
+	/**
+	 * <p>Executes FT_W32_SetCommMask function of D2XX library.</p>
+	 * 
+	 * <p>Specifies events that the device has to monitor.</p>
+	 * 
+	 * @param handle handle of the device.
+	 * @param flag bit mask of the constants EV_XXXXX in this class.
+	 * @return true if operation executed successfully.
+	 * @throws SerialComException if an I/O error occurs.
+	 */
+	public boolean w32SetCommMask(long handle, int flag) throws SerialComException {
+		int ret = mFTDID2XXJNIBridge.w32SetCommMask(handle, flag);
+		if(ret < 0) {
+			throw new SerialComException("Could not set the communication mask. Please retry !");
+		}
+		return true;
+	}
+
+	/**
+	 * <p>Executes FT_W32_GetCommMask function of D2XX library.</p>
+	 * 
+	 * <p>Specifies events that the device has to monitor.</p>
+	 * 
+	 * @param handle handle of the device.
+	 * @return bit mask of the constants EV_XXXXX in this class.
+	 * @throws SerialComException if an I/O error occurs.
+	 */
+	public int w32GetCommMask(long handle) throws SerialComException {
+		int ret = mFTDID2XXJNIBridge.w32GetCommMask(handle);
+		if(ret < 0) {
+			throw new SerialComException("Could not set the communication mask. Please retry !");
+		}
+		return ret;
+	}
+
+	/**
+	 * <p>Executes FT_W32_WaitCommEvent function of D2XX library.</p>
+	 * 
+	 * <p>Waits for an event to occur.</p>
+	 * 
+	 * @param handle handle of the device.
+	 * @param event bit mask of the constants EV_XXXXX in this class.
+	 * @return true if event happened.
+	 * @throws SerialComException if an I/O error occurs.
+	 */
+	public boolean w32WaitCommEvent(long handle, int event) throws SerialComException {
+		int ret = mFTDID2XXJNIBridge.w32WaitCommEvent(handle, event);
+		if(ret < 0) {
+			throw new SerialComException("Could not wait for event specified. Please retry !");
+		}
+		return true;
+	}
+
+	/**
+	 * <p>Executes FT_W32_PurgeComm function of D2XX library.</p>
+	 * 
+	 * <p>Aborts and clear buffers as per flag bits.</p>
+	 * 
+	 * @param handle handle of the device.
+	 * @param event bit mask of the constants PURGE_XXXXX in this class.
+	 * @return true if operation executed successfully.
+	 * @throws SerialComException if an I/O error occurs.
+	 */
+	public boolean w32PurgeComm(long handle, int event) throws SerialComException {
+		int ret = mFTDID2XXJNIBridge.w32PurgeComm(handle, event);
+		if(ret < 0) {
+			throw new SerialComException("Could not purge the port as specified. Please retry !");
+		}
+		return true;
+	}
+
+	/**
+	 * <p>Executes FT_W32_GetLastError function of D2XX library.</p>
+	 * 
+	 * <p>Gets the last error that occurred on the device.</p>
+	 * 
+	 * @param handle handle of the device.
+	 * @return error string if any.
+	 * @throws SerialComException if an I/O error occurs.
+	 */
+	public String w32GetLastError(long handle) throws SerialComException {
+		String ret = mFTDID2XXJNIBridge.w32GetLastError(handle);
+		if(ret == null) {
+			throw new SerialComException("Could not get the last error. Please retry !");
+		}
+		return ret;
+	}
+
+	/**
+	 * <p>Executes FT_W32_ClearCommError function of D2XX library.</p>
+	 * 
+	 * <p>Gets the last error that occurred on the device.</p>
+	 * 
+	 * @param handle handle of the device.
+	 * @return array of string with information.
+	 * @throws SerialComException if an I/O error occurs.
+	 */
+	public String[] w32ClearCommError(long handle) throws SerialComException {
+		String[] ret = mFTDID2XXJNIBridge.w32ClearCommError(handle);
+		if(ret == null) {
+			throw new SerialComException("Could not get the error and status information. Please retry !");
+		}
+		return ret;
+	}
+
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

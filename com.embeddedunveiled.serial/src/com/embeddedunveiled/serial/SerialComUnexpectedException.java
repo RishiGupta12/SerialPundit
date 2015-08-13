@@ -20,21 +20,21 @@ package com.embeddedunveiled.serial;
 import java.io.IOException;
 
 /** 
- * <p>This exception is thrown in situation which was not supposed to happen. 
- * This limit the scope of exceptions in context of serial operation only. </p>
+ * <p>Exception thrown in situation which was not supposed to happen. 
+ * This limit the scope of exceptions in context of serial operation only.</p>
  */
 public final class SerialComUnexpectedException extends IOException {
 
-	private static final long serialVersionUID = 3250678728644547668L;
+
+	private static final long serialVersionUID = 3053241529497992367L;
 
 	/**
-     * <p>Constructs and allocate a SerialComUnexpectedException object with the specified details.</p>
-     *
-     * @param methodName name of method where exception occurred.
-     * @param exceptionMsg message describing reason for exception.
-     */
-	public SerialComUnexpectedException(String methodName, String exceptionMsg) {
-		super(exceptionMsg + " in method " + methodName);
+	 * <p>Constructs and allocate a SerialComUnexpectedException object with the specified details.</p>
+	 *
+	 * @param exceptionMsg message describing reason for exception.
+	 */
+	public SerialComUnexpectedException(String exceptionMsg) {
+		super(exceptionMsg);
 	}
-	
+
 }

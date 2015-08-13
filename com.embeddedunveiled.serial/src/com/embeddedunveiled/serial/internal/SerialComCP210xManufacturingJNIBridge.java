@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.FileNotFoundException;
+
 import com.embeddedunveiled.serial.SerialComLoadException;
 import com.embeddedunveiled.serial.SerialComManager;
 import com.embeddedunveiled.serial.SerialComUnexpectedException;
@@ -28,12 +29,12 @@ import com.embeddedunveiled.serial.SerialComUnexpectedException;
 /**
  * <p>This class is an interface between java and native shared library.</p>
  */
-public final class SerialComCP210xRuntimeJNIBridge {
+public final class SerialComCP210xManufacturingJNIBridge {
 
 	/**
-	 * <p>Allocates a new SerialComCP210xRuntimeJNIBridge object.</p>
+	 * <p>Allocates a new SerialComCP210xManufacturingJNIBridge object.</p>
 	 */
-	public SerialComCP210xRuntimeJNIBridge() {
+	public SerialComCP210xManufacturingJNIBridge() {
 	}
 
 	/**
@@ -69,25 +70,25 @@ public final class SerialComCP210xRuntimeJNIBridge {
 		if(cpuArch == SerialComManager.ARCH_AMD64) {
 			switch(osType) {
 			case SerialComManager.OS_WINDOWS:
-				libToExtractFromJar = "win_cp210xr_" + SerialComManager.JAVA_LIB_VERSION + "_x86_64.dll";
+				libToExtractFromJar = "win_cp210xm_" + SerialComManager.JAVA_LIB_VERSION + "_x86_64.dll";
 				break;
 			case SerialComManager.OS_LINUX:
-				libToExtractFromJar = "linux_cp210xr_" + SerialComManager.JAVA_LIB_VERSION + "_x86_64.so";
+				libToExtractFromJar = "linux_cp210xm_" + SerialComManager.JAVA_LIB_VERSION + "_x86_64.so";
 				break;
 			case SerialComManager.OS_MAC_OS_X:
-				libToExtractFromJar = "mac_cp210xr_" + SerialComManager.JAVA_LIB_VERSION + "_x86_64.dylib";
+				libToExtractFromJar = "mac_cp210xm_" + SerialComManager.JAVA_LIB_VERSION + "_x86_64.dylib";
 			default:
 			}
 		}else if(cpuArch == SerialComManager.ARCH_X86) {
 			switch(osType) {
 			case SerialComManager.OS_WINDOWS:
-				libToExtractFromJar = "win_cp210xr_" + SerialComManager.JAVA_LIB_VERSION + "_x86.dll";
+				libToExtractFromJar = "win_cp210xm_" + SerialComManager.JAVA_LIB_VERSION + "_x86.dll";
 				break;
 			case SerialComManager.OS_LINUX:
-				libToExtractFromJar = "linux_cp210xr_" + SerialComManager.JAVA_LIB_VERSION + "_x86.so";
+				libToExtractFromJar = "linux_cp210xm_" + SerialComManager.JAVA_LIB_VERSION + "_x86.so";
 				break;
 			case SerialComManager.OS_MAC_OS_X:
-				libToExtractFromJar = "mac_cp210xr_" + SerialComManager.JAVA_LIB_VERSION + "_x86.dylib";
+				libToExtractFromJar = "mac_cp210xm_" + SerialComManager.JAVA_LIB_VERSION + "_x86.dylib";
 			default:
 			}
 		}else {
@@ -150,10 +151,33 @@ public final class SerialComCP210xRuntimeJNIBridge {
 		return true;
 	}
 
-	public native int readLatch(long handle);
-	public native int writeLatch(long handle, long mask, long latchValue);
-	public native int getPartNumber(long handle);
+	public native int getNumDevices();
+	public native String getProductString(int index, int flag);
+	public native long open(int index);
+	public native int close(long handle);
+	public native String getPartNumber(long handle);
+	public native int setVid(long handle, int vid);
+	public native int setPid(long handle, int pid);
+	public native int setProductString(long handle, String description);
+	public native int setSerialNumber(long handle, String serialNumber);
+	public native int setSelfPower(long handle, boolean selfPower);
+	public native int setMaxPower(long handle, byte maxPower);
+	public native int setFlushBufferConfig(long handle, int flag);
+	public native int setDeviceVersion(long handle, int version);
+	public native int setBaudRateConfig(long handle, int baudGen, int timer0Reload, int prescalar, int baudrate);
+	public native int setPortConfig(long handle, int mode, int resetLatch, int suspendLatch, int enhancedFxn);
+	public native int setLockValue(long handle);
+	public native int getDeviceVid(long handle);
+	public native int getDevicePid(long handle);
 	public native String getDeviceProductString(long handle);
 	public native String getDeviceSerialNumber(long handle);
-	public native String getDeviceInterfaceString(long handle);
+	public native int getSelfPower(long handle);
+	public native int getMaxPower(long handle);
+	public native int getFlushBufferConfig(long handle);
+	public native int getDeviceVersion(long handle);
+	public native int[] getBaudRateConfig(long handle);
+	public native int[] getPortConfig(long handle);
+	public native int getLockValue(long handle);
+	public native int reset(long handle);
+	public native int createHexFile(long handle, String fileName);
 }

@@ -2864,4 +2864,16 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
 	return list_local_bt_adaptors(env, obj);
 }
 
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
+ * Method:    rescanUSBDevicesHW
+ * Signature: ()I
+ *
+ * @return -1.
+ * Applicable to Windows operating system only.
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_rescanUSBDevicesHW(JNIEnv *env, jobject obj) {
+	return -1;
+}
+
 #endif /* End compiling for Unix-like OS. */

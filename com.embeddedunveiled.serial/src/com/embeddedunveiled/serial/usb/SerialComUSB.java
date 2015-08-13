@@ -17,6 +17,9 @@
 
 package com.embeddedunveiled.serial.usb;
 
+import com.embeddedunveiled.serial.SerialComException;
+import com.embeddedunveiled.serial.internal.SerialComPortJNIBridge;
+
 /**
  * <p>Encapsulates USB related operations and values.</p>
  * 
@@ -25,62 +28,82 @@ package com.embeddedunveiled.serial.usb;
  * program appropriate firmware (USB CDC) into ti to provide UART communication over USB port.</p>
  */
 public class SerialComUSB {
-	
+
 	/** <p>Value indicating all vendors (vendor neutral operation).</p>*/
 	public static final int V_ALL =  0x0000;
-	
+
 	/** <p>Value indicating vendor - Future technology devices international, Ltd. It manufactures FT232 USB-UART bridge IC.</p>*/
 	public static final int V_FTDI =  0x0403;
-	
+
 	/** <p>Value indicating vendor - Silicon Laboratories. It manufactures CP2102 USB-UART bridge IC.</p>*/
 	public static final int V_SLABS = 0x10C4;
-	
+
 	/** <p>Value indicating vendor - Microchip technology Inc. It manufactures MCP2200 USB-UART bridge IC.</p>*/
 	public static final int V_MCHIP = 0x04D8;
-	
+
 	/** <p>Value indicating vendor - Prolific technology Inc. It manufactures PL2303 USB-UART bridge IC.</p>*/
 	public static final int V_PL = 0x067B;
-	
+
 	/** <p>Value indicating vendor - Exar corporation. It manufactures XR21V1410 USB-UART bridge IC.</p>*/
 	public static final int V_EXAR = 0x04E2;
-	
+
 	/** <p>Value indicating vendor - Atmel corporation. It manufactures AT90USxxx and other processors which can be used as USB-UART bridge.</p>*/
 	public static final int V_ATML =  0x03EB;
-	
+
 	/** <p>Value indicating vendor - MosChip semiconductor. It manufactures MCS7810 USB-UART bridge IC.</p>*/
 	public static final int V_MOSCHP = 0x9710;
-	
+
 	/** <p>Value indicating vendor - Cypress semiconductor corporation. It manufactures CY7C65213 USB-UART bridge IC.</p>*/
 	public static final int V_CYPRS = 0x04B4;
-	
+
 	/** <p>Value indicating vendor - Texas instruments, Inc. It manufactures TUSB3410 USB-UART bridge IC.</p>*/
 	public static final int V_TI = 0x0451;
-	
+
 	/** <p>Value indicating vendor - WinChipHead. It manufactures CH340 USB-UART bridge IC.</p>*/
 	public static final int V_WCH = 0x4348;
-	
+
 	/** <p>Value indicating vendor - QinHeng electronics. It manufactures HL-340 converter product.</p>*/
 	public static final int V_QHE = 0x1A86;
-	
+
 	/** <p>Value indicating vendor - NXP semiconductors. It manufactures LPC134x series of microcontrollers.</p>*/
 	public static final int V_NXP = 0x1FC9;
-	
+
 	/** <p>Value indicating vendor - Renesas electronics (NEC electronics). It manufactures μPD78F0730 microcontroller which can be used as USB-UART converter.</p>*/
 	public static final int V_RNSAS = 0x0409;
-	
+
 	/** <p>The value indicating that the USB device can have any vendor id and product id. </p>*/
 	public static final int DEV_ANY = 0x00;
-	
+
 	/** <p>The value indicating that a USB device has been added into system. </p>*/
 	public static final int DEV_ADDED = 0x01;
-	
+
 	/** <p>The value indicating that a USB device has been removed from system. </p>*/
 	public static final int DEV_REMOVED  = 0x02;
 
+	SerialComPortJNIBridge mComPortJNIBridge;
 	/**
 	 * <p>Allocates a new SerialComUSB object.</p>
+	 * @param mComPortJNIBridge 
 	 */
-	public SerialComUSB() {
+	public SerialComUSB(SerialComPortJNIBridge mComPortJNIBridge) {
+		this.mComPortJNIBridge = mComPortJNIBridge;
 	}
 
+	/**
+	 * <p>Causes re-scan for USB devices. It is equivalent to clicking the "Scan for hardware changes" button 
+	 * in the Device Manager. Only USB hardware is checked for new devices. This can be of use when trying to recover 
+	 * devices programmatically.</p>
+	 * 
+	 * <p>This is applicable to Windows operating system only.</p>
+	 * 
+	 * @return true on success.
+	 * @throws SerialComException if an I/O error occurs.
+	 */
+	public boolean rescanUSBDevicesHW() throws SerialComException {
+		int ret = mComPortJNIBridge.rescanUSBDevicesHW();
+		if(ret < 0) {
+			throw new SerialComException("Could not cause rescanning for hardware change. Please retry !");
+		}
+		return true;
+	}
 }

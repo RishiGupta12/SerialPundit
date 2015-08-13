@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.FileNotFoundException;
+
 import com.embeddedunveiled.serial.SerialComLoadException;
 import com.embeddedunveiled.serial.SerialComManager;
 import com.embeddedunveiled.serial.SerialComUnexpectedException;
@@ -28,12 +29,12 @@ import com.embeddedunveiled.serial.SerialComUnexpectedException;
 /**
  * <p>This class is an interface between java and native shared library.</p>
  */
-public final class SerialComCP210xRuntimeJNIBridge {
+public final class SerialComSLabsUSBXpressJNIBridge {
 
 	/**
-	 * <p>Allocates a new SerialComCP210xRuntimeJNIBridge object.</p>
+	 * <p>Allocates a new SerialComSLabsUSBXpressJNIBridge object.</p>
 	 */
-	public SerialComCP210xRuntimeJNIBridge() {
+	public SerialComSLabsUSBXpressJNIBridge() {
 	}
 
 	/**
@@ -69,25 +70,25 @@ public final class SerialComCP210xRuntimeJNIBridge {
 		if(cpuArch == SerialComManager.ARCH_AMD64) {
 			switch(osType) {
 			case SerialComManager.OS_WINDOWS:
-				libToExtractFromJar = "win_cp210xr_" + SerialComManager.JAVA_LIB_VERSION + "_x86_64.dll";
+				libToExtractFromJar = "win_usbxp_" + SerialComManager.JAVA_LIB_VERSION + "_x86_64.dll";
 				break;
 			case SerialComManager.OS_LINUX:
-				libToExtractFromJar = "linux_cp210xr_" + SerialComManager.JAVA_LIB_VERSION + "_x86_64.so";
+				libToExtractFromJar = "linux_usbxp_" + SerialComManager.JAVA_LIB_VERSION + "_x86_64.so";
 				break;
 			case SerialComManager.OS_MAC_OS_X:
-				libToExtractFromJar = "mac_cp210xr_" + SerialComManager.JAVA_LIB_VERSION + "_x86_64.dylib";
+				libToExtractFromJar = "mac_usbxp_" + SerialComManager.JAVA_LIB_VERSION + "_x86_64.dylib";
 			default:
 			}
 		}else if(cpuArch == SerialComManager.ARCH_X86) {
 			switch(osType) {
 			case SerialComManager.OS_WINDOWS:
-				libToExtractFromJar = "win_cp210xr_" + SerialComManager.JAVA_LIB_VERSION + "_x86.dll";
+				libToExtractFromJar = "win_usbxp_" + SerialComManager.JAVA_LIB_VERSION + "_x86.dll";
 				break;
 			case SerialComManager.OS_LINUX:
-				libToExtractFromJar = "linux_cp210xr_" + SerialComManager.JAVA_LIB_VERSION + "_x86.so";
+				libToExtractFromJar = "linux_usbxp_" + SerialComManager.JAVA_LIB_VERSION + "_x86.so";
 				break;
 			case SerialComManager.OS_MAC_OS_X:
-				libToExtractFromJar = "mac_cp210xr_" + SerialComManager.JAVA_LIB_VERSION + "_x86.dylib";
+				libToExtractFromJar = "mac_usbxp_" + SerialComManager.JAVA_LIB_VERSION + "_x86.dylib";
 			default:
 			}
 		}else {
@@ -150,10 +151,28 @@ public final class SerialComCP210xRuntimeJNIBridge {
 		return true;
 	}
 
-	public native int readLatch(long handle);
+	public native int getNumDevices();
+	public native String getProductString(int index, int flag);
+	public native long open(int index);
+	public native int close(long handle);
+	public native int read(long handle, byte[] buffer, int numOfBytesToRead);
+	public native int write(long handle, byte[] buffer, int numOfBytesToWrite);
+	public native int cancelIO(long handle);
+	public native int flushBuffer(long handle, byte flushTransmit, byte flushReceive);
+	public native int setTimeouts(long handle, long readTimeOut, long writeTimeOut);
+	public native long[] getTimeouts();
+	public native long[] checkRXQueue();
+	public native int setBaudRate(long handle, int baudrate);
+	public native int setLineControl(long handle, int lineControl);
+	public native int setFlowControl(long handle, int ctsMaskCode, int rtsMaskCode,
+			int dtrMaskCode, int dsrMaskCode, int dcdMaskCode, int flowXonXoff);
+	public native int getModemStatus(long handle);
+	public native int setBreak(long handle, int breakValue);
+	public native long readLatch(long handle);
 	public native int writeLatch(long handle, long mask, long latchValue);
-	public native int getPartNumber(long handle);
-	public native String getDeviceProductString(long handle);
-	public native String getDeviceSerialNumber(long handle);
-	public native String getDeviceInterfaceString(long handle);
+	public native String getPartNumber(long handle);
+	public native long getDllVersion(long handle);
+	public native long getDriverVersion(long handle);
+	public native int deviceIOControl(long handle, int ctrlCode, byte[] inputBuf,
+			int numBytesToRead, byte[] outputBuf, int numOfBytesToWrite);
 }
