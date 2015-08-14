@@ -230,21 +230,6 @@ public final class SerialComManager {
 		}
 	}
 
-	/** <p>Pre-defined enum constants for defining translation mode file transfer protocol to use. </p>*/ 
-	public enum FTPMODE {
-		/** <p>Specify translating of data as per the operating system on which receiver application is running. </p>*/
-		TEXT(1),
-		/** <p>Specify no translation on data received. </p>*/
-		BINARY(2);
-		private int value;
-		private FTPMODE(int value) {
-			this.value = value;	
-		}
-		public int getValue() {
-			return this.value;
-		}
-	}
-
 	/** <p>Pre-defined enum constants for defining behavior of byte stream. </p>*/
 	public enum SMODE {
 		/** <p>Read will block till data is available. </p>*/
@@ -2035,7 +2020,8 @@ public final class SerialComManager {
 	 * @param fileToSend File instance representing file to be sent.
 	 * @param ftpProto file transfer protocol to use for communication over serial port.
 	 * @param ftpVariant variant of file transfer protocol to use.
-	 * @param ftpMode define whether data should be translated(ASCII mode) or not (binary mode).
+	 * @param textMode if true file will be sent as text file (ASCII mode), if false file will be sent as binary file.
+	 *         The text file must contain only valid ASCII characters.
 	 * @return true on success false otherwise.
 	 * @throws SerialComException if invalid handle is passed.
 	 * @throws SecurityException If a security manager exists and its SecurityManager.checkRead(java.lang.String) method denies read access to the file.
@@ -2044,11 +2030,10 @@ public final class SerialComManager {
 	 * @throws IOException if error occurs while reading data from file to be sent.
 	 * @throws IllegalArgumentException if fileToSend or ftpProto or ftpVariant or ftpMode argument is null.
 	 */
-	public boolean sendFile(long handle, final java.io.File fileToSend, FTPPROTO ftpProto, FTPVAR ftpVariant, FTPMODE ftpMode) throws SerialComException, SecurityException,
+	public boolean sendFile(long handle, final java.io.File fileToSend, FTPPROTO ftpProto, FTPVAR ftpVariant, boolean textMode) throws SerialComException, SecurityException,
 	FileNotFoundException, SerialComTimeOutException, IOException {
 		int protocol = 0;
 		int variant = 0;
-		int mode = 0;
 		boolean handlefound = false;
 		boolean result = false;
 
@@ -2060,9 +2045,6 @@ public final class SerialComManager {
 		}
 		if(ftpVariant == null) {
 			throw new IllegalArgumentException("Argument ftpVariant can not be null !");
-		}
-		if(ftpMode == null) {
-			throw new IllegalArgumentException("Argument ftpMode can not be null !");
 		}
 
 		for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
@@ -2077,16 +2059,15 @@ public final class SerialComManager {
 
 		protocol = ftpProto.getValue();
 		variant = ftpVariant.getValue();
-		mode = ftpMode.getValue();
 		if(protocol == 1) {
 			if((variant == 0) || (variant == 1)) {
-				SerialComXModem xmodem = new SerialComXModem(this, handle, fileToSend, mode);
+				SerialComXModem xmodem = new SerialComXModem(this, handle, fileToSend, textMode, osType);
 				result = xmodem.sendFileX();
 			}else if(variant == 2) {
-				SerialComXModemCRC xmodem = new SerialComXModemCRC(this, handle, fileToSend, mode);
+				SerialComXModemCRC xmodem = new SerialComXModemCRC(this, handle, fileToSend, textMode, osType);
 				result = xmodem.sendFileX();
 			}else if(variant == 3) {
-				SerialComXModem1K xmodem = new SerialComXModem1K(this, handle, fileToSend, mode);
+				SerialComXModem1K xmodem = new SerialComXModem1K(this, handle, fileToSend, textMode, osType);
 				result = xmodem.sendFileX();
 			}else {
 			}
@@ -2107,7 +2088,7 @@ public final class SerialComManager {
 	 * @param fileToReceive File instance representing file to be sent.
 	 * @param ftpProto file transfer protocol to use for communication over serial port.
 	 * @param ftpVariant variant of file transfer protocol to use.
-	 * @param ftpMode define whether data should be translated(ASCII mode) or not (binary mode).
+	 * @param textMode if true file will be received as text file (ASCII mode), if false file will be received as binary file.
 	 * @return true on success false otherwise.
 	 * @throws SerialComException if invalid handle is passed.
 	 * @throws SecurityException If a security manager exists and its SecurityManager.checkRead(java.lang.String) method denies read access to the file.
@@ -2116,11 +2097,10 @@ public final class SerialComManager {
 	 * @throws IOException if error occurs while reading data from file to be sent.
 	 * @throws IllegalArgumentException if fileToReceive or ftpProto or ftpVariant or ftpMode argument is null.
 	 */
-	public boolean receiveFile(long handle, final java.io.File fileToReceive, FTPPROTO ftpProto, FTPVAR ftpVariant, FTPMODE ftpMode) throws SerialComException,
+	public boolean receiveFile(long handle, final java.io.File fileToReceive, FTPPROTO ftpProto, FTPVAR ftpVariant, boolean textMode) throws SerialComException,
 	SecurityException, FileNotFoundException, SerialComTimeOutException, IOException {
 		int protocol = 0;
 		int variant = 0;
-		int mode = 0;
 		boolean handlefound = false;
 		boolean result = false;
 
@@ -2132,9 +2112,6 @@ public final class SerialComManager {
 		}
 		if(ftpVariant == null) {
 			throw new IllegalArgumentException("Argument ftpVariant can not be null !");
-		}
-		if(ftpMode == null) {
-			throw new IllegalArgumentException("Argument ftpMode can not be null !");
 		}
 
 		for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
@@ -2149,16 +2126,15 @@ public final class SerialComManager {
 
 		protocol = ftpProto.getValue();
 		variant = ftpVariant.getValue();
-		mode = ftpMode.getValue();
 		if(protocol == 1) {
 			if((variant == 0) || (variant == 1)) {
-				SerialComXModem xmodem = new SerialComXModem(this, handle, fileToReceive, mode);
+				SerialComXModem xmodem = new SerialComXModem(this, handle, fileToReceive, textMode, osType);
 				result = xmodem.receiveFileX();
 			}else if(variant == 2) {
-				SerialComXModemCRC xmodem = new SerialComXModemCRC(this, handle, fileToReceive, mode);
+				SerialComXModemCRC xmodem = new SerialComXModemCRC(this, handle, fileToReceive, textMode, osType);
 				result = xmodem.receiveFileX();
 			}else if(variant == 3) {
-				SerialComXModem1K xmodem = new SerialComXModem1K(this, handle, fileToReceive, mode);
+				SerialComXModem1K xmodem = new SerialComXModem1K(this, handle, fileToReceive, textMode, osType);
 				result = xmodem.receiveFileX();
 			}else {
 			}
