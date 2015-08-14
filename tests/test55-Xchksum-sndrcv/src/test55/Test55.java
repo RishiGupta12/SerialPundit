@@ -18,24 +18,44 @@
 package test55;
 
 import java.io.File;
+
 import com.embeddedunveiled.serial.SerialComManager;
 import com.embeddedunveiled.serial.SerialComManager.BAUDRATE;
 import com.embeddedunveiled.serial.SerialComManager.DATABITS;
-import com.embeddedunveiled.serial.SerialComManager.FILETXPROTO;
 import com.embeddedunveiled.serial.SerialComManager.FLOWCONTROL;
+import com.embeddedunveiled.serial.SerialComManager.FTPPROTO;
+import com.embeddedunveiled.serial.SerialComManager.FTPVAR;
 import com.embeddedunveiled.serial.SerialComManager.PARITY;
 import com.embeddedunveiled.serial.SerialComManager.STOPBITS;
 
-class Send extends Test55 implements Runnable {
+class SendText extends Test55 implements Runnable {
 	@Override
 	public void run() {
 		try {
 			long handle1 = scm.openComPort(PORT1, true, true, true);
 			scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
 			scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
-			scm.sendFile(handle1, new File("D:\\asnd.txt"), FILETXPROTO.XMODEM);
+			scm.sendFile(handle1, new File(sndtfilepath), FTPPROTO.XMODEM, FTPVAR.CHKSUM, true);
 			scm.closeComPort(handle1);
-			System.out.println("sent");
+			System.out.println("sent text");
+			done = true;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+}
+
+class SendBinary extends Test55 implements Runnable {
+	@Override
+	public void run() {
+		try {
+			long handle1 = scm.openComPort(PORT1, true, true, true);
+			scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
+			scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+			scm.sendFile(handle1, new File(sndbfilepath), FTPPROTO.XMODEM, FTPVAR.CHKSUM, false);
+			scm.closeComPort(handle1);
+			System.out.println("sent binary");
+			done = true;
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -44,23 +64,34 @@ class Send extends Test55 implements Runnable {
 
 // send file from one thread and receive from other using XMODEM checksum protocol 
 public class Test55 {
-	
+
 	private static Thread mThread = null;
 	public static SerialComManager scm = null;
 	public static String PORT = null;
 	public static String PORT1 = null;
-	
+	public static String sndtfilepath = null;
+	public static String rcvtfilepath = null;
+	public static String sndbfilepath = null;
+	public static String rcvbfilepath = null;
+	public static boolean done = false;
+
 	public static void main(String[] args) {
 		try {
 			scm = new SerialComManager();
 
-			int osType = SerialComManager.getOSType();
+			int osType = scm.getOSType();
 			if(osType == SerialComManager.OS_LINUX) {
 				PORT = "/dev/ttyUSB0";
 				PORT1 = "/dev/ttyUSB1";
+				sndtfilepath = "/home/r/tmp/atsnd.txt";
+				rcvtfilepath = "/home/r/tmp/atrcv.txt";
+				sndbfilepath = "/home/r/tmp/absnd.jpg";
+				rcvbfilepath = "/home/r/tmp/abrcv.jpg";
 			}else if(osType == SerialComManager.OS_WINDOWS) {
 				PORT = "COM51";
 				PORT1 = "COM52";
+				sndtfilepath = "D:\\atsnd.txt";
+				rcvtfilepath = "D:\\atrcv.txt";
 			}else if(osType == SerialComManager.OS_MAC_OS_X) {
 				PORT = "/dev/cu.usbserial-A70362A3";
 				PORT1 = "/dev/cu.usbserial-A602RDCH";
@@ -70,16 +101,30 @@ public class Test55 {
 			}else{
 			}
 
+			PORT = "/dev/pts/1";
+			PORT1 = "/dev/pts/2";
+
 			long handle = scm.openComPort(PORT, true, true, true);
 			scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
 			scm.configureComPortControl(handle, FLOWCONTROL.NONE, 'x', 'x', false, false);
 			
-			mThread = new Thread(new Send());
+			// ascii text mode
+			mThread = new Thread(new SendText());
 			mThread.start();
+			scm.receiveFile(handle, new File(rcvtfilepath), FTPPROTO.XMODEM, FTPVAR.CHKSUM, true);
+			System.out.println("received text");
 			
-			scm.receiveFile(handle, new File("D:\\arcv.txt"), FILETXPROTO.XMODEM);
+			while(done == false) { 
+				Thread.sleep(100);
+			}
+			
+			// binary mode
+			mThread = new Thread(new SendBinary());
+			mThread.start();
+			scm.receiveFile(handle, new File(rcvbfilepath), FTPPROTO.XMODEM, FTPVAR.CHKSUM, false);
+			System.out.println("received binary");
+
 			scm.closeComPort(handle);
-			System.out.println("received");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

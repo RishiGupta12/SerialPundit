@@ -899,6 +899,8 @@ public final class SerialComXModem {
 	 * It is possible that last data byte (130th byte) in current block can not be processed because
 	 * we have to analyze next data byte which will be available to us only in the next data block
 	 * received. So we save that last byte and process it next time this method is called.
+	 * 
+	 * @throws IOException if any I/O error occurs.
 	 */
 	private void processAndWrite(byte[] block) throws IOException {
 		mark = 3;  // init + reset
