@@ -51,7 +51,7 @@ import com.embeddedunveiled.serial.vendor.SerialComVendorLib;
  */
 public final class SerialComManager {
 
-	/** <p>Relase version of the SCM library. </p>*/
+	/** <p>Release version of the SCM library. </p>*/
 	public static final String JAVA_LIB_VERSION = "1.0.4";
 
 	/** <p>Pre-defined enum constants for baud rate values. </p>*/
@@ -820,16 +820,21 @@ public final class SerialComManager {
 	}
 
 	/**
-	 * <p>This method writes a single byte to the specified port. The data has been transmitted out of serial port when 
-	 * this method returns.</p>
+	 * <p>This method writes a single byte to the specified port. The data has been transmitted 
+	 * out of serial port when this method returns.</p>
 	 * 
 	 * @param handle handle of the opened port on which to write byte.
-	 * @param data byte to be written to port.
-	 * @return true on success false otherwise.
+	 * @param dataByte byte to be written to port.
+	 * @return true on success.
 	 * @throws SerialComException if an I/O error occurs.
 	 */
-	public boolean writeSingleByte(long handle, byte data) throws SerialComException {
-		return writeBytes(handle, new byte[] { data }, 0);
+	public boolean writeSingleByte(long handle, byte dataByte) throws SerialComException {
+		int ret = mComPortJNIBridge.writeSingleByte(handle, dataByte);
+		if(ret < 0) {
+			/* extra check */
+			throw new SerialComException("Could not write given byte to serial port. Please retry !");
+		}
+		return true;
 	}
 
 	/**

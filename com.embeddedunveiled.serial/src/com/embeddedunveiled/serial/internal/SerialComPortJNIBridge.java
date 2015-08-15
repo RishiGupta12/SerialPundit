@@ -272,6 +272,7 @@ public final class SerialComPortJNIBridge {
 	public native int readBytesDirect(long handle, ByteBuffer buffer, int offset, int length);
 	public native int writeBytes(long handle, byte[] buffer, int delay);
 	public native int writeBytesDirect(long handle, ByteBuffer buffer, int offset, int length);
+	public native int writeSingleByte(long handle, byte dataByte);
 
 	// Modem control, buffer
 	public native int setRTS(long handle, boolean enabled);

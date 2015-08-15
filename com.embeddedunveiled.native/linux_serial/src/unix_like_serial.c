@@ -956,6 +956,36 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
+ * Method:    writeSingleByte
+ * Signature: (JB)I
+ *
+ * @return 0 if function succeeds otherwise -1.
+ * @throws SerialComException if any JNI function, system call or C function fails.
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_writeSingleByte(JNIEnv *env, jobject obj, jlong fd, jbyte dataByte) {
+	int ret = -1;
+	while(1) {
+		errno = 0;
+		ret = write(fd, &dataByte, 1);
+		if(ret > 0) {
+			return 0;
+		}else if(ret < 0) {
+			if(errno == EINTR) {
+				errno = 0; // reset.
+				continue;
+			}else {
+				throw_serialcom_exception(env, 1, errno, NULL);
+				return -1;
+			}
+		}else {
+			continue; // should not happen.
+		}
+	}
+	return -1;
+}
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
  * Method:    writeBytes
  * Signature: (J[BI)I
  *

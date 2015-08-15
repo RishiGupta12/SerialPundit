@@ -48,8 +48,8 @@ public final class Test2 {
 			}else{
 			}
 			
-//			PORT = "/dev/pts/11";
-//			PORT1 = "/dev/pts/12";
+			PORT = "/dev/pts/1";
+			PORT1 = "/dev/pts/2";
 
 			// try opening serial port for read and write without exclusive ownership
 			long handle = scm.openComPort(PORT, true, true, true);
@@ -61,6 +61,11 @@ public final class Test2 {
 			long handle1 = scm.openComPort(PORT1, true, true, true);
 			scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
 			scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+			
+			scm.writeSingleByte(handle, (byte) 'A');
+			Thread.sleep(1000);
+			byte[] datarcv = scm.readSingleByte(handle1);
+			System.out.println("readSingleByte is : " + datarcv[0]);
 			
 			String data111 = scm.readString(handle1);
 			System.out.println("data read for 1 byte is : " + data111);
