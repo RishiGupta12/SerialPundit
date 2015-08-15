@@ -47,6 +47,7 @@ public final class SerialComXModemCRC {
 	private long handle;
 	private File fileToProcess;
 	private boolean textMode;
+	private IProgressXmodem progressListener;
 	private int osType;
 
 	private int blockNumber;
@@ -73,6 +74,8 @@ public final class SerialComXModemCRC {
 	private byte unprocessedByteInLastReceivedBlock;
 	private byte data0 = 0;
 	private byte data1 = 0;
+	private long numberOfBlocksSent = 0;     // track how many blocks have been sent till now.
+	private long numberOfBlocksReceived = 0; // track how many blocks have been received till now.
 
 	/**
 	 * <p>Allocates a new SerialComXModemCRC object with given details and associate it with the given 
@@ -82,12 +85,16 @@ public final class SerialComXModemCRC {
 	 * @param handle of the port on which file is to be communicated.
 	 * @param fileToProcess File instance representing file to be communicated.
 	 * @param textMode if true file will be sent as text file (ASCII mode), if false file will be sent as binary file.
+	 * @param progressListener object of class which implements IProgressXmodem interface and is interested in knowing
+	 *         how many blocks have been sent/received till now.
+	 * @param osType operating system on which this application is running.
 	 */
-	public SerialComXModemCRC(SerialComManager scm, long handle, File fileToProcess, boolean textMode, int osType) {
+	public SerialComXModemCRC(SerialComManager scm, long handle, File fileToProcess, boolean textMode, IProgressXmodem progressListener, int osType) {
 		this.scm = scm;
 		this.handle = handle;
 		this.fileToProcess = fileToProcess;
 		this.textMode = textMode;
+		this.progressListener = progressListener;
 		this.osType = osType;
 	}
 
@@ -233,15 +240,22 @@ public final class SerialComXModemCRC {
 						}else if(data[0] == NAK) {
 							retryCount++;
 							state = RESEND;
-						}else{
+						}else {
 							errMsg = "Unknown error occured";
 							state = ABORT;
+						}
+
+						// update GUI that a block has been sent if application has provided a listener
+						// for this purpose.
+						if(progressListener != null) {
+							numberOfBlocksSent++;
+							progressListener.onXmodemSentProgressUpdate(numberOfBlocksSent);
 						}
 					}else {
 						if(data[0] == ACK) {
 							inStream.close();
 							return true; // successfully sent file, let's go back home happily.
-						}else{
+						}else {
 							if(System.currentTimeMillis() >= eotAckWaitTimeOutValue) {
 								errMsg = "Timedout while waiting for EOT reception acknowledgement from file receiver !";
 								state = ABORT;
@@ -715,7 +729,7 @@ public final class SerialComXModemCRC {
 					}
 				}else {
 					// fall back to xmodem-128 checksum mode
-					return scm.receiveFile(handle, fileToProcess, FTPPROTO.XMODEM, FTPVAR.CHKSUM, textMode);
+					return scm.receiveFile(handle, fileToProcess, FTPPROTO.XMODEM, FTPVAR.CHKSUM, textMode, progressListener);
 				}
 				break;
 			case RECEIVEDATA:
@@ -821,6 +835,14 @@ public final class SerialComXModemCRC {
 								// for binary mode, just flush data as is to file physically.
 								outStream.write(block, 3, 128);
 							}
+
+							// update GUI that a block has been received if application has provided 
+							// a listener for this purpose.
+							if(progressListener != null) {
+								numberOfBlocksReceived++;
+								progressListener.onXmodemReceiveProgressUpdate(numberOfBlocksReceived);
+							}
+
 							if(isDuplicateBlock != true) {
 								blockNumber++;
 								if(blockNumber > 0xFF) {

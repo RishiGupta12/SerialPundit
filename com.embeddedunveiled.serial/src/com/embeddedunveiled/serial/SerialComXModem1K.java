@@ -48,6 +48,7 @@ public final class SerialComXModem1K {
 	private long handle;
 	private File fileToProcess;
 	private boolean textMode;
+	private IProgressXmodem progressListener;
 	private int osType;
 
 	private int blockNumber;
@@ -74,6 +75,8 @@ public final class SerialComXModem1K {
 	private byte unprocessedByteInLastReceivedBlock;
 	private byte data0 = 0;
 	private byte data1 = 0;
+	private long numberOfBlocksSent = 0;     // track how many blocks have been sent till now.
+	private long numberOfBlocksReceived = 0; // track how many blocks have been received till now.
 
 	/**
 	 * <p>Allocates a new SerialComXModem1K object with given details and associate it with the given 
@@ -83,12 +86,16 @@ public final class SerialComXModem1K {
 	 * @param handle of the port on which file is to be communicated.
 	 * @param fileToProcess File instance representing file to be communicated.
 	 * @param textMode if true file will be sent as text file (ASCII mode), if false file will be sent as binary file.
+	 * @param progressListener object of class which implements IProgressXmodem interface and is interested in knowing
+	 *         how many blocks have been sent/received till now.
+	 * @param osType operating system on which this application is running.
 	 */
-	public SerialComXModem1K(SerialComManager scm, long handle, File fileToProcess, boolean textMode, int osType) {
+	public SerialComXModem1K(SerialComManager scm, long handle, File fileToProcess, boolean textMode, IProgressXmodem progressListener, int osType) {
 		this.scm = scm;
 		this.handle = handle;
 		this.fileToProcess = fileToProcess;
 		this.textMode = textMode;
+		this.progressListener = progressListener;
 		this.osType = osType;
 	}
 
@@ -186,9 +193,9 @@ public final class SerialComXModem1K {
 				state = WAITACK;
 				break;
 			case WAITACK:
-				responseWaitTimeOut = System.currentTimeMillis() + 60000; // 1 minute
+				responseWaitTimeOut = System.currentTimeMillis() + 60000; // 1 minute.
 				while(true) {
-					// delay before next attempt to read from serial port
+					// delay before next attempt to read from serial port.
 					try {
 						if(noMoreData != true) {
 							Thread.sleep(150);
@@ -198,7 +205,7 @@ public final class SerialComXModem1K {
 					} catch (InterruptedException e) {
 					}
 
-					// try to read data from serial port
+					// try to read data from serial port.
 					try {
 						data = scm.readBytes(handle);
 					} catch (SerialComException exp) {
@@ -234,15 +241,22 @@ public final class SerialComXModem1K {
 						}else if(data[0] == NAK) {
 							retryCount++;
 							state = RESEND;
-						}else{
+						}else {
 							errMsg = "Unknown error occured";
 							state = ABORT;
+						}
+
+						// update GUI that a block has been sent if application has provided a listener
+						// for this purpose.
+						if(progressListener != null) {
+							numberOfBlocksSent++;
+							progressListener.onXmodemSentProgressUpdate(numberOfBlocksSent);
 						}
 					}else {
 						if(data[0] == ACK) {
 							inStream.close();
 							return true; // successfully sent file, let's go back home happily.
-						}else{
+						}else {
 							if(System.currentTimeMillis() >= eotAckWaitTimeOutValue) {
 								errMsg = "Timedout while waiting for EOT reception acknowledgement from file receiver !";
 								state = ABORT;
@@ -702,7 +716,7 @@ public final class SerialComXModem1K {
 		}
 
 		state = CONNECT; // entry point to state machine.
-		
+
 		while(true) {
 			switch(state) {
 			case CONNECT:
@@ -718,7 +732,7 @@ public final class SerialComXModem1K {
 					}
 				}else {
 					// fall back to xmodem-128 checksum mode
-					return scm.receiveFile(handle, fileToProcess, FTPPROTO.XMODEM, FTPVAR.CHKSUM, textMode);
+					return scm.receiveFile(handle, fileToProcess, FTPPROTO.XMODEM, FTPVAR.CHKSUM, textMode, progressListener);
 				}
 				break;
 			case RECEIVEDATA:
@@ -869,6 +883,14 @@ public final class SerialComXModem1K {
 									outStream.write(block, 3, 128);
 								}
 							}
+
+							// update GUI that a block has been received if application has provided 
+							// a listener for this purpose.
+							if(progressListener != null) {
+								numberOfBlocksReceived++;
+								progressListener.onXmodemReceiveProgressUpdate(numberOfBlocksReceived);
+							}
+
 							if(isDuplicateBlock != true) {
 								blockNumber++;
 								if(blockNumber > 0xFF) {
@@ -939,7 +961,7 @@ public final class SerialComXModem1K {
 		mark = 3;  // init + reset
 		int q = 0; // init + reset
 		int processTillIndex = -1;
-		
+
 		if(dataSize == 1024) {
 			processTillIndex = 1025;
 		}else {
@@ -1130,7 +1152,7 @@ public final class SerialComXModem1K {
 
 		// write processed data bytes to file in file system.
 		outStream.write(tmpReceiveBuffer, 0, q);
-		
+
 		if(dataSize == 1024) {
 			if(mark == 1026) {
 				// indicates last byte in block array could not be processed as one more bytes was needed to test against
