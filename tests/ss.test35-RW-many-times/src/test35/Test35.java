@@ -32,7 +32,7 @@ public class Test35 {
 
 			String PORT = null;
 			String PORT1 = null;
-			int osType = SerialComManager.getOSType();
+			int osType = scm.getOSType();
 			if(osType == SerialComManager.OS_LINUX) {
 				PORT = "/dev/ttyUSB0";
 				PORT1 = "/dev/ttyUSB1";
@@ -47,6 +47,9 @@ public class Test35 {
 				PORT1 = null;
 			}else{
 			}
+			
+//			PORT = "/dev/pts/2";
+//			PORT1 = "/dev/pts/4";
 
 			long handle = scm.openComPort(PORT, true, true, true);
 			scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
@@ -61,7 +64,7 @@ public class Test35 {
 				
 				scm.writeString(handle, "HELLO", 0);
 				if(osType == SerialComManager.OS_LINUX) {
-					Thread.sleep(10);
+					Thread.sleep(1000);
 				}else if(osType == SerialComManager.OS_WINDOWS) {
 					Thread.sleep(500);
 				}else if(osType == SerialComManager.OS_MAC_OS_X) {

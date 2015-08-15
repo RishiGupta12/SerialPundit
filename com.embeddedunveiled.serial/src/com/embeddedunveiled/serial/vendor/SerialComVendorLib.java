@@ -44,6 +44,9 @@ public class SerialComVendorLib {
 	
 	/**<p>The value indicating 'CP210xManufacturing' library from Silicon Laboratories, Inc.</p>*/
 	public static final int VLIB_SLABS_CP210XMANUFACTURING = 0x04;
+	
+	/**<p>The value indicating 'USBXpress' library from Silicon Laboratories, Inc.</p>*/
+	public static final int VLIB_SLABS_USBXPRESS = 0x05;
 
 	/**
 	 * <p>Allocates a new SerialComVendorLib object.</p>
@@ -107,6 +110,15 @@ public class SerialComVendorLib {
 			}
 			if(osType != SerialComManager.OS_WINDOWS) {
 				throw new SerialComLoadException("Silicon labs cp210x manufacturing dll library is not supported for this operating system !");
+			}
+			vendorLib = new SerialComSLabsCP210xManufacturing(libDirectory, vlibName, cpuArch, osType, serialComSystemProperty);
+			return vendorLib;
+		}else if(vendorLibIdentifier == VLIB_SLABS_USBXPRESS) {
+			if(!((cpuArch == SerialComManager.ARCH_AMD64) || (cpuArch == SerialComManager.ARCH_X86))) {
+				throw new SerialComLoadException("Silicon labs usbxpress library is not supported for this CPU architecture !");
+			}
+			if(osType != SerialComManager.OS_WINDOWS) {
+				throw new SerialComLoadException("Silicon labs usbxpress library is not supported for this operating system !");
 			}
 			vendorLib = new SerialComSLabsCP210xManufacturing(libDirectory, vlibName, cpuArch, osType, serialComSystemProperty);
 			return vendorLib;

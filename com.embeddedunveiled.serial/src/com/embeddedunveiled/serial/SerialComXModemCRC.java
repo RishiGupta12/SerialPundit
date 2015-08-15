@@ -102,7 +102,7 @@ public final class SerialComXModemCRC {
 	 */
 	public boolean sendFileX() throws SecurityException, IOException, SerialComException {
 
-		// Finite state machine
+		// Finite state machine's state.
 		final int CONNECT = 0;
 		final int BEGINSEND = 1;
 		final int WAITACK = 2;
@@ -324,6 +324,8 @@ public final class SerialComXModemCRC {
 	 * 
 	 * If we need to add extra LF or CR characters, it may be added in current block if there
 	 * is space or will be added in next block if current block is full.
+	 * 
+	 * @throws IOException if any I/O error occurs.
 	 */
 	private void assembleBlock(SerialComCRC scCRC) throws IOException {
 		int x = 0;
@@ -881,6 +883,8 @@ public final class SerialComXModemCRC {
 	 * It is possible that last data byte (130th byte) in current block can not be processed because
 	 * we have to analyze next data byte which will be available to us only in the next data block
 	 * received. So we save that last byte and process it next time this method is called.
+	 * 
+	 * @throws IOException if any I/O error occurs.
 	 */
 	private void processAndWrite(byte[] block) throws IOException {
 		mark = 3;  // init + reset

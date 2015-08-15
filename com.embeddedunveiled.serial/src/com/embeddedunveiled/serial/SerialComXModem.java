@@ -334,6 +334,8 @@ public final class SerialComXModem {
 	 * 
 	 * If we need to add extra LF or CR characters, it may be added in current block if there
 	 * is space or will be added in next block if current block is full.
+	 * 
+	 * @throws IOException if any I/O error occurs.
 	 */
 	private void assembleBlock() throws IOException {
 		int x = 0;
