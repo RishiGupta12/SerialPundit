@@ -18,7 +18,8 @@
 package com.embeddedunveiled.serial;
 
 /**
- * <p>This interface represents Completion handler in our proactor design pattern.</p>
+ * <p>The interface ISerialComDataListener should be implemented by class who wish to 
+ * receive data from serial port.</p>
  */
 public interface ISerialComDataListener {
 
@@ -32,7 +33,7 @@ public interface ISerialComDataListener {
 	 * <p>In Linux, by default, the listener is called for every new byte available. This behavior can be modified by 
 	 * using available fineTuneRead() API for Linux.</p>
 	 * 
-	 * @param dataEvent event object containing data bytes read from serial port
+	 * @param dataEvent event object containing data bytes read from serial port.
 	 */
 	public abstract void onNewSerialDataAvailable(SerialComDataEvent dataEvent);
 
@@ -50,5 +51,4 @@ public interface ISerialComDataListener {
 	 * @param errorNum operating system specific error number
 	 */
 	public abstract void onDataListenerError(int errorNum);
-
 }

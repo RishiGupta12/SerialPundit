@@ -816,7 +816,6 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 * 
 	 * <p>Gets the D2XX DLL version number.</p>
 	 * 
-	 * @param handle handle of device for which library version is to be found.
 	 * @return driver version number for the requested device handle.
 	 * @throws SerialComException if an I/O error occurs.
 	 */

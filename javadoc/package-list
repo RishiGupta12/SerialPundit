@@ -1,4 +1,5 @@
 com.embeddedunveiled.serial
+com.embeddedunveiled.serial.bluetooth
 com.embeddedunveiled.serial.internal
 com.embeddedunveiled.serial.usb
 com.embeddedunveiled.serial.vendor

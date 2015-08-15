@@ -249,7 +249,7 @@ public final class SerialComSLabsCP210xManufacturing extends SerialComVendorLib 
 	 * <p>Sets the Serial Number String of the String Descriptor of a CP210x device.</p>
 	 * 
 	 * @param handle of the device.
-	 * @param serial number string that need to be saved in device.
+	 * @param serialNumber string that need to be saved in device.
 	 * @return true on success.
 	 * @throws SerialComException if an I/O error occurs.
 	 */
@@ -308,7 +308,7 @@ public final class SerialComSLabsCP210xManufacturing extends SerialComVendorLib 
 	 * <p>The argument flag can be bit mask of constants FC_OPEN_TX, FC_OPEN_RX, FC_CLOSE_TX, FC_CLOSE_RX.</p>
 	 * 
 	 * @param handle of the device.
-	 * @param config flag indicating which buffer to flush and upon which event.
+	 * @param flag bit mask indicating which buffer to flush and upon which event.
 	 * @return true on success.
 	 * @throws SerialComException if an I/O error occurs.
 	 * @throws IllegalArgumentException if invalid flag is passed.
@@ -381,7 +381,7 @@ public final class SerialComSLabsCP210xManufacturing extends SerialComVendorLib 
 	 * @param mode Mode field of PORT_CONFIG structure defined in CP210XManufacturingDLL.h header file.
 	 * @param resetLatch Reset_Latch field of PORT_CONFIG structure defined in CP210XManufacturingDLL.h header file.
 	 * @param suspendLatch Suspend_Latch field of PORT_CONFIG structure defined in CP210XManufacturingDLL.h header file.
-	 * @param enhancedFXn EnhancedFxn field of PORT_CONFIG structure defined in CP210XManufacturingDLL.h header file.
+	 * @param enhancedFxn EnhancedFxn field of PORT_CONFIG structure defined in CP210XManufacturingDLL.h header file.
 	 * @return true on success.
 	 * @throws SerialComException if an I/O error occurs.
 	 */

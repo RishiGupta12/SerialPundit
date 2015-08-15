@@ -18,11 +18,14 @@
 package com.embeddedunveiled.serial;
 
 /**
+ * <p>The interface ISerialComProgressXmodem should be implemented by class who wish to 
+ * know how many blocks have been sent or received using xmodem protocol.</p>
+ * 
  * <p>The graphical user interface applications may want to show progress for example 
  * using a progress bar to inform user about how much data have been sent to receiver 
  * end. Such applications can use this interface for this purpose.</p>
  */
-public interface IProgressXmodem {
+public interface ISerialComProgressXmodem {
 
 	/**
 	 * <p>The class implementing this interface is expected to override onXmodemSentProgressUpdate() 

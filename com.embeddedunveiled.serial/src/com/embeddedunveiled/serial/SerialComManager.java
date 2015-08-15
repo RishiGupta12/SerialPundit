@@ -2027,7 +2027,7 @@ public final class SerialComManager {
 	 * @param ftpVariant variant of file transfer protocol to use.
 	 * @param textMode if true file will be sent as text file (ASCII mode), if false file will be sent as binary file.
 	 *         The text file must contain only valid ASCII characters.
-	 * @param progressListener object of class which implements IProgressXmodem interface and is interested in knowing
+	 * @param progressListener object of class which implements ISerialComProgressXmodem interface and is interested in knowing
 	 *         how many blocks have been sent to file receiver till now. If progressListener is null, update will not 
 	 *         be delivered to application.
 	 * @return true on success.
@@ -2039,7 +2039,7 @@ public final class SerialComManager {
 	 * @throws IllegalArgumentException if fileToSend or ftpProto or ftpVariant or ftpMode argument is null.
 	 */
 	public boolean sendFile(long handle, final java.io.File fileToSend, FTPPROTO ftpProto, FTPVAR ftpVariant, 
-			boolean textMode, IProgressXmodem progressListener) throws SerialComException, SecurityException,
+			boolean textMode, ISerialComProgressXmodem progressListener) throws SerialComException, SecurityException,
 			FileNotFoundException, SerialComTimeOutException, IOException {
 		int protocol = 0;
 		int variant = 0;
@@ -2098,7 +2098,7 @@ public final class SerialComManager {
 	 * @param ftpProto file transfer protocol to use for communication over serial port.
 	 * @param ftpVariant variant of file transfer protocol to use.
 	 * @param textMode if true file will be received as text file (ASCII mode), if false file will be received as binary file.
-	 * @param progressListener object of class which implements IProgressXmodem interface and is interested in knowing
+	 * @param progressListener object of class which implements ISerialComProgressXmodem interface and is interested in knowing
 	 *         how many blocks have been received from file sender till now. If progressListener is null, update will not 
 	 *         be delivered to application.
 	 * @return true on success.
@@ -2110,7 +2110,7 @@ public final class SerialComManager {
 	 * @throws IllegalArgumentException if fileToReceive or ftpProto or ftpVariant or ftpMode argument is null.
 	 */
 	public boolean receiveFile(long handle, final java.io.File fileToReceive, FTPPROTO ftpProto, FTPVAR ftpVariant, 
-			boolean textMode, IProgressXmodem progressListener) throws SerialComException, SecurityException, 
+			boolean textMode, ISerialComProgressXmodem progressListener) throws SerialComException, SecurityException, 
 			FileNotFoundException, SerialComTimeOutException, IOException {
 		int protocol = 0;
 		int variant = 0;

@@ -47,7 +47,7 @@ public final class SerialComXModemCRC {
 	private long handle;
 	private File fileToProcess;
 	private boolean textMode;
-	private IProgressXmodem progressListener;
+	private ISerialComProgressXmodem progressListener;
 	private int osType;
 
 	private int blockNumber;
@@ -85,11 +85,11 @@ public final class SerialComXModemCRC {
 	 * @param handle of the port on which file is to be communicated.
 	 * @param fileToProcess File instance representing file to be communicated.
 	 * @param textMode if true file will be sent as text file (ASCII mode), if false file will be sent as binary file.
-	 * @param progressListener object of class which implements IProgressXmodem interface and is interested in knowing
+	 * @param progressListener object of class which implements ISerialComProgressXmodem interface and is interested in knowing
 	 *         how many blocks have been sent/received till now.
 	 * @param osType operating system on which this application is running.
 	 */
-	public SerialComXModemCRC(SerialComManager scm, long handle, File fileToProcess, boolean textMode, IProgressXmodem progressListener, int osType) {
+	public SerialComXModemCRC(SerialComManager scm, long handle, File fileToProcess, boolean textMode, ISerialComProgressXmodem progressListener, int osType) {
 		this.scm = scm;
 		this.handle = handle;
 		this.fileToProcess = fileToProcess;
