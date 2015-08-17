@@ -2030,7 +2030,10 @@ public final class SerialComManager {
 	 * @param progressListener object of class which implements ISerialComProgressXmodem interface and is interested in knowing
 	 *         how many blocks have been sent to file receiver till now. If progressListener is null, update will not 
 	 *         be delivered to application.
-	 * @return true on success.
+	 * @param transferState if application wish to abort sending file at instant of time due to any reason, it can call 
+	 *         abortTransfer method on this object. If the application does not wishes to abort sending file explicitly 
+	 *         transferState can be null.
+	 * @return true on success, false if application instructed to abort.
 	 * @throws SerialComException if invalid handle is passed.
 	 * @throws SecurityException If a security manager exists and its SecurityManager.checkRead(java.lang.String) method denies read access to the file.
 	 * @throws FileNotFoundException if the file does not exist, is a directory rather than a regular file, or for some other reason cannot be opened for reading.
@@ -2039,7 +2042,7 @@ public final class SerialComManager {
 	 * @throws IllegalArgumentException if fileToSend or ftpProto or ftpVariant or ftpMode argument is null.
 	 */
 	public boolean sendFile(long handle, final java.io.File fileToSend, FTPPROTO ftpProto, FTPVAR ftpVariant, 
-			boolean textMode, ISerialComProgressXmodem progressListener) throws SerialComException, SecurityException,
+			boolean textMode, ISerialComProgressXmodem progressListener, SerialComXModemAbort transferState) throws SerialComException, SecurityException,
 			FileNotFoundException, SerialComTimeOutException, IOException {
 		int protocol = 0;
 		int variant = 0;
@@ -2070,13 +2073,13 @@ public final class SerialComManager {
 		variant = ftpVariant.getValue();
 		if(protocol == 1) {
 			if((variant == 0) || (variant == 1)) {
-				SerialComXModem xmodem = new SerialComXModem(this, handle, fileToSend, textMode, progressListener, osType);
+				SerialComXModem xmodem = new SerialComXModem(this, handle, fileToSend, textMode, progressListener, transferState, osType);
 				result = xmodem.sendFileX();
 			}else if(variant == 2) {
-				SerialComXModemCRC xmodem = new SerialComXModemCRC(this, handle, fileToSend, textMode, progressListener, osType);
+				SerialComXModemCRC xmodem = new SerialComXModemCRC(this, handle, fileToSend, textMode, progressListener, transferState, osType);
 				result = xmodem.sendFileX();
 			}else if(variant == 3) {
-				SerialComXModem1K xmodem = new SerialComXModem1K(this, handle, fileToSend, textMode, progressListener, osType);
+				SerialComXModem1K xmodem = new SerialComXModem1K(this, handle, fileToSend, textMode, progressListener, transferState, osType);
 				result = xmodem.sendFileX();
 			}else {
 			}
@@ -2101,7 +2104,10 @@ public final class SerialComManager {
 	 * @param progressListener object of class which implements ISerialComProgressXmodem interface and is interested in knowing
 	 *         how many blocks have been received from file sender till now. If progressListener is null, update will not 
 	 *         be delivered to application.
-	 * @return true on success.
+	 * @param transferState if application wish to abort receiving file at instant of time due to any reason, it can call 
+	 *         abortTransfer method on this object. If the application does not wishes to abort receiving file explicitly 
+	 *         transferState can be null.
+	 * @return true on success, false if application instructed to abort.
 	 * @throws SerialComException if invalid handle is passed.
 	 * @throws SecurityException If a security manager exists and its SecurityManager.checkRead(java.lang.String) method denies read access to the file.
 	 * @throws FileNotFoundException if the file does not exist, is a directory rather than a regular file, or for some other reason cannot be opened for reading.
@@ -2110,7 +2116,7 @@ public final class SerialComManager {
 	 * @throws IllegalArgumentException if fileToReceive or ftpProto or ftpVariant or ftpMode argument is null.
 	 */
 	public boolean receiveFile(long handle, final java.io.File fileToReceive, FTPPROTO ftpProto, FTPVAR ftpVariant, 
-			boolean textMode, ISerialComProgressXmodem progressListener) throws SerialComException, SecurityException, 
+			boolean textMode, ISerialComProgressXmodem progressListener, SerialComXModemAbort transferState) throws SerialComException, SecurityException, 
 			FileNotFoundException, SerialComTimeOutException, IOException {
 		int protocol = 0;
 		int variant = 0;
@@ -2141,13 +2147,13 @@ public final class SerialComManager {
 		variant = ftpVariant.getValue();
 		if(protocol == 1) {
 			if((variant == 0) || (variant == 1)) {
-				SerialComXModem xmodem = new SerialComXModem(this, handle, fileToReceive, textMode, progressListener, osType);
+				SerialComXModem xmodem = new SerialComXModem(this, handle, fileToReceive, textMode, progressListener, transferState, osType);
 				result = xmodem.receiveFileX();
 			}else if(variant == 2) {
-				SerialComXModemCRC xmodem = new SerialComXModemCRC(this, handle, fileToReceive, textMode, progressListener, osType);
+				SerialComXModemCRC xmodem = new SerialComXModemCRC(this, handle, fileToReceive, textMode, progressListener, transferState, osType);
 				result = xmodem.receiveFileX();
 			}else if(variant == 3) {
-				SerialComXModem1K xmodem = new SerialComXModem1K(this, handle, fileToReceive, textMode, progressListener, osType);
+				SerialComXModem1K xmodem = new SerialComXModem1K(this, handle, fileToReceive, textMode, progressListener, transferState, osType);
 				result = xmodem.receiveFileX();
 			}else {
 			}

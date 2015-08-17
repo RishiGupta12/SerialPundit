@@ -49,6 +49,7 @@ public final class SerialComXModem1K {
 	private File fileToProcess;
 	private boolean textMode;
 	private ISerialComProgressXmodem progressListener;
+	private SerialComXModemAbort transferState;
 	private int osType;
 
 	private int blockNumber;
@@ -90,7 +91,8 @@ public final class SerialComXModem1K {
 	 *         how many blocks have been sent/received till now.
 	 * @param osType operating system on which this application is running.
 	 */
-	public SerialComXModem1K(SerialComManager scm, long handle, File fileToProcess, boolean textMode, ISerialComProgressXmodem progressListener, int osType) {
+	public SerialComXModem1K(SerialComManager scm, long handle, File fileToProcess, boolean textMode,
+			ISerialComProgressXmodem progressListener, SerialComXModemAbort transferState, int osType) {
 		this.scm = scm;
 		this.handle = handle;
 		this.fileToProcess = fileToProcess;
@@ -242,7 +244,7 @@ public final class SerialComXModem1K {
 							retryCount++;
 							state = RESEND;
 						}else {
-							errMsg = "Unknown error occured";
+							errMsg = "Unknown error occured !";
 							state = ABORT;
 						}
 
@@ -732,7 +734,7 @@ public final class SerialComXModem1K {
 					}
 				}else {
 					// fall back to xmodem-128 checksum mode
-					return scm.receiveFile(handle, fileToProcess, FTPPROTO.XMODEM, FTPVAR.CHKSUM, textMode, progressListener);
+					return scm.receiveFile(handle, fileToProcess, FTPPROTO.XMODEM, FTPVAR.CHKSUM, textMode, progressListener, transferState);
 				}
 				break;
 			case RECEIVEDATA:

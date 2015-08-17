@@ -31,8 +31,12 @@ public interface ISerialComProgressXmodem {
 	 * <p>The class implementing this interface is expected to override onXmodemSentProgressUpdate() 
 	 * method. This method gets called whenever a block is sent using Xmodem protocol.</p>
 	 * 
+	 * <p>This method should return as early as possible. Application might schedule GUI update 
+	 * for future.</p>
+	 * 
 	 * @param numBlock number of the block sent by this application till the time this method is 
-	 *         called.
+	 *         called. It includes both newly sent and re-sent blocks i.e. it represent total 
+	 *         number of blocks sent from sender to receiver.
 	 */
 	public abstract void onXmodemSentProgressUpdate(long numBlock);
 
@@ -40,8 +44,12 @@ public interface ISerialComProgressXmodem {
 	 * <p>The class implementing this interface is expected to override onXmodemReceiveProgressUpdate() 
 	 * method. This method gets called whenever a block is sent using Xmodem protocol.</p>
 	 * 
+	 * <p>This method should return as early as possible. Application might schedule GUI update 
+	 * for future.</p>
+	 * 
 	 * @param numBlock number of the block received by this application till the time this method 
-	 *         is called.
+	 *         is called. It includes both new blocks and resent blocks i.e. it represent total 
+	 *         number of blocks received from file sender.
 	 */
 	public abstract void onXmodemReceiveProgressUpdate(long numBlock);
 }

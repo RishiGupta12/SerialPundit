@@ -33,15 +33,18 @@ public final class SerialComXModem {
 	private final byte EOT = 0x04;  // End-of-transmission character
 	private final byte ACK = 0x06;  // Acknowledge byte character
 	private final byte NAK = 0x15;  // Negative-acknowledge character
+	private final byte CAN = 0x18;  // Cancel
 	private final byte SUB = 0x1A;  // Substitute/CTRL+Z
 	private final byte CR = 0x0D;   // Carriage return
 	private final byte LF = 0x0A;   // Line feed
+	private final byte BS = 0X08;   // Back space
 
 	private SerialComManager scm;
 	private long handle;
 	private File fileToProcess;
 	private boolean textMode;
 	private ISerialComProgressXmodem progressListener;
+	private SerialComXModemAbort transferState;
 	private int osType;
 
 	private int blockNumber;
@@ -70,6 +73,8 @@ public final class SerialComXModem {
 	private byte data1 = 0;
 	private long numberOfBlocksSent = 0;     // track how many blocks have been sent till now.
 	private long numberOfBlocksReceived = 0; // track how many blocks have been received till now.
+	private boolean lastCharacterReceivedWasCAN = false;
+	private byte abortSequence[] = new byte[] { CAN, CAN, CAN, CAN, CAN, BS, BS, BS, BS, BS };
 
 	/**
 	 * <p>Allocates a new SerialComXModem object with given details and associate it with the given 
@@ -81,14 +86,19 @@ public final class SerialComXModem {
 	 * @param textMode if true file will be sent as text file (ASCII mode), if false file will be sent as binary file.
 	 * @param progressListener object of class which implements ISerialComProgressXmodem interface and is interested in knowing
 	 *         how many blocks have been sent/received till now.
+	 * @param transferState if application wish to abort sending/receiving file at instant of time due to any reason, it can call 
+	 *         abortTransfer method on this object. It can be null of application does not wish to abort sending/receiving file
+	 *         explicitly.
 	 * @param osType operating system on which this application is running.
 	 */
-	public SerialComXModem(SerialComManager scm, long handle, File fileToProcess, boolean textMode, ISerialComProgressXmodem progressListener, int osType) {
+	public SerialComXModem(SerialComManager scm, long handle, File fileToProcess, boolean textMode,
+			ISerialComProgressXmodem progressListener, SerialComXModemAbort transferState, int osType) {
 		this.scm = scm;
 		this.handle = handle;
 		this.fileToProcess = fileToProcess;
 		this.textMode = textMode;
 		this.progressListener = progressListener;
+		this.transferState = transferState;
 		this.osType = osType;
 	}
 
@@ -97,7 +107,7 @@ public final class SerialComXModem {
 	 * 
 	 * <p>On successful completion it will return true otherwise an exception would be thrown as per situation.</p>
 	 * 
-	 * @return true on success.
+	 * @return true on success, false if application instructed to abort.
 	 * @throws SecurityException if unable to read from file to be sent.
 	 * @throws IOException if any I/O error occurs.
 	 * @throws SerialComException if any I/0 error on serial port communication occurs.
@@ -159,6 +169,17 @@ public final class SerialComXModem {
 							break;
 						}
 					}
+
+					// check if application (file sender) wish to cancel sending file.
+					if((transferState != null) && (transferState.isTransferToBeAborted() == true)) {
+						inStream.close();
+						try {
+							scm.writeBytes(handle, abortSequence, 0);
+						} catch (SerialComException exp) {
+							throw exp;
+						}
+						return false;
+					}
 				}
 				break;
 			case BEGINSEND:
@@ -194,12 +215,24 @@ public final class SerialComXModem {
 				state = WAITACK;
 				break;
 			case WAITACK:
+				// check if application (file sender) wish to cancel sending file.
+				if((transferState != null) && (transferState.isTransferToBeAborted() == true)) {
+					inStream.close();
+					try {
+						scm.writeBytes(handle, abortSequence, 0);
+					} catch (SerialComException exp) {
+						throw exp;
+					}
+					return false;
+				}
+
 				responseWaitTimeOut = System.currentTimeMillis() + 60000; // 1 minute
+
 				while(true) {
 					// delay before next attempt to read from serial port
 					try {
 						if(noMoreData != true) {
-							Thread.sleep(150);
+							Thread.sleep(120);
 						}else {
 							Thread.sleep(1500);
 						}
@@ -238,12 +271,37 @@ public final class SerialComXModem {
 				if((state != ABORT) && (state != ENDTX)) {
 					if(noMoreData != true) {
 						if(data[0] == ACK) {
+							if(lastCharacterReceivedWasCAN == true) {
+								// <CAN> <ACK> is invalid sequence.
+								retryCount++;
+								state = RESEND;
+								break;
+							}
 							state = SENDNEXT;
 						}else if(data[0] == NAK) {
+							// indicates both <NAK> only and <CAN> <NAK> sequence reception.
 							retryCount++;
 							state = RESEND;
+						}else if(data[0] == CAN) {
+							if(data.length >= 2) {
+								if(data[1] == CAN) {
+									errMsg = "Received abort command from file receiver !";
+									state = ABORT;
+									break;
+								}else {
+									// probably it is noise, so re-send block.
+									retryCount++;
+									state = RESEND;
+								}
+							}
+							if(lastCharacterReceivedWasCAN == true) {
+								errMsg = "Received abort command from file receiver !";
+								state = ABORT;
+								break;
+							}
+							lastCharacterReceivedWasCAN = true;
 						}else {
-							errMsg = "Unknown error occured";
+							errMsg = "Invalid data byte : " + data[0] + " received from file receiver !";
 							state = ABORT;
 						}
 
@@ -256,7 +314,7 @@ public final class SerialComXModem {
 					}else {
 						if(data[0] == ACK) {
 							inStream.close();
-							return true; // successfully sent file, let's go back home happily
+							return true; // successfully sent file, let's go back home happily.
 						}else {
 							if(System.currentTimeMillis() >= eotAckWaitTimeOutValue) {
 								errMsg = "Timedout while waiting for EOT reception acknowledgement from file receiver !";
@@ -305,8 +363,9 @@ public final class SerialComXModem {
 				state = WAITACK;
 				break;
 			case ABORT:
-				/* if IOexception occurs, control will not reach here instead exception would have been
-				 * thrown already. */
+				/* if any IOexception occurs, control will not reach here instead exception would 
+				 * have been already thrown. This state is entered explicitly to abort executing 
+				 * actions in state machine. */
 				inStream.close();
 				throw new SerialComTimeOutException(errMsg);
 			default:
@@ -678,9 +737,10 @@ public final class SerialComXModem {
 
 	/**
 	 * <p>Represents actions to execute in state machine to implement xmodem protocol for receiving files.</p>
+	 * 
 	 * <p>On successful completion it will return true otherwise an exception would be thrown as per situation.</p>
 	 * 
-	 * @return true on success.
+	 * @return true on success, false if application instructed to abort.
 	 * @throws IOException if any I/O error occurs.
 	 * @throws SerialComException if any I/0 error on serial port communication occurs.
 	 */
@@ -736,7 +796,7 @@ public final class SerialComXModem {
 				try {
 					scm.writeSingleByte(handle, NAK);
 					firstBlock = true;
-					connectTimeOut = System.currentTimeMillis() + 10000; // update timeout, 10 seconds
+					connectTimeOut = System.currentTimeMillis() + 10000; // update timeout, 10 seconds.
 					state = RECEIVEDATA;
 				} catch (SerialComException exp) {
 					outStream.close();
@@ -744,20 +804,66 @@ public final class SerialComXModem {
 				}
 				break;
 			case RECEIVEDATA:
+				// check if application (file receiver) wish to cancel receiving file.
+				if((transferState != null) && (transferState.isTransferToBeAborted() == true)) {
+					outStream.close();
+					try {
+						scm.writeBytes(handle, abortSequence, 0);
+					} catch (SerialComException exp) {
+						throw exp;
+					}
+					return false;
+				}
+				
 				while(true) {
+					// let the data arrive from other end, also minimize JNI transitions.
 					try {
 						Thread.sleep(delayVal);
 					} catch (InterruptedException e) {
 					}
+
 					try {
 						data = scm.readBytes(handle);
 					} catch (SerialComException exp) {
 						outStream.close();
 						throw exp;
 					}
+
 					if((data != null) && (data.length > 0)) {
 						firstBlock = false;
-						if(data[0] == EOT) {
+
+						if(data[0] == CAN) {
+							if(lastCharacterReceivedWasCAN == true) {
+								// received 2nd consecutive CAN means sender wish to abort file transfer.
+								errMsg = "Abort command received from file sender !";
+								state = ABORT;
+								break;
+							}
+							if(data.length >= 2) {
+								if(data[1] == CAN) {
+									// received 2 consecutive CAN means sender wish to abort file transfer.
+									errMsg = "Abort command received from file sender !";
+									state = ABORT;
+									break;
+								}else {
+									// this is not valid block as 1st character is CAN instead of SOH.
+									// probably it is noise, so send NAK.
+									isCorrupted = true;
+									state = REPLY;
+									break;
+								}
+							}else {
+								// this is 1st CAN character, wait to check next character; whether it is CAN or not.
+								lastCharacterReceivedWasCAN = true;
+							}
+						}else if(data[0] == EOT) {
+							if(lastCharacterReceivedWasCAN == true) {
+								// EOT after CAN was not expected, probably line has noise; abort transfer.
+								errMsg = "Unexpected data sequence (<CAN> <EOT>) received from file sender !";
+								state = ABORT;
+								break;
+							}
+							// indicates that sender has sent the complete file.
 							isCorrupted = false;
 							rxDone = true;
 							state = REPLY;
@@ -789,12 +895,14 @@ public final class SerialComXModem {
 						}
 					}else {
 						if(firstBlock == false) {
+							// reaching here means that we are waiting for receiving next block from file sender.
 							if(System.currentTimeMillis() > nextDataRecvTimeOut) {
-								errMsg = "Timedout while trying to receive next data byte from file sender !";
+								errMsg = "Timedout while trying to receive next data byte (block) from file sender !";
 								state = ABORT;
 								break;
 							}
 						}else {
+							// reaching here means that we are still waiting for 1st block from file sender.
 							if(System.currentTimeMillis() > connectTimeOut) {
 								retryCount++;
 								state = CONNECT;
@@ -810,7 +918,7 @@ public final class SerialComXModem {
 				isDuplicateBlock = false; // reset
 				state = REPLY;
 				// check duplicate block
-				if(block[1] == (blockNumber - 1)){
+				if(block[1] == ((blockNumber - 1) & 0xFF)){
 					isDuplicateBlock = true;
 					duplicateBlockRetryCount++;
 					if(duplicateBlockRetryCount > 10) {
@@ -820,12 +928,12 @@ public final class SerialComXModem {
 					break;
 				}
 				// verify block number sequence
-				if(block[1] != blockNumber){
+				if(block[1] != (byte) blockNumber) {
 					isCorrupted = true;
 					break;
 				}
 				// verify block number
-				if(block[1] != ~block[2]){
+				if(block[2] != (byte) ~blockNumber) {
 					isCorrupted = true;
 					break;
 				}
