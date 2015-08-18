@@ -30,68 +30,52 @@ import com.embeddedunveiled.serial.SerialComManager.PARITY;
 import com.embeddedunveiled.serial.SerialComManager.STOPBITS;
 import com.embeddedunveiled.serial.SerialComXModemAbort;
 
-class AbortTest extends SendText implements Runnable {
-	
+class AbortTest implements Runnable {
+
 	SerialComXModemAbort abort = null;
-	
+
 	public AbortTest(SerialComXModemAbort bb) {
 		abort = bb;
 	}
-	
+
 	@Override
 	public void run() {
-//		try {
-//			Thread.sleep(500);
-//		} catch (InterruptedException e) {
-//			e.printStackTrace();
-//		}
-		System.out.println("=======ABORTING TX !======");
+		try {
+			Thread.sleep(500);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		System.out.println("=======ABORTING !======");
 		abort.abortTransfer();
 	}
 }
 
-class AbortTesta extends Test64 implements Runnable {
-	
-	SerialComXModemAbort abort = null;
-	
-	public AbortTesta(SerialComXModemAbort bb) {
-		abort = bb;
-	}
-	
-	@Override
-	public void run() {
-//		try {
-//			Thread.sleep(5);
-//		} catch (InterruptedException e) {
-//			e.printStackTrace();
-//		}
-		System.out.println("=======ABORTING RX !======");
-		abort.abortTransfer();
-	}
-}
-
-class SendText extends Test64 implements Runnable, ISerialComProgressXmodem {
+class Send extends Test64 implements Runnable, ISerialComProgressXmodem {
 	public SerialComXModemAbort transferStatea = new SerialComXModemAbort();
-	
+
 	@Override
 	public void run() {
 		try {
 			long handle1 = scm.openComPort(PORT1, true, true, true);
 			scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
 			scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
-			
-//			new Thread(new AbortTest(transferStatea)).start();
-			
+
+			new Thread(new AbortTest(transferStatea)).start();
+
 			boolean statusc = scm.sendFile(handle1, new File(sndtfilepath), FTPPROTO.XMODEM, FTPVAR.CRC, true, this, transferStatea);
-			System.out.println("statusc : " + statusc);
-			scm.closeComPort(handle1);
-			System.out.println("sent text");
+			System.out.println("\nsent text status : " + statusc);
+			
 			done = true;
+			
+			boolean statusb = scm.sendFile(handle1, new File(sndbfilepath), FTPPROTO.XMODEM, FTPVAR.CRC, false, this, transferStatea);
+			System.out.println("\nsent binary status : " + statusb);
+			
+			scm.closeComPort(handle1);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
-	
+
 	@Override
 	public void onXmodemSentProgressUpdate(long arg0) {
 		System.out.println("text block number sent : " + arg0);
@@ -101,37 +85,9 @@ class SendText extends Test64 implements Runnable, ISerialComProgressXmodem {
 	}
 }
 
-class SendBinary extends Test64 implements Runnable, ISerialComProgressXmodem {
-	SerialComXModemAbort transferStateb = new SerialComXModemAbort();
-	
-	@Override
-	public void run() {
-		try {
-			long handle1 = scm.openComPort(PORT1, true, true, true);
-			scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
-			scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
-			boolean statusb = scm.sendFile(handle1, new File(sndbfilepath), FTPPROTO.XMODEM, FTPVAR.CRC, false, this, transferStateb);
-			System.out.println("statusb : " + statusb);
-			scm.closeComPort(handle1);
-			System.out.println("sent binary");
-			done = true;
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-	
-	@Override
-	public void onXmodemSentProgressUpdate(long arg0) {
-		System.out.println("binary block number sent : " + arg0);
-	}
-	@Override
-	public void onXmodemReceiveProgressUpdate(long arg0) {	
-	}
-}
-
 // send file from one thread and receive from other using XMODEM checksum protocol 
 public class Test64 implements ISerialComProgressXmodem {
-	
+
 	private static SerialComXModemAbort transferStatec = new SerialComXModemAbort();
 	private static Thread mThread = null;
 	public static SerialComManager scm = null;
@@ -175,34 +131,30 @@ public class Test64 implements ISerialComProgressXmodem {
 			long handle = scm.openComPort(PORT, true, true, true);
 			scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
 			scm.configureComPortControl(handle, FLOWCONTROL.NONE, 'x', 'x', false, false);
-			
-			// ascii text mode
-			mThread = new Thread(new SendText());
-			mThread.start();
-			
-			new Thread(new AbortTesta(transferStatec)).start();
-			
-			boolean status = scm.receiveFile(handle, new File(rcvtfilepath), FTPPROTO.XMODEM, FTPVAR.CRC, true, new Test64(), transferStatec);
-			System.out.println("status : " + status);
-			System.out.println("received text");
-			
-			while(done == false) { 
-				Thread.sleep(100);
-			}
-			
-			// binary mode
-			mThread = new Thread(new SendBinary());
-			mThread.start();
-			boolean statusa = scm.receiveFile(handle, new File(rcvbfilepath), FTPPROTO.XMODEM, FTPVAR.CRC, false, new Test64(), transferStatec);
-			System.out.println("statusa : " + statusa);
-			System.out.println("received binary");
 
+			mThread = new Thread(new Send());
+			mThread.start();
+
+//			new Thread(new AbortTest(transferStatec)).start();
+
+			// ascii text mode
+			boolean status = scm.receiveFile(handle, new File(rcvtfilepath), FTPPROTO.XMODEM, FTPVAR.CRC, true, new Test64(), transferStatec);
+			System.out.println("\nreceived status text : " + status);
+
+			while(done == false) { 
+				Thread.sleep(10);
+			}
+
+			// binary mode
+			boolean statusa = scm.receiveFile(handle, new File(rcvbfilepath), FTPPROTO.XMODEM, FTPVAR.CRC, false, new Test64(), transferStatec);
+			System.out.println("\nreceived status binary : " + statusa);
+			
 			scm.closeComPort(handle);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
-	
+
 	@Override
 	public void onXmodemReceiveProgressUpdate(long arg0) {
 		System.out.println("block number received : " + arg0);
