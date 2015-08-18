@@ -38,10 +38,12 @@ public final class SerialComXModemCRC {
 	private final byte EOT = 0x04;  // End-of-transmission character
 	private final byte ACK = 0x06;  // Acknowledge byte character
 	private final byte NAK = 0x15;  // Negative-acknowledge character
+	private final byte CAN = 0x18;  // Cancel
 	private final byte SUB = 0x1A;  // Substitute/CTRL+Z
 	private final byte C   = 0x43;  // ASCII capital C character
-	private final byte CR = 0x0D;   // Carriage return
-	private final byte LF = 0x0A;   // Line feed
+	private final byte CR  = 0x0D;  // Carriage return
+	private final byte LF  = 0x0A;  // Line feed
+	private final byte BS  = 0X08;  // Back space
 
 	private SerialComManager scm;
 	private long handle;
@@ -77,6 +79,8 @@ public final class SerialComXModemCRC {
 	private byte data1 = 0;
 	private long numberOfBlocksSent = 0;     // track how many blocks have been sent till now.
 	private long numberOfBlocksReceived = 0; // track how many blocks have been received till now.
+	private boolean lastCharacterReceivedWasCAN = false;
+	private byte abortSequence[] = new byte[] { CAN, CAN, CAN, CAN, CAN, BS, BS, BS, BS, BS };
 
 	/**
 	 * <p>Allocates a new SerialComXModemCRC object with given details and associate it with the given 
@@ -88,6 +92,9 @@ public final class SerialComXModemCRC {
 	 * @param textMode if true file will be sent as text file (ASCII mode), if false file will be sent as binary file.
 	 * @param progressListener object of class which implements ISerialComProgressXmodem interface and is interested in knowing
 	 *         how many blocks have been sent/received till now.
+	 * @param transferState if application wish to abort sending/receiving file at instant of time due to any reason, it can call 
+	 *         abortTransfer method on this object. It can be null of application does not wish to abort sending/receiving file 
+	 *         explicitly.
 	 * @param osType operating system on which this application is running.
 	 */
 	public SerialComXModemCRC(SerialComManager scm, long handle, File fileToProcess, boolean textMode,
@@ -97,6 +104,7 @@ public final class SerialComXModemCRC {
 		this.fileToProcess = fileToProcess;
 		this.textMode = textMode;
 		this.progressListener = progressListener;
+		this.transferState = transferState;
 		this.osType = osType;
 	}
 
@@ -104,7 +112,7 @@ public final class SerialComXModemCRC {
 	 * <p>Represents actions to execute in state machine to implement xmodem/crc protocol
 	 * for sending files.</p>
 	 * 
-	 * @return true on success.
+	 * @return true on success, false if application instructed to abort.
 	 * @throws SecurityException if unable to read from file to be sent.
 	 * @throws IOException if any I/O error occurs.
 	 * @throws SerialComException if any I/0 error on serial port communication occurs.
@@ -166,6 +174,13 @@ public final class SerialComXModemCRC {
 							break;
 						}
 					}
+
+					// check if application (file sender) wish to cancel sending file.
+					if((transferState != null) && (transferState.isTransferToBeAborted() == true)) {
+						inStream.close();
+						scm.writeBytes(handle, abortSequence, 0);
+						return false;
+					}
 				}
 				break;
 			case BEGINSEND:
@@ -194,8 +209,16 @@ public final class SerialComXModemCRC {
 				state = WAITACK;
 				break;
 			case WAITACK:
-				responseWaitTimeOut = System.currentTimeMillis() + 60000; // 1 minute
+				responseWaitTimeOut = System.currentTimeMillis() + 60000; // 1 minute.
+
 				while(true) {
+					// check if application (file sender) wish to cancel sending file.
+					if((transferState != null) && (transferState.isTransferToBeAborted() == true)) {
+						inStream.close();
+						scm.writeBytes(handle, abortSequence, 0);
+						return false;
+					}
+
 					// delay before next attempt to read from serial port
 					try {
 						if(noMoreData != true) {
@@ -238,12 +261,37 @@ public final class SerialComXModemCRC {
 				if((state != ABORT) && (state != ENDTX)) {
 					if(noMoreData != true) {
 						if(data[0] == ACK) {
+							if(lastCharacterReceivedWasCAN == true) {
+								// <CAN> <ACK> is invalid sequence.
+								retryCount++;
+								state = RESEND;
+								break;
+							}
 							state = SENDNEXT;
 						}else if(data[0] == NAK) {
+							// indicates both <NAK> only and <CAN> <NAK> sequence reception.
 							retryCount++;
 							state = RESEND;
+						}else if(data[0] == CAN) {
+							if(data.length >= 2) {
+								if(data[1] == CAN) {
+									errMsg = "Received abort command from file receiving end !";
+									state = ABORT;
+									break;
+								}else {
+									// probably it is noise, so re-send block.
+									retryCount++;
+									state = RESEND;
+								}
+							}
+							if(lastCharacterReceivedWasCAN == true) {
+								errMsg = "Received abort command from file receiving end !";
+								state = ABORT;
+								break;
+							}
+							lastCharacterReceivedWasCAN = true;
 						}else {
-							errMsg = "Unknown error occured !";
+							errMsg = "Invalid data byte : " + data[0] + " received from file receiver !";
 							state = ABORT;
 						}
 
@@ -298,8 +346,9 @@ public final class SerialComXModemCRC {
 				state = WAITACK;
 				break;
 			case ABORT:
-				/* if IOexception occurs, control will not reach here instead exception would have been
-				 * thrown already. */
+				/* if any IOexception occurs, control will not reach here instead exception would 
+				 * have been already thrown. This state is entered explicitly to abort executing 
+				 * actions in state machine. */
 				inStream.close();
 				throw new SerialComTimeOutException(errMsg);
 			default:
@@ -308,7 +357,8 @@ public final class SerialComXModemCRC {
 		}
 	}
 
-	/* Prepares xmodem/crc block [SOH][blk #][255-blk #][128 data bytes][2 byte CRC]
+	/* 
+	 * Prepares xmodem/crc block [SOH][blk #][255-blk #][128 data bytes][2 byte CRC]
 	 * of 133 bytes in total using CRC-16-CCITT.
 	 * 
 	 * For text mode transfer, lines are terminated by CR+LF, EOF will be indicate
@@ -671,7 +721,7 @@ public final class SerialComXModemCRC {
 	 * <p>Represents actions to execute in state machine to implement 
 	 * xmodem-crc protocol for receiving files.</p>
 	 * 
-	 * @return true on success.
+	 * @return true on success, false if application instructed to abort.
 	 * @throws IOException if any I/O error occurs.
 	 * @throws SerialComException if any I/0 error on serial port communication occurs.
 	 */
@@ -723,39 +773,81 @@ public final class SerialComXModemCRC {
 					try {
 						scm.writeSingleByte(handle, C);
 						firstBlock = true;
-						connectTimeOut = System.currentTimeMillis() + 3000; // update timeout, 3 seconds
+						connectTimeOut = System.currentTimeMillis() + 3000; // update timeout, 3 seconds.
 						state = RECEIVEDATA;
 					} catch (SerialComException exp) {
 						outStream.close();
 						throw exp;
 					}
 				}else {
-					// fall back to xmodem-128 checksum mode
+					// fall back to xmodem-128 checksum mode.
 					return scm.receiveFile(handle, fileToProcess, FTPPROTO.XMODEM, FTPVAR.CHKSUM, textMode, progressListener, transferState);
 				}
 				break;
 			case RECEIVEDATA:
 				while(true) {
+					// check if application (file receiver) wish to cancel receiving file.
+					if((transferState != null) && (transferState.isTransferToBeAborted() == true)) {
+						outStream.close();
+						scm.writeBytes(handle, abortSequence, 0);
+						return false;
+					}
+					
+					// let the data arrive from other end, also minimize JNI transitions.
 					try {
 						Thread.sleep(delayVal);
 					} catch (InterruptedException e) {
 					}
+
 					try {
 						data = scm.readBytes(handle);
 					} catch (SerialComException exp) {
 						outStream.close();
 						throw exp;
 					}
+
 					if((data != null) && (data.length > 0)) {
 						firstBlock = false;
-						if(data[0] == EOT) {
+
+						if(data[0] == CAN) {
+							if(lastCharacterReceivedWasCAN == true) {
+								// received 2nd consecutive CAN means sender wish to abort file transfer.
+								errMsg = "Abort command received from file sending application !";
+								state = ABORT;
+								break;
+							}
+							if(data.length >= 2) {
+								if(data[1] == CAN) {
+									// received 2 consecutive CAN means sender wish to abort file transfer.
+									errMsg = "Abort command received from file sending application !";
+									state = ABORT;
+									break;
+								}else {
+									// this is not valid block as 1st character is CAN instead of SOH.
+									// probably it is noise, so send NAK.
+									isCorrupted = true;
+									state = REPLY;
+									break;
+								}
+							}else {
+								// this is 1st CAN character, wait to check next character; whether it is CAN or not.
+								lastCharacterReceivedWasCAN = true;
+							}
+						}else if(data[0] == EOT) {
+							if(lastCharacterReceivedWasCAN == true) {
+								// EOT after CAN was not expected, probably line has noise; abort transfer.
+								errMsg = "Unexpected data sequence (<CAN> <EOT>) received from file sender !";
+								state = ABORT;
+								break;
+							}
+							// indicates that sender has sent the complete file.
 							isCorrupted = false;
 							rxDone = true;
 							state = REPLY;
 							break;
 						}else {
 							if(data.length == 133) {
-								// complete block read in one go
+								// complete block read in one go.
 								for(int i=0; i < 133; i++) {
 									block[i] = data[i];
 								}
@@ -768,39 +860,41 @@ public final class SerialComXModemCRC {
 									bufferIndex++;
 								}
 								if(bufferIndex == 133) {
-									delayVal = 250;  // reset delay
-									bufferIndex = 0; // reset index
+									delayVal = 250;  // reset delay.
+									bufferIndex = 0; // reset index.
 									state = VERIFY;
 									break;
 								}else {
-									delayVal = 100; // next remaining data bytes should arrive early
+									delayVal = 100; // next remaining data bytes should arrive early.
 									continue;
 								}	
 							}
 						}
 					}else {
 						if(firstBlock == false) {
+							// reaching here means that we are waiting for receiving next block from file sender.
 							if(System.currentTimeMillis() > nextDataRecvTimeOut) {
-								errMsg = "Timedout while trying to receive next data byte from file sender !";
+								errMsg = "Timedout while trying to receive next data byte (block) from file sender !";
 								state = ABORT;
 								break;
 							}
 						}else {
+							// reaching here means that we are still waiting for 1st block from file sender.
 							if(System.currentTimeMillis() > connectTimeOut) {
 								retryCount++;
 								state = CONNECT;
 								break;
 							}
 						}
-					}
+					}					
 				}
 				break;
 			case VERIFY:
 				isCorrupted = false;      // reset
 				isDuplicateBlock = false; // reset
 				state = REPLY;
-				// check duplicate block
-				if(block[1] == (blockNumber - 1)){
+				// check duplicate block.
+				if(block[1] == ((blockNumber - 1) & 0xFF)){
 					isDuplicateBlock = true;
 					duplicateBlockRetryCount++;
 					if(duplicateBlockRetryCount > 10) {
@@ -809,17 +903,17 @@ public final class SerialComXModemCRC {
 					}
 					break;
 				}
-				// verify block number sequence
-				if(block[1] != blockNumber){
+				// verify block number sequence.
+				if(block[1] != (byte) blockNumber) {
 					isCorrupted = true;
 					break;
 				}
-				// verify block number
-				if(block[1] != ~block[2]){
+				// verify block number.
+				if(block[2] != (byte) ~blockNumber) {
 					isCorrupted = true;
 					break;
 				}
-				// verify CRC
+				// verify CRC value.
 				blockCRCval = crcCalculator.getCRCval(block, 3, 130);
 				if((block[131] != (byte)(blockCRCval >>> 8)) || (block[132] != (byte)blockCRCval)){
 					isCorrupted = true;

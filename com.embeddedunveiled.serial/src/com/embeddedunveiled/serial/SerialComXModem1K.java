@@ -39,10 +39,12 @@ public final class SerialComXModem1K {
 	private final byte EOT = 0x04;  // End-of-transmission character
 	private final byte ACK = 0x06;  // Acknowledge byte character
 	private final byte NAK = 0x15;  // Negative-acknowledge character
+	private final byte CAN = 0x18;  // Cancel
 	private final byte SUB = 0x1A;  // Substitute/CTRL+Z
 	private final byte C   = 0x43;  // ASCII capital C character
-	private final byte CR = 0x0D;   // Carriage return
-	private final byte LF = 0x0A;   // Line feed
+	private final byte CR  = 0x0D;  // Carriage return
+	private final byte LF  = 0x0A;  // Line feed
+	private final byte BS  = 0X08;  // Back space
 
 	private SerialComManager scm;
 	private long handle;
@@ -89,6 +91,9 @@ public final class SerialComXModem1K {
 	 * @param textMode if true file will be sent as text file (ASCII mode), if false file will be sent as binary file.
 	 * @param progressListener object of class which implements ISerialComProgressXmodem interface and is interested in knowing
 	 *         how many blocks have been sent/received till now.
+	 * @param transferState if application wish to abort sending/receiving file at instant of time due to any reason, it can call 
+	 *         abortTransfer method on this object. It can be null of application does not wish to abort sending/receiving file
+	 *         explicitly.
 	 * @param osType operating system on which this application is running.
 	 */
 	public SerialComXModem1K(SerialComManager scm, long handle, File fileToProcess, boolean textMode,
@@ -98,6 +103,7 @@ public final class SerialComXModem1K {
 		this.fileToProcess = fileToProcess;
 		this.textMode = textMode;
 		this.progressListener = progressListener;
+		this.transferState = transferState;
 		this.osType = osType;
 	}
 
@@ -105,7 +111,7 @@ public final class SerialComXModem1K {
 	 * <p>Represents actions to execute in state machine to implement xmodem-1k 
 	 * protocol for sending files.</p>
 	 * 
-	 * @return true on success.
+	 * @return true on success, false if application instructed to abort.
 	 * @throws SecurityException if unable to read from file to be sent.
 	 * @throws IOException if any I/O error occurs.
 	 * @throws SerialComException if any I/0 error on serial port communication occurs.

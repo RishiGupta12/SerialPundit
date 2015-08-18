@@ -35,9 +35,9 @@ public final class SerialComXModem {
 	private final byte NAK = 0x15;  // Negative-acknowledge character
 	private final byte CAN = 0x18;  // Cancel
 	private final byte SUB = 0x1A;  // Substitute/CTRL+Z
-	private final byte CR = 0x0D;   // Carriage return
-	private final byte LF = 0x0A;   // Line feed
-	private final byte BS = 0X08;   // Back space
+	private final byte CR  = 0x0D;  // Carriage return
+	private final byte LF  = 0x0A;  // Line feed
+	private final byte BS  = 0X08;  // Back space
 
 	private SerialComManager scm;
 	private long handle;
@@ -173,11 +173,7 @@ public final class SerialComXModem {
 					// check if application (file sender) wish to cancel sending file.
 					if((transferState != null) && (transferState.isTransferToBeAborted() == true)) {
 						inStream.close();
-						try {
-							scm.writeBytes(handle, abortSequence, 0);
-						} catch (SerialComException exp) {
-							throw exp;
-						}
+						scm.writeBytes(handle, abortSequence, 0);
 						return false;
 					}
 				}
@@ -215,20 +211,16 @@ public final class SerialComXModem {
 				state = WAITACK;
 				break;
 			case WAITACK:
-				// check if application (file sender) wish to cancel sending file.
-				if((transferState != null) && (transferState.isTransferToBeAborted() == true)) {
-					inStream.close();
-					try {
-						scm.writeBytes(handle, abortSequence, 0);
-					} catch (SerialComException exp) {
-						throw exp;
-					}
-					return false;
-				}
-
 				responseWaitTimeOut = System.currentTimeMillis() + 60000; // 1 minute
 
 				while(true) {
+					// check if application (file sender) wish to cancel sending file.
+					if((transferState != null) && (transferState.isTransferToBeAborted() == true)) {
+						inStream.close();
+						scm.writeBytes(handle, abortSequence, 0);
+						return false;
+					}
+
 					// delay before next attempt to read from serial port
 					try {
 						if(noMoreData != true) {
@@ -285,7 +277,7 @@ public final class SerialComXModem {
 						}else if(data[0] == CAN) {
 							if(data.length >= 2) {
 								if(data[1] == CAN) {
-									errMsg = "Received abort command from file receiver !";
+									errMsg = "Received abort command from file receiving end !";
 									state = ABORT;
 									break;
 								}else {
@@ -295,7 +287,7 @@ public final class SerialComXModem {
 								}
 							}
 							if(lastCharacterReceivedWasCAN == true) {
-								errMsg = "Received abort command from file receiver !";
+								errMsg = "Received abort command from file receiving end !";
 								state = ABORT;
 								break;
 							}
@@ -804,18 +796,14 @@ public final class SerialComXModem {
 				}
 				break;
 			case RECEIVEDATA:
-				// check if application (file receiver) wish to cancel receiving file.
-				if((transferState != null) && (transferState.isTransferToBeAborted() == true)) {
-					outStream.close();
-					try {
-						scm.writeBytes(handle, abortSequence, 0);
-					} catch (SerialComException exp) {
-						throw exp;
-					}
-					return false;
-				}
-				
 				while(true) {
+					// check if application (file receiver) wish to cancel receiving file.
+					if((transferState != null) && (transferState.isTransferToBeAborted() == true)) {
+						outStream.close();
+						scm.writeBytes(handle, abortSequence, 0);
+						return false;
+					}
+					
 					// let the data arrive from other end, also minimize JNI transitions.
 					try {
 						Thread.sleep(delayVal);
@@ -835,14 +823,14 @@ public final class SerialComXModem {
 						if(data[0] == CAN) {
 							if(lastCharacterReceivedWasCAN == true) {
 								// received 2nd consecutive CAN means sender wish to abort file transfer.
-								errMsg = "Abort command received from file sender !";
+								errMsg = "Abort command received from file sending application !";
 								state = ABORT;
 								break;
 							}
 							if(data.length >= 2) {
 								if(data[1] == CAN) {
 									// received 2 consecutive CAN means sender wish to abort file transfer.
-									errMsg = "Abort command received from file sender !";
+									errMsg = "Abort command received from file sending application !";
 									state = ABORT;
 									break;
 								}else {

@@ -45,8 +45,8 @@ class AbortTest extends SendText implements Runnable {
 //		} catch (InterruptedException e) {
 //			e.printStackTrace();
 //		}
-//		System.out.println("=======ABORTING TX !======");
-//		abort.abortTransfer();
+		System.out.println("=======ABORTING TX !======");
+		abort.abortTransfer();
 	}
 }
 
