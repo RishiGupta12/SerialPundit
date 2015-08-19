@@ -833,6 +833,10 @@ public final class SerialComXModem1K {
 						if(data[0] == CAN) {
 							if(lastCharacterReceivedWasCAN == true) {
 								// (case 2) received 2nd consecutive CAN means sender wish to abort file transfer.
+								try {
+									scm.writeSingleByte(handle, ACK);
+								} catch (Exception e) {
+								}
 								errMsg = "Abort command received from file sending application !";
 								state = ABORT;
 								break;
@@ -840,6 +844,10 @@ public final class SerialComXModem1K {
 							if(data.length >= 2) {
 								if(data[1] == CAN) {
 									// (case 2) received 2 consecutive CAN means sender wish to abort file transfer.
+									try {
+										scm.writeSingleByte(handle, ACK);
+									} catch (Exception e) {
+									}
 									errMsg = "Abort command received from file sending application !";
 									state = ABORT;
 									break;
@@ -897,6 +905,10 @@ public final class SerialComXModem1K {
 										if((data.length - z) >= 2) {
 											// check if we received 2 consecutive CAN characters, if yes then abort.
 											if((data[z] == CAN) && (data[z+1] == CAN)) {
+												try {
+													scm.writeSingleByte(handle, ACK);
+												} catch (Exception e) {
+												}
 												errMsg = "Abort command received from file sending application !";
 												state = ABORT;
 												break;
