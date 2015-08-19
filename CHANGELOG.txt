@@ -1,5 +1,6 @@
 
 v1.0.4 (TODO RELEASE DATE)
+	- added API to find driver serving the given serial port
 	- added support for Silicon labs CP210XManufacturing library
 	- added support for Bluetooth serial port profile
 	- added support for FTDI D2XX propriety software interface
@@ -12,7 +13,7 @@ v1.0.4 (TODO RELEASE DATE)
 	- added Junit test cases for continuos integration
 	- added utility class SerialComUtil for common operations
 	- added new exceptions to deal with java security manager if exist
-	- added XMODEM(checksum, CRC, 1K) support
+	- added full XMODEM(checksum, CRC, 1K) support for both GUI and non-GUI applications
 	- added method getCPUArchitecture()
 	- added check for incorrect arguments passing to methods
 	- implemented new powerful hot plug mechanism for USB port hot plug detection
