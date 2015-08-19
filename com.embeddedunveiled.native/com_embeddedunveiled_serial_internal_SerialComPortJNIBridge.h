@@ -177,6 +177,14 @@ JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComP
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
+ * Method:    findDriverServingComPort
+ * Signature: (Ljava/lang/String;)Ljava/lang/String;
+ */
+JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_findDriverServingComPort
+  (JNIEnv *, jobject, jstring);
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
  * Method:    sendBreak
  * Signature: (JI)I
  */

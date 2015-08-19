@@ -279,6 +279,7 @@ public final class SerialComPortJNIBridge {
 	public native int setDTR(long handle, boolean enabled);
 	public native int[] getLinesStatus(long handle);
 	public native int[] getInterruptCount(long handle);
+	public native String findDriverServingComPort(String comPortName);
 	public native int sendBreak(long handle, int duration);
 	public native int[] getByteCount(long handle);
 	public native int clearPortIOBuffers(long handle, boolean rxPortbuf, boolean txPortbuf);

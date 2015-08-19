@@ -1816,7 +1816,7 @@ public final class SerialComManager {
 	 * CTS, DSR, RING, CARRIER DETECT, RECEIVER BUFFER, TRANSMIT BUFFER, FRAME ERROR, OVERRUN ERROR, PARITY ERROR,
 	 * BREAK AND BUFFER OVERRUN.</p>
 	 * 
-	 * <p>Note: It is supported for Unix-like OS only. For other operating systems, this will return 0 for all the indexes.</p>
+	 * <p>This is applicable for Linux onle. For other operating systems, this will return 0 for all the indexes.</p>
 	 * 
 	 * @param handle of the port opened on which interrupts might have occurred.
 	 * @return array of integers containing values corresponding to each interrupt source.
@@ -1871,9 +1871,32 @@ public final class SerialComManager {
 
 		status = mComPortJNIBridge.getLinesStatus(handle);
 		if(status == null) {
-			throw new SerialComException("Unknown error occurred !");
+			throw new SerialComException("Failed to get line status for the given handle. Please retry !");
 		}
 		return status;
+	}
+	
+	/**
+	 * <p>Gives the name of the driver who is driving the given serial port.</p>
+	 * 
+	 * @param comPortName name only for windows (for ex; COM52), full path for unix-like os (for ex; /dev/ttyUSB0).
+	 * @return name of driver serving given serial port.
+	 * @throws SerialComException if operation can not be completed successfully.
+	 * @throws IllegalArgumentException if argument comPortName is null or is an empty string.
+	 */
+	public String findDriverServingComPort(String comPortName) throws SerialComException {
+		if(comPortName == null) {
+			throw new IllegalArgumentException("Argument comPortName can not be null !");
+		}
+		if(comPortName.length() == 0) {
+			throw new IllegalArgumentException("Argument comPortName can not be empty string !");
+		}
+
+		String driverName = mComPortJNIBridge.findDriverServingComPort(comPortName);
+		if(driverName == null) {
+			throw new SerialComException("Failed to find driver serving the given serial port. Please retry !");
+		}
+		return driverName;
 	}
 
 	/**
@@ -2011,10 +2034,10 @@ public final class SerialComManager {
 				break;
 			}
 		}
+		
 		if(portName == null) {
 			return null;
 		}
-
 		return portName;
 	}
 

@@ -2020,6 +2020,21 @@ JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComP
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
+ * Method:    findDriverServingComPort
+ * Signature: (Ljava/lang/String;)Ljava/lang/String;
+ *
+ * @return name of driver if found for given serial port, empty string if no driver found for given serial port,
+ *         null if any error occurs.
+ * @throws SerialComException if any JNI function, system call or C function fails.
+ *
+ * Find the name of the driver which is currently associated with the given serial port.
+ */
+JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_findDriverServingComPort(JNIEnv *env, jobject obj, jstring comPortName) {
+	return find_driver_for_given_com_port(env, comPortName);
+}
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
  * Method:    sendBreak
  * Signature: (JI)I
  *
