@@ -38,6 +38,9 @@
 
 /*
  * Find the name of the driver which is currently associated with the given serial port.
+ *
+ * A serial device can be on pci, usb, bluetooth or pseudo. For Linux we walk down the
+ * sysfs tree until a driver is found for the given device node (comPortName).
  */
 jstring find_driver_for_given_com_port(JNIEnv *env, jstring comPortName) {
 	const char* port_name_to_match = NULL;
@@ -45,6 +48,7 @@ jstring find_driver_for_given_com_port(JNIEnv *env, jstring comPortName) {
 	jstring driver_name = NULL;
 
 #if defined (__linux__)
+	int check_for_parent = -1;
 	struct udev *udev_ctx;
 	struct udev_enumerate *enumerator;
 	struct udev_list_entry *devices, *dev_list_entry;
@@ -52,8 +56,7 @@ jstring find_driver_for_given_com_port(JNIEnv *env, jstring comPortName) {
 	const char *prop_val_driver_name;
 	const char *path;
 	struct udev_device *udev_device;
-
-	struct udev_list_entry *list_entryrishi;
+	struct udev_device *parent_device;
 #endif
 #if defined (__APPLE__)
 	/* TODO */
@@ -86,14 +89,13 @@ jstring find_driver_for_given_com_port(JNIEnv *env, jstring comPortName) {
 		/* get the device node for this udev device. */
 		prop_val_port_name = udev_device_get_property_value(udev_device, "DEVNAME");
 
+		/* If the device node name matches what we are looking for get driver for it.
+		 * if we fail to get driver name than return empty string (prop_val_driver_name
+		 * will be NULL when control reaches at the end of this function). */
 		if(prop_val_port_name != NULL) {
 			if(strcmp(com_port_name_to_match, prop_val_port_name) == 0) {
-				/* found device node we were looking for, get driver for it. */
-				prop_val_driver_name = udev_device_get_property_value(udev_device, "ID_USB_DRIVER");
+				prop_val_driver_name = udev_device_get_driver(udev_device);
 				if(prop_val_driver_name != NULL) {
-					/* get the driver name and send it to caller. if we fail to get driver name
-					 * driver_name will be NULL. in that case empty string will be returned
-					 * while returning from this function. */
 					driver_name = (*env)->NewStringUTF(env, prop_val_driver_name);
 					if((driver_name == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
 						(*env)->ExceptionClear(env);
@@ -104,6 +106,136 @@ jstring find_driver_for_given_com_port(JNIEnv *env, jstring comPortName) {
 						throw_serialcom_exception(env, 3, 0, E_NEWSTRUTFSTR);
 						return NULL;
 					}
+					check_for_parent = -1;
+				}else {
+					check_for_parent = 1;
+				}
+
+				if(check_for_parent == 1) {
+					parent_device = NULL; /* reset */
+					parent_device = udev_device_get_parent(udev_device);
+					if(parent_device != NULL) {
+						prop_val_driver_name = udev_device_get_driver(parent_device);
+						if(prop_val_driver_name != NULL) {
+							driver_name = (*env)->NewStringUTF(env, prop_val_driver_name);
+							if((driver_name == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+								(*env)->ExceptionClear(env);
+								udev_device_unref(udev_device);
+								udev_enumerate_unref(enumerator);
+								udev_unref(udev_ctx);
+								(*env)->ReleaseStringUTFChars(env, comPortName, port_name_to_match);
+								throw_serialcom_exception(env, 3, 0, E_NEWSTRUTFSTR);
+								return NULL;
+							}else {
+								/* if both the parent and driver found, return driver name to caller. */
+								check_for_parent = -1;
+							}
+						}else {
+							/* if the parent is found but driver not found then analyze next parent device. */
+							check_for_parent = 1;
+						}
+					}else {
+						/* if the parent does not exist, make no more attempts to analyze parent devices further down the tree. */
+						check_for_parent = -1;
+					}
+				}
+
+				if(check_for_parent == 1) {
+					parent_device = NULL; /* reset */
+					parent_device = udev_device_get_parent(udev_device);
+					if(parent_device != NULL) {
+						prop_val_driver_name = udev_device_get_driver(parent_device);
+						if(prop_val_driver_name != NULL) {
+							driver_name = (*env)->NewStringUTF(env, prop_val_driver_name);
+							if((driver_name == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+								(*env)->ExceptionClear(env);
+								udev_device_unref(udev_device);
+								udev_enumerate_unref(enumerator);
+								udev_unref(udev_ctx);
+								(*env)->ReleaseStringUTFChars(env, comPortName, port_name_to_match);
+								throw_serialcom_exception(env, 3, 0, E_NEWSTRUTFSTR);
+								return NULL;
+							}else {
+								check_for_parent = -1;
+							}
+						}else {
+							check_for_parent = 1;
+						}
+					}else {
+						check_for_parent = -1;
+					}
+				}
+
+				if(check_for_parent == 1) {
+					parent_device = NULL; /* reset */
+					parent_device = udev_device_get_parent(udev_device);
+					if(parent_device != NULL) {
+						prop_val_driver_name = udev_device_get_driver(parent_device);
+						if(prop_val_driver_name != NULL) {
+							driver_name = (*env)->NewStringUTF(env, prop_val_driver_name);
+							if((driver_name == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+								(*env)->ExceptionClear(env);
+								udev_device_unref(udev_device);
+								udev_enumerate_unref(enumerator);
+								udev_unref(udev_ctx);
+								(*env)->ReleaseStringUTFChars(env, comPortName, port_name_to_match);
+								throw_serialcom_exception(env, 3, 0, E_NEWSTRUTFSTR);
+								return NULL;
+							}else {
+								check_for_parent = -1;
+							}
+						}else {
+							check_for_parent = 1;
+						}
+					}else {
+						check_for_parent = -1;
+					}
+				}
+
+				if(check_for_parent == 1) {
+					parent_device = NULL; /* reset */
+					parent_device = udev_device_get_parent(udev_device);
+					if(parent_device != NULL) {
+						prop_val_driver_name = udev_device_get_driver(parent_device);
+						if(prop_val_driver_name != NULL) {
+							driver_name = (*env)->NewStringUTF(env, prop_val_driver_name);
+							if((driver_name == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+								(*env)->ExceptionClear(env);
+								udev_device_unref(udev_device);
+								udev_enumerate_unref(enumerator);
+								udev_unref(udev_ctx);
+								(*env)->ReleaseStringUTFChars(env, comPortName, port_name_to_match);
+								throw_serialcom_exception(env, 3, 0, E_NEWSTRUTFSTR);
+								return NULL;
+							}else {
+								check_for_parent = -1;
+							}
+						}else {
+							check_for_parent = 1;
+						}
+					}else {
+						check_for_parent = -1;
+					}
+				}
+
+				if(check_for_parent == 1) {
+					parent_device = NULL; /* reset */
+					parent_device = udev_device_get_parent(udev_device);
+					if(parent_device != NULL) {
+						prop_val_driver_name = udev_device_get_driver(parent_device);
+						if(prop_val_driver_name != NULL) {
+							driver_name = (*env)->NewStringUTF(env, prop_val_driver_name);
+							if((driver_name == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+								(*env)->ExceptionClear(env);
+								udev_device_unref(udev_device);
+								udev_enumerate_unref(enumerator);
+								udev_unref(udev_ctx);
+								(*env)->ReleaseStringUTFChars(env, comPortName, port_name_to_match);
+								throw_serialcom_exception(env, 3, 0, E_NEWSTRUTFSTR);
+								return NULL;
+							}
+						}
+					}
 				}
 
 				/* whether prop_val_driver_name is NULL (return empty string) or not
@@ -113,6 +245,8 @@ jstring find_driver_for_given_com_port(JNIEnv *env, jstring comPortName) {
 			}
 		}
 
+		/* released only after desired property value has been saved to some
+		 * other memory region like one got from NewStringUTF(). */
 		udev_device_unref(udev_device);
 	}
 
