@@ -2035,6 +2035,21 @@ JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPor
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
+ * Method:    findIRQnumberForComPort
+ * Signature: (J)Ljava/lang/String;
+ *
+ * @return address and irq string if found fro given handle, empty string if no address/irq found for given handle,
+ *         null if any error occurs.
+ * @throws SerialComException if any JNI function, system call or C function fails.
+ *
+ * Find the address and IRQ number associated with the given handle of serial port.
+ */
+JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_findIRQnumberForComPort(JNIEnv *env, jobject obj, jlong handle) {
+	return find_address_irq_for_given_com_port(env, handle);
+}
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
  * Method:    sendBreak
  * Signature: (JI)I
  *

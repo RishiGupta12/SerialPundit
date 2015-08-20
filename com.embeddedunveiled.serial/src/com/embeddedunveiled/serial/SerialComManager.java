@@ -1891,12 +1891,31 @@ public final class SerialComManager {
 		if(comPortName.length() == 0) {
 			throw new IllegalArgumentException("Argument comPortName can not be empty string !");
 		}
+		if(comPortName.length() > 256) {
+			// linux have 256 as maximum length of file name.
+			throw new IllegalArgumentException("Argument comPortName string can not be greater than 256 in length !");
+		}
 
 		String driverName = mComPortJNIBridge.findDriverServingComPort(comPortName);
 		if(driverName == null) {
 			throw new SerialComException("Failed to find driver serving the given serial port. Please retry !");
 		}
 		return driverName;
+	}
+	
+	/**
+	 * <p>Gives the address and IRQ number associated with the given serial port.</p>
+	 * 
+	 * @param handle handle of the opened serial port.
+	 * @return string containing address and irq number.
+	 * @throws SerialComException if operation can not be completed successfully.
+	 */
+	public String findIRQnumberForComPort(long handle) throws SerialComException {
+		String addressAndIRQ = mComPortJNIBridge.findIRQnumberForComPort(handle);
+		if(addressAndIRQ == null) {
+			throw new SerialComException("Failed to find IRQ and address for the given serial port. Please retry !");
+		}
+		return addressAndIRQ;
 	}
 
 	/**
