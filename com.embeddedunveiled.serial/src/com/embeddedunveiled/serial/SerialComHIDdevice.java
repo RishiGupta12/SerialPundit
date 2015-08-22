@@ -15,16 +15,16 @@
  * along with serial communication manager. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.embeddedunveiled.serial.usb;
+package com.embeddedunveiled.serial;
 
-import com.embeddedunveiled.serial.SerialComException;
-import com.embeddedunveiled.serial.SerialComUtil;
 
 /**
- * <p>Represents a USB device with information about it.</p>
+ * <p>Represents a HID device with information about it.</p>
  */
-public final class SerialComUSBdevice {
+public final class SerialComHIDdevice {
 
+	private String transport;
+	private String deviceNode;
 	private String idVendor;
 	private String idProduct;
 	private String serial;
@@ -32,21 +32,45 @@ public final class SerialComUSBdevice {
 	private String manufacturer;
 
 	/**
-	 * <p>Construct and allocates a new SerialComUSBdevice object with given details.</p>
+	 * <p>Construct and allocates a new SerialComHIDdevice object with given details.</p>
 	 * 
+	 * @param transport communication medium USB or Bluetooth this devices uses.
+	 * @param deviceNode identifier that can be used to open this device.
 	 * @param idVendor USB-IF unique vendor id of this device.
 	 * @param idProduct USB product id of this device.
 	 * @param serial serial number of this device.
 	 * @param product product identifier/description of this device.
 	 * @param manufacturer company manufacturing of this device.
+	 * @param deviceNode 
 	 * @throws SerialComException if the object can not be constructed.
 	 */
-	public SerialComUSBdevice(String idVendor, String idProduct, String serial, String product, String manufacturer) {
+	public SerialComHIDdevice(String transport, String deviceNode, String idVendor, String idProduct,
+			String serial, String product, String manufacturer) {
+		this.transport = transport;
+		this.deviceNode = deviceNode;
 		this.idVendor = idVendor;
 		this.idProduct = idProduct;
 		this.serial = serial;
 		this.product = product;
 		this.manufacturer = manufacturer;
+	}
+
+	/** 
+	 * <p>Returns USB or Bluetooth i.e. transport this device uses.</p>
+	 * 
+	 * @return USB or Bluetooth string whichever is applicable for this device.
+	 */
+	public String getTransportType() {
+		return transport;
+	}
+
+	/** 
+	 * <p>Returns device node representing this device in system.</p>
+	 * 
+	 * @return string device node.
+	 */
+	public String getDeviceNode() {
+		return deviceNode;
 	}
 
 	/** 

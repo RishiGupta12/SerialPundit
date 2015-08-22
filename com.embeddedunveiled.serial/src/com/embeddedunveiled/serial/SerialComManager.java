@@ -384,6 +384,11 @@ public final class SerialComManager {
 	private static SerialComVendorLib mSerialComVendorLib;
 	private static final Object lockA = new Object();
 	private static boolean nativeLibLoadAndInitAlready = false;
+	
+	// Whenever an exception/error occurs in native function, it throws that exception.
+	// When java method return from native call, extra check is added to make error
+	// detection more robust. If for some unexpected reason JVM does not throw exception
+	// then this extra check will make exception to be thrown in java layer.
 
 	/**
 	 * <p>Allocates a new SerialComManager object. Identify operating system type, CPU architecture, prepares 
@@ -501,7 +506,7 @@ public final class SerialComManager {
 	 * <p>Gives library versions of java and native library implementations.</p>
 	 * 
 	 * @return Java and C library versions implementing this library.
-	 * @throws SerialComException if native library version could not be determined
+	 * @throws SerialComException if native library version could not be determined.
 	 */
 	public String getLibraryVersions() throws SerialComException {
 		String version = null;
@@ -518,7 +523,7 @@ public final class SerialComManager {
 	 * <p>Gives operating system type as identified by this library. To interpret return integer see constants defined
 	 * SerialComManager class.</p>
 	 * 
-	 * @return Operating system type as identified by the scm library
+	 * @return Operating system type as identified by the scm library.
 	 */
 	public int getOSType() {
 		return osType;
@@ -528,7 +533,7 @@ public final class SerialComManager {
 	 * <p>Gives CPU/Platform architecture as identified by this library. To interpret return integer see constants defined
 	 * SerialComManager class.</p>
 	 * 
-	 * @return CPU/Platform architecture as identified by the scm library
+	 * @return CPU/Platform architecture as identified by the scm library.
 	 */
 	public int getCPUArchitecture() {
 		return cpuArch;
@@ -559,9 +564,10 @@ public final class SerialComManager {
 	}
 
 	/**
-	 * <p>Returns an array containing information about all the USB devices found by this library. Application can call various 
-	 * methods on returned SerialComUSBdevice class objects to get specific information like vendor id and product id etc. The 
-	 * GUI applications may display a dialogue asking user to connect the end product.</p>
+	 * <p>Returns an array of SerialComUSBdevice class objects containing information about all the USB devices found by this 
+	 * library. Application can call various methods on SerialComUSBdevice object to get specific information like vendor id 
+	 * and product id etc. The GUI applications may display a dialogue box asking user to connect the end product if the desired 
+	 * product is still not connected to system.</p>
 	 * 
 	 * <p>The USB vendor id, USB product id, serial number, product name and manufacturer information is encapsulated in the 
 	 * object of class SerialComUSBdevice returned.</p>
@@ -572,10 +578,10 @@ public final class SerialComManager {
 	 * VID matches VID of FTDI. Then further application may verify PID by calling methods on the USBDevice object. For this 
 	 * purpose argument vendorFilter may be used.</p>
 	 * 
-	 * @param vendorFilter vendor whose devices should be listed (one of the constants SerialComUSB.V_xxxxx or any valid USB VID)
-	 * @return list of the USB devices with information about them or empty array if no device matching given criteria found
+	 * @param vendorFilter vendor whose devices should be listed (one of the constants SerialComUSB.V_xxxxx or any valid USB VID).
+	 * @return list of the USB devices with information about them or empty array if no device matching given criteria found.
 	 * @throws SerialComException if an I/O error occurs.
-	 * @throws IllegalArgumentException if vendorFilter is negative or invalid number
+	 * @throws IllegalArgumentException if vendorFilter is negative or invalid number.
 	 */
 	public SerialComUSBdevice[] listUSBdevicesWithInfo(int vendorFilter) throws SerialComException {
 		int i = 0;
@@ -705,8 +711,8 @@ public final class SerialComManager {
 
 			handle = mComPortJNIBridge.openComPort(portNameVal, enableRead, enableWrite, exclusiveOwnerShip);
 			if(handle < 0) {
-				/* JNI should have already thrown exception, this is an extra check to increase reliability of program */
-				throw new SerialComException("Could not open the port " + portNameVal + " Please retry !");
+				/* JNI should have already thrown exception, this is an extra check to increase reliability of program. */
+				throw new SerialComException("Could not open the port " + portNameVal + ". Please retry !");
 			}
 			boolean added = mPortHandleInfo.add(new SerialComPortHandleInfo(portNameVal, handle, null, null, null));
 			if(added != true) {
@@ -726,7 +732,7 @@ public final class SerialComManager {
 	 * <p>This method is thread safe.</p>
 	 * 
 	 * @param handle of the port to be closed.
-	 * @return Return true on success in closing the port false otherwise.
+	 * @return Return true if the serial port is closed.
 	 * @throws SerialComException if invalid handle is passed or when it fails in closing the port.
 	 * @throws IllegalStateException if application tries to close port while data/event listener exist.
 	 */
@@ -755,7 +761,10 @@ public final class SerialComManager {
 				throw new IllegalStateException("Closing port without unregistering event listener is not allowed to prevent inconsistency !");
 			}
 
-			mComPortJNIBridge.closeComPort(handle);
+			int ret = mComPortJNIBridge.closeComPort(handle);
+			if(ret < 0) {
+				throw new SerialComException("Could not close the given serial port. Please retry !");
+			}
 
 			/* delete info about this port/handle from global info arraylist. */
 			mPortHandleInfo.remove(mHandleInfo);
@@ -797,7 +806,6 @@ public final class SerialComManager {
 
 		int ret = mComPortJNIBridge.writeBytes(handle, buffer, delay);
 		if(ret < 0) {
-			/* JNI should have already thrown exception, this is an extra check to increase reliability of program */
 			throw new SerialComException("Could not write data to serial port. Please retry !");
 		}
 		return true;

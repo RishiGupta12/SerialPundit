@@ -27,13 +27,13 @@ import com.embeddedunveiled.serial.internal.SerialComPortJNIBridge;
  * may use general purpose microcontroller like PIC18F4550 from Microchip technology Inc. and 
  * program appropriate firmware (USB CDC) into ti to provide UART communication over USB port.</p>
  */
-public class SerialComUSB {
+public final class SerialComUSB {
 
 	/** <p>Value indicating all vendors (vendor neutral operation).</p>*/
-	public static final int V_ALL =  0x0000;
+	public static final int V_ALL = 0x0000;
 
 	/** <p>Value indicating vendor - Future technology devices international, Ltd. It manufactures FT232 USB-UART bridge IC.</p>*/
-	public static final int V_FTDI =  0x0403;
+	public static final int V_FTDI = 0x0403;
 
 	/** <p>Value indicating vendor - Silicon Laboratories. It manufactures CP2102 USB-UART bridge IC.</p>*/
 	public static final int V_SLABS = 0x10C4;
@@ -48,7 +48,7 @@ public class SerialComUSB {
 	public static final int V_EXAR = 0x04E2;
 
 	/** <p>Value indicating vendor - Atmel corporation. It manufactures AT90USxxx and other processors which can be used as USB-UART bridge.</p>*/
-	public static final int V_ATML =  0x03EB;
+	public static final int V_ATML = 0x03EB;
 
 	/** <p>Value indicating vendor - MosChip semiconductor. It manufactures MCS7810 USB-UART bridge IC.</p>*/
 	public static final int V_MOSCHP = 0x9710;
@@ -81,6 +81,7 @@ public class SerialComUSB {
 	public static final int DEV_REMOVED  = 0x02;
 
 	SerialComPortJNIBridge mComPortJNIBridge;
+
 	/**
 	 * <p>Allocates a new SerialComUSB object.</p>
 	 * @param mComPortJNIBridge 
@@ -102,7 +103,7 @@ public class SerialComUSB {
 	public boolean rescanUSBDevicesHW() throws SerialComException {
 		int ret = mComPortJNIBridge.rescanUSBDevicesHW();
 		if(ret < 0) {
-			throw new SerialComException("Could not cause rescanning for hardware change. Please retry !");
+			throw new SerialComException("Could not cause re-scanning for hardware change. Please retry !");
 		}
 		return true;
 	}

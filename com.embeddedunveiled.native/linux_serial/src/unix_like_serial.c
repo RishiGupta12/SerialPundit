@@ -37,13 +37,16 @@
 #define _GNU_SOURCE
 #endif
 
-#include <unistd.h>      /* UNIX standard function definitions  */
+/* C */
 #include <stdarg.h>      /* ISO C Standard. Variable arguments  */
 #include <stdio.h>       /* ISO C99 Standard: Input/output      */
 #include <stdlib.h>      /* Standard ANSI routines              */
 #include <string.h>      /* String function definitions         */
-#include <fcntl.h>       /* File control definitions            */
 #include <errno.h>       /* Error number definitions            */
+
+/* Unix */
+#include <unistd.h>      /* UNIX standard function definitions  */
+#include <fcntl.h>       /* File control definitions            */
 #include <dirent.h>      /* Format of directory entries         */
 #include <sys/types.h>   /* Primitive System Data Types         */
 #include <sys/stat.h>    /* Defines the structure of the data   */
