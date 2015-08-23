@@ -1,4 +1,4 @@
-/**
+/*
  * Author : Rishi Gupta
  * 
  * This file is part of 'serial communication manager' library.
@@ -18,13 +18,15 @@
 package test51;
 
 import com.embeddedunveiled.serial.SerialComManager;
+import com.embeddedunveiled.serial.SerialComUtil;
 
 public class Test51 {
 	public static void main(String[] args) {
 		try {
 			SerialComManager scm = new SerialComManager();
 			String str = null;
-			str = scm.byteArrayToHexStr("HELLO WORLD".getBytes(), ":");
+			// output 48:45:4C:4C:4F:20:57:4F:52:4C:44
+			str = SerialComUtil.byteArrayToHexString("HELLO WORLD".getBytes(), ":");
 			System.out.println(str);
 		}catch (Exception e) {
 			e.printStackTrace();
