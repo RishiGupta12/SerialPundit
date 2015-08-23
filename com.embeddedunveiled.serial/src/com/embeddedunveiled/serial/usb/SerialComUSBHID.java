@@ -1,4 +1,4 @@
-/**
+/*
  * Author : Rishi Gupta
  * 
  * This file is part of 'serial communication manager' library.
@@ -20,7 +20,6 @@ package com.embeddedunveiled.serial.usb;
 import com.embeddedunveiled.serial.SerialComException;
 import com.embeddedunveiled.serial.SerialComHIDdevice;
 import com.embeddedunveiled.serial.internal.SerialComHIDJNIBridge;
-import com.embeddedunveiled.serial.internal.SerialComPortHandleInfo;
 
 /**
  * <p></p>

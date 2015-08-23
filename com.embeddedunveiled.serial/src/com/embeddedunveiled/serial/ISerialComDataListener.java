@@ -1,4 +1,4 @@
-/**
+/*
  * Author : Rishi Gupta
  * 
  * This file is part of 'serial communication manager' library.
@@ -24,6 +24,8 @@ package com.embeddedunveiled.serial;
 public interface ISerialComDataListener {
 
 	/**
+	 * <p> This method is called whenever data is received on serial port.</p>
+	 * 
 	 * <p>The class implementing this interface is expected to override onNewSerialDataAvailable() method.
 	 * This method gets called from the looper thread associated with the corresponding listener (handler).</p>
 	 * 
@@ -38,6 +40,8 @@ public interface ISerialComDataListener {
 	public abstract void onNewSerialDataAvailable(SerialComDataEvent dataEvent);
 
 	/**
+	 * <p> This method is called whenever an error occurred the data listener mechanism.</p>
+	 * 
 	 * <p>This methods helps in creating fault-tolerant and recoverable application design in case
 	 * unexpected situations like serial port removal, bug encountered in OS or driver during operation
 	 * occurs. In a nutshell situations which are outside the scope of scm may be handled using this method.</p>
