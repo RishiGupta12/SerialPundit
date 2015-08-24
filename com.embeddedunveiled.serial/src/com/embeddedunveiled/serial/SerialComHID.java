@@ -83,7 +83,7 @@ public class SerialComHID {
 	}
 
 	/**
-	 * <p>Opens a HID device for communication.</p>
+	 * <p>Opens a HID device for communication using its path name.</p>
 	 * 
 	 * @param pathName device node full path for Unix-like OS and port name for Windows.
 	 * @return handle of the opened HID device.
@@ -108,6 +108,11 @@ public class SerialComHID {
 	}
 
 	/**
+	 * <p>Closes a HID device.</p>
+	 * 
+	 * @param handle handle of the device to be closed.
+	 * @return true if device closed successfully.
+	 * @throws SerialComException if fails to close the device or an IO error occurs.
 	 */
 	public boolean closeHidDevice(long handle) throws SerialComException {
 		int ret = mHIDJNIBridge.closeHidDevice(handle);

@@ -89,4 +89,30 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJN
 	return fd;
 }
 
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
+ * Method:    closeHidDevice
+ * Signature: (J)I
+ *
+ * @return 0 if function succeeds otherwise -1.
+ * @throws SerialComException if any JNI function, system call or C function fails.
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_closeHidDevice(JNIEnv *env, jobject obj, jlong fd) {
+	int ret = -1;
+	do {
+		errno = 0;
+		ret = close(fd);
+		if(ret < 0) {
+			if(errno == EINTR) {
+				errno = 0;
+				continue;
+			}else {
+				throw_serialcom_exception(env, 1, errno, NULL);
+				return -1;
+			}
+		}
+		break;
+	}while (1);
+}
+
 #endif
