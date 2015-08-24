@@ -140,7 +140,7 @@ public final class SerialComHIDJNIBridge {
 				libExtension = ".dll";
 				break;
 			case SerialComManager.OS_LINUX:
-				libToExtractFromJar = "lnxhid_" + SerialComManager.JAVA_LIB_VERSION + "_x86_64.so";
+				libToExtractFromJar = "linuxhid_" + SerialComManager.JAVA_LIB_VERSION + "_x86_64.so";
 				libExtension = ".so";
 				break;
 			case SerialComManager.OS_MAC_OS_X:
@@ -156,7 +156,7 @@ public final class SerialComHIDJNIBridge {
 				libExtension = ".dll";
 				break;
 			case SerialComManager.OS_LINUX:
-				libToExtractFromJar = "lnxhid_" + SerialComManager.JAVA_LIB_VERSION + "_x86.so";
+				libToExtractFromJar = "linuxhid_" + SerialComManager.JAVA_LIB_VERSION + "_x86.so";
 				libExtension = ".so";
 				break;
 			case SerialComManager.OS_MAC_OS_X:
@@ -169,9 +169,9 @@ public final class SerialComHIDJNIBridge {
 			if(osType == SerialComManager.OS_LINUX) {
 				libExtension = ".so";
 				if(javaABIType == SerialComManager.ABI_ARMHF) {
-					libToExtractFromJar = "lnxhid_" + SerialComManager.JAVA_LIB_VERSION + "_armv7hf.so";
+					libToExtractFromJar = "linuxhid_" + SerialComManager.JAVA_LIB_VERSION + "_armv7hf.so";
 				}else if(javaABIType == SerialComManager.ABI_ARMEL) {
-					libToExtractFromJar = "lnxhid_" + SerialComManager.JAVA_LIB_VERSION + "_armv7el.so";
+					libToExtractFromJar = "linuxhid_" + SerialComManager.JAVA_LIB_VERSION + "_armv7el.so";
 				}else {
 				}
 			}
@@ -179,16 +179,16 @@ public final class SerialComHIDJNIBridge {
 			if(osType == SerialComManager.OS_LINUX) {
 				libExtension = ".so";
 				if(javaABIType == SerialComManager.ABI_ARMHF) {
-					libToExtractFromJar = "lnxhid_" + SerialComManager.JAVA_LIB_VERSION + "_armv6hf.so";
+					libToExtractFromJar = "linuxhid_" + SerialComManager.JAVA_LIB_VERSION + "_armv6hf.so";
 				}else if(javaABIType == SerialComManager.ABI_ARMEL) {
-					libToExtractFromJar = "lnxhid_" + SerialComManager.JAVA_LIB_VERSION + "_armv6el.so";
+					libToExtractFromJar = "linuxhid_" + SerialComManager.JAVA_LIB_VERSION + "_armv6el.so";
 				}else {
 				}
 			}
 		}else if(cpuArch == SerialComManager.ARCH_ARMV5) {
 			if(osType == SerialComManager.OS_LINUX) {
 				libExtension = ".so";
-				libToExtractFromJar = "lnxhid_" + SerialComManager.JAVA_LIB_VERSION + "_armv5.so";
+				libToExtractFromJar = "linuxhid_" + SerialComManager.JAVA_LIB_VERSION + "_armv5.so";
 			}
 		}else {
 		}

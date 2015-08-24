@@ -653,7 +653,7 @@ public final class SerialComManager {
 	}
 
 	/** 
-	 * <p>This opens a serial port for communication. If an attempt is made to open a port which is already opened exception in throw.</p>
+	 * <p>Opens a serial port for communication. If an attempt is made to open a port which is already opened exception in throw.</p>
 	 * 
 	 * <p>For Linux and Mac OS X, if exclusiveOwnerShip is true, before this method return, the caller will either be exclusive owner
 	 * or not. If the caller is successful in becoming exclusive owner than all the attempt to open the same port again will cause

@@ -82,7 +82,13 @@ public class SerialComHID {
 		return SerialComUtil.byteArrayToHexString(report, " ");
 	}
 
-	/** 
+	/**
+	 * <p>Opens a HID device for communication.</p>
+	 * 
+	 * @param pathName device node full path for Unix-like OS and port name for Windows.
+	 * @return handle of the opened HID device.
+	 * @throws SerialComException if an IO error occurs.
+	 * @throws IllegalArgumentException if pathName is null or empty string. 
 	 */
 	public long openHidDevice(final String pathName) throws SerialComException {
 		if(pathName == null) {
@@ -236,29 +242,3 @@ public class SerialComHID {
 	}
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
