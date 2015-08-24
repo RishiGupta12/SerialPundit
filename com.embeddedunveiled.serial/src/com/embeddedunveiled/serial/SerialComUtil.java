@@ -78,7 +78,7 @@ public final class SerialComUtil {
 					sBuilder.append(HEXNUM.charAt((b & 0xF0) >> 4)).append(HEXNUM.charAt((b & 0x0F)));
 					sBuilder.append(separator);
 				}
-				sBuilder.deleteCharAt(sBuilder.length() - 1); // remove separator at the end of string.
+				sBuilder.deleteCharAt(sBuilder.length() - 1); //remove separator at the end of string.
 			}else {
 				for (final byte b : data) {
 					sBuilder.append(HEXNUM.charAt((b & 0xF0) >> 4)).append(HEXNUM.charAt((b & 0x0F)));

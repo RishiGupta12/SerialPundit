@@ -69,6 +69,19 @@ public class SerialComHID {
 		}	
 	}
 
+	/**
+	 * Converts report read from human interface device to hexadecimal string. This may be 
+	 * useful when report is to be passed to next level as hex data or report is to be 
+	 * feed into external HID report parser tool.
+	 * 
+	 * @param report report to be converted into hex string.
+	 * @return constructed hex string if report.length > 0 otherwise empty string.
+	 * @throws IllegalArgumentException if report is null.
+	 */
+	public String formatReportToHex(byte[] report) throws SerialComException {
+		return SerialComUtil.byteArrayToHexString(report, " ");
+	}
+
 	/** 
 	 */
 	public long openHidDevice(final String pathName) throws SerialComException {
