@@ -35,13 +35,14 @@
 #include <jni.h>
 
 /* Constant string defines */
-#define FAILTHOWEXP "JNI call ThrowNew failed to throw exception"
 #define SCOMEXPCLASS "com/embeddedunveiled/serial/SerialComException"
 #define JAVALSTRING "java/lang/String"
+
+#define FAILTHOWEXP "JNI call ThrowNew failed to throw exception !"
 #define E_ENBLPARCHKSTR "Parity checking in configureComPortData method needs to be enabled first !"
 #define E_GETJVMSTR "JNI call GetJavaVM failed !"
-#define E_FINDCLASSSCOMEXPSTR "Can not find class com/embeddedunveiled/serial/SerialComException, Probably out of memory."
-#define E_FINDCLASSSSTRINGSTR "Can not find class java/lang/String, Probably out of memory !"
+#define E_FINDCLASSSCOMEXPSTR "Can not find class com/embeddedunveiled/serial/SerialComException. Probably out of memory !"
+#define E_FINDCLASSSSTRINGSTR "Can not find class java/lang/String. Probably out of memory !"
 #define E_NEWOBJECTARRAYSTR "JNI call NewObjectArray failed. Probably out of memory !"
 #define E_NEWBYTEARRAYSTR "JNI call NewByteArray failed !"
 #define E_NEWINTARRAYSTR "JNI call NewIntArray failed !"

@@ -122,7 +122,12 @@ public class SerialComHID {
 		return true;
 	}
 
-	/** 
+	/**
+	 * <p>Gives the size of the report descriptor used by HID device represented by given handle.</p>
+	 * 
+	 * @param handle handle of the HID device whose report descriptor size is to be determined.
+	 * @return size of report descriptor in bytes.
+	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public int getReportDescriptorSize(final long handle) throws SerialComException {
 		int reportDescriptorSize = mHIDJNIBridge.getReportDescriptorSize(handle);

@@ -113,6 +113,20 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
 		}
 		break;
 	}while (1);
+
+	return 0;
+}
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
+ * Method:    getReportDescriptorSize
+ * Signature: (J)I
+ *
+ * @return report descriptor size in bytes if function succeeds otherwise -1.
+ * @throws SerialComException if any JNI function, system call or C function fails.
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_getReportDescriptorSize(JNIEnv *env, jobject obj, jlong fd) {
+	return get_report_descriptor_size(env, fd);
 }
 
 #endif
