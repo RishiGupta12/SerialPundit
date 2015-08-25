@@ -88,7 +88,7 @@ public class SerialComHID {
 	 * @param pathName device node full path for Unix-like OS and port name for Windows.
 	 * @return handle of the opened HID device.
 	 * @throws SerialComException if an IO error occurs.
-	 * @throws IllegalArgumentException if pathName is null or empty string. 
+	 * @throws IllegalArgumentException if pathName is null or empty string.
 	 */
 	public long openHidDevice(final String pathName) throws SerialComException {
 		if(pathName == null) {
@@ -132,25 +132,39 @@ public class SerialComHID {
 	public int getReportDescriptorSize(final long handle) throws SerialComException {
 		int reportDescriptorSize = mHIDJNIBridge.getReportDescriptorSize(handle);
 		if(reportDescriptorSize < 0) {
-			// extra check
 			throw new SerialComException("Could not determine the report descriptor size. Please retry !");
 		}
 		return reportDescriptorSize;
 	}
 
 	/**
+	 * <p>Write the given output report to HID device. For devices which support only single report, report ID 
+	 * value must be 0x00. Report ID items are used to indicate which data fields are represented in each 
+	 * report structure. A Report ID item tag assigns a 1-byte identification prefix to each report transfer. 
+	 * If no Report ID item tags are present in the Report descriptor, it can be assumed that only one Input, 
+	 * Output, and Feature report structure exists and together they represent all of the device’s data.</p>
+	 * 
+	 * <p>Only Input reports are sent via the Interrupt In pipe. Feature and Output reports must be initiated 
+	 * by the host via the Control pipe or an optional Interrupt Out pipe.</p>
+	 * 
+	 * @param handle handle of the HID device to which this report will be sent.
+	 * @param reportId unique identifier for the report type.
+	 * @param report report to be written to HID device.
+	 * @return true if report is written to device successfully.
+	 * @throws SerialComException if an I/O error occurs.
+	 * @throws IllegalArgumentException if report is null or empty array. 
 	 */
-	public boolean writeOutputReport(long handle, byte reportId, final byte[] data) throws SerialComException {
-		if(data == null) {
-			throw new IllegalArgumentException("Argumenet data can not be null !");
+	public boolean writeOutputReport(long handle, byte reportId, final byte[] report) throws SerialComException {
+		if(report == null) {
+			throw new IllegalArgumentException("Argumenet report can not be null !");
 		}
-		if(data.length == 0) {
-			throw new IllegalArgumentException("Argumenet data can not be of zero length !");
+		if(report.length == 0) {
+			throw new IllegalArgumentException("Argumenet report can not be of zero length !");
 		}
 
-		int ret = mHIDJNIBridge.writeOutputReport(handle, reportId, data);
+		int ret = mHIDJNIBridge.writeOutputReport(handle, reportId, report);
 		if(ret < 0) {
-			throw new SerialComException("Could not write output report to HID device. Please retry !");
+			throw new SerialComException("Could not write output report to the HID device. Please retry !");
 		}
 		return true;
 	}

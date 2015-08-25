@@ -129,4 +129,63 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
 	return get_report_descriptor_size(env, fd);
 }
 
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
+ * Method:    writeOutputReport
+ * Signature: (JB[B)I
+ *
+ * @return 0 if function succeeds otherwise -1.
+ * @throws SerialComException if any JNI function, system call or C function fails.
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_writeOutputReport(JNIEnv *env, jobject obj, jlong fd, jbyte reportId, jbyteArray report) {
+	int ret = -1;
+	int index = 0;
+	int status = 0;
+	int count = 0;
+	jbyte* data_buf = NULL;
+
+	data_buf = (*env)->GetByteArrayElements(env, report, JNI_FALSE);
+	if((data_buf == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+		throw_serialcom_exception(env, 3, 0, E_GETBYTEARRELEMTSTR);
+		return -1;
+	}
+	count = (int) (*env)->GetArrayLength(env, report);
+
+	while(count > 0) {
+		errno = 0;
+		ret = write(fd, &data_buf[index], count);
+		if(ret < 0) {
+			if(errno == EINTR) {
+				errno = 0;
+				continue;
+			}else {
+				status = (-1 * errno);
+				break;
+			}
+		}else if(ret == 0) {
+			errno = 0;
+			continue;
+		}else {
+		}
+
+		count = count - ret;
+		index = index + ret;
+	}
+	(*env)->ReleaseByteArrayElements(env, report, data_buf, 0);
+	if(status < 0) {
+		throw_serialcom_exception(env, 1, (-1 * status), NULL);
+		return -1;
+	}
+	return status;
+}
+
 #endif
+
+
+
+
+
+
+
+
+
