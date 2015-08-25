@@ -43,7 +43,9 @@
 #define FAILTHOWEXP "JNI call ThrowNew failed to throw exception !"
 #define E_FINDCLASSSCOMEXPSTR "Can not find class com/embeddedunveiled/serial/SerialComException. Probably out of memory !"
 #define E_GETBYTEARRELEMTSTR "JNI call GetByteArrayElements failed !"
+#define E_GETBYTEARRREGIONSTR "JNI call GetByteArrayRegion failed !"
 #define E_MALLOCSTR "malloc() failed to allocate requested memory !"
+
 
 /* Custom error codes and messages for SCM library */
 #define ERROR_OFFSET 15000
@@ -56,6 +58,7 @@ struct jstrarray_list {
 };
 
 /* function prototypes (declared in reverse order of use) */
+extern int LOGE(const char *error_msg);
 extern void throw_serialcom_exception(JNIEnv *env, int type, int error_code, const char *);
 extern jint get_report_descriptor_size(JNIEnv *env, jlong fd);
 

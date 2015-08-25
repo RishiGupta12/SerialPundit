@@ -981,7 +981,8 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
 				return -1;
 			}
 		}else {
-			continue; // should not happen.
+			/* should not happen. */
+			continue;
 		}
 	}
 	return -1;

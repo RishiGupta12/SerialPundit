@@ -24,6 +24,9 @@ import com.embeddedunveiled.serial.internal.SerialComHIDJNIBridge;
 /**
  * <p></p>
  * 
+ * <p>A USB HID device should have standard device descriptor, standard configuration descriptor, standard 
+ * interface descriptor for the HID class, class specific HID descriptor, standard endpoint descriptor for 
+ * Interrupt IN endpoint and class specific report descriptor.</p>
  */
 public final class SerialComUSBHID {
 
@@ -96,33 +99,4 @@ public final class SerialComUSBHID {
 		}
 		return handle;
 	}
-
-
-
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

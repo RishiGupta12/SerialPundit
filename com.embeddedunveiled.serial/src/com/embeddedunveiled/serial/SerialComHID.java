@@ -150,11 +150,11 @@ public class SerialComHID {
 	 * @param handle handle of the HID device to which this report will be sent.
 	 * @param reportId unique identifier for the report type.
 	 * @param report report to be written to HID device.
-	 * @return true if report is written to device successfully.
+	 * @return number of bytes written to HID device.
 	 * @throws SerialComException if an I/O error occurs.
 	 * @throws IllegalArgumentException if report is null or empty array. 
 	 */
-	public boolean writeOutputReport(long handle, byte reportId, final byte[] report) throws SerialComException {
+	public int writeOutputReport(long handle, byte reportId, final byte[] report) throws SerialComException {
 		if(report == null) {
 			throw new IllegalArgumentException("Argumenet report can not be null !");
 		}
@@ -166,7 +166,7 @@ public class SerialComHID {
 		if(ret < 0) {
 			throw new SerialComException("Could not write output report to the HID device. Please retry !");
 		}
-		return true;
+		return ret;
 	}
 
 	/**
@@ -199,8 +199,8 @@ public class SerialComHID {
 	 * @param handle handle of the HID device from whom input report is to be read.
 	 * @param reportBuffer byte buffer in which input report will be saved.
 	 * @param length number of bytes to read from HID device as report bytes.
-	 * @param timeoutValue time in milliseconds after which read must return with whatever data is read till
-	 *         that time or no data read at all.
+	 * @param timeoutValue time in milliseconds after which read must return with whatever data is read 
+	 *         till that time or no data read at all.
 	 * @return number of bytes read from HID device.
 	 * @throws SerialComException if an I/O error occurs.
 	 */
@@ -216,6 +216,17 @@ public class SerialComHID {
 	}
 
 	/**
+	 * Send a feature report to the HID device. For devices which support only single report, report ID 
+	 * value must be 0x00. Typically any data item that application wish to write in HID device and read 
+	 * it back may be some time later is sent to device as feature report. This may be device application 
+	 * specific configuration also.
+	 * 
+	 * @param handle handle of the HID device to which this feature report will be sent.
+	 * @param reportId unique identifier for the report type.
+	 * @param report feature report to be sent to HID device.
+	 * @return true if report is written to device successfully.
+	 * @throws SerialComException if an I/O error occurs.
+	 * @throws IllegalArgumentException if report is null or empty array. 
 	 */
 	public boolean sendFeatureReport(long handle, byte reportId, final byte[] report) throws SerialComException {
 		if(report == null) {

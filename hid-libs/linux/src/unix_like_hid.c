@@ -51,6 +51,7 @@
 #include <sys/types.h>   /* Primitive System Data Types         */
 #include <sys/stat.h>    /* Defines the structure of the data   */
 #include <sys/select.h>
+#include <sys/ioctl.h>
 
 /* jni_md.h contains the machine-dependent typedefs for data types. Instruct compiler to include it. */
 #include <jni.h>
@@ -67,7 +68,8 @@
  * @return file descriptor number if function succeeds otherwise -1.
  * @throws SerialComException if any JNI function, system call or C function fails.
  */
-JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_openHidDevice(JNIEnv *env, jobject obj, jstring pathName) {
+JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_openHidDevice(JNIEnv *env,
+		jobject obj, jstring pathName) {
 	long fd;
 	const char* node = NULL;
 
@@ -97,7 +99,8 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJN
  * @return 0 if function succeeds otherwise -1.
  * @throws SerialComException if any JNI function, system call or C function fails.
  */
-JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_closeHidDevice(JNIEnv *env, jobject obj, jlong fd) {
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_closeHidDevice(JNIEnv *env,
+		jobject obj, jlong fd) {
 	int ret = -1;
 	do {
 		errno = 0;
@@ -125,7 +128,8 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
  * @return report descriptor size in bytes if function succeeds otherwise -1.
  * @throws SerialComException if any JNI function, system call or C function fails.
  */
-JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_getReportDescriptorSize(JNIEnv *env, jobject obj, jlong fd) {
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_getReportDescriptorSize(JNIEnv *env,
+		jobject obj, jlong fd) {
 	return get_report_descriptor_size(env, fd);
 }
 
@@ -134,49 +138,35 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
  * Method:    writeOutputReport
  * Signature: (JB[B)I
  *
- * @return 0 if function succeeds otherwise -1.
+ * @return number of bytes sent to device if function succeeds otherwise -1.
  * @throws SerialComException if any JNI function, system call or C function fails.
  */
-JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_writeOutputReport(JNIEnv *env, jobject obj, jlong fd, jbyte reportId, jbyteArray report) {
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_writeOutputReport(JNIEnv *env,
+		jobject obj, jlong fd, jbyte reportID, jbyteArray report) {
 	int ret = -1;
-	int index = 0;
-	int status = 0;
 	int count = 0;
-	jbyte* data_buf = NULL;
+	jbyte* buffer = NULL;
 
-	data_buf = (*env)->GetByteArrayElements(env, report, JNI_FALSE);
-	if((data_buf == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
-		throw_serialcom_exception(env, 3, 0, E_GETBYTEARRELEMTSTR);
-		return -1;
-	}
 	count = (int) (*env)->GetArrayLength(env, report);
+	buffer = (jbyte *) malloc(count + 1);
 
-	while(count > 0) {
-		errno = 0;
-		ret = write(fd, &data_buf[index], count);
-		if(ret < 0) {
-			if(errno == EINTR) {
-				errno = 0;
-				continue;
-			}else {
-				status = (-1 * errno);
-				break;
-			}
-		}else if(ret == 0) {
-			errno = 0;
-			continue;
-		}else {
-		}
+	/* The first byte of SFEATURE and GFEATURE is the report number */
+	buffer[0] = reportID;
 
-		count = count - ret;
-		index = index + ret;
-	}
-	(*env)->ReleaseByteArrayElements(env, report, data_buf, 0);
-	if(status < 0) {
-		throw_serialcom_exception(env, 1, (-1 * status), NULL);
+	(*env)->GetByteArrayRegion(env, report, 0, count, &buffer[1]);
+	if((*env)->ExceptionOccurred(env) != NULL) {
+		throw_serialcom_exception(env, 3, 0, E_GETBYTEARRREGIONSTR);
 		return -1;
 	}
-	return (jint) status;
+
+	errno = 0;
+	ret = write(fd, buffer, count+1);
+	if(ret < 0) {
+		throw_serialcom_exception(env, 1, errno, NULL);
+		return -1;
+	}
+
+	return ret;
 }
 
 /*
@@ -279,6 +269,44 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
 	}
 
 	return -1;
+}
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
+ * Method:    sendFeatureReport
+ * Signature: (JB[B)I
+ *
+ * @return 0 if function succeeds otherwise -1.
+ * @throws SerialComException if any JNI function, system call or C function fails.
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_sendFeatureReport(JNIEnv *env,
+		jobject obj, jlong fd, jbyte reportID, jbyteArray report) {
+	int ret = -1;
+	int count = 0;
+
+	count = (int) (*env)->GetArrayLength(env, report);
+	jbyte* buffer = (jbyte *) malloc(count + 1);
+
+	/* The first byte of SFEATURE and GFEATURE is the report number */
+	buffer[0] = reportID;
+
+	(*env)->GetByteArrayRegion(env, report, 0, count, &buffer[1]);
+	if((*env)->ExceptionOccurred(env) != NULL) {
+		throw_serialcom_exception(env, 3, 0, E_GETBYTEARRREGIONSTR);
+		return -1;
+	}
+
+	errno = 0;
+	ret = ioctl(fd, HIDIOCSFEATURE(count+1), buffer);
+	if(ret < 0) {
+		throw_serialcom_exception(env, 1, errno, NULL);
+		return -1;
+	}
+
+	return 0;
+}
+
+
 #endif
 
 
