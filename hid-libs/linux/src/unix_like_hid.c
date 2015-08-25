@@ -187,7 +187,8 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
  * @return number of bytes read if function succeeds otherwise -1.
  * @throws SerialComException if any JNI function, system call or C function fails.
  */
-JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_readInputReport(JNIEnv *env, jobject obj, jlong fd, jbyteArray reportBuffer, jint length) {
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_readInputReport(JNIEnv *env,
+		jobject obj, jlong fd, jbyteArray reportBuffer, jint length) {
 	int ret = -1;
 
 	jbyte* buffer = (jbyte *) malloc(length);
@@ -217,6 +218,67 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
 	return -1;
 }
 
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
+ * Method:    readInputReportWithTimeout
+ * Signature: (J[BII)I
+ *
+ * @return number of bytes read if function succeeds otherwise -1.
+ * @throws SerialComException if any JNI function, system call or C function fails.
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_readInputReportWithTimeout(JNIEnv *env,
+		jobject obj, jlong fd, jbyteArray reportBuffer, jint length, jint timeoutVal) {
+	int ret = -1;
+	fd_set readset;
+	struct timespec ts;
+
+	ts.tv_sec  = timeoutVal/1000;
+	ts.tv_nsec = 0;
+
+	jbyte* buffer = (jbyte *) malloc(length);
+	if(!buffer) {
+		throw_serialcom_exception(env, 3, 0, E_MALLOCSTR);
+		return -1;
+	}
+
+	do {
+		FD_ZERO(&readset);
+		FD_SET(fd, &readset);
+		errno = 0;
+		ret = pselect(fd + 1, &readset, 0, 0, &ts, 0);
+	} while ((ret < 0) && (errno == EINTR));
+
+	if(ret > 0) {
+		/* data can be read with out blocking. */
+		do {
+			errno = 0;
+			ret = read(fd, buffer, length);
+			if(ret > 0) {
+				/* copy data from native buffer to Java buffer. */
+				(*env)->SetByteArrayRegion(env, reportBuffer, 0, ret, buffer);
+				free(buffer);
+				return ret;
+			}else if(ret < 0) {
+				free(buffer);
+				throw_serialcom_exception(env, 1, errno, NULL);
+				return -1;
+			}else {
+				free(buffer);
+				return 0;
+			}
+		}while (1);
+	}else if(ret == 0) {
+		/* timeout occurred. */
+		free(buffer);
+		return 0;
+	}else {
+		/* error occurred. */
+		free(buffer);
+		throw_serialcom_exception(env, 1, errno, NULL);
+		return -1;
+	}
+
+	return -1;
 #endif
 
 

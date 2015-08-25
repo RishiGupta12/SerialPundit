@@ -191,7 +191,18 @@ public class SerialComHID {
 		return ret;
 	}
 
-	/** 
+	/**
+	 * Try to read input report from HID device within the given timeout limit. The buffer passed must be 
+	 * large enough to hold the input report excluding its report ID, if report IDs are used otherwise it 
+	 * should be plus one additional byte that specifies a nonzero report ID or zero.
+	 * 
+	 * @param handle handle of the HID device from whom input report is to be read.
+	 * @param reportBuffer byte buffer in which input report will be saved.
+	 * @param length number of bytes to read from HID device as report bytes.
+	 * @param timeoutValue time in milliseconds after which read must return with whatever data is read till
+	 *         that time or no data read at all.
+	 * @return number of bytes read from HID device.
+	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public int readInputReportWithTimeout(long handle, byte[] reportBuffer, int length, int timeoutValue) throws SerialComException {
 		if(reportBuffer == null) {
