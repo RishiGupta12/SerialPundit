@@ -255,11 +255,11 @@ public final class SerialComHIDJNIBridge {
 	public native long openHidDevice(String pathNameVal);
 	public native int closeHidDevice(long handle);
 	public native int getReportDescriptorSize(long handle);
-	public native int writeOutputReport(long handle, byte reportId, byte[] data);
-	public native int readInputReport(long handle, byte[] dataBuffer);
-	public native int readInputReportWithTimeout(long handle, byte[] dataBuffer, int timeoutValue);
-	public native int sendFeatureReport(long handle, byte reportId, byte[] data);
-	public native int getFeatureReport(long handle, byte[] dataBuffer);
+	public native int writeOutputReport(long handle, byte reportId, byte[] report);
+	public native int readInputReport(long handle, byte[] reportBuffer, int length);
+	public native int readInputReportWithTimeout(long handle, byte[] reportBuffer, int length, int timeoutValue);
+	public native int sendFeatureReport(long handle, byte reportId, byte[] report);
+	public native int getFeatureReport(long handle, byte[] reportBuffer);
 	public native String getManufacturerString(long handle);
 	public native String getIndexedString(int index);
 	public native String getProductString(long handle);

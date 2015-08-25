@@ -43,6 +43,7 @@
 #define FAILTHOWEXP "JNI call ThrowNew failed to throw exception !"
 #define E_FINDCLASSSCOMEXPSTR "Can not find class com/embeddedunveiled/serial/SerialComException. Probably out of memory !"
 #define E_GETBYTEARRELEMTSTR "JNI call GetByteArrayElements failed !"
+#define E_MALLOCSTR "malloc() failed to allocate requested memory !"
 
 /* Custom error codes and messages for SCM library */
 #define ERROR_OFFSET 15000

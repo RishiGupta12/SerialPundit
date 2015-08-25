@@ -176,7 +176,45 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
 		throw_serialcom_exception(env, 1, (-1 * status), NULL);
 		return -1;
 	}
-	return status;
+	return (jint) status;
+}
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
+ * Method:    readInputReport
+ * Signature: (J[BI)I
+ *
+ * @return number of bytes read if function succeeds otherwise -1.
+ * @throws SerialComException if any JNI function, system call or C function fails.
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_readInputReport(JNIEnv *env, jobject obj, jlong fd, jbyteArray reportBuffer, jint length) {
+	int ret = -1;
+
+	jbyte* buffer = (jbyte *) malloc(length);
+	if(!buffer) {
+		throw_serialcom_exception(env, 3, 0, E_MALLOCSTR);
+		return -1;
+	}
+
+	do {
+		errno = 0;
+		ret = read(fd, buffer, length);
+		if(ret > 0) {
+			/* copy data from native buffer to Java buffer. */
+			(*env)->SetByteArrayRegion(env, reportBuffer, 0, ret, buffer);
+			free(buffer);
+			return ret;
+		}else if(ret < 0) {
+			free(buffer);
+			throw_serialcom_exception(env, 1, errno, NULL);
+			return -1;
+		}else {
+			free(buffer);
+			return 0;
+		}
+	}while (1);
+
+	return -1;
 }
 
 #endif

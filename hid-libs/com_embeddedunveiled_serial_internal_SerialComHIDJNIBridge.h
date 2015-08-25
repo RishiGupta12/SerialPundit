@@ -50,18 +50,18 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
  * Method:    readInputReport
- * Signature: (J[B)I
+ * Signature: (J[BI)I
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_readInputReport
-  (JNIEnv *, jobject, jlong, jbyteArray);
+  (JNIEnv *, jobject, jlong, jbyteArray, jint);
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
  * Method:    readInputReportWithTimeout
- * Signature: (J[BI)I
+ * Signature: (J[BII)I
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_readInputReportWithTimeout
-  (JNIEnv *, jobject, jlong, jbyteArray, jint);
+  (JNIEnv *, jobject, jlong, jbyteArray, jint, jint);
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge

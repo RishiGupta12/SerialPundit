@@ -169,13 +169,22 @@ public class SerialComHID {
 		return true;
 	}
 
-	/** 
+	/**
+	 * Reads input report from HID device. The buffer passed must be large enough to hold the input report 
+	 * excluding its report ID, if report IDs are used otherwise it should be plus one additional byte 
+	 * that specifies a nonzero report ID or zero.
+	 * 
+	 * @param handle handle of the HID device from whom input report is to be read.
+	 * @param reportBuffer byte buffer in which input report will be saved.
+	 * @param length number of bytes to read from HID device as report bytes.
+	 * @return number of bytes read from HID device.
+	 * @throws SerialComException if an I/O error occurs.
 	 */
-	public int readInputReport(long handle, byte[] dataBuffer) throws SerialComException {
-		if(dataBuffer == null) {
+	public int readInputReport(long handle, byte[] reportBuffer, int length) throws SerialComException {
+		if(reportBuffer == null) {
 			throw new IllegalArgumentException("Argumenet dataBuffer can not be null !");
 		}
-		int ret = mHIDJNIBridge.readInputReport(handle, dataBuffer);
+		int ret = mHIDJNIBridge.readInputReport(handle, reportBuffer, length);
 		if(ret < 0) {
 			throw new SerialComException("Could not read input report from HID device. Please retry !");
 		}
@@ -184,11 +193,11 @@ public class SerialComHID {
 
 	/** 
 	 */
-	public int readInputReportWithTimeout(long handle, byte[] dataBuffer, int timeoutValue) throws SerialComException {
-		if(dataBuffer == null) {
-			throw new IllegalArgumentException("Argumenet dataBuffer can not be null !");
+	public int readInputReportWithTimeout(long handle, byte[] reportBuffer, int length, int timeoutValue) throws SerialComException {
+		if(reportBuffer == null) {
+			throw new IllegalArgumentException("Argumenet reportBuffer can not be null !");
 		}
-		int ret = mHIDJNIBridge.readInputReportWithTimeout(handle, dataBuffer, timeoutValue);
+		int ret = mHIDJNIBridge.readInputReportWithTimeout(handle, reportBuffer, length, timeoutValue);
 		if(ret < 0) {
 			throw new SerialComException("Could not read input report from HID device. Please retry !");
 		}
@@ -197,15 +206,15 @@ public class SerialComHID {
 
 	/**
 	 */
-	public boolean sendFeatureReport(long handle, byte reportId, final byte[] data) throws SerialComException {
-		if(data == null) {
-			throw new IllegalArgumentException("Argumenet data can not be null !");
+	public boolean sendFeatureReport(long handle, byte reportId, final byte[] report) throws SerialComException {
+		if(report == null) {
+			throw new IllegalArgumentException("Argumenet report can not be null !");
 		}
-		if(data.length == 0) {
-			throw new IllegalArgumentException("Argumenet data can not be of zero length !");
+		if(report.length == 0) {
+			throw new IllegalArgumentException("Argumenet report can not be of zero length !");
 		}
 
-		int ret = mHIDJNIBridge.sendFeatureReport(handle, reportId, data);
+		int ret = mHIDJNIBridge.sendFeatureReport(handle, reportId, report);
 		if(ret < 0) {
 			throw new SerialComException("Could not send feature report to HID device. Please retry !");
 		}
@@ -214,11 +223,11 @@ public class SerialComHID {
 
 	/** 
 	 */
-	public int getFeatureReport(long handle, byte[] dataBuffer) throws SerialComException {
-		if(dataBuffer == null) {
-			throw new IllegalArgumentException("Argumenet dataBuffer can not be null !");
+	public int getFeatureReport(long handle, byte[] reportBuffer, int length) throws SerialComException {
+		if(reportBuffer == null) {
+			throw new IllegalArgumentException("Argumenet reportBuffer can not be null !");
 		}
-		int ret = mHIDJNIBridge.getFeatureReport(handle, dataBuffer);
+		int ret = mHIDJNIBridge.getFeatureReport(handle, reportBuffer);
 		if(ret < 0) {
 			throw new SerialComException("Could not get feature report from HID device. Please retry !");
 		}
