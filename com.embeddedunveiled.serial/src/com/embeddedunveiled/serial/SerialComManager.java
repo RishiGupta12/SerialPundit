@@ -30,6 +30,7 @@ import java.util.List;
 import com.embeddedunveiled.serial.bluetooth.SerialComBluetooth;
 import com.embeddedunveiled.serial.internal.SerialComCompletionDispatcher;
 import com.embeddedunveiled.serial.internal.SerialComErrorMapper;
+import com.embeddedunveiled.serial.internal.SerialComHIDJNIBridge;
 import com.embeddedunveiled.serial.internal.SerialComHotPlugInfo;
 import com.embeddedunveiled.serial.internal.SerialComLooper;
 import com.embeddedunveiled.serial.internal.SerialComPlatform;
@@ -38,6 +39,7 @@ import com.embeddedunveiled.serial.internal.SerialComPortJNIBridge;
 import com.embeddedunveiled.serial.internal.SerialComPortsList;
 import com.embeddedunveiled.serial.internal.SerialComSystemProperty;
 import com.embeddedunveiled.serial.usb.SerialComUSB;
+import com.embeddedunveiled.serial.usb.SerialComUSBHID;
 import com.embeddedunveiled.serial.usb.SerialComUSBdevice;
 import com.embeddedunveiled.serial.vendor.SerialComVendorLib;
 
@@ -51,7 +53,7 @@ import com.embeddedunveiled.serial.vendor.SerialComVendorLib;
  */
 public final class SerialComManager {
 
-	/** <p>Release version of the SCM library. </p>*/
+	/**<p>Release version of the serial communication manager library. </p>*/
 	public static final String JAVA_LIB_VERSION = "1.0.4";
 
 	/** <p>Pre-defined enum constants for baud rate values. </p>*/
@@ -381,10 +383,11 @@ public final class SerialComManager {
 	private static int osType;
 	private static int cpuArch;
 	private static int javaABIType;
-	private static SerialComVendorLib mSerialComVendorLib;
 	private static final Object lockA = new Object();
 	private static boolean nativeLibLoadAndInitAlready = false;
-	
+	private static SerialComVendorLib mSerialComVendorLib;
+	private static SerialComHIDJNIBridge mSerialComHIDJNIBridge;
+
 	// Whenever an exception/error occurs in native function, it throws that exception.
 	// When java method return from native call, extra check is added to make error
 	// detection more robust. If for some unexpected reason JVM does not throw exception
@@ -448,15 +451,17 @@ public final class SerialComManager {
 	 * 
 	 * <p>This also increase security as the folder may be given specific user permissions.</p>
 	 * 
-	 * @param directoryPath absolute path of directory for extraction
-	 * @param loadedLibName library name without extension (do not append .so, .dll or .dylib etc.)
-	 * @throws SecurityException if java system properties can not be  accessed
-	 * @throws SerialComUnexpectedException if java system property is null
-	 * @throws SerialComLoadException if any file system related issue occurs
-	 * @throws UnsatisfiedLinkError if loading/linking shared library fails
-	 * @throws FileNotFoundException if file "/proc/cpuinfo" can not be found for Linux on ARM platform
-	 * @throws IOException if file operations on "/proc/cpuinfo" fails for Linux on ARM platform
-	 * @throws SerialComException if initializing native library fails
+	 * @param directoryPath absolute path of directory for extraction.
+	 * @param loadedLibName library name without extension (do not append .so, .dll or .dylib etc.).
+	 * @throws SecurityException if java system properties can not be  accessed.
+	 * @throws SerialComUnexpectedException if java system property is null.
+	 * @throws SerialComLoadException if any file system related issue occurs.
+	 * @throws UnsatisfiedLinkError if loading/linking shared library fails.
+	 * @throws FileNotFoundException if file "/proc/cpuinfo" can not be found for Linux on ARM platform.
+	 * @throws IOException if file operations on "/proc/cpuinfo" fails for Linux on ARM platform.
+	 * @throws SerialComException if initializing native library fails.
+	 * @throws IllegalArgumentException if directoryPath is null, directoryPath is empty, 
+	 *          loadedLibName is null or empty.
 	 */
 	public SerialComManager(String directoryPath, String loadedLibName) throws SecurityException, SerialComUnexpectedException, 
 	SerialComLoadException, UnsatisfiedLinkError, SerialComException, FileNotFoundException, IOException {
@@ -588,7 +593,7 @@ public final class SerialComManager {
 		int numOfDevices = 0;
 		SerialComUSBdevice[] usbDevicesFound = null;
 		if((vendorFilter < 0) || (vendorFilter > 0XFFFF)) {
-			throw new IllegalArgumentException("Argument vendorFilter can not be negative or greater tha 0xFFFF !");
+			throw new IllegalArgumentException("Argument vendorFilter can not be negative or greater than 0xFFFF !");
 		}
 		String[] usbDevicesInfo = mComPortJNIBridge.listUSBdevicesWithInfo(vendorFilter);
 
@@ -1883,7 +1888,7 @@ public final class SerialComManager {
 		}
 		return status;
 	}
-	
+
 	/**
 	 * <p>Gives the name of the driver who is driving the given serial port.</p>
 	 * 
@@ -1910,7 +1915,7 @@ public final class SerialComManager {
 		}
 		return driverName;
 	}
-	
+
 	/**
 	 * <p>Gives the address and IRQ number associated with the given serial port.</p>
 	 * 
@@ -2061,7 +2066,7 @@ public final class SerialComManager {
 				break;
 			}
 		}
-		
+
 		if(portName == null) {
 			return null;
 		}
@@ -2344,10 +2349,10 @@ public final class SerialComManager {
 	 */
 	public boolean isUSBDevConnected(int vendorID, int productID) throws SerialComException {
 		if((vendorID < 0) || (vendorID > 0XFFFF)) {
-			throw new IllegalArgumentException("Argument vendorID can not be negative or greater tha 0xFFFF !");
+			throw new IllegalArgumentException("Argument vendorID can not be negative or greater than 0xFFFF !");
 		}
 		if((productID < 0) || (productID > 0XFFFF)) {
-			throw new IllegalArgumentException("Argument productID can not be negative or greater tha 0xFFFF !");
+			throw new IllegalArgumentException("Argument productID can not be negative or greater than 0xFFFF !");
 		}
 
 		int ret = mComPortJNIBridge.isUSBDevConnected(vendorID, productID);
@@ -2405,7 +2410,8 @@ public final class SerialComManager {
 	}
 
 	/**
-	 * <p>Prepares context for serial port communication over Bluetooth.</p>
+	 * <p>Prepares context for serial port communication over Bluetooth using 'serial port profile' (SPP)
+	 * specification of bluetooth standard.</p>
 	 * 
 	 * @return reference to an object of type SerialComBluetooth on which various methods can be invoked.
 	 * @throws SerialComException if could not instantiate class due to some reason.
@@ -2419,7 +2425,7 @@ public final class SerialComManager {
 	}
 
 	/**
-	 * <p>Get an instnace of SerialComUSB for USB operations.</p>
+	 * <p>Get an instance of SerialComUSB class for USB related operations.</p>
 	 * 
 	 * @return reference to an object of type SerialComUSB on which various methods can be invoked.
 	 * @throws SerialComException if could not instantiate class due to some reason.
@@ -2432,4 +2438,51 @@ public final class SerialComManager {
 		return mSerialComUSB;
 	}
 
+	/**
+	 * <p>Initialize and return an instance of requested type for serial communication based on 
+	 * HID specification. The type argument should be HID_GENERIC for most of the applications. 
+	 * However for some very specific need type may be HID_USB, or for Bluetooth HID applicxation
+	 * type may be HID_BLUETOOTH. The SerialComUSBHID and SerialComBluetoothHID classes have some 
+	 * additional methods for HID communication.</p>
+	 * 
+	 * <p>This method will extract native library in directory as specified by directoryPath 
+	 * argument or default directory will be used if directoryPath is null. The native library 
+	 * loaded will be given name as specified by loadedLibName argument or default name will be 
+	 * used if loadedLibName is null.</p>
+	 * 
+	 * @param type one of the constants HID_XXXX defined in SerialComHID.
+	 * @param directoryPath absolute path of directory to be used for extraction.
+	 * @param loadedLibName library name without extension (do not append .so, .dll or .dylib etc.).
+	 * @return reference to an object of requested type SerialComUSB on which various methods can 
+	 *          be invoked.
+	 * @throws SerialComException if could not instantiate class due to some reason.
+	 * @throws SecurityException if java system properties can not be  accessed.
+	 * @throws SerialComUnexpectedException if java system property is null.
+	 * @throws SerialComLoadException if any file system related issue occurs.
+	 * @throws UnsatisfiedLinkError if loading/linking shared library fails.
+	 * @throws FileNotFoundException if file "/proc/cpuinfo" can not be found for Linux on ARM platform.
+	 * @throws IOException if file operations on "/proc/cpuinfo" fails for Linux on ARM platform.
+	 * @throws SerialComException if initializing native library fails.
+	 * @throws IllegalArgumentException if type is an invalid constant.
+	 */
+	public SerialComHID getSerialComHIDInstance(int type, String directoryPath, String loadedLibName) throws SecurityException, 
+	SerialComUnexpectedException, SerialComLoadException, UnsatisfiedLinkError, SerialComException, 
+	FileNotFoundException, IOException {
+		if(mSerialComHIDJNIBridge == null) {
+			mSerialComHIDJNIBridge = new SerialComHIDJNIBridge();
+			SerialComHIDJNIBridge.loadNativeLibrary(directoryPath, loadedLibName, mSerialComSystemProperty, osType, cpuArch, javaABIType);
+		}
+
+		if(type == SerialComHID.HID_GENERIC) {
+			return new SerialComHID(mSerialComHIDJNIBridge);
+		}else if(type == SerialComHID.HID_USB) {
+			return new SerialComUSBHID(mSerialComHIDJNIBridge);
+		}else if(type == SerialComHID.HID_BLUETOOTH) {
+			//TODO
+		}else {
+			throw new IllegalArgumentException("Argument type given is not valid constant !");
+		}
+
+		return null;
+	}
 }

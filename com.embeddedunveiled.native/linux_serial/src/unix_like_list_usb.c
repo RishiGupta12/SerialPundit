@@ -132,6 +132,7 @@ jobjectArray list_usb_devices(JNIEnv *env, jobject obj, jint vendor_to_match) {
 		}
 
 		if(strcmp("usb_device", udev_device_get_devtype(udev_device)) == 0) {
+			/* USB-IF vendor ID */
 			sysattr_val = udev_device_get_sysattr_value(udev_device, "idVendor");
 			if(sysattr_val != NULL) {
 				if(vendor_to_match != 0) {
@@ -153,6 +154,7 @@ jobjectArray list_usb_devices(JNIEnv *env, jobject obj, jint vendor_to_match) {
 			}
 			insert_jstrarraylist(&list, usb_dev_info);
 
+			/* USB product ID */
 			sysattr_val = udev_device_get_sysattr_value(udev_device, "idProduct");
 			if(sysattr_val != NULL) {
 				usb_dev_info = (*env)->NewStringUTF(env, sysattr_val);
@@ -167,6 +169,7 @@ jobjectArray list_usb_devices(JNIEnv *env, jobject obj, jint vendor_to_match) {
 			}
 			insert_jstrarraylist(&list, usb_dev_info);
 
+			/* SERIAL NUMBER */
 			sysattr_val = udev_device_get_sysattr_value(udev_device, "serial");
 			if(sysattr_val != NULL) {
 				usb_dev_info = (*env)->NewStringUTF(env, sysattr_val);
@@ -181,6 +184,7 @@ jobjectArray list_usb_devices(JNIEnv *env, jobject obj, jint vendor_to_match) {
 			}
 			insert_jstrarraylist(&list, usb_dev_info);
 
+			/* PRODUCT */
 			sysattr_val = udev_device_get_sysattr_value(udev_device, "product");
 			if(sysattr_val != NULL) {
 				usb_dev_info = (*env)->NewStringUTF(env, sysattr_val);
@@ -195,6 +199,7 @@ jobjectArray list_usb_devices(JNIEnv *env, jobject obj, jint vendor_to_match) {
 			}
 			insert_jstrarraylist(&list, usb_dev_info);
 
+			/* MANUFACTURER */
 			sysattr_val = udev_device_get_sysattr_value(udev_device, "manufacturer");
 			if(sysattr_val != NULL) {
 				usb_dev_info = (*env)->NewStringUTF(env, sysattr_val);

@@ -45,10 +45,13 @@
 #define E_GETBYTEARRELEMTSTR "JNI call GetByteArrayElements failed !"
 #define E_GETBYTEARRREGIONSTR "JNI call GetByteArrayRegion failed !"
 #define E_MALLOCSTR "malloc() failed to allocate requested memory !"
+#define E_NEWSTRUTFSTR "JNI call NewStringUTF failed !"
+#define E_FINDCLASSSSTRINGSTR "Can not find class java/lang/String. Probably out of memory !"
+#define E_NEWOBJECTARRAYSTR "JNI call NewObjectArray failed. Probably out of memory !"
+#define E_SETOBJECTARRAYSTR "JNI call SetObjectArrayElement failed. Either index violation or wrong class used !"
 
-
-/* Custom error codes and messages for SCM library */
-#define ERROR_OFFSET 15000
+#define E_CANNOTFINDDEVNODE "Failed to find device node for the USB HID interface !"
+#define E_CANNOTFINDPARENTUDEV "Could not find parent udev device for the USB HID interface !"
 
 /* This holds information for implementing dynamically growing array in C language. */
 struct jstrarray_list {
@@ -60,6 +63,10 @@ struct jstrarray_list {
 /* function prototypes (declared in reverse order of use) */
 extern int LOGE(const char *error_msg);
 extern void throw_serialcom_exception(JNIEnv *env, int type, int error_code, const char *);
+extern void free_jstrarraylist(struct jstrarray_list *al);
+extern void insert_jstrarraylist(struct jstrarray_list *al, jstring element);
+extern void init_jstrarraylist(struct jstrarray_list *al, int initial_size);
 extern jint get_report_descriptor_size(JNIEnv *env, jlong fd);
+extern jobjectArray list_usb_hid_devices(JNIEnv *env, jobject obj, jint vendor_filter);
 
 #endif /* UNIX_LIKE_HID_H_ */

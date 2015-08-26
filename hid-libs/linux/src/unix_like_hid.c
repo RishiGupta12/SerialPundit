@@ -306,6 +306,20 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
 	return 0;
 }
 
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
+ * Method:    listUSBHIDdevicesWithInfo
+ * Signature: (I)[Ljava/lang/String;
+ *
+ * @return array of Strings containing USB HID devices if found matching given criteria, zero length
+ *         array if no node matching given criteria is found, NULL if error occurs.
+ * @throws SerialComException if any JNI function, system call or C function fails.
+ */
+JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_listUSBHIDdevicesWithInfo(JNIEnv *env,
+		jobject obj, jint vendorFilter) {
+	return list_usb_hid_devices(env, obj, vendorFilter);
+}
+
 
 #endif
 

@@ -130,7 +130,10 @@ public final class SerialComHIDdevice {
 	 * <p>Prints information about this device on console.</p>
 	 */
 	public void dumpDeviceInfo() {
-		System.out.println("\nVendor id : 0x" + idVendor + 
+		System.out.println(
+				"\nTransport : " + transport +
+				"\nDevice node : " + deviceNode +
+				"\nVendor id : 0x" + idVendor + 
 				"\nProduct id : 0x" + idProduct + 
 				"\nSerial number : " + serial + 
 				"\nProduct : " + product + 

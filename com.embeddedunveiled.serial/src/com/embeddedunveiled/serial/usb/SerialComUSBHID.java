@@ -18,27 +18,26 @@
 package com.embeddedunveiled.serial.usb;
 
 import com.embeddedunveiled.serial.SerialComException;
+import com.embeddedunveiled.serial.SerialComHID;
 import com.embeddedunveiled.serial.SerialComHIDdevice;
 import com.embeddedunveiled.serial.internal.SerialComHIDJNIBridge;
 
 /**
- * <p></p>
+ * <p>Provides methods to communicate with USB HID devices.</p>
  * 
  * <p>A USB HID device should have standard device descriptor, standard configuration descriptor, standard 
  * interface descriptor for the HID class, class specific HID descriptor, standard endpoint descriptor for 
  * Interrupt IN endpoint and class specific report descriptor.</p>
  */
-public final class SerialComUSBHID {
-
-	private SerialComHIDJNIBridge mHIDJNIBridge;
+public final class SerialComUSBHID extends SerialComHID {
 
 	/**
 	 * <p>Allocates a new SerialComUSBHID object with the given details.</p>
 	 * 
-	 * @param mHIDJNIBridge
+	 * @param mHIDJNIBridge interface class to native library for calling platform specific routines.
 	 */
 	public SerialComUSBHID(SerialComHIDJNIBridge mHIDJNIBridge) {
-		this.mHIDJNIBridge = mHIDJNIBridge;
+		super(mHIDJNIBridge);
 	}
 
 	/**
@@ -46,10 +45,10 @@ public final class SerialComUSBHID {
 	 * as found by this library. Application can call various  methods on returned SerialComHIDdevice 
 	 * object to get specific information like vendor id and product id etc.</p>
 	 * 
-	 * <p>TODO</p>
-	 * 
-	 * @param vendorFilter vendor whose devices should be listed (one of the constants SerialComUSB.V_xxxxx or any valid USB VID).
-	 * @return list of the HID devices with information about them or empty array if no device matching given criteria found.
+	 * @param vendorFilter vendor whose devices should be listed (one of the constants SerialComUSB.V_xxxxx 
+	 *         or any valid USB-IF VID).
+	 * @return list of the HID devices with information about them or empty array if no device matching 
+	 *          given criteria found.
 	 * @throws SerialComException if an I/O error occurs.
 	 * @throws IllegalArgumentException if vendorFilter is negative or invalid number.
 	 */
@@ -59,7 +58,7 @@ public final class SerialComUSBHID {
 		SerialComHIDdevice[] usbHidDevicesFound = null;
 
 		if((vendorFilter < 0) || (vendorFilter > 0XFFFF)) {
-			throw new IllegalArgumentException("Argument vendorFilter can not be negative or greater tha 0xFFFF !");
+			throw new IllegalArgumentException("Argument vendorFilter can not be negative or greater than 0xFFFF !");
 		}
 
 		String[] usbhidDevicesInfo = mHIDJNIBridge.listUSBHIDdevicesWithInfo(vendorFilter);

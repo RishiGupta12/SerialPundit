@@ -40,16 +40,16 @@ public final class SerialComHIDJNIBridge {
 	/**
 	 * <p>Extract native library from jar in a working directory, load and link it.</p> 
 	 * 
-	 * @param directoryPath null for default directory or user supplied directory path
-	 * @param loadedLibName null for default name or user supplied name of loaded library
-	 * @param serialComSystemProperty instance of SerialComSystemProperty to get required java properties
-	 * @param cpuArch architecture of CPU this library is running on
-	 * @param osType operating system this library is running on
-	 * @param javaABIType binary application interface type to correctly link
-	 * @throws SecurityException if java system properties can not be  accessed
-	 * @throws SerialComUnexpectedException if java system property is null
-	 * @throws SerialComLoadException if any file system related issue occurs
-	 * @throws UnsatisfiedLinkError if loading/linking shared library fails
+	 * @param directoryPath null for default directory or user supplied directory path.
+	 * @param loadedLibName null for default name or user supplied name of loaded library.
+	 * @param serialComSystemProperty instance of SerialComSystemProperty to get required java properties.
+	 * @param cpuArch architecture of CPU this library is running on.
+	 * @param osType operating system this library is running on.
+	 * @param javaABIType binary application interface type to correctly link.
+	 * @throws SecurityException if java system properties can not be  accessed.
+	 * @throws SerialComUnexpectedException if java system property is null.
+	 * @throws SerialComLoadException if any file system related issue occurs.
+	 * @throws UnsatisfiedLinkError if loading/linking shared library fails.
 	 */
 	public static boolean loadNativeLibrary(String directoryPath, String loadedLibName, SerialComSystemProperty serialComSystemProperty,
 			int osType, int cpuArch, int javaABIType) throws SecurityException, SerialComUnexpectedException, 
@@ -272,15 +272,3 @@ public final class SerialComHIDJNIBridge {
 	// Bluetooth HID
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
