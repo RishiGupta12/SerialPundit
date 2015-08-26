@@ -126,7 +126,18 @@ jstring get_hiddev_info_string(JNIEnv *env, jlong fd, int task) {
 				return NULL;
 			}
 		}else if(task == 3) {
-
+			sysattr_val = udev_device_get_sysattr_value(usb_udev_device, "serial");
+			if(sysattr_val != NULL) {
+				info_string = (*env)->NewStringUTF(env, sysattr_val);
+			}else {
+				info_string = (*env)->NewStringUTF(env, "");
+			}
+			if((info_string == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+				udev_device_unref(udev_device);
+				udev_unref(udev_ctx);
+				throw_serialcom_exception(env, 3, 0, E_NEWSTRUTFSTR);
+				return NULL;
+			}
 		}else {
 		}
 	}else if(bus == 2) {
