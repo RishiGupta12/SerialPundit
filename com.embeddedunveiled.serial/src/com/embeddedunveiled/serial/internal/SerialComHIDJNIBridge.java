@@ -261,9 +261,9 @@ public final class SerialComHIDJNIBridge {
 	public native int sendFeatureReport(long handle, byte reportId, byte[] report);
 	public native int getFeatureReport(long handle, byte[] reportBuffer);
 	public native String getManufacturerString(long handle);
-	public native String getIndexedString(int index);
 	public native String getProductString(long handle);
 	public native String getSerialNumberString(long handle);
+	public native String getIndexedString(long handle, int index);
 
 	// USB HID
 	public native String[] listUSBHIDdevicesWithInfo(int vendorFilter);

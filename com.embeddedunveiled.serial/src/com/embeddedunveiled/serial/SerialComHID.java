@@ -302,8 +302,8 @@ public class SerialComHID {
 
 	/**
 	 */
-	public final String getIndexedString(int index) throws SerialComException {
-		String ret = mHIDJNIBridge.getIndexedString(index);
+	public final String getIndexedString(long handle, int index) throws SerialComException {
+		String ret = mHIDJNIBridge.getIndexedString(handle, index);
 		if(ret == null) {
 			throw new SerialComException("Could not get the string at given index from the HID device. Please retry !");
 		}

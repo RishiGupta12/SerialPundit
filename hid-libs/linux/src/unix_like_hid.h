@@ -25,13 +25,6 @@
 #endif
 #include <pthread.h>
 #if defined (__APPLE__)
-#include <CoreFoundation/CoreFoundation.h>
-#include <IOKit/IOKitLib.h>
-#include <IOKit/serial/IOSerialKeys.h>
-#include <IOKit/serial/ioss.h>
-#include <IOKit/IOBSD.h>
-#include <IOKit/IOMessage.h>
-#include <IOKit/usb/IOUSBLib.h>
 #endif
 #include <jni.h>
 
@@ -49,9 +42,14 @@
 #define E_FINDCLASSSSTRINGSTR "Can not find class java/lang/String. Probably out of memory !"
 #define E_NEWOBJECTARRAYSTR "JNI call NewObjectArray failed. Probably out of memory !"
 #define E_SETOBJECTARRAYSTR "JNI call SetObjectArrayElement failed. Either index violation or wrong class used !"
+#define E_SETBYTEARRAYREGION "JNI call SetByteArrayRegion failed. Probably index out of bound !"
 
 #define E_CANNOTFINDDEVNODE "Failed to find device node for the USB HID interface !"
 #define E_CANNOTFINDPARENTUDEV "Could not find parent udev device for the USB HID interface !"
+#define E_CANNOTCREATEUDEVDEV "Could not create udev device from major/minor numbers of device node !"
+#define E_CANNOTFINDPARENTUSBHID "Could not find parent USB HID device from given file handle !"
+#define E_NOTONSUPPORTEDBUS "Given device is not on USB or Bluetooth bus !"
+#define E_NOMANUFACTURERVAL "Given device does not seem to have manufacturer value set !"
 
 /* This holds information for implementing dynamically growing array in C language. */
 struct jstrarray_list {
@@ -67,6 +65,8 @@ extern void free_jstrarraylist(struct jstrarray_list *al);
 extern void insert_jstrarraylist(struct jstrarray_list *al, jstring element);
 extern void init_jstrarraylist(struct jstrarray_list *al, int initial_size);
 extern jint get_report_descriptor_size(JNIEnv *env, jlong fd);
-extern jobjectArray list_usb_hid_devices(JNIEnv *env, jobject obj, jint vendor_filter);
+extern jobjectArray list_usb_hid_devices(JNIEnv *env, jint vendor_filter);
+extern jstring get_hiddev_info_string(JNIEnv *env, jlong fd, int task);
+extern jstring get_hiddev_indexed_string(JNIEnv *env, jlong fd, int index);
 
 #endif /* UNIX_LIKE_HID_H_ */

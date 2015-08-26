@@ -88,7 +88,7 @@ jstring linux_clean_up_and_throw_exp(JNIEnv *env, int task, const char *expmsg,
 	 * The array returned will be in following sequence; transport, device node, vendor ID,
 	 * product ID, serial, product and manufacturer.
 	 */
-	jobjectArray list_usb_hid_devices(JNIEnv *env, jobject obj, jint vendor_to_match) {
+	jobjectArray list_usb_hid_devices(JNIEnv *env, jint vendor_to_match) {
 		int x = 0;
 		struct jstrarray_list list = {0};
 		jstring vendor_id_info;

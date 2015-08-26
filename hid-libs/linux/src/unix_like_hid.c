@@ -62,6 +62,16 @@
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
+ * Method:    listHIDdevicesWithInfo
+ * Signature: ()[Ljava/lang/String;
+ */
+JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_listHIDdevicesWithInfo
+  (JNIEnv *env, jobject obj) {
+return NULL;
+}
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
  * Method:    openHidDevice
  * Signature: (Ljava/lang/String;)J
  *
@@ -193,6 +203,10 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
 		if(ret > 0) {
 			/* copy data from native buffer to Java buffer. */
 			(*env)->SetByteArrayRegion(env, reportBuffer, 0, ret, buffer);
+			if((*env)->ExceptionOccurred(env) != NULL) {
+				throw_serialcom_exception(env, 3, 0, E_SETBYTEARRAYREGION);
+				return -1;
+			}
 			free(buffer);
 			return ret;
 		}else if(ret < 0) {
@@ -246,6 +260,10 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
 			if(ret > 0) {
 				/* copy data from native buffer to Java buffer. */
 				(*env)->SetByteArrayRegion(env, reportBuffer, 0, ret, buffer);
+				if((*env)->ExceptionOccurred(env) != NULL) {
+					throw_serialcom_exception(env, 3, 0, E_SETBYTEARRAYREGION);
+					return -1;
+				}
 				free(buffer);
 				return ret;
 			}else if(ret < 0) {
@@ -297,6 +315,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
 	}
 
 	errno = 0;
+	/* this ioctl returns number of bytes written to the device */
 	ret = ioctl(fd, HIDIOCSFEATURE(count+1), buffer);
 	if(ret < 0) {
 		throw_serialcom_exception(env, 1, errno, NULL);
@@ -323,10 +342,15 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
 	jbyte* buffer = (jbyte *) malloc(length);
 
 	errno = 0;
+	/* this ioctl returns number of bytes read from device */
 	ret = ioctl(fd, HIDIOCGFEATURE(length), buffer);
 	if(ret > 0) {
 		/* copy data from native buffer to Java buffer. */
 		(*env)->SetByteArrayRegion(env, reportBuffer, 0, ret, buffer);
+		if((*env)->ExceptionOccurred(env) != NULL) {
+			throw_serialcom_exception(env, 3, 0, E_SETBYTEARRAYREGION);
+			return -1;
+		}
 		free(buffer);
 		return ret;
 	}else if(ret < 0) {
@@ -346,19 +370,9 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
  * Method:    getManufacturerString
  * Signature: (J)Ljava/lang/String;
  */
-JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_getManufacturerString
-(JNIEnv *, jobject, jlong) {
-
-}
-
-/*
- * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
- * Method:    getIndexedString
- * Signature: (I)Ljava/lang/String;
- */
-JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_getIndexedString
-(JNIEnv *, jobject, jint) {
-
+JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_getManufacturerString(JNIEnv *env,
+		jobject obj, jlong fd) {
+	return get_hiddev_info_string(env, fd, 1);
 }
 
 /*
@@ -366,9 +380,9 @@ JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHID
  * Method:    getProductString
  * Signature: (J)Ljava/lang/String;
  */
-JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_getProductString
-(JNIEnv *, jobject, jlong) {
-
+JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_getProductString(JNIEnv *env,
+		jobject obj, jlong fd) {
+	return get_hiddev_info_string(env, fd, 2);
 }
 
 /*
@@ -376,9 +390,19 @@ JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHID
  * Method:    getSerialNumberString
  * Signature: (J)Ljava/lang/String;
  */
-JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_getSerialNumberString
-(JNIEnv *, jobject, jlong) {
+JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_getSerialNumberString(JNIEnv *env,
+		jobject obj, jlong fd) {
+	return get_hiddev_info_string(env, fd, 3);
+}
 
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
+ * Method:    getIndexedString
+ * Signature: (JI)Ljava/lang/String;
+ */
+JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_getIndexedString
+  (JNIEnv *env, jobject obj, jlong fd, jint index) {
+	return get_hiddev_indexed_string(env, fd, index);
 }
 
 /*
@@ -392,7 +416,7 @@ JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHID
  */
 JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_listUSBHIDdevicesWithInfo(JNIEnv *env,
 		jobject obj, jint vendorFilter) {
-	return list_usb_hid_devices(env, obj, vendorFilter);
+	return list_usb_hid_devices(env, vendorFilter);
 }
 
 /*
@@ -400,9 +424,9 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
  * Method:    openHidDeviceByUSBAttributes
  * Signature: (IILjava/lang/String;)J
  */
-JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_openHidDeviceByUSBAttributes
-(JNIEnv *, jobject, jint, jint, jstring) {
-
+JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_openHidDeviceByUSBAttributes(JNIEnv *env,
+		jobject obj, jint usbvid, jint usbpid, jstring usbserialnumber) {
+return 0;
 }
 
 #endif
