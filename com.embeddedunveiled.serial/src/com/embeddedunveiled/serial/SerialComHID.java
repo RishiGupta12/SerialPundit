@@ -244,11 +244,11 @@ public class SerialComHID {
 	 * @param handle handle of the HID device to which this feature report will be sent.
 	 * @param reportId unique identifier for the report type.
 	 * @param report feature report to be sent to HID device.
-	 * @return true if report is written to device successfully.
+	 * @return number of bytes sent to HID device.
 	 * @throws SerialComException if an I/O error occurs.
 	 * @throws IllegalArgumentException if report is null or empty array. 
 	 */
-	public final boolean sendFeatureReport(long handle, byte reportId, final byte[] report) throws SerialComException {
+	public final int sendFeatureReport(long handle, byte reportId, final byte[] report) throws SerialComException {
 		if(report == null) {
 			throw new IllegalArgumentException("Argumenet report can not be null !");
 		}
@@ -260,7 +260,7 @@ public class SerialComHID {
 		if(ret < 0) {
 			throw new SerialComException("Could not send feature report to HID device. Please retry !");
 		}
-		return true;
+		return ret;
 	}
 
 	/**
