@@ -108,7 +108,7 @@ public final class SerialComUtil {
 		hexStr = hexStr.replaceAll("\\s+","");
 		byte[] data = new byte[hexStr.length()/2];
 
-		while(i <= hexStr.length()-1) {
+		while(i <= (hexStr.length() - 1)) {
 			byte character = (byte) Integer.parseInt(hexStr.substring(i, i+2), 16);
 			data[j] = character;
 			j++;
@@ -304,5 +304,20 @@ public final class SerialComUtil {
 	public static String byteToHexString(byte num) {
 		return toHexString(byteToUnsignedLong(num), '0', 2, 2);
 	}
+	
+	/**
+	 * <p>Appends given byte array to another given byte array and return newly constructed 
+	 * byte array.</p>
+	 * 
+	 * @param dataA one of the array that need to be added first.
+	 * @param dataB array that will be appended to array represented by dataA.
+	 * @return a byte array constructed out of appending dataB array to dataA array.
+	 */
+	public static byte[] concat(byte[] dataA, byte[] dataB) {
+        byte[] result = new byte[dataA.length + dataB.length];
+        System.arraycopy(dataA, 0, result, 0, dataA.length);
+        System.arraycopy(dataB, 0, result, dataA.length, dataB.length);
+        return result;
+    }
 
 }
