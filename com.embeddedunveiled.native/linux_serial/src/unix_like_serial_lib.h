@@ -175,6 +175,7 @@ extern void mac_usb_device_added(void *refCon, io_iterator_t iterator);
 extern void mac_usb_device_removed(void *refCon, io_iterator_t iterator);
 #endif
 extern jstring linux_clean_up_and_throw_exp(JNIEnv *env, int task, const char *expmsg, struct jstrarray_list *list, struct udev_device *udev_device, struct udev_enumerate *enumerator, struct udev *udev_ctx);
+extern jstring linux_rfcomm_cleanexp(JNIEnv *env, int task, const char *expmsg, struct jstrarray_list *list, struct udev_device *udev_device, struct udev_enumerate *enumerator, struct udev *udev_ctx);
 extern jint is_usb_dev_connected(JNIEnv *env, jobject obj, jint vid, jint pid);
 extern jstring find_driver_for_given_com_port(JNIEnv *env, jstring comPortName);
 extern jstring find_address_irq_for_given_com_port(JNIEnv *env, jlong handle);
