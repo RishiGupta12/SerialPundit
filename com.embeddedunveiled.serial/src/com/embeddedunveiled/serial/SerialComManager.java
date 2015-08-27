@@ -598,6 +598,9 @@ public final class SerialComManager {
 		String[] usbDevicesInfo = mComPortJNIBridge.listUSBdevicesWithInfo(vendorFilter);
 
 		if(usbDevicesInfo != null) {
+			if(usbDevicesInfo.length < 4) {
+				return new SerialComUSBdevice[] { };
+			}
 			numOfDevices = usbDevicesInfo.length / 5;
 			usbDevicesFound = new SerialComUSBdevice[numOfDevices];
 			for(int x=0; x<numOfDevices; x++) {
@@ -607,7 +610,7 @@ public final class SerialComManager {
 			}
 			return usbDevicesFound;
 		}else {
-			return new SerialComUSBdevice[] { };
+			throw new SerialComException("Could not find USB devices. Please retry !");
 		}	
 	}
 

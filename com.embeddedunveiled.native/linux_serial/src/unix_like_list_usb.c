@@ -143,14 +143,11 @@ jobjectArray list_usb_devices(JNIEnv *env, jobject obj, jint vendor_to_match) {
 					}
 				}
 				usb_dev_info = (*env)->NewStringUTF(env, sysattr_val);
-				if((usb_dev_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
-					return linux_clean_up_and_throw_exp(env, 1, NULL, &list, udev_device, enumerator, udev_ctx);
-				}
 			}else {
 				usb_dev_info = (*env)->NewStringUTF(env, "---");
-				if((usb_dev_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
-					return linux_clean_up_and_throw_exp(env, 1, NULL, &list, udev_device, enumerator, udev_ctx);
-				}
+			}
+			if((usb_dev_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+				return linux_clean_up_and_throw_exp(env, 1, NULL, &list, udev_device, enumerator, udev_ctx);
 			}
 			insert_jstrarraylist(&list, usb_dev_info);
 
@@ -158,14 +155,11 @@ jobjectArray list_usb_devices(JNIEnv *env, jobject obj, jint vendor_to_match) {
 			sysattr_val = udev_device_get_sysattr_value(udev_device, "idProduct");
 			if(sysattr_val != NULL) {
 				usb_dev_info = (*env)->NewStringUTF(env, sysattr_val);
-				if((usb_dev_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
-					return linux_clean_up_and_throw_exp(env, 1, NULL, &list, udev_device, enumerator, udev_ctx);
-				}
 			}else {
 				usb_dev_info = (*env)->NewStringUTF(env, "---");
-				if((usb_dev_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
-					return linux_clean_up_and_throw_exp(env, 1, NULL, &list, udev_device, enumerator, udev_ctx);
-				}
+			}
+			if((usb_dev_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+				return linux_clean_up_and_throw_exp(env, 1, NULL, &list, udev_device, enumerator, udev_ctx);
 			}
 			insert_jstrarraylist(&list, usb_dev_info);
 
@@ -173,14 +167,11 @@ jobjectArray list_usb_devices(JNIEnv *env, jobject obj, jint vendor_to_match) {
 			sysattr_val = udev_device_get_sysattr_value(udev_device, "serial");
 			if(sysattr_val != NULL) {
 				usb_dev_info = (*env)->NewStringUTF(env, sysattr_val);
-				if((usb_dev_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
-					return linux_clean_up_and_throw_exp(env, 1, NULL, &list, udev_device, enumerator, udev_ctx);
-				}
 			}else {
 				usb_dev_info = (*env)->NewStringUTF(env, "---");
-				if((usb_dev_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
-					return linux_clean_up_and_throw_exp(env, 1, NULL, &list, udev_device, enumerator, udev_ctx);
-				}
+			}
+			if((usb_dev_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+				return linux_clean_up_and_throw_exp(env, 1, NULL, &list, udev_device, enumerator, udev_ctx);
 			}
 			insert_jstrarraylist(&list, usb_dev_info);
 
@@ -188,14 +179,11 @@ jobjectArray list_usb_devices(JNIEnv *env, jobject obj, jint vendor_to_match) {
 			sysattr_val = udev_device_get_sysattr_value(udev_device, "product");
 			if(sysattr_val != NULL) {
 				usb_dev_info = (*env)->NewStringUTF(env, sysattr_val);
-				if((usb_dev_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
-					return linux_clean_up_and_throw_exp(env, 1, NULL, &list, udev_device, enumerator, udev_ctx);
-				}
 			}else {
 				usb_dev_info = (*env)->NewStringUTF(env, "---");
-				if((usb_dev_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
-					return linux_clean_up_and_throw_exp(env, 1, NULL, &list, udev_device, enumerator, udev_ctx);
-				}
+			}
+			if((usb_dev_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+				return linux_clean_up_and_throw_exp(env, 1, NULL, &list, udev_device, enumerator, udev_ctx);
 			}
 			insert_jstrarraylist(&list, usb_dev_info);
 
@@ -203,14 +191,11 @@ jobjectArray list_usb_devices(JNIEnv *env, jobject obj, jint vendor_to_match) {
 			sysattr_val = udev_device_get_sysattr_value(udev_device, "manufacturer");
 			if(sysattr_val != NULL) {
 				usb_dev_info = (*env)->NewStringUTF(env, sysattr_val);
-				if((usb_dev_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
-					return linux_clean_up_and_throw_exp(env, 1, NULL, &list, udev_device, enumerator, udev_ctx);
-				}
 			}else {
 				usb_dev_info = (*env)->NewStringUTF(env, "---");
-				if((usb_dev_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
-					return linux_clean_up_and_throw_exp(env, 1, NULL, &list, udev_device, enumerator, udev_ctx);
-				}
+			}
+			if((usb_dev_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+				return linux_clean_up_and_throw_exp(env, 1, NULL, &list, udev_device, enumerator, udev_ctx);
 			}
 			insert_jstrarraylist(&list, usb_dev_info);
 		}
@@ -252,14 +237,11 @@ jobjectArray list_usb_devices(JNIEnv *env, jobject obj, jint vendor_to_match) {
 			CFRelease(num_ref);
 			snprintf(hexcharbuffer, 5, "%04X", result & 0x0000FFFF);
 			usb_dev_info = (*env)->NewStringUTF(env, hexcharbuffer);
-			if((usb_dev_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
-				return mac_clean_up_and_throw_exp(env, 1, NULL, &list, usb_dev_obj, iterator);
-			}
 		}else {
 			usb_dev_info = (*env)->NewStringUTF(env, "---");
-			if((usb_dev_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
-				return mac_clean_up_and_throw_exp(env, 1, NULL, &list, usb_dev_obj, iterator);
-			}
+		}
+		if((usb_dev_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+			return mac_clean_up_and_throw_exp(env, 1, NULL, &list, usb_dev_obj, iterator);
 		}
 		insert_jstrarraylist(&list, usb_dev_info);
 
@@ -271,14 +253,11 @@ jobjectArray list_usb_devices(JNIEnv *env, jobject obj, jint vendor_to_match) {
 			CFRelease(num_ref);
 			snprintf(hexcharbuffer, 5, "%04X", result & 0x0000FFFF);
 			usb_dev_info = (*env)->NewStringUTF(env, hexcharbuffer);
-			if((usb_dev_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
-				return mac_clean_up_and_throw_exp(env, 1, NULL, &list, usb_dev_obj, iterator);
-			}
 		}else {
 			usb_dev_info = (*env)->NewStringUTF(env, "---");
-			if((usb_dev_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
-				return mac_clean_up_and_throw_exp(env, 1, NULL, &list, usb_dev_obj, iterator);
-			}
+		}
+		if((usb_dev_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+			return mac_clean_up_and_throw_exp(env, 1, NULL, &list, usb_dev_obj, iterator);
 		}
 		insert_jstrarraylist(&list, usb_dev_info);
 
@@ -289,14 +268,11 @@ jobjectArray list_usb_devices(JNIEnv *env, jobject obj, jint vendor_to_match) {
 			CFStringGetCString(str_ref, charbuffer, sizeof(charbuffer), kCFStringEncodingUTF8);
 			CFRelease(str_ref);
 			usb_dev_info = (*env)->NewStringUTF(env, charbuffer);
-			if((usb_dev_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
-				return mac_clean_up_and_throw_exp(env, 1, NULL, &list, usb_dev_obj, iterator);
-			}
 		}else {
 			usb_dev_info = (*env)->NewStringUTF(env, "---");
-			if((usb_dev_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
-				return mac_clean_up_and_throw_exp(env, 1, NULL, &list, usb_dev_obj, iterator);
-			}
+		}
+		if((usb_dev_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+			return mac_clean_up_and_throw_exp(env, 1, NULL, &list, usb_dev_obj, iterator);
 		}
 		insert_jstrarraylist(&list, usb_dev_info);
 
@@ -307,14 +283,11 @@ jobjectArray list_usb_devices(JNIEnv *env, jobject obj, jint vendor_to_match) {
 			CFStringGetCString(str_ref, charbuffer, sizeof(charbuffer), kCFStringEncodingUTF8);
 			CFRelease(str_ref);
 			usb_dev_info = (*env)->NewStringUTF(env, charbuffer);
-			if((usb_dev_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
-				return mac_clean_up_and_throw_exp(env, 1, NULL, &list, usb_dev_obj, iterator);
-			}
 		}else {
 			usb_dev_info = (*env)->NewStringUTF(env, "---");
-			if((usb_dev_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
-				return mac_clean_up_and_throw_exp(env, 1, NULL, &list, usb_dev_obj, iterator);
-			}
+		}
+		if((usb_dev_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+			return mac_clean_up_and_throw_exp(env, 1, NULL, &list, usb_dev_obj, iterator);
 		}
 		insert_jstrarraylist(&list, usb_dev_info);
 
@@ -325,14 +298,11 @@ jobjectArray list_usb_devices(JNIEnv *env, jobject obj, jint vendor_to_match) {
 			CFStringGetCString(str_ref, charbuffer, sizeof(charbuffer), kCFStringEncodingUTF8);
 			CFRelease(str_ref);
 			usb_dev_info = (*env)->NewStringUTF(env, charbuffer);
-			if((usb_dev_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
-				return mac_clean_up_and_throw_exp(env, 1, NULL, &list, usb_dev_obj, iterator);
-			}
 		}else {
 			usb_dev_info = (*env)->NewStringUTF(env, "---");
-			if((usb_dev_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
-				return mac_clean_up_and_throw_exp(env, 1, NULL, &list, usb_dev_obj, iterator);
-			}
+		}
+		if((usb_dev_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+			return mac_clean_up_and_throw_exp(env, 1, NULL, &list, usb_dev_obj, iterator);
 		}
 		insert_jstrarraylist(&list, usb_dev_info);
 

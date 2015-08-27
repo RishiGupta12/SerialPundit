@@ -68,5 +68,6 @@ extern jint get_report_descriptor_size(JNIEnv *env, jlong fd);
 extern jobjectArray list_usb_hid_devices(JNIEnv *env, jint vendor_filter);
 extern jstring get_hiddev_info_string(JNIEnv *env, jlong fd, int task);
 extern jstring get_hiddev_indexed_string(JNIEnv *env, jlong fd, int index);
+extern jlong open_by_usb_attrributes(JNIEnv *env, jint usbvid, jint usbpid, jstring usbserialnumber);
 
 #endif /* UNIX_LIKE_HID_H_ */

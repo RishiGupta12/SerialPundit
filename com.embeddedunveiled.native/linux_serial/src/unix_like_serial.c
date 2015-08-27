@@ -257,6 +257,8 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
 #if defined (__linux__)
 	udev_ctx = udev_new();
 	enumerator = udev_enumerate_new(udev_ctx);
+	/* devices which claim to be tty devices will be registered with tty framework whether
+	 * they are real or virtual (ttyUSB, rfcomm, pseudo terminal). */
 	udev_enumerate_add_match_subsystem(enumerator, "tty");
 	udev_enumerate_scan_devices(enumerator);
 	devices = udev_enumerate_get_list_entry(enumerator);
@@ -2816,6 +2818,19 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_rescanUSBDevicesHW(JNIEnv *env, jobject obj) {
 	return -1;
+}
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
+ * Method:    listBTSPPDevNodesWithInfo
+ * Signature: ()[Ljava/lang/String;
+ *
+ * @return array of Strings containing info about rfcomm device nodes found, NULL if error occurs.
+ * @throws SerialComException if any JNI function, system call or C function fails.
+ */
+JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_listBTSPPDevNodesWithInfo
+  (JNIEnv *env, jobject obj) {
+	return list_bt_rfcomm_dev_nodes(env, obj);
 }
 
 #endif /* End compiling for Unix-like OS. */

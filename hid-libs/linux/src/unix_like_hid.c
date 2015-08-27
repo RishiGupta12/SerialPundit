@@ -16,13 +16,6 @@
  *
  ***************************************************************************************************/
 
-/* - This file contains native code to communicate with tty-style port in Unix-like operating systems.
- * - When printing error number, number returned by OS is printed as it is.
- * - There will be only one instance of this shared library at runtime. So if something goes wrong
- *   it will affect everything, until this library has been unloaded and then loaded again.
- * - Wherever possible avoid JNI data types.
- * - Sometimes, the JNI does not like some pointer arithmetic so it is avoided wherever possible. */
-
 #if defined (__linux__) || defined (__APPLE__) || defined (__SunOS) || defined(__sun) || defined(__FreeBSD__) \
 		|| defined(__OpenBSD__) || defined(__NetBSD__) || defined(__hpux__) || defined(_AIX)
 
@@ -66,8 +59,8 @@
  * Signature: ()[Ljava/lang/String;
  */
 JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_listHIDdevicesWithInfo
-  (JNIEnv *env, jobject obj) {
-return NULL;
+(JNIEnv *env, jobject obj) {
+	return NULL;
 }
 
 /*
@@ -401,7 +394,7 @@ JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHID
  * Signature: (JI)Ljava/lang/String;
  */
 JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_getIndexedString
-  (JNIEnv *env, jobject obj, jlong fd, jint index) {
+(JNIEnv *env, jobject obj, jlong fd, jint index) {
 	return get_hiddev_indexed_string(env, fd, index);
 }
 
@@ -426,7 +419,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
  */
 JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_openHidDeviceByUSBAttributes(JNIEnv *env,
 		jobject obj, jint usbvid, jint usbpid, jstring usbserialnumber) {
-return 0;
+	return 0;
 }
 
 #endif

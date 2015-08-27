@@ -72,7 +72,7 @@
 #define E_HCIOPENDEV "Could not open BT HCI device !"
 #define E_HCIREADNAME "Could not read local name of BT HCI device !"
 #define E_HCIBTADDR "Could not determine address of BT HCI device !"
-
+#define E_CANNOTFINDDEVNODE "Failed to find device node from sysfs path !"
 
 /* Custom error codes and messages for SCM library */
 #define ERROR_OFFSET 15000
@@ -180,6 +180,7 @@ extern jstring find_driver_for_given_com_port(JNIEnv *env, jstring comPortName);
 extern jstring find_address_irq_for_given_com_port(JNIEnv *env, jlong handle);
 extern jobjectArray list_usb_devices(JNIEnv *env, jobject obj, jint vendor_filter);
 extern jobjectArray list_local_bt_adaptors(JNIEnv *env, jobject obj);
+extern jobjectArray list_bt_rfcomm_dev_nodes(JNIEnv *env, jobject obj);
 extern jobjectArray vcp_node_from_usb_attributes(JNIEnv *env, jobject obj, jint usbvid_to_match, jint usbpid_to_match, jstring serial_num);
 extern int serial_delay(unsigned usecs);
 extern void *data_looper(void *params);

@@ -45,6 +45,11 @@ public final class SerialComUSBHID extends SerialComHID {
 	 * as found by this library. Application can call various  methods on returned SerialComHIDdevice 
 	 * object to get specific information like vendor id and product id etc.</p>
 	 * 
+	 * <p>Some bluetooth HID keyboard and mouse use a USB dongle which make them appear as USB HID 
+	 * device to system. The keyboard/mouse communicate with dongle over bluetooth frequency while 
+	 * dongle communicate with system as USB HID device. This is also the reason why sometimes 
+	 * bluetooth keyboard/mouse works even when there is no bluetooth stack installed in system.</p>
+	 * 
 	 * @param vendorFilter vendor whose devices should be listed (one of the constants SerialComUSB.V_xxxxx 
 	 *         or any valid USB-IF VID).
 	 * @return list of the HID devices with information about them or empty array if no device matching 
@@ -64,6 +69,13 @@ public final class SerialComUSBHID extends SerialComHID {
 		String[] usbhidDevicesInfo = mHIDJNIBridge.listUSBHIDdevicesWithInfo(vendorFilter);
 
 		if(usbhidDevicesInfo != null) {
+			if(usbhidDevicesInfo.length <= 3) {
+				// if no devices found return empty array.
+				return new SerialComHIDdevice[] { };
+			}
+			
+			// number of elements sent by native layer will be multiple of 7
+			// if device(s) is found to populate SerialComHIDdevice object.
 			numOfDevices = usbhidDevicesInfo.length / 7;
 			usbHidDevicesFound = new SerialComHIDdevice[numOfDevices];
 			for(int x=0; x < numOfDevices; x++) {
@@ -73,7 +85,7 @@ public final class SerialComUSBHID extends SerialComHID {
 			}
 			return usbHidDevicesFound;
 		}else {
-			return new SerialComHIDdevice[] { };
+			throw new SerialComException("Could not find USB HID devices. Please retry !");
 		}	
 	}
 

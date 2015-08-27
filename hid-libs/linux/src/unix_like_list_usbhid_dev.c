@@ -147,14 +147,11 @@ jstring linux_clean_up_and_throw_exp(JNIEnv *env, int task, const char *expmsg,
 					}
 				}
 				vendor_id_info = (*env)->NewStringUTF(env, sysattr_val);
-				if((vendor_id_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
-					return linux_clean_up_and_throw_exp(env, 1, NULL, &list, udev_device, enumerator, udev_ctx);
-				}
 			}else {
 				vendor_id_info = (*env)->NewStringUTF(env, "---");
-				if((vendor_id_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
-					return linux_clean_up_and_throw_exp(env, 1, NULL, &list, udev_device, enumerator, udev_ctx);
-				}
+			}
+			if((vendor_id_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+				return linux_clean_up_and_throw_exp(env, 1, NULL, &list, udev_device, enumerator, udev_ctx);
 			}
 
 			/* reaching here means that the device meets given criteria specific vendor or all vendors. */
@@ -180,14 +177,11 @@ jstring linux_clean_up_and_throw_exp(JNIEnv *env, int task, const char *expmsg,
 			sysattr_val = udev_device_get_sysattr_value(udev_device, "idProduct");
 			if(sysattr_val != NULL) {
 				usb_dev_info = (*env)->NewStringUTF(env, sysattr_val);
-				if((usb_dev_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
-					return linux_clean_up_and_throw_exp(env, 1, NULL, &list, udev_device, enumerator, udev_ctx);
-				}
 			}else {
 				usb_dev_info = (*env)->NewStringUTF(env, "---");
-				if((usb_dev_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
-					return linux_clean_up_and_throw_exp(env, 1, NULL, &list, udev_device, enumerator, udev_ctx);
-				}
+			}
+			if((usb_dev_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+				return linux_clean_up_and_throw_exp(env, 1, NULL, &list, udev_device, enumerator, udev_ctx);
 			}
 			insert_jstrarraylist(&list, usb_dev_info);
 
@@ -195,14 +189,11 @@ jstring linux_clean_up_and_throw_exp(JNIEnv *env, int task, const char *expmsg,
 			sysattr_val = udev_device_get_sysattr_value(udev_device, "serial");
 			if(sysattr_val != NULL) {
 				usb_dev_info = (*env)->NewStringUTF(env, sysattr_val);
-				if((usb_dev_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
-					return linux_clean_up_and_throw_exp(env, 1, NULL, &list, udev_device, enumerator, udev_ctx);
-				}
 			}else {
 				usb_dev_info = (*env)->NewStringUTF(env, "---");
-				if((usb_dev_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
-					return linux_clean_up_and_throw_exp(env, 1, NULL, &list, udev_device, enumerator, udev_ctx);
-				}
+			}
+			if((usb_dev_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+				return linux_clean_up_and_throw_exp(env, 1, NULL, &list, udev_device, enumerator, udev_ctx);
 			}
 			insert_jstrarraylist(&list, usb_dev_info);
 
@@ -210,14 +201,11 @@ jstring linux_clean_up_and_throw_exp(JNIEnv *env, int task, const char *expmsg,
 			sysattr_val = udev_device_get_sysattr_value(udev_device, "product");
 			if(sysattr_val != NULL) {
 				usb_dev_info = (*env)->NewStringUTF(env, sysattr_val);
-				if((usb_dev_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
-					return linux_clean_up_and_throw_exp(env, 1, NULL, &list, udev_device, enumerator, udev_ctx);
-				}
 			}else {
 				usb_dev_info = (*env)->NewStringUTF(env, "---");
-				if((usb_dev_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
-					return linux_clean_up_and_throw_exp(env, 1, NULL, &list, udev_device, enumerator, udev_ctx);
-				}
+			}
+			if((usb_dev_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+				return linux_clean_up_and_throw_exp(env, 1, NULL, &list, udev_device, enumerator, udev_ctx);
 			}
 			insert_jstrarraylist(&list, usb_dev_info);
 
@@ -225,14 +213,11 @@ jstring linux_clean_up_and_throw_exp(JNIEnv *env, int task, const char *expmsg,
 			sysattr_val = udev_device_get_sysattr_value(udev_device, "manufacturer");
 			if(sysattr_val != NULL) {
 				usb_dev_info = (*env)->NewStringUTF(env, sysattr_val);
-				if((usb_dev_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
-					return linux_clean_up_and_throw_exp(env, 1, NULL, &list, udev_device, enumerator, udev_ctx);
-				}
 			}else {
 				usb_dev_info = (*env)->NewStringUTF(env, "---");
-				if((usb_dev_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
-					return linux_clean_up_and_throw_exp(env, 1, NULL, &list, udev_device, enumerator, udev_ctx);
-				}
+			}
+			if((usb_dev_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+				return linux_clean_up_and_throw_exp(env, 1, NULL, &list, udev_device, enumerator, udev_ctx);
 			}
 			insert_jstrarraylist(&list, usb_dev_info);
 

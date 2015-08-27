@@ -1,5 +1,6 @@
 
 v1.0.4 (TODO RELEASE DATE)
+	- added API to list rfcomm bluetooth serial ports in system
 	- added support for USB HID ans Bluetooth HID communication
 	- added API to find IRQ Number and address of seria port
 	- added API to find driver serving the given serial port

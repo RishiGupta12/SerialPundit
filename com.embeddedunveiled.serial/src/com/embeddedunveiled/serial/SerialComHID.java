@@ -54,7 +54,8 @@ public class SerialComHID {
 	 * 
 	 * <p>TODO</p>
 	 * 
-	 * @return list of the HID devices with information about them or empty array if no device matching given criteria found.
+	 * @return list of the HID devices with information about them or empty array if no device 
+	 *          matching given criteria found.
 	 * @throws SerialComException if an I/O error occurs.
 	 * @throws IllegalArgumentException if vendorFilter is negative or invalid number.
 	 */
@@ -66,6 +67,9 @@ public class SerialComHID {
 		String[] hidDevicesInfo = mHIDJNIBridge.listHIDdevicesWithInfo();
 
 		if(hidDevicesInfo != null) {
+			if(hidDevicesInfo.length < 3) {
+				return new SerialComHIDdevice[] { };
+			}
 			numOfDevices = hidDevicesInfo.length / 7;
 			hidDevicesFound = new SerialComHIDdevice[numOfDevices];
 			for(int x=0; x < numOfDevices; x++) {
@@ -75,7 +79,7 @@ public class SerialComHID {
 			}
 			return hidDevicesFound;
 		}else {
-			return new SerialComHIDdevice[] { };
+			throw new SerialComException("Could not find HID devices. Please retry !");
 		}	
 	}
 

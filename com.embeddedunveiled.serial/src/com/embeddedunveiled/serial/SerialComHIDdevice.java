@@ -131,12 +131,12 @@ public final class SerialComHIDdevice {
 	 */
 	public void dumpDeviceInfo() {
 		System.out.println(
-				"\nTransport : " + transport +
+				"Transport : " + transport +
 				"\nDevice node : " + deviceNode +
 				"\nVendor id : 0x" + idVendor + 
 				"\nProduct id : 0x" + idProduct + 
 				"\nSerial number : " + serial + 
 				"\nProduct : " + product + 
-				"\nManufacturer : " + manufacturer);
+				"\nManufacturer : " + manufacturer + "\n");
 	}
 }
