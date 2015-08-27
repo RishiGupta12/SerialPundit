@@ -34,10 +34,11 @@ public final class SerialComBluetooth {
 	}
 
 	/**
-	 * <p>Returns an array containing information about all the Bluetooth adaptors present in the system found 
-	 * by this library. </p>
+	 * <p>Returns an array containing information about all the Bluetooth adaptors present in the system 
+	 * found by this library. </p>
 	 * 
-	 * @return list of the local Bluetooth adaptor(s) with information about them or empty array if no adaptor found.
+	 * @return list of the local Bluetooth adaptor(s) with information about them or empty array if 
+	 *          no adaptor found.
 	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public SerialComBluetoothAdapter[] listBluetoothAdaptorsWithInfo() throws SerialComException {
@@ -60,4 +61,33 @@ public final class SerialComBluetooth {
 		}	
 	}
 
+	/**
+	 * <p>Gives device node, remote bluetooth device address and channel number in use for device nodes 
+	 * which are using the rfcomm service for emulating serial port over bluetooth.</p>
+	 * 
+	 * @return list of the BT SPP device node(s) with information about them or empty array if no 
+	 *          device node is found.
+	 * @throws SerialComException if an I/O error occurs.
+	 */
+	public SerialComBluetoothSPPDevNode[] listBTSPPDevNodesWithInfo() throws SerialComException {
+		int i = 0;
+		int numOfDevices = 0;
+		SerialComBluetoothSPPDevNode[] btSerialNodesFound = null;
+		String[] btSerialNodesInfo = mComPortJNIBridge.listBTSPPDevNodesWithInfo();
+		
+		if(btSerialNodesInfo != null) {
+			if(btSerialNodesInfo.length < 2) {
+				return new SerialComBluetoothSPPDevNode[] { };
+			}
+			numOfDevices = btSerialNodesInfo.length / 3;
+			btSerialNodesFound = new SerialComBluetoothSPPDevNode[numOfDevices];
+			for(int x=0; x<numOfDevices; x++) {
+				btSerialNodesFound[x] = new SerialComBluetoothSPPDevNode(btSerialNodesInfo[i], btSerialNodesInfo[i+1], btSerialNodesInfo[i+2]);
+				i = i + 3;
+			}
+			return btSerialNodesFound;
+		}else {
+			throw new SerialComException("Could not find HID devices. Please retry !");
+		}
+	}
 }

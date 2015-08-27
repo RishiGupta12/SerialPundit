@@ -311,4 +311,5 @@ public final class SerialComPortJNIBridge {
 
 	// Bluetooth
 	public native String[] listBluetoothAdaptorsWithInfo();
+	public native String[] listBTSPPDevNodesWithInfo();
 }
