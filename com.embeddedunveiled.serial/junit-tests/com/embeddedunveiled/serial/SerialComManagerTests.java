@@ -304,6 +304,19 @@ public final class SerialComManagerTests {
 		}else{
 		}
 	}
+	
+	@Test(timeout=100)
+	public void testFindIRQnumberForComPort() throws SerialComException {
+		if(osType == SerialComManager.OS_LINUX) {
+			assertEquals("", scm.findIRQnumberForComPort(handle1));
+		}else if(osType == SerialComManager.OS_WINDOWS) {
+			assertEquals("", scm.findIRQnumberForComPort(handle1));
+		}else if(osType == SerialComManager.OS_MAC_OS_X) {
+			assertEquals("", scm.findIRQnumberForComPort(handle1));
+		}else if(osType == SerialComManager.OS_SOLARIS) {
+		}else{
+		}
+	}
 
 	@Test(timeout=150)
 	public void testGetByteCountInPortIOBuffer() throws SerialComException {
