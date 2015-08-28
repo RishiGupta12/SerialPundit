@@ -18,7 +18,8 @@ import static org.junit.Assert.*;
 
 public final class SerialComManagerTests {
 
-	static SerialComManager scm;	
+	static SerialComManager scm;
+	static int osType;
 	static String PORT1;
 	static String PORT2;
 	static Long handle1;
@@ -27,7 +28,7 @@ public final class SerialComManagerTests {
 	@BeforeClass
 	public static void preparePorts() throws Exception {
 		scm = new SerialComManager();
-		int osType = scm.getOSType();
+		osType = scm.getOSType();
 		if(osType == SerialComManager.OS_LINUX) { 
 			PORT1 = "/dev/ttyUSB0";
 			PORT2 = "/dev/ttyUSB1";
@@ -111,7 +112,7 @@ public final class SerialComManagerTests {
 		}
 		assertNotNull(scm.readString(handle2));
 	}
-	
+
 	@Test(timeout=800)
 	public void testWriteBytesWithDelay() throws SerialComException {
 		assertTrue(scm.writeBytes(handle1, "testing".getBytes(), 5));
@@ -133,7 +134,7 @@ public final class SerialComManagerTests {
 		assertNotNull(data);
 		assertEquals(data, "testing");
 	}
-	
+
 	@Test(timeout=800)
 	public void testWriteStringWithDelay() throws SerialComException {
 		assertTrue(scm.writeString(handle1, "testing", 5));
@@ -158,7 +159,7 @@ public final class SerialComManagerTests {
 		assertTrue(data.length == 1);
 		assertEquals(0x41, (byte)data[0]);
 	}
-	
+
 	@Test(timeout=800)
 	public void testWriteSingleIntLittleEndian2() throws SerialComException {
 		assertTrue(scm.writeSingleInt(handle1, 0x41, 0, ENDIAN.E_LITTLE, NUMOFBYTES.NUM_2));
@@ -172,7 +173,7 @@ public final class SerialComManagerTests {
 		assertEquals(0x41, (byte)data[0]);
 		assertEquals(0x00, (byte)data[1]);
 	}
-	
+
 	@Test(timeout=800)
 	public void testWriteSingleIntLittleEndian4() throws SerialComException {
 		assertTrue(scm.writeSingleInt(handle1, 0x380006BF, 0, ENDIAN.E_LITTLE, NUMOFBYTES.NUM_4));
@@ -188,7 +189,7 @@ public final class SerialComManagerTests {
 		assertEquals(0x00, (byte)data[2]);
 		assertEquals(0x38, (byte)data[3]);
 	}
-	
+
 	@Test(timeout=800)
 	public void testWriteSingleIntBigEndian2() throws SerialComException {
 		assertTrue(scm.writeSingleInt(handle1, 0x41, 0, ENDIAN.E_BIG, NUMOFBYTES.NUM_2));
@@ -202,7 +203,7 @@ public final class SerialComManagerTests {
 		assertEquals(0x00, (byte)data[0]);
 		assertEquals(0x41, (byte)data[1]);
 	}
-	
+
 	@Test(timeout=800)
 	public void testWriteSingleIntBigEndian4() throws SerialComException {
 		assertTrue(scm.writeSingleInt(handle1, 0x380006BF, 0, ENDIAN.E_BIG, NUMOFBYTES.NUM_4));
@@ -218,5 +219,40 @@ public final class SerialComManagerTests {
 		assertEquals(0x06, (byte)data[2]);
 		assertEquals(0xBF, (byte)data[3]);
 	}
+
+	@Test(timeout=150)
+	public void testGetCurrentConfiguration() throws SerialComException {
+		String[] config = scm.getCurrentConfiguration(handle1);
+		assertTrue(config != null);
+		assertTrue(config.length > 0);
+	}
+
+	@Test(timeout=150)
+	public void testSetRTS() throws SerialComException {
+		assertTrue(scm.setRTS(handle1, true));
+		assertTrue(scm.setRTS(handle1, false));
+	}
+
+	@Test(timeout=150)
+	public void testSetDTR() throws SerialComException {
+		assertTrue(scm.setDTR(handle1, true));
+		assertTrue(scm.setDTR(handle1, false));
+	}
+
+	@Test(timeout=150)
+	public void testFineTuneRead() throws SerialComException {
+		if(osType == SerialComManager.OS_LINUX) { 
+			assertTrue(scm.fineTuneRead(handle1, 0, 100, 0, 0, 0));
+			long start = System.currentTimeMillis();
+			scm.readBytes(handle1);
+			assertTrue((System.currentTimeMillis() - start) < 100);
+		}else if(osType == SerialComManager.OS_WINDOWS) {
+		}else if(osType == SerialComManager.OS_MAC_OS_X) {
+		}else if(osType == SerialComManager.OS_SOLARIS) {
+		}else{
+		}
+	}
+
+
 
 }
