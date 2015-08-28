@@ -26,7 +26,7 @@ import java.io.IOException;
 
 import com.embeddedunveiled.serial.SerialComManager.FTPPROTO;
 import com.embeddedunveiled.serial.SerialComManager.FTPVAR;
-import com.embeddedunveiled.serial.internal.SerialComCRC;
+import com.embeddedunveiled.serial.SerialComCRCUtil;
 
 /**
  * <p>Implements state machine for XMODEM-CRC file transfer protocol in Java.</p>
@@ -136,7 +136,7 @@ public final class SerialComXModemCRC {
 		byte[] data = null;
 		long responseWaitTimeOut = 0;
 		long eotAckWaitTimeOutValue = 0;
-		SerialComCRC crcCalculator = new SerialComCRC();
+		SerialComCRCUtil crcCalculator = new SerialComCRCUtil();
 		inStream = new BufferedInputStream(new FileInputStream(fileToProcess));
 
 		state = CONNECT;
@@ -407,7 +407,7 @@ public final class SerialComXModemCRC {
 	 * 
 	 * @throws IOException if any I/O error occurs.
 	 */
-	private void assembleBlock(SerialComCRC scCRC) throws IOException {
+	private void assembleBlock(SerialComCRCUtil scCRC) throws IOException {
 		int x = 0;
 		int numBytesRead = 0;
 		int blockCRCval = 0;
@@ -726,7 +726,7 @@ public final class SerialComXModemCRC {
 		}
 
 		// append 2 byte CRC value.
-		blockCRCval = scCRC.getCRCval(block, 3, 130);
+		blockCRCval = scCRC.getCRC16CCITTValue(block, 3, 130);
 		block[131] = (byte) (blockCRCval >>> 8); // CRC high byte
 		block[132] = (byte) blockCRCval;         // CRC low byte
 	}
@@ -765,7 +765,7 @@ public final class SerialComXModemCRC {
 		boolean partialReadInProgress = false;
 		byte[] data = null;
 		String errMsg = null;
-		SerialComCRC crcCalculator = new SerialComCRC();
+		SerialComCRCUtil crcCalculator = new SerialComCRCUtil();
 
 		/* The data bytes get flushed automatically to file system physically whenever BufferedOutputStream's
 		   internal buffer gets full and request to write more bytes have arrived. */
@@ -989,7 +989,7 @@ public final class SerialComXModemCRC {
 					break;
 				}
 				// verify CRC value.
-				blockCRCval = crcCalculator.getCRCval(block, 3, 130);
+				blockCRCval = crcCalculator.getCRC16CCITTValue(block, 3, 130);
 				if((block[131] != (byte)(blockCRCval >>> 8)) || (block[132] != (byte)blockCRCval)){
 					isCorrupted = true;
 				}

@@ -261,7 +261,7 @@ public final class SerialComCRCUtil {
 	 */
 	public int getCRC16Value(byte[] data, int start, int end) {
 		int x = start;
-		int crcVal = 0x00;
+		int crcVal = 0x0000;
 		while (x <= end) {
 			crcVal = (crc16Table[(crcVal ^ (data[x])) & 0xff] ^ (crcVal >> 8)) & 0xffff;
 			x++;
@@ -272,7 +272,7 @@ public final class SerialComCRCUtil {
 	/** 
 	 * <p>Calculates CRC-16-CCITT value for the data bytes given. The data bytes at start and end index 
 	 * are included in calculation. It uses pre-defined table for speedily calculating CRC-16-CCITT 
-	 * value of the given data.</p>
+	 * value of the given data. This algorithm is used in implementing Xmodem protocol.</p>
 	 * 
 	 * @param data byte type buffer for whom CRC is to be calculated.
 	 * @param start offset in supplied data buffer from where CRC calculation should start.
@@ -281,7 +281,7 @@ public final class SerialComCRCUtil {
 	 */
 	public int getCRC16CCITTValue(byte[] data, int start, int end) {
 		int x = start;
-		int crcVal = 0x00;
+		int crcVal = 0x0000;
 		while (x <= end) {
 			crcVal = (crc16ccittTable[((crcVal >> 8) ^ (data[x])) & 0xff] ^ (crcVal << 8)) & 0xffff;
 			x++;
