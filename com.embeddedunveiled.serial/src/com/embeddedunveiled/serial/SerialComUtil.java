@@ -118,7 +118,9 @@ public final class SerialComUtil {
 	}
 
 	/**
-	 * <p>Converts a binary-coded decimal number into decimal number string.</p>
+	 * <p>Converts a binary-coded decimal number into decimal number string. The decimal point 
+	 * will be placed between 2nd and third digit of the result returned. This can be used for 
+	 * example to decode USB specification release number which is encoded in BCD format.</p>
 	 *
 	 * @param bcd binary-coded decimal to decode.
 	 * @return decoded binary-coded decimal.
