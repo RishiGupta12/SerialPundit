@@ -1923,7 +1923,7 @@ public final class SerialComManager {
 	 * <p>Gives the address and IRQ number associated with the given serial port.</p>
 	 * 
 	 * @param handle handle of the opened serial port.
-	 * @return string containing address and irq number.
+	 * @return string containing address and irq number in hexadecimal represenation.
 	 * @throws SerialComException if operation can not be completed successfully.
 	 */
 	public String findIRQnumberForComPort(long handle) throws SerialComException {

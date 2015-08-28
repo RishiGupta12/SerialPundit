@@ -220,20 +220,20 @@ public final class SerialComManagerTests {
 		assertEquals(0xBF, (byte)data[3]);
 	}
 
-	@Test(timeout=150)
+	@Test(timeout=100)
 	public void testGetCurrentConfiguration() throws SerialComException {
 		String[] config = scm.getCurrentConfiguration(handle1);
 		assertTrue(config != null);
 		assertTrue(config.length > 0);
 	}
 
-	@Test(timeout=150)
+	@Test(timeout=100)
 	public void testSetRTS() throws SerialComException {
 		assertTrue(scm.setRTS(handle1, true));
 		assertTrue(scm.setRTS(handle1, false));
 	}
 
-	@Test(timeout=150)
+	@Test(timeout=100)
 	public void testSetDTR() throws SerialComException {
 		assertTrue(scm.setDTR(handle1, true));
 		assertTrue(scm.setDTR(handle1, false));
@@ -253,12 +253,57 @@ public final class SerialComManagerTests {
 		}
 	}
 
-	@Test(timeout=150)
+	@Test(timeout=100)
 	public void testClearPortIOBuffers() throws SerialComException {
 		assertTrue(scm.clearPortIOBuffers(handle1, true, true));
 		int[] byteCount = scm.getByteCountInPortIOBuffer(handle1);
 		assertEquals(0, byteCount[0]);
 		assertEquals(0, byteCount[1]);
+	}
+
+	@Test(timeout=100)
+	public void testSendBreak() throws SerialComException {
+		assertTrue(scm.sendBreak(handle1, 50));
+	}
+
+	@Test(timeout=100)
+	public void testGetInterruptCount() throws SerialComException {
+		if(osType == SerialComManager.OS_LINUX) { 
+			int[] countInfo = scm.getInterruptCount(handle1);
+			assertTrue(countInfo != null);
+			assertTrue(countInfo.length > 0);
+		}else{
+			assertTrue(10 > 5);
+		}
+	}
+
+	@Test(timeout=100)
+	public void testGetLinesStatus() throws SerialComException {
+		int[] lineInfo = scm.getLinesStatus(handle1);
+		assertTrue(lineInfo != null);
+		assertTrue(lineInfo.length == 7);
+		if(osType == SerialComManager.OS_LINUX) { 
+		}else if(osType == SerialComManager.OS_WINDOWS) {
+			assertEquals(lineInfo[4], 0);
+			assertEquals(lineInfo[5], 0);
+			assertEquals(lineInfo[6], 0);
+		}else if(osType == SerialComManager.OS_MAC_OS_X) {
+			assertEquals(lineInfo[4], 0);
+		}else if(osType == SerialComManager.OS_SOLARIS) {
+		}else{
+		}
+	}
+
+	@Test(timeout=150)
+	public void testGetByteCountInPortIOBuffer() throws SerialComException {
+		scm.readBytes(handle2);
+		int[] byteCountBefore = scm.getByteCountInPortIOBuffer(handle2);
+		assertEquals(0, byteCountBefore[0]);
+		assertEquals(0, byteCountBefore[1]);
+		scm.writeString(handle1, "hello", 0);
+		int[] byteCountAfter = scm.getByteCountInPortIOBuffer(handle1);
+		assertEquals(5, byteCountAfter[0]);
+		assertEquals(0, byteCountAfter[1]);
 	}
 
 }
