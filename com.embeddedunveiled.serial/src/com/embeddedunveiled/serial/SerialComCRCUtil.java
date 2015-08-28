@@ -209,7 +209,7 @@ public final class SerialComCRCUtil {
 	 *          greater than data.length - offset.
 	 * @throws IllegalArgumentException if data is not a byte type array.
 	 */
-	public byte calculateLRCCheckSum(final byte[] data, int offset, int length) {
+	public byte getLRCCheckSum(final byte[] data, int offset, int length) {
 		byte checkSum = 0;
 
 		if(data == null) {
@@ -329,27 +329,3 @@ public final class SerialComCRCUtil {
 		return crcVal;
 	}	 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

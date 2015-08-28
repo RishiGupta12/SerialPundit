@@ -6,7 +6,7 @@ import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
 @SuiteClasses({ 
-	FuncTestSuiteA1Test.class
+	SerialComManagerTests.class
 })
 
 public class FuncTestSuiteA {

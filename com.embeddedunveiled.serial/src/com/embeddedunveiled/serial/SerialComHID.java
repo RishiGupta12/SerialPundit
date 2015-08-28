@@ -306,16 +306,6 @@ public class SerialComHID {
 
 	/**
 	 */
-	public final String getIndexedString(long handle, int index) throws SerialComException {
-		String ret = mHIDJNIBridge.getIndexedString(handle, index);
-		if(ret == null) {
-			throw new SerialComException("Could not get the string at given index from the HID device. Please retry !");
-		}
-		return ret;
-	}
-
-	/**
-	 */
 	public final String getProductString(long handle) throws SerialComException {
 		String ret = mHIDJNIBridge.getProductString(handle);
 		if(ret == null) {
@@ -330,6 +320,16 @@ public class SerialComHID {
 		String ret = mHIDJNIBridge.getSerialNumberString(handle);
 		if(ret == null) {
 			throw new SerialComException("Could not get the serial number string from the HID device. Please retry !");
+		}
+		return ret;
+	}
+	
+	/**
+	 */
+	public final String getIndexedString(long handle, int index) throws SerialComException {
+		String ret = mHIDJNIBridge.getIndexedString(handle, index);
+		if(ret == null) {
+			throw new SerialComException("Could not get the string at given index from the HID device. Please retry !");
 		}
 		return ret;
 	}

@@ -1,4 +1,4 @@
-/*
+/**
  * Author : Rishi Gupta
  * 
  * This file is part of 'serial communication manager' library.
@@ -15,22 +15,25 @@
  * along with serial communication manager. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.embeddedunveiled.serial;
+package test70;
 
-import static org.junit.Assert.assertEquals;
+import com.embeddedunveiled.serial.SerialComHID;
+import com.embeddedunveiled.serial.SerialComManager;
+import com.embeddedunveiled.serial.usb.SerialComUSBHID;
 
-import org.junit.Test;
+public class Test70 {
 
-public class SerialComUtilTests {
+	public static SerialComManager scm = null;
+	public static String PORT = null;
+	public static String PORT1 = null;
 
-	@Test(timeout=50)
-	public void testDecodeBCD() {
-		assertEquals("2.00", SerialComUtil.decodeBCD((short) 0x0200));
+	public static void main(String[] args) {
+		try {
+			scm = new SerialComManager();
+			SerialComUSBHID scuh = (SerialComUSBHID) scm.getSerialComHIDInstance(SerialComHID.HID_USB, null, null);
+			System.out.println(scuh.formatReportToHex("hello".getBytes()));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
-
-	@Test(timeout=50)
-	public void testByteArrayToHexString() {
-		assertEquals("4F:4B", SerialComUtil.byteArrayToHexString("OK".getBytes(), ":"));
-	}
-
 }
