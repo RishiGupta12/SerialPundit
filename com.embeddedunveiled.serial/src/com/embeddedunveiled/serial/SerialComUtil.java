@@ -118,36 +118,6 @@ public final class SerialComUtil {
 	}
 
 	/**
-	 * <p>Calculates Longitudinal redundancy checksum value for the given byte array.</p>
-	 * 
-	 * @param data byte type buffer for whom LRC checksum is to be calculated.
-	 * @param offset position in supplied data buffer from where LRC calculation should start.
-	 * @param length position in data buffer till which LRC should be calculated from offset.
-	 * @return LRC checksum value for the given byte array.
-	 * @throws NullPointerException if <code>data</code> is <code>null</code>.
-	 * @throws IndexOutOfBoundsException if offset is negative, length is negative, or length is greater than data.length - offset.
-	 * @throws IllegalArgumentException if data is not a byte type array.
-	 */
-	public static byte calculateLRCCheckSum(final byte[] data, int offset, int length) {
-		byte checkSum = 0;
-
-		if(data == null) {
-			throw new NullPointerException("Argument data can not be null !");
-		}
-		if((offset < 0) || (length < 0) || (length > (data.length - offset))) {
-			throw new IndexOutOfBoundsException("Index violation detected !");
-		}
-		if(!(data instanceof byte[])) {
-			throw new IllegalArgumentException("Argument data is not byte type array !");
-		}
-
-		for (int i = offset; i < offset + length; i++) {
-			checkSum ^= data[i];
-		}
-		return checkSum;
-	}
-
-	/**
 	 * <p>Converts the given byte's value to an unsigned integer number. The least significant byte (8 bits) of the integer number
 	 * will be identical to the byte (8 bits) provided, and the most significant 3 bytes (24 bits) of the integer will be zero.</p>
 	 * 
@@ -304,7 +274,7 @@ public final class SerialComUtil {
 	public static String byteToHexString(byte num) {
 		return toHexString(byteToUnsignedLong(num), '0', 2, 2);
 	}
-	
+
 	/**
 	 * <p>Appends given byte array to another given byte array and return newly constructed 
 	 * byte array.</p>
@@ -314,10 +284,10 @@ public final class SerialComUtil {
 	 * @return a byte array constructed out of appending dataB array to dataA array.
 	 */
 	public static byte[] concat(byte[] dataA, byte[] dataB) {
-        byte[] result = new byte[dataA.length + dataB.length];
-        System.arraycopy(dataA, 0, result, 0, dataA.length);
-        System.arraycopy(dataB, 0, result, dataA.length, dataB.length);
-        return result;
-    }
+		byte[] result = new byte[dataA.length + dataB.length];
+		System.arraycopy(dataA, 0, result, 0, dataA.length);
+		System.arraycopy(dataB, 0, result, dataA.length, dataB.length);
+		return result;
+	}
 
 }
