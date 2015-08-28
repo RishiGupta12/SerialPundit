@@ -253,6 +253,12 @@ public final class SerialComManagerTests {
 		}
 	}
 
-
+	@Test(timeout=150)
+	public void testClearPortIOBuffers() throws SerialComException {
+		assertTrue(scm.clearPortIOBuffers(handle1, true, true));
+		int[] byteCount = scm.getByteCountInPortIOBuffer(handle1);
+		assertEquals(0, byteCount[0]);
+		assertEquals(0, byteCount[1]);
+	}
 
 }
