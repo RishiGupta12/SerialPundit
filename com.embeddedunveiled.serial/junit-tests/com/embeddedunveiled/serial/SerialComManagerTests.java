@@ -329,5 +329,18 @@ public final class SerialComManagerTests {
 		assertEquals(5, byteCountAfter[0]);
 		assertEquals(0, byteCountAfter[1]);
 	}
+	
+	@Test(timeout=100)
+	public void testGetPortName() throws SerialComException {
+		if(osType == SerialComManager.OS_LINUX) {
+			assertEquals("/dev/ttyUSB0", scm.getPortName(handle1));
+		}else if(osType == SerialComManager.OS_WINDOWS) {
+			assertEquals("", scm.findIRQnumberForComPort(handle1));
+		}else if(osType == SerialComManager.OS_MAC_OS_X) {
+			assertEquals("", scm.findIRQnumberForComPort(handle1));
+		}else if(osType == SerialComManager.OS_SOLARIS) {
+		}else{
+		}
+	}
 
 }
