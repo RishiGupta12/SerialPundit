@@ -118,6 +118,16 @@ public final class SerialComUtil {
 	}
 
 	/**
+	 * <p>Converts a binary-coded decimal number into decimal number string.</p>
+	 *
+	 * @param bcd binary-coded decimal to decode.
+	 * @return decoded binary-coded decimal.
+	 */
+	public static String decodeBCD(final short bcd) {
+		return String.format("%x.%02x", (bcd & 0xFF00) >> 8, bcd & 0x00FF);
+	}
+
+	/**
 	 * <p>Converts the given byte's value to an unsigned integer number. The least significant byte (8 bits) of the integer number
 	 * will be identical to the byte (8 bits) provided, and the most significant 3 bytes (24 bits) of the integer will be zero.</p>
 	 * 
