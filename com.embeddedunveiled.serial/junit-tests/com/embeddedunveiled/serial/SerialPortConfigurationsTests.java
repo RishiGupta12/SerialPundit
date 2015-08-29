@@ -7174,4 +7174,3554 @@ public final class SerialPortConfigurationsTests {
 		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
 	}
 
+	/* No flow control, 8N1 - with different baud rates */
+
+	@Test(timeout=100)
+	public void test8N10O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B0, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B0, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N150O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B50, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B50, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+	@Test(timeout=100)
+	public void test8N175O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B75, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B75, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N1110O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B110, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B110, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N1134O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B134, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B134, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+	@Test(timeout=100)
+	public void test8N1150O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B150, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B150, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N1200O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B200, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B200, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N1300O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B300, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B300, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+	@Test(timeout=100)
+	public void test8N1600O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B600, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B600, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N11200O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1200, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1200, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N11800O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1800, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1800, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N12400O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B2400, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B2400, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N14800O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B4800, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B4800, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N19600O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B9600, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B9600, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N114400O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B14400, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B14400, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N119200O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B19200, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B19200, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+
+	@Test(timeout=100)
+	public void test8N128800O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B28800, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B28800, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N138400O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B38400, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B38400, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N156000O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B56000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B56000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N157600O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B57600, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B57600, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N1115200O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B115200, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B115200, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N1128000O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B128000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B128000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N1153600O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B153600, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B153600, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N1230400O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B230400, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B230400, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N1256000O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B256000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B256000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N1460800O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B460800, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B460800, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N1500000O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B500000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B500000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N1576000O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B576000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B576000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N1921600O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B921600, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B921600, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N11000000O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1000000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1000000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N11152000O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1152000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1152000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N11500000O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1500000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1500000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N12000000O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B2000000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B2000000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N12500000O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B2500000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B2500000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N13000000O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B3000000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B3000000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N13500000O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B3500000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B3500000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N14000000O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B4000000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B4000000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	/* No flow control, 5N1 - with different baud rates */
+
+	@Test(timeout=100)
+	public void test5N10O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B0, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B0, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N150O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B50, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B50, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+	@Test(timeout=100)
+	public void test5N175O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B75, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B75, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N1110O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B110, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B110, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N1134O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B134, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B134, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+	@Test(timeout=100)
+	public void test5N1150O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B150, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B150, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N1200O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B200, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B200, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N1300O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B300, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B300, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+	@Test(timeout=100)
+	public void test5N1600O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B600, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B600, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N11200O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1200, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1200, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N11800O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1800, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1800, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N12400O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B2400, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B2400, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N14800O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B4800, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B4800, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N19600O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B9600, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B9600, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N114400O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B14400, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B14400, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N119200O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B19200, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B19200, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+
+	@Test(timeout=100)
+	public void test5N128800O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B28800, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B28800, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N138400O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B38400, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B38400, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N156000O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B56000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B56000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N157600O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B57600, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B57600, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N1115200O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B115200, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B115200, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N1128000O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B128000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B128000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N1153600O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B153600, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B153600, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N1230400O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B230400, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B230400, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N1256000O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B256000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B256000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N1460800O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B460800, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B460800, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N1500000O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B500000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B500000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N1576000O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B576000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B576000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N1921600O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B921600, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B921600, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N11000000O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1000000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1000000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N11152000O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1152000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1152000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N11500000O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1500000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1500000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N12000000O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B2000000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B2000000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N12500000O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B2500000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B2500000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N13000000O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B3000000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B3000000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N13500000O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B3500000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B3500000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N14000000O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B4000000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B4000000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	/* No flow control, 6N1 - with different baud rates */
+
+
+	@Test(timeout=100)
+	public void test6N10O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B0, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B0, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N150O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B50, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B50, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+	@Test(timeout=100)
+	public void test6N175O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B75, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B75, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N1110O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B110, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B110, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N1134O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B134, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B134, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+	@Test(timeout=100)
+	public void test6N1150O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B150, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B150, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N1200O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B200, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B200, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N1300O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B300, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B300, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+	@Test(timeout=100)
+	public void test6N1600O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B600, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B600, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N11200O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1200, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1200, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N11800O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1800, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1800, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N12400O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B2400, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B2400, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N14800O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B4800, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B4800, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N19600O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B9600, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B9600, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N114400O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B14400, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B14400, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N119200O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B19200, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B19200, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+
+	@Test(timeout=100)
+	public void test6N128800O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B28800, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B28800, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N138400O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B38400, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B38400, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N156000O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B56000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B56000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N157600O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B57600, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B57600, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N1115200O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B115200, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B115200, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N1128000O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B128000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B128000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N1153600O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B153600, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B153600, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N1230400O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B230400, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B230400, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N1256000O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B256000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B256000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N1460800O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B460800, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B460800, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N1500000O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B500000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B500000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N1576000O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B576000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B576000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N1921600O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B921600, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B921600, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N11000000O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1000000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1000000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N11152000O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1152000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1152000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N11500000O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1500000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1500000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N12000000O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B2000000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B2000000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N12500000O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B2500000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B2500000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N13000000O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B3000000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B3000000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N13500000O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B3500000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B3500000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N14000000O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B4000000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B4000000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	/* No flow control, 7N1 - with different baud rates */
+
+	@Test(timeout=100)
+	public void test7N10O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B0, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B0, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N150O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B50, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B50, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+	@Test(timeout=100)
+	public void test7N175O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B75, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B75, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N1110O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B110, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B110, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N1134O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B134, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B134, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+	@Test(timeout=100)
+	public void test7N1150O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B150, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B150, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N1200O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B200, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B200, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N1300O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B300, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B300, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+	@Test(timeout=100)
+	public void test7N1600O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B600, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B600, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N11200O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1200, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1200, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N11800O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1800, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1800, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N12400O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B2400, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B2400, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N14800O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B4800, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B4800, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N19600O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B9600, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B9600, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N114400O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B14400, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B14400, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N119200O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B19200, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B19200, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+
+	@Test(timeout=100)
+	public void test7N128800O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B28800, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B28800, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N138400O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B38400, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B38400, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N156000O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B56000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B56000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N157600O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B57600, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B57600, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N1115200O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B115200, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B115200, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N1128000O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B128000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B128000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N1153600O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B153600, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B153600, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N1230400O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B230400, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B230400, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N1256000O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B256000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B256000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N1460800O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B460800, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B460800, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N1500000O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B500000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B500000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N1576000O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B576000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B576000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N1921600O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B921600, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B921600, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N11000000O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1000000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1000000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N11152000O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1152000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1152000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N11500000O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1500000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1500000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N12000000O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B2000000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B2000000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N12500000O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B2500000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B2500000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N13000000O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B3000000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B3000000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N13500000O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B3500000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B3500000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N14000000O() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B4000000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B4000000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
+	}
+
+	/* Hardware flow control, 8N1 - with different baud rates */
+
+	@Test(timeout=100)
+	public void test8N10HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B0, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B0, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N150HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B50, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B50, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+	@Test(timeout=100)
+	public void test8N175HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B75, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B75, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N1110HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B110, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B110, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N1134HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B134, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B134, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+	@Test(timeout=100)
+	public void test8N1150HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B150, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B150, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N1200HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B200, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B200, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N1300HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B300, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B300, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+	@Test(timeout=100)
+	public void test8N1600HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B600, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B600, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N11200HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1200, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1200, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N11800HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1800, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1800, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N12400HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B2400, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B2400, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N14800HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B4800, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B4800, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N19600HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B9600, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B9600, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N114400HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B14400, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B14400, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N119200HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B19200, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B19200, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+
+	@Test(timeout=100)
+	public void test8N128800HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B28800, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B28800, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N138400HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B38400, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B38400, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N156000HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B56000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B56000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N157600HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B57600, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B57600, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N1115200HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B115200, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B115200, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N1128000HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B128000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B128000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N1153600HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B153600, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B153600, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N1230400HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B230400, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B230400, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N1256000HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B256000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B256000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N1460800HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B460800, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B460800, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N1500000HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B500000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B500000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N1576000HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B576000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B576000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N1921600HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B921600, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B921600, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N11000000HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1000000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1000000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N11152000HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1152000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1152000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N11500000HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1500000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1500000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N12000000HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B2000000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B2000000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N12500000HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B2500000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B2500000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N13000000HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B3000000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B3000000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N13500000HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B3500000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B3500000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N14000000HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B4000000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B4000000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	/* Hardware flow control, 5N1 - with different baud rates */
+
+	@Test(timeout=100)
+	public void test5N10HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B0, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B0, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N150HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B50, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B50, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+	@Test(timeout=100)
+	public void test5N175HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B75, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B75, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N1110HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B110, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B110, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N1134HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B134, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B134, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+	@Test(timeout=100)
+	public void test5N1150HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B150, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B150, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N1200HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B200, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B200, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N1300HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B300, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B300, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+	@Test(timeout=100)
+	public void test5N1600HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B600, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B600, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N11200HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1200, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1200, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N11800HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1800, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1800, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N12400HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B2400, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B2400, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N14800HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B4800, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B4800, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N19600HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B9600, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B9600, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N114400HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B14400, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B14400, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N119200HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B19200, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B19200, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N128800HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B28800, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B28800, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N138400HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B38400, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B38400, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N156000HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B56000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B56000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N157600HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B57600, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B57600, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N1115200HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B115200, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B115200, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N1128000HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B128000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B128000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N1153600HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B153600, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B153600, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N1230400HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B230400, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B230400, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N1256000HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B256000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B256000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N1460800HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B460800, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B460800, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N1500000HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B500000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B500000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N1576000HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B576000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B576000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N1921600HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B921600, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B921600, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N11000000HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1000000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1000000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N11152000HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1152000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1152000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N11500000HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1500000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1500000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N12000000HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B2000000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B2000000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N12500000HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B2500000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B2500000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N13000000HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B3000000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B3000000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N13500000HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B3500000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B3500000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N14000000HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B4000000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B4000000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	/* Hardware flow control, 6N1 - with different baud rates */
+
+	@Test(timeout=100)
+	public void test6N10HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B0, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B0, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N150HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B50, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B50, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+	@Test(timeout=100)
+	public void test6N175HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B75, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B75, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N1110HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B110, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B110, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N1134HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B134, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B134, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+	@Test(timeout=100)
+	public void test6N1150HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B150, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B150, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N1200HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B200, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B200, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N1300HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B300, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B300, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+	@Test(timeout=100)
+	public void test6N1600HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B600, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B600, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N11200HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1200, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1200, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N11800HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1800, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1800, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N12400HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B2400, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B2400, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N14800HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B4800, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B4800, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N19600HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B9600, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B9600, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N114400HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B14400, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B14400, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N119200HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B19200, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B19200, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+
+	@Test(timeout=100)
+	public void test6N128800HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B28800, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B28800, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N138400HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B38400, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B38400, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N156000HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B56000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B56000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N157600HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B57600, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B57600, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N1115200HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B115200, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B115200, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N1128000HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B128000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B128000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N1153600HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B153600, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B153600, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N1230400HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B230400, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B230400, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N1256000HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B256000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B256000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N1460800HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B460800, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B460800, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N1500000HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B500000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B500000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N1576000HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B576000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B576000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N1921600HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B921600, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B921600, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N11000000HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1000000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1000000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N11152000HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1152000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1152000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N11500000HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1500000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1500000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N12000000HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B2000000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B2000000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N12500000HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B2500000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B2500000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N13000000HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B3000000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B3000000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N13500000HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B3500000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B3500000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N14000000HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B4000000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B4000000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	/* Hardware flow control, 7N1 - with different baud rates */
+
+	@Test(timeout=100)
+	public void test7N10HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B0, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B0, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N150HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B50, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B50, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+	@Test(timeout=100)
+	public void test7N175HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B75, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B75, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N1110HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B110, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B110, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N1134HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B134, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B134, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+	@Test(timeout=100)
+	public void test7N1150HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B150, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B150, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N1200HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B200, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B200, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N1300HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B300, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B300, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+	@Test(timeout=100)
+	public void test7N1600HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B600, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B600, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N11200HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1200, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1200, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N11800HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1800, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1800, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N12400HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B2400, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B2400, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N14800HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B4800, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B4800, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N19600HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B9600, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B9600, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N114400HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B14400, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B14400, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N119200HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B19200, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B19200, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+
+	@Test(timeout=100)
+	public void test7N128800HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B28800, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B28800, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N138400HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B38400, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B38400, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N156000HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B56000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B56000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N157600HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B57600, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B57600, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N1115200HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B115200, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B115200, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N1128000HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B128000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B128000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N1153600HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B153600, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B153600, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N1230400HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B230400, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B230400, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N1256000HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B256000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B256000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N1460800HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B460800, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B460800, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N1500000HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B500000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B500000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N1576000HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B576000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B576000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N1921600HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B921600, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B921600, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N11000000HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1000000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1000000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N11152000HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1152000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1152000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N11500000HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1500000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1500000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N12000000HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B2000000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B2000000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N12500000HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B2500000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B2500000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N13000000HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B3000000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B3000000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N13500000HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B3500000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B3500000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N14000000HO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B4000000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B4000000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+	}
+
+	/* Software flow control, 8N1 - with different baud rates */
+
+	@Test(timeout=100)
+	public void test8N10SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B0, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B0, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N150SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B50, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B50, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+	@Test(timeout=100)
+	public void test8N175SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B75, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B75, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N1110SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B110, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B110, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N1134SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B134, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B134, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+	@Test(timeout=100)
+	public void test8N1150SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B150, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B150, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N1200SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B200, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B200, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N1300SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B300, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B300, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+	@Test(timeout=100)
+	public void test8N1600SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B600, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B600, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N11200SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1200, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1200, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N11800SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1800, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1800, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N12400SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B2400, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B2400, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N14800SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B4800, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B4800, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N19600SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B9600, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B9600, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N114400SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B14400, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B14400, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N119200SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B19200, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B19200, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N128800SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B28800, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B28800, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N138400SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B38400, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B38400, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N156000SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B56000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B56000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N157600SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B57600, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B57600, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N1115200SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B115200, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B115200, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N1128000SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B128000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B128000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N1153600SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B153600, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B153600, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N1230400SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B230400, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B230400, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N1256000SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B256000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B256000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N1460800SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B460800, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B460800, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N1500000SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B500000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B500000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N1576000SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B576000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B576000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N1921600SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B921600, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B921600, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N11000000SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1000000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1000000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N11152000SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1152000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1152000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N11500000SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1500000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1500000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N12000000SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B2000000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B2000000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N12500000SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B2500000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B2500000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N13000000SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B3000000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B3000000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N13500000SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B3500000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B3500000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test8N14000000SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B4000000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B4000000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	/* Software flow control, 5N1 - with different baud rates */
+
+	@Test(timeout=100)
+	public void test5N10SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B0, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B0, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N150SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B50, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B50, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+	@Test(timeout=100)
+	public void test5N175SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B75, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B75, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N1110SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B110, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B110, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N1134SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B134, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B134, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+	@Test(timeout=100)
+	public void test5N1150SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B150, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B150, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N1200SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B200, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B200, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N1300SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B300, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B300, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+	@Test(timeout=100)
+	public void test5N1600SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B600, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B600, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N11200SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1200, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1200, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N11800SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1800, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1800, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N12400SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B2400, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B2400, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N14800SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B4800, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B4800, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N19600SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B9600, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B9600, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N114400SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B14400, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B14400, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N119200SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B19200, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B19200, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+
+	@Test(timeout=100)
+	public void test5N128800SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B28800, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B28800, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N138400SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B38400, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B38400, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N156000SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B56000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B56000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N157600SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B57600, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B57600, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N1115200SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B115200, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B115200, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N1128000SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B128000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B128000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N1153600SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B153600, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B153600, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N1230400SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B230400, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B230400, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N1256000SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B256000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B256000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N1460800SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B460800, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B460800, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N1500000SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B500000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B500000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N1576000SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B576000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B576000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N1921600SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B921600, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B921600, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N11000000SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1000000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1000000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N11152000SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1152000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1152000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N11500000SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1500000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1500000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N12000000SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B2000000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B2000000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N12500000SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B2500000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B2500000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N13000000SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B3000000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B3000000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N13500000SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B3500000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B3500000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test5N14000000SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B4000000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B4000000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	/* Software flow control,, 6N1 - with different baud rates */
+
+	@Test(timeout=100)
+	public void test6N10SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B0, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B0, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N150SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B50, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B50, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+	@Test(timeout=100)
+	public void test6N175SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B75, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B75, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N1110SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B110, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B110, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N1134SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B134, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B134, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+	@Test(timeout=100)
+	public void test6N1150SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B150, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B150, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N1200SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B200, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B200, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N1300SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B300, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B300, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+	@Test(timeout=100)
+	public void test6N1600SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B600, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B600, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N11200SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1200, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1200, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N11800SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1800, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1800, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N12400SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B2400, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B2400, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N14800SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B4800, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B4800, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N19600SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B9600, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B9600, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N114400SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B14400, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B14400, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N119200SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B19200, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B19200, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+
+	@Test(timeout=100)
+	public void test6N128800SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B28800, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B28800, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N138400SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B38400, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B38400, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N156000SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B56000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B56000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N157600SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B57600, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B57600, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N1115200SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B115200, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B115200, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N1128000SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B128000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B128000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N1153600SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B153600, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B153600, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N1230400SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B230400, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B230400, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N1256000SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B256000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B256000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N1460800SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B460800, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B460800, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N1500000SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B500000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B500000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N1576000SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B576000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B576000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N1921600SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B921600, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B921600, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N11000000SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1000000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1000000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N11152000SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1152000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1152000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N11500000SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1500000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1500000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N12000000SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B2000000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B2000000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N12500000SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B2500000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B2500000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N13000000SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B3000000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B3000000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N13500000SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B3500000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B3500000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test6N14000000SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B4000000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_6, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B4000000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	/* Software flow control, 7N1 - with different baud rates */
+
+	@Test(timeout=100)
+	public void test7N10SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B0, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B0, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N150SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B50, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B50, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+	@Test(timeout=100)
+	public void test7N175SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B75, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B75, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N1110SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B110, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B110, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N1134SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B134, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B134, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+	@Test(timeout=100)
+	public void test7N1150SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B150, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B150, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N1200SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B200, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B200, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N1300SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B300, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B300, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+	@Test(timeout=100)
+	public void test7N1600SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B600, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B600, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N11200SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1200, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1200, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N11800SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1800, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1800, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N12400SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B2400, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B2400, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N14800SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B4800, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B4800, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N19600SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B9600, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B9600, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N114400SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B14400, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B14400, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N119200SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B19200, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B19200, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N128800SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B28800, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B28800, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N138400SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B38400, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B38400, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N156000SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B56000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B56000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N157600SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B57600, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B57600, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N1115200SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B115200, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B115200, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N1128000SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B128000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B128000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N1153600SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B153600, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B153600, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N1230400SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B230400, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B230400, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N1256000SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B256000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B256000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N1460800SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B460800, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B460800, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N1500000SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B500000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B500000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N1576000SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B576000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B576000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N1921600SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B921600, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B921600, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N11000000SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1000000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1000000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N11152000SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1152000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1152000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N11500000SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1500000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B1500000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N12000000SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B2000000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B2000000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N12500000SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B2500000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B2500000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N13000000SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B3000000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B3000000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N13500000SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B3500000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B3500000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
+	@Test(timeout=100)
+	public void test7N14000000SO() throws SerialComException {
+		scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B4000000, 0);
+		scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+		scm.configureComPortData(handle2, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B4000000, 0);
+		scm.configureComPortControl(handle2, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+	}
+
 }
