@@ -16,6 +16,11 @@ import com.embeddedunveiled.serial.usb.SerialComUSBdevice;
 
 import static org.junit.Assert.*;
 
+/*
+ * Tested with two FT232 devices with vid, pid, serial combination as : 
+ * 0x0403, 0x6001, A70362A3 and 
+ * 0x0403, 0x6001, A602RDCH respectively.
+ */
 public final class SerialComManagerTests {
 
 	static SerialComManager scm;
@@ -42,12 +47,11 @@ public final class SerialComManagerTests {
 			PORT1 = null;
 			PORT2 = null;
 		}else{
-
 		}
-		handle1 = scm.openComPort(PORT1, true, true, false);
+		handle1 = scm.openComPort(PORT1, true, true, true);
 		scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
 		scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
-		handle2 = scm.openComPort(PORT2, true, true, false);
+		handle2 = scm.openComPort(PORT2, true, true, true);
 		scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
 		scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
 	}
@@ -110,7 +114,9 @@ public final class SerialComManagerTests {
 			Thread.sleep(500);
 		} catch (InterruptedException e) {
 		}
-		assertNotNull(scm.readString(handle2));
+		String dataRead = scm.readString(handle2);
+		assertNotNull(dataRead);
+		assertEquals(dataRead, "testing");
 	}
 
 	@Test(timeout=800)
@@ -120,7 +126,9 @@ public final class SerialComManagerTests {
 			Thread.sleep(500);
 		} catch (InterruptedException e) {
 		}
-		assertNotNull(scm.readString(handle2));
+		String dataRead = scm.readString(handle2);
+		assertNotNull(dataRead);
+		assertEquals(dataRead, "testing");
 	}
 
 	@Test(timeout=800)
@@ -130,9 +138,9 @@ public final class SerialComManagerTests {
 			Thread.sleep(500);
 		} catch (InterruptedException e) {
 		}
-		String data = scm.readString(handle2);
-		assertNotNull(data);
-		assertEquals(data, "testing");
+		String dataRead = scm.readString(handle2);
+		assertNotNull(dataRead);
+		assertEquals(dataRead, "testing");
 	}
 
 	@Test(timeout=800)
@@ -142,9 +150,9 @@ public final class SerialComManagerTests {
 			Thread.sleep(500);
 		} catch (InterruptedException e) {
 		}
-		String data = scm.readString(handle2);
-		assertNotNull(data);
-		assertEquals(data, "testing");
+		String dataRead = scm.readString(handle2);
+		assertNotNull(dataRead);
+		assertEquals(dataRead, "testing");
 	}
 
 	@Test(timeout=800)
@@ -220,6 +228,11 @@ public final class SerialComManagerTests {
 		assertEquals(0xBF, (byte)data[3]);
 	}
 
+	@Test(timeout=1000)
+	public void testDirectBufferReadWrite() throws Exception {
+		//TODO
+	}	
+
 	@Test(timeout=100)
 	public void testGetCurrentConfiguration() throws SerialComException {
 		String[] config = scm.getCurrentConfiguration(handle1);
@@ -293,7 +306,7 @@ public final class SerialComManagerTests {
 		}else{
 		}
 	}
-	
+
 	@Test(timeout=100)
 	public void testFindDriverServingComPort() throws SerialComException {
 		if(osType == SerialComManager.OS_LINUX) {
@@ -304,7 +317,7 @@ public final class SerialComManagerTests {
 		}else{
 		}
 	}
-	
+
 	@Test(timeout=100)
 	public void testFindIRQnumberForComPort() throws SerialComException {
 		if(osType == SerialComManager.OS_LINUX) {
@@ -329,7 +342,7 @@ public final class SerialComManagerTests {
 		assertEquals(5, byteCountAfter[0]);
 		assertEquals(0, byteCountAfter[1]);
 	}
-	
+
 	@Test(timeout=100)
 	public void testGetPortName() throws SerialComException {
 		if(osType == SerialComManager.OS_LINUX) {

@@ -77,6 +77,10 @@ public final class SerialComByteStreamTests {
 		numberOfBytesInInputBuffer = inStream.available();
 		assertEquals(numberOfBytesInInputBuffer, 0);
 		outStream.write(0x20);
+		try {
+			Thread.sleep(500);
+		} catch (InterruptedException e) {
+		}
 		numberOfBytesInInputBuffer = inStream.available();
 		assertEquals(numberOfBytesInInputBuffer, 1);
 	}
