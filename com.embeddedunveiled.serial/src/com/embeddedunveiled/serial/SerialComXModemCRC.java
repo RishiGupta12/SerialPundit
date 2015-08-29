@@ -81,6 +81,7 @@ public final class SerialComXModemCRC {
 	private long numberOfBlocksReceived = 0; // track how many blocks have been received till now.
 	private boolean lastCharacterReceivedWasCAN = false;
 	private byte abortSequence[] = new byte[] { CAN, CAN, CAN, CAN, CAN, BS, BS, BS, BS, BS };
+	SerialComCRCUtil crcCalculator = new SerialComCRCUtil();
 
 	/**
 	 * <p>Allocates a new SerialComXModemCRC object with given details and associate it with the given 
@@ -136,7 +137,6 @@ public final class SerialComXModemCRC {
 		byte[] data = null;
 		long responseWaitTimeOut = 0;
 		long eotAckWaitTimeOutValue = 0;
-		SerialComCRCUtil crcCalculator = new SerialComCRCUtil();
 		inStream = new BufferedInputStream(new FileInputStream(fileToProcess));
 
 		state = CONNECT;
@@ -185,7 +185,7 @@ public final class SerialComXModemCRC {
 				break;
 			case BEGINSEND:
 				blockNumber = 1; // Block numbering starts from 1 for the first block sent, not 0.
-				assembleBlock(crcCalculator);
+				assembleBlock();
 				
 				// if the file is empty goto ENDTX state.
 				if(noMoreData == true) {
@@ -328,7 +328,7 @@ public final class SerialComXModemCRC {
 			case SENDNEXT:
 				retryCount = 0; // reset
 				blockNumber++;
-				assembleBlock(crcCalculator);
+				assembleBlock();
 				
 				// indicates there is no more data to be sent.
 				if(noMoreData == true) {
@@ -407,7 +407,7 @@ public final class SerialComXModemCRC {
 	 * 
 	 * @throws IOException if any I/O error occurs.
 	 */
-	private void assembleBlock(SerialComCRCUtil scCRC) throws IOException {
+	private void assembleBlock() throws IOException {
 		int x = 0;
 		int numBytesRead = 0;
 		int blockCRCval = 0;
@@ -726,7 +726,7 @@ public final class SerialComXModemCRC {
 		}
 
 		// append 2 byte CRC value.
-		blockCRCval = scCRC.getCRC16CCITTValue(block, 3, 130);
+		blockCRCval = crcCalculator.getCRC16CCITTValue(block, 3, 130);
 		block[131] = (byte) (blockCRCval >>> 8); // CRC high byte
 		block[132] = (byte) blockCRCval;         // CRC low byte
 	}
@@ -765,7 +765,6 @@ public final class SerialComXModemCRC {
 		boolean partialReadInProgress = false;
 		byte[] data = null;
 		String errMsg = null;
-		SerialComCRCUtil crcCalculator = new SerialComCRCUtil();
 
 		/* The data bytes get flushed automatically to file system physically whenever BufferedOutputStream's
 		   internal buffer gets full and request to write more bytes have arrived. */

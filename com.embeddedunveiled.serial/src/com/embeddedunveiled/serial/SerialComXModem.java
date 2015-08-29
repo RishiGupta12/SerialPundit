@@ -75,6 +75,7 @@ public final class SerialComXModem {
 	private long numberOfBlocksReceived = 0; // track how many blocks have been received till now.
 	private boolean lastCharacterReceivedWasCAN = false;
 	private byte abortSequence[] = new byte[] { CAN, CAN, CAN, CAN, CAN, BS, BS, BS, BS, BS };
+	SerialComCRCUtil checksumCalculator = new SerialComCRCUtil();
 
 	/**
 	 * <p>Allocates a new SerialComXModem object with given details and associate it with the given 
@@ -405,7 +406,6 @@ public final class SerialComXModem {
 	private void assembleBlock() throws IOException {
 		int x = 0;
 		int numBytesRead = 0;
-		int blockChecksum = 0;
 
 		// starts at 01 increments by 1, and wraps 0FFH to 00H (not to 01).
 		if(blockNumber > 0xFF) {
@@ -721,10 +721,7 @@ public final class SerialComXModem {
 		}
 
 		// append checksum of this block.
-		for(x=3; x<131; x++) {
-			blockChecksum = (byte)blockChecksum + block[x];
-		}
-		block[131] = (byte) (blockChecksum % 256);
+		block[131] = checksumCalculator.getChecksumValue(block, 3, 130);
 	}
 
 	/**
@@ -749,7 +746,6 @@ public final class SerialComXModem {
 		int duplicateBlockRetryCount = 0;
 		int state = -1;
 		int blockNumber = 1;
-		int blockChecksum = -1;
 		int bufferIndex = 0;
 		long connectTimeOut = 0;
 		long nextDataRecvTimeOut = 0;
@@ -961,7 +957,6 @@ public final class SerialComXModem {
 				}
 				break;
 			case VERIFY:
-				blockChecksum = 0;
 				isCorrupted = false;      // reset.
 				isDuplicateBlock = false; // reset.
 				state = REPLY;
@@ -986,11 +981,7 @@ public final class SerialComXModem {
 					break;
 				}
 				// verify checksum.
-				for(int x=3; x < 131; x++) {
-					blockChecksum = (byte)blockChecksum + block[x];
-				}
-				blockChecksum = (byte) (blockChecksum % 256);
-				if(blockChecksum != block[131]){
+				if(block[131] != checksumCalculator.getChecksumValue(block, 3, 130)){
 					isCorrupted = true;
 				}
 				break;

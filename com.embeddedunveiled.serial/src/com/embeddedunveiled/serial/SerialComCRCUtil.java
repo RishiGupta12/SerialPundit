@@ -197,6 +197,26 @@ public final class SerialComCRCUtil {
 	public SerialComCRCUtil() {
 	}
 
+	/** 
+	 * <p>Calculates 8 bit checksum value for the data bytes given. The data bytes at start and 
+	 * end index are included in calculation. The checksum returned is the sum of all bytes in 
+	 * the data packet modulo 256.</p>
+	 * 
+	 * @param data byte type buffer for whom checksum is to be calculated.
+	 * @param start offset in supplied data buffer from where checksum calculation should start.
+	 * @param end offset in data buffer till which checksum should be calculated.
+	 * @return checksum value for the given data bytes packet.
+	 */
+	public byte getChecksumValue(byte[] data, int start, int end) {
+		int x = start;
+		int checksum = 0x00;
+		while (x <= end) {
+			checksum = checksum + data[x];
+			x++;
+		}
+		return (byte) (checksum % 256);
+	}
+
 	/**
 	 * <p>Calculates longitudinal redundancy checksum value for the given byte array.</p>
 	 * 
@@ -243,7 +263,7 @@ public final class SerialComCRCUtil {
 		int x = start;
 		int crcVal = 0x00;
 		while (x <= end) {
-			crcVal = (crc8wire1Table[crcVal ^ data[x]]) & 0xff;
+			crcVal = (crc8wire1Table[crcVal ^ data[x]]) & 0xFF;
 			x++;
 		}
 		return crcVal;
@@ -263,7 +283,7 @@ public final class SerialComCRCUtil {
 		int x = start;
 		int crcVal = 0x0000;
 		while (x <= end) {
-			crcVal = (crc16Table[(crcVal ^ (data[x])) & 0xff] ^ (crcVal >> 8)) & 0xffff;
+			crcVal = (crc16Table[(crcVal ^ (data[x])) & 0xFF] ^ (crcVal >> 8)) & 0xFFFF;
 			x++;
 		}
 		return crcVal;
@@ -283,7 +303,7 @@ public final class SerialComCRCUtil {
 		int x = start;
 		int crcVal = 0x0000;
 		while (x <= end) {
-			crcVal = (crc16ccittTable[((crcVal >> 8) ^ (data[x])) & 0xff] ^ (crcVal << 8)) & 0xffff;
+			crcVal = (crc16ccittTable[((crcVal >> 8) ^ (data[x])) & 0xFF] ^ (crcVal << 8)) & 0xFFFF;
 			x++;
 		}
 		return crcVal;
@@ -301,12 +321,15 @@ public final class SerialComCRCUtil {
 	 */
 	public int getCRC16DNPValue(byte[] data, int start, int end) {
 		int x = start;
-		int crcVal = 0x00;
+		int crcVal = 0x0000;
 		while (x <= end) {
-			crcVal = ((crcVal >> 8) ^ crc16dnpTable[(crcVal ^ data[x]) & 0xff]);
+			crcVal = ((crcVal >> 8) ^ crc16dnpTable[(crcVal ^ data[x]) & 0x00FF]);
 			x++;
 		}
-		return crcVal;
+		crcVal = ~crcVal & 0XFFFF;
+		int b1 = crcVal & 0xFF;
+		int b2 = (crcVal >>> 8) & 0xFF;
+		return (b1 << 8 | b2 << 0) & 0xFFFF;
 	}
 
 	/** 
@@ -321,9 +344,9 @@ public final class SerialComCRCUtil {
 	 */
 	public int getCRC16IBMValue(byte[] data, int start, int end) {
 		int x = start;
-		int crcVal = 0x00;
+		int crcVal = 0xFFFF;
 		while (x <= end) {
-			crcVal = ((crcVal >> 8) ^ crc16ibmTable[(crcVal ^ data[x]) & 0xff]) & 0xffff;
+			crcVal = ((crcVal >> 8) ^ crc16ibmTable[(crcVal ^ data[x]) & 0xFF]) & 0xFFFF;
 			x++;
 		}
 		return crcVal;
