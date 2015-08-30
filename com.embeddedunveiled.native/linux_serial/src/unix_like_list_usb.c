@@ -198,6 +198,30 @@ jobjectArray list_usb_devices(JNIEnv *env, jobject obj, jint vendor_to_match) {
 				return linux_clean_up_and_throw_exp(env, 1, NULL, &list, udev_device, enumerator, udev_ctx);
 			}
 			insert_jstrarraylist(&list, usb_dev_info);
+
+			/* BUS NUMBER */
+			sysattr_val = udev_device_get_sysattr_value(udev_device, "busnum");
+			if(sysattr_val != NULL) {
+				usb_dev_info = (*env)->NewStringUTF(env, sysattr_val);
+			}else {
+				usb_dev_info = (*env)->NewStringUTF(env, "---");
+			}
+			if((usb_dev_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+				return linux_clean_up_and_throw_exp(env, 1, NULL, &list, udev_device, enumerator, udev_ctx);
+			}
+			insert_jstrarraylist(&list, usb_dev_info);
+
+			/* CONNECTED USB DEVICE NUMBER */
+			sysattr_val = udev_device_get_sysattr_value(udev_device, "devnum");
+			if(sysattr_val != NULL) {
+				usb_dev_info = (*env)->NewStringUTF(env, sysattr_val);
+			}else {
+				usb_dev_info = (*env)->NewStringUTF(env, "---");
+			}
+			if((usb_dev_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+				return linux_clean_up_and_throw_exp(env, 1, NULL, &list, udev_device, enumerator, udev_ctx);
+			}
+			insert_jstrarraylist(&list, usb_dev_info);
 		}
 		udev_device_unref(udev_device);
 	}
@@ -221,6 +245,7 @@ jobjectArray list_usb_devices(JNIEnv *env, jobject obj, jint vendor_to_match) {
 
 	while((usb_dev_obj = IOIteratorNext(iterator)) != 0) {
 
+		/* USB-IF vendor ID */
 		memset(hexcharbuffer, '\0', sizeof(hexcharbuffer));
 		num_ref = (CFNumberRef) IORegistryEntrySearchCFProperty(usb_dev_obj, kIOServicePlane, CFSTR("idVendor"),
 				                                        NULL, kIORegistryIterateRecursively | kIORegistryIterateParents);
@@ -245,6 +270,7 @@ jobjectArray list_usb_devices(JNIEnv *env, jobject obj, jint vendor_to_match) {
 		}
 		insert_jstrarraylist(&list, usb_dev_info);
 
+		/* USB product ID */
 		memset(hexcharbuffer, '\0', sizeof(hexcharbuffer));
 		num_ref = (CFNumberRef) IORegistryEntrySearchCFProperty(usb_dev_obj, kIOServicePlane, CFSTR("idProduct"),
 				                                        NULL, kIORegistryIterateRecursively | kIORegistryIterateParents);
@@ -261,6 +287,7 @@ jobjectArray list_usb_devices(JNIEnv *env, jobject obj, jint vendor_to_match) {
 		}
 		insert_jstrarraylist(&list, usb_dev_info);
 
+		/* SERIAL NUMBER */
 		str_ref = (CFStringRef) IORegistryEntrySearchCFProperty(usb_dev_obj, kIOServicePlane, CFSTR("USB Serial Number"),
 				                                        NULL, kIORegistryIterateRecursively | kIORegistryIterateParents);
 		if(str_ref) {
@@ -276,6 +303,7 @@ jobjectArray list_usb_devices(JNIEnv *env, jobject obj, jint vendor_to_match) {
 		}
 		insert_jstrarraylist(&list, usb_dev_info);
 
+		/* PRODUCT */
 		str_ref = (CFStringRef) IORegistryEntrySearchCFProperty(usb_dev_obj, kIOServicePlane, CFSTR("USB Product Name"),
 				                                        NULL, kIORegistryIterateRecursively | kIORegistryIterateParents);
 		if(str_ref) {
@@ -291,6 +319,7 @@ jobjectArray list_usb_devices(JNIEnv *env, jobject obj, jint vendor_to_match) {
 		}
 		insert_jstrarraylist(&list, usb_dev_info);
 
+		/* MANUFACTURER */
 		str_ref = (CFStringRef) IORegistryEntrySearchCFProperty(usb_dev_obj, kIOServicePlane, CFSTR("USB Vendor Name"),
 				                                        NULL, kIORegistryIterateRecursively | kIORegistryIterateParents);
 		if(str_ref) {
@@ -305,6 +334,9 @@ jobjectArray list_usb_devices(JNIEnv *env, jobject obj, jint vendor_to_match) {
 			return mac_clean_up_and_throw_exp(env, 1, NULL, &list, usb_dev_obj, iterator);
 		}
 		insert_jstrarraylist(&list, usb_dev_info);
+
+		/* BUS NUMBER */
+		/*TODO bus number, device number */
 
 		IOObjectRelease(usb_dev_obj);
 	}

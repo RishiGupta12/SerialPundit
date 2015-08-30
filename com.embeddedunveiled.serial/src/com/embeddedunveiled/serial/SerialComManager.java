@@ -569,22 +569,24 @@ public final class SerialComManager {
 	}
 
 	/**
-	 * <p>Returns an array of SerialComUSBdevice class objects containing information about all the USB devices found by this 
-	 * library. Application can call various methods on SerialComUSBdevice object to get specific information like vendor id 
-	 * and product id etc. The GUI applications may display a dialogue box asking user to connect the end product if the desired 
-	 * product is still not connected to system.</p>
+	 * <p>Returns an array of SerialComUSBdevice class objects containing information about all the USB devices 
+	 * found by this library. Application can call various methods on SerialComUSBdevice object to get specific 
+	 * information like vendor id and product id etc. The GUI applications may display a dialogue box asking 
+	 * user to connect the end product if the desired product is still not connected to system.</p>
 	 * 
-	 * <p>The USB vendor id, USB product id, serial number, product name and manufacturer information is encapsulated in the 
-	 * object of class SerialComUSBdevice returned.</p>
+	 * <p>The USB vendor id, USB product id, serial number, product name and manufacturer information is 
+	 * encapsulated in the object of class SerialComUSBdevice returned.</p>
 	 * 
-	 * <p>Some USB-UART chip manufactures may give some unique USB PID(s) to end product manufactures at minimal or no cost. 
-	 * Applications written for these end products may be interested in finding devices only from the USB-UART chip manufacturer.
-	 * For example, an application built for finger print scanner based on FT232 IC will like to list only those devices whose 
-	 * VID matches VID of FTDI. Then further application may verify PID by calling methods on the USBDevice object. For this 
-	 * purpose argument vendorFilter may be used.</p>
+	 * <p>Some USB-UART chip manufactures may give some unique USB PID(s) to end product manufactures at minimal 
+	 * or no cost. Applications written for these end products may be interested in finding devices only from the 
+	 * USB-UART chip manufacturer. For example, an application built for finger print scanner based on FT232 IC 
+	 * will like to list only those devices whose VID matches VID of FTDI. Then further application may verify 
+	 * PID by calling methods on the USBDevice object. For this purpose argument vendorFilter may be used.</p>
 	 * 
-	 * @param vendorFilter vendor whose devices should be listed (one of the constants SerialComUSB.V_xxxxx or any valid USB VID).
-	 * @return list of the USB devices with information about them or empty array if no device matching given criteria found.
+	 * @param vendorFilter vendor whose devices should be listed (one of the constants SerialComUSB.V_xxxxx or 
+	 *         any valid USB VID).
+	 * @return list of the USB devices with information about them or empty array if no device matching given 
+	 *          criteria found.
 	 * @throws SerialComException if an I/O error occurs.
 	 * @throws IllegalArgumentException if vendorFilter is negative or invalid number.
 	 */
@@ -601,12 +603,12 @@ public final class SerialComManager {
 			if(usbDevicesInfo.length < 4) {
 				return new SerialComUSBdevice[] { };
 			}
-			numOfDevices = usbDevicesInfo.length / 5;
+			numOfDevices = usbDevicesInfo.length / 7;
 			usbDevicesFound = new SerialComUSBdevice[numOfDevices];
 			for(int x=0; x<numOfDevices; x++) {
 				usbDevicesFound[x] = new SerialComUSBdevice(usbDevicesInfo[i], usbDevicesInfo[i+1], usbDevicesInfo[i+2], 
-						usbDevicesInfo[i+3], usbDevicesInfo[i+4]);
-				i = i + 5;
+						usbDevicesInfo[i+3], usbDevicesInfo[i+4], usbDevicesInfo[i+5], usbDevicesInfo[i+6]);
+				i = i + 7;
 			}
 			return usbDevicesFound;
 		}else {

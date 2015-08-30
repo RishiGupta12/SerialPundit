@@ -30,6 +30,8 @@ public final class SerialComUSBdevice {
 	private String serial;
 	private String product;
 	private String manufacturer;
+	private String busNumber;
+	private String devNumber;
 
 	/**
 	 * <p>Construct and allocates a new SerialComUSBdevice object with given details.</p>
@@ -39,15 +41,19 @@ public final class SerialComUSBdevice {
 	 * @param serial serial number of this device.
 	 * @param product product identifier/description of this device.
 	 * @param manufacturer company manufacturing of this device.
+	 * @param busNumber usb bus number on which this device is connected.
+	 * @param devNumber usb device number as assigned by operating system.
 	 * @throws SerialComException if the object can not be constructed.
 	 */
 	public SerialComUSBdevice(String idVendor, String idProduct, String serial, String product, 
-			String manufacturer) {
+			String manufacturer, String busNumber, String devNumber) {
 		this.idVendor = idVendor;
 		this.idProduct = idProduct;
 		this.serial = serial;
 		this.product = product;
 		this.manufacturer = manufacturer;
+		this.busNumber = busNumber;
+		this.devNumber = devNumber;
 	}
 
 	/** 
@@ -106,6 +112,34 @@ public final class SerialComUSBdevice {
 	}
 
 	/** 
+	 * <p>Retrieves the USB bus number on which this USB device is connected.</p>
+	 * 
+	 * @return bus number of which this USB device is connected.
+	 * @throws NumberFormatException if the USB bus number string can not be converted into 
+	 *          numerical representation.
+	 */
+	public int getBusNumber() {
+		if("---".equals(busNumber)) {
+			return 0;
+		}
+		return Integer.parseInt(busNumber, 10);
+	}
+
+	/** 
+	 * <p>Retrieves the USB device number as assigned by operating system.</p>
+	 * 
+	 * @return USB device number as assigned by operating system.
+	 * @throws NumberFormatException if the USB device number string can not be converted into 
+	 *          numerical representation.
+	 */
+	public int getUSBDeviceNumberInSystem() {
+		if("---".equals(devNumber)) {
+			return 0;
+		}
+		return Integer.parseInt(devNumber, 10);
+	}
+
+	/** 
 	 * <p>Prints information about this device on console.</p>
 	 */
 	public void dumpDeviceInfo() {
@@ -113,6 +147,8 @@ public final class SerialComUSBdevice {
 				"\nProduct id : 0x" + idProduct + 
 				"\nSerial number : " + serial + 
 				"\nProduct : " + product + 
-				"\nManufacturer : " + manufacturer);
+				"\nManufacturer : " + manufacturer +
+				"\nUSB bus number : " + busNumber + 
+				"\nUSB Device number : " + devNumber);
 	}
 }
