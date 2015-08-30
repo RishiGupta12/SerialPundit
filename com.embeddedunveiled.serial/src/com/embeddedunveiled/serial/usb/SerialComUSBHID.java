@@ -73,7 +73,7 @@ public final class SerialComUSBHID extends SerialComHID {
 				// if no devices found return empty array.
 				return new SerialComHIDdevice[] { };
 			}
-			
+
 			// number of elements sent by native layer will be multiple of 7
 			// if device(s) is found to populate SerialComHIDdevice object.
 			numOfDevices = usbhidDevicesInfo.length / 7;
@@ -91,7 +91,8 @@ public final class SerialComUSBHID extends SerialComHID {
 
 	/** 
 	 */
-	public long openHidDeviceByUSBAttributes(int usbVidToMatch, int usbPidToMatch, final String serialNumber) throws SerialComException {
+	public long openHidDeviceByUSBAttributes(int usbVidToMatch, int usbPidToMatch, final String serialNumber) 
+			throws SerialComException {
 		if(usbVidToMatch < 0) {
 			throw new IllegalArgumentException("Argument usbVidToMatch can not be negative !");
 		}

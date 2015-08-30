@@ -31,8 +31,8 @@ package com.embeddedunveiled.serial;
 public interface ISerialComHotPlugListener {
 
 	/** 
-	 * <p>Whenever a USB device is plugged into system or unplugged from system, onHotPlugEvent() method will
-	 * be called by native layer.</p>
+	 * <p>Whenever a USB device is plugged into system or unplugged from system, onHotPlugEvent() method 
+	 * will be called by native layer.</p>
 	 * 
 	 * <p>The event value SerialComUSB.DEV_ADDED indicates USB device has been added to the system. 
 	 * The event value SerialComUSB.DEV_REMOVED indicates USB device has been removed from system.</p>

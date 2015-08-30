@@ -26,7 +26,7 @@ public final class SerialComBluetoothAdapter {
 	private String address;
 	private String type;
 	private String bus;
-	
+
 	/**
 	 * <p>Construct and allocates a new SerialComBluetoothAdapter object with given details.</p>
 	 * 
@@ -39,7 +39,7 @@ public final class SerialComBluetoothAdapter {
 		this.type = type;
 		this.bus = bus;
 	}
-	
+
 	/**
 	 * <p>Get the friendly Bluetooth name of the local Bluetooth adapter. 
 	 * This name is visible to remote Bluetooth devices.</p>

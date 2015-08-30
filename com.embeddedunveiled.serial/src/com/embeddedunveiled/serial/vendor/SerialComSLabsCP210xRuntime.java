@@ -37,7 +37,8 @@ import com.embeddedunveiled.serial.internal.SerialComSystemProperty;
  * for desired platform or not and also how does a particular API will behave. Also consider paying attention to 
  * valid values and range when passing arguments to a method.</p>
  * 
- * <p>[2] The application note for CP210XRuntime library is here : https://www.silabs.com/Support%20Documents/TechnicalDocs/an223.pdf</p>
+ * <p>[2] The application note for CP210XRuntime library is here : 
+ * https://www.silabs.com/Support%20Documents/TechnicalDocs/an223.pdf</p>
  * 
  * <p>SCM version 1.0.4 is linked to v3.4 version of CP210xRuntime library.</p>
  */
@@ -46,9 +47,11 @@ public final class SerialComSLabsCP210xRuntime extends SerialComVendorLib {
 	private final SerialComCP210xRuntimeJNIBridge mSerialComCP210xRuntimeJNIBridge;
 
 	/**
-	 * <p>Allocates a new SerialComSLabsCP210xRuntime object and extract and load shared libraries as required.</p>
+	 * <p>Allocates a new SerialComSLabsCP210xRuntime object and extract and load shared libraries as 
+	 * required.</p>
 	 * 
-	 * @param libDirectory directory in which native library will be extracted and vendor library will be found.
+	 * @param libDirectory directory in which native library will be extracted and vendor library will 
+	 *         be found.
 	 * @param vlibName name of vendor library to load and link.
 	 * @param cpuArch architecture of CPU this library is running on.
 	 * @param osType operating system this library is running on.
@@ -60,10 +63,12 @@ public final class SerialComSLabsCP210xRuntime extends SerialComVendorLib {
 	 * @throws UnsatisfiedLinkError if loading/linking shared library fails.
 	 * @throws SerialComException if initializing native library fails.
 	 */
-	public SerialComSLabsCP210xRuntime(File libDirectory, String vlibName, int cpuArch, int osType, SerialComSystemProperty serialComSystemProperty) 
-			throws UnsatisfiedLinkError, SerialComLoadException, SerialComUnexpectedException, SecurityException, FileNotFoundException {
+	public SerialComSLabsCP210xRuntime(File libDirectory, String vlibName, int cpuArch, int osType, 
+			SerialComSystemProperty serialComSystemProperty) throws UnsatisfiedLinkError, SerialComLoadException, 
+			SerialComUnexpectedException, SecurityException, FileNotFoundException {
 		mSerialComCP210xRuntimeJNIBridge = new SerialComCP210xRuntimeJNIBridge();
-		SerialComCP210xRuntimeJNIBridge.loadNativeLibrary(libDirectory, vlibName, cpuArch, osType, serialComSystemProperty);
+		SerialComCP210xRuntimeJNIBridge.loadNativeLibrary(libDirectory, vlibName, cpuArch, osType, 
+				serialComSystemProperty);
 	}
 
 	/**
@@ -101,7 +106,7 @@ public final class SerialComSLabsCP210xRuntime extends SerialComVendorLib {
 		}
 		return true;
 	}
-	
+
 	/**
 	 * <p>Executes CP210xRT_GetPartNumber function of CP210XRuntime library.</p>
 	 * 
@@ -118,7 +123,7 @@ public final class SerialComSLabsCP210xRuntime extends SerialComVendorLib {
 		}
 		return ret;
 	}
-	
+
 	/**
 	 * <p>Executes CP210xRT_GetDeviceProductString function of CP210XRuntime library.</p>
 	 * 
@@ -135,7 +140,7 @@ public final class SerialComSLabsCP210xRuntime extends SerialComVendorLib {
 		}
 		return ret;
 	}
-	
+
 	/**
 	 * <p>Executes CP210xRT_GetDeviceSerialNumber function of CP210XRuntime library.</p>
 	 * 
@@ -152,7 +157,7 @@ public final class SerialComSLabsCP210xRuntime extends SerialComVendorLib {
 		}
 		return ret;
 	}
-	
+
 	/**
 	 * <p>Executes CP210xRT_GetDeviceInterfaceString function of CP210XRuntime library.</p>
 	 * 
@@ -169,5 +174,4 @@ public final class SerialComSLabsCP210xRuntime extends SerialComVendorLib {
 		}
 		return ret;
 	}
-	
 }

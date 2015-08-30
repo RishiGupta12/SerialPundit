@@ -26,12 +26,12 @@ public final class SerialComException extends IOException {
 
 	private static final long serialVersionUID = -6849706871605796050L;
 	private String exceptionMsg;
-	
+
 	/**
-     * <p>Constructs and allocate a new SerialComException object with the specified detail message.</p>
-     * 
-     * @param exceptionMsg message describing reason for exception.
-     */
+	 * <p>Constructs and allocate a new SerialComException object with the specified detail message.</p>
+	 * 
+	 * @param exceptionMsg message describing reason for exception.
+	 */
 	public SerialComException(String exceptionMsg) {
 		super(exceptionMsg);
 		this.exceptionMsg = exceptionMsg;
@@ -45,5 +45,4 @@ public final class SerialComException extends IOException {
 	public String getExceptionMsg() {
 		return exceptionMsg;
 	}
-	
 }

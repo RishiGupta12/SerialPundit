@@ -38,7 +38,8 @@ import com.embeddedunveiled.serial.internal.SerialComSystemProperty;
  * for desired platform or not and also how does a particular API will behave. Also consider paying attention to 
  * valid values and range when passing arguments to a method.</p>
  * 
- * <p>[2] The application note for CP210XRuntime library is here : https://www.silabs.com/Support%20Documents/TechnicalDocs/an144.pdf</p>
+ * <p>[2] The application note for CP210XRuntime library is here : 
+ * https://www.silabs.com/Support%20Documents/TechnicalDocs/an144.pdf</p>
  * 
  * <p>SCM version 1.0.4 is linked to v3.4 version of CP210xManufacturing library.</p>
  */
@@ -68,7 +69,8 @@ public final class SerialComSLabsCP210xManufacturing extends SerialComVendorLib 
 	private final SerialComCP210xManufacturingJNIBridge mSerialComCP210xManufacturingJNIBridge;
 
 	/**
-	 * <p>Allocates a new SerialComSLabsCP210xManufacturing object and extract and load shared libraries as required.</p>
+	 * <p>Allocates a new SerialComSLabsCP210xManufacturing object and extract and load shared libraries as 
+	 * required.</p>
 	 * 
 	 * @param libDirectory directory in which native library will be extracted and vendor library will be found.
 	 * @param vlibName name of vendor library to load and link.
@@ -82,10 +84,12 @@ public final class SerialComSLabsCP210xManufacturing extends SerialComVendorLib 
 	 * @throws UnsatisfiedLinkError if loading/linking shared library fails.
 	 * @throws SerialComException if initializing native library fails.
 	 */
-	public SerialComSLabsCP210xManufacturing(File libDirectory, String vlibName, int cpuArch, int osType, SerialComSystemProperty serialComSystemProperty) 
-			throws UnsatisfiedLinkError, SerialComLoadException, SerialComUnexpectedException, SecurityException, FileNotFoundException {
+	public SerialComSLabsCP210xManufacturing(File libDirectory, String vlibName, int cpuArch, int osType, 
+			SerialComSystemProperty serialComSystemProperty) throws UnsatisfiedLinkError, SerialComLoadException, 
+			SerialComUnexpectedException, SecurityException, FileNotFoundException {
 		mSerialComCP210xManufacturingJNIBridge = new SerialComCP210xManufacturingJNIBridge();
-		SerialComCP210xManufacturingJNIBridge.loadNativeLibrary(libDirectory, vlibName, cpuArch, osType, serialComSystemProperty);
+		SerialComCP210xManufacturingJNIBridge.loadNativeLibrary(libDirectory, vlibName, cpuArch, osType, 
+				serialComSystemProperty);
 	}
 
 	/**
@@ -119,7 +123,8 @@ public final class SerialComSLabsCP210xManufacturing extends SerialComVendorLib 
 	 */
 	public String getProductString(int index, int flag) throws SerialComException {
 		String ret = null;
-		if((flag == CP210x_RETURN_FULL_PATH) || (flag == CP210x_RETURN_DESCRIPTION) || (flag == CP210x_RETURN_SERIAL_NUMBER)) {
+		if((flag == CP210x_RETURN_FULL_PATH) || (flag == CP210x_RETURN_DESCRIPTION) 
+				|| (flag == CP210x_RETURN_SERIAL_NUMBER)) {
 			ret = mSerialComCP210xManufacturingJNIBridge.getProductString(index, flag);
 			if(ret == null) {
 				throw new SerialComException("Could not get the requested information. Please retry !");
@@ -574,7 +579,8 @@ public final class SerialComSLabsCP210xManufacturing extends SerialComVendorLib 
 	 * <p>Gets the current port pin configuration from the CP210x device.</p>
 	 * 
 	 * @param handle of the device.
-	 * @return array of integers containing values (starting from index 0) mode, resetLatch, suspendLatch, enhancedFxn respectively.
+	 * @return array of integers containing values (starting from index 0) mode, resetLatch, suspendLatch, 
+	 *          enhancedFxn respectively.
 	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public int[] getPortConfig(long handle) throws SerialComException {

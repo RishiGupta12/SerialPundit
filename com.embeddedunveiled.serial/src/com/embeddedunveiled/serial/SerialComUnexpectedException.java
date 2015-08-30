@@ -36,5 +36,4 @@ public final class SerialComUnexpectedException extends IOException {
 	public SerialComUnexpectedException(String exceptionMsg) {
 		super(exceptionMsg);
 	}
-
 }

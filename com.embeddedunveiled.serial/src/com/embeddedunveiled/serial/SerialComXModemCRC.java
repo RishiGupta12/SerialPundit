@@ -90,12 +90,14 @@ public final class SerialComXModemCRC {
 	 * @param scm SerialComManager instance associated with this handle.
 	 * @param handle of the port on which file is to be communicated.
 	 * @param fileToProcess File instance representing file to be communicated.
-	 * @param textMode if true file will be sent as text file (ASCII mode), if false file will be sent as binary file.
-	 * @param progressListener object of class which implements ISerialComProgressXmodem interface and is interested in knowing
+	 * @param textMode if true file will be sent as text file (ASCII mode), if false file will be sent 
+	 *         as binary file.
+	 * @param progressListener object of class which implements ISerialComProgressXmodem interface and is 
+	 *         interested in knowing
 	 *         how many blocks have been sent/received till now.
-	 * @param transferState if application wish to abort sending/receiving file at instant of time due to any reason, it can call 
-	 *         abortTransfer method on this object. It can be null of application does not wish to abort sending/receiving file 
-	 *         explicitly.
+	 * @param transferState if application wish to abort sending/receiving file at instant of time due to any 
+	 *         reason, it can call abortTransfer method on this object. It can be null of application does not 
+	 *         wish to abort sending/receiving file explicitly.
 	 * @param osType operating system on which this application is running.
 	 */
 	public SerialComXModemCRC(SerialComManager scm, long handle, File fileToProcess, boolean textMode,
@@ -186,13 +188,13 @@ public final class SerialComXModemCRC {
 			case BEGINSEND:
 				blockNumber = 1; // Block numbering starts from 1 for the first block sent, not 0.
 				assembleBlock();
-				
+
 				// if the file is empty goto ENDTX state.
 				if(noMoreData == true) {
 					state = ENDTX;
 					break;
 				}
-				
+
 				try {
 					scm.writeBytes(handle, block, 0);
 				} catch (SerialComException exp) {
@@ -329,13 +331,13 @@ public final class SerialComXModemCRC {
 				retryCount = 0; // reset
 				blockNumber++;
 				assembleBlock();
-				
+
 				// indicates there is no more data to be sent.
 				if(noMoreData == true) {
 					state = ENDTX;
 					break;
 				}
-				
+
 				// reaching here means there is data to be sent to receiver.
 				try {
 					scm.writeBytes(handle, block, 0);
@@ -343,7 +345,7 @@ public final class SerialComXModemCRC {
 					inStream.close();
 					throw exp;
 				}
-				
+
 				state = WAITACK;
 				break;
 			case ENDTX:

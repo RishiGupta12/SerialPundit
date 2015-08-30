@@ -33,18 +33,19 @@ import com.embeddedunveiled.serial.internal.SerialComSystemProperty;
  */
 public class SerialComVendorLib {
 
-	/**<p>The value indicating proprietary D2XX software interface from Future Technology Devices International Ltd.</p>*/
+	/**<p>The value indicating proprietary D2XX software interface from Future Technology Devices 
+	 * International Ltd.</p>*/
 	public static final int VLIB_FTDI_D2XX = 0x01;
 
 	/**<p>The value indicating 'SimpleIO' library from Microchip Technology Inc.</p>*/
 	public static final int VLIB_MCHP_SIMPLEIO = 0x02;
-	
+
 	/**<p>The value indicating 'CP210xRuntime' library from Silicon Laboratories, Inc.</p>*/
 	public static final int VLIB_SLABS_CP210XRUNTIME = 0x03;
-	
+
 	/**<p>The value indicating 'CP210xManufacturing' library from Silicon Laboratories, Inc.</p>*/
 	public static final int VLIB_SLABS_CP210XMANUFACTURING = 0x04;
-	
+
 	/**<p>The value indicating 'USBXpress' library from Silicon Laboratories, Inc.</p>*/
 	public static final int VLIB_SLABS_USBXPRESS = 0x05;
 
@@ -69,12 +70,12 @@ public class SerialComVendorLib {
 	 * @throws FileNotFoundException if the vendor library file is not found.
 	 * @throws UnsatisfiedLinkError if loading/linking shared library fails.
 	 * @throws SerialComException if an I/O error occurs.
-	 * @throws SerialComLoadException if the library can not be found, extracted or loaded
-	 *                                 if the mentioned library is not supported by vendor for 
-	 *                                 operating system and cpu architecture combination.
+	 * @throws SerialComLoadException if the library can not be found, extracted or loaded 
+	 *                                 if the mentioned library is not supported by vendor for operating 
+	 *                                 system and cpu architecture combination.
 	 */
-	public SerialComVendorLib getVendorLibInstance(int vendorLibIdentifier, File libDirectory, String vlibName, int cpuArch, int osType,
-			SerialComSystemProperty serialComSystemProperty) throws UnsatisfiedLinkError, 
+	public SerialComVendorLib getVendorLibInstance(int vendorLibIdentifier, File libDirectory, String vlibName, 
+			int cpuArch, int osType, SerialComSystemProperty serialComSystemProperty) throws UnsatisfiedLinkError, 
 			SerialComLoadException, SerialComUnexpectedException, SecurityException, FileNotFoundException {
 		SerialComVendorLib vendorLib = null;
 		if(vendorLibIdentifier == VLIB_FTDI_D2XX) {
@@ -127,5 +128,4 @@ public class SerialComVendorLib {
 
 		return null;
 	}
-
 }

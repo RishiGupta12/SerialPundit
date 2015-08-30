@@ -31,7 +31,7 @@ public final class SerialComUtil {
 	}
 
 	/**
-	 * <p>This method is for internal use.</p>
+	 * <p>Internal use.</p>
 	 * 
 	 * @param num the long number to convert.
 	 * @param paddingChar the character to use for padding.
@@ -40,8 +40,8 @@ public final class SerialComUtil {
 	 */
 	private static String toHexString(final long num, final char paddingChar, int min, int max) {
 		/* Formats a long number into the specified length hex String. This is identical to Long.toHexString() 
-		 * except that it pads (with 0's), or truncates, to the specified size. If max < min, the functionality is 
-		 * exactly as Long.toHexString(). */
+		 * except that it pads (with 0's), or truncates, to the specified size. If max < min, the 
+		 * functionality is exactly as Long.toHexString(). */
 		StringBuffer sb = new StringBuffer(Long.toHexString(num));
 
 		if(max < min) {
@@ -56,8 +56,9 @@ public final class SerialComUtil {
 	}
 
 	/**
-	 * <p>This method creates hex string from byte array. This is useful in bluetooth low energy applications where characteristics
-	 * returned are to be interpreted or for example Internet of things applications where sensor data is getting exchanged.</p>
+	 * <p>This method creates hex string from byte array. This is useful in bluetooth low energy applications 
+	 * where characteristics returned are to be interpreted or for example Internet of things applications where 
+	 * sensor data is getting exchanged.</p>
 	 * 
 	 * @param data byte array to be converted into string.
 	 * @param separator to be inserted after each hex value.
@@ -130,8 +131,9 @@ public final class SerialComUtil {
 	}
 
 	/**
-	 * <p>Converts the given byte's value to an unsigned integer number. The least significant byte (8 bits) of the integer number
-	 * will be identical to the byte (8 bits) provided, and the most significant 3 bytes (24 bits) of the integer will be zero.</p>
+	 * <p>Converts the given byte's value to an unsigned integer number. The least significant byte (8 bits) of 
+	 * the integer number will be identical to the byte (8 bits) provided, and the most significant 3 bytes 
+	 * (24 bits) of the integer will be zero.</p>
 	 * 
 	 * @param data the byte to convert.
 	 * @return An unsigned integer number representing the given byte.
@@ -141,8 +143,9 @@ public final class SerialComUtil {
 	}
 
 	/**
-	 * <p>Converts the given byte's value to an unsigned long number. The least significant byte (8 bits) of the long number 
-	 * will be identical to the byte (8 bits) provided, and the most significant 7 bytes (56 bits) of the long will be zero.</p>
+	 * <p>Converts the given byte's value to an unsigned long number. The least significant byte (8 bits) of 
+	 * the long number will be identical to the byte (8 bits) provided, and the most significant 7 bytes 
+	 * (56 bits) of the long will be zero.</p>
 	 * 
 	 * @param data the byte to convert.
 	 * @return An unsigned long number representing the given byte.
@@ -172,9 +175,9 @@ public final class SerialComUtil {
 	}
 
 	/**
-	 * <p>Converts the given short's value to an unsigned integer number. The least significant 2 byte (16 bits) of the integer number
-	 * will be identical to the least significant 2 byte (16 bits) of the short number and the most significant 2 bytes (16 bits) of 
-	 * the integer will be zero.</p>
+	 * <p>Converts the given short's value to an unsigned integer number. The least significant 2 byte 
+	 * (16 bits) of the integer number will be identical to the least significant 2 byte (16 bits) of 
+	 * the short number and the most significant 2 bytes (16 bits) of the integer will be zero.</p>
 	 * 
 	 * @param data the short type value to convert.
 	 * @return An unsigned integer number representing the given short number.
@@ -184,9 +187,9 @@ public final class SerialComUtil {
 	}
 
 	/**
-	 * <p>Converts the given short's value to an unsigned long number. The least significant 2 byte (16 bits) of the long number
-	 * will be identical to the least significant 2 byte (16 bits) of the short number and the most significant 6 bytes (48 bits) of 
-	 * the long number will be zero.</p>
+	 * <p>Converts the given short's value to an unsigned long number. The least significant 2 byte 
+	 * (16 bits) of the long number will be identical to the least significant 2 byte (16 bits) of the 
+	 * short number and the most significant 6 bytes (48 bits) of the long number will be zero.</p>
 	 * 
 	 * @param data the short type value to convert.
 	 * @return An unsigned long number representing the given short number.
@@ -209,9 +212,9 @@ public final class SerialComUtil {
 	}
 
 	/**
-	 * <p>Converts the given integer value to an unsigned long number. The least significant 4 bytes (32 bits) of the long number
-	 * will be identical to the least significant 4 bytes (32 bits) of the integer number and the most significant 4 bytes (32 bits) of 
-	 * the long number will be zero.</p>
+	 * <p>Converts the given integer value to an unsigned long number. The least significant 4 bytes 
+	 * (32 bits) of the long number will be identical to the least significant 4 bytes (32 bits) of the 
+	 * integer number and the most significant 4 bytes (32 bits) of the long number will be zero.</p>
 	 * 
 	 * @param data the int type value to convert.
 	 * @return An unsigned long number representing the given int number.
@@ -241,7 +244,8 @@ public final class SerialComUtil {
 	 * 
 	 * @param hexNumStr hex-string to be converted.
 	 * @return a long type number repressing given hex string.
-	 * @throws NumberFormatException if the given hex string can not be converted into numerical representation.
+	 * @throws NumberFormatException if the given hex string can not be converted into numerical 
+	 *          representation.
 	 */
 	public static long hexStrToLongNumber(final String hexNumStr) {
 		return Long.parseLong(hexNumStr, 16);
@@ -301,5 +305,4 @@ public final class SerialComUtil {
 		System.arraycopy(dataB, 0, result, dataA.length, dataB.length);
 		return result;
 	}
-
 }

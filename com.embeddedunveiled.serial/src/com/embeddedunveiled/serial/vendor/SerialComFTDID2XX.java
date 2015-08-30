@@ -91,7 +91,8 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 
 	/** <p>Pre-defined enum constants for enabling type of parity in a serial frame. </p>*/
 	public enum PARITY {
-		/** The uart frame does not contain any parity bit. Errors are handled by application for example using CRC algorithm.*/
+		/** The uart frame does not contain any parity bit. Errors are handled by application for example 
+		 * using CRC algorithm.*/
 		FT_PARITY_NONE(1),
 		/** <p>The number of bits in the frame with the value one is odd. If the sum of bits 
 		 * with a value of 1 is odd in the frame, the parity bit's value is set to zero. 
@@ -230,16 +231,16 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	/**<p>Bit mask to represent an event in D2XX terminology. </p>*/
 	public static final int EV_EVENT2 = 0x1000; // Provider specific event 2
 
-	/**<p>Bit mask to represent killing all current and pending transmission operations in D2XX terminology. </p>*/
+	/**<p>Bit mask to represent killing all current and pending transmission operations in D2XX terminology.</p>*/
 	public static final int PURGE_TXABORT = 0x0001;
 
-	/**<p>Bit mask to represent killing all current and pending receive operations in D2XX terminology. </p>*/
+	/**<p>Bit mask to represent killing all current and pending receive operations in D2XX terminology.</p>*/
 	public static final int PURGE_RXABORT = 0x0002;
 
-	/**<p>Bit mask to represent clearing transmit queue in D2XX terminology. </p>*/
+	/**<p>Bit mask to represent clearing transmit queue in D2XX terminology.</p>*/
 	public static final int PURGE_TXCLEAR = 0x0004;
 
-	/**<p>Bit mask to represent clearing receive queue in D2XX terminology. </p>*/
+	/**<p>Bit mask to represent clearing receive queue in D2XX terminology.</p>*/
 	public static final int PURGE_RXCLEAR = 0x0008;
 
 	private final SerialComFTDID2XXJNIBridge mFTDID2XXJNIBridge;
@@ -259,8 +260,9 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 * @throws UnsatisfiedLinkError if loading/linking shared library fails.
 	 * @throws SerialComException if initializing native library fails.
 	 */
-	public SerialComFTDID2XX(File libDirectory, String vlibName, int cpuArch, int osType, SerialComSystemProperty serialComSystemProperty) 
-			throws UnsatisfiedLinkError, SerialComLoadException, SerialComUnexpectedException, SecurityException, FileNotFoundException {
+	public SerialComFTDID2XX(File libDirectory, String vlibName, int cpuArch, int osType, 
+			SerialComSystemProperty serialComSystemProperty) throws UnsatisfiedLinkError, 
+			SerialComLoadException, SerialComUnexpectedException, SecurityException, FileNotFoundException {
 		mFTDID2XXJNIBridge = new SerialComFTDID2XXJNIBridge();
 		SerialComFTDID2XXJNIBridge.loadNativeLibrary(libDirectory, vlibName, cpuArch, osType, serialComSystemProperty);
 	}
@@ -1531,8 +1533,9 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 * <p>Gets the timeout parameters for I/O requests.</p>
 	 * 
 	 * @param handle handle of the device whose timeout values is to be fetched.
-	 * @return array of integers with elements in following sequence : readIntervalTimeout, readTotalTimeoutMultiplier, 
-	 * readTotalTimeoutConstant, writeTotalTimeoutMultiplier and writeTotalTimeoutConstant.
+	 * @return array of integers with elements in following sequence : readIntervalTimeout, 
+	 *          readTotalTimeoutMultiplier, readTotalTimeoutConstant, writeTotalTimeoutMultiplier 
+	 *          and writeTotalTimeoutConstant.
 	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public int[] w32GetCommTimeouts(long handle) throws SerialComException {
@@ -1681,5 +1684,4 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 		}
 		return ret;
 	}
-
 }

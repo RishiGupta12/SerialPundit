@@ -20,10 +20,11 @@ package com.embeddedunveiled.serial.vendor;
 import com.embeddedunveiled.serial.SerialComUtil;
 
 /**
- * <p>Represents information about a device returned by calling listDevices() method in SerialComFTDID2XX class.</p>
+ * <p>Represents information about a device returned by calling listDevices() method in 
+ * SerialComFTDID2XX class.</p>
  */
 public final class FTdeviceInfo {
-	
+
 	private String locId = null;
 	private String serialNumber = null;
 	private String description = null;
@@ -40,17 +41,18 @@ public final class FTdeviceInfo {
 		this.serialNumber = serialNumber;
 		this.description = description;
 	}
-	
+
 	/** 
 	 * <p>Retrieves the locId for this FT device.</p>
 	 * 
 	 * @return locId for this FT device.
-	 * @throws NumberFormatException if the locId hex string can not be converted into numerical representation.
+	 * @throws NumberFormatException if the locId hex string can not be converted into numerical 
+	 *          representation.
 	 */
 	public long getLocId() {
 		return SerialComUtil.hexStrToLongNumber(locId);
 	}
-	
+
 	/** 
 	 * <p>Retrieves the serial number string for this FT device.</p>
 	 * 
@@ -59,7 +61,7 @@ public final class FTdeviceInfo {
 	public String getSerialNumber() {
 		return serialNumber;
 	}
-	
+
 	/** 
 	 * <p>Retrieves the description for this FT device.</p>
 	 * 
@@ -68,14 +70,14 @@ public final class FTdeviceInfo {
 	public String getDescription() {
 		return description;
 	}
-	
+
 	/** 
 	 * <p>Prints information about this FT device on console.</p>
 	 */
 	public void dumpDeviceInfo() {
 		System.out.println("\nLocID : 0x" + locId + 
-				            "\nSerialNumber : " + serialNumber + 
-				            "\nDescription : " + description);
+				"\nSerialNumber : " + serialNumber + 
+				"\nDescription : " + description);
 	}
 
 }

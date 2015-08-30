@@ -23,7 +23,7 @@ import com.embeddedunveiled.serial.SerialComUtil;
  * <p>Represents the FT_PROGRAM_DATA structure declared in ftd2xx.h header file.</p>
  */
 public final class FTprogramData {
-	
+
 	private String locId = null;
 	private String serialNumber = null;
 	private String description = null;
@@ -40,7 +40,7 @@ public final class FTprogramData {
 		this.serialNumber = serialNumber;
 		this.description = description;
 	}
-	
+
 	/** 
 	 * <p>Retrieves the locId for this FT device.</p>
 	 * 
@@ -50,7 +50,7 @@ public final class FTprogramData {
 	public long getLocId() {
 		return SerialComUtil.hexStrToLongNumber(locId);
 	}
-	
+
 	/** 
 	 * <p>Retrieves the serial number string for this FT device.</p>
 	 * 
@@ -59,7 +59,7 @@ public final class FTprogramData {
 	public String getSerialNumber() {
 		return serialNumber;
 	}
-	
+
 	/** 
 	 * <p>Retrieves the description for this FT device.</p>
 	 * 
@@ -68,14 +68,13 @@ public final class FTprogramData {
 	public String getDescription() {
 		return description;
 	}
-	
+
 	/** 
 	 * <p>Prints information about this FT device on console.</p>
 	 */
 	public void dumpDeviceInfo() {
 		System.out.println("\nLocID : 0x" + locId + 
-				            "\nSerialNumber : " + serialNumber + 
-				            "\nDescription : " + description);
+				"\nSerialNumber : " + serialNumber + 
+				"\nDescription : " + description);
 	}
-
 }

@@ -29,7 +29,7 @@ import com.embeddedunveiled.serial.SerialComManager;
  * <p>Finds all serial ports known to system and return them in sorted alphanumeric order.</p>
  */
 public final class SerialComPortsList {
-	
+
 	private int osType = -1;
 	private SerialComPortJNIBridge mComPortJNIBridge = null;
 	private static final Pattern Sol_regExpPattern = Pattern.compile("[0-9]*|[a-z]*");
@@ -113,7 +113,7 @@ public final class SerialComPortsList {
 	 * @return array of ports found on system or null
 	 */
 	public String[] listAvailableComPorts() {
-		if(osType != SerialComManager.OS_SOLARIS) {                         // For Linux, Mac, Windows get list from native library
+		if(osType != SerialComManager.OS_SOLARIS) {  // For Linux, Mac, Windows get list from native library.
 			ArrayList<String> portsIdentified = new ArrayList<String>();
 			String[] ports = mComPortJNIBridge.listAvailableComPorts();
 			if(ports != null) {
@@ -124,7 +124,7 @@ public final class SerialComPortsList {
 				return portsIdentified.toArray(new String[portsIdentified.size()]);
 			}
 			return null;
-		}else {                                                              // For Solaris match the pre-known pattern for names
+		}else {                                           // For Solaris match the pre-known pattern for names.
 			String[] portsIdentified = new String[]{};
 			File dir = new File(Sol_search_path);
 			if(dir.exists() && dir.isDirectory()) {
@@ -137,12 +137,12 @@ public final class SerialComPortsList {
 							portsTree.add(Sol_search_path + fileName);
 						}
 					}
-					portsIdentified = portsTree.toArray(portsIdentified); // return our findings
+					portsIdentified = portsTree.toArray(portsIdentified); // return our findings.
 				} else {
 					return null; // no ports exist
 				}
 			} else {
-				return null; // The look up path directory either does not exist or is not directory
+				return null; // The look up path directory either does not exist or is not directory.
 			}
 			return portsIdentified;
 		}

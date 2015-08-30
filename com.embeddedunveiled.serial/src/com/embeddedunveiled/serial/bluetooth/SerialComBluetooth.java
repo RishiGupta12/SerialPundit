@@ -23,7 +23,7 @@ import com.embeddedunveiled.serial.internal.SerialComPortJNIBridge;
 public final class SerialComBluetooth {
 
 	private SerialComPortJNIBridge mComPortJNIBridge;
-	
+
 	/**
 	 * <p>Construct and allocates a new SerialComBluetooth object with given details.</p>
 	 * 
@@ -51,8 +51,8 @@ public final class SerialComBluetooth {
 			numOfDevices = btDevicesInfo.length / 4;
 			btDevicesFound = new SerialComBluetoothAdapter[numOfDevices];
 			for(int x=0; x < numOfDevices; x++) {
-				btDevicesFound[x] = new SerialComBluetoothAdapter(btDevicesInfo[i], btDevicesInfo[i+1], btDevicesInfo[i+2], 
-						btDevicesInfo[i+3]);
+				btDevicesFound[x] = new SerialComBluetoothAdapter(btDevicesInfo[i], btDevicesInfo[i+1], 
+						btDevicesInfo[i+2], btDevicesInfo[i+3]);
 				i = i + 4;
 			}
 			return btDevicesFound;
@@ -74,7 +74,7 @@ public final class SerialComBluetooth {
 		int numOfDevices = 0;
 		SerialComBluetoothSPPDevNode[] btSerialNodesFound = null;
 		String[] btSerialNodesInfo = mComPortJNIBridge.listBTSPPDevNodesWithInfo();
-		
+
 		if(btSerialNodesInfo != null) {
 			if(btSerialNodesInfo.length < 2) {
 				return new SerialComBluetoothSPPDevNode[] { };
@@ -82,7 +82,8 @@ public final class SerialComBluetooth {
 			numOfDevices = btSerialNodesInfo.length / 3;
 			btSerialNodesFound = new SerialComBluetoothSPPDevNode[numOfDevices];
 			for(int x=0; x<numOfDevices; x++) {
-				btSerialNodesFound[x] = new SerialComBluetoothSPPDevNode(btSerialNodesInfo[i], btSerialNodesInfo[i+1], btSerialNodesInfo[i+2]);
+				btSerialNodesFound[x] = new SerialComBluetoothSPPDevNode(btSerialNodesInfo[i], btSerialNodesInfo[i+1], 
+						btSerialNodesInfo[i+2]);
 				i = i + 3;
 			}
 			return btSerialNodesFound;

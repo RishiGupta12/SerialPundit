@@ -38,7 +38,8 @@ import com.embeddedunveiled.serial.internal.SerialComSystemProperty;
  * for desired platform or not and also how does a particular API will behave. Also consider paying attention to 
  * valid values and range when passing arguments to a method.</p>
  * 
- * <p>[2] The application note for USBXpress library is here : http://www.silabs.com/Support%20Documents/TechnicalDocs/an169.pdf</p>
+ * <p>[2] The application note for USBXpress library is here : 
+ * http://www.silabs.com/Support%20Documents/TechnicalDocs/an169.pdf</p>
  * 
  * <p>SCM version 1.0.4 is linked to v4.0 version of USBXpress from silicon labs.</p>
  */
@@ -66,9 +67,11 @@ public final class SerialComSLabsUSBXpress extends SerialComVendorLib {
 	public static final int SI_HANDSHAKE_LINE = 0x07;
 
 	/**
-	 * <p>Allocates a new SerialComSLabsUSBXpress object and extract and load shared libraries as required.</p>
+	 * <p>Allocates a new SerialComSLabsUSBXpress object and extract and load shared libraries as 
+	 * required.</p>
 	 * 
-	 * @param libDirectory directory in which native library will be extracted and vendor library will be found.
+	 * @param libDirectory directory in which native library will be extracted and vendor library will 
+	 *         be found.
 	 * @param vlibName name of vendor library to load and link.
 	 * @param cpuArch architecture of CPU this library is running on.
 	 * @param osType operating system this library is running on.
@@ -80,10 +83,12 @@ public final class SerialComSLabsUSBXpress extends SerialComVendorLib {
 	 * @throws UnsatisfiedLinkError if loading/linking shared library fails.
 	 * @throws SerialComException if initializing native library fails.
 	 */
-	public SerialComSLabsUSBXpress(File libDirectory, String vlibName, int cpuArch, int osType, SerialComSystemProperty serialComSystemProperty) 
-			throws UnsatisfiedLinkError, SerialComLoadException, SerialComUnexpectedException, SecurityException, FileNotFoundException {
+	public SerialComSLabsUSBXpress(File libDirectory, String vlibName, int cpuArch, int osType, 
+			SerialComSystemProperty serialComSystemProperty) throws UnsatisfiedLinkError, SerialComLoadException, 
+			SerialComUnexpectedException, SecurityException, FileNotFoundException {
 		mSerialComSLabsUSBXpressJNIBridge = new SerialComSLabsUSBXpressJNIBridge();
-		SerialComSLabsUSBXpressJNIBridge.loadNativeLibrary(libDirectory, vlibName, cpuArch, osType, serialComSystemProperty);
+		SerialComSLabsUSBXpressJNIBridge.loadNativeLibrary(libDirectory, vlibName, cpuArch, osType, 
+				serialComSystemProperty);
 	}
 
 	/**
@@ -341,7 +346,8 @@ public final class SerialComSLabsUSBXpress extends SerialComVendorLib {
 	/**
 	 * <p>Executes SI_SetBaudDivisor function of USBXpress library.</p>
 	 * 
-	 * <p>Sets the Baud Rate directly by using a specific divisor value. This function is obsolete; use SI_SetBaudRate instead.</p>
+	 * <p>Sets the Baud Rate directly by using a specific divisor value. This function is obsolete; 
+	 * use SI_SetBaudRate instead.</p>
 	 * 
 	 * @param handle of the device whose baud rate is to be set.
 	 * @param divisor divisor value to set.
@@ -359,7 +365,8 @@ public final class SerialComSLabsUSBXpress extends SerialComVendorLib {
 	/**
 	 * <p>Executes SI_SetLineControl function of USBXpress library.</p>
 	 * 
-	 * <p>Adjusts the line control settings: word length, stop bits, and parity. Refer to the device data sheet for valid line control settings.</p>
+	 * <p>Adjusts the line control settings: word length, stop bits, and parity. Refer to the device data sheet 
+	 * for valid line control settings.</p>
 	 * 
 	 * @param handle of the device whose baud control settings is to be set.
 	 * @param lineControl bit mask of line control settings.
@@ -382,16 +389,20 @@ public final class SerialComSLabsUSBXpress extends SerialComVendorLib {
 	 * 
 	 * @param handle of the device whose flow control settings is to be set.
 	 * @param ctsMaskCode can be SI_STATUS_INPUT or SI_HANDSHAKE_LINE.
-	 * @param rtsMaskCode can be SI_HELD_INACTIVE, SI_HELD_ACTIVE, SI_FIRMWARE_CONTROLLED or SI_TRANSMIT_ACTIVE_SIGNAL.
+	 * @param rtsMaskCode can be SI_HELD_INACTIVE, SI_HELD_ACTIVE, SI_FIRMWARE_CONTROLLED or 
+	 *         SI_TRANSMIT_ACTIVE_SIGNAL.
 	 * @param dtrMaskCode can be SI_HELD_INACTIVE, SI_HELD_ACTIVE or SI_FIRMWARE_CONTROLLED.
 	 * @param dsrMaskCode can be SI_STATUS_INPUT or SI_HANDSHAKE_LINE.
 	 * @param dcdMaskCode can be SI_STATUS_INPUT or SI_HANDSHAKE_LINE.
-	 * @param flowXonXoff Sets software flow control to be off if the value is 0, and on using the character value specified if value is non-zero.
+	 * @param flowXonXoff Sets software flow control to be off if the value is 0, and on using the 
+	 *         character value specified if value is non-zero.
 	 * @return true on success.
 	 * @throws SerialComException if an I/O error occurs.
 	 */
-	public boolean setFlowControl(long handle, int ctsMaskCode,int rtsMaskCode, int dtrMaskCode, int dsrMaskCode, int dcdMaskCode, int flowXonXoff) throws SerialComException {
-		int ret = mSerialComSLabsUSBXpressJNIBridge.setFlowControl(handle, ctsMaskCode, rtsMaskCode, dtrMaskCode, dsrMaskCode, dcdMaskCode, flowXonXoff);
+	public boolean setFlowControl(long handle, int ctsMaskCode,int rtsMaskCode, int dtrMaskCode, 
+			int dsrMaskCode, int dcdMaskCode, int flowXonXoff) throws SerialComException {
+		int ret = mSerialComSLabsUSBXpressJNIBridge.setFlowControl(handle, ctsMaskCode, rtsMaskCode, 
+				dtrMaskCode, dsrMaskCode, dcdMaskCode, flowXonXoff);
 		if(ret < 0) {
 			throw new SerialComException("Could not set the flow control settings. Please retry !");
 		}
@@ -503,8 +514,10 @@ public final class SerialComSLabsUSBXpress extends SerialComVendorLib {
 	 * @return number of bytes read if operation was read, number of written if operation was to write data.
 	 * @throws SerialComException if an I/O error occurs.
 	 */
-	public int deviceIOControl(long handle, int ctrlCode, byte[] inputBuf, int numBytesToRead, byte[] outputBuf, int numOfBytesToWrite) throws SerialComException {
-		int ret = mSerialComSLabsUSBXpressJNIBridge.deviceIOControl(handle, ctrlCode, inputBuf, numBytesToRead, outputBuf, numOfBytesToWrite);
+	public int deviceIOControl(long handle, int ctrlCode, byte[] inputBuf, int numBytesToRead, 
+			byte[] outputBuf, int numOfBytesToWrite) throws SerialComException {
+		int ret = mSerialComSLabsUSBXpressJNIBridge.deviceIOControl(handle, ctrlCode, inputBuf, 
+				numBytesToRead, outputBuf, numOfBytesToWrite);
 		if(ret < 0) {
 			throw new SerialComException("Could not perform the IO control operation. Please retry !");
 		}

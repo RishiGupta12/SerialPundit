@@ -39,13 +39,14 @@ public final class SerialComPortHandleInfo {
 	/**
 	 * <p>Allocates a new SerialComPortHandleInfo object.</p>
 	 * 
-	 * @param portName name of port for which info is to stored
-	 * @param handle handle of opened port
-	 * @param looper looper object serving this handle
-	 * @param dataListener listener to whom data bytes/errors will be delivered for this handle
-	 * @param eventListener listener to whom events will be delivered for this handle
+	 * @param portName name of port for which info is to stored.
+	 * @param handle handle of opened port.
+	 * @param looper looper object serving this handle.
+	 * @param dataListener listener to whom data bytes/errors will be delivered for this handle.
+	 * @param eventListener listener to whom events will be delivered for this handle.
 	 */
-	public SerialComPortHandleInfo(String portName, long handle, SerialComLooper looper, ISerialComDataListener dataListener, ISerialComEventListener eventListener) {
+	public SerialComPortHandleInfo(String portName, long handle, SerialComLooper looper, 
+			ISerialComDataListener dataListener, ISerialComEventListener eventListener) {
 		this.mOpenedPortName = portName;
 		this.mPortHandle     = handle;
 		this.mLooper = looper;
@@ -55,8 +56,10 @@ public final class SerialComPortHandleInfo {
 
 
 	/** 
-	 * <p>Get the name of port associated with given handle Callers first find reference to this class object using given handle and then invoke this method.</p>
-	 * @return name of port
+	 * <p>Get the name of port associated with given handle Callers first find reference to this class 
+	 * object using given handle and then invoke this method.</p>
+	 * 
+	 * @return name of port.
 	 */	
 	public String getOpenedPortName() {
 		return mOpenedPortName;
@@ -64,7 +67,8 @@ public final class SerialComPortHandleInfo {
 
 	/** 
 	 * <p>Set the name of port.</p>
-	 * @param portName name of port opened for communication
+	 * 
+	 * @param portName name of port opened for communication.
 	 */
 	public void setOpenedPortName(String portName) {
 		this.mOpenedPortName = portName;
@@ -72,8 +76,9 @@ public final class SerialComPortHandleInfo {
 
 	/** 
 	 * <p> Check if the corresponding port name exist. </p>
-	 * @param portName name of port to find
-	 * @throws IllegalArgumentException if portName is null 
+	 * 
+	 * @param portName name of port to find.
+	 * @throws IllegalArgumentException if portName is null.
 	 */
 	public boolean containsPort(String portName) throws IllegalArgumentException {
 		if(portName == null) {
@@ -89,7 +94,8 @@ public final class SerialComPortHandleInfo {
 
 	/** 
 	 * <p>Returns handle to the opened port. </p>
-	 * @return handle of opened port
+	 * 
+	 * @return handle of opened port.
 	 */	
 	public long getPortHandle() {
 		return mPortHandle;
@@ -97,7 +103,7 @@ public final class SerialComPortHandleInfo {
 
 	/** 
 	 * <p>Sets the handle of the port opened.</p>
-	 * @param handle handle of port after opening it successfully
+	 * @param handle handle of port after opening it successfully.
 	 */
 	public void setPortHandle(long handle) {
 		this.mPortHandle = handle;
@@ -105,7 +111,8 @@ public final class SerialComPortHandleInfo {
 
 	/** 
 	 * <p>Check if the object of this class have this handle. </p>
-	 * @return true if object of this class contains given handle false otherwise
+	 * 
+	 * @return true if object of this class contains given handle false otherwise.
 	 */
 	public boolean containsHandle(long handle) {
 		if(handle == mPortHandle) {
@@ -116,14 +123,16 @@ public final class SerialComPortHandleInfo {
 
 	/** 
 	 * <p>Looper associated with this port, info and manipulation. </p>
-	 * @return looper object for this handle/port
+	 * 
+	 * @return looper object for this handle/port.
 	 */	
 	public SerialComLooper getLooper() {
 		return mLooper;
 	}
 
 	/** <p>Set the looper object that is associated with this handle.</p>
-	 * @param looper looper object that will server this port/handle
+	 * 
+	 * @param looper looper object that will server this port/handle.
 	 */
 	public void setLooper(SerialComLooper looper) {
 		this.mLooper = looper;
@@ -181,7 +190,7 @@ public final class SerialComPortHandleInfo {
 		}
 		return false;
 	}
-	
+
 	/** 
 	 * <p>Return SerialComByteStream object associated with this handle. </p>
 	 * @return input byte stream object for this port/handle
@@ -197,7 +206,7 @@ public final class SerialComPortHandleInfo {
 	public void setSerialComInByteStream(SerialComInByteStream serialComInByteStream) {
 		this.mSerialComInByteStream  = serialComInByteStream;
 	}
-	
+
 	/** 
 	 * <p>Return SerialComByteStream object associated with this handle. </p>
 	 * @return output byte stream for this port/handle

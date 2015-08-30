@@ -41,7 +41,8 @@ public final class SerialComUSBdevice {
 	 * @param manufacturer company manufacturing of this device.
 	 * @throws SerialComException if the object can not be constructed.
 	 */
-	public SerialComUSBdevice(String idVendor, String idProduct, String serial, String product, String manufacturer) {
+	public SerialComUSBdevice(String idVendor, String idProduct, String serial, String product, 
+			String manufacturer) {
 		this.idVendor = idVendor;
 		this.idProduct = idProduct;
 		this.serial = serial;
@@ -53,7 +54,8 @@ public final class SerialComUSBdevice {
 	 * <p>Retrieves the vendor id of the USB device.</p>
 	 * 
 	 * @return vendor id of the USB device.
-	 * @throws NumberFormatException if the USB vendor id hex string can not be converted into numerical representation.
+	 * @throws NumberFormatException if the USB vendor id hex string can not be converted into 
+	 *          numerical representation.
 	 */
 	public int getVendorId() {
 		if("---".equals(idVendor)) {
@@ -66,7 +68,8 @@ public final class SerialComUSBdevice {
 	 * <p>Retrieves the product id of the USB device.</p>
 	 * 
 	 * @return product id of the USB device.
-	 * @throws NumberFormatException if the USB product id hex string can not be converted into numerical representation.
+	 * @throws NumberFormatException if the USB product id hex string can not be converted into 
+	 *          numerical representation.
 	 */
 	public int getProductId() {
 		if("---".equals(idProduct)) {

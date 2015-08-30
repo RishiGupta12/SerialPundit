@@ -30,9 +30,9 @@ import com.embeddedunveiled.serial.SerialComUnexpectedException;
  * like operating system and CPU architecture etc.</p>
  */
 public final class SerialComPlatform {
-	
+
 	SerialComSystemProperty mSerialComSystemProperty = null;
-	
+
 	/**
 	 * <p>Allocates a new SerialComPlatform object.</p>
 	 * 
@@ -41,22 +41,23 @@ public final class SerialComPlatform {
 	public SerialComPlatform(SerialComSystemProperty mSerialComSystemProperty) {
 		this.mSerialComSystemProperty = mSerialComSystemProperty;
 	}
-	
+
 	/** 
 	 * <p>Identifies the operating system on which scm library is running.</p>
 	 * 
-	 * @return SerialComManager.OS_UNKNOWN if platform is unknown to scm otherwise one of the SerialComManager.OS_XXXX constant
-	 * @throws SecurityException if java system properties can not be  accessed
-	 * @throws SerialComUnexpectedException if the "os.name" java system property is null
+	 * @return SerialComManager.OS_UNKNOWN if platform is unknown to scm otherwise one of the 
+	 *          SerialComManager.OS_XXXX constant.
+	 * @throws SecurityException if java system properties can not be  accessed.
+	 * @throws SerialComUnexpectedException if the "os.name" java system property is null.
 	 */
 	public final int getOSType() throws SecurityException, SerialComUnexpectedException {
 		int osType = SerialComManager.OS_UNKNOWN;
-		
+
 		String osName = mSerialComSystemProperty.getOSName();
 		if(osName == null) {
 			throw new SerialComUnexpectedException("The os.name java system property is null in the system !");
 		}
-		
+
 		if(osName.contains("windows")) {
 			osType = SerialComManager.OS_WINDOWS;
 		}else if(osName.contains("linux")) {
@@ -85,26 +86,29 @@ public final class SerialComPlatform {
 	}
 
 	/** <p>Identifies CPU architecture scm library is running on.</p>
-	 * <p>Packages that are compiled for i386 architecture are compatible with i486, i586, i686, i786, i886 and i986 architectures.
-	 * Packages that are compiled for x86_64 architecture are compatible with amd64 architecture.</p>
+	 * <p>Packages that are compiled for i386 architecture are compatible with i486, i586, i686, i786, 
+	 * i886 and i986 architectures. Packages that are compiled for x86_64 architecture are compatible 
+	 * with amd64 architecture.</p>
 	 * 
-	 * @return SerialComManager.ARCH_UNKNOWN if platform is unknown to scm otherwise one of the SerialComManager.ARCH_XXXX constant
-	 * @throws SecurityException if java system properties can not be  accessed
-	 * @throws SerialComUnexpectedException if the "os.arch" java system property is null
-	 * @throws FileNotFoundException if file "/proc/cpuinfo" can not be found for Linux on ARM platform
-	 * @throws IOException if file operations on "/proc/cpuinfo" fails for Linux on ARM platform
+	 * @return SerialComManager.ARCH_UNKNOWN if platform is unknown to scm otherwise one of the 
+	 *          SerialComManager.ARCH_XXXX constant.
+	 * @throws SecurityException if java system properties can not be  accessed.
+	 * @throws SerialComUnexpectedException if the "os.arch" java system property is null.
+	 * @throws FileNotFoundException if file "/proc/cpuinfo" can not be found for Linux on ARM platform.
+	 * @throws IOException if file operations on "/proc/cpuinfo" fails for Linux on ARM platform.
 	 */
-	public final int getCPUArch(int osType) throws SecurityException, SerialComUnexpectedException, FileNotFoundException, IOException {
+	public final int getCPUArch(int osType) throws SecurityException, SerialComUnexpectedException, 
+	FileNotFoundException, IOException {
 		int cpuArch = SerialComManager.ARCH_UNKNOWN;
 		BufferedReader cpuProperties = null;
 		String line = null;
 		String property = null;
-		
+
 		String osArch = mSerialComSystemProperty.getOSArch();
 		if(osArch == null) {
 			throw new SerialComUnexpectedException("The os.arch java system property is null in the system !");
 		}
-		
+
 		if(osArch.startsWith("arm")) {
 			if(osType == SerialComManager.OS_LINUX) {
 				cpuProperties = new BufferedReader(new FileReader("/proc/cpuinfo"));
@@ -153,15 +157,15 @@ public final class SerialComPlatform {
 			cpuArch = SerialComManager.ARCH_S390X;
 		}else {
 		}
-		
+
 		return cpuArch;
 	}
-	
+
 	/** 
 	 * <p>Identifies whether library is running on an android platform.</p>
 	 * 
-	 * @return true if platform is android false otherwise
-	 * @throws SerialComUnexpectedException if "java.vm.vendor" java system property is null
+	 * @return true if platform is android false otherwise.
+	 * @throws SerialComUnexpectedException if "java.vm.vendor" java system property is null.
 	 */
 	private boolean isAndroid() throws SerialComUnexpectedException {
 		// java.vm.vendor system property in android always returns The Android Project as per android javadocs.
@@ -169,19 +173,19 @@ public final class SerialComPlatform {
 		if(osVendor == null) {
 			throw new SerialComUnexpectedException("The java.vm.vendor java system property is null in the system !");
 		}
-		
+
 		if(osVendor.contains("android")) {
 			return true;
 		}
 		return false;
 	}
-	
+
 	/**
 	 * <p>Conformance to the standard ABI for the ARM architecture helps in inter-operation between re-locatable or 
 	 * executable files built by different tool chains.</p>
 	 * 
-	 * @return either ABI_ARMHF or ABI_ARMEL constant value as per identification
-	 * @throws SerialComUnexpectedException if "java.home" java system property is null
+	 * @return either ABI_ARMHF or ABI_ARMEL constant value as per identification.
+	 * @throws SerialComUnexpectedException if "java.home" java system property is null.
 	 */
 	public final int getJAVAABIType() throws SerialComUnexpectedException {
 		int abiType = SerialComManager.ABI_ARMEL;
@@ -189,22 +193,21 @@ public final class SerialComPlatform {
 		if(javaHome == null) {
 			throw new SerialComUnexpectedException("The java.home java system property is null in the system !");
 		}
-		
-	    try {
-	        String[] cmdarray = { "/bin/sh", "-c", "find '" + javaHome +
-	                "' -name 'libjvm.so' | head -1 | xargs readelf -A | " +
-	                "grep 'Tag_ABI_VFP_args: VFP registers'" };
-	        int exitValueOfSubProcess = Runtime.getRuntime().exec(cmdarray).waitFor();
-	        if(exitValueOfSubProcess == 0) {
-	        	abiType = SerialComManager.ABI_ARMHF;
-	        }
-	    }catch (IOException e) {
-	    	return SerialComManager.ABI_ARMEL;
-	    }catch (InterruptedException e) {
-	    	return SerialComManager.ABI_ARMEL;
-	    }
-	    
-	    return abiType;
+
+		try {
+			String[] cmdarray = { "/bin/sh", "-c", "find '" + javaHome +
+					"' -name 'libjvm.so' | head -1 | xargs readelf -A | " +
+			"grep 'Tag_ABI_VFP_args: VFP registers'" };
+			int exitValueOfSubProcess = Runtime.getRuntime().exec(cmdarray).waitFor();
+			if(exitValueOfSubProcess == 0) {
+				abiType = SerialComManager.ABI_ARMHF;
+			}
+		}catch (IOException e) {
+			return SerialComManager.ABI_ARMEL;
+		}catch (InterruptedException e) {
+			return SerialComManager.ABI_ARMEL;
+		}
+
+		return abiType;
 	}
-	
 }
