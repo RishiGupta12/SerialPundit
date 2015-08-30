@@ -70,12 +70,13 @@ public class SerialComHID {
 			if(hidDevicesInfo.length < 3) {
 				return new SerialComHIDdevice[] { };
 			}
-			numOfDevices = hidDevicesInfo.length / 7;
+			numOfDevices = hidDevicesInfo.length / 9;
 			hidDevicesFound = new SerialComHIDdevice[numOfDevices];
 			for(int x=0; x < numOfDevices; x++) {
 				hidDevicesFound[x] = new SerialComHIDdevice(hidDevicesInfo[i], hidDevicesInfo[i+1], hidDevicesInfo[i+2], 
-						hidDevicesInfo[i+3], hidDevicesInfo[i+4], hidDevicesInfo[i+5], hidDevicesInfo[i+6]);
-				i = i + 7;
+						hidDevicesInfo[i+3], hidDevicesInfo[i+4], hidDevicesInfo[i+5], hidDevicesInfo[i+6],
+						hidDevicesInfo[i+7], hidDevicesInfo[i+8]);
+				i = i + 9;
 			}
 			return hidDevicesFound;
 		}else {

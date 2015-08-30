@@ -37,6 +37,14 @@ public class Test68  {
 			for(int x=0; x< usbHidDevices.length; x++) {
 				usbHidDevices[x].dumpDeviceInfo();
 			}
+			
+			System.out.println("\n");
+			
+			SerialComHID sch = scm.getSerialComHIDInstance(SerialComHID.HID_GENERIC, null, null);
+			SerialComHIDdevice[] hidDevices = sch.listHIDdevicesWithInfo();
+			for(int x=0; x< hidDevices.length; x++) {
+				hidDevices[x].dumpDeviceInfo();
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

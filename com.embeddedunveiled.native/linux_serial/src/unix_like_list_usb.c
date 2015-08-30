@@ -222,6 +222,7 @@ jobjectArray list_usb_devices(JNIEnv *env, jobject obj, jint vendor_to_match) {
 				return linux_clean_up_and_throw_exp(env, 1, NULL, &list, udev_device, enumerator, udev_ctx);
 			}
 			insert_jstrarraylist(&list, usb_dev_info);
+
 		}
 		udev_device_unref(udev_device);
 	}

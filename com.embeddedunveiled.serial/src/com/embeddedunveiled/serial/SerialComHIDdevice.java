@@ -30,6 +30,8 @@ public final class SerialComHIDdevice {
 	private String serial;
 	private String product;
 	private String manufacturer;
+	private String busNumber;
+	private String devNumber;
 
 	/**
 	 * <p>Construct and allocates a new SerialComHIDdevice object with given details.</p>
@@ -44,8 +46,7 @@ public final class SerialComHIDdevice {
 	 * @param deviceNode 
 	 * @throws SerialComException if the object can not be constructed.
 	 */
-	public SerialComHIDdevice(String transport, String deviceNode, String idVendor, String idProduct,
-			String serial, String product, String manufacturer) {
+	public SerialComHIDdevice(String transport, String deviceNode, String idVendor, String idProduct, String serial, String product, String manufacturer, String busNumber, String devNumber) {
 		this.transport = transport;
 		this.deviceNode = deviceNode;
 		this.idVendor = idVendor;
@@ -53,6 +54,8 @@ public final class SerialComHIDdevice {
 		this.serial = serial;
 		this.product = product;
 		this.manufacturer = manufacturer;
+		this.busNumber = busNumber;
+		this.devNumber = devNumber;
 	}
 
 	/** 
@@ -129,6 +132,34 @@ public final class SerialComHIDdevice {
 	}
 
 	/** 
+	 * <p>Retrieves the USB bus number on which this USB device is connected.</p>
+	 * 
+	 * @return bus number of which this USB device is connected.
+	 * @throws NumberFormatException if the USB bus number string can not be converted into 
+	 *          numerical representation.
+	 */
+	public int getBusNumber() {
+		if("---".equals(busNumber)) {
+			return 0;
+		}
+		return Integer.parseInt(busNumber, 10);
+	}
+
+	/** 
+	 * <p>Retrieves the USB device number as assigned by operating system.</p>
+	 * 
+	 * @return USB device number as assigned by operating system.
+	 * @throws NumberFormatException if the USB device number string can not be converted into 
+	 *          numerical representation.
+	 */
+	public int getUSBDeviceNumberInSystem() {
+		if("---".equals(devNumber)) {
+			return 0;
+		}
+		return Integer.parseInt(devNumber, 10);
+	}
+
+	/** 
 	 * <p>Prints information about this device on console.</p>
 	 */
 	public void dumpDeviceInfo() {
@@ -139,6 +170,8 @@ public final class SerialComHIDdevice {
 				"\nProduct id : 0x" + idProduct + 
 				"\nSerial number : " + serial + 
 				"\nProduct : " + product + 
-				"\nManufacturer : " + manufacturer + "\n");
+				"\nManufacturer : " + manufacturer + 
+				"\nUSB bus number : " + busNumber +
+				"\nUSB Device number : " + devNumber);
 	}
 }

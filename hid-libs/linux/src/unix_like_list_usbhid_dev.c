@@ -221,6 +221,30 @@ jstring linux_clean_up_and_throw_exp(JNIEnv *env, int task, const char *expmsg,
 			}
 			insert_jstrarraylist(&list, usb_dev_info);
 
+			/* BUS NUMBER */
+			sysattr_val = udev_device_get_sysattr_value(udev_device, "busnum");
+			if(sysattr_val != NULL) {
+				usb_dev_info = (*env)->NewStringUTF(env, sysattr_val);
+			}else {
+				usb_dev_info = (*env)->NewStringUTF(env, "---");
+			}
+			if((usb_dev_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+				return linux_clean_up_and_throw_exp(env, 1, NULL, &list, udev_device, enumerator, udev_ctx);
+			}
+			insert_jstrarraylist(&list, usb_dev_info);
+
+			/* CONNECTED USB DEVICE NUMBER */
+			sysattr_val = udev_device_get_sysattr_value(udev_device, "devnum");
+			if(sysattr_val != NULL) {
+				usb_dev_info = (*env)->NewStringUTF(env, sysattr_val);
+			}else {
+				usb_dev_info = (*env)->NewStringUTF(env, "---");
+			}
+			if((usb_dev_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+				return linux_clean_up_and_throw_exp(env, 1, NULL, &list, udev_device, enumerator, udev_ctx);
+			}
+			insert_jstrarraylist(&list, usb_dev_info);
+
 			udev_device_unref(udev_device);
 		}
 
