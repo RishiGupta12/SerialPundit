@@ -43,7 +43,8 @@ public final class SerialComHIDdevice {
 	 * @param serial serial number of this device.
 	 * @param product product identifier/description of this device.
 	 * @param manufacturer company manufacturing of this device.
-	 * @param deviceNode 
+	 * @param busNumber usb bus number on which this device is connected.
+	 * @param devNumber usb device number as assigned by operating system.
 	 * @throws SerialComException if the object can not be constructed.
 	 */
 	public SerialComHIDdevice(String transport, String deviceNode, String idVendor, String idProduct, String serial, String product, String manufacturer, String busNumber, String devNumber) {
