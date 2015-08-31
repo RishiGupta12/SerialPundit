@@ -1396,21 +1396,23 @@ public final class SerialComManager {
 	}
 
 	/**
-	 * <p>This method assert/de-assert RTS line of serial port. Set "true" for asserting signal, false otherwise. 
-	 * This changes the state of RTS line electrically.</p>
+	 * <p>This method assert/de-assert RTS line of serial port. Set "true" for asserting signal, 
+	 * false otherwise. This changes the state of RTS line electrically.</p>
 	 * 
-	 * <p>RTS and DTR lines can be asserted or de-asserted even when using no flow control on serial port.</p>
+	 * <p>RTS and DTR lines can be asserted or de-asserted even when using no flow control on 
+	 * serial port.</p>
 	 * 
-	 * <p>The RS-232 standard defines the voltage levels that correspond to logical one and logical zero levels for the data 
-	 * transmission and the control signal lines. Valid signals are either in the range of +3 to +15 volts or the range 
-	 * −3 to −15 volts with respect to the ground/common pin; consequently, the range between −3 to +3 volts is not a 
-	 * valid RS-232 level.</p>
+	 * <p>The RS-232 standard defines the voltage levels that correspond to logical one and logical 
+	 * zero levels for the data transmission and the control signal lines. Valid signals are either 
+	 * in the range of +3 to +15 volts or the range −3 to −15 volts with respect to the ground/common 
+	 * pin; consequently, the range between −3 to +3 volts is not a valid RS-232 level.</p>
 	 * 
-	 * <p>In asserted condition, voltage at pin number 7 (RTS signal) will be greater than 3 volts. Voltage 5.0 volts
-	 * was observed when using USB-UART converter http://www.amazon.in/Bafo-USB-Serial-Converter-DB9/dp/B002SCRCDG.</p>
+	 * <p>In asserted condition, voltage at pin number 7 (RTS signal) will be greater than 3 volts. 
+	 * Voltage 5.0 volts was observed when using USB-UART converter : 
+	 * http://www.amazon.in/Bafo-USB-Serial-Converter-DB9/dp/B002SCRCDG.</p>
 	 * 
-	 * <p>On some hardware IC, signals may be active low and therefore for actual voltage datasheet should be consulted. Also please check if the 
-	 * driver supports setting RTS/DTR lines or not.<p>
+	 * <p>On some hardware IC, signals may be active low and therefore for actual voltage datasheet 
+	 * should be consulted. Also please check if the driver supports setting RTS/DTR lines or not.<p>
 	 * 
 	 * @param handle of the opened port.
 	 * @param enabled if true RTS will be asserted and vice-versa.
@@ -1420,17 +1422,22 @@ public final class SerialComManager {
 	public boolean setRTS(long handle, boolean enabled) throws SerialComException {
 		int ret = mComPortJNIBridge.setRTS(handle, enabled);
 		if(ret < 0) {
-			/* extra check  */
 			throw new SerialComException("Could not set RTS line to desired state. Please retry !");
 		}
 		return true;
 	}
 
 	/**
-	 * <p>This method assert/de-assert DTR line of serial port. Set "true" for asserting signal, false otherwise. 
-	 * This changes the state of RTS line electrically.</p>
+	 * <p>This method assert/de-assert DTR line of serial port. Set "true" for asserting signal, false 
+	 * otherwise. This changes the state of RTS line electrically.</p>
 	 * 
-	 * <p>RTS and DTR lines can be asserted or de-asserted even when using no flow control on serial port.</p>
+	 * <p>RTS and DTR lines can be asserted or de-asserted even when a serial port is configured as 
+	 * 'flow control none'.</p>
+	 * 
+	 * <p>It is possible to establish PPP connections to transmit binary data over a two (or more) wire 
+	 * interface with full handshaking and modem control signaling if the driver is configured for this. 
+	 * Refer application note from FTDI for details : AN232B-09 Using the Modem Emulation Mode in FTDI's 
+	 * VCP Driver.</p>
 	 * 
 	 * @param handle of the opened port.
 	 * @param enabled if true DTR will be asserted and vice-versa.
@@ -1440,7 +1447,6 @@ public final class SerialComManager {
 	public boolean setDTR(long handle, boolean enabled) throws SerialComException {
 		int ret = mComPortJNIBridge.setDTR(handle, enabled);
 		if(ret < 0) {
-			/* extra check */
 			throw new SerialComException("Could not set DTR line to desired state. Please retry !");
 		}
 		return true;
