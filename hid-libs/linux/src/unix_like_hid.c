@@ -61,6 +61,7 @@
 JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_listHIDdevicesWithInfo
 (JNIEnv *env, jobject obj) {
 	return NULL;
+	/*TODO*/
 }
 
 /*

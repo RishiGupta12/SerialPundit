@@ -35,7 +35,7 @@ public class SerialComHID {
 	/**<p>The value indicating instance of class SerialComHID. Integer constant with value 0x03.</p>*/
 	public static final int HID_BLUETOOTH = 0x03;
 
-	// used by sub-classes also.
+	// sub-classes also uses this reference to invoke native functions.
 	protected SerialComHIDJNIBridge mHIDJNIBridge;
 
 	/**
@@ -86,9 +86,9 @@ public class SerialComHID {
 	}
 
 	/**
-	 * Converts report read from human interface device to hexadecimal string. This may be 
+	 * <p>Converts report read from human interface device to hexadecimal string. This may be 
 	 * useful when report is to be passed to next level as hex data or report is to be 
-	 * feed into external HID report parser tool.
+	 * feed into external HID report parser tool.</p>
 	 * 
 	 * @param report report to be converted into hex string.
 	 * @return constructed hex string if report.length > 0 otherwise empty string.
