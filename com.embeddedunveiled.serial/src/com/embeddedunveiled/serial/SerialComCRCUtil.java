@@ -21,6 +21,8 @@ package com.embeddedunveiled.serial;
  * <p>Utility class to calculate and generate CRC values for a given message. This can be used 
  * in X/Y/Z modem etc protocol implementations and in developing custom protocols for transmitting 
  * data over serial port.</p>
+ * 
+ * @author Rishi Gupta
  */
 public final class SerialComCRCUtil {
 

@@ -21,6 +21,8 @@ import com.embeddedunveiled.serial.SerialComUtil;
 
 /**
  * <p>Represents the FT_PROGRAM_DATA structure declared in ftd2xx.h header file.</p>
+ * 
+ * @author Rishi Gupta
  */
 public final class FTprogramData {
 

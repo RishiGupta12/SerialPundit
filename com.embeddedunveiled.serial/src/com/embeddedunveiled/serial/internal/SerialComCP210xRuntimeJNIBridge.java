@@ -27,6 +27,8 @@ import com.embeddedunveiled.serial.SerialComUnexpectedException;
 
 /**
  * <p>This class is an interface between java and native shared library.</p>
+ * 
+ * @author Rishi Gupta
  */
 public final class SerialComCP210xRuntimeJNIBridge {
 

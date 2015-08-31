@@ -33,6 +33,8 @@ import com.embeddedunveiled.serial.SerialComException;
  * <p>A handle can have only one looper for delivering data and line events.</p>
  * <p>A looper can have none or only one data looper at any instant of time.</p>
  * <p>A looper can have none or only one event looper at any instant of time.</p>
+ * 
+ * @author Rishi Gupta
  */
 public final class SerialComCompletionDispatcher {
 

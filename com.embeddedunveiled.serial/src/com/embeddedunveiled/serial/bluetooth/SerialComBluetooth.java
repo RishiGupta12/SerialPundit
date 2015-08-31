@@ -20,6 +20,11 @@ package com.embeddedunveiled.serial.bluetooth;
 import com.embeddedunveiled.serial.SerialComException;
 import com.embeddedunveiled.serial.internal.SerialComPortJNIBridge;
 
+/**
+ * <p>TODO</p>
+ * 
+ * @author Rishi Gupta
+ */
 public final class SerialComBluetooth {
 
 	private SerialComPortJNIBridge mComPortJNIBridge;

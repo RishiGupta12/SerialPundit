@@ -24,6 +24,8 @@ import com.embeddedunveiled.serial.internal.SerialComPortHandleInfo;
 
 /**
  * <p>Represents an output stream of bytes that gets sent over to serial port for transmission.</p>
+ * 
+ * @author Rishi Gupta
  */
 public final class SerialComOutByteStream extends OutputStream {
 

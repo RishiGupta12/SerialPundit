@@ -27,6 +27,8 @@ package com.embeddedunveiled.serial;
  * 
  * <p>During development avoid connecting more than one device containing the same VID, PID, and serial 
  * number combination.</p>
+ * 
+ * @author Rishi Gupta
  */
 public interface ISerialComHotPlugListener {
 

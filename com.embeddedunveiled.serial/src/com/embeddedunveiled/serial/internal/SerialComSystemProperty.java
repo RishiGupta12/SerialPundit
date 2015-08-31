@@ -22,7 +22,9 @@ import java.security.PrivilegedAction;
 import java.util.Locale;
 
 /** 
- * <p>Provides java system properties to the callers in a unified way. </p>
+ * <p>Provides java system properties to the callers in a unified way.</p>
+ * 
+ * @author Rishi Gupta
  */
 public final class SerialComSystemProperty {
 

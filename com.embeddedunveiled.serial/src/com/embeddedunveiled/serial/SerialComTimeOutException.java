@@ -22,6 +22,8 @@ import java.io.IOException;
 /** 
  * <p>Exception thrown when a blocking operation times out. 
  * This limit the scope of exceptions in context of serial operation only.</p>
+ * 
+ * @author Rishi Gupta
  */
 public final class SerialComTimeOutException extends IOException {
 

@@ -25,7 +25,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 /**
- * <p>Implements state machine for XMODEM file transfer protocol in Java.</p>
+ * <p>Implements state machine for XMODEM-128 file transfer protocol in Java.</p>
+ * 
+ * @author Rishi Gupta
  */
 public final class SerialComXModem {
 

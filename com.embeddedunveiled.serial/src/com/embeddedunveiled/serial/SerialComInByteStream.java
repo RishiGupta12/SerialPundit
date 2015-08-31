@@ -29,6 +29,8 @@ import com.embeddedunveiled.serial.internal.SerialComPortHandleInfo;
  * which is blocked (waiting for data byte) on the same port.</p>
  * 
  * <p>Advance applications may fine tune the timing behavior using fineTuneRead() API.</p>
+ * 
+ * @author Rishi Gupta
  */
 public final class SerialComInByteStream extends InputStream {
 

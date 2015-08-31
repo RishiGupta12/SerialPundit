@@ -42,6 +42,8 @@ import com.embeddedunveiled.serial.internal.SerialComSystemProperty;
  * https://www.silabs.com/Support%20Documents/TechnicalDocs/an144.pdf</p>
  * 
  * <p>SCM version 1.0.4 is linked to v3.4 version of CP210xManufacturing library.</p>
+ * 
+ * @author Rishi Gupta
  */
 public final class SerialComSLabsCP210xManufacturing extends SerialComVendorLib {
 

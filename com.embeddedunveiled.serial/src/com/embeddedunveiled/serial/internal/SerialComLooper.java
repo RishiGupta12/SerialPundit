@@ -35,6 +35,8 @@ import com.embeddedunveiled.serial.SerialComManager;
  * 
  * <p>The rate of delivery of data/events are directly proportional to how fast listener finishes
  * his job and let us return.</p>
+ * 
+ * @author Rishi Gupta
  */
 public final class SerialComLooper {
 

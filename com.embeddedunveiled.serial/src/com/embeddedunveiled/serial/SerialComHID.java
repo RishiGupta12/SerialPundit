@@ -22,16 +22,17 @@ import com.embeddedunveiled.serial.internal.SerialComHIDJNIBridge;
 /**
  * <p></p>
  * 
+ * @author Rishi Gupta
  */
 public class SerialComHID {
 
-	/** <p>The value indicating instance of class SerialComHID. Integer constant with value 0x01. </p>*/
+	/**<p>The value indicating instance of class SerialComHID. Integer constant with value 0x01.</p>*/
 	public static final int HID_GENERIC = 0x01;
 
-	/** <p>The value indicating instance of class SerialComHID. Integer constant with value 0x02. </p>*/
+	/**<p>The value indicating instance of class SerialComHID. Integer constant with value 0x02.</p>*/
 	public static final int HID_USB = 0x02;
 
-	/** <p>The value indicating instance of class SerialComHID. Integer constant with value 0x03. </p>*/
+	/**<p>The value indicating instance of class SerialComHID. Integer constant with value 0x03.</p>*/
 	public static final int HID_BLUETOOTH = 0x03;
 
 	// used by sub-classes also.

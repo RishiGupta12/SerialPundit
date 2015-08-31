@@ -27,6 +27,8 @@ import com.embeddedunveiled.serial.SerialComManager;
 
 /**
  * <p>Finds all serial ports known to system and return them in sorted alphanumeric order.</p>
+ * 
+ * @author Rishi Gupta
  */
 public final class SerialComPortsList {
 

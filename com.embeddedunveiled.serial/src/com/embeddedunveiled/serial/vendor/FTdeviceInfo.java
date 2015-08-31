@@ -22,6 +22,8 @@ import com.embeddedunveiled.serial.SerialComUtil;
 /**
  * <p>Represents information about a device returned by calling listDevices() method in 
  * SerialComFTDID2XX class.</p>
+ * 
+ * @author Rishi Gupta
  */
 public final class FTdeviceInfo {
 

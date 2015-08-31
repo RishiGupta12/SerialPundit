@@ -20,6 +20,8 @@ package com.embeddedunveiled.serial;
 /** 
  * <p>Acts as a messenger between application and SCM library to specify 
  * whether sending/receiving file should continue or be aborted.</p>
+ * 
+ * @author Rishi Gupta
  */
 public final class SerialComXModemAbort {
 

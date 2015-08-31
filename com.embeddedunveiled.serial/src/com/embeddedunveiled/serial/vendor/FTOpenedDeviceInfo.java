@@ -21,6 +21,8 @@ import com.embeddedunveiled.serial.SerialComUtil;
 
 /**
  * <p>Represents information about an opened FT device.</p>
+ * 
+ * @author Rishi Gupta
  */
 public final class FTOpenedDeviceInfo {
 

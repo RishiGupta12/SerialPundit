@@ -42,6 +42,8 @@ import com.embeddedunveiled.serial.internal.SerialComSystemProperty;
  * http://www.silabs.com/Support%20Documents/TechnicalDocs/an169.pdf</p>
  * 
  * <p>SCM version 1.0.4 is linked to v4.0 version of USBXpress from silicon labs.</p>
+ * 
+ * @author Rishi Gupta
  */
 public final class SerialComSLabsUSBXpress extends SerialComVendorLib {
 

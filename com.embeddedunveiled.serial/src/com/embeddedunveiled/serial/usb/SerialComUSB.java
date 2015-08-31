@@ -26,6 +26,8 @@ import com.embeddedunveiled.serial.internal.SerialComPortJNIBridge;
  * <p>An end product may be based on dedicated USB-UART bridge IC for providing serial over USB or 
  * may use general purpose microcontroller like PIC18F4550 from Microchip technology Inc. and 
  * program appropriate firmware (USB CDC) into ti to provide UART communication over USB port.</p>
+ * 
+ * @author Rishi Gupta
  */
 public final class SerialComUSB {
 

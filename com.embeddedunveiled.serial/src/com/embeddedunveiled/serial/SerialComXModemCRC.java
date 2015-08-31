@@ -29,8 +29,10 @@ import com.embeddedunveiled.serial.SerialComManager.FTPVAR;
 import com.embeddedunveiled.serial.SerialComCRCUtil;
 
 /**
- * <p>Implements state machine for XMODEM-CRC file transfer protocol in Java.</p>
- * <p>Addition of CRC increases data integrity.</p>
+ * <p>Implements state machine for XMODEM-CRC file transfer protocol in Java. 
+ * Addition of CRC increases data integrity.</p>
+ * 
+ * @author Rishi Gupta
  */
 public final class SerialComXModemCRC {
 

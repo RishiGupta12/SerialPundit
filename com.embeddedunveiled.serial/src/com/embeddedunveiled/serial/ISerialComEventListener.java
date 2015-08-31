@@ -20,6 +20,8 @@ package com.embeddedunveiled.serial;
 /**
  * <p>The interface ISerialComEventListener should be implemented by class who wish to 
  * receive modem/line events on serial port.</p>
+ * 
+ * @author Rishi Gupta
  */
 public interface ISerialComEventListener {
 

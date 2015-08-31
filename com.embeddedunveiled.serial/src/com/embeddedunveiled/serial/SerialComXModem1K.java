@@ -29,8 +29,10 @@ import com.embeddedunveiled.serial.SerialComManager.FTPVAR;
 import com.embeddedunveiled.serial.SerialComCRCUtil;
 
 /**
- * <p>Implements state machine for XMODEM-1k file transfer protocol in Java.</p>
- * <p>Increase in block size increases overall throughput.</p>
+ * <p>Implements state machine for XMODEM-1k file transfer protocol in Java. 
+ * Increase in block size increases overall throughput.</p>
+ * 
+ * @author Rishi Gupta
  */
 public final class SerialComXModem1K {
 

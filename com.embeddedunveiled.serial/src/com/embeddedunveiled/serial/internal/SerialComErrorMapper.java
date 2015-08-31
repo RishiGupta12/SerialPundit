@@ -22,6 +22,8 @@ import com.embeddedunveiled.serial.SerialComManager;
 /**
  * <p>This class helps in consistent error reporting in java layer mapping OS specific error numbers.</p>
  * <p>Errors or exceptions are detected and reported as specific as possible to accelerate debugging.</p>
+ * 
+ * @author Rishi Gupta
  */
 public final class SerialComErrorMapper {
 	

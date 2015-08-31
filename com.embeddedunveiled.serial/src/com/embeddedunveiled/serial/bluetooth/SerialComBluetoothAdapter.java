@@ -19,6 +19,8 @@ package com.embeddedunveiled.serial.bluetooth;
 
 /**
  * <p>Represents the local device Bluetooth adapter and information about it.</p>
+ * 
+ * @author Rishi Gupta
  */
 public final class SerialComBluetoothAdapter {
 

@@ -25,6 +25,8 @@ import com.embeddedunveiled.serial.SerialComOutByteStream;
 /**
  * <p>Encapsulates the information like port handle, looper object, event listener, 
  * data listener, port name etc associated with a particular port.</p>
+ * 
+ * @author Rishi Gupta
  */
 public final class SerialComPortHandleInfo {
 

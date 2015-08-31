@@ -21,6 +21,8 @@ import java.io.IOException;
 
 /** 
  * <p>Limit the scope of exceptions in context of serial port communication only.</p>
+ * 
+ * @author Rishi Gupta
  */
 public final class SerialComException extends IOException {
 

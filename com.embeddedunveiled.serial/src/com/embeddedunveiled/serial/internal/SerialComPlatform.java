@@ -28,6 +28,8 @@ import com.embeddedunveiled.serial.SerialComUnexpectedException;
 /**
  * <p>Identifies various hardware and software platform attributes 
  * like operating system and CPU architecture etc.</p>
+ * 
+ * @author Rishi Gupta
  */
 public final class SerialComPlatform {
 

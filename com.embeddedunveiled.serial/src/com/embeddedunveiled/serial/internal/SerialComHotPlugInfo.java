@@ -21,6 +21,8 @@ import com.embeddedunveiled.serial.ISerialComHotPlugListener;
 
 /**
  * <p>Encapsulates the information associated with hot plug listener and its native part.</p>
+ * 
+ * @author Rishi Gupta
  */
 public final class SerialComHotPlugInfo {
 	

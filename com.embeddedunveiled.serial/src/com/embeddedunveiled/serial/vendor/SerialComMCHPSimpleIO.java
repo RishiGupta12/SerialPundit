@@ -39,6 +39,8 @@ import com.embeddedunveiled.serial.internal.SerialComSystemProperty;
  * valid values and range when passing arguments to a method.</p>
  * 
  * <p>SCM version 1.0.4 is linked to 1.4.0 version of SimpleIO library.</p>
+ * 
+ * @author Rishi Gupta
  */
 public final class SerialComMCHPSimpleIO extends SerialComVendorLib {
 

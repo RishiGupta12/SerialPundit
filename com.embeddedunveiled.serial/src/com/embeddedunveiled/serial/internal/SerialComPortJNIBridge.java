@@ -31,6 +31,8 @@ import com.embeddedunveiled.serial.internal.SerialComSystemProperty;
 
 /**
  * <p>This class is an interface between java and native shared library.</p>
+ * 
+ * @author Rishi Gupta
  */
 public final class SerialComPortJNIBridge {
 

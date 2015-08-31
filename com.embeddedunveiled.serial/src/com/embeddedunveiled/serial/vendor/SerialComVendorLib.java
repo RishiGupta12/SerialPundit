@@ -30,6 +30,8 @@ import com.embeddedunveiled.serial.internal.SerialComSystemProperty;
  * <p>Super class for all classes which implements vendor specific API to talk to 
  * their devices using the libraries provided by vendor. These libraries from vendor 
  * may be propriety or not.</p>
+ * 
+ * @author Rishi Gupta
  */
 public class SerialComVendorLib {
 

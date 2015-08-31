@@ -22,6 +22,8 @@ import com.embeddedunveiled.serial.SerialComUtil;
 
 /**
  * <p>Represents a USB device with information about it.</p>
+ * 
+ * @author Rishi Gupta
  */
 public final class SerialComUSBdevice {
 

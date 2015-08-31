@@ -20,6 +20,8 @@ package com.embeddedunveiled.serial.bluetooth;
 /**
  * <p>Represents a device node created for serial port emulation over bluetooth channel 
  * using rfcomm service.</p>
+ * 
+ * @author Rishi Gupta
  */
 public final class SerialComBluetoothSPPDevNode {
 

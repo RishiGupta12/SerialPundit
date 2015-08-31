@@ -20,6 +20,8 @@ package com.embeddedunveiled.serial;
 
 /**
  * <p>Represents a HID device with information about it.</p>
+ * 
+ * @author Rishi Gupta
  */
 public final class SerialComHIDdevice {
 

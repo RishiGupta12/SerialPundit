@@ -21,6 +21,8 @@ import com.embeddedunveiled.serial.SerialComUtil;
 
 /**
  * <p>Represents a FT_DEVICE_LIST_INFO_NODE structure.</p>
+ * 
+ * @author Rishi Gupta
  */
 public final class FTdevicelistInfoNode {
 
