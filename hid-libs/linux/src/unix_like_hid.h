@@ -21,10 +21,6 @@
 
 #if defined (__linux__)
 #include <libudev.h>
-#include <linux/hidraw.h>
-#endif
-#include <pthread.h>
-#if defined (__APPLE__)
 #endif
 #include <jni.h>
 
@@ -44,6 +40,7 @@
 #define E_SETOBJECTARRAYSTR "JNI call SetObjectArrayElement failed. Either index violation or wrong class used !"
 #define E_SETBYTEARRAYREGION "JNI call SetByteArrayRegion failed. Probably index out of bound !"
 
+#define E_CALLOCSTR "calloc() failed to allocate requested memory !"
 #define E_CANNOTFINDDEVNODE "Failed to find device node for the USB HID interface !"
 #define E_CANNOTFINDPARENTUDEV "Could not find parent udev device for the USB HID interface !"
 #define E_CANNOTCREATEUDEVDEV "Could not create udev device from major/minor numbers of device node !"
@@ -64,8 +61,21 @@ extern void throw_serialcom_exception(JNIEnv *env, int type, int error_code, con
 extern void free_jstrarraylist(struct jstrarray_list *al);
 extern void insert_jstrarraylist(struct jstrarray_list *al, jstring element);
 extern void init_jstrarraylist(struct jstrarray_list *al, int initial_size);
+
+#if defined (__linux__)
+extern jstring linux_clean_throw_exp_usbenumeration(JNIEnv *env, int task, const char *expmsg,
+		struct jstrarray_list *list, struct udev_device *udev_device, struct udev_enumerate *enumerator,
+		struct udev *udev_ctx);
+extern jobjectArray linux_enumerate_usb_hid_devices(JNIEnv *env, jint vendor_filter);
+#endif
+
+#if defined (__APPLE__)
+extern jobjectArray mac_enumerate_usb_hid_devices(JNIEnv *env, jint vendor_filter, IOHIDManagerRef mac_hid_mgr);
+extern 	jstring mac_clean_throw_exp_usbenumeration(JNIEnv *env, int task, const char *expmsg, CFSetRef hiddev_cfset,
+		IOHIDDeviceRef *hiddev_references);
+#endif
+
 extern jint get_report_descriptor_size(JNIEnv *env, jlong fd);
-extern jobjectArray list_usb_hid_devices(JNIEnv *env, jint vendor_filter);
 extern jstring get_hiddev_info_string(JNIEnv *env, jlong fd, int task);
 extern jstring get_hiddev_indexed_string(JNIEnv *env, jlong fd, int index);
 extern jlong open_by_usb_attrributes(JNIEnv *env, jint usbvid, jint usbpid, jstring usbserialnumber);

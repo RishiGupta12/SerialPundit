@@ -34,6 +34,7 @@ public final class SerialComHIDdevice {
 	private String manufacturer;
 	private String busNumber;
 	private String devNumber;
+	private String locationID;
 
 	/**
 	 * <p>Construct and allocates a new SerialComHIDdevice object with given details.</p>
@@ -47,9 +48,12 @@ public final class SerialComHIDdevice {
 	 * @param manufacturer company manufacturing of this device.
 	 * @param busNumber usb bus number on which this device is connected.
 	 * @param devNumber usb device number as assigned by operating system.
+	 * @param locationID location ID of USB device.
 	 * @throws SerialComException if the object can not be constructed.
 	 */
-	public SerialComHIDdevice(String transport, String deviceNode, String idVendor, String idProduct, String serial, String product, String manufacturer, String busNumber, String devNumber) {
+	public SerialComHIDdevice(String transport, String deviceNode, String idVendor, String idProduct, 
+			String serial, String product, String manufacturer, String busNumber, String devNumber,
+			String locationID) {
 		this.transport = transport;
 		this.deviceNode = deviceNode;
 		this.idVendor = idVendor;
@@ -59,6 +63,7 @@ public final class SerialComHIDdevice {
 		this.manufacturer = manufacturer;
 		this.busNumber = busNumber;
 		this.devNumber = devNumber;
+		this.locationID = locationID;
 	}
 
 	/** 
@@ -82,13 +87,13 @@ public final class SerialComHIDdevice {
 	/** 
 	 * <p>Retrieves the vendor id of the USB device.</p>
 	 * 
-	 * @return vendor id of the USB device.
+	 * @return vendor id of the USB device or -1 if location ID is not applicable for this platform.
 	 * @throws NumberFormatException if the USB vendor id hex string can not be converted into numerical 
 	 *          representation.
 	 */
-	public int getVendorId() {
+	public int getVendorID() {
 		if("---".equals(idVendor)) {
-			return 0;
+			return -1;
 		}
 		return (int) SerialComUtil.hexStrToLongNumber(idVendor);
 	}
@@ -96,13 +101,13 @@ public final class SerialComHIDdevice {
 	/** 
 	 * <p>Retrieves the product id of the USB device.</p>
 	 * 
-	 * @return product id of the USB device.
+	 * @return product id of the USB device or -1 if location ID is not applicable for this platform.
 	 * @throws NumberFormatException if the USB product id hex string can not be converted into numerical 
 	 *          representation.
 	 */
-	public int getProductId() {
+	public int getProductID() {
 		if("---".equals(idProduct)) {
-			return 0;
+			return -1;
 		}
 		return (int) SerialComUtil.hexStrToLongNumber(idProduct);
 	}
@@ -137,13 +142,14 @@ public final class SerialComHIDdevice {
 	/** 
 	 * <p>Retrieves the USB bus number on which this USB device is connected.</p>
 	 * 
-	 * @return bus number of which this USB device is connected.
+	 * @return bus number of which this USB device is connected or -1 if location ID is not applicable for 
+	 *          this platform.
 	 * @throws NumberFormatException if the USB bus number string can not be converted into 
 	 *          numerical representation.
 	 */
 	public int getBusNumber() {
 		if("---".equals(busNumber)) {
-			return 0;
+			return -1;
 		}
 		return Integer.parseInt(busNumber, 10);
 	}
@@ -151,15 +157,30 @@ public final class SerialComHIDdevice {
 	/** 
 	 * <p>Retrieves the USB device number as assigned by operating system.</p>
 	 * 
-	 * @return USB device number as assigned by operating system.
+	 * @return USB device number as assigned by operating system or -1 if location ID is not applicable for 
+	 *          this platform.
 	 * @throws NumberFormatException if the USB device number string can not be converted into 
 	 *          numerical representation.
 	 */
 	public int getUSBDeviceNumberInSystem() {
 		if("---".equals(devNumber)) {
-			return 0;
+			return -1;
 		}
 		return Integer.parseInt(devNumber, 10);
+	}
+
+	/** 
+	 * <p>Retrieves the location ID of the USB device in system.</p>
+	 * 
+	 * @return location ID of the USB device or -1 if location ID is not applicable for this platform.
+	 * @throws NumberFormatException if the location ID hex string can not be converted into numerical 
+	 *          representation.
+	 */
+	public long getLocationID() {
+		if("---".equals(locationID)) {
+			return -1;
+		}
+		return SerialComUtil.hexStrToLongNumber(locationID);
 	}
 
 	/** 
@@ -175,6 +196,7 @@ public final class SerialComHIDdevice {
 				"\nProduct : " + product + 
 				"\nManufacturer : " + manufacturer + 
 				"\nUSB bus number : " + busNumber +
-				"\nUSB Device number : " + devNumber);
+				"\nUSB Device number : " + devNumber + 
+				"\nLocation ID : 0x" + locationID);
 	}
 }

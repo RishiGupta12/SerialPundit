@@ -78,13 +78,13 @@ public final class SerialComUSBHID extends SerialComHID {
 
 			// number of elements sent by native layer will be multiple of 7
 			// if device(s) is found to populate SerialComHIDdevice object.
-			numOfDevices = usbhidDevicesInfo.length / 9;
+			numOfDevices = usbhidDevicesInfo.length / 10;
 			usbHidDevicesFound = new SerialComHIDdevice[numOfDevices];
 			for(int x=0; x < numOfDevices; x++) {
 				usbHidDevicesFound[x] = new SerialComHIDdevice(usbhidDevicesInfo[i], usbhidDevicesInfo[i+1], usbhidDevicesInfo[i+2], 
 						usbhidDevicesInfo[i+3], usbhidDevicesInfo[i+4], usbhidDevicesInfo[i+5], usbhidDevicesInfo[i+6],
-						usbhidDevicesInfo[i+7], usbhidDevicesInfo[i+8]);
-				i = i + 9;
+						usbhidDevicesInfo[i+7], usbhidDevicesInfo[i+8], usbhidDevicesInfo[i+9]);
+				i = i + 10;
 			}
 			return usbHidDevicesFound;
 		}else {

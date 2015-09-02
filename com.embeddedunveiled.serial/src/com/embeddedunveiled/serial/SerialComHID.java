@@ -71,13 +71,13 @@ public class SerialComHID {
 			if(hidDevicesInfo.length < 3) {
 				return new SerialComHIDdevice[] { };
 			}
-			numOfDevices = hidDevicesInfo.length / 9;
+			numOfDevices = hidDevicesInfo.length / 10;
 			hidDevicesFound = new SerialComHIDdevice[numOfDevices];
 			for(int x=0; x < numOfDevices; x++) {
 				hidDevicesFound[x] = new SerialComHIDdevice(hidDevicesInfo[i], hidDevicesInfo[i+1], hidDevicesInfo[i+2], 
 						hidDevicesInfo[i+3], hidDevicesInfo[i+4], hidDevicesInfo[i+5], hidDevicesInfo[i+6],
-						hidDevicesInfo[i+7], hidDevicesInfo[i+8]);
-				i = i + 9;
+						hidDevicesInfo[i+7], hidDevicesInfo[i+8], hidDevicesInfo[i+9]);
+				i = i + 10;
 			}
 			return hidDevicesFound;
 		}else {
@@ -101,10 +101,20 @@ public class SerialComHID {
 	/**
 	 * <p>Opens a HID device for communication using its path name.</p>
 	 * 
+	 * <P>Applications can register hotplug listener to get notified when the desired USB device is plugged 
+	 * into system. Once the listener is invoked indicating device is added, application can find the device 
+	 * node representing this USB-HID device and proceed to open it.</p>
+	 * 
+	 * <p>In Linux it may be required to add correct udev rules so as to grant permission to 
+	 * access to the USB-HID device. Refer this udev rule file for MCP2200 as an example : 
+	 * https://github.com/RishiGupta12/serial-communication-manager/blob/master/tests/scm-mcp2200-hid.rules</p>
+	 * 
 	 * @param pathName device node full path for Unix-like OS and port name for Windows.
 	 * @return handle of the opened HID device.
 	 * @throws SerialComException if an IO error occurs.
 	 * @throws IllegalArgumentException if pathName is null or empty string.
+	 * @see com.embeddedunveiled.serial.SerialComManager#registerHotPlugEventListener(ISerialComHotPlugListener, int, int)
+	 * @see com.embeddedunveiled.serial.SerialComHID#listHIDdevicesWithInfo()
 	 */
 	public final long openHidDevice(final String pathName) throws SerialComException {
 		if(pathName == null) {

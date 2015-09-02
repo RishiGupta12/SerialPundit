@@ -46,12 +46,69 @@
 #include <sys/select.h>
 #include <sys/ioctl.h>
 
+#if defined (__linux__)
+#include <libudev.h>
+#include <linux/hidraw.h>
+#endif
+
+#if defined (__APPLE__)
+#include <CoreFoundation/CoreFoundation.h>
+#include <IOKit/hid/IOHIDKeys.h>
+#include <IOKit/hid/IOHIDManager.h>
+#endif
+
 /* jni_md.h contains the machine-dependent typedefs for data types. Instruct compiler to include it. */
 #include <jni.h>
 #include "unix_like_hid.h"
 
 /* Common interface with java layer for supported OS types. */
 #include "../../com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge.h"
+
+#if defined (__APPLE__)
+static	IOHIDManagerRef mac_hid_mgr = -1;
+#endif
+
+/* Clean up when library is un-loaded. */
+__attribute__((destructor)) static void exit_scmhidlib() {
+#if defined (__APPLE__)
+	IOHIDManagerUnscheduleFromRunLoop(mac_hid_mgr, CFRunLoopGetCurrent( ), kCFRunLoopDefaultMode );
+	IOHIDManagerClose(mac_hid_mgr, kIOHIDOptionsTypeNone);
+	CFRelease(mac_hid_mgr);
+#endif
+}
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
+ * Method:    initNativeLib
+ * Signature: ()I
+ *
+ * @return 0 if function succeeds otherwise -1.
+ * @throws SerialComException if any function fails.
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_initNativeLib
+  (JNIEnv *env, jobject obj) {
+#if defined (__APPLE__)
+	IOReturn ret = 0;
+	mac_hid_mgr = IOHIDManagerCreate(kCFAllocatorDefault, kIOHIDOptionsTypeNone);
+	if(	mac_hid_mgr == -1) {
+		// TODO error handling
+	}
+
+	/* Associate HID manager with HID devices. */
+	IOHIDManagerSetDeviceMatching(mac_hid_mgr, NULL);
+
+	/* associate the HID Manager with the client's run loop. This schedule will propagate to all HID devices
+	 * that are currently enumerated and to new HID devices as they are matched by the HID Manager. */
+	IOHIDManagerScheduleWithRunLoop(mac_hid_mgr, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);
+
+	/* This will open both current and future devices that are enumerated. */
+	ret = IOHIDManagerOpen(mac_hid_mgr, kIOHIDOptionsTypeNone);
+	if(ret != kIOReturnSuccess) {
+		// TODO error handling
+	}
+#endif
+	return 0;
+}
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
@@ -75,22 +132,22 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
 JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_openHidDevice(JNIEnv *env,
 		jobject obj, jstring pathName) {
 	long fd;
-	const char* node = NULL;
+	const char* deviceNode = NULL;
 
-	node = (*env)->GetStringUTFChars(env, pathName, NULL);
-	if((node == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+	deviceNode = (*env)->GetStringUTFChars(env, pathName, NULL);
+	if((deviceNode == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
 		throw_serialcom_exception(env, 3, 0, E_GETSTRUTFCHARSTR);
 		return -1;
 	}
 
 	errno = 0;
-	fd = open(node, O_RDWR);
+	fd = open(deviceNode, O_RDWR);
 	if(fd < 0) {
-		(*env)->ReleaseStringUTFChars(env, pathName, node);
+		(*env)->ReleaseStringUTFChars(env, pathName, deviceNode);
 		throw_serialcom_exception(env, 1, errno, NULL);
 		return -1;
 	}
-	(*env)->ReleaseStringUTFChars(env, pathName, node);
+	(*env)->ReleaseStringUTFChars(env, pathName, deviceNode);
 
 	return fd;
 }
@@ -410,7 +467,11 @@ JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHID
  */
 JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_listUSBHIDdevicesWithInfo(JNIEnv *env,
 		jobject obj, jint vendorFilter) {
-	return list_usb_hid_devices(env, vendorFilter);
+#if defined (__linux__)
+	return linux_enumerate_usb_hid_devices(env, vendorFilter);
+#elif defined (__APPLE__)
+	return mac_enumerate_usb_hid_devics(env, vendorFilter, mac_hid_mgr);
+#endif
 }
 
 /*

@@ -65,7 +65,7 @@ public final class SerialComUSBdevice {
 	 * @throws NumberFormatException if the USB vendor id hex string can not be converted into 
 	 *          numerical representation.
 	 */
-	public int getVendorId() {
+	public int getVendorID() {
 		if("---".equals(idVendor)) {
 			return 0;
 		}
@@ -79,7 +79,7 @@ public final class SerialComUSBdevice {
 	 * @throws NumberFormatException if the USB product id hex string can not be converted into 
 	 *          numerical representation.
 	 */
-	public int getProductId() {
+	public int getProductID() {
 		if("---".equals(idProduct)) {
 			return 0;
 		}
