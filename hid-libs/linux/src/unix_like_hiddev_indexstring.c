@@ -21,11 +21,14 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <errno.h>
+
 #if defined (__linux__)
 #include <libudev.h>
 #endif
+
 #if defined (__APPLE__)
 #endif
+
 #include <jni.h>
 #include "unix_like_hid.h"
 

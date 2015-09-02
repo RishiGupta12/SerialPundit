@@ -20,14 +20,17 @@
 #include <string.h>
 #include <unistd.h>
 #include <stdio.h>
+
 #if defined (__linux__)
 #include <libudev.h>
 #endif
+
 #if defined (__APPLE__)
 #include <CoreFoundation/CoreFoundation.h>
 #include <IOKit/hid/IOHIDKeys.h>
 #include <IOKit/hid/IOHIDManager.h>
 #endif
+
 #include <jni.h>
 #include "unix_like_hid.h"
 

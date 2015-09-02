@@ -114,7 +114,7 @@ public final class SerialComInByteStream extends InputStream {
 	 * <p>SCM does not support mark and reset of input stream. If required, it can be developed at 
 	 * application level.</p>
 	 * 
-	 * @return always returns false
+	 * @return always returns false.
 	 */
 	@Override
 	public boolean markSupported() {
@@ -129,7 +129,7 @@ public final class SerialComInByteStream extends InputStream {
 	 * method returns the next byte of data if it is available otherwise -1 if there is no data 
 	 * at serial port.</p>
 	 * 
-	 * @return the next byte of data or -1
+	 * @return the next byte of data or -1.
 	 * @throws IOException if an I/O error occurs or if stream has been closed already.
 	 */
 	@Override
@@ -272,8 +272,8 @@ public final class SerialComInByteStream extends InputStream {
 	/**
 	 * <p>SCM does not support skip. If required, it can be developed at application level.</p>
 	 * 
-	 * @param number of bytes to skip
-	 * @return always returns 0
+	 * @param number of bytes to skip.
+	 * @return always returns 0.
 	 */
 	@Override
 	public long skip(long number) {

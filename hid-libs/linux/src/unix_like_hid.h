@@ -22,7 +22,17 @@
 #if defined (__linux__)
 #include <libudev.h>
 #endif
+
+#if defined (__APPLE__)
+#include <CoreFoundation/CoreFoundation.h>
+#include <IOKit/hid/IOHIDKeys.h>
+#include <IOKit/hid/IOHIDManager.h>
+#endif
+
 #include <jni.h>
+
+/* It is possible to re-factor some functions or things like that to factor in common function.
+ * We have knowingly kept internal dependencies to minimum so as to accommodate future changes.*/
 
 /* Constant string defines */
 #define SCOMEXPCLASS "com/embeddedunveiled/serial/SerialComException"
@@ -67,17 +77,21 @@ extern jstring linux_clean_throw_exp_usbenumeration(JNIEnv *env, int task, const
 		struct jstrarray_list *list, struct udev_device *udev_device, struct udev_enumerate *enumerator,
 		struct udev *udev_ctx);
 extern jobjectArray linux_enumerate_usb_hid_devices(JNIEnv *env, jint vendor_filter);
+extern jlong linux_clean_throw_exp_usbattropen(JNIEnv *env, int task, const char *expmsg,
+		struct udev_device *udev_device, struct udev_enumerate *enumerator, struct udev *udev_ctx);
+extern jlong linux_usbattrhid_open(JNIEnv *env, jint usbvid, jint usbpid, jstring usbserialnumber,
+		jint busnum, jint devnum);
 #endif
 
 #if defined (__APPLE__)
 extern jobjectArray mac_enumerate_usb_hid_devices(JNIEnv *env, jint vendor_filter, IOHIDManagerRef mac_hid_mgr);
 extern 	jstring mac_clean_throw_exp_usbenumeration(JNIEnv *env, int task, const char *expmsg, CFSetRef hiddev_cfset,
 		IOHIDDeviceRef *hiddev_references);
+extern jlong mac_usbattrhid_open(JNIEnv *env, jint usbvid, jint usbpid, jstring usbserialnumber, jint locationID);
 #endif
 
 extern jint get_report_descriptor_size(JNIEnv *env, jlong fd);
 extern jstring get_hiddev_info_string(JNIEnv *env, jlong fd, int task);
 extern jstring get_hiddev_indexed_string(JNIEnv *env, jlong fd, int index);
-extern jlong open_by_usb_attrributes(JNIEnv *env, jint usbvid, jint usbpid, jstring usbserialnumber);
 
 #endif /* UNIX_LIKE_HID_H_ */

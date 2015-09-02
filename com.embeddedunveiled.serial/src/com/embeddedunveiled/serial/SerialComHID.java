@@ -26,13 +26,13 @@ import com.embeddedunveiled.serial.internal.SerialComHIDJNIBridge;
  */
 public class SerialComHID {
 
-	/**<p>The value indicating instance of class SerialComHID. Integer constant with value 0x01.</p>*/
+	/**<p>The value indicating instance of SerialComHID class. Integer constant with value 0x01.</p>*/
 	public static final int HID_GENERIC = 0x01;
 
-	/**<p>The value indicating instance of class SerialComHID. Integer constant with value 0x02.</p>*/
+	/**<p>The value indicating instance of SerialComUSBHID class. Integer constant with value 0x02.</p>*/
 	public static final int HID_USB = 0x02;
 
-	/**<p>The value indicating instance of class SerialComHID. Integer constant with value 0x03.</p>*/
+	/**<p>The value indicating instance of class SerialComBluetoothHID. Integer constant with value 0x03.</p>*/
 	public static final int HID_BLUETOOTH = 0x03;
 
 	// sub-classes also uses this reference to invoke native functions.
@@ -53,12 +53,16 @@ public class SerialComHID {
 	 * Application can call various  methods on returned SerialComHIDdevice object to get specific 
 	 * information like vendor id and product id etc.</p>
 	 * 
-	 * <p>TODO</p>
+	 * <p>The information about HID device returned includes, transport, vendor ID, product ID, serial 
+	 * number, product, manufacturer, USB bus number, USB device number, location ID etc. In situations 
+	 * where two or more devices with exactly same vendor ID, product ID and serial number are present 
+	 * into system, information like location ID, USB bus number and USB device number can be used to 
+	 * further categories them into unique devices. Application can also use some custom protocol to 
+	 * identify devices that are of interest to them.</p>
 	 * 
 	 * @return list of the HID devices with information about them or empty array if no device 
 	 *          matching given criteria found.
 	 * @throws SerialComException if an I/O error occurs.
-	 * @throws IllegalArgumentException if vendorFilter is negative or invalid number.
 	 */
 	public final SerialComHIDdevice[] listHIDdevicesWithInfo() throws SerialComException {
 		int i = 0;
@@ -86,7 +90,7 @@ public class SerialComHID {
 	}
 
 	/**
-	 * <p>Converts report read from human interface device to hexadecimal string. This may be 
+	 * <p>Converts report read from HID device to hexadecimal string. This may be 
 	 * useful when report is to be passed to next level as hex data or report is to be 
 	 * feed into external HID report parser tool.</p>
 	 * 

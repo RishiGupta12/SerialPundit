@@ -50,6 +50,7 @@ import com.embeddedunveiled.serial.vendor.SerialComVendorLib;
  * <p>To get an instance of {@link SerialComIOCTLExecutor} call the {@link #getIOCTLExecutor} method.</p>
  * 
  * @author Rishi Gupta
+ * @version 1.0.4
  */
 public final class SerialComManager {
 
@@ -641,20 +642,20 @@ public final class SerialComManager {
 	 * @param serialNumber USB serial number of device to match (case insensitive) or null if not to be matched
 	 * @return list of COM port(s) (device node) for given USB device or empty array if no com port is assigned
 	 * @throws SerialComException if an I/O error occurs.
-	 * @throws IllegalArgumentException if usbVidToMatch or usbPidToMatch is negative or or invalid number
+	 * @throws IllegalArgumentException if usbVidToMatch or usbPidToMatch is negative or or invalid number.
 	 */
 	public String[] listComPortFromUSBAttributes(int usbVidToMatch, int usbPidToMatch, final String serialNumber) throws SerialComException {
-		if(usbVidToMatch < 0) {
-			throw new IllegalArgumentException("Argument usbVidToMatch can not be negative !");
+		if((usbVidToMatch < 0) || (usbVidToMatch > 0XFFFF)) {
+			throw new IllegalArgumentException("Argument usbVidToMatch can not be negative or greater than 0xFFFF !");
 		}
-		if(usbPidToMatch < 0) {
-			throw new IllegalArgumentException("Argument usbPidToMatch can not be negative !");
+		if((usbPidToMatch < 0) || (usbPidToMatch > 0XFFFF)) {
+			throw new IllegalArgumentException("Argument usbPidToMatch can not be negative or greater than 0xFFFF !");
 		}
-
 		String serialNum = null;
 		if(serialNumber != null) {
 			serialNum = serialNumber.toLowerCase();
 		}
+		
 		String[] comPortsInfo = mComPortJNIBridge.listComPortFromUSBAttributes(usbVidToMatch, usbPidToMatch, serialNum);
 		if(comPortsInfo != null) {
 			return comPortsInfo;
@@ -1978,21 +1979,27 @@ public final class SerialComManager {
 	}
 
 	/**
-	 * <p>This registers a listener who will be invoked whenever a USB device has been plugged or un-plugged in system. This method can 
-	 * be used to write auto discovery applications for example when a hardware USB device is added to system, application can automatically 
-	 * detect and identify it and launch appropriate service.</p>
+	 * <p>This registers a listener who will be invoked whenever a USB device has been plugged or 
+	 * un-plugged in system. This method can be used to write auto discovery applications for example 
+	 * when a hardware USB device is added to system, application can automatically detect and identify 
+	 * it and launch appropriate service.</p>
 	 * 
-	 * <p>Application must implement ISerialComHotPlugListener interface and override onHotPlugEvent method. The event value 
-	 * SerialComUSB.DEV_ADDED indicates USB device has been added to the system. The event value SerialComUSB.DEV_REMOVED 
-	 * indicates USB device has been removed from system.</p>
+	 * <p>This API can be used for detecting both USB-HID and USB-CDC devices. Essentially this API is 
+	 * USB interface agnostic; meaning it would invoke listener for matching USB device irresepective of 
+	 * functionality offered by USB device.</p> 
 	 * 
-	 * <p>Application can specify the usb device for which callback should be called based on USB VID and USB PID. If the value of 
-	 * filterVID is specified however the value of filterPID is constant SerialComUSB.DEV_ANY, then callback will be called 
-	 * for USB device which matches given VID and its PID can have any value. If the value of filterPID is specified however the 
-	 * value of filterVID is constant SerialComUSB.DEV_ANY, then callback will be called for USB device which matches given PID 
-	 * and its VID can have any value.</p>
+	 * <p>Application must implement ISerialComHotPlugListener interface and override onHotPlugEvent method. 
+	 * The event value SerialComUSB.DEV_ADDED indicates USB device has been added to the system. The event 
+	 * value SerialComUSB.DEV_REMOVED indicates USB device has been removed from system.</p>
 	 * 
-	 * <p>If both filterVID and filterPID are set to SerialComUSB.DEV_ANY, then callback will be called for every USB device.</p>
+	 * <p>Application can specify the usb device for which callback should be called based on USB VID and 
+	 * USB PID. If the value of filterVID is specified however the value of filterPID is constant SerialComUSB.DEV_ANY, 
+	 * then callback will be called for USB device which matches given VID and its PID can have any value. 
+	 * If the value of filterPID is specified however the value of filterVID is constant SerialComUSB.DEV_ANY, 
+	 * then callback will be called for USB device which matches given PID and its VID can have any value.</p>
+	 * 
+	 * <p>If both filterVID and filterPID are set to SerialComUSB.DEV_ANY, then callback will be called for 
+	 * every USB device.</p>
 	 * 
 	 * @param hotPlugListener object of class which implements ISerialComHotPlugListener interface.
 	 * @param filterVID USB vendor ID to match.
@@ -2480,9 +2487,16 @@ public final class SerialComManager {
 	public SerialComHID getSerialComHIDInstance(int type, String directoryPath, String loadedLibName) throws SecurityException, 
 	SerialComUnexpectedException, SerialComLoadException, UnsatisfiedLinkError, SerialComException, 
 	FileNotFoundException, IOException {
+		int ret = 0;
 		if(mSerialComHIDJNIBridge == null) {
 			mSerialComHIDJNIBridge = new SerialComHIDJNIBridge();
 			SerialComHIDJNIBridge.loadNativeLibrary(directoryPath, loadedLibName, mSerialComSystemProperty, osType, cpuArch, javaABIType);
+			if(osType == OS_MAC_OS_X) {
+				ret = mSerialComHIDJNIBridge.initNativeLib();
+				if(ret < 0) {
+					throw new SerialComException("Failed to initilize native library. Please retry !");
+				}
+			}
 		}
 
 		if(type == SerialComHID.HID_GENERIC) {

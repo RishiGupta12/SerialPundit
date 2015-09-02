@@ -47,9 +47,16 @@ public final class SerialComUSBHID extends SerialComHID {
 	 * as found by this library. Application can call various  methods on returned SerialComHIDdevice 
 	 * object to get specific information like vendor id and product id etc.</p>
 	 * 
-	 * <p>Some bluetooth HID keyboard and mouse use a USB dongle which make them appear as USB HID 
+	 * <p>The information about HID device returned includes, transport, vendor ID, product ID, serial 
+	 * number, product, manufacturer, USB bus number, USB device number, location ID etc. In situations 
+	 * where two or more devices with exactly same vendor ID, product ID and serial number are present 
+	 * into system, information like location ID, USB bus number and USB device number can be used to 
+	 * further categories them into unique devices. Application can also use some custom protocol to 
+	 * identify devices that are of interest to them.</p>
+	 * 
+	 * <p>[1] Some bluetooth HID keyboard and mouse use a USB dongle which make them appear as USB HID 
 	 * device to system. The keyboard/mouse communicate with dongle over bluetooth frequency while 
-	 * dongle communicate with system as USB HID device. This is also the reason why sometimes 
+	 * dongle communicate with computer as USB HID device. This is also the reason why sometimes 
 	 * bluetooth keyboard/mouse works even when there is no bluetooth stack installed in system.</p>
 	 * 
 	 * @param vendorFilter vendor whose devices should be listed (one of the constants SerialComUSB.V_xxxxx 
@@ -92,22 +99,41 @@ public final class SerialComUSBHID extends SerialComHID {
 		}	
 	}
 
-	/** 
+	/**
+	 * Opens a HID device for communication using the given USB attributes. If two or more devices have same 
+	 * USB vendor ID, USB product ID and serial number, then location ID, USB bus number and device number 
+	 * can be used to further reduce the scope of the device to be opened. Information about devices attached 
+	 * to system can be obtained by listing them.
+	 * 
+	 * @param usbVidToMatch USB vendor ID to match. It must be supplied and must be valid.
+	 * @param usbPidToMatch USB product ID to match. It must be supplied and must be valid.
+	 * @param serialNumber USB device serial number to match (case insensitive) or null if matching 
+	 *         is not required (optional).
+	 * @param locationID location ID to match (OS assigned location ID to this device) or -1 if 
+	 *         matching is not required (optional).
+	 * @param usbBusNumber USB bus number to match (USB device should be found on this bus) or -1 
+	 *         if matching is not required (optional).
+	 * @param usbDevNumber USB device number to match (device number assigned by OS) or -1 if matching 
+	 *         is not required (optional).
+	 * @throws SerialComException if an I/O error occurs.
+	 * @throws IllegalArgumentException if usbVidToMatch or usbPidToMatch is negative or or invalid number.
+	 * @see com.embeddedunveiled.serial.usb.SerialComUSBHID#listUSBHIDdevicesWithInfo(int)
 	 */
-	public long openHidDeviceByUSBAttributes(int usbVidToMatch, int usbPidToMatch, final String serialNumber) 
-			throws SerialComException {
-		if(usbVidToMatch < 0) {
-			throw new IllegalArgumentException("Argument usbVidToMatch can not be negative !");
+	public long openHidDeviceByUSBAttributes(int usbVidToMatch, int usbPidToMatch, final String serialNumber,
+			int locationID, int usbBusNumber, int usbDevNumber) throws SerialComException {
+		if((usbVidToMatch < 0) || (usbVidToMatch > 0XFFFF)) {
+			throw new IllegalArgumentException("Argument usbVidToMatch can not be negative or greater than 0xFFFF !");
 		}
-		if(usbPidToMatch < 0) {
-			throw new IllegalArgumentException("Argument usbPidToMatch can not be negative !");
+		if((usbPidToMatch < 0) || (usbPidToMatch > 0XFFFF)) {
+			throw new IllegalArgumentException("Argument usbPidToMatch can not be negative or greater than 0xFFFF !");
 		}
 		String serialNum = null;
 		if(serialNumber != null) {
 			serialNum = serialNumber.toLowerCase();
 		}
 
-		long handle = mHIDJNIBridge.openHidDeviceByUSBAttributes(usbVidToMatch, usbPidToMatch, serialNum);
+		long handle = mHIDJNIBridge.openHidDeviceByUSBAttributes(usbVidToMatch, usbPidToMatch, serialNum, 
+				locationID, usbBusNumber, usbDevNumber);
 		if(handle < 0) {
 			// extra check.
 			throw new SerialComException("Could not open the HID device by USB attributes. Please retry !");

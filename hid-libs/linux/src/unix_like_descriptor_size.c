@@ -21,14 +21,19 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <errno.h>
+#include <sys/ioctl.h>
+
+#if defined (__linux__)
 #include <linux/hidraw.h>
+#endif
+
 #if defined (__APPLE__)
 #endif
-#include <sys/ioctl.h>
+
 #include "unix_like_hid.h"
 
 /*
- */
+
 jint get_report_descriptor_size(JNIEnv *env, jlong fd) {
 	int ret = 0;
 	int size = 0;
@@ -44,3 +49,4 @@ jint get_report_descriptor_size(JNIEnv *env, jlong fd) {
 
 	return (jint)size;
 }
+*/

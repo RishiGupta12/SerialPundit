@@ -86,7 +86,7 @@ __attribute__((destructor)) static void exit_scmhidlib() {
  * @throws SerialComException if any function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_initNativeLib
-  (JNIEnv *env, jobject obj) {
+(JNIEnv *env, jobject obj) {
 #if defined (__APPLE__)
 	IOReturn ret = 0;
 	mac_hid_mgr = IOHIDManagerCreate(kCFAllocatorDefault, kIOHIDOptionsTypeNone);
@@ -114,6 +114,10 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
  * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
  * Method:    listHIDdevicesWithInfo
  * Signature: ()[Ljava/lang/String;
+ *
+ * @return array of Strings containing HID devices if found, zero length array if no HID device is found,
+ *         NULL if an error occurs.
+ * @throws SerialComException if any JNI function, system call or C function fails.
  */
 JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_listHIDdevicesWithInfo
 (JNIEnv *env, jobject obj) {
@@ -451,8 +455,8 @@ JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHID
  * Method:    getIndexedString
  * Signature: (JI)Ljava/lang/String;
  */
-JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_getIndexedString
-(JNIEnv *env, jobject obj, jlong fd, jint index) {
+JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_getIndexedString(JNIEnv *env,
+		jobject obj, jlong fd, jint index) {
 	return get_hiddev_indexed_string(env, fd, index);
 }
 
@@ -477,11 +481,15 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
  * Method:    openHidDeviceByUSBAttributes
- * Signature: (IILjava/lang/String;)J
+ * Signature: (IILjava/lang/String;III)J
  */
 JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_openHidDeviceByUSBAttributes(JNIEnv *env,
-		jobject obj, jint usbvid, jint usbpid, jstring usbserialnumber) {
-	return 0;
+		jobject obj, jint usbvid, jint usbpid, jstring usbserialnumber, jint locationID, jint busnum, jint devnum) {
+#if defined (__linux__)
+	return linux_usbattrhid_open(env, usbvid, usbpid, usbserialnumber, busnum, devnum);
+#elif defined (__APPLE__)
+	return mac_usbattrhid_open(env, usbvid, usbpid, usbserialnumber, locationID);
+#endif
 }
 
 #endif

@@ -253,6 +253,7 @@ public final class SerialComHIDJNIBridge {
 	}
 
 	// Common
+	public native int initNativeLib();
 	public native String[] listHIDdevicesWithInfo();
 	public native long openHidDevice(String pathNameVal);
 	public native int closeHidDevice(long handle);
@@ -269,7 +270,8 @@ public final class SerialComHIDJNIBridge {
 
 	// USB HID
 	public native String[] listUSBHIDdevicesWithInfo(int vendorFilter);
-	public native long openHidDeviceByUSBAttributes(int usbVidToMatch, int usbPidToMatch, String serialNum);
+	public native long openHidDeviceByUSBAttributes(int usbVidToMatch, int usbPidToMatch, String serialNum, 
+			int locationID, int usbBusNumber, int usbDevNumber);
 
 	// Bluetooth HID
 

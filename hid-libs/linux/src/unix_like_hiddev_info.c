@@ -22,14 +22,17 @@
 #include <stdio.h>
 #include <errno.h>
 #include <sys/ioctl.h>
+
 #if defined (__linux__)
 #include <linux/types.h>
 #include <linux/input.h>
 #include <libudev.h>
 #include <linux/hidraw.h>
 #endif
+
 #if defined (__APPLE__)
 #endif
+
 #include <jni.h>
 #include "unix_like_hid.h"
 
