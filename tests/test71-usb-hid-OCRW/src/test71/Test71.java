@@ -44,7 +44,9 @@ public class Test71  {
 			SerialComUSBHID scuh = (SerialComUSBHID) scm.getSerialComHIDInstance(SerialComHID.HID_USB, null, null);
 			
 //			long handle = scuh.openHidDevice(PORT);
-			long handle = scuh.openHidDeviceByUSBAttributes(0x04d8, 0X00DF, "0000980371", -1, -1, -1);
+//			long handle = scuh.openHidDeviceByUSBAttributes(0x04d8, 0X00DF, "0000980371", -1, -1, -1);
+//			long handle = scuh.openHidDeviceByUSBAttributes(0x04d8, 0X00DF, "0000980371", -1, 3, -1);
+			long handle = scuh.openHidDeviceByUSBAttributes(0x04d8, 0X00DF, "0000980371", -1, 3, 40);
 			System.out.println("" + handle);
 			
 			scuh.closeHidDevice(handle);
