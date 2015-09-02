@@ -15,47 +15,41 @@
  * along with serial communication manager. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package test71;
+package test72;
 
 import com.embeddedunveiled.serial.SerialComHID;
 import com.embeddedunveiled.serial.SerialComManager;
-import com.embeddedunveiled.serial.SerialComUtil;
 import com.embeddedunveiled.serial.usb.SerialComUSBHID;
 
 // tested with MCP2200
-public class Test71  {
+public class Test72  {
 
 	public static void main(String[] args) {
 		try {
 			SerialComManager scm = new SerialComManager();
-
-			String PORT = null;
-			int osType = scm.getOSType();
-			if(osType == SerialComManager.OS_LINUX) {
-				PORT = "/dev/hidraw1";
-			}else if(osType == SerialComManager.OS_WINDOWS) {
-				PORT = "COM51";
-			}else if(osType == SerialComManager.OS_MAC_OS_X) {
-				PORT = "/dev/cu.usbserial-A70362A3";
-			}else if(osType == SerialComManager.OS_SOLARIS) {
-				PORT = null;
-			}else{
-			}
-
 			SerialComUSBHID scuh = (SerialComUSBHID) scm.getSerialComHIDInstance(SerialComHID.HID_USB, null, null);
-
-			//			long handle = scuh.openHidDevice(PORT);
-
-			// Bus 003 Device 040: ID 04d8:00df Microchip Technology, Inc.
-			//			long handle = scuh.openHidDeviceByUSBAttributes(0x04d8, 0X00DF, "0000980371", -1, -1, -1);
-			//			long handle = scuh.openHidDeviceByUSBAttributes(0x04d8, 0X00DF, "0000980371", -1, 3, -1);
-			long handle = scuh.openHidDeviceByUSBAttributes(0x04d8, 0X00DF, "0000980371", -1, -1, -1);
-			System.out.println("" + handle);
+			
+			// handle : 5
+			long handle = scuh.openHidDeviceByUSBAttributes(0x04D8, 0X00DF, "0000980371", -1, -1, -1);
+			System.out.println("handle : " + handle);
+			
+			byte[] outputReportBuffer = new byte[16];
+			outputReportBuffer[0] = (byte) 0x80;
+			int ret = scuh.writeOutputReport(handle, (byte)0x00, outputReportBuffer);
+			System.out.println("number of bytes sent : " + ret);
+			
+			Thread.sleep(1000);
+			
+			// factory default device configuration
+			// number of bytes in input report : 16
+			// 80 00 68 00 FF 00 FF 00 04 E1 00 89 CA 00 01 42
+			byte[] inputReportBuffer = new byte[16];
+			ret = scuh.readInputReportWithTimeout(handle, inputReportBuffer, 16, 200);
+			System.out.println("number of bytes in input report : " + ret);
+			System.out.println(scuh.formatReportToHex(inputReportBuffer));
 
 			scuh.closeHidDevice(handle);
-
-			System.out.println("done");
-			//			SerialComHID sch = scm.getSerialComHIDInstance(SerialComHID.HID_GENERIC, null, null);
+			System.out.println("\ndone !");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
