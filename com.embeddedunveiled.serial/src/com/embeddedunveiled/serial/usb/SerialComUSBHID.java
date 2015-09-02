@@ -38,8 +38,8 @@ public final class SerialComUSBHID extends SerialComHID {
 	 * 
 	 * @param mHIDJNIBridge interface class to native library for calling platform specific routines.
 	 */
-	public SerialComUSBHID(SerialComHIDJNIBridge mHIDJNIBridge) {
-		super(mHIDJNIBridge);
+	public SerialComUSBHID(SerialComHIDJNIBridge mHIDJNIBridge, int osType) {
+		super(mHIDJNIBridge, osType);
 	}
 
 	/**

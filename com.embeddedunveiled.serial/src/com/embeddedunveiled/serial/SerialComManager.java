@@ -2500,9 +2500,9 @@ public final class SerialComManager {
 		}
 
 		if(type == SerialComHID.HID_GENERIC) {
-			return new SerialComHID(mSerialComHIDJNIBridge);
+			return new SerialComHID(mSerialComHIDJNIBridge, osType);
 		}else if(type == SerialComHID.HID_USB) {
-			return new SerialComUSBHID(mSerialComHIDJNIBridge);
+			return new SerialComUSBHID(mSerialComHIDJNIBridge, osType);
 		}else if(type == SerialComHID.HID_BLUETOOTH) {
 			//TODO
 		}else {

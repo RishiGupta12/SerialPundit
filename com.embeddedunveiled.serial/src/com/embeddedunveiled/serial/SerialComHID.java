@@ -34,17 +34,19 @@ public class SerialComHID {
 
 	/**<p>The value indicating instance of class SerialComBluetoothHID. Integer constant with value 0x03.</p>*/
 	public static final int HID_BLUETOOTH = 0x03;
-
+	
 	// sub-classes also uses this reference to invoke native functions.
 	protected SerialComHIDJNIBridge mHIDJNIBridge;
+	protected int osType;
 
 	/**
 	 * <p>Allocates a new SerialComHID object.</p>
 	 * 
 	 * @param mHIDJNIBridge interface class to native library for calling platform specific routines.
 	 */
-	public SerialComHID(SerialComHIDJNIBridge mHIDJNIBridge) {
+	public SerialComHID(SerialComHIDJNIBridge mHIDJNIBridge, int osType) {
 		this.mHIDJNIBridge = mHIDJNIBridge;
+		this.osType = osType;
 	}
 
 	/**
@@ -129,7 +131,7 @@ public class SerialComHID {
 			throw new IllegalArgumentException("Argument pathName can not be empty string !");
 		}
 
-		long handle = mHIDJNIBridge.openHidDevice(pathNameVal);
+		long handle = mHIDJNIBridge.openHidDevice(pathNameVal, osType);
 		if(handle < 0) {
 			/* JNI should have already thrown exception, this is an extra check to increase reliability of program. */
 			throw new SerialComException("Could not open the HID device " + pathNameVal + ". Please retry !");

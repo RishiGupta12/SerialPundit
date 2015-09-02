@@ -78,6 +78,11 @@ public final class SerialComHIDdevice {
 	/** 
 	 * <p>Returns device node representing this device in system.</p>
 	 * 
+	 * <p>In MAC os x, there is no device file for HID devices like '/dev/xxx'. Devices are identified 
+	 * by their usage or other properties. Therefore to maintain consistency, we create device node 
+	 * string with various properties separated by underscore : 
+	 * Transport_USB-VID_USB-PID_USB-serialnumber_LocationID</p>
+	 * 
 	 * @return string device node.
 	 */
 	public String getDeviceNode() {

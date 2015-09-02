@@ -19,6 +19,7 @@ package test71;
 
 import com.embeddedunveiled.serial.SerialComHID;
 import com.embeddedunveiled.serial.SerialComManager;
+import com.embeddedunveiled.serial.SerialComUtil;
 import com.embeddedunveiled.serial.usb.SerialComUSBHID;
 
 // tested with MCP2200
@@ -41,12 +42,21 @@ public class Test71  {
 			}else{
 			}
 			
+			String[] str = "Transport_USB-VID_USB-PID_USB-serialnumber_LocationID".split("_", 5);
+			for(int x=0; x<str.length; x++) {
+				System.out.println(str[x]);
+			}
+			
+			System.out.println("" + SerialComUtil.hexStrToLongNumber("00DF"));
+			
 			SerialComUSBHID scuh = (SerialComUSBHID) scm.getSerialComHIDInstance(SerialComHID.HID_USB, null, null);
 			
 //			long handle = scuh.openHidDevice(PORT);
+			
+			// Bus 003 Device 040: ID 04d8:00df Microchip Technology, Inc.
 //			long handle = scuh.openHidDeviceByUSBAttributes(0x04d8, 0X00DF, "0000980371", -1, -1, -1);
 //			long handle = scuh.openHidDeviceByUSBAttributes(0x04d8, 0X00DF, "0000980371", -1, 3, -1);
-			long handle = scuh.openHidDeviceByUSBAttributes(0x04d8, 0X00DF, "0000980371", -1, 3, 40);
+			long handle = scuh.openHidDeviceByUSBAttributes(0x04d8, 0X00DF, "0000980371", -1, -1, -1);
 			System.out.println("" + handle);
 			
 			scuh.closeHidDevice(handle);

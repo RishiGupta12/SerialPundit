@@ -24,6 +24,7 @@ import java.io.FileOutputStream;
 import com.embeddedunveiled.serial.SerialComLoadException;
 import com.embeddedunveiled.serial.SerialComManager;
 import com.embeddedunveiled.serial.SerialComUnexpectedException;
+import com.embeddedunveiled.serial.SerialComUtil;
 import com.embeddedunveiled.serial.internal.SerialComSystemProperty;
 
 /**
@@ -253,9 +254,25 @@ public final class SerialComHIDJNIBridge {
 	}
 
 	// Common
+	public long openHidDevice(String pathNameVal, int osType) {
+		if(osType == SerialComManager.OS_MAC_OS_X) {
+			// for MAC os x path need to be converted into usb attributes, as there seem to be no device 
+			// file for HID devices that can be used with open() system call.
+			if("usb_".equals(pathNameVal.substring(0,4))) {
+				String[] attr = pathNameVal.split("_", 5);
+				return openHidDeviceByUSBAttributes((short)SerialComUtil.hexStrToLongNumber(attr[1]),
+						(short)SerialComUtil.hexStrToLongNumber(attr[2]), attr[3], 
+						(int)SerialComUtil.hexStrToLongNumber(attr[4]), -1, -1);
+			}else {
+
+			}
+		}
+
+		return openHidDeviceByPath(pathNameVal);
+	}
+	public native long openHidDeviceByPath(String pathNameVal);
 	public native int initNativeLib();
 	public native String[] listHIDdevicesWithInfo();
-	public native long openHidDevice(String pathNameVal);
 	public native int closeHidDevice(long handle);
 	public native int getReportDescriptorSize(long handle);
 	public native int writeOutputReport(long handle, byte reportId, byte[] report);
