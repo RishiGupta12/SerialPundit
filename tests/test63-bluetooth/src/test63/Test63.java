@@ -1,4 +1,4 @@
-/**
+/*
  * Author : Rishi Gupta
  * 
  * This file is part of 'serial communication manager' library.
@@ -26,18 +26,19 @@ public final class Test63 {
 	public static void main(String[] args) {
 		try {
 			SerialComManager scm = new SerialComManager();
-			SerialComBluetooth bt = scm.getSerialComBluetoothInstance();
+			SerialComBluetooth bt = scm.getSerialComBluetoothInstance(SerialComBluetooth.BTSTACK_LINUX_BLUEZ, null ,null);
 			SerialComBluetoothAdapter[] bluetoothAdaptors = bt.listBluetoothAdaptorsWithInfo();
 			for(int x=0; x< bluetoothAdaptors.length; x++) {
 				bluetoothAdaptors[x].dumpDeviceInfo();
 			}
-			
+
 			/* when using external cheap usb dongle this has to be slow */
 			for(int x=0; x< 50000; x++) {
+				System.out.println("iteration : " + x);
 				bt.listBluetoothAdaptorsWithInfo();
-				Thread.sleep(5);
+				Thread.sleep(50);
 			}
-			
+
 			System.out.println("\ndone !");
 		} catch (Exception e) {
 			e.printStackTrace();

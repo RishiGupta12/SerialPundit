@@ -45,10 +45,7 @@
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.c.linker.so.release.1358740367" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.so.release">
 								<option defaultValue="true" id="gnu.c.link.so.release.option.shared.1432115735" name="Shared (-shared)" superClass="gnu.c.link.so.release.option.shared" valueType="boolean"/>
-								<option id="gnu.c.link.option.libs.1871990364" name="Libraries (-l)" superClass="gnu.c.link.option.libs" valueType="libs">
-									<listOptionValue builtIn="false" value="udev"/>
-									<listOptionValue builtIn="false" value="bluetooth"/>
-								</option>
+								<option id="gnu.c.link.option.libs.1871990364" name="Libraries (-l)" superClass="gnu.c.link.option.libs" valueType="libs"/>
 								<option id="gnu.c.link.option.ldflags.2118002414" name="Linker flags" superClass="gnu.c.link.option.ldflags" value="-m64" valueType="string"/>
 								<inputType id="cdt.managedbuild.tool.gnu.c.linker.input.120291573" superClass="cdt.managedbuild.tool.gnu.c.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>

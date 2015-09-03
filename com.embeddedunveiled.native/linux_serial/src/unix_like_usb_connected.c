@@ -42,7 +42,7 @@
  *
  * Returns 1 if device is connected, returns 0 if not connected
  */
-jint is_usb_dev_connected(JNIEnv *env, jobject obj, jint usbvid_to_match, jint usbpid_to_match) {
+jint is_usb_dev_connected(JNIEnv *env, jint usbvid_to_match, jint usbpid_to_match) {
 
 #if defined (__linux__)
 	int vid = 0;

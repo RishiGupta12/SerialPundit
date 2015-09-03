@@ -74,6 +74,9 @@ public final class SerialComBluetoothSPPDevNode {
 	 * <p>Prints information about this device node on console.</p>
 	 */
 	public void dumpDeviceInfo() {
-		System.out.println("\nDevice node : " + deviceNode + "\nAddress : " + address + "\nChannel : " + channel);
+		System.out.println(
+				"\nDevice node : " + deviceNode + 
+				"\nAddress : " + address + 
+				"\nChannel : " + channel);
 	}
 }

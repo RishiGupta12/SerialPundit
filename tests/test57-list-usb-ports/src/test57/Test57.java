@@ -1,4 +1,4 @@
-/**
+/*
  * Author : Rishi Gupta
  * 
  * This file is part of 'serial communication manager' library.
@@ -35,38 +35,38 @@ public class Test57 {
 		}catch (Exception e) {
 			e.printStackTrace();
 		}
-		
-//		try {
-//			SerialComManager scm = new SerialComManager();
-//			SerialComUSBdevice[] usbDevices;
-//			usbDevices = scm.listUSBdevicesWithInfo(SerialComUSB.V_FTDI);
-//			for(int x=0; x< usbDevices.length; x++) {
-//				usbDevices[x].dumpDeviceInfo();
-//			}
-//		}catch (Exception e) {
-//			e.printStackTrace();
-//		}
-//		
-//		try {
-//			SerialComManager scm = new SerialComManager();
-//			SerialComUSBdevice[] usbDevices;
-//			usbDevices = scm.listUSBdevicesWithInfo(SerialComUSB.V_PL);
-//			for(int x=0; x< usbDevices.length; x++) {
-//				usbDevices[x].dumpDeviceInfo();
-//			}
-//		}catch (Exception e) {
-//			e.printStackTrace();
-//		}
-//		
-//		try {
-//			SerialComManager scm = new SerialComManager();
-//			for(long a=0; a<50000; a++) {
-//				scm.listUSBdevicesWithInfo(SerialComUSB.V_ALL);
-//			}
-//		}catch (Exception e) {
-//			e.printStackTrace();
-//		}
-		
+
+		//		try {
+		//			SerialComManager scm = new SerialComManager();
+		//			SerialComUSBdevice[] usbDevices;
+		//			usbDevices = scm.listUSBdevicesWithInfo(SerialComUSB.V_FTDI);
+		//			for(int x=0; x< usbDevices.length; x++) {
+		//				usbDevices[x].dumpDeviceInfo();
+		//			}
+		//		}catch (Exception e) {
+		//			e.printStackTrace();
+		//		}
+		//		
+		//		try {
+		//			SerialComManager scm = new SerialComManager();
+		//			SerialComUSBdevice[] usbDevices;
+		//			usbDevices = scm.listUSBdevicesWithInfo(SerialComUSB.V_PL);
+		//			for(int x=0; x< usbDevices.length; x++) {
+		//				usbDevices[x].dumpDeviceInfo();
+		//			}
+		//		}catch (Exception e) {
+		//			e.printStackTrace();
+		//		}
+		//		
+		//		try {
+		//			SerialComManager scm = new SerialComManager();
+		//			for(long a=0; a<50000; a++) {
+		//				scm.listUSBdevicesWithInfo(SerialComUSB.V_ALL);
+		//			}
+		//		}catch (Exception e) {
+		//			e.printStackTrace();
+		//		}
+
 		System.out.println("done");
 	}
 }

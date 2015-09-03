@@ -65,7 +65,7 @@ jstring linux_rfcomm_cleanexp(JNIEnv *env, int task, const char *expmsg, struct 
  * The sequence of entries in array must match with what java layer expect. If a particular attribute
  * is not set or can not be obtained "---" is placed in its place.
  */
-jobjectArray list_bt_rfcomm_dev_nodes(JNIEnv *env, jobject obj) {
+jobjectArray list_bt_rfcomm_dev_nodes(JNIEnv *env) {
 	int x = 0;
 	struct jstrarray_list list = {0};
 	jstring rfcomm_dev_info;

@@ -30,7 +30,8 @@ import com.embeddedunveiled.serial.internal.SerialComLooper;
 import com.embeddedunveiled.serial.internal.SerialComSystemProperty;
 
 /**
- * <p>This class is an interface between java and native shared library.</p>
+ * <p>This class is an interface between java and native shared library. The native library is found 
+ * in 'tty-libs' folder in 'scm-x.x.x.jar' file.</p>
  * 
  * @author Rishi Gupta
  */
@@ -43,7 +44,8 @@ public final class SerialComPortJNIBridge {
 	}
 
 	/**
-	 * <p>Extract native library from jar in a working directory, load and link it.</p> 
+	 * <p>Extract native library from jar in a working directory, load and link it. The 'tty-libs' folder in 
+	 * 'scm-x.x.x.jar' file is searched for the required native library for serial port communication.</p> 
 	 * 
 	 * @param directoryPath null for default directory or user supplied directory path
 	 * @param loadedLibName null for default name or user supplied name of loaded library
@@ -206,7 +208,7 @@ public final class SerialComPortJNIBridge {
 				libFile = new File(workingDir.getAbsolutePath() + fileSeparator + loadedLibName.trim() + libExtension);
 			}
 
-			input = SerialComPortJNIBridge.class.getResourceAsStream("/libs/" + libToExtractFromJar);
+			input = SerialComPortJNIBridge.class.getResourceAsStream("/tty-libs/" + libToExtractFromJar);
 			output = new FileOutputStream(libFile);
 			if(input != null) {
 				int read;
@@ -312,6 +314,5 @@ public final class SerialComPortJNIBridge {
 	public native int rescanUSBDevicesHW();
 
 	// Bluetooth
-	public native String[] listBluetoothAdaptorsWithInfo();
 	public native String[] listBTSPPDevNodesWithInfo();
 }

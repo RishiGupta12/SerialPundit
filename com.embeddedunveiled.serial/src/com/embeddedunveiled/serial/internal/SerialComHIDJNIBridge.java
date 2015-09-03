@@ -28,20 +28,22 @@ import com.embeddedunveiled.serial.SerialComUtil;
 import com.embeddedunveiled.serial.internal.SerialComSystemProperty;
 
 /**
- * <p>This class is an interface between java and native shared library.</p>
+ * <p>This class is an interface between java and native shared library. The native library is found 
+ * in 'hid-libs' folder in 'scm-x.x.x.jar' file.</p>
  * 
  * @author Rishi Gupta
  */
 public final class SerialComHIDJNIBridge {
 
 	/**
-	 * <p>Allocates a new SerialComHIDJNIBridge.java object.</p>
+	 * <p>Allocates a new SerialComHIDJNIBridge object.</p>
 	 */
 	public SerialComHIDJNIBridge() {
 	}
 
 	/**
-	 * <p>Extract native library from jar in a working directory, load and link it.</p> 
+	 * <p>Extract native library from jar in a working directory, load and link it. The 'hid-libs' folder in 
+	 * 'scm-x.x.x.jar' file is searched for the required native library for communication with HID device.</p> 
 	 * 
 	 * @param directoryPath null for default directory or user supplied directory path.
 	 * @param loadedLibName null for default name or user supplied name of loaded library.
@@ -204,7 +206,7 @@ public final class SerialComHIDJNIBridge {
 				libFile = new File(workingDir.getAbsolutePath() + fileSeparator + loadedLibName.trim() + libExtension);
 			}
 
-			input = SerialComHIDJNIBridge.class.getResourceAsStream("/libs/" + libToExtractFromJar);
+			input = SerialComHIDJNIBridge.class.getResourceAsStream("/hid-libs/" + libToExtractFromJar);
 			output = new FileOutputStream(libFile);
 			if(input != null) {
 				int read;
@@ -253,7 +255,7 @@ public final class SerialComHIDJNIBridge {
 		return true;
 	}
 
-	// Common
+	// Common HID methods
 	public long openHidDevice(String pathNameVal, int osType) {
 		if(osType == SerialComManager.OS_MAC_OS_X) {
 			// for MAC os x path need to be converted into usb attributes, as there seem to be no device 
@@ -285,11 +287,11 @@ public final class SerialComHIDJNIBridge {
 	public native String getSerialNumberString(long handle);
 	public native String getIndexedString(long handle, int index);
 
-	// USB HID
+	// USB HID methods
 	public native String[] listUSBHIDdevicesWithInfo(int vendorFilter);
 	public native long openHidDeviceByUSBAttributes(int usbVidToMatch, int usbPidToMatch, String serialNum, 
 			int locationID, int usbBusNumber, int usbDevNumber);
 
-	// Bluetooth HID
+	// Bluetooth HID methods
 
 }

@@ -84,6 +84,10 @@ public final class SerialComBluetoothAdapter {
 	 * <p>Prints information about this Bluetooth adaptor on console.</p>
 	 */
 	public void dumpDeviceInfo() {
-		System.out.println("\nName : " + name + "\nAddress : " + address + "\nType : " + type + "\nBus : " + bus);
+		System.out.println(
+				"Name : " + name + 
+				"\nAddress : " + address + 
+				"\nType : " + type + 
+				"\nBus : " + bus);
 	}
 }

@@ -28,6 +28,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.embeddedunveiled.serial.bluetooth.SerialComBluetooth;
+import com.embeddedunveiled.serial.bluetooth.SerialComBluetoothSPPDevNode;
+import com.embeddedunveiled.serial.internal.SerialComBluetoothJNIBridge;
 import com.embeddedunveiled.serial.internal.SerialComCompletionDispatcher;
 import com.embeddedunveiled.serial.internal.SerialComErrorMapper;
 import com.embeddedunveiled.serial.internal.SerialComHIDJNIBridge;
@@ -372,7 +374,6 @@ public final class SerialComManager {
 	private List<SerialComHotPlugInfo> mHotPlugListenerInfo = Collections.synchronizedList(hotPlugListenerInfo);
 
 	private SerialComIOCTLExecutor mSerialComIOCTLExecutor;
-	private SerialComBluetooth mSerialComBluetooth;
 	private SerialComUSB mSerialComUSB;
 	private SerialComPlatform mSerialComPlatform;
 	private final SerialComSystemProperty mSerialComSystemProperty;
@@ -389,6 +390,7 @@ public final class SerialComManager {
 	private static boolean nativeLibLoadAndInitAlready = false;
 	private static SerialComVendorLib mSerialComVendorLib;
 	private static SerialComHIDJNIBridge mSerialComHIDJNIBridge;
+	private static SerialComBluetoothJNIBridge mSerialComBluetoothJNIBridge;
 
 	// Whenever an exception/error occurs in native function, it throws that exception.
 	// When java method return from native call, extra check is added to make error
@@ -655,7 +657,7 @@ public final class SerialComManager {
 		if(serialNumber != null) {
 			serialNum = serialNumber.toLowerCase();
 		}
-		
+
 		String[] comPortsInfo = mComPortJNIBridge.listComPortFromUSBAttributes(usbVidToMatch, usbPidToMatch, serialNum);
 		if(comPortsInfo != null) {
 			return comPortsInfo;
@@ -663,6 +665,37 @@ public final class SerialComManager {
 			return new String[] { };
 		}	
 	}
+
+	/**
+	 * <p>Gives device node, remote bluetooth device address and channel number in use for device nodes 
+	 * which are using the RFCOMM service for emulating serial port over bluetooth.</p>
+	 * 
+	 * @return list of the BT SPP device node(s) with information about them or empty array if no 
+	 *          device node is found.
+	 * @throws SerialComException if an I/O error occurs.
+	 */
+	public SerialComBluetoothSPPDevNode[] listBTSPPDevNodesWithInfo() throws SerialComException {
+		int i = 0;
+		int numOfDevices = 0;
+		SerialComBluetoothSPPDevNode[] btSerialNodesFound = null;
+		String[] btSerialNodesInfo = mComPortJNIBridge.listBTSPPDevNodesWithInfo();
+
+		if(btSerialNodesInfo != null) {
+			if(btSerialNodesInfo.length < 2) {
+				return new SerialComBluetoothSPPDevNode[] { };
+			}
+			numOfDevices = btSerialNodesInfo.length / 3;
+			btSerialNodesFound = new SerialComBluetoothSPPDevNode[numOfDevices];
+			for(int x=0; x<numOfDevices; x++) {
+				btSerialNodesFound[x] = new SerialComBluetoothSPPDevNode(btSerialNodesInfo[i], btSerialNodesInfo[i+1], 
+						btSerialNodesInfo[i+2]);
+				i = i + 3;
+			}
+			return btSerialNodesFound;
+		}else {
+			throw new SerialComException("Could not find HID devices. Please retry !");
+		}
+	}	
 
 	/** 
 	 * <p>Opens a serial port for communication. If an attempt is made to open a port which is already opened exception in throw.</p>
@@ -2429,21 +2462,6 @@ public final class SerialComManager {
 	}
 
 	/**
-	 * <p>Prepares context for serial port communication over Bluetooth using 'serial port profile' (SPP)
-	 * specification of bluetooth standard.</p>
-	 * 
-	 * @return reference to an object of type SerialComBluetooth on which various methods can be invoked.
-	 * @throws SerialComException if could not instantiate class due to some reason.
-	 */
-	public SerialComBluetooth getSerialComBluetoothInstance() throws SerialComException {
-		if(mSerialComBluetooth != null) {
-			return mSerialComBluetooth;
-		}
-		mSerialComBluetooth = new SerialComBluetooth(mComPortJNIBridge);
-		return mSerialComBluetooth;
-	}
-
-	/**
 	 * <p>Get an instance of SerialComUSB class for USB related operations.</p>
 	 * 
 	 * @return reference to an object of type SerialComUSB on which various methods can be invoked.
@@ -2458,6 +2476,50 @@ public final class SerialComManager {
 	}
 
 	/**
+	 * <p>Initialize and return an instance of SerialComBluetooth for the given bluetooth stack. It prepares 
+	 * context for serial port communication over Bluetooth using 'serial port profile' (SPP) specification 
+	 * of bluetooth standard.</p></p>
+	 * 
+	 * <p>This method will extract native library in directory as specified by directoryPath 
+	 * argument or default directory will be used if directoryPath is null. The native library 
+	 * loaded will be given name as specified by loadedLibName argument or default name will be 
+	 * used if loadedLibName is null.</p>
+	 * 
+	 * @param type one of the constants BTSTACK_XX_XX defined in SerialComBluetooth class.
+	 * @param directoryPath absolute path of directory to be used for extraction.
+	 * @param loadedLibName library name without extension (do not append .so, .dll or .dylib etc.).
+	 * @return reference to an object of requested type SerialComUSB on which various methods can 
+	 *          be invoked.
+	 * @throws SerialComException if could not instantiate class due to some reason.
+	 * @throws SecurityException if java system properties can not be  accessed.
+	 * @throws SerialComUnexpectedException if java system property is null.
+	 * @throws SerialComLoadException if any file system related issue occurs.
+	 * @throws UnsatisfiedLinkError if loading/linking shared library fails.
+	 * @throws FileNotFoundException if file "/proc/cpuinfo" can not be found for Linux on ARM platform.
+	 * @throws IOException if file operations on "/proc/cpuinfo" fails for Linux on ARM platform.
+	 * @throws SerialComException if initializing native library fails.
+	 * @throws IllegalArgumentException if {@code btStack} is an invalid constant.
+	 */
+	public SerialComBluetooth getSerialComBluetoothInstance(int btStack, String directoryPath, 
+			String loadedLibName) throws SecurityException, SerialComUnexpectedException, SerialComLoadException, 
+			UnsatisfiedLinkError, SerialComException, FileNotFoundException, IOException {
+		if(osType == SerialComManager.OS_LINUX) {
+			if(btStack == SerialComBluetooth.BTSTACK_LINUX_BLUEZ) {
+			}else {
+				throw new IllegalArgumentException("Argument btStack does not indicate bluetooth stack supported by this library !");
+			}
+		}
+
+		if(mSerialComBluetoothJNIBridge == null) {
+			mSerialComBluetoothJNIBridge = new SerialComBluetoothJNIBridge();
+			SerialComBluetoothJNIBridge.loadNativeLibrary(directoryPath, loadedLibName, mSerialComSystemProperty, 
+					osType, cpuArch, javaABIType, btStack);
+		}
+
+		return new SerialComBluetooth(mSerialComBluetoothJNIBridge);
+	}
+
+	/**
 	 * <p>Initialize and return an instance of requested type for serial communication based on 
 	 * HID specification. The type argument should be HID_GENERIC for most of the applications. 
 	 * However for some very specific need type may be HID_USB, or for Bluetooth HID applicxation
@@ -2469,7 +2531,7 @@ public final class SerialComManager {
 	 * loaded will be given name as specified by loadedLibName argument or default name will be 
 	 * used if loadedLibName is null.</p>
 	 * 
-	 * @param type one of the constants HID_XXXX defined in SerialComHID.
+	 * @param type one of the constants HID_XXXX defined in SerialComHID class.
 	 * @param directoryPath absolute path of directory to be used for extraction.
 	 * @param loadedLibName library name without extension (do not append .so, .dll or .dylib etc.).
 	 * @return reference to an object of requested type SerialComUSB on which various methods can 
@@ -2494,7 +2556,7 @@ public final class SerialComManager {
 			if(osType == OS_MAC_OS_X) {
 				ret = mSerialComHIDJNIBridge.initNativeLib();
 				if(ret < 0) {
-					throw new SerialComException("Failed to initilize native library. Please retry !");
+					throw new SerialComException("Failed to initilize the native library. Please retry !");
 				}
 			}
 		}

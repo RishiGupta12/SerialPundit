@@ -18,7 +18,7 @@
 package com.embeddedunveiled.serial.bluetooth;
 
 import com.embeddedunveiled.serial.SerialComException;
-import com.embeddedunveiled.serial.internal.SerialComPortJNIBridge;
+import com.embeddedunveiled.serial.internal.SerialComBluetoothJNIBridge;
 
 /**
  * <p>TODO</p>
@@ -27,15 +27,18 @@ import com.embeddedunveiled.serial.internal.SerialComPortJNIBridge;
  */
 public final class SerialComBluetooth {
 
-	private SerialComPortJNIBridge mComPortJNIBridge;
+	/**<p>The value indicating BlueZ bluetooth stack on Linux. Integer constant with value 0x01.</p>*/
+	public static final int BTSTACK_LINUX_BLUEZ = 0x01;
+
+	private SerialComBluetoothJNIBridge mSerialComBluetoothJNIBridge;
 
 	/**
 	 * <p>Construct and allocates a new SerialComBluetooth object with given details.</p>
 	 * 
 	 * @param comPortJNIBridge interface to native library.
 	 */
-	public SerialComBluetooth(SerialComPortJNIBridge comPortJNIBridge) {
-		mComPortJNIBridge = comPortJNIBridge;
+	public SerialComBluetooth(SerialComBluetoothJNIBridge mSerialComBluetoothJNIBridge) {
+		this.mSerialComBluetoothJNIBridge = mSerialComBluetoothJNIBridge;
 	}
 
 	/**
@@ -50,7 +53,7 @@ public final class SerialComBluetooth {
 		int i = 0;
 		int numOfDevices = 0;
 		SerialComBluetoothAdapter[] btDevicesFound = null;
-		String[] btDevicesInfo = mComPortJNIBridge.listBluetoothAdaptorsWithInfo();
+		String[] btDevicesInfo = mSerialComBluetoothJNIBridge.listBluetoothAdaptorsWithInfo();
 
 		if(btDevicesInfo != null) {
 			numOfDevices = btDevicesInfo.length / 4;
@@ -64,36 +67,5 @@ public final class SerialComBluetooth {
 		}else {
 			return new SerialComBluetoothAdapter[] { };
 		}	
-	}
-
-	/**
-	 * <p>Gives device node, remote bluetooth device address and channel number in use for device nodes 
-	 * which are using the rfcomm service for emulating serial port over bluetooth.</p>
-	 * 
-	 * @return list of the BT SPP device node(s) with information about them or empty array if no 
-	 *          device node is found.
-	 * @throws SerialComException if an I/O error occurs.
-	 */
-	public SerialComBluetoothSPPDevNode[] listBTSPPDevNodesWithInfo() throws SerialComException {
-		int i = 0;
-		int numOfDevices = 0;
-		SerialComBluetoothSPPDevNode[] btSerialNodesFound = null;
-		String[] btSerialNodesInfo = mComPortJNIBridge.listBTSPPDevNodesWithInfo();
-
-		if(btSerialNodesInfo != null) {
-			if(btSerialNodesInfo.length < 2) {
-				return new SerialComBluetoothSPPDevNode[] { };
-			}
-			numOfDevices = btSerialNodesInfo.length / 3;
-			btSerialNodesFound = new SerialComBluetoothSPPDevNode[numOfDevices];
-			for(int x=0; x<numOfDevices; x++) {
-				btSerialNodesFound[x] = new SerialComBluetoothSPPDevNode(btSerialNodesInfo[i], btSerialNodesInfo[i+1], 
-						btSerialNodesInfo[i+2]);
-				i = i + 3;
-			}
-			return btSerialNodesFound;
-		}else {
-			throw new SerialComException("Could not find HID devices. Please retry !");
-		}
 	}
 }

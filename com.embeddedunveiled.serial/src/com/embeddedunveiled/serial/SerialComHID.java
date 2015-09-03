@@ -34,7 +34,7 @@ public class SerialComHID {
 
 	/**<p>The value indicating instance of class SerialComBluetoothHID. Integer constant with value 0x03.</p>*/
 	public static final int HID_BLUETOOTH = 0x03;
-	
+
 	// sub-classes also uses this reference to invoke native functions.
 	protected SerialComHIDJNIBridge mHIDJNIBridge;
 	protected int osType;
@@ -341,7 +341,7 @@ public class SerialComHID {
 		}
 		return ret;
 	}
-	
+
 	/**
 	 */
 	public final String getIndexedString(long handle, int index) throws SerialComException {
