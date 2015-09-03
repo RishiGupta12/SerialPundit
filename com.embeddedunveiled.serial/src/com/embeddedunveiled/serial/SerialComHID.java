@@ -170,19 +170,21 @@ public class SerialComHID {
 	}
 
 	/**
-	 * <p>Write the given output report to HID device. For devices which support only single report, report ID 
-	 * value must be 0x00. Report ID items are used to indicate which data fields are represented in each 
-	 * report structure. A Report ID item tag assigns a 1-byte identification prefix to each report transfer. 
-	 * If no Report ID item tags are present in the Report descriptor, it can be assumed that only one Input, 
-	 * Output, and Feature report structure exists and together they represent all of the device’s data.</p>
+	 * <p>Sends the given output report to the HID device.</p>
+	 * 
+	 * <p>As per HID specifications, report ID items are used to indicate which data fields are represented 
+	 * in each report structure. A Report ID item tag assigns a 1-byte identification prefix to each report 
+	 * transfer. If no Report ID item tags are present in the Report descriptor, it can be assumed that only 
+	 * one Input, Output, and Feature report structure exists and together they represent all of the device’s 
+	 * data. Argument reportID should be -1 if device support only single report.</p>
 	 * 
 	 * <p>Only Input reports are sent via the Interrupt In pipe. Feature and Output reports must be initiated 
 	 * by the host via the Control pipe or an optional Interrupt Out pipe.</p>
 	 * 
 	 * @param handle handle of the HID device to which this report will be sent.
-	 * @param reportId unique identifier for the report type.
-	 * @param report report to be written to HID device.
-	 * @return number of bytes written to HID device.
+	 * @param reportId unique identifier for the report type or -1 if device does not use report IDs.
+	 * @param report report to be sent to the HID device.
+	 * @return number of bytes sent to the HID device.
 	 * @throws SerialComException if an I/O error occurs.
 	 * @throws IllegalArgumentException if report is null or empty array. 
 	 */
@@ -194,7 +196,7 @@ public class SerialComHID {
 			throw new IllegalArgumentException("Argumenet report can not be of zero length !");
 		}
 
-		int ret = mHIDJNIBridge.writeOutputReport(handle, reportId, report);
+		int ret = mHIDJNIBridge.writeOutputReport(handle, reportId, report, report.length);
 		if(ret < 0) {
 			throw new SerialComException("Could not write output report to the HID device. Please retry !");
 		}

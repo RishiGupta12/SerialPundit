@@ -81,6 +81,7 @@ extern jlong linux_clean_throw_exp_usbattropen(JNIEnv *env, int task, const char
 		struct udev_device *udev_device, struct udev_enumerate *enumerator, struct udev *udev_ctx);
 extern jlong linux_usbattrhid_open(JNIEnv *env, jint usbvid, jint usbpid, jstring usbserialnumber,
 		jint busnum, jint devnum);
+extern jint linux_send_output_report(JNIEnv *env, jlong fd, jbyte reportID, jbyteArray report, jint length);
 #endif
 
 #if defined (__APPLE__)
@@ -88,6 +89,7 @@ extern jobjectArray mac_enumerate_usb_hid_devices(JNIEnv *env, jint vendor_filte
 extern 	jstring mac_clean_throw_exp_usbenumeration(JNIEnv *env, int task, const char *expmsg, CFSetRef hiddev_cfset,
 		IOHIDDeviceRef *hiddev_references);
 extern jlong mac_usbattrhid_open(JNIEnv *env, jint usbvid, jint usbpid, jstring usbserialnumber, jint locationID);
+extern jint mac_send_output_report(JNIEnv *env, jlong fd, jbyte reportID, jbyteArray report, jint length);
 #endif
 
 extern jint get_report_descriptor_size(JNIEnv *env, jlong fd);

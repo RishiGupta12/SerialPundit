@@ -201,37 +201,18 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
  * Method:    writeOutputReport
- * Signature: (JB[B)I
+ * Signature: (JB[BI)I
  *
  * @return number of bytes sent to device if function succeeds otherwise -1 if error occurs.
  * @throws SerialComException if any JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_writeOutputReport(JNIEnv *env,
-		jobject obj, jlong fd, jbyte reportID, jbyteArray report) {
-	int ret = -1;
-	int count = 0;
-	jbyte* buffer = NULL;
-
-	count = (int) (*env)->GetArrayLength(env, report);
-	buffer = (jbyte *) malloc(count + 1);
-
-	/* The first byte of SFEATURE and GFEATURE is the report number */
-	buffer[0] = reportID;
-
-	(*env)->GetByteArrayRegion(env, report, 0, count, &buffer[1]);
-	if((*env)->ExceptionOccurred(env) != NULL) {
-		throw_serialcom_exception(env, 3, 0, E_GETBYTEARRREGIONSTR);
-		return -1;
-	}
-
-	errno = 0;
-	ret = write(fd, buffer, count+1);
-	if(ret < 0) {
-		throw_serialcom_exception(env, 1, errno, NULL);
-		return -1;
-	}
-
-	return ret;
+		jobject obj, jlong fd, jbyte reportID, jbyteArray report, jint length) {
+#if defined (__linux__)
+	return linux_send_output_report(env, fd, reportID, report, length);
+#elif defined (__APPLE__)
+	return mac_send_output_report(env, fd, reportID, report, length);
+#endif
 }
 
 /*

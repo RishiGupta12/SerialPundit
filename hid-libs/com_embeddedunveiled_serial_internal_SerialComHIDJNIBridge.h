@@ -9,6 +9,14 @@ extern "C" {
 #endif
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
+ * Method:    openHidDeviceByPath
+ * Signature: (Ljava/lang/String;)J
+ */
+JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_openHidDeviceByPath
+  (JNIEnv *, jobject, jstring);
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
  * Method:    initNativeLib
  * Signature: ()I
  */
@@ -22,14 +30,6 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
  */
 JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_listHIDdevicesWithInfo
   (JNIEnv *, jobject);
-
-/*
- * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
- * Method:    openHidDevice
- * Signature: (Ljava/lang/String;)J
- */
-JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_openHidDevice
-  (JNIEnv *, jobject, jstring);
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
@@ -50,10 +50,10 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
  * Method:    writeOutputReport
- * Signature: (JB[B)I
+ * Signature: (JB[BI)I
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_writeOutputReport
-  (JNIEnv *, jobject, jlong, jbyte, jbyteArray);
+  (JNIEnv *, jobject, jlong, jbyte, jbyteArray, jint);
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
