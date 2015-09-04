@@ -199,6 +199,14 @@ jstring mac_get_hiddev_info_string(JNIEnv *env, jlong fd, int info_required) {
 			CFStringGetCString(str_ref, charbuffer, sizeof(charbuffer), kCFStringEncodingUTF8);
 			CFRelease(str_ref);
 		}else if(info_required == 2) {
+			str_ref = IOHIDDeviceGetProperty(fd, kIOHIDProductKey);
+			if(str_ref == NULL) {
+				(*env)->ThrowNew(env, serialComExpCls, E_COULDNOTMANUFCTRER);
+				return NULL;
+			}
+			memset(charbuffer, '\0', sizeof(charbuffer));
+			CFStringGetCString(str_ref, charbuffer, sizeof(charbuffer), kCFStringEncodingUTF8);
+			CFRelease(str_ref);
 		}else if(info_required == 3) {
 		}else {
 		}
