@@ -86,11 +86,19 @@ jint mac_send_output_report(JNIEnv *env, jlong fd, jbyte reportID, jbyteArray re
 
 	if(reportID < 0) {
 		buffer = (jbyte *) calloc(length, sizeof(unsigned char));
+		if(buffer == NULL) {
+			throw_serialcom_exception(env, 3, 0, E_CALLOCSTR);
+			return -1;
+		}
 		(*env)->GetByteArrayRegion(env, report, 0, length, &buffer[0]);
 		num_bytes_to_write = length;
 		report_id = 0x00;
 	}else {
 		buffer = (jbyte *) calloc((length + 1), sizeof(unsigned char));
+		if(buffer == NULL) {
+			throw_serialcom_exception(env, 3, 0, E_CALLOCSTR);
+			return -1;
+		}
 		buffer[0] = reportID;
 		(*env)->GetByteArrayRegion(env, report, 0, length, &buffer[1]);
 		num_bytes_to_write = length + 1;

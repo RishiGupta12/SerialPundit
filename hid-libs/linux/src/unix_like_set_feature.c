@@ -33,8 +33,8 @@
 
 #if defined (__linux__)
 /*
- * return number of bytes read if function succeeds otherwise -1 if error occurs.
- * throws SerialComException if any JNI function, system call or C function fails.
+ * @return number of bytes read if function succeeds otherwise -1 if error occurs.
+ * @throws SerialComException if any JNI function, system call or C function fails.
  */
 jint linux_send_feature_report(JNIEnv *env, jlong fd, jbyte reportID, jbyteArray report, jint length) {
 	int ret = -1;
@@ -73,4 +73,47 @@ jint linux_send_feature_report(JNIEnv *env, jlong fd, jbyte reportID, jbyteArray
 #endif
 
 #if defined (__APPLE__)
+/*
+ * @return number of bytes read if function succeeds otherwise -1 if error occurs.
+ * @throws SerialComException if any JNI function, system call or C function fails.
+ */
+jint mac_send_feature_report(JNIEnv *env, jlong fd, jbyte reportID, jbyteArray report, jint length) {
+	IOReturn ret = -1;
+	int num_bytes_to_write = 0;
+	int report_id = -1;
+	jbyte* buffer = NULL;
+
+	if(reportID < 0) {
+		buffer = (jbyte *) calloc(length, sizeof(unsigned char));
+		if(buffer == NULL) {
+			throw_serialcom_exception(env, 3, 0, E_CALLOCSTR);
+			return -1;
+		}
+		(*env)->GetByteArrayRegion(env, report, 0, length, &buffer[0]);
+		num_bytes_to_write = length;
+		report_id = 0x00;
+	}else {
+		buffer = (jbyte *) calloc((length + 1), sizeof(unsigned char));
+		if(buffer == NULL) {
+			throw_serialcom_exception(env, 3, 0, E_CALLOCSTR);
+			return -1;
+		}
+		buffer[0] = reportID;
+		(*env)->GetByteArrayRegion(env, report, 0, length, &buffer[1]);
+		num_bytes_to_write = length + 1;
+		report_id = reportID;
+	}
+	if((*env)->ExceptionOccurred(env) != NULL) {
+		throw_serialcom_exception(env, 3, 0, E_GETBYTEARRREGIONSTR);
+		return -1;
+	}
+
+	ret = IOHIDDeviceSetReport(fd, kIOHIDReportTypeFeature, report_id, buffer, num_bytes_to_write);
+	if(ret != kIOReturnSuccess) {
+		/* to error throw_serialcom_exception(env, 1, errno, NULL);*/
+		return -1;
+	}
+
+	return num_bytes_to_write;
+}
 #endif
