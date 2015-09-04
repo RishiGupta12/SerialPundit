@@ -31,6 +31,9 @@
 #endif
 
 #if defined (__APPLE__)
+#include <CoreFoundation/CoreFoundation.h>
+#include <IOKit/hid/IOHIDKeys.h>
+#include <IOKit/hid/IOHIDManager.h>
 #endif
 
 #include <jni.h>
@@ -56,7 +59,7 @@ jstring linux_get_hiddev_info_string(JNIEnv *env, jlong fd, int info_required) {
 	const char *sysattr_val;
 	int bus = 0;
 
-	/* Find device is present on which bus in system */
+	/* find transport/bus used by given HID device. */
 	errno = 0;
 	ret = ioctl(fd, HIDIOCGRAWINFO, &info);
 	if(ret < 0) {
@@ -151,6 +154,62 @@ jstring linux_get_hiddev_info_string(JNIEnv *env, jlong fd, int info_required) {
 	/* clean up */
 	udev_device_unref(udev_device);
 	udev_unref(udev_ctx);
+
+	return info_string;
+}
+#endif
+
+#if defined (__APPLE__)
+/*
+ * Find the required information about USB HID device using API provided in IOHIDxxx.
+ *
+ * @return required information string otherwise NULL.
+ * @throws SerialComException if any JNI function, system call or C function fails.
+ */
+jstring mac_get_hiddev_info_string(JNIEnv *env, jlong fd, int info_required) {
+	int bus = 0;
+	char charbuffer[128];
+	jstring info_string = NULL;
+	CFStringRef str_ref;
+
+	/* find transport/bus used by given HID device. */
+	str_ref = IOHIDDeviceGetProperty(fd, CFSTR(kIOHIDTransportKey));
+	if(str_ref == NULL) {
+		(*env)->ThrowNew(env, serialComExpCls, E_COULDNOTTARNSPORT);
+		return NULL;
+	}
+	memset(charbuffer, '\0', sizeof(charbuffer));
+	CFStringGetCString(str_ref, charbuffer, sizeof(charbuffer), kCFStringEncodingUTF8);
+	CFRelease(str_ref);
+	if((strcmp(charbuffer, "USB") == 0) || (strcmp(charbuffer, "usb") == 0)) {
+		bus = 1;
+	}else if((strcmp(charbuffer, "BLUETOOTH") == 0) || (strcmp(charbuffer, "bluetooth") == 0) || (strcmp(charbuffer, "Bluetooth") == 0)) {
+		bus = 2;
+	}else {
+	}
+
+	if(bus == 1) {
+		if(info_required == 1) {
+			str_ref = IOHIDDeviceGetProperty(fd, kIOHIDManufacturerKey);
+			if(str_ref == NULL) {
+				(*env)->ThrowNew(env, serialComExpCls, E_COULDNOTMANUFCTRER);
+				return NULL;
+			}
+			memset(charbuffer, '\0', sizeof(charbuffer));
+			CFStringGetCString(str_ref, charbuffer, sizeof(charbuffer), kCFStringEncodingUTF8);
+			CFRelease(str_ref);
+		}else if(info_required == 2) {
+		}else if(info_required == 3) {
+		}else {
+		}
+		info_string = (*env)->NewStringUTF(env, charbuffer);
+		if((info_string == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+			(*env)->ThrowNew(env, serialComExpCls, E_NEWSTRUTFSTR);
+			return NULL;
+		}
+	}else if(bus ==2) {
+	}else {
+	}
 
 	return info_string;
 }
