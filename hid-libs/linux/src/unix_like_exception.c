@@ -35,37 +35,31 @@ void throw_serialcom_exception(JNIEnv *env, int type, int error_code, const char
 	jint ret = 0;
 	char buffer[256];
 	char *custom_error_msg = NULL;
-	jclass serialComExceptionClass = NULL;
+
 #if _POSIX_C_SOURCE >= 200112L || _XOPEN_SOURCE >= 600 && ! _GNU_SOURCE
 #else
 	char *error_msg = NULL;
 #endif
 	(*env)->ExceptionClear(env);
-	serialComExceptionClass = (*env)->FindClass(env, SCOMEXPCLASS);
-	if((serialComExceptionClass == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
-		(*env)->ExceptionClear(env);
-		LOGE(E_FINDCLASSSCOMEXPSTR);
-		return;
-	}
 
 	if(type == 1) {
 		/* Caller has given posix/os-standard error code, get error message corresponding to this code. */
 		/* This need to be made more portable to remove compiler specific dependency */
 #if _POSIX_C_SOURCE >= 200112L || _XOPEN_SOURCE >= 600 && ! _GNU_SOURCE
 		strerror_r(error_code, buffer, 256);
-		ret = (*env)->ThrowNew(env, serialComExceptionClass, buffer);
+		ret = (*env)->ThrowNew(env, serialComExpCls, buffer);
 		if(ret < 0) {
 			LOGE(FAILTHOWEXP);
 		}
 #else
 		error_msg = strerror_r(error_code, buffer, 256);
 		if(error_msg == NULL) {
-			ret = (*env)->ThrowNew(env, serialComExceptionClass, buffer);
+			ret = (*env)->ThrowNew(env, serialComExpCls, buffer);
 			if(ret < 0) {
 				LOGE(FAILTHOWEXP);
 			}
 		}else {
-			ret = (*env)->ThrowNew(env, serialComExceptionClass, error_msg);
+			ret = (*env)->ThrowNew(env, serialComExpCls, error_msg);
 			if(ret < 0) {
 				LOGE(FAILTHOWEXP);
 			}
@@ -76,13 +70,13 @@ void throw_serialcom_exception(JNIEnv *env, int type, int error_code, const char
 		switch (error_code) {
 
 		}
-		ret = (*env)->ThrowNew(env, serialComExceptionClass, custom_error_msg);
+		ret = (*env)->ThrowNew(env, serialComExpCls, custom_error_msg);
 		if(ret < 0) {
 			LOGE(FAILTHOWEXP);
 		}
 	}else {
 		/* Caller has given exception message explicitly */
-		ret = (*env)->ThrowNew(env, serialComExceptionClass, msg);
+		ret = (*env)->ThrowNew(env, serialComExpCls, msg);
 		if(ret < 0) {
 			LOGE(FAILTHOWEXP);
 		}

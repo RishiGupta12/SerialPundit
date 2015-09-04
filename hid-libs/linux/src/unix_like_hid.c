@@ -70,8 +70,11 @@
 static	IOHIDManagerRef mac_hid_mgr = -1;
 #endif
 
+JNIEnv *env_clean;
+
 /* Clean up when library is un-loaded. */
 __attribute__((destructor)) static void exit_scmhidlib() {
+	(*env_clean)->DeleteGlobalRef(env_clean, serialComExpCls);
 #if defined (__APPLE__)
 	IOHIDManagerUnscheduleFromRunLoop(mac_hid_mgr, CFRunLoopGetCurrent( ), kCFRunLoopDefaultMode );
 	IOHIDManagerClose(mac_hid_mgr, kIOHIDOptionsTypeNone);
@@ -84,11 +87,28 @@ __attribute__((destructor)) static void exit_scmhidlib() {
  * Method:    initNativeLib
  * Signature: ()I
  *
- * @return 0 if function succeeds otherwise -1.
+ * @return 0 if initialization succeeds, -1 if any error occurs.
  * @throws SerialComException if any function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_initNativeLib
 (JNIEnv *env, jobject obj) {
+
+	env_clean = env;
+
+	/* exception of this class will be thrown whenever it occurs */
+	jclass serComExpCls = (*env)->FindClass(env, SCOMEXPCLASS);
+	if((serComExpCls == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+		(*env)->ExceptionClear(env);
+		throw_serialcom_exception(env, 3, 0, E_FINDCLASSSCOMEXPSTR);
+		return -1;
+	}
+	serialComExpCls = (jclass) (*env)->NewGlobalRef(env, serComExpCls);
+	if((serialComExpCls == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+		(*env)->ExceptionClear(env);
+		throw_serialcom_exception(env, 3, 0, E_NEWGLOBALREFSTR);
+		return -1;
+	}
+
 #if defined (__APPLE__)
 	IOReturn ret = 0;
 	mac_hid_mgr = IOHIDManagerCreate(kCFAllocatorDefault, kIOHIDOptionsTypeNone);
@@ -136,7 +156,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
  * @throws SerialComException if any JNI function, system call or C function fails.
  */
 JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_openHidDeviceByPath
-  (JNIEnv *env, jobject obj, jstring pathName) {
+(JNIEnv *env, jobject obj, jstring pathName) {
 
 #if defined (__linux__)
 	long fd;
@@ -371,7 +391,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
  * @throws SerialComException if any JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_getFeatureReport
-  (JNIEnv *env, jobject obj, jlong fd, jbyte reportID, jbyteArray report, jint length) {
+(JNIEnv *env, jobject obj, jlong fd, jbyte reportID, jbyteArray report, jint length) {
 #if defined (__linux__)
 	return linux_get_feature_report(env, fd, reportID, report, length);
 #elif defined (__APPLE__)

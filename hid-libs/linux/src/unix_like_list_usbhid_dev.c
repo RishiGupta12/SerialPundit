@@ -55,17 +55,10 @@ jstring linux_clean_throw_exp_usbenumeration(JNIEnv *env, int task, const char *
 	}else {
 	}
 
-	jclass serialComExceptionClass = (*env)->FindClass(env, SCOMEXPCLASS);
-	if((serialComExceptionClass == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
-		(*env)->ExceptionClear(env);
-		LOGE(E_FINDCLASSSCOMEXPSTR);
-		return NULL;
-	}
-
 	if(task == 1) {
-		(*env)->ThrowNew(env, serialComExceptionClass, E_NEWSTRUTFSTR);
+		(*env)->ThrowNew(env, serialComExpCls, E_NEWSTRUTFSTR);
 	}else {
-		(*env)->ThrowNew(env, serialComExceptionClass, expmsg);
+		(*env)->ThrowNew(env, serialComExpCls, expmsg);
 	}
 
 	return NULL;
