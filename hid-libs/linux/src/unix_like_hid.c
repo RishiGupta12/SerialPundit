@@ -445,9 +445,17 @@ JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHID
  * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
  * Method:    getIndexedString
  * Signature: (JI)Ljava/lang/String;
+ *
+ * @return string at the given index or NULL if error occurs.
+ * @throws SerialComException if any JNI function, system call or C function fails.
  */
 JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_getIndexedString(JNIEnv *env,
 		jobject obj, jlong fd, jint index) {
+#if defined (__linux__)
+	return NULL;
+#elif defined (__APPLE__)
+	return NULL;
+#endif
 	return get_hiddev_indexed_string(env, fd, index);
 }
 

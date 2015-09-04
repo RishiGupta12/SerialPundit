@@ -360,12 +360,24 @@ public class SerialComHID {
 	}
 
 	/**
+	 * <p>Gives the string at the given index of string descriptor from HID device.</p>
+	 * 
+	 * <p>Supported on Windows only as serial communication manager library does not use any 
+	 * user space drivers.</p>
+	 * 
+	 * @param handle handle of the HID device from whom indexed string is to be read.
+	 * @return string read from the HID device.
+	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public final String getIndexedString(long handle, int index) throws SerialComException {
-		String ret = mHIDJNIBridge.getIndexedString(handle, index);
-		if(ret == null) {
-			throw new SerialComException("Could not get the string at given index from the HID device. Please retry !");
+		if(osType == SerialComManager.OS_WINDOWS) {
+			String ret = mHIDJNIBridge.getIndexedString(handle, index);
+			if(ret == null) {
+				throw new SerialComException("Could not get the string at given index from the HID device. Please retry !");
+			}
+			return ret;
+		}else {
+			throw new SerialComException("Not supported on this operating system !");
 		}
-		return ret;
 	}
 }
