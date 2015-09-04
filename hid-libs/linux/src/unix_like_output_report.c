@@ -41,7 +41,6 @@
  */
 jint linux_send_output_report(JNIEnv *env, jlong fd, jbyte reportID, jbyteArray report, jint length) {
 	int ret = -1;
-	int num_bytes_to_write = 0;
 	jbyte* buffer = NULL;
 
 	buffer = (jbyte *) calloc((length + 1), sizeof(unsigned char));

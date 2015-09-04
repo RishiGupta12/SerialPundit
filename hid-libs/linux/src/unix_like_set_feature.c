@@ -38,15 +38,23 @@
  */
 jint linux_send_feature_report(JNIEnv *env, jlong fd, jbyte reportID, jbyteArray report, jint length) {
 	int ret = -1;
-	int count = 0;
+	jbyte* buffer = NULL;;
 
-	count = (int) (*env)->GetArrayLength(env, report);
-	jbyte* buffer = (jbyte *) malloc(count + 1);
+	buffer = (jbyte *) calloc((length + 1), sizeof(unsigned char));
+	if(buffer == NULL) {
+		throw_serialcom_exception(env, 3, 0, E_CALLOCSTR);
+		return -1;
+	}
 
-	/* The first byte of SFEATURE and GFEATURE is the report number */
-	buffer[0] = reportID;
+	if(reportID < 0) {
+		/* send 0x00 as 1st byte if device does not support report ID */
+		buffer[0] = 0x00;
+	}else {
+		/* The first byte of SFEATURE and GFEATURE is the report number */
+		buffer[0] = reportID;
+	}
 
-	(*env)->GetByteArrayRegion(env, report, 0, count, &buffer[1]);
+	(*env)->GetByteArrayRegion(env, report, 0, length, &buffer[1]);
 	if((*env)->ExceptionOccurred(env) != NULL) {
 		throw_serialcom_exception(env, 3, 0, E_GETBYTEARRREGIONSTR);
 		return -1;
@@ -54,7 +62,7 @@ jint linux_send_feature_report(JNIEnv *env, jlong fd, jbyte reportID, jbyteArray
 
 	errno = 0;
 	/* this ioctl returns number of bytes written to the device */
-	ret = ioctl(fd, HIDIOCSFEATURE(count+1), buffer);
+	ret = ioctl(fd, HIDIOCSFEATURE(length + 1), buffer);
 	if(ret < 0) {
 		throw_serialcom_exception(env, 1, errno, NULL);
 		return -1;
