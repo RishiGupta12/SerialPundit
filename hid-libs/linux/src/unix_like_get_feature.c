@@ -40,10 +40,11 @@
  * @return number of bytes read if function succeeds otherwise -1 if error occurs.
  * @throws SerialComException if any JNI function, system call or C function fails.
  */
-jint linux_send_feature_report(JNIEnv *env, jlong fd, jbyte reportID, jbyteArray report, jint length) {
+jint linux_get_feature_report(JNIEnv *env, jlong fd, jbyte reportID, jbyteArray report, jint length) {
 	int ret = -1;
 	jbyte* buffer = NULL;;
 
+	/* allocate and clear buffer */
 	buffer = (jbyte *) calloc((length + 1), sizeof(unsigned char));
 	if(buffer == NULL) {
 		throw_serialcom_exception(env, 3, 0, E_CALLOCSTR);

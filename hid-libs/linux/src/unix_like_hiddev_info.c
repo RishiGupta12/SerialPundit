@@ -36,12 +36,17 @@
 #include <jni.h>
 #include "unix_like_hid.h"
 
-/* */
-jstring get_hiddev_info_string(JNIEnv *env, jlong fd, int task) {
+#if defined (__linux__)
+/*
+ * Find the required information from USB device (parent udev device) of given HID device
+ * (child udev device).
+ *
+ * @return required information string otherwise NULL.
+ * @throws SerialComException if any JNI function, system call or C function fails.
+ */
+jstring linux_get_hiddev_info_string(JNIEnv *env, jlong fd, int info_required) {
 
 	jstring info_string = NULL;
-
-#if defined (__linux__)
 	int ret = -1;
 	struct hidraw_devinfo info;
 	struct stat st;
@@ -50,12 +55,7 @@ jstring get_hiddev_info_string(JNIEnv *env, jlong fd, int task) {
 	struct udev_device *usb_udev_device;
 	const char *sysattr_val;
 	int bus = 0;
-#endif
 
-#if defined (__APPLE__)
-#endif
-
-#if defined (__linux__)
 	/* Find device is present on which bus in system */
 	errno = 0;
 	ret = ioctl(fd, HIDIOCGRAWINFO, &info);
@@ -102,7 +102,7 @@ jstring get_hiddev_info_string(JNIEnv *env, jlong fd, int task) {
 			return NULL;
 		}
 
-		if(task == 1) {
+		if(info_required == 1) {
 			sysattr_val = udev_device_get_sysattr_value(usb_udev_device, "manufacturer");
 			if(sysattr_val != NULL) {
 				info_string = (*env)->NewStringUTF(env, sysattr_val);
@@ -115,7 +115,7 @@ jstring get_hiddev_info_string(JNIEnv *env, jlong fd, int task) {
 				throw_serialcom_exception(env, 3, 0, E_NEWSTRUTFSTR);
 				return NULL;
 			}
-		}else if(task == 2) {
+		}else if(info_required == 2) {
 			sysattr_val = udev_device_get_sysattr_value(usb_udev_device, "product");
 			if(sysattr_val != NULL) {
 				info_string = (*env)->NewStringUTF(env, sysattr_val);
@@ -128,7 +128,7 @@ jstring get_hiddev_info_string(JNIEnv *env, jlong fd, int task) {
 				throw_serialcom_exception(env, 3, 0, E_NEWSTRUTFSTR);
 				return NULL;
 			}
-		}else if(task == 3) {
+		}else if(info_required == 3) {
 			sysattr_val = udev_device_get_sysattr_value(usb_udev_device, "serial");
 			if(sysattr_val != NULL) {
 				info_string = (*env)->NewStringUTF(env, sysattr_val);
@@ -151,10 +151,7 @@ jstring get_hiddev_info_string(JNIEnv *env, jlong fd, int task) {
 	/* clean up */
 	udev_device_unref(udev_device);
 	udev_unref(udev_ctx);
-#endif
-
-#if defined (__APPLE__)
-#endif
 
 	return info_string;
 }
+#endif

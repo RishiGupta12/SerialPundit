@@ -16,6 +16,9 @@
  *
  ***************************************************************************************************/
 
+/* It is possible to re-factor some functions or things like that to factor in common function.
+ * We have knowingly kept internal dependencies to minimum so as to accommodate future changes.*/
+
 #ifndef UNIX_LIKE_HID_H_
 #define UNIX_LIKE_HID_H_
 
@@ -29,10 +32,17 @@
 #include <IOKit/hid/IOHIDManager.h>
 #endif
 
+#include <sys/ioctl.h>
 #include <jni.h>
 
-/* It is possible to re-factor some functions or things like that to factor in common function.
- * We have knowingly kept internal dependencies to minimum so as to accommodate future changes.*/
+#if defined (__linux__)
+/* Hack to work around failing compilation on systems that don't
+ * yet populate new version of hidraw.h to userspace. */
+#ifndef HIDIOCSFEATURE
+#define HIDIOCSFEATURE(len)    _IOC(_IOC_WRITE|_IOC_READ, 'H', 0x06, len)
+#define HIDIOCGFEATURE(len)    _IOC(_IOC_WRITE|_IOC_READ, 'H', 0x07, len)
+#endif
+#endif
 
 /* Constant string defines */
 #define SCOMEXPCLASS "com/embeddedunveiled/serial/SerialComException"
@@ -83,6 +93,8 @@ extern jlong linux_usbattrhid_open(JNIEnv *env, jint usbvid, jint usbpid, jstrin
 		jint busnum, jint devnum);
 extern jint linux_send_output_report(JNIEnv *env, jlong fd, jbyte reportID, jbyteArray report, jint length);
 extern jint linux_send_feature_report(JNIEnv *env, jlong fd, jbyte reportID, jbyteArray report, jint length);
+extern jint linux_get_feature_report(JNIEnv *env, jlong fd, jbyte reportID, jbyteArray report, jint length);
+extern jstring linux_get_hiddev_info_string(JNIEnv *env, jlong fd, int info_required);
 #endif
 
 #if defined (__APPLE__)
@@ -92,10 +104,12 @@ extern 	jstring mac_clean_throw_exp_usbenumeration(JNIEnv *env, int task, const 
 extern jlong mac_usbattrhid_open(JNIEnv *env, jint usbvid, jint usbpid, jstring usbserialnumber, jint locationID);
 extern jint mac_send_output_report(JNIEnv *env, jlong fd, jbyte reportID, jbyteArray report, jint length);
 extern jint mac_send_feature_report(JNIEnv *env, jlong fd, jbyte reportID, jbyteArray report, jint length);
+extern jint mac_get_feature_report(JNIEnv *env, jlong fd, jbyte reportID, jbyteArray report, jint length);
+extern jstring mac_get_hiddev_info_string(JNIEnv *env, jlong fd, int info_required);
 #endif
 
 extern jint get_report_descriptor_size(JNIEnv *env, jlong fd);
-extern jstring get_hiddev_info_string(JNIEnv *env, jlong fd, int task);
+
 extern jstring get_hiddev_indexed_string(JNIEnv *env, jlong fd, int index);
 
 #endif /* UNIX_LIKE_HID_H_ */

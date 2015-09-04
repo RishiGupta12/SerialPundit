@@ -52,34 +52,46 @@ public class Test72  {
 			}
 			
 			byte[] inputReportBuffer = new byte[16];
-			byte[] outputReportBuffer = new byte[16];
+			byte[] outputReportBuffer = new byte[256];
 			int ret;
 			
 			SerialComUSBHID scuh = (SerialComUSBHID) scm.getSerialComHIDInstance(SerialComHID.HID_USB, null, null);
 			
 			// handle : 5
-			long handle = scuh.openHidDeviceByUSBAttributes(0x04D8, 0X00DF, "0000980371", -1, -1, -1);
+			long handle = scuh.openHidDevice("/dev/hidraw1");
+//			long handle = scuh.openHidDeviceByUSBAttributes(0x04D8, 0X00DF, "0000980371", -1, -1, -1);
 			System.out.println("handle : " + handle);
 			
 //			// should block indefinitely
 //			ret = scuh.readInputReport(handle, inputReportBuffer, 16);
 //			System.out.println("number of bytes in input report : " + ret);
 			
-			// number of bytes sent : 16
-			outputReportBuffer[0] = (byte) 0x80;
-			ret = scuh.writeOutputReport(handle, (byte) -1, outputReportBuffer);
-			System.out.println("number of bytes sent : " + ret);
+//			// number of bytes sent : 16
+//			outputReportBuffer[0] = (byte) 0x80;
+//			ret = scuh.writeOutputReport(handle, (byte) -1, outputReportBuffer);
+//			System.out.println("number of bytes sent : " + ret);
+//			
+//			Thread.sleep(1000);
+//			
+//			// factory default device configuration
+//			// number of bytes in input report : 16
+//			// 80 00 68 00 FF 00 FF 00 04 E1 00 89 CA 00 01 42
+//			// 80 00 68 00 FF 00 FF 00 04 E1 00 89 CA 00 09 46
+//			// 80 00 68 00 FF 00 FF 00 04 E1 00 88 CB 00 09 46
+//			ret = scuh.readInputReportWithTimeout(handle, inputReportBuffer, 16, 200);
+//			System.out.println("number of bytes in input report : " + ret);
+//			System.out.println("input report : " + scuh.formatReportToHex(inputReportBuffer));
 			
-			Thread.sleep(1000);
+//			outputReportBuffer[0] = (byte) 0x01;
+//			ret = scuh.sendFeatureReport(handle, (byte) 0x01, outputReportBuffer);
+//			System.out.println("number of bytes sent : " + ret);
 			
-			// factory default device configuration
-			// number of bytes in input report : 16
-			// 80 00 68 00 FF 00 FF 00 04 E1 00 89 CA 00 01 42
-			// 80 00 68 00 FF 00 FF 00 04 E1 00 89 CA 00 09 46
-			// 80 00 68 00 FF 00 FF 00 04 E1 00 88 CB 00 09 46
-			ret = scuh.readInputReportWithTimeout(handle, inputReportBuffer, 16, 200);
-			System.out.println("number of bytes in input report : " + ret);
-			System.out.println("input report : " + scuh.formatReportToHex(inputReportBuffer));
+			System.out.println("Manufacturer string: " + scuh.getManufacturerString(handle));
+			System.out.println("Product string: " + scuh.getProductString(handle));
+			System.out.println("Serial string: " + scuh.getSerialNumberString(handle));
+			
+			System.out.println("String at index : 0 is :" + scuh.getIndexedString(handle, 0));
+			
 			
 			scuh.closeHidDevice(handle);
 			System.out.println("\ndone !");

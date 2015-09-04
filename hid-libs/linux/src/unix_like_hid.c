@@ -16,6 +16,8 @@
  *
  ***************************************************************************************************/
 
+/* In Linux, USB HID raw devices are those devices which are not strictly human interface device. */
+
 #if defined (__linux__) || defined (__APPLE__) || defined (__SunOS) || defined(__sun) || defined(__FreeBSD__) \
 		|| defined(__OpenBSD__) || defined(__NetBSD__) || defined(__hpux__) || defined(_AIX)
 
@@ -127,14 +129,14 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
- * Method:    openHidDevice
+ * Method:    openHidDeviceByPath
  * Signature: (Ljava/lang/String;)J
  *
  * @return file descriptor number if function succeeds otherwise -1 if error occurs.
  * @throws SerialComException if any JNI function, system call or C function fails.
  */
-JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_openHidDevice(JNIEnv *env,
-		jobject obj, jstring pathName) {
+JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_openHidDeviceByPath
+  (JNIEnv *env, jobject obj, jstring pathName) {
 
 #if defined (__linux__)
 	long fd;
@@ -363,41 +365,18 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
  * Method:    getFeatureReport
- * Signature: (J[B)I
+ * Signature: (JB[BI)I
  *
  * @return number of bytes received from HID device if function succeeds otherwise -1 if error occurs.
  * @throws SerialComException if any JNI function, system call or C function fails.
  */
-JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_getFeatureReport(JNIEnv *env,
-		jobject obj, jlong fd, jbyteArray reportBuffer) {
-	int ret = -1;
-	int length = 0;
-
-	length = (int) (*env)->GetArrayLength(env, reportBuffer);
-	jbyte* buffer = (jbyte *) malloc(length);
-
-	errno = 0;
-	/* this ioctl returns number of bytes read from device */
-	ret = ioctl(fd, HIDIOCGFEATURE(length), buffer);
-	if(ret > 0) {
-		/* copy data from native buffer to Java buffer. */
-		(*env)->SetByteArrayRegion(env, reportBuffer, 0, ret, buffer);
-		if((*env)->ExceptionOccurred(env) != NULL) {
-			throw_serialcom_exception(env, 3, 0, E_SETBYTEARRAYREGION);
-			return -1;
-		}
-		free(buffer);
-		return ret;
-	}else if(ret < 0) {
-		free(buffer);
-		throw_serialcom_exception(env, 1, errno, NULL);
-		return -1;
-	}else {
-	}
-
-	/* no bytes read, ret will be zero */
-	free(buffer);
-	return ret;
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_getFeatureReport
+  (JNIEnv *env, jobject obj, jlong fd, jbyte reportID, jbyteArray report, jint length) {
+#if defined (__linux__)
+	return linux_get_feature_report(env, fd, reportID, report, length);
+#elif defined (__APPLE__)
+	return mac_get_feature_report(env, fd, reportID, report, length);
+#endif
 }
 
 /*
@@ -407,7 +386,11 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
  */
 JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_getManufacturerString(JNIEnv *env,
 		jobject obj, jlong fd) {
-	return get_hiddev_info_string(env, fd, 1);
+#if defined (__linux__)
+	return linux_get_hiddev_info_string(env, fd, 1);
+#elif defined (__APPLE__)
+	return mac_get_hiddev_info_string(env, fd, 1);
+#endif
 }
 
 /*
@@ -417,7 +400,11 @@ JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHID
  */
 JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_getProductString(JNIEnv *env,
 		jobject obj, jlong fd) {
-	return get_hiddev_info_string(env, fd, 2);
+#if defined (__linux__)
+	return linux_get_hiddev_info_string(env, fd, 2);
+#elif defined (__APPLE__)
+	return mac_get_hiddev_info_string(env, fd, 2);
+#endif
 }
 
 /*
@@ -427,7 +414,11 @@ JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHID
  */
 JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_getSerialNumberString(JNIEnv *env,
 		jobject obj, jlong fd) {
-	return get_hiddev_info_string(env, fd, 3);
+#if defined (__linux__)
+	return linux_get_hiddev_info_string(env, fd, 3);
+#elif defined (__APPLE__)
+	return mac_get_hiddev_info_string(env, fd, 3);
+#endif
 }
 
 /*

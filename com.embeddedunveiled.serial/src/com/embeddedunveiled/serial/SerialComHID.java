@@ -293,25 +293,21 @@ public class SerialComHID {
 
 	/**
 	 * <p>Get a feature report from the HID device. The very first byte in the reportBuffer will be 
-	 * report ID.</p>
+	 * report ID. TODO chekthis</p>
 	 * 
 	 * @param handle handle of the HID device from whom feature report is to be read.
-	 * @param length number of bytes to read into reportBuffer as part of feature report. This 
-	 *         should also include report ID byte i.e. number of bytes in report plus one.
+	 * @param reportId unique identifier for the report type.
+	 * @param report byte type buffer where feature report will be saved.
 	 * @return number of bytes read from HID device.
 	 * @throws SerialComException if an I/O error occurs.
-	 * @throws IllegalArgumentException if reportBuffer is null or its length is zero or if length 
-	 *          is negative.
+	 * @throws IllegalArgumentException if reportBuffer is null or its length is zero.
 	 */
-	public final int getFeatureReport(long handle, byte[] reportBuffer, int length) throws SerialComException {
-		if(reportBuffer == null) {
+	public final int getFeatureReport(long handle, byte reportId, final byte[] report) throws SerialComException {
+		if(report == null) {
 			throw new IllegalArgumentException("Argumenet reportBuffer can not be null !");
 		}
-		if(length < 0) {
-			throw new IllegalArgumentException("Argumenet length can not be negative !");
-		}
 
-		int ret = mHIDJNIBridge.getFeatureReport(handle, reportBuffer);
+		int ret = mHIDJNIBridge.getFeatureReport(handle, reportId, report, report.length);
 		if(ret < 0) {
 			throw new SerialComException("Could not get feature report from HID device. Please retry !");
 		}
@@ -319,6 +315,11 @@ public class SerialComHID {
 	}
 
 	/**
+	 * <p>Gives the manufacturer of the HID device.</p>
+	 * 
+	 * @param handle handle of the HID device whose manufacturer is to be found.
+	 * @return manufacturer name.
+	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public final String getManufacturerString(long handle) throws SerialComException {
 		String ret = mHIDJNIBridge.getManufacturerString(handle);
@@ -329,6 +330,11 @@ public class SerialComHID {
 	}
 
 	/**
+	 * <p>Gives the product name of the HID device.</p>
+	 * 
+	 * @param handle handle of the HID device whose product name is to be found.
+	 * @return product name of the HID device.
+	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public final String getProductString(long handle) throws SerialComException {
 		String ret = mHIDJNIBridge.getProductString(handle);
@@ -339,6 +345,11 @@ public class SerialComHID {
 	}
 
 	/**
+	 * <p>Gives the serial number of the HID device.</p>
+	 * 
+	 * @param handle handle of the HID device whose serial number is to be found.
+	 * @return serial number of the HID device.
+	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public final String getSerialNumberString(long handle) throws SerialComException {
 		String ret = mHIDJNIBridge.getSerialNumberString(handle);
