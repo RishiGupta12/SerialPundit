@@ -280,7 +280,7 @@ public final class SerialComHIDJNIBridge {
 	public native int writeOutputReport(long handle, byte reportId, byte[] report, int length);
 	public native int readInputReport(long handle, byte[] reportBuffer, int length);
 	public native int readInputReportWithTimeout(long handle, byte[] reportBuffer, int length, int timeoutValue);
-	public native int sendFeatureReport(long handle, byte reportId, byte[] report);
+	public native int sendFeatureReport(long handle, byte reportId, byte[] report, int length);
 	public native int getFeatureReport(long handle, byte[] reportBuffer);
 	public native String getManufacturerString(long handle);
 	public native String getProductString(long handle);

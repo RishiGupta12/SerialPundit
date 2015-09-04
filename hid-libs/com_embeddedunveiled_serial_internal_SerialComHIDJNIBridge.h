@@ -74,10 +74,10 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
  * Method:    sendFeatureReport
- * Signature: (JB[B)I
+ * Signature: (JB[BI)I
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_sendFeatureReport
-  (JNIEnv *, jobject, jlong, jbyte, jbyteArray);
+  (JNIEnv *, jobject, jlong, jbyte, jbyteArray, jint);
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge

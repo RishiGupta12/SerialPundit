@@ -135,6 +135,8 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
  */
 JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_openHidDevice(JNIEnv *env,
 		jobject obj, jstring pathName) {
+
+#if defined (__linux__)
 	long fd;
 	const char* deviceNode = NULL;
 
@@ -154,6 +156,11 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJN
 	(*env)->ReleaseStringUTFChars(env, pathName, deviceNode);
 
 	return fd;
+#endif
+
+#if defined (__APPLE__)
+	return -1;
+#endif
 }
 
 /*
@@ -166,6 +173,8 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJN
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_closeHidDevice(JNIEnv *env,
 		jobject obj, jlong fd) {
+
+#if defined (__linux__)
 	int ret = -1;
 	do {
 		errno = 0;
@@ -183,6 +192,15 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
 	}while (1);
 
 	return 0;
+#endif
+
+#if defined (__APPLE__)
+	IOReturn ret = -1;
+	ret = IOHIDDeviceClose(fd, kIOHIDOptionsTypeSeizeDevice);
+	if(ret != kIOReturnSuccess) {
+		/*TODO handle error */
+	}
+#endif
 }
 
 /*
@@ -328,14 +346,18 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
  * Method:    sendFeatureReport
- * Signature: (JB[B)I
+ * Signature: (JB[BI)I
  *
  * @return number of bytes sent to HID device if function succeeds otherwise -1 if error occurs.
  * @throws SerialComException if any JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_sendFeatureReport(JNIEnv *env,
-		jobject obj, jlong fd, jbyte reportID, jbyteArray report) {
-
+		jobject obj, jlong fd, jbyte reportID, jbyteArray report, jint length) {
+#if defined (__linux__)
+	return linux_send_feature_report(env, fd, reportID, report, length);
+#elif defined (__APPLE__)
+	return mac_send_feature_report(env, fd, reportID, report, length);
+#endif
 }
 
 /*

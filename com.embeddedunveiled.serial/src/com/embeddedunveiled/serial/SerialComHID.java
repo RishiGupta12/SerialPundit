@@ -284,7 +284,7 @@ public class SerialComHID {
 			throw new IllegalArgumentException("Argumenet report can not be of zero length !");
 		}
 
-		int ret = mHIDJNIBridge.sendFeatureReport(handle, reportId, report);
+		int ret = mHIDJNIBridge.sendFeatureReport(handle, reportId, report, report.length);
 		if(ret < 0) {
 			throw new SerialComException("Could not send feature report to HID device. Please retry !");
 		}
