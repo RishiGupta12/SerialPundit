@@ -70,6 +70,8 @@
 
 #define E_COULDNOTTARNSPORT "IOHIDDeviceGetProperty for finding transport for given HID device returned null !"
 #define E_COULDNOTMANUFCTRER "IOHIDDeviceGetProperty for finding manufacturer for given HID device returned null !"
+#define E_COULDNOTPRODUCT "IOHIDDeviceGetProperty for finding usb product for given HID device returned null !"
+#define E_COULDNOTSERIAL "IOHIDDeviceGetProperty for finding serial number for given HID device returned null !"
 
 /* This holds information for implementing dynamically growing array in C language. */
 struct jstrarray_list {
