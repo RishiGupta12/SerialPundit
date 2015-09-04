@@ -335,30 +335,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_sendFeatureReport(JNIEnv *env,
 		jobject obj, jlong fd, jbyte reportID, jbyteArray report) {
-	int ret = -1;
-	int count = 0;
 
-	count = (int) (*env)->GetArrayLength(env, report);
-	jbyte* buffer = (jbyte *) malloc(count + 1);
-
-	/* The first byte of SFEATURE and GFEATURE is the report number */
-	buffer[0] = reportID;
-
-	(*env)->GetByteArrayRegion(env, report, 0, count, &buffer[1]);
-	if((*env)->ExceptionOccurred(env) != NULL) {
-		throw_serialcom_exception(env, 3, 0, E_GETBYTEARRREGIONSTR);
-		return -1;
-	}
-
-	errno = 0;
-	/* this ioctl returns number of bytes written to the device */
-	ret = ioctl(fd, HIDIOCSFEATURE(count+1), buffer);
-	if(ret < 0) {
-		throw_serialcom_exception(env, 1, errno, NULL);
-		return -1;
-	}
-
-	return ret;
 }
 
 /*

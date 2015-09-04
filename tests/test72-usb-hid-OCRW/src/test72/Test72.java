@@ -51,16 +51,23 @@ public class Test72  {
 			}else{
 			}
 			
+			byte[] inputReportBuffer = new byte[16];
+			byte[] outputReportBuffer = new byte[16];
+			int ret;
+			
 			SerialComUSBHID scuh = (SerialComUSBHID) scm.getSerialComHIDInstance(SerialComHID.HID_USB, null, null);
 			
 			// handle : 5
 			long handle = scuh.openHidDeviceByUSBAttributes(0x04D8, 0X00DF, "0000980371", -1, -1, -1);
 			System.out.println("handle : " + handle);
 			
+//			// should block indefinitely
+//			ret = scuh.readInputReport(handle, inputReportBuffer, 16);
+//			System.out.println("number of bytes in input report : " + ret);
+			
 			// number of bytes sent : 16
-			byte[] outputReportBuffer = new byte[16];
 			outputReportBuffer[0] = (byte) 0x80;
-			int ret = scuh.writeOutputReport(handle, (byte) -1, outputReportBuffer);
+			ret = scuh.writeOutputReport(handle, (byte) -1, outputReportBuffer);
 			System.out.println("number of bytes sent : " + ret);
 			
 			Thread.sleep(1000);
@@ -69,7 +76,7 @@ public class Test72  {
 			// number of bytes in input report : 16
 			// 80 00 68 00 FF 00 FF 00 04 E1 00 89 CA 00 01 42
 			// 80 00 68 00 FF 00 FF 00 04 E1 00 89 CA 00 09 46
-			byte[] inputReportBuffer = new byte[16];
+			// 80 00 68 00 FF 00 FF 00 04 E1 00 88 CB 00 09 46
 			ret = scuh.readInputReportWithTimeout(handle, inputReportBuffer, 16, 200);
 			System.out.println("number of bytes in input report : " + ret);
 			System.out.println("input report : " + scuh.formatReportToHex(inputReportBuffer));

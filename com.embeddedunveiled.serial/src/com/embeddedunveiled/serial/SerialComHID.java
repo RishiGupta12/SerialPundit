@@ -209,6 +209,9 @@ public class SerialComHID {
 	 * <p>The buffer passed must be large enough to hold the expected input report data bytes. If the HID 
 	 * device uses report ID then one more byte extra space should be there in buffer.</p>
 	 * 
+	 * <p>If no data is currently available, the function returns 0. If there is data read, it returns number 
+	 * of bytes read and places data read on given buffer.</p>
+	 * 
 	 * @param handle handle of the HID device from whom input report is to be read.
 	 * @param reportBuffer byte buffer in which input report will be saved.
 	 * @param length number of bytes to read from HID device as report bytes.

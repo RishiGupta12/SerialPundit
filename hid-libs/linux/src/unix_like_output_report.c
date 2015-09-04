@@ -33,32 +33,38 @@
 
 #if defined (__linux__)
 /*
- * return number of bytes read if function succeeds otherwise -1 if error occurs.
- * throws SerialComException if any JNI function, system call or C function fails.
+ * Kernel expects 1st byte to be report ID. But if the device does not support report ID, driver
+ * will strip 1st byte from data report buffer sent to device.
+ *
+ * @return number of bytes read if function succeeds otherwise -1 if error occurs.
+ * @throws SerialComException if any JNI function, system call or C function fails.
  */
 jint linux_send_output_report(JNIEnv *env, jlong fd, jbyte reportID, jbyteArray report, jint length) {
 	int ret = -1;
 	int num_bytes_to_write = 0;
 	jbyte* buffer = NULL;
 
-	if(reportID < 0) {
-		buffer = (jbyte *) calloc(length, sizeof(unsigned char));
-		num_bytes_to_write = length;
-		(*env)->GetByteArrayRegion(env, report, 0, length, &buffer[0]);
-	}else {
-		buffer = (jbyte *) calloc((length + 1), sizeof(unsigned char));
-		num_bytes_to_write = length + 1;
-		/* The first byte of SFEATURE and GFEATURE is the report number */
-		buffer[0] = reportID;
-		(*env)->GetByteArrayRegion(env, report, 0, length, &buffer[1]);
+	buffer = (jbyte *) calloc((length + 1), sizeof(unsigned char));
+	if(buffer == NULL) {
+		throw_serialcom_exception(env, 3, 0, E_CALLOCSTR);
+		return -1;
 	}
+
+	if(reportID < 0) {
+		/* send 0x00 as 1st byte if device does not support report ID */
+		buffer[0] = 0x00;
+	}else {
+		buffer[0] = reportID;
+	}
+
+	(*env)->GetByteArrayRegion(env, report, 0, length, &buffer[1]);
 	if((*env)->ExceptionOccurred(env) != NULL) {
 		throw_serialcom_exception(env, 3, 0, E_GETBYTEARRREGIONSTR);
 		return -1;
 	}
 
 	errno = 0;
-	ret = write(fd, buffer, num_bytes_to_write);
+	ret = write(fd, buffer, (length + 1));
 	if(ret < 0) {
 		throw_serialcom_exception(env, 1, errno, NULL);
 		return -1;
@@ -70,8 +76,8 @@ jint linux_send_output_report(JNIEnv *env, jlong fd, jbyte reportID, jbyteArray 
 
 #if defined (__APPLE__)
 /*
- * return number of bytes read if function succeeds otherwise -1 if error occurs.
- * throws SerialComException if any JNI function, system call or C function fails.
+ * @return number of bytes read if function succeeds otherwise -1 if error occurs.
+ * @throws SerialComException if any JNI function, system call or C function fails.
  */
 jint mac_send_output_report(JNIEnv *env, jlong fd, jbyte reportID, jbyteArray report, jint length) {
 	IOReturn ret = -1;
