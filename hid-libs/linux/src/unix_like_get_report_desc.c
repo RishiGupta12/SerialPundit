@@ -40,9 +40,10 @@
 
 #if defined (__linux__)
 /*
+ * Try to read report descriptor from HID device.
  * 
- *
- * @return 
+ * @return byte array containing report descriptor values read from given HID device, NULL if
+ *         any error occurs.
  * @throws SerialComException if any JNI function, system call or C function fails.
  */
 jbyteArray linux_get_report_descriptor(JNIEnv *env, jlong fd) {

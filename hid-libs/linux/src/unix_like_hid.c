@@ -463,6 +463,12 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJN
  * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
  * Method:    getReportDescriptor
  * Signature: (J)[B
+ *
+ * Try to read report descriptor from the given HID device.
+ *
+ * @return byte array containing report descriptor values read from given HID device, NULL if
+ *         any error occurs.
+ * @throws SerialComException if any JNI function, system call or C function fails.
  */
 JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_getReportDescriptor
 (JNIEnv *env, jobject obj, jlong fd) {
