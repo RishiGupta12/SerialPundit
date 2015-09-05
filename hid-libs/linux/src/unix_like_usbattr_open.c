@@ -38,7 +38,10 @@
 #include "unix_like_hid.h"
 
 #if defined (__linux__)
-/* Cleans up resources and set exception that will get thrown upon return to java layer. */
+/*
+ * Cleans up resources and set exception that will get thrown upon return to java layer.
+ * @return -1 to indicate to java layer that device opening failed.
+ */
 jlong linux_clean_throw_exp_usbattropen(JNIEnv *env, int task, const char *expmsg,
 		struct udev_device *udev_device, struct udev_enumerate *enumerator, struct udev *udev_ctx) {
 
@@ -56,17 +59,10 @@ jlong linux_clean_throw_exp_usbattropen(JNIEnv *env, int task, const char *expms
 	}else {
 	}
 
-	jclass serialComExceptionClass = (*env)->FindClass(env, SCOMEXPCLASS);
-	if((serialComExceptionClass == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
-		(*env)->ExceptionClear(env);
-		LOGE(E_FINDCLASSSCOMEXPSTR);
-		return -1;
-	}
-
 	if(task == 1) {
-		(*env)->ThrowNew(env, serialComExceptionClass, E_NEWSTRUTFSTR);
+		throw_serialcom_exception(env, 3, 0, E_NEWSTRUTFSTR);
 	}else {
-		(*env)->ThrowNew(env, serialComExceptionClass, expmsg);
+		throw_serialcom_exception(env, 3, 0, expmsg);
 	}
 
 	return -1;

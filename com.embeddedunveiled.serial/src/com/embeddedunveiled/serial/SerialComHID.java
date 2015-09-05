@@ -155,21 +155,6 @@ public class SerialComHID {
 	}
 
 	/**
-	 * <p>Gives the size of the report descriptor used by HID device represented by given handle.</p>
-	 * 
-	 * @param handle handle of the HID device whose report descriptor size is to be determined.
-	 * @return size of report descriptor in bytes.
-	 * @throws SerialComException if an I/O error occurs.
-	 */
-	public final int getReportDescriptorSize(final long handle) throws SerialComException {
-		int reportDescriptorSize = mHIDJNIBridge.getReportDescriptorSize(handle);
-		if(reportDescriptorSize < 0) {
-			throw new SerialComException("Could not determine the report descriptor size. Please retry !");
-		}
-		return reportDescriptorSize;
-	}
-
-	/**
 	 * <p>Sends the given output report to the HID device.</p>
 	 * 
 	 * <p>As per HID specifications, report ID items are used to indicate which data fields are represented 
@@ -379,5 +364,13 @@ public class SerialComHID {
 		}else {
 			throw new SerialComException("Not supported on this operating system !");
 		}
+	}
+	
+	public byte[] getReportDescriptor(long handle) throws SerialComException {
+		byte[] reportDescriptorRead = mHIDJNIBridge.getReportDescriptor(handle);
+		if(reportDescriptorRead != null) {
+			return reportDescriptorRead;
+		}
+		return new byte[0];
 	}
 }

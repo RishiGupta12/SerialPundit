@@ -56,9 +56,9 @@ jstring linux_clean_throw_exp_usbenumeration(JNIEnv *env, int task, const char *
 	}
 
 	if(task == 1) {
-		(*env)->ThrowNew(env, serialComExpCls, E_NEWSTRUTFSTR);
+		throw_serialcom_exception(env, 3, 0, E_NEWSTRUTFSTR);
 	}else {
-		(*env)->ThrowNew(env, serialComExpCls, expmsg);
+		throw_serialcom_exception(env, 3, 0, expmsg);
 	}
 
 	return NULL;
@@ -280,17 +280,10 @@ jstring mac_clean_throw_exp_usbenumeration(JNIEnv *env, int task, const char *ex
 	}else {
 	}
 
-	jclass serialComExceptionClass = (*env)->FindClass(env, SCOMEXPCLASS);
-	if((serialComExceptionClass == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
-		(*env)->ExceptionClear(env);
-		LOGE(E_FINDCLASSSCOMEXPSTR);
-		return NULL;
-	}
-
 	if(task == 1) {
-		(*env)->ThrowNew(env, serialComExceptionClass, E_NEWSTRUTFSTR);
+		throw_serialcom_exception(env, 3, 0, E_NEWSTRUTFSTR);
 	}else {
-		(*env)->ThrowNew(env, serialComExceptionClass, expmsg);
+		throw_serialcom_exception(env, 3, 0, expmsg);
 	}
 
 	return NULL;
@@ -518,18 +511,18 @@ jobjectArray mac_enumerate_usb_hid_devices(JNIEnv *env, jint vendor_to_match, IO
 	/* Create a JAVA/JNI style array of String object, populate it and return to java layer. */
 	strClass = (*env)->FindClass(env, JAVALSTRING);
 	if((strClass == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
-		return linux_clean_throw_exp_usbenumeration(env, 2, E_FINDCLASSSSTRINGSTR, &list, NULL, NULL, NULL);
+		return mac_clean_throw_exp_usbenumeration(env, 2, E_FINDCLASSSSTRINGSTR, &list, NULL, NULL, NULL);
 	}
 
 	usbHidDevicesFound = (*env)->NewObjectArray(env, (jsize) list.index, strClass, NULL);
 	if((usbHidDevicesFound == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
-		return linux_clean_throw_exp_usbenumeration(env, 2, E_NEWOBJECTARRAYSTR, &list, NULL, NULL, NULL);
+		return mac_clean_throw_exp_usbenumeration(env, 2, E_NEWOBJECTARRAYSTR, &list, NULL, NULL, NULL);
 	}
 
 	for (x=0; x < list.index; x++) {
 		(*env)->SetObjectArrayElement(env, usbHidDevicesFound, x, list.base[x]);
 		if((*env)->ExceptionOccurred(env)) {
-			return linux_clean_throw_exp_usbenumeration(env, 2, E_SETOBJECTARRAYSTR, &list, NULL, NULL, NULL);
+			return mac_clean_throw_exp_usbenumeration(env, 2, E_SETOBJECTARRAYSTR, &list, NULL, NULL, NULL);
 		}
 	}
 

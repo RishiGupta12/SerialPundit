@@ -73,14 +73,6 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
- * Method:    getReportDescriptorSize
- * Signature: (J)I
- */
-JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_getReportDescriptorSize
-  (JNIEnv *, jobject, jlong);
-
-/*
- * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
  * Method:    listHIDdevicesWithInfo
  * Signature: ()[Ljava/lang/String;
  */
@@ -118,6 +110,14 @@ JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHID
  */
 JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_getIndexedString
   (JNIEnv *, jobject, jlong, jint);
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
+ * Method:    getReportDescriptor
+ * Signature: (J)[B
+ */
+JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_getReportDescriptor
+  (JNIEnv *, jobject, jlong);
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge

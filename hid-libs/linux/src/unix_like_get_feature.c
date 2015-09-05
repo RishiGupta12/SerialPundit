@@ -45,34 +45,38 @@ jint linux_get_feature_report(JNIEnv *env, jlong fd, jbyte reportID, jbyteArray 
 	jbyte* buffer = NULL;;
 
 	/* allocate and clear buffer */
-	buffer = (jbyte *) calloc((length + 1), sizeof(unsigned char));
+	buffer = (jbyte *) calloc((length), sizeof(unsigned char));
 	if(buffer == NULL) {
 		throw_serialcom_exception(env, 3, 0, E_CALLOCSTR);
 		return -1;
 	}
 
 	if(reportID < 0) {
-		/* send 0x00 as 1st byte if device does not support report ID */
+		/* set 0x00 as 1st byte if device does not support report ID */
 		buffer[0] = 0x00;
 	}else {
 		/* The first byte of SFEATURE and GFEATURE is the report number */
 		buffer[0] = reportID;
 	}
 
-	(*env)->GetByteArrayRegion(env, report, 0, length, &buffer[1]);
-	if((*env)->ExceptionOccurred(env) != NULL) {
-		throw_serialcom_exception(env, 3, 0, E_GETBYTEARRREGIONSTR);
-		return -1;
-	}
-
 	errno = 0;
-	/* this ioctl returns number of bytes written to the device */
-	ret = ioctl(fd, HIDIOCSFEATURE(length + 1), buffer);
+	/* this ioctl returns number of bytes read from the device */
+	ret = ioctl(fd, HIDIOCSFEATURE(length), buffer);
 	if(ret < 0) {
+		free(buffer);
 		throw_serialcom_exception(env, 1, errno, NULL);
 		return -1;
 	}
 
+	/* copy data from native buffer to Java buffer */
+	(*env)->SetByteArrayRegion(env, report, 0, ret, buffer);
+	if((*env)->ExceptionOccurred(env)) {
+		free(buffer);
+		throw_serialcom_exception(env, 3, 0, E_SETBYTEARRREGIONSTR);
+		return -1;
+	}
+
+	free(buffer);
 	return ret;
 }
 #endif
@@ -82,7 +86,7 @@ jint linux_get_feature_report(JNIEnv *env, jlong fd, jbyte reportID, jbyteArray 
  * @return number of bytes read if function succeeds otherwise -1 if error occurs.
  * @throws SerialComException if any JNI function, system call or C function fails.
  */
-jint mac_send_feature_report(JNIEnv *env, jlong fd, jbyte reportID, jbyteArray report, jint length) {
+jint mac_get_feature_report(JNIEnv *env, jlong fd, jbyte reportID, jbyteArray report, jint length) {
 	IOReturn ret = -1;
 	int num_bytes_to_write = 0;
 	int report_id = -1;

@@ -59,6 +59,8 @@
 #define E_NEWOBJECTARRAYSTR "JNI call NewObjectArray failed. Probably out of memory !"
 #define E_SETOBJECTARRAYSTR "JNI call SetObjectArrayElement failed. Either index violation or wrong class used !"
 #define E_SETBYTEARRAYREGION "JNI call SetByteArrayRegion failed. Probably index out of bound !"
+#define E_NEWBYTEARRAYSTR "JNI call NewByteArray failed !"
+#define E_SETBYTEARRREGIONSTR "JNI call SetByteArrayRegion failed !"
 
 #define E_CALLOCSTR "calloc() failed to allocate requested memory !"
 #define E_CANNOTFINDDEVNODE "Failed to find device node for the USB HID interface !"
@@ -80,44 +82,40 @@ struct jstrarray_list {
 	int current_size;  /* size of this array                        */
 };
 
-/* global variables */
-extern jclass serialComExpCls;
-
 /* function prototypes (declared in reverse order of use) */
-extern int LOGE(const char *error_msg);
-extern void throw_serialcom_exception(JNIEnv *env, int type, int error_code, const char *);
-extern void free_jstrarraylist(struct jstrarray_list *al);
-extern void insert_jstrarraylist(struct jstrarray_list *al, jstring element);
-extern void init_jstrarraylist(struct jstrarray_list *al, int initial_size);
+int LOGE(const char *error_msg);
+void throw_serialcom_exception(JNIEnv *env, int type, int error_code, const char *);
+void free_jstrarraylist(struct jstrarray_list *al);
+void insert_jstrarraylist(struct jstrarray_list *al, jstring element);
+void init_jstrarraylist(struct jstrarray_list *al, int initial_size);
 
 #if defined (__linux__)
-extern jstring linux_clean_throw_exp_usbenumeration(JNIEnv *env, int task, const char *expmsg,
+jstring linux_clean_throw_exp_usbenumeration(JNIEnv *env, int task, const char *expmsg,
 		struct jstrarray_list *list, struct udev_device *udev_device, struct udev_enumerate *enumerator,
 		struct udev *udev_ctx);
-extern jobjectArray linux_enumerate_usb_hid_devices(JNIEnv *env, jint vendor_filter);
-extern jlong linux_clean_throw_exp_usbattropen(JNIEnv *env, int task, const char *expmsg,
+jobjectArray linux_enumerate_usb_hid_devices(JNIEnv *env, jint vendor_filter);
+jlong linux_clean_throw_exp_usbattropen(JNIEnv *env, int task, const char *expmsg,
 		struct udev_device *udev_device, struct udev_enumerate *enumerator, struct udev *udev_ctx);
-extern jlong linux_usbattrhid_open(JNIEnv *env, jint usbvid, jint usbpid, jstring usbserialnumber,
+jlong linux_usbattrhid_open(JNIEnv *env, jint usbvid, jint usbpid, jstring usbserialnumber,
 		jint busnum, jint devnum);
-extern jint linux_send_output_report(JNIEnv *env, jlong fd, jbyte reportID, jbyteArray report, jint length);
-extern jint linux_send_feature_report(JNIEnv *env, jlong fd, jbyte reportID, jbyteArray report, jint length);
-extern jint linux_get_feature_report(JNIEnv *env, jlong fd, jbyte reportID, jbyteArray report, jint length);
-extern jstring linux_get_hiddev_info_string(JNIEnv *env, jlong fd, int info_required);
+jint linux_send_output_report(JNIEnv *env, jlong fd, jbyte reportID, jbyteArray report, jint length);
+jint linux_send_feature_report(JNIEnv *env, jlong fd, jbyte reportID, jbyteArray report, jint length);
+jint linux_get_feature_report(JNIEnv *env, jlong fd, jbyte reportID, jbyteArray report, jint length);
+jstring linux_get_hiddev_info_string(JNIEnv *env, jlong fd, int info_required);
+jbyteArray linux_get_report_descriptor(JNIEnv *env, jlong fd);
 #endif
 
 #if defined (__APPLE__)
-extern jobjectArray mac_enumerate_usb_hid_devices(JNIEnv *env, jint vendor_filter, IOHIDManagerRef mac_hid_mgr);
-extern 	jstring mac_clean_throw_exp_usbenumeration(JNIEnv *env, int task, const char *expmsg, CFSetRef hiddev_cfset,
+jobjectArray mac_enumerate_usb_hid_devices(JNIEnv *env, jint vendor_filter, IOHIDManagerRef mac_hid_mgr);
+jstring mac_clean_throw_exp_usbenumeration(JNIEnv *env, int task, const char *expmsg, CFSetRef hiddev_cfset,
 		IOHIDDeviceRef *hiddev_references);
-extern jlong mac_usbattrhid_open(JNIEnv *env, jint usbvid, jint usbpid, jstring usbserialnumber, jint locationID);
-extern jint mac_send_output_report(JNIEnv *env, jlong fd, jbyte reportID, jbyteArray report, jint length);
-extern jint mac_send_feature_report(JNIEnv *env, jlong fd, jbyte reportID, jbyteArray report, jint length);
-extern jint mac_get_feature_report(JNIEnv *env, jlong fd, jbyte reportID, jbyteArray report, jint length);
-extern jstring mac_get_hiddev_info_string(JNIEnv *env, jlong fd, int info_required);
+jlong mac_usbattrhid_open(JNIEnv *env, jint usbvid, jint usbpid, jstring usbserialnumber, jint locationID);
+jint mac_send_output_report(JNIEnv *env, jlong fd, jbyte reportID, jbyteArray report, jint length);
+jint mac_send_feature_report(JNIEnv *env, jlong fd, jbyte reportID, jbyteArray report, jint length);
+jint mac_get_feature_report(JNIEnv *env, jlong fd, jbyte reportID, jbyteArray report, jint length);
+jstring mac_get_hiddev_info_string(JNIEnv *env, jlong fd, int info_required);
 #endif
 
-extern jint get_report_descriptor_size(JNIEnv *env, jlong fd);
-
-extern jstring get_hiddev_indexed_string(JNIEnv *env, jlong fd, int index);
+jstring get_hiddev_indexed_string(JNIEnv *env, jlong fd, int index);
 
 #endif /* UNIX_LIKE_HID_H_ */

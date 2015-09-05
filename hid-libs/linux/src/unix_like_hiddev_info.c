@@ -44,7 +44,8 @@
  * Find the required information from USB device (parent udev device) of given HID device
  * (child udev device).
  *
- * @return required information string otherwise NULL.
+ * @return required information string if found, empty string if required information is not
+ *         provided by underlying system, NULL if any error occurs.
  * @throws SerialComException if any JNI function, system call or C function fails.
  */
 jstring linux_get_hiddev_info_string(JNIEnv *env, jlong fd, int info_required) {
@@ -163,7 +164,8 @@ jstring linux_get_hiddev_info_string(JNIEnv *env, jlong fd, int info_required) {
 /*
  * Find the required information about USB HID device using API provided in IOHIDxxx.
  *
- * @return required information string otherwise NULL.
+ * @return required information string if found, empty string if required information is not
+ *         provided by underlying system, NULL if any error occurs.
  * @throws SerialComException if any JNI function, system call or C function fails.
  */
 jstring mac_get_hiddev_info_string(JNIEnv *env, jlong fd, int info_required) {
@@ -175,7 +177,7 @@ jstring mac_get_hiddev_info_string(JNIEnv *env, jlong fd, int info_required) {
 	/* find transport/bus used by given HID device. */
 	str_ref = IOHIDDeviceGetProperty(fd, CFSTR(kIOHIDTransportKey));
 	if(str_ref == NULL) {
-		(*env)->ThrowNew(env, serialComExpCls, E_COULDNOTTARNSPORT);
+		throw_serialcom_exception(env, 3, 0, E_COULDNOTTARNSPORT);
 		return NULL;
 	}
 	memset(charbuffer, '\0', sizeof(charbuffer));
@@ -183,44 +185,43 @@ jstring mac_get_hiddev_info_string(JNIEnv *env, jlong fd, int info_required) {
 	CFRelease(str_ref);
 	if((strcmp(charbuffer, "USB") == 0) || (strcmp(charbuffer, "usb") == 0)) {
 		bus = 1;
-	}else if((strcmp(charbuffer, "BLUETOOTH") == 0) || (strcmp(charbuffer, "bluetooth") == 0) || (strcmp(charbuffer, "Bluetooth") == 0)) {
+	}else if((strcmp(charbuffer, "BLUETOOTH") == 0) || (strcmp(charbuffer, "bluetooth") == 0) ||
+			(strcmp(charbuffer, "Bluetooth") == 0)) {
 		bus = 2;
 	}else {
 	}
 
 	if(bus == 1) {
+		memset(charbuffer, '\0', sizeof(charbuffer));
 		if(info_required == 1) {
 			str_ref = IOHIDDeviceGetProperty(fd, kIOHIDManufacturerKey);
-			if(str_ref == NULL) {
-				(*env)->ThrowNew(env, serialComExpCls, E_COULDNOTMANUFCTRER);
-				return NULL;
+			if(str_ref != NULL) {
+				CFStringGetCString(str_ref, charbuffer, sizeof(charbuffer), kCFStringEncodingUTF8);
+				CFRelease(str_ref);
+			}else {
+				strcpy(charbuffer, "");
 			}
-			memset(charbuffer, '\0', sizeof(charbuffer));
-			CFStringGetCString(str_ref, charbuffer, sizeof(charbuffer), kCFStringEncodingUTF8);
-			CFRelease(str_ref);
 		}else if(info_required == 2) {
 			str_ref = IOHIDDeviceGetProperty(fd, kIOHIDProductKey);
-			if(str_ref == NULL) {
-				(*env)->ThrowNew(env, serialComExpCls, E_COULDNOTPRODUCT);
-				return NULL;
+			if(str_ref != NULL) {
+				CFStringGetCString(str_ref, charbuffer, sizeof(charbuffer), kCFStringEncodingUTF8);
+				CFRelease(str_ref);
+			}else {
+				strcpy(charbuffer, "");
 			}
-			memset(charbuffer, '\0', sizeof(charbuffer));
-			CFStringGetCString(str_ref, charbuffer, sizeof(charbuffer), kCFStringEncodingUTF8);
-			CFRelease(str_ref);
 		}else if(info_required == 3) {
 			str_ref = IOHIDDeviceGetProperty(fd, kIOHIDSerialNumberKey);
-			if(str_ref == NULL) {
-				(*env)->ThrowNew(env, serialComExpCls, E_COULDNOTSERIAL);
-				return NULL;
+			if(str_ref != NULL) {
+				CFStringGetCString(str_ref, charbuffer, sizeof(charbuffer), kCFStringEncodingUTF8);
+				CFRelease(str_ref);
+			}else {
+				strcpy(charbuffer, "");
 			}
-			memset(charbuffer, '\0', sizeof(charbuffer));
-			CFStringGetCString(str_ref, charbuffer, sizeof(charbuffer), kCFStringEncodingUTF8);
-			CFRelease(str_ref);
 		}else {
 		}
 		info_string = (*env)->NewStringUTF(env, charbuffer);
 		if((info_string == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
-			(*env)->ThrowNew(env, serialComExpCls, E_NEWSTRUTFSTR);
+			throw_serialcom_exception(env, 3, 0, E_NEWSTRUTFSTR);
 			return NULL;
 		}
 	}else if(bus ==2) {

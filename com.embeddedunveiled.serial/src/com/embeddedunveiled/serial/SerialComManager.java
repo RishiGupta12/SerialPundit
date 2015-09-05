@@ -2553,11 +2553,9 @@ public final class SerialComManager {
 		if(mSerialComHIDJNIBridge == null) {
 			mSerialComHIDJNIBridge = new SerialComHIDJNIBridge();
 			SerialComHIDJNIBridge.loadNativeLibrary(directoryPath, loadedLibName, mSerialComSystemProperty, osType, cpuArch, javaABIType);
-			if(osType == OS_MAC_OS_X) {
-				ret = mSerialComHIDJNIBridge.initNativeLib();
-				if(ret < 0) {
-					throw new SerialComException("Failed to initilize the native library. Please retry !");
-				}
+			ret = mSerialComHIDJNIBridge.initNativeLib();
+			if(ret < 0) {
+				throw new SerialComException("Failed to initilize the native library. Please retry !");
 			}
 		}
 

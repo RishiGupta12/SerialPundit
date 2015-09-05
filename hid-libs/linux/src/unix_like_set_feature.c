@@ -42,7 +42,7 @@
  */
 jint linux_send_feature_report(JNIEnv *env, jlong fd, jbyte reportID, jbyteArray report, jint length) {
 	int ret = -1;
-	jbyte* buffer = NULL;;
+	jbyte* buffer = NULL;
 
 	buffer = (jbyte *) calloc((length + 1), sizeof(unsigned char));
 	if(buffer == NULL) {

@@ -86,12 +86,14 @@ public class Test72  {
 //			ret = scuh.sendFeatureReport(handle, (byte) 0x01, outputReportBuffer);
 //			System.out.println("number of bytes sent : " + ret);
 			
-			System.out.println("Manufacturer string: " + scuh.getManufacturerString(handle));
-			System.out.println("Product string: " + scuh.getProductString(handle));
-			System.out.println("Serial string: " + scuh.getSerialNumberString(handle));
+//			System.out.println("Manufacturer string: " + scuh.getManufacturerString(handle));
+//			System.out.println("Product string: " + scuh.getProductString(handle));
+//			System.out.println("Serial string: " + scuh.getSerialNumberString(handle));
+//			
+//			System.out.println("String at index : 0 is :" + scuh.getIndexedString(handle, 0));
 			
-			System.out.println("String at index : 0 is :" + scuh.getIndexedString(handle, 0));
-			
+			byte[] desc = scuh.getReportDescriptor(handle);
+			System.out.println("number of bytes sent : " + desc.length);
 			
 			scuh.closeHidDevice(handle);
 			System.out.println("\ndone !");

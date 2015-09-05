@@ -42,6 +42,14 @@ void throw_serialcom_exception(JNIEnv *env, int type, int error_code, const char
 #endif
 	(*env)->ExceptionClear(env);
 
+	/* exception of this class will be thrown whenever it occurs */
+	jclass serialComExpCls = (*env)->FindClass(env, SCOMEXPCLASS);
+	if((serialComExpCls == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+		(*env)->ExceptionClear(env);
+		LOGE(E_FINDCLASSSCOMEXPSTR);
+		return;
+	}
+
 	if(type == 1) {
 		/* Caller has given posix/os-standard error code, get error message corresponding to this code. */
 		/* This need to be made more portable to remove compiler specific dependency */

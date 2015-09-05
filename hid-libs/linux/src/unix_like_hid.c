@@ -70,11 +70,8 @@
 static	IOHIDManagerRef mac_hid_mgr = -1;
 #endif
 
-JNIEnv *env_clean;
-
 /* Clean up when library is un-loaded. */
 __attribute__((destructor)) static void exit_scmhidlib() {
-	(*env_clean)->DeleteGlobalRef(env_clean, serialComExpCls);
 #if defined (__APPLE__)
 	IOHIDManagerUnscheduleFromRunLoop(mac_hid_mgr, CFRunLoopGetCurrent( ), kCFRunLoopDefaultMode );
 	IOHIDManagerClose(mac_hid_mgr, kIOHIDOptionsTypeNone);
@@ -87,28 +84,11 @@ __attribute__((destructor)) static void exit_scmhidlib() {
  * Method:    initNativeLib
  * Signature: ()I
  *
- * @return 0 if initialization succeeds, -1 if any error occurs.
- * @throws SerialComException if any function fails.
+ * @return 0 if initialization succeeds, -2 if SerialComException class can not be found,
+ *         -3 if global reference can not be created.
+ * @throws SerialComException if any JNI function, system call or C function fails.
  */
-JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_initNativeLib
-(JNIEnv *env, jobject obj) {
-
-	env_clean = env;
-
-	/* exception of this class will be thrown whenever it occurs */
-	jclass serComExpCls = (*env)->FindClass(env, SCOMEXPCLASS);
-	if((serComExpCls == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
-		(*env)->ExceptionClear(env);
-		throw_serialcom_exception(env, 3, 0, E_FINDCLASSSCOMEXPSTR);
-		return -1;
-	}
-	serialComExpCls = (jclass) (*env)->NewGlobalRef(env, serComExpCls);
-	if((serialComExpCls == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
-		(*env)->ExceptionClear(env);
-		throw_serialcom_exception(env, 3, 0, E_NEWGLOBALREFSTR);
-		return -1;
-	}
-
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_initNativeLib(JNIEnv *env, jobject obj) {
 #if defined (__APPLE__)
 	IOReturn ret = 0;
 	mac_hid_mgr = IOHIDManagerCreate(kCFAllocatorDefault, kIOHIDOptionsTypeNone);
@@ -129,6 +109,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
 		// TODO error handling
 	}
 #endif
+
 	return 0;
 }
 
@@ -223,19 +204,6 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
 		/*TODO handle error */
 	}
 #endif
-}
-
-/*
- * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
- * Method:    getReportDescriptorSize
- * Signature: (J)I
- *
- * @return report descriptor size in bytes if function succeeds otherwise -1 if error occurs.
- * @throws SerialComException if any JNI function, system call or C function fails.
- */
-JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_getReportDescriptorSize(JNIEnv *env,
-		jobject obj, jlong fd) {
-	return get_report_descriptor_size(env, fd);
 }
 
 /*
@@ -488,6 +456,19 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJN
 	return linux_usbattrhid_open(env, usbvid, usbpid, usbserialnumber, busnum, devnum);
 #elif defined (__APPLE__)
 	return mac_usbattrhid_open(env, usbvid, usbpid, usbserialnumber, locationID);
+#endif
+}
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
+ * Method:    getReportDescriptor
+ * Signature: (J)[B
+ */
+JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_getReportDescriptor
+(JNIEnv *env, jobject obj, jlong fd) {
+#if defined (__linux__)
+	return linux_get_report_descriptor(env, fd);
+#elif defined (__APPLE__)
 #endif
 }
 
