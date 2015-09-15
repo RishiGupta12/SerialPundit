@@ -84,6 +84,8 @@ jint mac_send_output_report(JNIEnv *env, jlong fd, jbyte reportID, jbyteArray re
 	int report_id = -1;
 	jbyte* buffer = NULL;
 
+	/* If the HID device does not use rreport ID, send buffer should include only data bytes
+	 * to send, otherwise 1st byte should be report ID. */
 	if(reportID < 0) {
 		buffer = (jbyte *) calloc(length, sizeof(unsigned char));
 		if(buffer == NULL) {
@@ -111,7 +113,7 @@ jint mac_send_output_report(JNIEnv *env, jlong fd, jbyte reportID, jbyteArray re
 
 	ret = IOHIDDeviceSetReport(fd, kIOHIDReportTypeOutput, report_id, buffer, num_bytes_to_write);
 	if(ret != kIOReturnSuccess) {
-		/* to error throw_serialcom_exception(env, 1, errno, NULL);*/
+		/* todo error throw_serialcom_exception(env, 1, errno, NULL);*/
 		return -1;
 	}
 

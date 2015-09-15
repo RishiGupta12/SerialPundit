@@ -37,7 +37,7 @@
 
 #if defined (__linux__)
 /*
- * @return number of bytes read if function succeeds otherwise -1 if error occurs.
+ * @return number of bytes sent if function succeeds otherwise -1 if an error occurs.
  * @throws SerialComException if any JNI function, system call or C function fails.
  */
 jint linux_send_feature_report(JNIEnv *env, jlong fd, jbyte reportID, jbyteArray report, jint length) {
@@ -78,7 +78,7 @@ jint linux_send_feature_report(JNIEnv *env, jlong fd, jbyte reportID, jbyteArray
 
 #if defined (__APPLE__)
 /*
- * @return number of bytes read if function succeeds otherwise -1 if error occurs.
+ * @return number of bytes sent if function succeeds otherwise -1 if an error occurs.
  * @throws SerialComException if any JNI function, system call or C function fails.
  */
 jint mac_send_feature_report(JNIEnv *env, jlong fd, jbyte reportID, jbyteArray report, jint length) {
@@ -87,6 +87,8 @@ jint mac_send_feature_report(JNIEnv *env, jlong fd, jbyte reportID, jbyteArray r
 	int report_id = -1;
 	jbyte* buffer = NULL;
 
+	/* If the HID device does not use rreport ID, send buffer should include only data bytes
+	 * to send, otherwise 1st byte should be report ID. */
 	if(reportID < 0) {
 		buffer = (jbyte *) calloc(length, sizeof(unsigned char));
 		if(buffer == NULL) {

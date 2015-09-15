@@ -155,13 +155,12 @@ public class SerialComHID {
 	}
 
 	/**
-	 * <p>Sends the given output report to the HID device.</p>
+	 * <p>Sends the given output report to the HID device. Report ID is used to uniquely identify the  
+	 * report.</p>
 	 * 
-	 * <p>As per HID specifications, report ID items are used to indicate which data fields are represented 
-	 * in each report structure. A Report ID item tag assigns a 1-byte identification prefix to each report 
-	 * transfer. If no Report ID item tags are present in the Report descriptor, it can be assumed that only 
-	 * one Input, Output, and Feature report structure exists and together they represent all of the device’s 
-	 * data. Argument reportID should be -1 if device support only single report.</p>
+	 * <p>Output report (controls) may be a sink for application data, for example, an LED that indicates 
+	 * the state of a device. It can represent a command sent from application running on host to USB HID 
+	 * device for example to toggle a GPIO pin or vibrate the motor mounted on gamepad.</p>
 	 * 
 	 * <p>Only Input reports are sent via the Interrupt In pipe. Feature and Output reports must be initiated 
 	 * by the host via the Control pipe or an optional Interrupt Out pipe.</p>
@@ -191,11 +190,20 @@ public class SerialComHID {
 	/**
 	 * <p>Reads input report from the given HID device.</p>
 	 * 
-	 * <p>The buffer passed must be large enough to hold the expected input report data bytes. If the HID 
-	 * device uses report ID then one more byte extra space should be there in buffer.</p>
+	 * <p>The size of {@code reportBuffer} passed must be large enough to hold the expected number of bytes 
+	 * in input report and one more extra byte if the HID device uses numbered reports. The 1st byte will be 
+	 * report ID if device uses numbered reports otherwise the report data will begin at the first byte.</p>
 	 * 
-	 * <p>If no data is currently available, the function returns 0. If there is data read, it returns number 
-	 * of bytes read and places data read on given buffer.</p>
+	 * <p>If input report is read from device, it returns number of bytes read and places data bytes in 
+	 * given buffer.</p>
+	 * 
+	 * <p>HID devices with custom firmware provide valid HID report descriptor to comply with USB 
+	 * standards and to make sure that class driver of operating system recognizes device and serve it. 
+	 * However, the data carried in reports may have different meaning and interpretation than what was 
+	 * described in report descriptor. This is the case mainly when developing custom application HID device 
+	 * which can not be strictly categorized as a HID device, however, leverages HID specifications and 
+	 * API to communicate with the host system. Vendors provide a document describing how to interpret a 
+	 * particular byte in report received from device or how to construct an output report.</p>
 	 * 
 	 * @param handle handle of the HID device from whom input report is to be read.
 	 * @param reportBuffer byte buffer in which input report will be saved.
@@ -220,9 +228,18 @@ public class SerialComHID {
 	}
 
 	/**
-	 * <p>Try to read input report from HID device within the given timeout limit. The buffer passed must be 
-	 * large enough to hold the input report excluding its report ID, if report IDs are used otherwise it 
-	 * should be plus one additional byte that specifies a nonzero report ID or zero.</p>
+	 * <p>Try to read input report from HID device within the given timeout limit.</p>
+	 * 
+	 * <p>The size of {@code reportBuffer} passed must be large enough to hold the expected number of bytes 
+	 * in input report and one more extra byte if the HID device uses numbered reports. The 1st byte will be 
+	 * report ID if device uses numbered reports otherwise the report data will begin at the first byte.</p>
+	 * 
+	 * <p>If input report is read from device, it returns number of bytes read and places data bytes in 
+	 * given buffer. If there was no data to read it returns 0.</p>
+	 * 
+	 * <p>Input report (controls) are sources of data for application running on host processor (USB Host side) 
+	 * for example X and Y coordinates obtained from touch screen or state of a GPIO pin. It can also be a 
+	 * response to a command sent previously as output report.</p>
 	 * 
 	 * @param handle handle of the HID device from whom input report is to be read.
 	 * @param reportBuffer byte buffer in which input report will be saved.
@@ -233,7 +250,8 @@ public class SerialComHID {
 	 * @throws SerialComException if an I/O error occurs.
 	 * @throws IllegalArgumentException if reportBuffer is null or if length is negative.
 	 */
-	public final int readInputReportWithTimeout(long handle, byte[] reportBuffer, int length, int timeoutValue) throws SerialComException {
+	public final int readInputReportWithTimeout(long handle, byte[] reportBuffer, int length, int timeoutValue) 
+			throws SerialComException {
 		if(reportBuffer == null) {
 			throw new IllegalArgumentException("Argumenet reportBuffer can not be null !");
 		}
@@ -250,13 +268,15 @@ public class SerialComHID {
 
 	/**
 	 * <p>Send a feature report to the HID device. For devices which support only single report, report ID 
-	 * value must be 0x00. Typically any data item that application wish to write in HID device and read 
-	 * it back may be some time later is sent to device as feature report. This may be device application 
-	 * specific configuration also.</p>
+	 * value must be -1.</p>
+	 * 
+	 * <p>Typically, feature reports are sent/received for configuring USB device or USB host at application 
+	 * start-up, or for sending/receiving special event or state information, or for saving any data item that 
+	 * application wish to write in HID device and read it back may be some time later.</p>
 	 * 
 	 * @param handle handle of the HID device to which this feature report will be sent.
-	 * @param reportId unique identifier for the report type.
-	 * @param report feature report to be sent to HID device.
+	 * @param reportId unique identifier for the report type or -1 if not applicable.
+	 * @param report feature report to be sent to the HID device.
 	 * @return number of bytes sent to HID device.
 	 * @throws SerialComException if an I/O error occurs.
 	 * @throws IllegalArgumentException if report is null or empty array. 
@@ -277,11 +297,15 @@ public class SerialComHID {
 	}
 
 	/**
-	 * <p>Get a feature report from the HID device. The very first byte in the reportBuffer will be 
-	 * report ID. TODO chekthis</p>
+	 * <p>Receive a feature report from the HID device. For devices which support only single report, report ID 
+	 * value must be -1.</p>
+	 * 
+	 * <p>Typically, feature reports are sent/received for configuring USB device or USB host at application 
+	 * start-up, or for sending/receiving special event or state information, or for saving any data item that 
+	 * application wish to write in HID device and read it back may be some time later.</p>
 	 * 
 	 * @param handle handle of the HID device from whom feature report is to be read.
-	 * @param reportId unique identifier for the report type.
+	 * @param reportId unique identifier for the report type or -1 if not applicable.
 	 * @param report byte type buffer where feature report will be saved.
 	 * @return number of bytes read from HID device.
 	 * @throws SerialComException if an I/O error occurs.
@@ -365,7 +389,7 @@ public class SerialComHID {
 			throw new SerialComException("Not supported on this operating system !");
 		}
 	}
-	
+
 	public byte[] getReportDescriptor(long handle) throws SerialComException {
 		byte[] reportDescriptorRead = mHIDJNIBridge.getReportDescriptor(handle);
 		if(reportDescriptorRead != null) {

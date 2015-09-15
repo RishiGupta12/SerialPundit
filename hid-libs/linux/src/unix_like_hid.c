@@ -133,7 +133,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
  * Method:    openHidDeviceByPath
  * Signature: (Ljava/lang/String;)J
  *
- * @return file descriptor number if function succeeds otherwise -1 if error occurs.
+ * @return file descriptor number if function succeeds otherwise -1 if an error occurs.
  * @throws SerialComException if any JNI function, system call or C function fails.
  */
 JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_openHidDeviceByPath
@@ -171,7 +171,7 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJN
  * Method:    closeHidDevice
  * Signature: (J)I
  *
- * @return 0 if function succeeds otherwise -1 if error occurs.
+ * @return 0 if function succeeds otherwise -1 if an error occurs.
  * @throws SerialComException if any JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_closeHidDevice(JNIEnv *env,
@@ -211,7 +211,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
  * Method:    writeOutputReport
  * Signature: (JB[BI)I
  *
- * @return number of bytes sent to device if function succeeds otherwise -1 if error occurs.
+ * @return number of bytes sent to device if function succeeds otherwise -1 if an error occurs.
  * @throws SerialComException if any JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_writeOutputReport(JNIEnv *env,
@@ -228,7 +228,9 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
  * Method:    readInputReport
  * Signature: (J[BI)I
  *
- * @return number of bytes read if function succeeds otherwise -1 if error occurs.
+ * TODO MAC RETURN 1ST BYTE AS REPORT ID OR NOT.
+ *
+ * @return number of bytes read if function succeeds otherwise -1 if an error occurs.
  * @throws SerialComException if any JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_readInputReport(JNIEnv *env,
@@ -271,7 +273,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
  * Method:    readInputReportWithTimeout
  * Signature: (J[BII)I
  *
- * @return number of bytes read if function succeeds otherwise -1 if error occurs.
+ * @return number of bytes read if function succeeds otherwise -1 if an error occurs.
  * @throws SerialComException if any JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_readInputReportWithTimeout(JNIEnv *env,
@@ -338,7 +340,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
  * Method:    sendFeatureReport
  * Signature: (JB[BI)I
  *
- * @return number of bytes sent to HID device if function succeeds otherwise -1 if error occurs.
+ * @return number of bytes sent to HID device if function succeeds otherwise -1 if an error occurs.
  * @throws SerialComException if any JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_sendFeatureReport(JNIEnv *env,
@@ -355,7 +357,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
  * Method:    getFeatureReport
  * Signature: (JB[BI)I
  *
- * @return number of bytes received from HID device if function succeeds otherwise -1 if error occurs.
+ * @return number of bytes received from HID device if function succeeds otherwise -1 if an error occurs.
  * @throws SerialComException if any JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_getFeatureReport

@@ -37,7 +37,7 @@
 
 #if defined (__linux__)
 /*
- * @return number of bytes read if function succeeds otherwise -1 if error occurs.
+ * @return number of bytes read if function succeeds otherwise -1 if an error occurs.
  * @throws SerialComException if any JNI function, system call or C function fails.
  */
 jint linux_get_feature_report(JNIEnv *env, jlong fd, jbyte reportID, jbyteArray report, jint length) {
@@ -61,7 +61,7 @@ jint linux_get_feature_report(JNIEnv *env, jlong fd, jbyte reportID, jbyteArray 
 
 	errno = 0;
 	/* this ioctl returns number of bytes read from the device */
-	ret = ioctl(fd, HIDIOCSFEATURE(length), buffer);
+	ret = ioctl(fd, HIDIOCGFEATURE(length), buffer);
 	if(ret < 0) {
 		free(buffer);
 		throw_serialcom_exception(env, 1, errno, NULL);
@@ -83,12 +83,12 @@ jint linux_get_feature_report(JNIEnv *env, jlong fd, jbyte reportID, jbyteArray 
 
 #if defined (__APPLE__)
 /*
- * @return number of bytes read if function succeeds otherwise -1 if error occurs.
+ * @return number of bytes read if function succeeds otherwise -1 if an error occurs.
  * @throws SerialComException if any JNI function, system call or C function fails.
  */
 jint mac_get_feature_report(JNIEnv *env, jlong fd, jbyte reportID, jbyteArray report, jint length) {
 	IOReturn ret = -1;
-	int num_bytes_to_write = 0;
+	int num_bytes_to_read = 0;
 	int report_id = -1;
 	jbyte* buffer = NULL;
 
@@ -99,7 +99,7 @@ jint mac_get_feature_report(JNIEnv *env, jlong fd, jbyte reportID, jbyteArray re
 			return -1;
 		}
 		(*env)->GetByteArrayRegion(env, report, 0, length, &buffer[0]);
-		num_bytes_to_write = length;
+		num_bytes_to_read = length;
 		report_id = 0x00;
 	}else {
 		buffer = (jbyte *) calloc((length + 1), sizeof(unsigned char));
@@ -109,7 +109,7 @@ jint mac_get_feature_report(JNIEnv *env, jlong fd, jbyte reportID, jbyteArray re
 		}
 		buffer[0] = reportID;
 		(*env)->GetByteArrayRegion(env, report, 0, length, &buffer[1]);
-		num_bytes_to_write = length + 1;
+		num_bytes_to_read = length + 1;
 		report_id = reportID;
 	}
 	if((*env)->ExceptionOccurred(env) != NULL) {
@@ -117,12 +117,13 @@ jint mac_get_feature_report(JNIEnv *env, jlong fd, jbyte reportID, jbyteArray re
 		return -1;
 	}
 
-	ret = IOHIDDeviceSetReport(fd, kIOHIDReportTypeFeature, report_id, buffer, num_bytes_to_write);
+	/* after completion num_bytes_to_read will contain number of bytes read. */
+	ret = IOHIDDeviceGetReport(fd, kIOHIDReportTypeFeature, report_id, buffer, &num_bytes_to_read);
 	if(ret != kIOReturnSuccess) {
 		/* to error throw_serialcom_exception(env, 1, errno, NULL);*/
 		return -1;
 	}
 
-	return num_bytes_to_write;
+	return num_bytes_to_read;
 }
 #endif
