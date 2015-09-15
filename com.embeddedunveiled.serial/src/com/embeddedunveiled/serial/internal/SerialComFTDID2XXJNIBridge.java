@@ -205,7 +205,6 @@ public final class SerialComFTDID2XXJNIBridge {
 	public native int eraseEE(long handle);
 	public native int[] eeRead(long handle, int version, byte[] manufacturer,
 			byte[] manufacturerID, byte[] description, byte[] serialNumber);
-	//TODO FT_EE_Readex
 	//TODO FT_EE_program
 	//TODO FT_EE_programex
 	public native int eeUAsize(long handle);

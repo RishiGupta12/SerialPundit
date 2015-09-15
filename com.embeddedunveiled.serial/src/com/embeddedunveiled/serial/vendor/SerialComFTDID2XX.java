@@ -1168,6 +1168,7 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 * <p>Read the contents of the EEPROM.</p>
 	 * 
 	 * @param handle handle of the device whose contents are to be read.
+	 * @param version of the FT_PROGRAM_DATA structure defined in FTD2XX.h file.
 	 * @return an object of type FTprogramData containing all data read.
 	 * @throws SerialComException if an I/O error occurs.
 	 */
@@ -1182,12 +1183,38 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 		if(info == null) {
 			throw new SerialComException("Could not read the contents from EEPROM. Please retry !");
 		}
-		
+
 		ftProgramData = new FTprogramData(info, manufacturer, manufacturerID, description, serialNumber);
 		return ftProgramData;
 	}
-	
-	//TODO FT_EE_Readex
+
+	/**
+	 * <p>Executes FT_EE_ReadEx function of D2XX library.</p>
+	 * 
+	 * <p>Read the contents of the EEPROM.</p>
+	 * 
+	 * @param handle handle of the device whose contents are to be read.
+	 * @param version of the FT_PROGRAM_DATA structure defined in FTD2XX.h file.
+	 * @param manufacturer byte array of size 32 bytes to save manufacturer name.
+	 * @param manufacturerID byte array of size 16 bytes to save manufacturer ID.
+	 * @param description byte array of size 64 bytes to save device description.
+	 * @param serialNumber byte array of size 16 bytes to save serial number of device.
+	 * @return an object of type FTprogramData containing all data read.
+	 * @throws SerialComException if an I/O error occurs.
+	 */
+	public FTprogramData eeReadEx(final long handle, int version, byte[] manufacturer, byte[] manufacturerID, 
+			byte[] description, byte[] serialNumber) throws SerialComException {
+		FTprogramData ftProgramData;
+
+		int[] info = mFTDID2XXJNIBridge.eeRead(handle, version, manufacturer, manufacturerID, description, serialNumber);
+		if(info == null) {
+			throw new SerialComException("Could not read the contents from EEPROM. Please retry !");
+		}
+
+		ftProgramData = new FTprogramData(info, manufacturer, manufacturerID, description, serialNumber);
+		return ftProgramData;
+	}
+
 	//TODO FT_EE_program
 	//TODO FT_EE_programex
 
