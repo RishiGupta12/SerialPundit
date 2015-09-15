@@ -1215,8 +1215,59 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 		return ftProgramData;
 	}
 
-	//TODO FT_EE_program
-	//TODO FT_EE_programex
+	/**
+	 * <p>Executes FT_EE_Program function of D2XX library.</p>
+	 * 
+	 * <p>Programs the EEPROM.</p>
+	 * 
+	 * @param handle handle of the device whose EEPROM is to be programmed.
+	 * @param version of the FT_PROGRAM_DATA structure defined in FTD2XX.h file.
+	 * @param vid vendor ID (0x0403).
+	 * @param PID product ID (0x6001).
+	 * @param manufacturer byte array of size 32 bytes to save manufacturer name.
+	 * @param manufacturerID byte array of size 16 bytes to save manufacturer ID.
+	 * @param description byte array of size 64 bytes to save device description.
+	 * @param serialNumber byte array of size 16 bytes to save serial number of device.
+	 * @param values array of integer with all values populated in order as declared in FTD2XX.h file.
+	 * @return true is data is programmed into EEPROM.
+	 * @throws SerialComException if an I/O error occurs.
+	 */
+	public boolean eeProgram(final long handle, int version, String manufacturer, String manufacturerID, 
+			String description, String serialNumber, int[] values) throws SerialComException {
+		int ret = mFTDID2XXJNIBridge.eeProgram(handle, version, manufacturer, manufacturerID, description, serialNumber, values);
+		if(ret < 0) {
+			throw new SerialComException("Could not program the EEPROM. Please retry !");
+		}
+
+		return true;
+	}
+
+	/**
+	 * <p>Executes FT_EE_ProgramEx function of D2XX library.</p>
+	 * 
+	 * <p>Programs the EEPROM.</p>
+	 * 
+	 * @param handle handle of the device whose EEPROM is to be programmed.
+	 * @param version of the FT_PROGRAM_DATA structure defined in FTD2XX.h file.
+	 * @param vid vendor ID (0x0403).
+	 * @param PID product ID (0x6001).
+	 * @param manufacturer byte array of size 32 bytes to save manufacturer name.
+	 * @param manufacturerID byte array of size 16 bytes to save manufacturer ID.
+	 * @param description byte array of size 64 bytes to save device description.
+	 * @param serialNumber byte array of size 16 bytes to save serial number of device.
+	 * @param values array of integer with all values populated in order as declared in FTD2XX.h file.
+	 * @return true is data is programmed into EEPROM.
+	 * @throws SerialComException if an I/O error occurs.
+	 */
+	public boolean eeProgramEx(final long handle, int version, String manufacturer, String manufacturerID, 
+			String description, String serialNumber, int[] values) throws SerialComException {
+		int ret = mFTDID2XXJNIBridge.eeProgramEx(handle, version, manufacturer, manufacturerID, description, serialNumber, values);
+		if(ret < 0) {
+			throw new SerialComException("Could not program the EEPROM. Please retry !");
+		}
+
+		return true;
+	}
 
 	/**
 	 * <p>Executes FT_EE_UASize function of D2XX library.</p>
