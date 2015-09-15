@@ -20,7 +20,7 @@ package com.embeddedunveiled.serial.vendor;
 import com.embeddedunveiled.serial.SerialComUtil;
 
 /**
- * <p>Represents information about an opened FT device.</p>
+ * <p>Represents an opened FT device with information about it.</p>
  * 
  * @author Rishi Gupta
  */

@@ -203,7 +203,8 @@ public final class SerialComFTDID2XXJNIBridge {
 	public native int readEE(long handle, int offset);
 	public native int writeEE(long handle, int offset, int valueToWrite);
 	public native int eraseEE(long handle);
-	//TODO FT_EE_Read
+	public native int[] eeRead(long handle, int version, byte[] manufacturer,
+			byte[] manufacturerID, byte[] description, byte[] serialNumber);
 	//TODO FT_EE_Readex
 	//TODO FT_EE_program
 	//TODO FT_EE_programex
@@ -239,5 +240,7 @@ public final class SerialComFTDID2XXJNIBridge {
 	public native int w32WaitCommEvent(long handle, int event);
 	public native int w32PurgeComm(long handle, int event);
 	public native String w32GetLastError(long handle);
-	public native String[] w32ClearCommError(long handle);	
+	public native String[] w32ClearCommError(long handle);
+
+
 }

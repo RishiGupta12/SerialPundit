@@ -1162,7 +1162,31 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 		return true;
 	}
 
-	//TODO FT_EE_Read
+	/**
+	 * <p>Executes FT_EE_Read function of D2XX library.</p>
+	 * 
+	 * <p>Read the contents of the EEPROM.</p>
+	 * 
+	 * @param handle handle of the device whose contents are to be read.
+	 * @return an object of type FTprogramData containing all data read.
+	 * @throws SerialComException if an I/O error occurs.
+	 */
+	public FTprogramData eeRead(final long handle, int version) throws SerialComException {
+		byte[] manufacturer = new byte[32];
+		byte[] manufacturerID = new byte[16];
+		byte[] description = new byte[64];
+		byte[] serialNumber = new byte[16];
+		FTprogramData ftProgramData;
+
+		int[] info = mFTDID2XXJNIBridge.eeRead(handle, version, manufacturer, manufacturerID, description, serialNumber);
+		if(info == null) {
+			throw new SerialComException("Could not read the contents from EEPROM. Please retry !");
+		}
+		
+		ftProgramData = new FTprogramData(info, manufacturer, manufacturerID, description, serialNumber);
+		return ftProgramData;
+	}
+	
 	//TODO FT_EE_Readex
 	//TODO FT_EE_program
 	//TODO FT_EE_programex
@@ -1324,7 +1348,7 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 
 	// FT-Win32 API Functions
 
-	// createfile todo
+	// TODO createfile
 
 	/**
 	 * <p>Executes FT_W32_CloseHandle function of D2XX library.</p>

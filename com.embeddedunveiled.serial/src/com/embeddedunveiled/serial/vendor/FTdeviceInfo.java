@@ -20,7 +20,7 @@ package com.embeddedunveiled.serial.vendor;
 import com.embeddedunveiled.serial.SerialComUtil;
 
 /**
- * <p>Represents information about a device returned by calling listDevices() method in 
+ * <p>Represents a device returned by calling listDevices() method in 
  * SerialComFTDID2XX class.</p>
  * 
  * @author Rishi Gupta
@@ -81,5 +81,4 @@ public final class FTdeviceInfo {
 				"\nSerialNumber : " + serialNumber + 
 				"\nDescription : " + description);
 	}
-
 }
