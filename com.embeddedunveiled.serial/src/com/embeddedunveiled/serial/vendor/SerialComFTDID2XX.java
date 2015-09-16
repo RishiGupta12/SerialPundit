@@ -1382,7 +1382,7 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	public FTeepromHeader eepromRead(final long handle, int deviceType, byte[] manufacturer, 
 			byte[] manufacturerID, byte[] description, byte[] serialNumber) throws SerialComException {
 
-		if((deviceType != FT_DEVICE_2232C) && (deviceType != FT_DEVICE_2232H)) {
+		if((deviceType != FT_DEVICE_2232C) && (deviceType != FT_DEVICE_2232H) && (deviceType != FT_DEVICE_232R)) {
 			throw new IllegalArgumentException("Argument deviceType has invalid value !");
 		}
 
@@ -1396,6 +1396,8 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 			return new FTeeprom2232(dataValues);
 		}else if(deviceType == FT_DEVICE_2232H) {
 			return new FTeeprom2232H(dataValues);
+		}else if(deviceType == FT_DEVICE_232R) {
+			return new FTeeprom232R(dataValues);
 		}
 
 		return null;

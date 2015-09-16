@@ -29,7 +29,7 @@ public final class FTeeprom2232H extends FTeepromHeader {
 	private final int[] data2232H;
 
 	/**
-	 * <p>Construct and allocates a new FTeeprom2232 object with given details.</p>
+	 * <p>Construct and allocates a new FTeeprom2232H object with given details.</p>
 	 * 
 	 * <p>The sequence of values must be defined in following order: deviceType, VendorId, ProductId, 
 	 * SerNumEnable, MaxPower, SelfPowered, RemoteWakeup, PullDownEnable, ALSlowSlew, ALSchmittInput, 
@@ -54,7 +54,7 @@ public final class FTeeprom2232H extends FTeepromHeader {
 			throw new IllegalArgumentException("Argument data can not be null !");
 		}
 		if(data.length != 29) {
-			throw new IllegalArgumentException("Argument data must be of length 18 !");
+			throw new IllegalArgumentException("Argument data must be of length 29 !");
 		}
 		this.data2232H = data;
 	}
