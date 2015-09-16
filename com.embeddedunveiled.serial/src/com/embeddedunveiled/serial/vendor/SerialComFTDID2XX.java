@@ -146,6 +146,12 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 		}
 	}
 
+	/**<p>Bit mask to represent opening device for reading in D2XX terminology. </p>*/
+	public static final int GENERIC_READ = 0x01;  // 0000001
+
+	/**<p>Bit mask to represent opening device for writing in D2XX terminology. </p>*/
+	public static final int GENERIC_WRITE = 0x02;  // 0000010
+
 	/**<p>Bit mask to represent FT_LIST_NUMBER_ONLY in D2XX terminology. </p>*/
 	public static final int FT_LIST_NUMBER_ONLY = 0x01;  // 0000001
 
@@ -1426,7 +1432,32 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 
 	// FT-Win32 API Functions
 
-	// TODO createfile
+	/**
+	 * <p>Executes FT_W32_CreateFile function of D2XX library.</p>
+	 * 
+	 * <p>Opens the specified device and return a handle which will be used for subsequent accesses. 
+	 * The device can be specified by its serial number, device description, or location. This function 
+	 * must be used if overlapped I/O is required.</p>
+	 * 
+	 * @param serialNum serial number string if device is to be opened using serial number.
+	 * @param description description of the device if it is to be opened using description.
+	 * @param location location of the device if it is to be opened using location.
+	 * @param dwAttrsAndFlags one of the constant FT_OPEN_BY_SERIAL_NUMBER, FT_OPEN_BY_DESCRIPTION or 
+	 *         FT_OPEN_BY_LOCATION.
+	 * @param overLapped true if device is to be opened for overlapped operations.
+	 * @return handle of the opened device.
+	 * @throws SerialComException if an I/O error occurs.
+	 */
+	public long w32CreateFile(String serialNum, String description, long location, int dwAttrsAndFlags, 
+			int dwAccess, boolean overLapped) throws SerialComException {
+		long handle = mFTDID2XXJNIBridge.w32CreateFile(serialNum, description, location, dwAttrsAndFlags, 
+				dwAccess, overLapped);
+		if(handle < 0) {
+			throw new SerialComException("Could not open the requested device. Please retry !");
+		}
+
+		return handle;
+	}
 
 	/**
 	 * <p>Executes FT_W32_CloseHandle function of D2XX library.</p>

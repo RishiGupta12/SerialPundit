@@ -221,6 +221,8 @@ public final class SerialComFTDID2XXJNIBridge {
 	public native int setUSBParameters(long handle, int inTransferSize, int outTransferSize);
 
 	// FT-Win32 API Functions
+	public native long w32CreateFile(String serialNum, String description,
+			long location, int dwAttrsAndFlags, int dwAccess, boolean overLapped);
 	public native int w32CloseHandle(long handle);
 	public native int w32ReadFile(long handle, byte[] buffer, int numOfBytesToRead);
 	public native int w32WriteFile(long handle, byte[] buffer, int numOfBytesToWrite);
