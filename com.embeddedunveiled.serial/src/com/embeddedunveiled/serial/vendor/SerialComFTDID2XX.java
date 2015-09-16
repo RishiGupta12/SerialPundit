@@ -146,6 +146,39 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 		}
 	}
 
+	/**<p>Value indicating devices unknown to D2XX library.</p>*/
+	private static final int FT_DEVICE_UNKNOWN = 0X01;
+
+	/**<p>Value indicating FTDI AM devices.</p>*/
+	private static final int FT_DEVICE_AM = 0x02;
+
+	/**<p>Value indicating FTDI BM devices.</p>*/
+	private static final int FT_DEVICE_BM = 0x03;
+
+	/**<p>Value indicating FTDI 100AX devices.</p>*/
+	private static final int FT_DEVICE_100AX = 0X04;
+
+	/**<p>Value indicating FTDI 232B (FT2xxB) devices.</p>*/
+	private static final int FT_DEVICE_232B = 0X05;
+
+	/**<p>Value indicating FTDI 232R devices.</p>*/
+	private static final int FT_DEVICE_232R = 0X06;
+
+	/**<p>Value indicating FTDI 232H devices.</p>*/
+	private static final int FT_DEVICE_232H = 0X07;
+
+	/**<p>Value indicating FTDI 2232C devices.</p>*/
+	private static final int FT_DEVICE_2232C = 0X08;
+
+	/**<p>Value indicating FTDI 2232H devices.</p>*/
+	private static int FT_DEVICE_2232H = 0X09;
+
+	/**<p>Value indicating FTDI 4232H devices.</p>*/
+	private static final int FT_DEVICE_4232H = 0X10;
+
+	/**<p>Value indicating FTDI X (FT2xxX) series devices.</p>*/
+	private static final int FT_DEVICE_X_SERIES = 0X11;
+
 	/**<p>Bit mask to represent opening device for reading in D2XX terminology. </p>*/
 	public static final int GENERIC_READ = 0x01;  // 0000001
 
@@ -1330,8 +1363,37 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 		return true;
 	}
 
-	//todo FT_EEPROM_Read
-	//todo FT_EEPROM_Program
+	/**
+	 * <p>Executes FT_EEPROM_Read function of D2XX library.</p>
+	 * 
+	 * <p>Read data from the EEPROM, this command will work for all existing FTDI chipset, and must 
+	 * be used for the FT-X series.</p>
+	 * 
+	 * @param handle handle of the device whose contents are to be read.
+	 * @param deviceType one of the constants FT_DEVICE_XXXX.
+	 * @param manufacturer byte array of size 32 bytes to save manufacturer name.
+	 * @param manufacturerID byte array of size 16 bytes to save manufacturer ID.
+	 * @param description byte array of size 64 bytes to save device description.
+	 * @param serialNumber byte array of size 16 bytes to save serial number of device.
+	 * @return an object of sub class of FTeepromHeader containing all values read.
+	 * @throws IllegalArgumentException if deviceType is invalid.
+	 * @throws SerialComException if an I/O error occurs.
+	 */
+	public FTeepromHeader eepromRead(final long handle, int deviceType, byte[] manufacturer, 
+			byte[] manufacturerID, byte[] description, byte[] serialNumber) throws SerialComException {
+		
+		if(deviceType == FT_DEVICE_AM) {
+			int[] dataValues = mFTDID2XXJNIBridge.eepromRead(handle, deviceType, manufacturer, manufacturerID, 
+					description, serialNumber);
+			if(dataValues == null) {
+				throw new SerialComException("Could not read the EEPROM data. Please retry !");
+			}
+			return new FTeeprom2232(dataValues);
+		}
+
+		return null;
+	}
+	//TODO FT_EEPROM_Program
 
 	// Extended API Functions
 

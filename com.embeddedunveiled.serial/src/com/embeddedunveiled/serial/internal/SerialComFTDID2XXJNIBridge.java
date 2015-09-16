@@ -212,6 +212,8 @@ public final class SerialComFTDID2XXJNIBridge {
 	public native int eeUAsize(long handle);
 	public native int eeUAread(long handle, byte[] buffer, int length);
 	public native int eeUAwrite(long handle, byte[] buffer, int length);
+	public native int[] eepromRead(long handle, int deviceType, byte[] manufacturer,
+			byte[] manufacturerID, byte[] description, byte[] serialNumber);
 
 	// Extended API Functions
 	public native int setLatencyTimer(long handle, int value);
