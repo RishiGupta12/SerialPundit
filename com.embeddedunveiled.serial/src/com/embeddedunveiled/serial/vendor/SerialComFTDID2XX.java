@@ -171,7 +171,7 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	private static final int FT_DEVICE_2232C = 0X08;
 
 	/**<p>Value indicating FTDI 2232H devices.</p>*/
-	private static int FT_DEVICE_2232H = 0X09;
+	private static final int FT_DEVICE_2232H = 0X09;
 
 	/**<p>Value indicating FTDI 4232H devices.</p>*/
 	private static final int FT_DEVICE_4232H = 0X10;
@@ -1381,14 +1381,21 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 */
 	public FTeepromHeader eepromRead(final long handle, int deviceType, byte[] manufacturer, 
 			byte[] manufacturerID, byte[] description, byte[] serialNumber) throws SerialComException {
-		
-		if(deviceType == FT_DEVICE_AM) {
-			int[] dataValues = mFTDID2XXJNIBridge.eepromRead(handle, deviceType, manufacturer, manufacturerID, 
-					description, serialNumber);
-			if(dataValues == null) {
-				throw new SerialComException("Could not read the EEPROM data. Please retry !");
-			}
+
+		if((deviceType != FT_DEVICE_2232C) && (deviceType != FT_DEVICE_2232H)) {
+			throw new IllegalArgumentException("Argument deviceType has invalid value !");
+		}
+
+		int[] dataValues = mFTDID2XXJNIBridge.eepromRead(handle, deviceType, manufacturer, manufacturerID, 
+				description, serialNumber);
+		if(dataValues == null) {
+			throw new SerialComException("Could not read the EEPROM data. Please retry !");
+		}
+
+		if(deviceType == FT_DEVICE_2232C) {
 			return new FTeeprom2232(dataValues);
+		}else if(deviceType == FT_DEVICE_2232H) {
+			return new FTeeprom2232H(dataValues);
 		}
 
 		return null;

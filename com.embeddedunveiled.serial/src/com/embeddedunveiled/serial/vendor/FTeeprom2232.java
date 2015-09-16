@@ -39,10 +39,10 @@ public final class FTeeprom2232 extends FTeepromHeader {
 	 * <p>Values should be initialized when instantiating this object for writing purpose. For reading 
 	 * purpose there is no need to initialize.</p>
 	 * 
-	 * <p>The size of data array must be 18 and each member (value at index) must be initialized to a 
-	 * valid value. Although all members are of 'int data type' but deviceType must be one of the constants 
-	 * FT_DEVICE_XXXX, VendorId and ProductId must use lower 16 bit only, rest all the members should 
-	 * be 8 bit value (upper 24 bits must be all 0).</p>
+	 * <p>If the class is instantiated for writing purpose, the size of data array must be 18 and each 
+	 * member (value at index) must be initialized to a valid value. Although all members are of 'int 
+	 * data type' but deviceType must be one of the constants FT_DEVICE_XXXX, VendorId and ProductId must 
+	 * use lower 16 bit only, rest all the members should be 8 bit value (upper 24 bits must be all 0).</p>
 	 * 
 	 * @param data array containing values of member variables for C structure.
 	 * @throws IllegalArgumentException if data is null or its size is not equal to 18.
