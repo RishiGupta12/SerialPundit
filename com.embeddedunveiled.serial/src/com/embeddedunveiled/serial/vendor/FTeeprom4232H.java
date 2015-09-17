@@ -238,4 +238,13 @@ public final class FTeeprom4232H extends FTeepromHeader {
 	public int getDDriverType() {
 		return data4232H[27];
 	}
+	
+	/**
+	 * <p>Retrieves all the value defined for ft_eeprom_header and ft_eeprom_232h structures.</p>
+	 * 
+	 * @return array of member's values.
+	 */
+	public int[] getAllMembers() {
+		return data4232H;
+	}
 }

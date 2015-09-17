@@ -201,4 +201,13 @@ public final class FTeeprom232R extends FTeepromHeader {
 	public int getDriverType() {
 		return data232R[23];
 	}
+	
+	/**
+	 * <p>Retrieves all the value defined for ft_eeprom_header and ft_eeprom_232h structures.</p>
+	 * 
+	 * @return array of member's values.
+	 */
+	public int[] getAllMembers() {
+		return data232R;
+	}
 }

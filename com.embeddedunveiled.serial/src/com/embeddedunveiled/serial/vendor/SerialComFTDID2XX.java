@@ -1244,7 +1244,7 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	public FTprogramData eeReadEx(final long handle, int version, byte[] manufacturer, byte[] manufacturerID, 
 			byte[] description, byte[] serialNumber) throws SerialComException {
 		FTprogramData ftProgramData;
-		
+
 		// verify correct objects
 		if((manufacturer == null) || (manufacturerID == null) || (description == null) || (serialNumber == null)) {
 			throw new IllegalArgumentException("Arguments manufacturer, manufacturerID, description and serialNumber can not be null !");
@@ -1401,10 +1401,10 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 
 		// verify correct device
 		if((deviceType != FT_DEVICE_2232C) && (deviceType != FT_DEVICE_2232H) && (deviceType != FT_DEVICE_232R)
-				 && (deviceType != FT_DEVICE_4232H)) {
+				&& (deviceType != FT_DEVICE_4232H)) {
 			throw new IllegalArgumentException("Argument deviceType has invalid value !");
 		}
-		
+
 		// verify correct objects
 		if((manufacturer == null) || (manufacturerID == null) || (description == null) || (serialNumber == null)) {
 			throw new IllegalArgumentException("Arguments manufacturer, manufacturerID, description and serialNumber can not be null !");
@@ -1421,7 +1421,8 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 		if(serialNumber.length != 16) {
 			throw new IllegalArgumentException("Argument serialNumber must be of 16 bytes in size !");
 		}
-		
+
+		// native layer will make sure that returned array is of correct size.
 		int[] dataValues = mFTDID2XXJNIBridge.eepromRead(handle, deviceType, manufacturer, manufacturerID, 
 				description, serialNumber);
 		if(dataValues == null) {
@@ -1436,6 +1437,8 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 			return new FTeeprom232R(dataValues);
 		}else if(deviceType == FT_DEVICE_4232H) {
 			return new FTeeprom4232H(dataValues);
+		}else if(deviceType == FT_DEVICE_232H) {
+			return new FTeeprom232H(dataValues);
 		}
 
 		return null;
