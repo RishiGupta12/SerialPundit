@@ -1244,6 +1244,23 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	public FTprogramData eeReadEx(final long handle, int version, byte[] manufacturer, byte[] manufacturerID, 
 			byte[] description, byte[] serialNumber) throws SerialComException {
 		FTprogramData ftProgramData;
+		
+		// verify correct objects
+		if((manufacturer == null) || (manufacturerID == null) || (description == null) || (serialNumber == null)) {
+			throw new IllegalArgumentException("Arguments manufacturer, manufacturerID, description and serialNumber can not be null !");
+		}
+		if(manufacturer.length != 32) {
+			throw new IllegalArgumentException("Argument manufacturer must be of 32 bytes in size !");
+		}
+		if(manufacturerID.length != 16) {
+			throw new IllegalArgumentException("Argument manufacturerID must be of 16 bytes in size !");
+		}
+		if(description.length != 64) {
+			throw new IllegalArgumentException("Argument manufacturer must be of 64 bytes in size !");
+		}
+		if(serialNumber.length != 16) {
+			throw new IllegalArgumentException("Argument serialNumber must be of 16 bytes in size !");
+		}
 
 		int[] info = mFTDID2XXJNIBridge.eeRead(handle, version, manufacturer, manufacturerID, description, serialNumber);
 		if(info == null) {
@@ -1375,17 +1392,36 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 * @param manufacturerID byte array of size 16 bytes to save manufacturer ID.
 	 * @param description byte array of size 64 bytes to save device description.
 	 * @param serialNumber byte array of size 16 bytes to save serial number of device.
-	 * @return an object of sub class of FTeepromHeader containing all values read.
+	 * @return an object of FTeepromData class containing all values read.
 	 * @throws IllegalArgumentException if deviceType is invalid.
 	 * @throws SerialComException if an I/O error occurs.
 	 */
-	public FTeepromHeader eepromRead(final long handle, int deviceType, byte[] manufacturer, 
+	public FTeepromData eepromRead(final long handle, int deviceType, byte[] manufacturer, 
 			byte[] manufacturerID, byte[] description, byte[] serialNumber) throws SerialComException {
 
-		if((deviceType != FT_DEVICE_2232C) && (deviceType != FT_DEVICE_2232H) && (deviceType != FT_DEVICE_232R)) {
+		// verify correct device
+		if((deviceType != FT_DEVICE_2232C) && (deviceType != FT_DEVICE_2232H) && (deviceType != FT_DEVICE_232R)
+				 && (deviceType != FT_DEVICE_4232H)) {
 			throw new IllegalArgumentException("Argument deviceType has invalid value !");
 		}
-
+		
+		// verify correct objects
+		if((manufacturer == null) || (manufacturerID == null) || (description == null) || (serialNumber == null)) {
+			throw new IllegalArgumentException("Arguments manufacturer, manufacturerID, description and serialNumber can not be null !");
+		}
+		if(manufacturer.length != 32) {
+			throw new IllegalArgumentException("Argument manufacturer must be of 32 bytes in size !");
+		}
+		if(manufacturerID.length != 16) {
+			throw new IllegalArgumentException("Argument manufacturerID must be of 16 bytes in size !");
+		}
+		if(description.length != 64) {
+			throw new IllegalArgumentException("Argument manufacturer must be of 64 bytes in size !");
+		}
+		if(serialNumber.length != 16) {
+			throw new IllegalArgumentException("Argument serialNumber must be of 16 bytes in size !");
+		}
+		
 		int[] dataValues = mFTDID2XXJNIBridge.eepromRead(handle, deviceType, manufacturer, manufacturerID, 
 				description, serialNumber);
 		if(dataValues == null) {
@@ -1398,6 +1434,8 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 			return new FTeeprom2232H(dataValues);
 		}else if(deviceType == FT_DEVICE_232R) {
 			return new FTeeprom232R(dataValues);
+		}else if(deviceType == FT_DEVICE_4232H) {
+			return new FTeeprom4232H(dataValues);
 		}
 
 		return null;

@@ -22,7 +22,7 @@ package com.embeddedunveiled.serial.vendor;
  * 
  * @author Rishi Gupta
  */
-public class FTeepromHeader {
+public class FTeepromHeader extends FTeepromData {
 
 	private final int[] commonData;
 
@@ -35,6 +35,7 @@ public class FTeepromHeader {
 	 * @param data values of member variables in C structure.
 	 */
 	public FTeepromHeader(int[] data) {
+		super(data);
 		this.commonData = data;
 	}
 
