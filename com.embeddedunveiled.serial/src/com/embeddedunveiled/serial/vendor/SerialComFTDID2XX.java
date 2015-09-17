@@ -1401,7 +1401,8 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 
 		// verify correct device
 		if((deviceType != FT_DEVICE_2232C) && (deviceType != FT_DEVICE_2232H) && (deviceType != FT_DEVICE_232R)
-				&& (deviceType != FT_DEVICE_4232H)) {
+				&& (deviceType != FT_DEVICE_232H) && (deviceType != FT_DEVICE_4232H) && 
+				(deviceType != FT_DEVICE_X_SERIES)) {
 			throw new IllegalArgumentException("Argument deviceType has invalid value !");
 		}
 
@@ -1435,10 +1436,13 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 			return new FTeeprom2232H(dataValues);
 		}else if(deviceType == FT_DEVICE_232R) {
 			return new FTeeprom232R(dataValues);
-		}else if(deviceType == FT_DEVICE_4232H) {
-			return new FTeeprom4232H(dataValues);
 		}else if(deviceType == FT_DEVICE_232H) {
 			return new FTeeprom232H(dataValues);
+		}else if(deviceType == FT_DEVICE_4232H) {
+			return new FTeeprom4232H(dataValues);
+		}else if(deviceType == FT_DEVICE_X_SERIES) {
+			return new FTeepromXseries(dataValues);
+		}else {
 		}
 
 		return null;
