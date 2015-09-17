@@ -184,7 +184,8 @@ public final class SerialComFTDID2XXJNIBridge {
 	public native long getLibraryVersion();
 	public native long getComPortNumber(long handle);
 	public native long[] getStatus(long handle);
-	// TODO FT_SetEventNotification
+	public native long setEventNotification(long handle, int eventMask);
+	public native int setEventNotificationWait(long eventHandle);
 	public native int setChars(long handle, char eventChar, char eventEnable, char errorChar, char errorEnable);
 	public native int setBreakOn(long handle);
 	public native int setBreakOff(long handle);
@@ -214,6 +215,9 @@ public final class SerialComFTDID2XXJNIBridge {
 	public native int eeUAwrite(long handle, byte[] buffer, int length);
 	public native int[] eepromRead(long handle, int deviceType, byte[] manufacturer,
 			byte[] manufacturerID, byte[] description, byte[] serialNumber);
+	public native int eepromProgram(long handle, int devType, int[] dataToBeWritten,
+			String manufacturer, String manufacturerID, String description,
+			String serialNumber);
 
 	// Extended API Functions
 	public native int setLatencyTimer(long handle, int value);

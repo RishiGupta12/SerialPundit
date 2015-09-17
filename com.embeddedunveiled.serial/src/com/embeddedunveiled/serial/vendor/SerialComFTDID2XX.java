@@ -905,7 +905,40 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 		return info;
 	}
 
-	// TODO FT_SetEventNotification
+	/**
+	 * <p>Executes FT_SetEventNotification function of D2XX library.</p>
+	 * 
+	 * <p>Sets the event on which worker thread should block.</p>
+	 * 
+	 * @param handle handle of the device for whom event is to happen.
+	 * @param eventMask bit mask of the constants EV_XXXXX in SerialComFTDID2XX class.
+	 * @return event handle that must be passed to setEventNotificationWait() method.
+	 * @throws SerialComException if an I/O error occurs.
+	 */
+	public long setEventNotification(long handle, int eventMask) throws SerialComException {
+		long eventHandle = mFTDID2XXJNIBridge.setEventNotification(handle, eventMask);
+		if(eventHandle < 0) {
+			throw new SerialComException("Could not set the event notification. Please retry !");
+		}
+		return eventHandle;
+	}
+
+	/**
+	 * <p>This method blocks until event specified in setEventNotification() method happens. 
+	 * Typically this method should be called from worker thread.</p>
+	 * 
+	 * @param handle handle of the device for whom event is to happen.
+	 * @param eventMask bit mask of the constants EV_XXXXX in SerialComFTDID2XX class.
+	 * @return true when event occurs.
+	 * @throws SerialComException if an I/O error occurs.
+	 */
+	public boolean setEventNotificationWait(long eventHandle) throws SerialComException {
+		int ret = mFTDID2XXJNIBridge.setEventNotificationWait(eventHandle);
+		if(ret < 0) {
+			throw new SerialComException("Could not wait for the event to happen. Please retry !");
+		}
+		return true;
+	}
 
 	/**
 	 * <p>Executes FT_SetChars function of D2XX library.</p>
@@ -1307,10 +1340,10 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 * @param version of the FT_PROGRAM_DATA structure defined in FTD2XX.h file.
 	 * @param vid vendor ID (0x0403).
 	 * @param PID product ID (0x6001).
-	 * @param manufacturer byte array of size 32 bytes to save manufacturer name.
-	 * @param manufacturerID byte array of size 16 bytes to save manufacturer ID.
-	 * @param description byte array of size 64 bytes to save device description.
-	 * @param serialNumber byte array of size 16 bytes to save serial number of device.
+	 * @param manufacturer manufacturer name string.
+	 * @param manufacturerID manufacturer ID string.
+	 * @param description device description string.
+	 * @param serialNumber serial number of device string.
 	 * @param values array of integer with all values populated in order as declared in FTD2XX.h file.
 	 * @return true is data is programmed into EEPROM.
 	 * @throws SerialComException if an I/O error occurs.
@@ -1393,7 +1426,7 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 * @param description byte array of size 64 bytes to save device description.
 	 * @param serialNumber byte array of size 16 bytes to save serial number of device.
 	 * @return an object of FTeepromData class containing all values read.
-	 * @throws IllegalArgumentException if deviceType is invalid.
+	 * @throws IllegalArgumentException if deviceType is invalid or length of byte arrays are incorrect.
 	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public FTeepromData eepromRead(final long handle, int deviceType, byte[] manufacturer, 
@@ -1447,7 +1480,83 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 
 		return null;
 	}
-	//TODO FT_EEPROM_Program
+
+	/**
+	 * <p>Executes FT_EEPROM_Program function of D2XX library.</p>
+	 * 
+	 * <p>Write data into the EEPROM, this command will work for all existing FTDI chipset, and must 
+	 * be used for the FT-X series.</p>
+	 * 
+	 * @param handle handle of the device whose EEPROM is to be programmed.
+	 * @param eepromData an instance of class containing data to be written to EEPROM.
+	 * @param manufacturer manufacturer name string.
+	 * @param manufacturerID manufacturer ID string.
+	 * @param description device description string.
+	 * @param serialNumber serial number of device string.
+	 * @return true if data gets flashed into EEPROM successfully.
+	 * @throws IllegalArgumentException if eepromData is not an instance of class corresponding to 
+	 *          the device type or length of byte arrays are incorrect.
+	 * @throws SerialComException if an I/O error occurs.
+	 */
+	public boolean eepromProgram(final long handle, FTeepromData eepromData, String manufacturer, 
+			String manufacturerID, String description, String serialNumber) throws SerialComException {
+
+		int[] dataToBeWritten = null;
+		FTeepromHeader header = (FTeepromHeader) eepromData;
+		int devType = header.getDeviceType();
+
+		if(devType == FT_DEVICE_2232C) {
+			if(!(eepromData instanceof FTeeprom2232)) {
+				throw new IllegalArgumentException("For FT_DEVICE_2232C, argument eepromData must be an instance of FTeeprom2232 class !");
+			}
+			FTeeprom2232 dev = (FTeeprom2232) eepromData;
+			dataToBeWritten = dev.getAllMembers();
+		}
+		if(devType == FT_DEVICE_2232H) {
+			if(!(eepromData instanceof FTeeprom2232H)) {
+				throw new IllegalArgumentException("For FT_DEVICE_2232H, argument eepromData must be an instance of FTeeprom2232H class !");
+			}
+			FTeeprom2232H dev = (FTeeprom2232H) eepromData;
+			dataToBeWritten = dev.getAllMembers();
+		}
+		if(devType == FT_DEVICE_232R) {
+			if(!(eepromData instanceof FTeeprom232R)) {
+				throw new IllegalArgumentException("For FT_DEVICE_232R, argument eepromData must be an instance of FTeeprom232R class !");
+			}
+			FTeeprom232R dev = (FTeeprom232R) eepromData;
+			dataToBeWritten = dev.getAllMembers();
+		}
+		if(devType == FT_DEVICE_232H) {
+			if(!(eepromData instanceof FTeeprom232H)) {
+				throw new IllegalArgumentException("For FT_DEVICE_232H, argument eepromData must be an instance of FTeeprom232H class !");
+			}
+			FTeeprom232H dev = (FTeeprom232H) eepromData;
+			dataToBeWritten = dev.getAllMembers();
+		}		
+		if(devType == FT_DEVICE_4232H) {
+			if(!(eepromData instanceof FTeeprom4232H)) {
+				throw new IllegalArgumentException("For FT_DEVICE_4232H, argument eepromData must be an instance of FTeeprom4232H class !");
+			}
+			FTeeprom4232H dev = (FTeeprom4232H) eepromData;
+			dataToBeWritten = dev.getAllMembers();
+		}
+		if(devType == FT_DEVICE_X_SERIES) {
+			if(!(eepromData instanceof FTeepromXseries)) {
+				throw new IllegalArgumentException("For FT_DEVICE_X_SERIES, argument eepromData must be an instance of FTeepromXseries class !");
+			}
+			FTeepromXseries dev = (FTeepromXseries) eepromData;
+			dataToBeWritten = dev.getAllMembers();
+		}
+
+		// make sure that correct array size is passed to native layer.
+		int ret = mFTDID2XXJNIBridge.eepromProgram(handle, devType, dataToBeWritten, manufacturer, manufacturerID, 
+				description, serialNumber);
+		if(ret < 0) {
+			throw new SerialComException("Could not program the EEPROM. Please retry !");
+		}
+
+		return true;
+	}
 
 	// Extended API Functions
 
