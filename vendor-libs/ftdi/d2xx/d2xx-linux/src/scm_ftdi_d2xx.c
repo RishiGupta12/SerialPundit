@@ -43,7 +43,8 @@
 /* Common interface with java layer for supported OS types. */
 #include "../../com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge.h"
 
-// D2XX Classic Functions
+
+/* ********************* D2XX Classic Functions ******************** */
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
@@ -1832,7 +1833,9 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
 	return 0;
 }
 
-// EEPROM Programming Interface Functions
+
+/* ********************* EEPROM Programming Interface Functions ******************** */
+
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
@@ -1853,24 +1856,49 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
 		return -1;
 	}
 
-	return (int) value;
+	return (jint) value;
 }
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
  * Method:    writeEE
  * Signature: (JII)I
+ *
+ * @return 0 on success otherwise -1 if error occurs.
+ * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_writeEE
-  (JNIEnv *, jobject, jlong, jint, jint);
+  (JNIEnv *env, jobject obj, jlong handle, jint offset, jint value) {
+	FT_STATUS ftStatus = 0;
+	ftStatus = FT_WriteEE((FT_HANDLE) handle, (DWORD) offset, (WORD) value);
+	if(ftStatus != FT_OK) {
+		throw_serialcom_exception(env, 2, ftStatus, NULL);
+		return -1;
+	}
+
+	return 0;
+}
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
  * Method:    eraseEE
  * Signature: (J)I
+ *
+ * @return 0 on success otherwise -1 if error occurs.
+ * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_eraseEE
-  (JNIEnv *, jobject, jlong);
+  (JNIEnv *env, jobject obj, jlong handle) {
+	FT_STATUS ftStatus = 0;
+
+	ftStatus = FT_EraseEE((FT_HANDLE) handle);
+	if(ftStatus != FT_OK) {
+		throw_serialcom_exception(env, 2, ftStatus, NULL);
+		return -1;
+	}
+
+	return 0;
+}
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
@@ -1878,7 +1906,38 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
  * Signature: (JI[B[B[B[B)[I
  */
 JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_eeRead
-  (JNIEnv *, jobject, jlong, jint, jbyteArray, jbyteArray, jbyteArray, jbyteArray);
+  (JNIEnv *env, jobject obj, jlong handle, jint version, jbyteArray manufacturer, jbyteArray manufacturerID,
+		  jbyteArray description, jbyteArray serialNumber) {
+
+	FT_STATUS ftStatus = 0;
+	FT_PROGRAM_DATA ftData;
+	char manufacturer_buf[32];
+	char manufacturer_idbuf[16];
+	char description_buf[64];
+	char serialNumber_buf[16];
+
+	memset(manufacturer_buf, '\0', 32);
+	memset(manufacturer_idbuf, '\0', 16);
+	memset(description_buf, '\0', 64);
+	memset(serialNumber_buf, '\0', 16);
+
+	ftData.Signature1 = 0x00000000;
+	ftData.Signature2 = 0xffffffff;
+	ftData.Version = (DWORD) version;
+
+	ftData.Manufacturer = manufacturer_buf;
+	ftData.ManufacturerId = manufacturer_idbuf;
+	ftData.Description = description_buf;
+	ftData.SerialNumber = serialNumber_buf;
+
+	ftStatus = FT_EE_Read((FT_HANDLE) handle, &ftData);
+	if(ftStatus != FT_OK) {
+		throw_serialcom_exception(env, 2, ftStatus, NULL);
+		return NULL;
+	}
+
+
+}
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
@@ -1936,49 +1995,120 @@ JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComF
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_eepromProgram
   (JNIEnv *, jobject, jlong, jint, jintArray, jstring, jstring, jstring, jstring);
 
-// Extended API Functions
+
+/* ********************* Extended API Functions *********************/
+
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
  * Method:    setLatencyTimer
  * Signature: (JI)I
+ *
+ * @return 0 on success otherwise -1 if error occurs.
+ * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_setLatencyTimer
-  (JNIEnv *, jobject, jlong, jint);
+  (JNIEnv *env, jobject obj, jlong handle, jint timerValue) {
+
+	FT_STATUS ftStatus = 0;
+	ftStatus = FT_SetLatencyTimer((FT_HANDLE) handle, (UCHAR) timerValue);
+	if(ftStatus != FT_OK) {
+		throw_serialcom_exception(env, 2, ftStatus, NULL);
+		return -1;
+	}
+
+	return 0;
+}
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
  * Method:    getLatencyTimer
  * Signature: (J)I
+ *
+ * @return latency time value on success otherwise -1 if error occurs.
+ * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_getLatencyTimer
-  (JNIEnv *, jobject, jlong);
+  (JNIEnv *env, jobject obj, jlong handle) {
+
+	UCHAR latency_timer_value = 0;
+	FT_STATUS ftStatus = 0;
+	ftStatus = FT_GetLatencyTimer((FT_HANDLE) handle, &latency_timer_value);
+	if(ftStatus != FT_OK) {
+		throw_serialcom_exception(env, 2, ftStatus, NULL);
+		return -1;
+	}
+
+	return (jint)latency_timer_value;
+}
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
  * Method:    setBitMode
  * Signature: (JII)I
+ *
+ * @return 0 on success otherwise -1 if error occurs.
+ * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_setBitMode
-  (JNIEnv *, jobject, jlong, jint, jint);
+  (JNIEnv *env, jobject obj, jlong handle, jint mask, jint mode) {
+
+	FT_STATUS ftStatus = 0;
+	ftStatus = FT_SetBitMode((FT_HANDLE) handle, (UCHAR) mask, (UCHAR) mode);
+	if(ftStatus != FT_OK) {
+		throw_serialcom_exception(env, 2, ftStatus, NULL);
+		return -1;
+	}
+
+	return 0;
+}
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
  * Method:    getBitMode
  * Signature: (J)I
+ *
+ * @return bit mode value on success otherwise -1 if error occurs.
+ * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_getBitMode
-  (JNIEnv *, jobject, jlong);
+  (JNIEnv *env, jobject obj, jlong handle) {
+
+	FT_STATUS ftStatus = 0;
+	UCHAR bit_mode;
+	ftStatus = FT_GetBitMode((FT_HANDLE) handle, &bit_mode);
+	if(ftStatus != FT_OK) {
+		throw_serialcom_exception(env, 2, ftStatus, NULL);
+		return -1;
+	}
+
+	return (jint) bit_mode;
+}
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
  * Method:    setUSBParameters
  * Signature: (JII)I
+ *
+ * @return 0 on success otherwise -1 if error occurs.
+ * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_setUSBParameters
-  (JNIEnv *, jobject, jlong, jint, jint);
+  (JNIEnv *env, jobject obj, jlong handle, jint inTransferSize, jint outTransferSize) {
 
-// FT-Win32 API Functions
+	FT_STATUS ftStatus = 0;
+	ftStatus = FT_SetUSBParameters((FT_HANDLE) handle, (DWORD) inTransferSize, (DWORD) outTransferSize);
+	if(ftStatus != FT_OK) {
+		throw_serialcom_exception(env, 2, ftStatus, NULL);
+		return -1;
+	}
+
+	return 0;
+}
+
+
+/* ********************* FT-Win32 API Functions ******************** */
+
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge

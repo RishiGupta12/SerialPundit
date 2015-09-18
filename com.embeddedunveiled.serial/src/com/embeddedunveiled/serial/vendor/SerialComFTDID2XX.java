@@ -308,7 +308,7 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 		SerialComFTDID2XXJNIBridge.loadNativeLibrary(libDirectory, vlibName, cpuArch, osType, serialComSystemProperty);
 	}
 
-	// D2XX Classic Functions
+	/* ********************* D2XX Classic Functions ******************** */
 
 	/**
 	 * <p>Executes FT_SetVIDPID function of D2XX library.</p>
@@ -1170,8 +1170,10 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 		return true;
 	}
 
-	// EEPROM Programming Interface Functions
+	
+	/* ********************* EEPROM Programming Interface Functions ******************** */
 
+	
 	/**
 	 * <p>Executes FT_ReadEE function of D2XX library.</p>
 	 * 
@@ -1558,7 +1560,9 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 		return true;
 	}
 
-	// Extended API Functions
+	
+	/* ********************* Extended API Functions *********************/
+	
 
 	/**
 	 * <p>Executes FT_SetLatencyTimer function of D2XX library.</p>
@@ -1601,13 +1605,14 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 * <p>Enables different chip modes.</p>
 	 * 
 	 * @param handle handle of the device whose mode is to be set.
-	 * @param mask Required value for bit mode mask. This sets up which bits are inputs and outputs. A bit value 
-	 * of 0 sets the corresponding pin to an input, a bit value of 1 sets the corresponding pin to an output. In 
-	 * the case of CBUS Bit Bang, the upper nibble of this value controls which pins are inputs and outputs, while 
-	 * the lower nibble controls which of the outputs are high and low.
-	 * @param mode it should be one of the following : 0x0 for Reset, 0x1 for Asynchronous Bit Bang, 0x2 for MPSSE, 
-	 * 0x4 for Synchronous Bit Bang, 0x8 for MCU Host Bus Emulation Mode, 0x10 for Fast Opto-Isolated Serial Mode, 
-	 * 0x20 for CBUS Bit Bang Mode, 0x40 for Single Channel Synchronous 245 FIFO Mode.
+	 * @param mask required value for bit mode mask. This sets up which bits are inputs and outputs. 
+	 *         A bit value of 0 sets the corresponding pin to an input, a bit value of 1 sets the corresponding 
+	 *         pin to an output. In the case of CBUS Bit Bang, the upper nibble of this value controls which 
+	 *         pins are inputs and outputs, while the lower nibble controls which of the outputs are high and low.
+	 * @param mode it should be one of the following : 0x0 for Reset, 0x1 for Asynchronous Bit Bang, 0x2 
+	 *         for MPSSE, 0x4 for Synchronous Bit Bang, 0x8 for MCU Host Bus Emulation Mode, 0x10 for Fast 
+	 *         Opto-Isolated Serial Mode, 0x20 for CBUS Bit Bang Mode, 0x40 for Single Channel Synchronous 
+	 *         245 FIFO Mode.
 	 * @return true on success.
 	 * @throws SerialComException if an I/O error occurs.
 	 */
@@ -1622,10 +1627,10 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	/**
 	 * <p>Executes FT_GetBitMode function of D2XX library.</p>
 	 * 
-	 * <p>Get the current chip mode.</p>
+	 * <p>Gets the instantaneous value of the data bus.</p>
 	 * 
 	 * @param handle handle of the device whose mode is to be fetched.
-	 * @return current chip mode settings.
+	 * @return current instantaneous value of the data bus.
 	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public int getBitMode(final long handle) throws SerialComException {
@@ -1639,15 +1644,20 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	/**
 	 * <p>Executes FT_SetUSBParameters function of D2XX library.</p>
 	 * 
-	 * <p>Set the USB request transfer size.</p>
+	 * <p>Set the USB request transfer size. Check with application note that setting output 
+	 * transfer size is supported or not. If not supported then outTransferSize must be 0.</p>
 	 * 
 	 * @param handle handle of the device whose parameters is to be set.
 	 * @param inTransferSize Transfer size for USB IN request.
 	 * @param outTransferSize Transfer size for USB OUT request.
 	 * @return true on success.
+	 * @throws IllegalArgumentException if inTransferSize or outTransferSize is negative.
 	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public boolean setUSBParameters(final long handle, int inTransferSize, int outTransferSize) throws SerialComException {
+		if((outTransferSize < 0) || (inTransferSize < 0)) {
+			throw new IllegalArgumentException("Argument inTransferSize or outTransferSize can not be negative !");
+		}
 		int ret = mFTDID2XXJNIBridge.setUSBParameters(handle, inTransferSize, outTransferSize);
 		if(ret < 0) {
 			throw new SerialComException("Could not set the usb parameters. Please retry !");
@@ -1655,7 +1665,9 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 		return true;
 	}
 
-	// FT-Win32 API Functions
+	
+	/* ********************* FT-Win32 API Functions ******************** */
+	
 
 	/**
 	 * <p>Executes FT_W32_CreateFile function of D2XX library.</p>
