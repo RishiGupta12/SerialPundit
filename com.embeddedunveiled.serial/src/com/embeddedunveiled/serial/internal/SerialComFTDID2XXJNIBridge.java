@@ -236,8 +236,8 @@ public final class SerialComFTDID2XXJNIBridge {
 	public native int w32EscapeCommFunction(long handle, short function);
 	public native int w32GetCommModemStatus(long handle);
 	public native int w32SetupComm(long handle, int readBufSize, int writeBufSize);
-	public native int w32SetCommState(long handle, String[] dcb);
-	public native String[] w32GetCommState(long handle);
+	public native int w32SetCommState(long handle, int[] dcb);
+	public native int[] w32GetCommState(long handle);
 	public native int w32SetCommTimeouts(long handle, int readIntervalTimeout,
 			int readTotalTimeoutMultiplier, int readTotalTimeoutConstant,
 			int writeTotalTimeoutMultiplier, int writeTotalTimeoutConstant);
@@ -249,5 +249,5 @@ public final class SerialComFTDID2XXJNIBridge {
 	public native int w32WaitCommEvent(long handle, int event);
 	public native int w32PurgeComm(long handle, int event);
 	public native String w32GetLastError(long handle);
-	public native String[] w32ClearCommError(long handle);
+	public native int[] w32ClearCommError(long handle);
 }

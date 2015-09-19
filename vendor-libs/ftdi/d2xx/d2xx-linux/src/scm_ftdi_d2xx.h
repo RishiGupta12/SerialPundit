@@ -23,6 +23,57 @@
 #include "WinTypes.h"    /* FTDI D2XX header file from vendor   */
 #include "ftd2xx.h"      /* FTDI D2XX header file from vendor   */
 
+/* these values must match their values in java layer */
+#define SCM_OPEN_BY_SERIAL_NUMBER 0x08
+#define SCM_OPEN_BY_DESCRIPTION   0x10
+#define SCM_OPEN_BY_LOCATION      0x20
+
+#define SCM_GENERIC_READ  0x01
+#define SCM_GENERIC_WRITE 0x02
+
+#define SCM_SETRTS      1
+#define SCM_CLRRTS      2
+#define SCM_SETDTR      3
+#define SCM_CLRDTR      4
+#define SCM_SETBREAK    5
+#define SCM_CLRBREAK    6
+
+#define SCM_MS_CTS_ON   0x01
+#define SCM_MS_DSR_ON   0x02
+#define SCM_MS_RING_ON  0x04
+#define SCM_MS_RLSD_ON  0x08
+
+#define SCM_EV_RXCHAR   0x0001
+#define SCM_EV_RXFLAG   0x0002
+#define SCM_EV_TXEMPTY  0x0004
+#define SCM_EV_CTS      0x0008
+#define SCM_EV_DSR      0x0010
+#define SCM_EV_RLSD     0x0020
+#define SCM_EV_BREAK    0x0040
+#define SCM_EV_ERR      0x0080
+#define SCM_EV_RING     0x0100
+#define SCM_EV_PERR     0x0200
+#define SCM_EV_RX80FULL 0x0400
+#define SCM_EV_EVENT1   0x0800
+#define SCM_EV_EVENT2   0x1000
+
+#define SCM_PURGE_TXABORT  0x0001
+#define SCM_PURGE_RXABORT  0x0002
+#define SCM_PURGE_TXCLEAR  0x0004
+#define SCM_PURGE_RXCLEAR  0x0008
+
+#define SCM_CE_RXOVER   0x0001
+#define SCM_CE_OVERRUN  0x0002
+#define SCM_CE_RXPARITY 0x0004
+#define SCM_CE_FRAME    0x0008
+#define SCM_CE_BREAK    0x0010
+#define SCM_CE_TXFULL   0x0100
+#define SCM_CE_PTO      0x0200
+#define SCM_CE_IOE      0x0400
+#define SCM_CE_DNS      0x0800
+#define SCM_CE_OOP      0x1000
+#define SCM_CE_MODE     0x8000
+
 /* Constant string defines */
 #define FAILTHOWEXP "JNI call ThrowNew failed to throw exception"
 #define SCOMEXPCLASS "com/embeddedunveiled/serial/SerialComException"
@@ -37,12 +88,13 @@
 #define E_NEWLONGARRAYSTR "JNI call NewLongArray failed !"
 #define E_SETOBJECTARRAYSTR "JNI call SetObjectArrayElement failed. Either index violation or wrong class used !"
 #define E_SETBYTEARRREGIONSTR "JNI call SetByteArrayRegion failed !"
-#define E_SETINTARRREGIONSTR "JNI call SetIntArrayRegion failed !"
+#define E_SETINTARRREGIONSTR "JNI call SetIntArrayRegion failed. Probably index out of bound !"
 #define E_SETLONGARRREGIONSTR "JNI call SetLongArrayRegion failed !"
 #define E_NEWSTRUTFSTR "JNI call NewStringUTF failed !"
 #define E_GETSTRUTFCHARSTR "JNI call GetStringUTFChars failed !"
 #define E_GETBYTEARRELEMTSTR "JNI call GetByteArrayElements failed !"
 #define E_GETBYTEARRREGIONSTR "JNI call GetByteArrayRegion failed !"
+#define E_GETINTARRELEMTSTR "JNI call GetIntArrayElements failed !"
 #define E_NEWGLOBALREFSTR "JNI Call NewGlobalRef failed !"
 #define E_DELGLOBALREFSTR "JNI Call DeleteGlobalRef failed !"
 #define E_CALLOCSTR "calloc() failed to allocate requested memory !"
@@ -59,6 +111,28 @@
 #define E_GETDIRCTBUFADDRSTR "JNI call GetDirectBufferAddress failed !"
 #define E_VIOVNTINVALIDSTR "The length of data supplied exceeds maximum limit !"
 #define E_IllegalARG "Illegal argument !"
+#define E_INVALIDHANDLE "INVALID_HANDLE_VALUE !"
+
+#define E_SETRTS "Could not set RTS line !"
+#define E_CLRRTS "Could not clear RTS line !"
+#define E_SETDTR "Could not set DTR line !"
+#define E_CLRDTR "Could not clear DTR line !"
+#define E_SETBREAK "Could not set line break !"
+#define E_CLRBREAK "Could not clear line break !"
+#define E_GETMODEMSTATUS "Could not get modem status !"
+#define E_SETUPCOMM "Could not set the input/output buffer size !"
+#define E_SETUPCOMMSTATE "Could not set the state from DCB structure !"
+#define E_GETUPCOMMSTATE "Could not get the DCB structure !"
+#define E_SETCOMMTIMEOUTS "Could not set the timeout values !"
+#define E_GETCOMMTIMEOUTS "Could not get the timeout values !"
+#define E_SETCOMMBREAK "Could not put the communications line in the BREAK state !"
+#define E_CLEARCOMMBREAK "Could not put the communications line in non-BREAK state !"
+#define E_SETCOMMMASK "Could not set given event mask !"
+#define E_GETCOMMMASK "Could not get the event mask !"
+#define E_PURGECOMM "Could not purge the port !"
+#define E_GETLASTERROR "Could not get the last error value !"
+#define E_CLEARCOMMERROR "Could not get the error and status information !"
+
 
 /* This holds information for implementing dynamically growing array in C language. */
 struct jstrarray_list {

@@ -38,6 +38,14 @@
 #include <errno.h>       /* Error number definitions            */
 #include <sys/types.h>   /* Primitive System Data Types         */
 #include <sys/stat.h>    /* Defines the structure of the data   */
+#endif
+
+#if defined (_WIN32) && !defined(UNIX)
+#include <windows.h>
+#include <process.h>
+#include <tchar.h>
+#endif
+
 #include "scm_ftdi_d2xx.h"
 
 /* Common interface with java layer for supported OS types. */
@@ -918,7 +926,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
  * Method:    open
  * Signature: (I)J
  *
- * @return handle on success otherwise -1 if error occurs.
+ * @return valid handle on success otherwise -1 if an error occurs.
  * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_open(JNIEnv *env, jobject obj, jint index) {
@@ -948,7 +956,7 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID
 	FT_STATUS ftStatus = 0;
 	const char* ser_or_desc;
 
-	if(dwFlags == 0x08) {
+	if(dwFlags == SCM_OPEN_BY_SERIAL_NUMBER) {
 		if(serialOrDescription == NULL) {
 			throw_serialcom_exception(env, 3, 0, E_IllegalARG);
 			return -1;
@@ -959,7 +967,7 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID
 			return -1;
 		}
 		ftStatus = FT_OpenEx((char*)ser_or_desc, FT_OPEN_BY_SERIAL_NUMBER, &ftHandle);
-	}else if(dwFlags == 0x10) {
+	}else if(dwFlags == SCM_OPEN_BY_DESCRIPTION) {
 		if(serialOrDescription == NULL) {
 			throw_serialcom_exception(env, 3, 0, E_IllegalARG);
 			return -1;
@@ -970,12 +978,12 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID
 			return -1;
 		}
 		ftStatus = FT_OpenEx((char*)ser_or_desc, FT_OPEN_BY_DESCRIPTION, &ftHandle);
-	}else if(dwFlags == 0x20) {
+	}else if(dwFlags == SCM_OPEN_BY_LOCATION) {
 		if(locationId < 0) {
 			throw_serialcom_exception(env, 3, 0, E_IllegalARG);
 			return -1;
 		}
-		ftStatus = FT_OpenEx(locationId, FT_OPEN_BY_LOCATION, &ftHandle);
+		ftStatus = FT_OpenEx((PVOID)locationId, FT_OPEN_BY_LOCATION, &ftHandle);
 	}else {
 		throw_serialcom_exception(env, 3, 0, E_IllegalARG);
 		return -1;
@@ -998,14 +1006,11 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_close(JNIEnv *env, jobject obj, jlong handle) {
 	FT_STATUS ftStatus = 0;
-	FT_HANDLE ftHandle = (FT_HANDLE) handle;
-
-	ftStatus = FT_Close(ftHandle);
+	ftStatus = FT_Close((FT_HANDLE) handle);
 	if(ftStatus != FT_OK) {
 		throw_serialcom_exception(env, 2, ftStatus, NULL);
 		return -1;
 	}
-
 	return 0;
 }
 
@@ -1019,7 +1024,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_read(JNIEnv *env, jobject obj,
 		jlong handle, jbyteArray buffer, jint count) {
-	FT_HANDLE ftHandle = (FT_HANDLE)handle;
+
 	FT_STATUS ftStatus = 0;
 	DWORD num_of_bytes_read;
 
@@ -1029,7 +1034,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
 		return -1;
 	}
 
-	ftStatus = FT_Read(ftHandle, data_buffer, count, &num_of_bytes_read);
+	ftStatus = FT_Read((FT_HANDLE)handle, data_buffer, count, &num_of_bytes_read);
 	if(ftStatus != FT_OK) {
 		free(data_buffer);
 		throw_serialcom_exception(env, 2, ftStatus, NULL);
@@ -1059,7 +1064,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_write(JNIEnv *env, jobject obj,
 		jlong handle, jbyteArray buffer, jint count) {
-	FT_HANDLE ftHandle = (FT_HANDLE)handle;
+
 	FT_STATUS ftStatus = 0;
 	DWORD num_of_bytes_written;
 
@@ -1076,7 +1081,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
 		return -1;
 	}
 
-	ftStatus = FT_Write(ftHandle, data_buffer, count, &num_of_bytes_written);
+	ftStatus = FT_Write((FT_HANDLE)handle, data_buffer, count, &num_of_bytes_written);
 	if(ftStatus != FT_OK) {
 		free(data_buffer);
 		throw_serialcom_exception(env, 2, ftStatus, NULL);
@@ -1096,9 +1101,8 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
  * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_setBaudRate(JNIEnv *env, jobject obj, jlong handle, jint baudRate) {
-	FT_HANDLE ftHandle = (FT_HANDLE)handle;
 	FT_STATUS ftStatus = 0;
-	ftStatus = FT_SetBaudRate(ftHandle, (int)baudRate);
+	ftStatus = FT_SetBaudRate((FT_HANDLE)handle, (int)baudRate);
 	if(ftStatus != FT_OK) {
 		throw_serialcom_exception(env, 2, ftStatus, NULL);
 		return -1;
@@ -1115,9 +1119,8 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
  * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_setDivisor(JNIEnv *env, jobject obj, jlong handle, jint divisor) {
-	FT_HANDLE ftHandle = (FT_HANDLE)handle;
 	FT_STATUS ftStatus = 0;
-	ftStatus = FT_SetDivisor(ftHandle, (USHORT)divisor);
+	ftStatus = FT_SetDivisor((FT_HANDLE)handle, (USHORT)divisor);
 	if(ftStatus != FT_OK) {
 		throw_serialcom_exception(env, 2, ftStatus, NULL);
 		return -1;
@@ -1135,7 +1138,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_setDataCharacteristics(JNIEnv *env, jobject obj,
 		jlong handle, jint databits, jint stopbits, jint parity) {
-	FT_HANDLE ftHandle = (FT_HANDLE)handle;
+
 	FT_STATUS ftStatus = 0;
 	UCHAR dbits = 0;
 	UCHAR sbits = 0;
@@ -1169,7 +1172,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
 	}
 
 
-	ftStatus = FT_SetDataCharacteristics(ftHandle, dbits, sbits, par);
+	ftStatus = FT_SetDataCharacteristics((FT_HANDLE)handle, dbits, sbits, par);
 	if(ftStatus != FT_OK) {
 		throw_serialcom_exception(env, 2, ftStatus, NULL);
 		return -1;
@@ -1187,10 +1190,9 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_setTimeouts(JNIEnv *env, jobject obj,
 		jlong handle, jlong read_timeout, jlong write_timeout) {
-	FT_HANDLE ftHandle = (FT_HANDLE)handle;
-	FT_STATUS ftStatus = 0;
 
-	ftStatus = FT_SetTimeouts(ftHandle, (ULONG)read_timeout, (ULONG)write_timeout);
+	FT_STATUS ftStatus = 0;
+	ftStatus = FT_SetTimeouts((FT_HANDLE)handle, (ULONG)read_timeout, (ULONG)write_timeout);
 	if(ftStatus != FT_OK) {
 		throw_serialcom_exception(env, 2, ftStatus, NULL);
 		return -1;
@@ -1208,7 +1210,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_setFlowControl(JNIEnv *env, jobject obj,
 		jlong handle, jint mode, jchar xon, jchar off) {
-	FT_HANDLE ftHandle = (FT_HANDLE)handle;
+
 	FT_STATUS ftStatus = 0;
 	USHORT flowctrl = 0;
 
@@ -1223,7 +1225,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
 	}else {
 	}
 
-	ftStatus = FT_SetFlowControl(ftHandle, flowctrl, (UCHAR)xon, (UCHAR)off);
+	ftStatus = FT_SetFlowControl((FT_HANDLE)handle, flowctrl, (UCHAR)xon, (UCHAR)off);
 	if(ftStatus != FT_OK) {
 		throw_serialcom_exception(env, 2, ftStatus, NULL);
 		return -1;
@@ -1240,10 +1242,8 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
  * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_setDTR(JNIEnv *env, jobject obj, jlong handle) {
-	FT_HANDLE ftHandle = (FT_HANDLE)handle;
 	FT_STATUS ftStatus = 0;
-
-	ftStatus = FT_SetDtr(ftHandle);
+	ftStatus = FT_SetDtr((FT_HANDLE)handle);
 	if(ftStatus != FT_OK) {
 		throw_serialcom_exception(env, 2, ftStatus, NULL);
 		return -1;
@@ -1260,10 +1260,8 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
  * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_clearDTR(JNIEnv *env, jobject obj, jlong handle) {
-	FT_HANDLE ftHandle = (FT_HANDLE)handle;
 	FT_STATUS ftStatus = 0;
-
-	ftStatus = FT_ClrDtr(ftHandle);
+	ftStatus = FT_ClrDtr((FT_HANDLE)handle);
 	if(ftStatus != FT_OK) {
 		throw_serialcom_exception(env, 2, ftStatus, NULL);
 		return -1;
@@ -1280,10 +1278,8 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
  * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_setRTS(JNIEnv *env, jobject obj, jlong handle) {
-	FT_HANDLE ftHandle = (FT_HANDLE)handle;
 	FT_STATUS ftStatus = 0;
-
-	ftStatus = FT_SetRts(ftHandle);
+	ftStatus = FT_SetRts((FT_HANDLE)handle);
 	if(ftStatus != FT_OK) {
 		throw_serialcom_exception(env, 2, ftStatus, NULL);
 		return -1;
@@ -1300,10 +1296,8 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
  * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_clearRTS(JNIEnv *env, jobject obj, jlong handle) {
-	FT_HANDLE ftHandle = (FT_HANDLE)handle;
 	FT_STATUS ftStatus = 0;
-
-	ftStatus = FT_ClrRts(ftHandle);
+	ftStatus = FT_ClrRts((FT_HANDLE)handle);
 	if(ftStatus != FT_OK) {
 		throw_serialcom_exception(env, 2, ftStatus, NULL);
 		return -1;
@@ -1320,11 +1314,9 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
  * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_getModemStatus(JNIEnv *env, jobject obj, jlong handle) {
-	FT_HANDLE ftHandle = (FT_HANDLE)handle;
 	FT_STATUS ftStatus = 0;
 	DWORD status = 0;
-
-	ftStatus = FT_GetModemStatus(ftHandle, &status);
+	ftStatus = FT_GetModemStatus((FT_HANDLE)handle, &status);
 	if(ftStatus != FT_OK) {
 		throw_serialcom_exception(env, 2, ftStatus, NULL);
 		return -1;
@@ -1341,11 +1333,9 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
  * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_getQueueStatus(JNIEnv *env, jobject obj, jlong handle) {
-	FT_HANDLE ftHandle = (FT_HANDLE)handle;
 	FT_STATUS ftStatus = 0;
 	DWORD num_bytes_in_rx_buffer = 0;
-
-	ftStatus = FT_GetModemStatus(ftHandle, &num_bytes_in_rx_buffer);
+	ftStatus = FT_GetModemStatus((FT_HANDLE)handle, &num_bytes_in_rx_buffer);
 	if(ftStatus != FT_OK) {
 		throw_serialcom_exception(env, 2, ftStatus, NULL);
 		return -1;
@@ -1476,11 +1466,11 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
  * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_getDriverVersion(JNIEnv *env, jobject obj, jlong handle) {
-	FT_HANDLE ftHandle = (FT_HANDLE)handle;
+
 	FT_STATUS ftStatus = 0;
 	DWORD version = 0;
 
-	ftStatus = FT_GetDriverVersion(ftHandle, &version);
+	ftStatus = FT_GetDriverVersion((FT_HANDLE)handle, &version);
 	if(ftStatus != FT_OK) {
 		throw_serialcom_exception(env, 2, ftStatus, NULL);
 		return -1;
@@ -1517,11 +1507,11 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID
  * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_getComPortNumber(JNIEnv *env, jobject obj, jlong handle) {
-	FT_HANDLE ftHandle = (FT_HANDLE)handle;
+
 	FT_STATUS ftStatus = 0;
 	DWORD com_port_number = 0;
 
-	ftStatus = FT_GetComPortNumber(ftHandle, &com_port_number);
+	ftStatus = FT_GetComPortNumber((FT_HANDLE)handle, &com_port_number);
 	if(ftStatus != FT_OK) {
 		throw_serialcom_exception(env, 2, ftStatus, NULL);
 		return -1;
@@ -1542,7 +1532,7 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID
  * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jlongArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_getStatus(JNIEnv *env, jobject obj, jlong handle) {
-	FT_HANDLE ftHandle = (FT_HANDLE)handle;
+
 	FT_STATUS ftStatus = 0;
 	DWORD event = 0;
 	DWORD num_rx_bytes = 0;
@@ -1550,7 +1540,7 @@ JNIEXPORT jlongArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialCom
 	jlongArray current_status = NULL;
 	jlong status[3] = {0};
 
-	FT_GetStatus(ftHandle, &num_rx_bytes, &num_tx_bytes, &event);
+	FT_GetStatus((FT_HANDLE)handle, &num_rx_bytes, &num_tx_bytes, &event);
 	if(ftStatus != FT_OK) {
 		throw_serialcom_exception(env, 2, ftStatus, NULL);
 		return NULL;
@@ -1585,10 +1575,9 @@ JNIEXPORT jlongArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialCom
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_setChars(JNIEnv *env, jobject obj, jlong handle,
 		jchar eventChar, jchar eventEnable, jchar errorChar, jchar errorEnable) {
-	FT_HANDLE ftHandle = (FT_HANDLE)handle;
-	FT_STATUS ftStatus = 0;
 
-	ftStatus = FT_SetChars(ftHandle, eventChar, eventEnable, errorChar, errorEnable);
+	FT_STATUS ftStatus = 0;
+	ftStatus = FT_SetChars((FT_HANDLE)handle, eventChar, eventEnable, errorChar, errorEnable);
 	if(ftStatus != FT_OK) {
 		throw_serialcom_exception(env, 2, ftStatus, NULL);
 		return -1;
@@ -1605,9 +1594,8 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
  * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_setBreakOn(JNIEnv *env, jobject obj, jlong handle) {
-	FT_HANDLE ftHandle = (FT_HANDLE)handle;
 	FT_STATUS ftStatus = 0;
-	ftStatus = FT_SetBreakOn(ftHandle);
+	ftStatus = FT_SetBreakOn((FT_HANDLE)handle);
 	if(ftStatus != FT_OK) {
 		throw_serialcom_exception(env, 2, ftStatus, NULL);
 		return -1;
@@ -1624,9 +1612,8 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
  * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_setBreakOff(JNIEnv *env, jobject obj, jlong handle) {
-	FT_HANDLE ftHandle = (FT_HANDLE)handle;
 	FT_STATUS ftStatus = 0;
-	ftStatus = FT_SetBreakOff(ftHandle);
+	ftStatus = FT_SetBreakOff((FT_HANDLE)handle);
 	if(ftStatus != FT_OK) {
 		throw_serialcom_exception(env, 2, ftStatus, NULL);
 		return -1;
@@ -1673,9 +1660,8 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
  * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_resetDevice(JNIEnv *env, jobject obj, jlong handle) {
-	FT_HANDLE ftHandle = (FT_HANDLE)handle;
 	FT_STATUS ftStatus = 0;
-	ftStatus = FT_ResetDevice(ftHandle);
+	ftStatus = FT_ResetDevice((FT_HANDLE)handle);
 	if(ftStatus != FT_OK) {
 		throw_serialcom_exception(env, 2, ftStatus, NULL);
 		return -1;
@@ -1692,9 +1678,8 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
  * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_resetPort(JNIEnv *env, jobject obj, jlong handle) {
-	FT_HANDLE ftHandle = (FT_HANDLE)handle;
 	FT_STATUS ftStatus = 0;
-	ftStatus = FT_ResetPort(ftHandle);
+	ftStatus = FT_ResetPort((FT_HANDLE)handle);
 	if(ftStatus != FT_OK) {
 		throw_serialcom_exception(env, 2, ftStatus, NULL);
 		return -1;
@@ -1711,9 +1696,8 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
  * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_cyclePort(JNIEnv *env, jobject obj, jlong handle) {
-	FT_HANDLE ftHandle = (FT_HANDLE)handle;
 	FT_STATUS ftStatus = 0;
-	ftStatus = FT_CyclePort(ftHandle);
+	ftStatus = FT_CyclePort((FT_HANDLE)handle);
 	if(ftStatus != FT_OK) {
 		throw_serialcom_exception(env, 2, ftStatus, NULL);
 		return -1;
@@ -1766,9 +1750,8 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
  * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_setResetPipeRetryCount(JNIEnv *env, jobject obj, jlong handle, jint count) {
-	FT_HANDLE ftHandle = (FT_HANDLE)handle;
 	FT_STATUS ftStatus = 0;
-	ftStatus = FT_SetResetPipeRetryCount(ftHandle, (DWORD)count);
+	ftStatus = FT_SetResetPipeRetryCount((FT_HANDLE)handle, (DWORD)count);
 	if(ftStatus != FT_OK) {
 		throw_serialcom_exception(env, 2, ftStatus, NULL);
 		return -1;
@@ -1785,9 +1768,8 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
  * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_stopInTask(JNIEnv *env, jobject obj, jlong handle) {
-	FT_HANDLE ftHandle = (FT_HANDLE)handle;
 	FT_STATUS ftStatus = 0;
-	ftStatus = FT_StopInTask(ftHandle);
+	ftStatus = FT_StopInTask((FT_HANDLE)handle);
 	if(ftStatus != FT_OK) {
 		throw_serialcom_exception(env, 2, ftStatus, NULL);
 		return -1;
@@ -1804,9 +1786,8 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
  * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_restartInTask(JNIEnv *env, jobject obj, jlong handle) {
-	FT_HANDLE ftHandle = (FT_HANDLE)handle;
 	FT_STATUS ftStatus = 0;
-	ftStatus = FT_RestartInTask(ftHandle);
+	ftStatus = FT_RestartInTask((FT_HANDLE)handle);
 	if(ftStatus != FT_OK) {
 		throw_serialcom_exception(env, 2, ftStatus, NULL);
 		return -1;
@@ -1823,9 +1804,8 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
  * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_setDeadmanTimeout(JNIEnv *env, jobject obj, jlong handle, jint timeout) {
-	FT_HANDLE ftHandle = (FT_HANDLE)handle;
 	FT_STATUS ftStatus = 0;
-	ftStatus = FT_SetDeadmanTimeout(ftHandle, (DWORD)timeout);
+	ftStatus = FT_SetDeadmanTimeout((FT_HANDLE)handle, (DWORD)timeout);
 	if(ftStatus != FT_OK) {
 		throw_serialcom_exception(env, 2, ftStatus, NULL);
 		return -1;
@@ -2114,17 +2094,130 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
  * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
  * Method:    w32CreateFile
  * Signature: (Ljava/lang/String;Ljava/lang/String;JIIZ)J
+ *
+ * @return valid handle on success otherwise -1 if an error occurs.
+ * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_w32CreateFile
-  (JNIEnv *, jobject, jstring, jstring, jlong, jint, jint, jboolean);
+  (JNIEnv *env, jobject obj, jstring serialNum, jstring description, jlong location, jint dwAttrsAndFlags,
+		  jint dwAccess, jboolean overLapped) {
+
+	FT_HANDLE ftHandle = 0;
+	const char* serial = NULL;
+	const char* descr = NULL;
+	DWORD attr_and_flags = 0;
+	DWORD dw_create = 0;
+	DWORD dw_access = 0;
+
+	/* open by serial */
+	if((dwAttrsAndFlags & SCM_OPEN_BY_SERIAL_NUMBER) == SCM_OPEN_BY_SERIAL_NUMBER) {
+		serial = (*env)->GetStringUTFChars(env, serialNum, NULL);
+		if((serial == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+			throw_serialcom_exception(env, 3, 0, E_GETSTRUTFCHARSTR);
+			return -1;
+		}
+#if defined (__linux__) || defined (__APPLE__)
+		dw_create = 0;
+		dw_access = 0;
+		attr_and_flags = FT_OPEN_BY_SERIAL_NUMBER;
+#endif
+#if defined (_WIN32) && !defined(UNIX)
+		dw_create = OPEN_EXISTING;
+		if((dwAccess & SCM_GENERIC_READ) == SCM_GENERIC_READ) {
+			dw_access = dw_access | GENERIC_READ;
+		}
+		if((dwAccess & SCM_GENERIC_WRITE) == SCM_GENERIC_WRITE) {
+			dw_access = dw_access | GENERIC_WRITE;
+		}
+		if(overLapped == JNI_TRUE) {
+			attr_and_flags = FILE_ATTRIBUTE_NORMAL | FT_OPEN_BY_SERIAL_NUMBER | FILE_FLAG_OVERLAPPED;
+		}else {
+			attr_and_flags = FILE_ATTRIBUTE_NORMAL | FT_OPEN_BY_SERIAL_NUMBER;
+		}
+#endif
+		ftHandle = FT_W32_CreateFile(serial, dw_access, 0, 0, dw_create, attr_and_flags, 0);
+	}
+
+	/* open by description */
+	if((dwAttrsAndFlags & SCM_OPEN_BY_DESCRIPTION) == SCM_OPEN_BY_DESCRIPTION) {
+		descr = (*env)->GetStringUTFChars(env, description, NULL);
+		if((descr == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+			throw_serialcom_exception(env, 3, 0, E_GETSTRUTFCHARSTR);
+			return -1;
+		}
+#if defined (__linux__) || defined (__APPLE__)
+		dw_create = 0;
+		dw_access = 0;
+		attr_and_flags = FT_OPEN_BY_DESCRIPTION;
+#endif
+#if defined (_WIN32) && !defined(UNIX)
+		dw_create = OPEN_EXISTING;
+		if((dwAccess & SCM_GENERIC_READ) == SCM_GENERIC_READ) {
+			dw_access = dw_access | GENERIC_READ;
+		}
+		if((dwAccess & SCM_GENERIC_WRITE) == SCM_GENERIC_WRITE) {
+			dw_access = dw_access | GENERIC_WRITE;
+		}
+		if(overLapped == JNI_TRUE) {
+			attr_and_flags = FILE_ATTRIBUTE_NORMAL | FT_OPEN_BY_DESCRIPTION | FILE_FLAG_OVERLAPPED;
+		}else {
+			attr_and_flags = FILE_ATTRIBUTE_NORMAL | FT_OPEN_BY_DESCRIPTION;
+		}
+#endif
+		ftHandle = FT_W32_CreateFile(descr, dw_access, 0, 0, dw_create, attr_and_flags, 0);
+	}
+
+	/* open by location */
+	if((dwAttrsAndFlags & SCM_OPEN_BY_LOCATION) == SCM_OPEN_BY_LOCATION) {
+#if defined (__linux__) || defined (__APPLE__)
+		dw_create = 0;
+		dw_access = 0;
+		attr_and_flags = FT_OPEN_BY_LOCATION;
+#endif
+#if defined (_WIN32) && !defined(UNIX)
+		dw_create = OPEN_EXISTING;
+		if((dwAccess & SCM_GENERIC_READ) == SCM_GENERIC_READ) {
+			dw_access = dw_access | GENERIC_READ;
+		}
+		if((dwAccess & SCM_GENERIC_WRITE) == SCM_GENERIC_WRITE) {
+			dw_access = dw_access | GENERIC_WRITE;
+		}
+		if(overLapped == JNI_TRUE) {
+			attr_and_flags = FILE_ATTRIBUTE_NORMAL | FT_OPEN_BY_LOCATION | FILE_FLAG_OVERLAPPED;
+		}else {
+			attr_and_flags = FILE_ATTRIBUTE_NORMAL | FT_OPEN_BY_LOCATION;
+		}
+#endif
+		ftHandle = FT_W32_CreateFile((PVOID)location, dw_access, 0, 0, dw_create, attr_and_flags, 0);
+	}
+
+	/* 0xFFFFFFFFF is INVALID_HANDLE_VALUE, type cast is done to handle compiler warning. */
+	if(ftHandle == (FT_HANDLE)0xFFFFFFFFF) {
+		throw_serialcom_exception(env, 3, 0, E_INVALIDHANDLE);
+		return -1;
+	}
+
+	return (jlong)ftHandle;
+}
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
  * Method:    w32CloseHandle
  * Signature: (J)I
+ *
+ * @return 0 on success otherwise -1 if error occurs.
+ * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_w32CloseHandle
-  (JNIEnv *, jobject, jlong);
+  (JNIEnv *env, jobject obj, jlong handle) {
+	FT_STATUS ftStatus = 0;
+	ftStatus = FT_Close((FT_HANDLE) handle);
+	if(ftStatus != FT_OK) {
+		throw_serialcom_exception(env, 2, ftStatus, NULL);
+		return -1;
+	}
+	return 0;
+}
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
@@ -2132,7 +2225,9 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
  * Signature: (J[BI)I
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_w32ReadFile
-  (JNIEnv *, jobject, jlong, jbyteArray, jint);
+  (JNIEnv *env, jobject obj, jlong handle, jbyteArray buffer, jint numOfBytesToRead) {
+
+}
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
@@ -2140,7 +2235,9 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
  * Signature: (J[BI)I
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_w32WriteFile
-  (JNIEnv *, jobject, jlong, jbyteArray, jint);
+  (JNIEnv *, jobject, jlong, jbyteArray, jint) {
+
+}
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
@@ -2148,100 +2245,456 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
  * Signature: (JZ)I
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_w32GetOverlappedResult
-  (JNIEnv *, jobject, jlong, jboolean);
+  (JNIEnv *, jobject, jlong, jboolean) {
+
+}
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
  * Method:    w32EscapeCommFunction
  * Signature: (JS)I
+ *
+ * @return 0 on success otherwise -1 if an error occurs.
+ * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_w32EscapeCommFunction
-  (JNIEnv *, jobject, jlong, jshort);
+  (JNIEnv *env, jobject obj, jlong handle, jshort function) {
+
+	BOOL ret;
+	DWORD func = 0;
+	if((function & SCM_SETRTS) == SCM_SETRTS) {
+		func = SETRTS;
+	}
+
+	ret = FT_W32_EscapeCommFunction((FT_HANDLE)handle, func);
+	if(ret == 0) {
+		throw_serialcom_exception(env, 3, 0, E_SETRTS);
+		return -1;
+	}
+	return 0;
+}
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
  * Method:    w32GetCommModemStatus
  * Signature: (J)I
+ *
+ * @return bit mask of constants MS_CTS_ON, MS_DSR_ON, MS_RING_ON and MS_RLSD_ON otherwise -1 if an error occurs.
+ * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_w32GetCommModemStatus
-  (JNIEnv *, jobject, jlong);
+  (JNIEnv *env, jobject obj, jlong handle) {
+
+	int stat = 0;
+	DWORD status = 0;
+	BOOL ret = 0;
+	ret = FT_W32_GetCommModemStatus((FT_HANDLE)handle, &status);
+	if(ret == 0) {
+		throw_serialcom_exception(env, 3, 0, E_GETMODEMSTATUS);
+		return -1;
+	}
+
+	/* set all the bits corresponding to lines status */
+	if((status & MS_CTS_ON) == MS_CTS_ON) {
+		stat = stat | SCM_MS_CTS_ON;
+	}
+	if((status & MS_DSR_ON) == MS_DSR_ON) {
+		stat = stat | SCM_MS_DSR_ON;
+	}
+	if((status & MS_RING_ON) == MS_RING_ON) {
+		stat = stat | SCM_MS_RING_ON;
+	}
+	if((status & MS_RLSD_ON) == MS_RLSD_ON) {
+		stat = stat | SCM_MS_RLSD_ON;
+	}
+	return stat;
+}
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
  * Method:    w32SetupComm
  * Signature: (JII)I
+ *
+ * @return 0 on success otherwise -1 if an error occurs.
+ * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_w32SetupComm
-  (JNIEnv *, jobject, jlong, jint, jint);
+  (JNIEnv *env, jobject obj, jlong handle, jint readBufSize, jint writeBufSize) {
+	BOOL ret = 0;
+	ret = FT_W32_SetupComm((FT_HANDLE)handle, (DWORD)readBufSize, (DWORD)writeBufSize);
+	if(ret == 0) {
+		throw_serialcom_exception(env, 3, 0, E_SETUPCOMM);
+		return -1;
+	}
+	return 0;
+}
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
  * Method:    w32SetCommState
- * Signature: (J[Ljava/lang/String;)I
+ * Signature: (J[I)I
+ *
+ * @return 0 on success otherwise -1 if an error occurs.
+ * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_w32SetCommState
-  (JNIEnv *, jobject, jlong, jobjectArray);
+  (JNIEnv *env, jobject obj, jlong handle, jintArray dcbValues) {
+
+	BOOL ret = 0;
+	FTDCB dcb;
+	jint* dcbval = NULL;
+
+	/* The JVM may return pointer to original buffer or pointer to its copy depending upon
+	 * whether underlying garbage collector supports pinning or not. */
+	dcbval = (*env)->GetIntArrayElements(env, dcbValues, JNI_FALSE);
+	if((dcbval == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+		throw_serialcom_exception(env, 3, 0, E_GETINTARRELEMTSTR);
+		return -1;
+	}
+
+	dcb.DCBlength = sizeof(dcb);
+	dcb.BaudRate = (DWORD)dcbval[1];
+	dcb.fBinary = (DWORD)dcbval[2];
+	dcb.fParity = (DWORD)dcbval[3];
+	dcb.fOutxCtsFlow = (DWORD)dcbval[4];
+	dcb.fOutxDsrFlow = (DWORD)dcbval[5];
+	dcb.fDtrControl = (DWORD)dcbval[6];
+	dcb.fDsrSensitivity = (DWORD)dcbval[7];
+	dcb.fTXContinueOnXoff = (DWORD)dcbval[8];
+	dcb.fOutX = (DWORD)dcbval[9];
+	dcb.fInX = (DWORD)dcbval[10];
+	dcb.fErrorChar = (DWORD)dcbval[11];
+	dcb.fNull = (DWORD)dcbval[12];
+	dcb.fRtsControl = (DWORD)dcbval[13];
+	dcb.fAbortOnError = (DWORD)dcbval[14];
+	dcb.fDummy2 = 0;
+	dcb.wReserved = 0;
+	dcb.XonLim = (WORD)dcbval[17];
+	dcb.XoffLim = (WORD)dcbval[18];
+	dcb.ByteSize = (WORD)dcbval[19];
+	dcb.Parity = (WORD)dcbval[20];
+	dcb.StopBits = (WORD)dcbval[21];
+	dcb.XonChar = (CHAR)dcbval[22];
+	dcb.XoffChar = (CHAR)dcbval[23];
+	dcb.ErrorChar = (CHAR)dcbval[24];
+	dcb.EofChar = (CHAR)dcbval[25];
+	dcb.EvtChar = (CHAR)dcbval[26];
+	dcb.wReserved1 = 0;
+
+	ret = FT_W32_SetCommState((FT_HANDLE)handle, &dcb);
+	if(ret == 0) {
+		throw_serialcom_exception(env, 3, 0, E_SETUPCOMMSTATE);
+		return -1;
+	}
+	return 0;
+}
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
  * Method:    w32GetCommState
- * Signature: (J)[Ljava/lang/String;
+ * Signature: (J)[I
+ *
+ * @return array of integers containing DCB values on success otherwise NULL if an error occurs.
+ * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
-JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_w32GetCommState
-  (JNIEnv *, jobject, jlong);
+JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_w32GetCommState
+  (JNIEnv *env, jobject obj, jlong handle) {
+
+	BOOL ret = 0;
+	FTDCB dcb;
+	jint values[28];
+
+	jintArray dcbvalues = (*env)->NewIntArray(env, 28);
+	if((dcbvalues == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+		throw_serialcom_exception(env, 3, 0, E_NEWINTARRAYSTR);
+		return NULL;
+	}
+
+	ret = FT_W32_GetCommState((FT_HANDLE)handle, &dcb);
+	if(ret == 0) {
+		throw_serialcom_exception(env, 3, 0, E_GETUPCOMMSTATE);
+		return NULL;
+	}
+
+	values[0]  = (jint) dcb.DCBlength;
+	values[1]  = (jint) dcb.BaudRate;
+	values[2]  = (jint) dcb.fBinary;
+	values[3]  = (jint) dcb.fParity;
+	values[4]  = (jint) dcb.fOutxCtsFlow;
+	values[5]  = (jint) dcb.fOutxDsrFlow;
+	values[6]  = (jint) dcb.fDtrControl;
+	values[7]  = (jint) dcb.fDsrSensitivity;
+	values[8]  = (jint) dcb.fTXContinueOnXoff;
+	values[9]  = (jint) dcb.fOutX;
+	values[10] = (jint) dcb.fInX;
+	values[11] = (jint) dcb.fErrorChar;
+	values[12] = (jint) dcb.fNull;
+	values[13] = (jint) dcb.fRtsControl;
+	values[14] = (jint) dcb.fAbortOnError;
+	values[15] = (jint) dcb.fDummy2;
+	values[16] = (jint) dcb.wReserved;
+	values[17] = (jint) dcb.XonLim;
+	values[18] = (jint) dcb.XoffLim;
+	values[19] = (jint) dcb.ByteSize;
+	values[20] = (jint) dcb.Parity;
+	values[21] = (jint) dcb.StopBits;
+	values[22] = (jint) dcb.XonChar;
+	values[23] = (jint) dcb.XoffChar;
+	values[24] = (jint) dcb.ErrorChar;
+	values[25] = (jint) dcb.EofChar;
+	values[26] = (jint) dcb.EvtChar;
+	values[27] = (jint) dcb.wReserved1;
+
+	(*env)->SetIntArrayRegion(env, dcbvalues, 0, 28, values);
+	if((*env)->ExceptionOccurred(env) != NULL) {
+		throw_serialcom_exception(env, 3, 0, E_SETINTARRREGIONSTR);
+		return NULL;
+	}
+	return dcbvalues;
+}
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
  * Method:    w32SetCommTimeouts
  * Signature: (JIIIII)I
+ *
+ * @return 0 on success otherwise -1 if an error occurs.
+ * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_w32SetCommTimeouts
-  (JNIEnv *, jobject, jlong, jint, jint, jint, jint, jint);
+  (JNIEnv *env, jobject obj, jlong handle, jint readIntervalTimeout, jint readTotalTimeoutMultiplier,
+		  jint readTotalTimeoutConstant, jint writeTotalTimeoutMultiplier, jint writeTotalTimeoutConstant) {
+
+	FTTIMEOUTS ftTS;
+	BOOL ret = 0;
+
+	ftTS.ReadIntervalTimeout = (DWORD)readIntervalTimeout;
+	ftTS.ReadTotalTimeoutMultiplier = (DWORD)readTotalTimeoutMultiplier;
+	ftTS.ReadTotalTimeoutConstant = (DWORD)readTotalTimeoutConstant;
+	ftTS.WriteTotalTimeoutMultiplier = (DWORD)writeTotalTimeoutMultiplier;
+	ftTS.WriteTotalTimeoutConstant = (DWORD)writeTotalTimeoutConstant;
+
+	ret = FT_W32_SetCommTimeouts((FT_HANDLE)handle, &ftTS);
+	if(ret == 0) {
+		throw_serialcom_exception(env, 3, 0, E_SETCOMMTIMEOUTS);
+		return -1;
+	}
+	return 0;
+}
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
  * Method:    w32GetCommTimeouts
  * Signature: (J)[I
+ *
+ * @return array of integers containing timeout values on success otherwise NULL if an error occurs.
+ * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_w32GetCommTimeouts
-  (JNIEnv *, jobject, jlong);
+  (JNIEnv *env, jobject obj, jlong handle) {
+
+	FTTIMEOUTS ftTS;
+	BOOL ret = 0;
+	jint values[28];
+
+	jintArray timeout_values = (*env)->NewIntArray(env, 5);
+	if((timeout_values == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+		throw_serialcom_exception(env, 3, 0, E_NEWINTARRAYSTR);
+		return NULL;
+	}
+
+	ret = FT_W32_GetCommTimeouts((FT_HANDLE)handle, &ftTS);
+	if(ret == 0) {
+		throw_serialcom_exception(env, 3, 0, E_GETCOMMTIMEOUTS);
+		return NULL;
+	}
+
+	values[0]  = (jint) ftTS.ReadIntervalTimeout;
+	values[1]  = (jint) ftTS.ReadTotalTimeoutMultiplier;
+	values[2]  = (jint) ftTS.ReadTotalTimeoutConstant;
+	values[3]  = (jint) ftTS.WriteTotalTimeoutMultiplier;
+	values[4]  = (jint) ftTS.WriteTotalTimeoutConstant;
+
+	(*env)->SetIntArrayRegion(env, timeout_values, 0, 5, values);
+	if((*env)->ExceptionOccurred(env) != NULL) {
+		throw_serialcom_exception(env, 3, 0, E_SETINTARRREGIONSTR);
+		return NULL;
+	}
+	return timeout_values;
+}
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
  * Method:    w32SetCommBreak
  * Signature: (J)I
+ *
+ * @return 0 on success otherwise -1 if an error occurs.
+ * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_w32SetCommBreak
-  (JNIEnv *, jobject, jlong);
+  (JNIEnv *env, jobject obj, jlong handle) {
+
+	BOOL ret = 0;
+	ret = FT_W32_SetCommBreak((FT_HANDLE)handle);
+	if(ret == 0) {
+		throw_serialcom_exception(env, 3, 0, E_SETCOMMBREAK);
+		return -1;
+	}
+	return 0;
+}
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
  * Method:    w32ClearCommBreak
  * Signature: (J)I
+ *
+ * @return 0 on success otherwise -1 if an error occurs.
+ * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_w32ClearCommBreak
-  (JNIEnv *, jobject, jlong);
+  (JNIEnv *env, jobject obj, jlong handle) {
+
+	BOOL ret = 0;
+	ret = FT_W32_ClearCommBreak((FT_HANDLE)handle);
+	if(ret == 0) {
+		throw_serialcom_exception(env, 3, 0, E_CLEARCOMMBREAK);
+		return -1;
+	}
+	return 0;
+}
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
  * Method:    w32SetCommMask
  * Signature: (JI)I
+ *
+ * @return 0 on success otherwise -1 if an error occurs.
+ * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_w32SetCommMask
-  (JNIEnv *, jobject, jlong, jint);
+  (JNIEnv *env, jobject obj, jlong handle, jint mask) {
+
+	BOOL ret = 0;
+	DWORD dwmask = 0;
+
+	if((mask & SCM_EV_RXCHAR) == SCM_EV_RXCHAR) {
+		dwmask = dwmask | EV_RXCHAR;
+	}
+	if((mask & SCM_EV_RXFLAG) == SCM_EV_RXFLAG) {
+		dwmask = dwmask | EV_RXFLAG;
+	}
+	if((mask & SCM_EV_TXEMPTY) == SCM_EV_TXEMPTY) {
+		dwmask = dwmask | EV_TXEMPTY;
+	}
+	if((mask & SCM_EV_CTS) == SCM_EV_CTS) {
+		dwmask = dwmask | EV_CTS;
+	}
+	if((mask & SCM_EV_DSR) == SCM_EV_DSR) {
+		dwmask = dwmask | EV_DSR;
+	}
+	if((mask & SCM_EV_RLSD) == SCM_EV_RLSD) {
+		dwmask = dwmask | EV_RLSD;
+	}
+	if((mask & SCM_EV_BREAK) == SCM_EV_BREAK) {
+		dwmask = dwmask | EV_BREAK;
+	}
+	if((mask & SCM_EV_ERR) == SCM_EV_ERR) {
+		dwmask = dwmask | EV_ERR;
+	}
+	if((mask & SCM_EV_RING) == SCM_EV_RING) {
+		dwmask = dwmask | EV_RING;
+	}
+	if((mask & SCM_EV_PERR) == SCM_EV_PERR) {
+		dwmask = dwmask | EV_PERR;
+	}
+	if((mask & SCM_EV_RX80FULL) == SCM_EV_RX80FULL) {
+		dwmask = dwmask | EV_RX80FULL;
+	}
+	if((mask & SCM_EV_EVENT1) == SCM_EV_EVENT1) {
+		dwmask = dwmask | EV_EVENT1;
+	}
+	if((mask &SCM_EV_EVENT2) == SCM_EV_EVENT2) {
+		dwmask = dwmask | EV_EVENT2;
+	}
+
+	ret = FT_W32_SetCommMask((FT_HANDLE)handle, dwmask);
+	if(ret == 0) {
+		throw_serialcom_exception(env, 3, 0, E_SETCOMMMASK);
+		return -1;
+	}
+	return 0;
+}
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
  * Method:    w32GetCommMask
  * Signature: (J)I
+ *
+ * @return bit mask of active event monitored on success otherwise -1 if an error occurs.
+ * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_w32GetCommMask
-  (JNIEnv *, jobject, jlong);
+  (JNIEnv *env, jobject obj, jlong handle) {
+
+	BOOL ret = 0;
+	DWORD mask = 0;
+	jint dwmask = 0;
+	ret = FT_W32_GetCommMask((FT_HANDLE)handle, &mask);
+	if(ret == 0) {
+		throw_serialcom_exception(env, 3, 0, E_GETCOMMMASK);
+		return -1;
+	}
+
+	if((mask & EV_RXCHAR) == EV_RXCHAR) {
+		dwmask = dwmask | SCM_EV_RXCHAR;
+	}
+	if((mask & EV_RXFLAG) == EV_RXFLAG) {
+		dwmask = dwmask | SCM_EV_RXFLAG;
+	}
+	if((mask & EV_TXEMPTY) == EV_TXEMPTY) {
+		dwmask = dwmask | SCM_EV_TXEMPTY;
+	}
+	if((mask & EV_CTS) == EV_CTS) {
+		dwmask = dwmask | SCM_EV_CTS;
+	}
+	if((mask & EV_DSR) == EV_DSR) {
+		dwmask = dwmask | SCM_EV_DSR;
+	}
+	if((mask & EV_RLSD) == EV_RLSD) {
+		dwmask = dwmask | SCM_EV_RLSD;
+	}
+	if((mask & EV_BREAK) == EV_BREAK) {
+		dwmask = dwmask | SCM_EV_BREAK;
+	}
+	if((mask & EV_ERR) == EV_ERR) {
+		dwmask = dwmask | SCM_EV_ERR;
+	}
+	if((mask & EV_RING) == EV_RING) {
+		dwmask = dwmask | SCM_EV_RING;
+	}
+	if((mask & EV_PERR) == EV_PERR) {
+		dwmask = dwmask | SCM_EV_PERR;
+	}
+	if((mask & EV_RX80FULL) == EV_RX80FULL) {
+		dwmask = dwmask | SCM_EV_RX80FULL;
+	}
+	if((mask & EV_EVENT1) == EV_EVENT1) {
+		dwmask = dwmask | SCM_EV_EVENT1;
+	}
+	if((mask &EV_EVENT2) == EV_EVENT2) {
+		dwmask = dwmask | SCM_EV_EVENT2;
+	}
+
+	return dwmask;
+}
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
  * Method:    w32WaitCommEvent
  * Signature: (JI)I
+ *
+ * @return 0 on success otherwise -1 if an error occurs.
+ * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_w32WaitCommEvent
   (JNIEnv *, jobject, jlong, jint);
@@ -2250,24 +2703,169 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
  * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
  * Method:    w32PurgeComm
  * Signature: (JI)I
+ *
+ * @return 0 on success otherwise -1 if an error occurs.
+ * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_w32PurgeComm
-  (JNIEnv *, jobject, jlong, jint);
+  (JNIEnv *env, jobject obj, jlong handle, jint flag) {
+	BOOL ret = 0;
+	DWORD dwflag = 0;
+
+	if((flag & SCM_PURGE_TXABORT) == SCM_PURGE_TXABORT) {
+		dwflag = dwflag | PURGE_TXABORT;
+	}
+	if((flag & SCM_PURGE_RXABORT) == SCM_PURGE_RXABORT) {
+		dwflag = dwflag | PURGE_RXABORT;
+	}
+	if((flag & SCM_PURGE_TXCLEAR) == SCM_PURGE_TXCLEAR) {
+		dwflag = dwflag | PURGE_TXCLEAR;
+	}
+	if((flag & SCM_PURGE_RXCLEAR) == SCM_PURGE_RXCLEAR) {
+		dwflag = dwflag | PURGE_RXCLEAR;
+	}
+
+	ret = FT_W32_PurgeComm((FT_HANDLE)handle, dwflag);
+	if(ret == 0) {
+		throw_serialcom_exception(env, 3, 0, E_PURGECOMM);
+		return -1;
+	}
+
+	return 0;
+}
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
  * Method:    w32GetLastError
  * Signature: (J)Ljava/lang/String;
+ *
+ * @return error string for linux/mac, error number converted to string for windows on success
+ *         otherwise NULL if an error occurs.
+ * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_w32GetLastError
-  (JNIEnv *, jobject, jlong);
+  (JNIEnv *env, jobject obj, jlong handle) {
+
+	DWORD error_number = 0;
+	jstring error_string = NULL;
+#if defined (_WIN32) && !defined(UNIX)
+	char buffer[64];
+#endif
+
+	error_number = FT_W32_GetLastError((FT_HANDLE)handle);
+	if(error_number == 0) {
+		throw_serialcom_exception(env, 3, 0, E_GETLASTERROR);
+		return NULL;
+	}
+
+#if defined (_WIN32) && !defined(UNIX)
+	memset(buffer, '\0', sizeof(buffer));
+	snprintf(buffer, 64, "%u", error_number);
+	error_string = (*env)->NewStringUTF(env, buffer);
+	if((error_string == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+		throw_serialcom_exception(env, 3, 0, E_NEWSTRUTFSTR);
+		return NULL;
+	}
+#endif
+
+	/* In Linux and Mac OS X, this function returns a DWORD that directly maps to the FT Errors
+	 * (for example the FT_INVALID_HANDLE error number). */
+#if defined (__linux__) || defined (__APPLE__)
+	switch (error_number) {
+		case FT_INVALID_HANDLE: error_string = (*env)->NewStringUTF(env, "FT_INVALID_HANDLE");
+			break;
+		case FT_DEVICE_NOT_FOUND: error_string = (*env)->NewStringUTF(env, "FT_DEVICE_NOT_FOUND");
+			break;
+		case FT_DEVICE_NOT_OPENED: error_string = (*env)->NewStringUTF(env, "FT_DEVICE_NOT_OPENED");
+			break;
+		case FT_IO_ERROR: error_string = (*env)->NewStringUTF(env, "FT_IO_ERROR");
+			break;
+		case FT_INSUFFICIENT_RESOURCES: error_string = (*env)->NewStringUTF(env, "FT_INSUFFICIENT_RESOURCES");
+			break;
+		case FT_INVALID_PARAMETER: error_string = (*env)->NewStringUTF(env, "FT_INVALID_PARAMETER");
+			break;
+		case FT_INVALID_BAUD_RATE: error_string = (*env)->NewStringUTF(env, "FT_INVALID_BAUD_RATE");
+			break;
+		case FT_DEVICE_NOT_OPENED_FOR_ERASE: error_string = (*env)->NewStringUTF(env, "FT_DEVICE_NOT_OPENED_FOR_ERASE");
+			break;
+		case FT_DEVICE_NOT_OPENED_FOR_WRITE: error_string = (*env)->NewStringUTF(env, "FT_DEVICE_NOT_OPENED_FOR_WRITE");
+			break;
+		case FT_FAILED_TO_WRITE_DEVICE: error_string = (*env)->NewStringUTF(env, "FT_FAILED_TO_WRITE_DEVICE");
+			break;
+		case FT_EEPROM_READ_FAILED: error_string = (*env)->NewStringUTF(env, "FT_EEPROM_READ_FAILED");
+			break;
+		case FT_EEPROM_WRITE_FAILED: error_string = (*env)->NewStringUTF(env, "FT_EEPROM_WRITE_FAILED");
+			break;
+		case FT_EEPROM_ERASE_FAILED: error_string = (*env)->NewStringUTF(env, "FT_EEPROM_ERASE_FAILED");
+			break;
+		case FT_EEPROM_NOT_PRESENT: error_string = (*env)->NewStringUTF(env, "FT_EEPROM_NOT_PRESENT");
+			break;
+		case FT_EEPROM_NOT_PROGRAMMED: error_string = (*env)->NewStringUTF(env, "FT_EEPROM_NOT_PROGRAMMED");
+			break;
+		case FT_INVALID_ARGS: error_string = (*env)->NewStringUTF(env, "FT_INVALID_ARGS");
+			break;
+		case FT_NOT_SUPPORTED: error_string = (*env)->NewStringUTF(env, "FT_NOT_SUPPORTED");
+			break;
+		case FT_OTHER_ERROR: error_string = (*env)->NewStringUTF(env, "FT_OTHER_ERROR");
+			break;
+		case FT_DEVICE_LIST_NOT_READY: error_string = (*env)->NewStringUTF(env, "FT_DEVICE_LIST_NOT_READY");
+			break;
+		default : error_string = (*env)->NewStringUTF(env, "Unknown error occurred !");
+	}
+
+	if((error_string == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+		throw_serialcom_exception(env, 3, 0, E_NEWSTRUTFSTR);
+		return NULL;
+	}
+#endif
+
+	return error_string;
+}
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
  * Method:    w32ClearCommError
- * Signature: (J)[Ljava/lang/String;
+ * Signature: (J)[I
+ *
+ * @return array of integers containing values on success otherwise -1 if an error occurs.
+ * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
-JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_w32ClearCommError
-  (JNIEnv *, jobject, jlong);
+JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_w32ClearCommError
+  (JNIEnv *env, jobject obj, jlong handle) {
 
-#endif
+	BOOL ret = 0;
+	FTCOMSTAT comstat;
+	DWORD errors;
+	jintArray info = NULL;
+	jint values[11];
+
+	ret = FT_W32_ClearCommError((FT_HANDLE)handle, &comstat, &errors);
+	if(ret == 0) {
+		throw_serialcom_exception(env, 3, 0, E_CLEARCOMMERROR);
+		return NULL;
+	}
+
+	info = (*env)->NewIntArray(env, 11);
+	if((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+		throw_serialcom_exception(env, 3, 0, E_NEWINTARRAYSTR);
+		return NULL;
+	}
+	values[0]  = (jint) errors;
+	values[1]  = (jint) comstat.fCtsHold;
+	values[2]  = (jint) comstat.fDsrHold;
+	values[3]  = (jint) comstat.fRlsdHold;
+	values[4]  = (jint) comstat.fXoffHold;
+	values[5]  = (jint) comstat.fXoffSent;
+	values[6]  = (jint) comstat.fEof;
+	values[7]  = (jint) comstat.fTxim;
+	values[8]  = (jint) comstat.fReserved;
+	values[9]  = (jint) comstat.cbInQue;
+	values[10] = (jint) comstat.cbOutQue;
+
+	(*env)->SetIntArrayRegion(env, info, 0, 11, values);
+	if((*env)->ExceptionOccurred(env) != NULL) {
+		throw_serialcom_exception(env, 3, 0, E_SETINTARRREGIONSTR);
+		return NULL;
+	}
+	return info;
+}

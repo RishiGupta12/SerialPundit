@@ -538,17 +538,17 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
  * Method:    w32SetCommState
- * Signature: (J[Ljava/lang/String;)I
+ * Signature: (J[I)I
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_w32SetCommState
-  (JNIEnv *, jobject, jlong, jobjectArray);
+  (JNIEnv *, jobject, jlong, jintArray);
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
  * Method:    w32GetCommState
- * Signature: (J)[Ljava/lang/String;
+ * Signature: (J)[I
  */
-JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_w32GetCommState
+JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_w32GetCommState
   (JNIEnv *, jobject, jlong);
 
 /*
@@ -626,9 +626,9 @@ JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTD
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
  * Method:    w32ClearCommError
- * Signature: (J)[Ljava/lang/String;
+ * Signature: (J)[I
  */
-JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_w32ClearCommError
+JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_w32ClearCommError
   (JNIEnv *, jobject, jlong);
 
 #ifdef __cplusplus
