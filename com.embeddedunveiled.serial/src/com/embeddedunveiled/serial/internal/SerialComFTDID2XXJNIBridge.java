@@ -156,7 +156,7 @@ public final class SerialComFTDID2XXJNIBridge {
 		return true;
 	}
 
-	// D2XX Classic Functions
+	/* D2XX Classic Functions */
 	public native int setVidPid(int vid, int pid);
 	public native int[] getVidPid();
 	public native int createDeviceInfoList();
@@ -200,15 +200,16 @@ public final class SerialComFTDID2XXJNIBridge {
 	public native int restartInTask(long handle);
 	public native int setDeadmanTimeout(long handle, int count);
 
-	// EEPROM Programming Interface Functions
+	/* EEPROM Programming Interface Functions */
 	public native int readEE(long handle, int offset);
 	public native int writeEE(long handle, int offset, int valueToWrite);
 	public native int eraseEE(long handle);
-	public native int[] eeRead(long handle, int version, byte[] manufacturer, byte[] manufacturerID, 
-			byte[] description, byte[] serialNumber);
-	public native int eeProgram(long handle, int version, String manufacturer, String manufacturerID, 
+	public native int[] eeRead(long handle, int version, char[] manufacturer, char[] manufacturerID, 
+			char[] description, char[] serialNumber);
+	// eeReadEx also calls eeRead()
+	public native int eeProgram(long handle, String manufacturer, String manufacturerID, 
 			String description, String serialNumber, int[] values);
-	public native int eeProgramEx(long handle, int version, String manufacturer, String manufacturerID, 
+	public native int eeProgramEx(long handle, String manufacturer, String manufacturerID, 
 			String description, String serialNumber, int[] values);
 	public native int eeUAsize(long handle);
 	public native int eeUAread(long handle, byte[] buffer, int length);
@@ -219,14 +220,14 @@ public final class SerialComFTDID2XXJNIBridge {
 			String manufacturer, String manufacturerID, String description,
 			String serialNumber);
 
-	// Extended API Functions
+	/* Extended API Functions */
 	public native int setLatencyTimer(long handle, int value);
 	public native int getLatencyTimer(long handle);
 	public native int setBitMode(long handle, int mask, int mode);
 	public native int getBitMode(long handle);
 	public native int setUSBParameters(long handle, int inTransferSize, int outTransferSize);
 
-	// FT-Win32 API Functions
+	/* FT-Win32 API Functions */
 	public native long w32CreateFile(String serialNum, String description,
 			long location, int dwAttrsAndFlags, int dwAccess, boolean overLapped);
 	public native int w32CloseHandle(long handle);

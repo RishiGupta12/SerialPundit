@@ -23,7 +23,20 @@
 #include "WinTypes.h"    /* FTDI D2XX header file from vendor   */
 #include "ftd2xx.h"      /* FTDI D2XX header file from vendor   */
 
-/* these values must match their values in java layer */
+/* these constants (SCM_) values must match their values in java layer */
+
+#define SCM_DEVICE_UNKNOWN  0X01
+#define SCM_DEVICE_AM       0x02
+#define SCM_DEVICE_BM       0x03
+#define SCM_DEVICE_100AX    0X04
+#define SCM_DEVICE_232B     0X05
+#define SCM_DEVICE_232R     0X06
+#define SCM_DEVICE_232H     0X07
+#define SCM_DEVICE_2232C    0X08
+#define SCM_DEVICE_2232H    0X09
+#define SCM_DEVICE_4232H    0X10
+#define SCM_DEVICE_X_SERIES 0X11
+
 #define SCM_OPEN_BY_SERIAL_NUMBER 0x08
 #define SCM_OPEN_BY_DESCRIPTION   0x10
 #define SCM_OPEN_BY_LOCATION      0x20
@@ -87,9 +100,10 @@
 #define E_NEWINTARRAYSTR "JNI call NewIntArray failed !"
 #define E_NEWLONGARRAYSTR "JNI call NewLongArray failed !"
 #define E_SETOBJECTARRAYSTR "JNI call SetObjectArrayElement failed. Either index violation or wrong class used !"
-#define E_SETBYTEARRREGIONSTR "JNI call SetByteArrayRegion failed !"
+#define E_SETBYTEARRREGIONSTR "JNI call SetByteArrayRegion failed. Probably index out of bound !"
 #define E_SETINTARRREGIONSTR "JNI call SetIntArrayRegion failed. Probably index out of bound !"
-#define E_SETLONGARRREGIONSTR "JNI call SetLongArrayRegion failed !"
+#define E_SETLONGARRREGIONSTR "JNI call SetLongArrayRegion failed. Probably index out of bound !"
+#define E_SETCHARARRREGIONSTR "JNI call SetCharArrayRegion failed. Probably index out of bound !"
 #define E_NEWSTRUTFSTR "JNI call NewStringUTF failed !"
 #define E_GETSTRUTFCHARSTR "JNI call GetStringUTFChars failed !"
 #define E_GETBYTEARRELEMTSTR "JNI call GetByteArrayElements failed !"

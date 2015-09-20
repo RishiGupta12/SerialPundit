@@ -24,10 +24,6 @@ package com.embeddedunveiled.serial.vendor;
  */
 public final class FTprogramData {
 
-	// The order in which variables are declared in this class must match with declaration order
-	// in header file starting from variable MaxPower. This is needed because the array returned
-	// from java layer will be in that order.
-
 	private int[] info;
 	private String manufacturer;
 	private String manufacturerID;
@@ -42,12 +38,58 @@ public final class FTprogramData {
 	 * @param description description of this device.
 	 * @param serialNumber serial number of this device.
 	 */
-	public FTprogramData(int[] info, byte[] manufacturer, byte[] manufacturerID, byte[] description, byte[] serialNumber) {
+	public FTprogramData(int[] info, char[] manufacturer, char[] manufacturerID, char[] description, 
+			char[] serialNumber) {
 		this.info = info;
 		this.manufacturer = new String(manufacturer);
 		this.manufacturerID = new String(manufacturerID);
 		this.description = new String(description);
 		this.serialNumber = new String(serialNumber);
+	}
+
+	/** 
+	 * <p>Gives the value of Signature1.</p>
+	 * 
+	 * @return integer value of Signature1.
+	 */
+	public int getSignature1() {
+		return info[0];
+	}
+
+	/** 
+	 * <p>Gives the value of Signature1.</p>
+	 * 
+	 * @return integer value of Signature1.
+	 */
+	public int getSignature2() {
+		return info[1];
+	}
+
+	/** 
+	 * <p>Gives the value of Signature1.</p>
+	 * 
+	 * @return FT_PROGRAM_DATA version.
+	 */
+	public int getVersion() {
+		return info[2];
+	}
+
+	/** 
+	 * <p>Gives the value of Vendor Id for this device.</p>
+	 * 
+	 * @return USB VendorId for this device.
+	 */
+	public int getVendorId() {
+		return info[3];
+	}
+
+	/** 
+	 * <p>Gives the value of Product Id for this device.</p>
+	 * 
+	 * @return USB ProductId for this device.
+	 */
+	public int getProductId() {
+		return info[4];
 	}
 
 	/** 
@@ -92,7 +134,7 @@ public final class FTprogramData {
 	 * @return maximum power value required for this FT device.
 	 */
 	public int getMaxPower() {
-		return info[0];
+		return info[9];
 	}
 
 	/** 
@@ -101,7 +143,7 @@ public final class FTprogramData {
 	 * @return 0 if disabled or 1 if enabled.
 	 */
 	public int getPnP() {
-		return info[1];
+		return info[10];
 	}
 
 	/** 
@@ -110,7 +152,7 @@ public final class FTprogramData {
 	 * @return 0 id bus powered or 1 is self powered.
 	 */
 	public int isSelfPowered() {
-		return info[2];
+		return info[11];
 	}
 
 	/** 
@@ -119,8 +161,12 @@ public final class FTprogramData {
 	 * @return 0 if not capable or 1 if capable.
 	 */
 	public int isRemoteWakeup() {
-		return info[3];
+		return info[12];
 	}
+
+
+	/* Rev4 (FT232B) extensions */
+
 
 	/** 
 	 * <p>Finds whether device is Rev4 or not (non-zero if Rev4 chip, zero otherwise).</p>
@@ -130,7 +176,7 @@ public final class FTprogramData {
 	 * @return non-zero value if Rev4 chip or 0 if chip is not rev4.
 	 */
 	public int isRev4() {
-		return info[4];
+		return info[13];
 	}
 
 	/** 
@@ -141,7 +187,7 @@ public final class FTprogramData {
 	 * @return non-zero value if in endpoint is isochronous.
 	 */
 	public int isIsoIn() {
-		return info[5];
+		return info[14];
 	}
 
 	/** 
@@ -152,7 +198,7 @@ public final class FTprogramData {
 	 * @return non-zero value if out endpoint is isochronous.
 	 */
 	public int isIsoOut() {
-		return info[6];
+		return info[15];
 	}
 
 	/** 
@@ -163,7 +209,7 @@ public final class FTprogramData {
 	 * @return non-zero value if pull down is enabled.
 	 */
 	public int isPullDownEnabled() {
-		return info[7];
+		return info[16];
 	}
 
 	/** 
@@ -174,7 +220,7 @@ public final class FTprogramData {
 	 * @return non-zero value if serial number is to be used.
 	 */
 	public int isSerNumEnabled() {
-		return info[8];
+		return info[17];
 	}
 
 	/** 
@@ -185,7 +231,7 @@ public final class FTprogramData {
 	 * @return non-zero value if chip uses USB version.
 	 */
 	public int hasUSBVersionEnabled() {
-		return info[9];
+		return info[18];
 	}
 
 	/** 
@@ -196,8 +242,12 @@ public final class FTprogramData {
 	 * @return binary coded USB version number (0x0200 means USB 2.0).
 	 */
 	public int getUSBVersion() {
-		return info[10];
+		return info[19];
 	}
+
+
+	/* Rev 5 (FT2232) extensions */
+
 
 	/** 
 	 * <p>Finds whether device is Rev5 or not.</p>
@@ -207,7 +257,7 @@ public final class FTprogramData {
 	 * @return non-zero value if Rev5 chip, zero otherwise.
 	 */
 	public int isRev5() {
-		return info[11];
+		return info[20];
 	}
 
 	/** 
@@ -217,7 +267,7 @@ public final class FTprogramData {
 	 * @return non-zero value if in endpoint is isochronous.
 	 */
 	public int isIsoInA() {
-		return info[12];
+		return info[21];
 	}
 
 	/** 
@@ -228,7 +278,7 @@ public final class FTprogramData {
 	 * @return non-zero value if in endpoint is isochronous.
 	 */
 	public int isIsoInB() {
-		return info[13];
+		return info[22];
 	}
 
 	/** 
@@ -239,7 +289,7 @@ public final class FTprogramData {
 	 * @return non-zero value if out endpoint is isochronous.
 	 */
 	public int isIsoOutA() {
-		return info[14];
+		return info[23];
 	}
 
 	/** 
@@ -250,7 +300,7 @@ public final class FTprogramData {
 	 * @return non-zero value if out endpoint is isochronous.
 	 */
 	public int isIsoOutB() {
-		return info[15];
+		return info[24];
 	}
 
 	/** 
@@ -259,7 +309,7 @@ public final class FTprogramData {
 	 * @return non-zero value if pull down is enabled.
 	 */
 	public int isPullDownEnabled5() {
-		return info[16];
+		return info[25];
 	}
 
 	/** 
@@ -270,7 +320,7 @@ public final class FTprogramData {
 	 * @return non-zero value if serial number is to be used.
 	 */
 	public int isSerNumEnabled5() {
-		return info[17];
+		return info[26];
 	}
 
 	/** 
@@ -281,7 +331,7 @@ public final class FTprogramData {
 	 * @return non-zero value if chip uses USB version.
 	 */
 	public int hasUSBVersionEnabled5() {
-		return info[18];
+		return info[27];
 	}
 
 	/** 
@@ -292,7 +342,7 @@ public final class FTprogramData {
 	 * @return binary coded USB version number (0x0200 means USB 2.0).
 	 */
 	public int getUSBVersion5() {
-		return info[19];
+		return info[28];
 	}
 
 	/** 
@@ -303,7 +353,7 @@ public final class FTprogramData {
 	 * @return non-zero value if interface is high current.
 	 */
 	public int isAIsHighCurrent() {
-		return info[20];
+		return info[29];
 	}
 
 	/** 
@@ -314,7 +364,7 @@ public final class FTprogramData {
 	 * @return non-zero value if interface is high current.
 	 */
 	public int isBIsHighCurrent() {
-		return info[21];
+		return info[30];
 	}
 
 	/** 
@@ -325,7 +375,7 @@ public final class FTprogramData {
 	 * @return non-zero value if interface is 245 FIFO.
 	 */
 	public int isIFAIsFifo() {
-		return info[22];
+		return info[31];
 	}
 
 	/** 
@@ -336,7 +386,7 @@ public final class FTprogramData {
 	 * @return non-zero value if interface is 245 FIFO CPU target.
 	 */
 	public int isIFAIsFifoTar() {
-		return info[23];
+		return info[32];
 	}
 
 	/** 
@@ -347,7 +397,7 @@ public final class FTprogramData {
 	 * @return non-zero value if interface is Fast serial.
 	 */
 	public int isIFAIsFastSer() {
-		return info[24];
+		return info[33];
 	}
 
 	/** 
@@ -358,7 +408,7 @@ public final class FTprogramData {
 	 * @return non-zero value if interface is to use VCP drivers.
 	 */
 	public int isAIsVCP() {
-		return info[25];
+		return info[34];
 	}
 
 	/** 
@@ -369,7 +419,7 @@ public final class FTprogramData {
 	 * @return non-zero value if interface is 245 FIFO.
 	 */
 	public int isIFBIsFifo() {
-		return info[26];
+		return info[35];
 	}
 
 	/** 
@@ -380,7 +430,7 @@ public final class FTprogramData {
 	 * @return non-zero value if interface is 245 FIFO CPU target.
 	 */
 	public int isIFBIsFifoTar() {
-		return info[23];
+		return info[36];
 	}
 
 	/** 
@@ -391,7 +441,7 @@ public final class FTprogramData {
 	 * @return non-zero value if interface is Fast serial.
 	 */
 	public int isIFBIsFastSer() {
-		return info[24];
+		return info[37];
 	}
 
 	/** 
@@ -402,8 +452,12 @@ public final class FTprogramData {
 	 * @return non-zero value if interface is to use VCP drivers.
 	 */
 	public int isBIsVCP() {
-		return info[25];
+		return info[38];
 	}
+
+
+	/* Rev 6 (FT232R) extensions */
+
 
 	/** 
 	 * <p>Finds whether external oscillator is to be used or not.</p>
@@ -413,7 +467,7 @@ public final class FTprogramData {
 	 * @return 1 if external oscillator is to be used.
 	 */
 	public int useExtOsc() {
-		return info[26];
+		return info[39];
 	}
 
 	/** 
@@ -424,7 +478,7 @@ public final class FTprogramData {
 	 * @return 1 if high current is to be supplied.
 	 */
 	public int useHighDriveIOs() {
-		return info[27];
+		return info[40];
 	}
 
 	/** 
@@ -435,7 +489,7 @@ public final class FTprogramData {
 	 * @return end pint size.
 	 */
 	public int getEndpointSize() {
-		return info[28];
+		return info[41];
 	}
 
 	/** 
@@ -446,7 +500,7 @@ public final class FTprogramData {
 	 * @return non-zero value if pull down is enabled.
 	 */
 	public int isPullDownEnableR() {
-		return info[29];
+		return info[42];
 	}
 
 	/** 
@@ -457,7 +511,7 @@ public final class FTprogramData {
 	 * @return non-zero value if serial number is to be used.
 	 */
 	public int isSerNumEnableR() {
-		return info[30];
+		return info[43];
 	}
 
 	/** 
@@ -468,7 +522,7 @@ public final class FTprogramData {
 	 * @return non-zero value if TXD line is inverted.
 	 */
 	public int invertTXD() {
-		return info[31];
+		return info[44];
 	}
 
 	/** 
@@ -479,7 +533,7 @@ public final class FTprogramData {
 	 * @return non-zero value if RXD line is inverted.
 	 */
 	public int invertRXD() {
-		return info[32];
+		return info[45];
 	}
 
 	/** 
@@ -490,7 +544,7 @@ public final class FTprogramData {
 	 * @return non-zero value if RTS line is inverted.
 	 */
 	public int invertRTS() {
-		return info[33];
+		return info[46];
 	}
 
 	/** 
@@ -501,7 +555,7 @@ public final class FTprogramData {
 	 * @return non-zero value if CTS line is inverted.
 	 */
 	public int invertCTS() {
-		return info[34];
+		return info[47];
 	}
 
 	/** 
@@ -512,7 +566,7 @@ public final class FTprogramData {
 	 * @return non-zero value if DTR line is inverted.
 	 */
 	public int invertDTR() {
-		return info[35];
+		return info[48];
 	}
 
 	/** 
@@ -523,7 +577,7 @@ public final class FTprogramData {
 	 * @return non-zero value if DSR line is inverted.
 	 */
 	public int invertDSR() {
-		return info[36];
+		return info[49];
 	}
 
 	/** 
@@ -534,7 +588,7 @@ public final class FTprogramData {
 	 * @return non-zero value if DCD line is inverted.
 	 */
 	public int invertDCD() {
-		return info[37];
+		return info[50];
 	}
 
 	/** 
@@ -545,7 +599,7 @@ public final class FTprogramData {
 	 * @return non-zero value if RI line is inverted.
 	 */
 	public int invertRI() {
-		return info[38];
+		return info[51];
 	}
 
 	/** 
@@ -556,7 +610,7 @@ public final class FTprogramData {
 	 * @return CBUS 0 configuration value.
 	 */
 	public int getCbus0() {
-		return info[39];
+		return info[52];
 	}
 
 	/** 
@@ -567,7 +621,7 @@ public final class FTprogramData {
 	 * @return CBUS 1 configuration value.
 	 */
 	public int getCbus1() {
-		return info[40];
+		return info[53];
 	}
 
 	/** 
@@ -578,7 +632,7 @@ public final class FTprogramData {
 	 * @return CBUS 2 configuration value.
 	 */
 	public int getCbus2() {
-		return info[41];
+		return info[54];
 	}
 
 	/** 
@@ -589,7 +643,7 @@ public final class FTprogramData {
 	 * @return CBUS 3 configuration value.
 	 */
 	public int getCbus3() {
-		return info[42];
+		return info[55];
 	}
 
 	/** 
@@ -600,7 +654,7 @@ public final class FTprogramData {
 	 * @return CBUS 4 configuration value.
 	 */
 	public int getCbus4() {
-		return info[43];
+		return info[56];
 	}
 
 	/** 
@@ -611,7 +665,7 @@ public final class FTprogramData {
 	 * @return non-zero value if using D2XX driver.
 	 */
 	public int isRIsD2XX() {
-		return info[44];
+		return info[57];
 	}
 
 	/** 
@@ -622,7 +676,7 @@ public final class FTprogramData {
 	 * @return non-zero value if pull down is enabled.
 	 */
 	public int isPullDownEnable7() {
-		return info[45];
+		return info[58];
 	}
 
 	/** 
@@ -633,7 +687,7 @@ public final class FTprogramData {
 	 * @return non-zero value if serial number is to be used.
 	 */
 	public int isSerNumEnable7() {
-		return info[46];
+		return info[59];
 	}
 
 	/** 
@@ -644,7 +698,7 @@ public final class FTprogramData {
 	 * @return non-zero value if AL pins have slow slew.
 	 */
 	public int isALSlowSlew() {
-		return info[47];
+		return info[60];
 	}
 
 	/** 
@@ -655,7 +709,7 @@ public final class FTprogramData {
 	 * @return non-zero value if AL pins are Schmitt input.
 	 */
 	public int isALSchmittInput() {
-		return info[48];
+		return info[61];
 	}
 
 	/** 
@@ -666,7 +720,7 @@ public final class FTprogramData {
 	 * @return AL drive current value.
 	 */
 	public int getALDriveCurrent() {
-		return info[49];
+		return info[62];
 	}
 
 	/** 
@@ -677,7 +731,7 @@ public final class FTprogramData {
 	 * @return non-zero value if AH pins have slow slew.
 	 */
 	public int isAHSlowSlew() {
-		return info[50];
+		return info[63];
 	}
 
 	/** 
@@ -688,7 +742,7 @@ public final class FTprogramData {
 	 * @return non-zero value if AH pins are Schmitt input.
 	 */
 	public int isAHSchmittInput() {
-		return info[51];
+		return info[64];
 	}
 
 	/** 
@@ -699,7 +753,7 @@ public final class FTprogramData {
 	 * @return AH drive current value.
 	 */
 	public int getAHDriveCurrent() {
-		return info[52];
+		return info[65];
 	}
 
 	/** 
@@ -710,7 +764,7 @@ public final class FTprogramData {
 	 * @return non-zero value if BL pins have slow slew.
 	 */
 	public int isBLSlowSlew() {
-		return info[53];
+		return info[66];
 	}
 
 	/** 
@@ -721,7 +775,7 @@ public final class FTprogramData {
 	 * @return non-zero value if BL pins are Schmitt input.
 	 */
 	public int isBLSchmittInput() {
-		return info[54];
+		return info[67];
 	}
 
 	/** 
@@ -732,7 +786,7 @@ public final class FTprogramData {
 	 * @return BL drive current value.
 	 */
 	public int getBLDriveCurrent() {
-		return info[55];
+		return info[68];
 	}
 
 	/** 
@@ -743,7 +797,7 @@ public final class FTprogramData {
 	 * @return non-zero value if BH pins have slow slew.
 	 */
 	public int isBHSlowSlew() {
-		return info[56];
+		return info[69];
 	}
 
 	/** 
@@ -754,7 +808,7 @@ public final class FTprogramData {
 	 * @return non-zero value if BH pins are Schmitt input.
 	 */
 	public int isBHSchmittInput() {
-		return info[57];
+		return info[70];
 	}
 
 	/** 
@@ -765,7 +819,7 @@ public final class FTprogramData {
 	 * @return BH drive current value.
 	 */
 	public int getBHDriveCurrent() {
-		return info[58];
+		return info[71];
 	}
 
 	/** 
@@ -776,7 +830,7 @@ public final class FTprogramData {
 	 * @return non-zero value if interface is 245 FIFO.
 	 */
 	public int isIFAIsFifo7() {
-		return info[59];
+		return info[72];
 	}
 
 	/** 
@@ -787,7 +841,7 @@ public final class FTprogramData {
 	 * @return non-zero value if interface is 245 FIFO CPU target.
 	 */
 	public int isIFAIsFifoTar7() {
-		return info[60];
+		return info[73];
 	}
 
 	/** 
@@ -798,7 +852,7 @@ public final class FTprogramData {
 	 * @return non-zero value if interface is Fast serial.
 	 */
 	public int isIFAIsFastSer7() {
-		return info[61];
+		return info[74];
 	}
 
 	/** 
@@ -809,16 +863,18 @@ public final class FTprogramData {
 	 * @return non-zero value if interface is to use VCP drivers.
 	 */
 	public int isAIsVCP7() {
-		return info[62];
+		return info[75];
 	}
 
 	/** 
 	 * <p>Finds whether interface is 245 FIFO or not.</p>
 	 * 
+	 * <p>Mainly applicable for Rev 7 (FT2232H) extensions.</p>
+	 * 
 	 * @return non-zero value if interface is 245 FIFO.
 	 */
 	public int isIFBIsFifo7() {
-		return info[63];
+		return info[76];
 	}
 
 	/** 
@@ -829,7 +885,7 @@ public final class FTprogramData {
 	 * @return non-zero value if interface is 245 FIFO CPU target.
 	 */
 	public int isIFBIsFifoTar7() {
-		return info[64];
+		return info[77];
 	}
 
 	/** 
@@ -840,7 +896,7 @@ public final class FTprogramData {
 	 * @return non-zero value if interface is Fast serial.
 	 */
 	public int isIFBIsFastSer7() {
-		return info[65];
+		return info[78];
 	}
 
 	/** 
@@ -851,7 +907,7 @@ public final class FTprogramData {
 	 * @return non-zero value if interface is to use VCP drivers.
 	 */
 	public int isBIsVCP7() {
-		return info[66];
+		return info[79];
 	}
 
 	/** 
@@ -862,16 +918,22 @@ public final class FTprogramData {
 	 * @return non-zero value if using BCBUS7 to save power for self-powered designs.
 	 */
 	public int isPowerSaveEnabled() {
-		return info[67];
+		return info[80];
 	}
+
+
+	/* Rev 8 (FT4232H) Extensions */
+
 
 	/** 
 	 * <p>Finds whether pull down is enabled or not.</p>
 	 * 
+	 * <p>Mainly applicable for Rev 8 (FT4232H) extensions.</p>
+	 * 
 	 * @return non-zero value if pull down is enabled.
 	 */
 	public int isPullDownEnabled8() {
-		return info[68];
+		return info[81];
 	}
 
 	/** 
@@ -882,7 +944,7 @@ public final class FTprogramData {
 	 * @return non-zero value if serial number is to be used.
 	 */
 	public int isSerNumEnabled8() {
-		return info[69];
+		return info[82];
 	}
 
 	/** 
@@ -893,7 +955,7 @@ public final class FTprogramData {
 	 * @return non-zero value if A pins have slow slew.
 	 */
 	public int isASlowSlew() {
-		return info[70];
+		return info[83];
 	}
 
 	/** 
@@ -904,7 +966,7 @@ public final class FTprogramData {
 	 * @return non-zero value if A pins are Schmitt input.
 	 */
 	public int isASchmittInput() {
-		return info[71];
+		return info[84];
 	}
 
 	/** 
@@ -915,7 +977,7 @@ public final class FTprogramData {
 	 * @return A drive current value.
 	 */
 	public int getADriveCurrent() {
-		return info[72];
+		return info[85];
 	}
 
 	/** 
@@ -926,7 +988,7 @@ public final class FTprogramData {
 	 * @return non-zero value if B pins have slow slew.
 	 */
 	public int isBSlowSlew() {
-		return info[73];
+		return info[86];
 	}
 
 	/** 
@@ -937,7 +999,7 @@ public final class FTprogramData {
 	 * @return non-zero value if B pins are Schmitt input.
 	 */
 	public int isBSchmittInput() {
-		return info[74];
+		return info[87];
 	}
 
 	/** 
@@ -948,7 +1010,7 @@ public final class FTprogramData {
 	 * @return B drive current value.
 	 */
 	public int getBDriveCurrent() {
-		return info[75];
+		return info[88];
 	}
 
 	/** 
@@ -959,7 +1021,7 @@ public final class FTprogramData {
 	 * @return non-zero value if C pins have slow slew.
 	 */
 	public int isCSlowSlew() {
-		return info[76];
+		return info[89];
 	}
 
 	/** 
@@ -970,7 +1032,7 @@ public final class FTprogramData {
 	 * @return non-zero value if C pins are Schmitt input.
 	 */
 	public int isCSchmittInput() {
-		return info[77];
+		return info[90];
 	}
 
 	/** 
@@ -981,7 +1043,7 @@ public final class FTprogramData {
 	 * @return C drive current value.
 	 */
 	public int getCDriveCurrent() {
-		return info[78];
+		return info[91];
 	}
 
 	/** 
@@ -992,7 +1054,7 @@ public final class FTprogramData {
 	 * @return non-zero value if D pins have slow slew.
 	 */
 	public int isDSlowSlew() {
-		return info[79];
+		return info[92];
 	}
 
 	/** 
@@ -1003,7 +1065,7 @@ public final class FTprogramData {
 	 * @return non-zero value if D pins are Schmitt input.
 	 */
 	public int isDSchmittInput() {
-		return info[80];
+		return info[93];
 	}
 
 	/** 
@@ -1014,7 +1076,7 @@ public final class FTprogramData {
 	 * @return D drive current value.
 	 */
 	public int getDDriveCurrent() {
-		return info[81];
+		return info[94];
 	}
 
 	/** 
@@ -1025,7 +1087,7 @@ public final class FTprogramData {
 	 * @return non-zero value if port A uses RI as RS485 TXDEN.
 	 */
 	public int isARIIsTXDEN() {
-		return info[82];
+		return info[95];
 	}
 
 	/** 
@@ -1036,7 +1098,7 @@ public final class FTprogramData {
 	 * @return non-zero value if port B uses RI as RS485 TXDEN.
 	 */
 	public int isBRIIsTXDEN() {
-		return info[83];
+		return info[96];
 	}
 
 	/** 
@@ -1047,7 +1109,7 @@ public final class FTprogramData {
 	 * @return non-zero value if port C uses RI as RS485 TXDEN.
 	 */
 	public int isCRIIsTXDEN() {
-		return info[84];
+		return info[97];
 	}
 
 	/** 
@@ -1058,7 +1120,7 @@ public final class FTprogramData {
 	 * @return non-zero value if port D uses RI as RS485 TXDEN.
 	 */
 	public int isDRIIsTXDEN() {
-		return info[85];
+		return info[98];
 	}
 
 	/** 
@@ -1069,7 +1131,7 @@ public final class FTprogramData {
 	 * @return non-zero value if interface is to use VCP drivers.
 	 */
 	public int isAIsVCP8() {
-		return info[86];
+		return info[99];
 	}
 
 	/** 
@@ -1078,7 +1140,7 @@ public final class FTprogramData {
 	 * @return non-zero value if interface is to use VCP drivers.
 	 */
 	public int isBIsVCP8() {
-		return info[87];
+		return info[100];
 	}
 
 	/** 
@@ -1089,7 +1151,7 @@ public final class FTprogramData {
 	 * @return non-zero value if interface is to use VCP drivers.
 	 */
 	public int isCIsVCP8() {
-		return info[88];
+		return info[101];
 	}
 
 	/** 
@@ -1100,8 +1162,12 @@ public final class FTprogramData {
 	 * @return non-zero value if interface is to use VCP drivers.
 	 */
 	public int isDIsVCP8() {
-		return info[89];
+		return info[102];
 	}
+
+
+	/* Rev 9 (FT232H) Extensions */
+
 
 	/** 
 	 * <p>Finds whether pull down is enabled or not.</p>
@@ -1111,7 +1177,7 @@ public final class FTprogramData {
 	 * @return non-zero value if pull down is enabled.
 	 */
 	public int isPullDownEnableH() {
-		return info[90];
+		return info[103];
 	}
 
 	/** 
@@ -1122,7 +1188,7 @@ public final class FTprogramData {
 	 * @return non-zero value if serial number is to be used.
 	 */
 	public int isSerNumEnableH() {
-		return info[91];
+		return info[104];
 	}
 
 	/** 
@@ -1133,7 +1199,7 @@ public final class FTprogramData {
 	 * @return non-zero value if AC pins have slow slew.
 	 */
 	public int isACSlowSlewH() {
-		return info[92];
+		return info[105];
 	}
 
 	/** 
@@ -1144,7 +1210,7 @@ public final class FTprogramData {
 	 * @return non-zero value if AC pins are Schmitt input.
 	 */
 	public int isACSchmittInputH() {
-		return info[93];
+		return info[106];
 	}
 
 	/** 
@@ -1155,7 +1221,7 @@ public final class FTprogramData {
 	 * @return AC drive current value.
 	 */
 	public int getACDriveCurrentH() {
-		return info[94];
+		return info[107];
 	}
 
 	/** 
@@ -1166,7 +1232,7 @@ public final class FTprogramData {
 	 * @return non-zero value if AD pins have slow slew.
 	 */
 	public int isADSlowSlewH() {
-		return info[95];
+		return info[108];
 	}
 
 	/** 
@@ -1177,7 +1243,7 @@ public final class FTprogramData {
 	 * @return non-zero value if AD pins are Schmitt input.
 	 */
 	public int isADSchmittInputH() {
-		return info[96];
+		return info[109];
 	}
 
 	/** 
@@ -1188,7 +1254,7 @@ public final class FTprogramData {
 	 * @return AD drive current value.
 	 */
 	public int getADDriveCurrentH() {
-		return info[97];
+		return info[110];
 	}
 
 	/** 
@@ -1199,7 +1265,7 @@ public final class FTprogramData {
 	 * @return CBUS 0 configuration value.
 	 */
 	public int getCbus0H() {
-		return info[98];
+		return info[111];
 	}
 
 	/** 
@@ -1210,7 +1276,7 @@ public final class FTprogramData {
 	 * @return CBUS 1 configuration value.
 	 */
 	public int getCbus1H() {
-		return info[99];
+		return info[112];
 	}
 
 	/** 
@@ -1221,7 +1287,7 @@ public final class FTprogramData {
 	 * @return CBUS 2 configuration value.
 	 */
 	public int getCbus2H() {
-		return info[100];
+		return info[113];
 	}
 
 	/** 
@@ -1232,7 +1298,7 @@ public final class FTprogramData {
 	 * @return CBUS 3 configuration value.
 	 */
 	public int getCbus3H() {
-		return info[101];
+		return info[114];
 	}
 
 	/** 
@@ -1243,7 +1309,7 @@ public final class FTprogramData {
 	 * @return CBUS 4 configuration value.
 	 */
 	public int getCbus4H() {
-		return info[102];
+		return info[115];
 	}
 
 	/** 
@@ -1254,7 +1320,7 @@ public final class FTprogramData {
 	 * @return CBUS 5 configuration value.
 	 */
 	public int getCbus5H() {
-		return info[103];
+		return info[116];
 	}
 
 	/** 
@@ -1265,7 +1331,7 @@ public final class FTprogramData {
 	 * @return CBUS 6 configuration value.
 	 */
 	public int getCbus6H() {
-		return info[104];
+		return info[117];
 	}
 
 	/** 
@@ -1276,7 +1342,7 @@ public final class FTprogramData {
 	 * @return CBUS 7 configuration value.
 	 */
 	public int getCbus7H() {
-		return info[105];
+		return info[118];
 	}
 
 	/** 
@@ -1287,7 +1353,7 @@ public final class FTprogramData {
 	 * @return CBUS 8 configuration value.
 	 */
 	public int getCbus8H() {
-		return info[106];
+		return info[119];
 	}
 
 	/** 
@@ -1298,7 +1364,7 @@ public final class FTprogramData {
 	 * @return CBUS 9 configuration value.
 	 */
 	public int getCbus9H() {
-		return info[107];
+		return info[120];
 	}
 
 	/** 
@@ -1309,7 +1375,7 @@ public final class FTprogramData {
 	 * @return non-zero value if interface is 245 FIFO.
 	 */
 	public int isIsFifoH() {
-		return info[108];
+		return info[121];
 	}
 
 	/** 
@@ -1320,7 +1386,7 @@ public final class FTprogramData {
 	 * @return non-zero value if interface is 245 FIFO CPU target.
 	 */
 	public int isIsFifoTarH() {
-		return info[109];
+		return info[122];
 	}
 
 	/** 
@@ -1331,7 +1397,7 @@ public final class FTprogramData {
 	 * @return non-zero value if interface is Fast serial.
 	 */
 	public int isIsFastSerH() {
-		return info[110];
+		return info[123];
 	}
 
 	/** 
@@ -1342,7 +1408,7 @@ public final class FTprogramData {
 	 * @return non-zero value if interface is 1248.
 	 */
 	public int isIsFT1248H() {
-		return info[111];
+		return info[124];
 	}
 
 	/** 
@@ -1353,7 +1419,7 @@ public final class FTprogramData {
 	 * @return clock polarity - clock idle high (1) or clock idle low (0).
 	 */
 	public int getFT1248CpolH() {
-		return info[112];
+		return info[125];
 	}
 
 	/** 
@@ -1364,7 +1430,7 @@ public final class FTprogramData {
 	 * @return 1 for LSB, 0 for MSB.
 	 */
 	public int isFT1248LsbH() {
-		return info[113];
+		return info[126];
 	}
 
 	/** 
@@ -1375,7 +1441,7 @@ public final class FTprogramData {
 	 * @return flow control setting for device.
 	 */
 	public int enableFT1248FlowControlH() {
-		return info[114];
+		return info[127];
 	}
 
 	/** 
@@ -1386,7 +1452,7 @@ public final class FTprogramData {
 	 * @return non-zero value if interface is to use VCP drivers.
 	 */
 	public int isIsVCPH() {
-		return info[115];
+		return info[128];
 	}
 
 	/** 
@@ -1397,6 +1463,6 @@ public final class FTprogramData {
 	 * @return non-zero value if using BCBUS7 to save power for self-powered designs.
 	 */
 	public int isPowerSaveEnableH() {
-		return info[116];
+		return info[129];
 	}
 }

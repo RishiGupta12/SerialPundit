@@ -54,6 +54,7 @@
 
 /* ********************* D2XX Classic Functions ******************** */
 
+
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
  * Method:    setVidPid
@@ -967,6 +968,7 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID
 			return -1;
 		}
 		ftStatus = FT_OpenEx((char*)ser_or_desc, FT_OPEN_BY_SERIAL_NUMBER, &ftHandle);
+		(*env)->ReleaseStringUTFChars(env, serialOrDescription, ser_or_desc);
 	}else if(dwFlags == SCM_OPEN_BY_DESCRIPTION) {
 		if(serialOrDescription == NULL) {
 			throw_serialcom_exception(env, 3, 0, E_IllegalARG);
@@ -978,6 +980,7 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID
 			return -1;
 		}
 		ftStatus = FT_OpenEx((char*)ser_or_desc, FT_OPEN_BY_DESCRIPTION, &ftHandle);
+		(*env)->ReleaseStringUTFChars(env, serialOrDescription, ser_or_desc);
 	}else if(dwFlags == SCM_OPEN_BY_LOCATION) {
 		if(locationId < 0) {
 			throw_serialcom_exception(env, 3, 0, E_IllegalARG);
@@ -1001,7 +1004,7 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID
  * Method:    close
  * Signature: (J)I
  *
- * @return 0 on success otherwise -1 if error occurs.
+ * @return 0 on success otherwise -1 if an error occurs.
  * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_close(JNIEnv *env, jobject obj, jlong handle) {
@@ -1019,7 +1022,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
  * Method:    read
  * Signature: (J[BI)I
  *
- * @return number of bytes read on success otherwise -1 if error occurs.
+ * @return number of bytes read on success otherwise -1 if an error occurs.
  * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_read(JNIEnv *env, jobject obj,
@@ -1059,7 +1062,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
  * Method:    write
  * Signature: (J[BI)I
  *
- * @return number of bytes written to the device on success otherwise -1 if error occurs.
+ * @return number of bytes written to the device on success otherwise -1 if an error occurs.
  * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_write(JNIEnv *env, jobject obj,
@@ -1097,7 +1100,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
  * Method:    setBaudRate
  * Signature: (JI)I
  *
- * @return 0 on success otherwise -1 if error occurs.
+ * @return 0 on success otherwise -1 if an error occurs.
  * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_setBaudRate(JNIEnv *env, jobject obj, jlong handle, jint baudRate) {
@@ -1115,7 +1118,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
  * Method:    setDivisor
  * Signature: (JI)I
  *
- * @return 0 on success otherwise -1 if error occurs.
+ * @return 0 on success otherwise -1 if an error occurs.
  * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_setDivisor(JNIEnv *env, jobject obj, jlong handle, jint divisor) {
@@ -1133,7 +1136,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
  * Method:    setDataCharacteristics
  * Signature: (JIII)I
  *
- * @return 0 on success otherwise -1 if error occurs.
+ * @return 0 on success otherwise -1 if an error occurs.
  * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_setDataCharacteristics(JNIEnv *env, jobject obj,
@@ -1185,7 +1188,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
  * Method:    setTimeouts
  * Signature: (JJJ)I
  *
- * @return 0 on success otherwise -1 if error occurs.
+ * @return 0 on success otherwise -1 if an error occurs.
  * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_setTimeouts(JNIEnv *env, jobject obj,
@@ -1205,7 +1208,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
  * Method:    setFlowControl
  * Signature: (JICC)I
  *
- * @return 0 on success otherwise -1 if error occurs.
+ * @return 0 on success otherwise -1 if an error occurs.
  * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_setFlowControl(JNIEnv *env, jobject obj,
@@ -1238,7 +1241,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
  * Method:    setDTR
  * Signature: (J)I
  *
- * @return 0 on success otherwise -1 if error occurs.
+ * @return 0 on success otherwise -1 if an error occurs.
  * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_setDTR(JNIEnv *env, jobject obj, jlong handle) {
@@ -1256,7 +1259,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
  * Method:    clearDTR
  * Signature: (J)I
  *
- * @return 0 on success otherwise -1 if error occurs.
+ * @return 0 on success otherwise -1 if an error occurs.
  * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_clearDTR(JNIEnv *env, jobject obj, jlong handle) {
@@ -1274,7 +1277,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
  * Method:    setRTS
  * Signature: (J)I
  *
- * @return 0 on success otherwise -1 if error occurs.
+ * @return 0 on success otherwise -1 if an error occurs.
  * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_setRTS(JNIEnv *env, jobject obj, jlong handle) {
@@ -1292,7 +1295,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
  * Method:    clearRTS
  * Signature: (J)I
  *
- * @return 0 on success otherwise -1 if error occurs.
+ * @return 0 on success otherwise -1 if an error occurs.
  * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_clearRTS(JNIEnv *env, jobject obj, jlong handle) {
@@ -1310,7 +1313,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
  * Method:    getModemStatus
  * Signature: (J)I
  *
- * @return bit mapped status value otherwise -1 if error occurs.
+ * @return bit mapped status value otherwise -1 if an error occurs.
  * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_getModemStatus(JNIEnv *env, jobject obj, jlong handle) {
@@ -1329,7 +1332,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
  * Method:    getQueueStatus
  * Signature: (J)I
  *
- * @return number of bytes in receive queue otherwise -1 if error occurs.
+ * @return number of bytes in receive queue otherwise -1 if an error occurs.
  * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_getQueueStatus(JNIEnv *env, jobject obj, jlong handle) {
@@ -1348,7 +1351,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
  * Method:    getDeviceInfo
  * Signature: (J)[Ljava/lang/String;
  *
- * @return array of string containing info about the requested device or NULL if something fails.
+ * @return array of string containing info about the requested device or NULL if an error occurs.
  * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_getDeviceInfo(JNIEnv *env, jobject obj, jlong handle) {
@@ -1462,7 +1465,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
  * Method:    getDriverVersion
  * Signature: (J)J
  *
- * @return driver version number otherwise -1 if error occurs.
+ * @return driver version number otherwise -1 if an error occurs.
  * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_getDriverVersion(JNIEnv *env, jobject obj, jlong handle) {
@@ -1483,7 +1486,7 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID
  * Method:    getLibraryVersion
  * Signature: ()J
  *
- * @return D2xx library version number otherwise -1 if error occurs.
+ * @return D2xx library version number otherwise -1 if an error occurs.
  * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_getLibraryVersion(JNIEnv *env, jobject obj) {
@@ -1503,7 +1506,7 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID
  * Method:    getComPortNumber
  * Signature: (J)J
  *
- * @return COM port number if found, -2 if no COM Port is assigned to this device otherwise -1 if error occurs.
+ * @return COM port number if found, -2 if no COM Port is assigned to this device otherwise -1 if an error occurs.
  * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_getComPortNumber(JNIEnv *env, jobject obj, jlong handle) {
@@ -1528,7 +1531,7 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID
  * Method:    getStatus
  * Signature: (J)[J
  *
- * @return array containing number of bytes in rx buffer, number of bytes in tx buffer, modem event status otherwise NULL if error occurs.
+ * @return array containing number of bytes in rx buffer, number of bytes in tx buffer, modem event status otherwise NULL if an error occurs.
  * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jlongArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_getStatus(JNIEnv *env, jobject obj, jlong handle) {
@@ -1570,7 +1573,7 @@ JNIEXPORT jlongArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialCom
  * Method:    setChars
  * Signature: (JCCCC)I
  *
- * @return 0 on success otherwise -1 if error occurs.
+ * @return 0 on success otherwise -1 if an error occurs.
  * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_setChars(JNIEnv *env, jobject obj, jlong handle,
@@ -1590,7 +1593,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
  * Method:    setBreakOn
  * Signature: (J)I
  *
- * @return 0 on success otherwise -1 if error occurs.
+ * @return 0 on success otherwise -1 if an error occurs.
  * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_setBreakOn(JNIEnv *env, jobject obj, jlong handle) {
@@ -1608,7 +1611,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
  * Method:    setBreakOff
  * Signature: (J)I
  *
- * @return 0 on success otherwise -1 if error occurs.
+ * @return 0 on success otherwise -1 if an error occurs.
  * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_setBreakOff(JNIEnv *env, jobject obj, jlong handle) {
@@ -1626,7 +1629,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
  * Method:    purge
  * Signature: (JZZ)I
  *
- * @return 0 on success otherwise -1 if error occurs.
+ * @return 0 on success otherwise -1 if an error occurs.
  * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_purge(JNIEnv *env, jobject obj, jlong handle,
@@ -1656,7 +1659,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
  * Method:    resetDevice
  * Signature: (J)I
  *
- * @return 0 on success otherwise -1 if error occurs.
+ * @return 0 on success otherwise -1 if an error occurs.
  * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_resetDevice(JNIEnv *env, jobject obj, jlong handle) {
@@ -1674,7 +1677,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
  * Method:    resetPort
  * Signature: (J)I
  *
- * @return 0 on success otherwise -1 if error occurs.
+ * @return 0 on success otherwise -1 if an error occurs.
  * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_resetPort(JNIEnv *env, jobject obj, jlong handle) {
@@ -1692,7 +1695,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
  * Method:    cyclePort
  * Signature: (J)I
  *
- * @return 0 on success otherwise -1 if error occurs.
+ * @return 0 on success otherwise -1 if an error occurs.
  * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_cyclePort(JNIEnv *env, jobject obj, jlong handle) {
@@ -1710,7 +1713,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
  * Method:    rescan
  * Signature: ()I
  *
- * @return 0 on success otherwise -1 if error occurs.
+ * @return 0 on success otherwise -1 if an error occurs.
  * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_rescan(JNIEnv *env, jobject obj) {
@@ -1728,7 +1731,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
  * Method:    reload
  * Signature: (II)I
  *
- * @return 0 on success otherwise -1 if error occurs.
+ * @return 0 on success otherwise -1 if an error occurs.
  * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_reload(JNIEnv *env, jobject obj, jint vid, jint pid) {
@@ -1746,7 +1749,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
  * Method:    setResetPipeRetryCount
  * Signature: (JI)I
  *
- * @return 0 on success otherwise -1 if error occurs.
+ * @return 0 on success otherwise -1 if an error occurs.
  * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_setResetPipeRetryCount(JNIEnv *env, jobject obj, jlong handle, jint count) {
@@ -1764,7 +1767,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
  * Method:    stopInTask
  * Signature: (J)I
  *
- * @return 0 on success otherwise -1 if error occurs.
+ * @return 0 on success otherwise -1 if an error occurs.
  * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_stopInTask(JNIEnv *env, jobject obj, jlong handle) {
@@ -1782,7 +1785,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
  * Method:    restartInTask
  * Signature: (J)I
  *
- * @return 0 on success otherwise -1 if error occurs.
+ * @return 0 on success otherwise -1 if an error occurs.
  * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_restartInTask(JNIEnv *env, jobject obj, jlong handle) {
@@ -1800,7 +1803,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
  * Method:    setDeadmanTimeout
  * Signature: (JI)I
  *
- * @return 0 on success otherwise -1 if error occurs.
+ * @return 0 on success otherwise -1 if an error occurs.
  * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_setDeadmanTimeout(JNIEnv *env, jobject obj, jlong handle, jint timeout) {
@@ -1822,20 +1825,19 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
  * Method:    readEE
  * Signature: (JI)I
  *
- * @return value at offset on success otherwise -1 if error occurs.
+ * @return value at offset on success otherwise -1 if an error occurs.
  * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_readEE
   (JNIEnv *env, jobject obj, jlong handle, jint offset) {
+
 	WORD value;
 	FT_STATUS ftStatus = 0;
-
 	ftStatus = FT_ReadEE((FT_HANDLE) handle, (DWORD) offset, &value);
 	if(ftStatus != FT_OK) {
 		throw_serialcom_exception(env, 2, ftStatus, NULL);
 		return -1;
 	}
-
 	return (jint) value;
 }
 
@@ -1844,18 +1846,18 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
  * Method:    writeEE
  * Signature: (JII)I
  *
- * @return 0 on success otherwise -1 if error occurs.
+ * @return 0 on success otherwise -1 if an error occurs.
  * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_writeEE
   (JNIEnv *env, jobject obj, jlong handle, jint offset, jint value) {
+
 	FT_STATUS ftStatus = 0;
 	ftStatus = FT_WriteEE((FT_HANDLE) handle, (DWORD) offset, (WORD) value);
 	if(ftStatus != FT_OK) {
 		throw_serialcom_exception(env, 2, ftStatus, NULL);
 		return -1;
 	}
-
 	return 0;
 }
 
@@ -1864,51 +1866,64 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
  * Method:    eraseEE
  * Signature: (J)I
  *
- * @return 0 on success otherwise -1 if error occurs.
+ * @return 0 on success otherwise -1 if an error occurs.
  * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_eraseEE
   (JNIEnv *env, jobject obj, jlong handle) {
-	FT_STATUS ftStatus = 0;
 
+	FT_STATUS ftStatus = 0;
 	ftStatus = FT_EraseEE((FT_HANDLE) handle);
 	if(ftStatus != FT_OK) {
 		throw_serialcom_exception(env, 2, ftStatus, NULL);
 		return -1;
 	}
-
 	return 0;
 }
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
  * Method:    eeRead
- * Signature: (JI[B[B[B[B)[I
+ * Signature: (JI[C[C[C[C)[I
+ *
+ * @return array of data read from eeprom on success otherwise NULL if an error occurs.
+ * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_eeRead
-  (JNIEnv *env, jobject obj, jlong handle, jint version, jbyteArray manufacturer, jbyteArray manufacturerID,
-		  jbyteArray description, jbyteArray serialNumber) {
+  (JNIEnv *env, jobject obj, jlong handle, jint version, jcharArray manufacturer,
+		  jcharArray manufacturerID, jcharArray description, jcharArray serialNumber) {
 
+	int x = 0;
 	FT_STATUS ftStatus = 0;
 	FT_PROGRAM_DATA ftData;
+	jintArray info = NULL;
+	jint values[130];
+
 	char manufacturer_buf[32];
 	char manufacturer_idbuf[16];
 	char description_buf[64];
 	char serialNumber_buf[16];
+	jchar manufacturer_bufj[32];
+	jchar manufacturer_idbufj[16];
+	jchar description_bufj[64];
+	jchar serialNumber_bufj[16];
 
-	memset(manufacturer_buf, '\0', 32);
-	memset(manufacturer_idbuf, '\0', 16);
-	memset(description_buf, '\0', 64);
-	memset(serialNumber_buf, '\0', 16);
+	memset(manufacturer_buf, '\0', sizeof(manufacturer_buf));
+	memset(manufacturer_idbuf, '\0', sizeof(manufacturer_idbuf));
+	memset(description_buf, '\0', sizeof(description_buf));
+	memset(serialNumber_buf, '\0', sizeof(serialNumber_buf));
+	memset(manufacturer_bufj, '\0', sizeof(manufacturer_bufj));
+	memset(manufacturer_idbufj, '\0', sizeof(manufacturer_idbufj));
+	memset(description_bufj, '\0', sizeof(description_bufj));
+	memset(serialNumber_bufj, '\0', sizeof(serialNumber_bufj));
 
-	ftData.Signature1 = 0x00000000;
-	ftData.Signature2 = 0xffffffff;
-	ftData.Version = (DWORD) version;
-
-	ftData.Manufacturer = manufacturer_buf;
+	ftData.Signature1     = 0x00000000;
+	ftData.Signature2     = 0xffffffff;
+	ftData.Version        = (DWORD) version;
+	ftData.Manufacturer   = manufacturer_buf;
 	ftData.ManufacturerId = manufacturer_idbuf;
-	ftData.Description = description_buf;
-	ftData.SerialNumber = serialNumber_buf;
+	ftData.Description    = description_buf;
+	ftData.SerialNumber   = serialNumber_buf;
 
 	ftStatus = FT_EE_Read((FT_HANDLE) handle, &ftData);
 	if(ftStatus != FT_OK) {
@@ -1916,48 +1931,748 @@ JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComF
 		return NULL;
 	}
 
+	for(x=0; x<32; x++) {
+		manufacturer_bufj[x] = (jchar) manufacturer_buf[x];
+	}
+	(*env)->SetCharArrayRegion(env, manufacturer, 0, 32, manufacturer_bufj);
+	if((*env)->ExceptionOccurred(env)) {
+		throw_serialcom_exception(env, 3, 0, E_SETCHARARRREGIONSTR);
+		return NULL;
+	}
 
+	for(x=0; x<16; x++) {
+		manufacturer_idbufj[x] = (jchar) manufacturer_idbuf[x];
+	}
+	(*env)->SetCharArrayRegion(env, manufacturerID, 0, 16, manufacturer_idbufj);
+	if((*env)->ExceptionOccurred(env)) {
+		throw_serialcom_exception(env, 3, 0, E_SETCHARARRREGIONSTR);
+		return NULL;
+	}
+
+	for(x=0; x<64; x++) {
+		description_bufj[x] = (jchar) description_buf[x];
+	}
+	(*env)->SetCharArrayRegion(env, description, 0, 64, description_bufj);
+	if((*env)->ExceptionOccurred(env)) {
+		throw_serialcom_exception(env, 3, 0, E_SETCHARARRREGIONSTR);
+		return NULL;
+	}
+
+	for(x=0; x<16; x++) {
+		serialNumber_bufj[x] = (jchar) serialNumber_buf[x];
+	}
+	(*env)->SetCharArrayRegion(env, serialNumber, 0, 16, serialNumber_bufj);
+	if((*env)->ExceptionOccurred(env)) {
+		throw_serialcom_exception(env, 3, 0, E_SETCHARARRREGIONSTR);
+		return NULL;
+	}
+
+	values[0] = (jint) ftData.Signature1;
+	values[1] = (jint) ftData.Signature2;
+	values[2] = (jint) ftData.Version;
+	values[3] = (jint) ftData.VendorId;
+	values[4] = (jint) ftData.ProductId;
+	values[5] = (jint) 0;
+	values[6] = (jint) 0;
+	values[7] = (jint) 0;
+	values[8] = (jint) 0;
+	values[9] = (jint) ftData.MaxPower;
+	values[10] = (jint) ftData.PnP;
+	values[11] = (jint) ftData.SelfPowered;
+	values[12] = (jint) ftData.RemoteWakeup;
+
+	/* Rev4 (FT232B) extensions */
+	values[13] = (jint) ftData.Rev4;
+	values[14] = (jint) ftData.IsoIn;
+	values[15] = (jint) ftData.IsoOut;
+	values[16] = (jint) ftData.PullDownEnable;
+	values[17] = (jint) ftData.SerNumEnable;
+	values[18] = (jint) ftData.USBVersionEnable;
+	values[19] = (jint) ftData.USBVersion;
+
+	/* Rev 5 (FT2232) extensions */
+	values[20] = (jint) ftData.Rev5;
+	values[21] = (jint) ftData.IsoInA;
+	values[22] = (jint) ftData.IsoInB;
+	values[23] = (jint) ftData.IsoOutA;
+	values[24] = (jint) ftData.IsoOutB;
+	values[25] = (jint) ftData.PullDownEnable5;
+	values[26] = (jint) ftData.SerNumEnable5;
+	values[27] = (jint) ftData.USBVersionEnable5;
+	values[28] = (jint) ftData.USBVersion5;
+	values[29] = (jint) ftData.AIsHighCurrent;
+	values[30] = (jint) ftData.BIsHighCurrent;
+	values[31] = (jint) ftData.IFAIsFifo;
+	values[32] = (jint) ftData.IFAIsFifoTar;
+	values[33] = (jint) ftData.IFAIsFastSer;
+	values[34] = (jint) ftData.AIsVCP;
+	values[35] = (jint) ftData.IFBIsFifo;
+	values[36] = (jint) ftData.IFBIsFifoTar;
+	values[37] = (jint) ftData.IFBIsFastSer;
+	values[38] = (jint) ftData.BIsVCP;
+
+	/* Rev 6 (FT232R) extensions */
+	values[39] = (jint) ftData.UseExtOsc;
+	values[40] = (jint) ftData.HighDriveIOs;
+	values[41] = (jint) ftData.EndpointSize;
+	values[42] = (jint) ftData.PullDownEnableR;
+	values[43] = (jint) ftData.SerNumEnableR;
+	values[44] = (jint) ftData.InvertTXD;
+	values[45] = (jint) ftData.InvertRXD;
+	values[46] = (jint) ftData.InvertRTS;
+	values[47] = (jint) ftData.InvertCTS;
+	values[48] = (jint) ftData.InvertDTR;
+	values[49] = (jint) ftData.InvertDSR;
+	values[50] = (jint) ftData.InvertDCD;
+	values[51] = (jint) ftData.InvertRI;
+	values[52] = (jint) ftData.Cbus0;
+	values[53] = (jint) ftData.Cbus1;
+	values[54] = (jint) ftData.Cbus2;
+	values[55] = (jint) ftData.Cbus3;
+	values[56] = (jint) ftData.Cbus4;
+	values[57] = (jint) ftData.RIsD2XX;
+
+	/* Rev 7 (FT2232H) Extensions */
+	values[58] = (jint) ftData.PullDownEnable7;
+	values[59] = (jint) ftData.SerNumEnable7;
+	values[60] = (jint) ftData.ALSlowSlew;
+	values[61] = (jint) ftData.ALSchmittInput;
+	values[62] = (jint) ftData.ALDriveCurrent;
+	values[63] = (jint) ftData.AHSlowSlew;
+	values[64] = (jint) ftData.AHSchmittInput;
+	values[65] = (jint) ftData.AHDriveCurrent;
+	values[66] = (jint) ftData.BLSlowSlew;
+	values[67] = (jint) ftData.BLSchmittInput;
+	values[68] = (jint) ftData.BLDriveCurrent;
+	values[69] = (jint) ftData.BHSlowSlew;
+	values[70] = (jint) ftData.BHSchmittInput;
+	values[71] = (jint) ftData.BHDriveCurrent;
+	values[72] = (jint) ftData.IFAIsFifo7;
+	values[73] = (jint) ftData.IFAIsFifoTar7;
+	values[74] = (jint) ftData.IFAIsFastSer7;
+	values[75] = (jint) ftData.AIsVCP7;
+	values[76] = (jint) ftData.IFBIsFifo7;
+	values[77] = (jint) ftData.IFBIsFifoTar7;
+	values[78] = (jint) ftData.IFBIsFastSer7;
+	values[79] = (jint) ftData.BIsVCP7;
+	values[80] = (jint) ftData.PowerSaveEnable;
+
+	/* Rev 8 (FT4232H) Extensions */
+	values[81]  = (jint) ftData.PullDownEnable8;
+	values[82]  = (jint) ftData.SerNumEnable8;
+	values[83]  = (jint) ftData.ASlowSlew;
+	values[84]  = (jint) ftData.ASchmittInput;
+	values[85]  = (jint) ftData.ADriveCurrent;
+	values[86]  = (jint) ftData.BSlowSlew;
+	values[87]  = (jint) ftData.BSchmittInput;
+	values[88]  = (jint) ftData.BDriveCurrent;
+	values[89]  = (jint) ftData.CSlowSlew;
+	values[90]  = (jint) ftData.CSchmittInput;
+	values[91]  = (jint) ftData.CDriveCurrent;
+	values[92]  = (jint) ftData.DSlowSlew;
+	values[93]  = (jint) ftData.DSchmittInput;
+	values[94]  = (jint) ftData.DDriveCurrent;
+	values[95]  = (jint) ftData.ARIIsTXDEN;
+	values[96]  = (jint) ftData.BRIIsTXDEN;
+	values[97]  = (jint) ftData.CRIIsTXDEN;
+	values[98]  = (jint) ftData.DRIIsTXDEN;
+	values[99]  = (jint) ftData.AIsVCP8;
+	values[100] = (jint) ftData.BIsVCP8;
+	values[101] = (jint) ftData.CIsVCP8;
+	values[102] = (jint) ftData.DIsVCP8;
+
+	/* Rev 9 (FT232H) Extensions */
+	values[103] = (jint) ftData.PullDownEnableH;
+	values[104] = (jint) ftData.SerNumEnableH;
+	values[105] = (jint) ftData.ACSlowSlewH;
+	values[106] = (jint) ftData.ACSchmittInputH;
+	values[107] = (jint) ftData.ACDriveCurrentH;
+	values[108] = (jint) ftData.ADSlowSlewH;
+	values[109] = (jint) ftData.ADSchmittInputH;
+	values[110] = (jint) ftData.ADDriveCurrentH;
+	values[111] = (jint) ftData.Cbus0H;
+	values[112] = (jint) ftData.Cbus1H;
+	values[113] = (jint) ftData.Cbus2H;
+	values[114] = (jint) ftData.Cbus3H;
+	values[115] = (jint) ftData.Cbus4H;
+	values[116] = (jint) ftData.Cbus5H;
+	values[117] = (jint) ftData.Cbus6H;
+	values[118] = (jint) ftData.Cbus7H;
+	values[119] = (jint) ftData.Cbus8H;
+	values[120] = (jint) ftData.Cbus9H;
+	values[121] = (jint) ftData.IsFifoH;
+	values[122] = (jint) ftData.IsFifoTarH;
+	values[123] = (jint) ftData.IsFastSerH;
+	values[124] = (jint) ftData.IsFT1248H;
+	values[125] = (jint) ftData.FT1248CpolH;
+	values[126] = (jint) ftData.FT1248LsbH;
+	values[127] = (jint) ftData.FT1248FlowControlH;
+	values[128] = (jint) ftData.IsVCPH;
+	values[129] = (jint) ftData.PowerSaveEnableH;
+
+	info = (*env)->NewIntArray(env, 130);
+	if((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+		throw_serialcom_exception(env, 3, 0, E_NEWINTARRAYSTR);
+		return NULL;
+	}
+
+	(*env)->SetIntArrayRegion(env, info, 0, 130, values);
+	if((*env)->ExceptionOccurred(env) != NULL) {
+		throw_serialcom_exception(env, 3, 0, E_SETINTARRREGIONSTR);
+		return NULL;
+	}
+	return info;
 }
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
  * Method:    eeProgram
- * Signature: (JILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;[I)I
+ * Signature: (JLjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;[I)I
+ *
+ * @return 0 on success otherwise -1 if an error occurs.
+ * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_eeProgram
-  (JNIEnv *, jobject, jlong, jint, jstring, jstring, jstring, jstring, jintArray);
+  (JNIEnv *env, jobject obj, jlong handle, jstring manufacturer, jstring manufacturerID, jstring description,
+		  jstring serialNumber, jintArray values) {
+
+	FT_STATUS ftStatus = 0;
+	FT_PROGRAM_DATA ftData;
+	char *manufacturer_buf;
+	char *manufacturer_idbuf;
+	char *description_buf;
+	char *serialNumber_buf;
+	jint* data_values = NULL;
+
+	data_values = (*env)->GetIntArrayElements(env, values, JNI_FALSE);
+	if((data_values == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+		throw_serialcom_exception(env, 3, 0, E_GETINTARRELEMTSTR);
+		return -1;
+	}
+
+	manufacturer_buf = (char *) (*env)->GetStringUTFChars(env, manufacturer, NULL);
+	if((manufacturer_buf == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+		throw_serialcom_exception(env, 3, 0, E_GETSTRUTFCHARSTR);
+		return -1;
+	}
+	manufacturer_idbuf = (char *) (*env)->GetStringUTFChars(env, manufacturerID, NULL);
+	if((manufacturer_idbuf == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+		(*env)->ReleaseStringUTFChars(env, manufacturer, manufacturer_buf);
+		throw_serialcom_exception(env, 3, 0, E_GETSTRUTFCHARSTR);
+		return -1;
+	}
+	description_buf = (char *) (*env)->GetStringUTFChars(env, description, NULL);
+	if((description_buf == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+		(*env)->ReleaseStringUTFChars(env, manufacturer, manufacturer_buf);
+		(*env)->ReleaseStringUTFChars(env, manufacturerID, manufacturer_idbuf);
+		throw_serialcom_exception(env, 3, 0, E_GETSTRUTFCHARSTR);
+		return -1;
+	}
+	serialNumber_buf = (char *) (*env)->GetStringUTFChars(env, serialNumber, NULL);
+	if((serialNumber_buf == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+		(*env)->ReleaseStringUTFChars(env, manufacturer, manufacturer_buf);
+		(*env)->ReleaseStringUTFChars(env, manufacturerID, manufacturer_idbuf);
+		(*env)->ReleaseStringUTFChars(env, description, description_buf);
+		throw_serialcom_exception(env, 3, 0, E_GETSTRUTFCHARSTR);
+		return -1;
+	}
+
+	ftData.Signature1     = (DWORD) data_values[0]; /* 0x00000000 */
+	ftData.Signature2     = (DWORD) data_values[1]; /* 0xffffffff */
+	ftData.Version        = (DWORD) data_values[2];
+	ftData.VendorId       = (WORD) data_values[3];
+	ftData.ProductId      = (WORD) data_values[4];
+	ftData.Manufacturer   = manufacturer_buf;
+	ftData.ManufacturerId = manufacturer_idbuf;
+	ftData.Description    = description_buf;
+	ftData.SerialNumber   = serialNumber_buf;
+	ftData.MaxPower       = (WORD) data_values[9];
+	ftData.PnP            = (WORD) data_values[10];
+	ftData.SelfPowered    = (WORD) data_values[11];
+	ftData.RemoteWakeup   = (WORD) data_values[12];
+
+	/* Rev4 (FT232B) extensions */
+	ftData.Rev4             = (UCHAR) data_values[13];
+	ftData.IsoIn            = (UCHAR) data_values[14];
+	ftData.IsoOut           = (UCHAR) data_values[15];
+	ftData.PullDownEnable   = (UCHAR) data_values[16];
+	ftData.SerNumEnable     = (UCHAR) data_values[17];
+	ftData.USBVersionEnable = (UCHAR) data_values[18];
+	ftData.USBVersion       = (WORD)  data_values[19];
+
+	/* Rev 5 (FT2232) extensions */
+	ftData.Rev5              = (UCHAR) data_values[20];
+	ftData.IsoInA            = (UCHAR) data_values[21];
+	ftData.IsoInB            = (UCHAR) data_values[22];
+	ftData.IsoOutA           = (UCHAR) data_values[23];
+	ftData.IsoOutB           = (UCHAR) data_values[24];
+	ftData.PullDownEnable5   = (UCHAR) data_values[25];
+	ftData.SerNumEnable5     = (UCHAR) data_values[26];
+	ftData.USBVersionEnable5 = (UCHAR) data_values[27];
+	ftData.USBVersion5       = (WORD)  data_values[28];
+	ftData.AIsHighCurrent    = (UCHAR) data_values[29];
+	ftData.BIsHighCurrent    = (UCHAR) data_values[30];
+	ftData.IFAIsFifo         = (UCHAR) data_values[31];
+	ftData.IFAIsFifoTar      = (UCHAR) data_values[32];
+	ftData.IFAIsFastSer      = (UCHAR) data_values[33];
+	ftData.AIsVCP            = (UCHAR) data_values[34];
+	ftData.IFBIsFifo         = (UCHAR) data_values[35];
+	ftData.IFBIsFifoTar      = (UCHAR) data_values[36];
+	ftData.IFBIsFastSer      = (UCHAR) data_values[37];
+	ftData.BIsVCP            = (UCHAR) data_values[38];
+
+	/* Rev 6 (FT232R) extensions */
+	ftData.UseExtOsc       = (UCHAR) data_values[39];
+	ftData.HighDriveIOs    = (UCHAR) data_values[40];
+	ftData.EndpointSize    = (UCHAR) data_values[41];
+	ftData.PullDownEnableR = (UCHAR) data_values[42];
+	ftData.SerNumEnableR   = (UCHAR) data_values[43];
+	ftData.InvertTXD       = (UCHAR) data_values[44];
+	ftData.InvertRXD       = (UCHAR) data_values[45];
+	ftData.InvertRTS       = (UCHAR) data_values[46];
+	ftData.InvertCTS       = (UCHAR) data_values[47];
+	ftData.InvertDTR       = (UCHAR) data_values[48];
+	ftData.InvertDSR       = (UCHAR) data_values[49];
+	ftData.InvertDCD       = (UCHAR) data_values[50];
+	ftData.InvertRI        = (UCHAR) data_values[51];
+	ftData.Cbus0           = (UCHAR) data_values[52];
+	ftData.Cbus1           = (UCHAR) data_values[53];
+	ftData.Cbus2           = (UCHAR) data_values[54];
+	ftData.Cbus3           = (UCHAR) data_values[55];
+	ftData.Cbus4           = (UCHAR) data_values[56];
+	ftData.RIsD2XX         = (UCHAR) data_values[57];
+
+	/* Rev 7 (FT2232H) Extensions */
+	ftData.PullDownEnable7  = (UCHAR) data_values[58];
+	ftData.SerNumEnable7    = (UCHAR) data_values[59];
+	ftData.ALSlowSlew       = (UCHAR) data_values[60];
+	ftData.ALSchmittInput   = (UCHAR) data_values[61];
+	ftData.ALDriveCurrent   = (UCHAR) data_values[62];
+	ftData.AHSlowSlew       = (UCHAR) data_values[63];
+	ftData.AHSchmittInput   = (UCHAR) data_values[64];
+	ftData.AHDriveCurrent   = (UCHAR) data_values[65];
+	ftData.BLSlowSlew       = (UCHAR) data_values[66];
+	ftData.BLSchmittInput   = (UCHAR) data_values[67];
+	ftData.BLDriveCurrent   = (UCHAR) data_values[68];
+	ftData.BHSlowSlew       = (UCHAR) data_values[69];
+	ftData.BHSchmittInput   = (UCHAR) data_values[70];
+	ftData.BHDriveCurrent   = (UCHAR) data_values[71];
+	ftData.IFAIsFifo7       = (UCHAR) data_values[72];
+	ftData.IFAIsFifoTar7    = (UCHAR) data_values[73];
+	ftData.IFAIsFastSer7    = (UCHAR) data_values[74];
+	ftData.AIsVCP7          = (UCHAR) data_values[75];
+	ftData.IFBIsFifo7       = (UCHAR) data_values[76];
+	ftData.IFBIsFifoTar7    = (UCHAR) data_values[77];
+	ftData.IFBIsFastSer7    = (UCHAR) data_values[78];
+	ftData.BIsVCP7          = (UCHAR) data_values[79];
+	ftData.PowerSaveEnable  = (UCHAR) data_values[80];
+
+	/* Rev 8 (FT4232H) Extensions */
+	ftData.PullDownEnable8 = (UCHAR) data_values[81];
+	ftData.SerNumEnable8   = (UCHAR) data_values[82];
+	ftData.ASlowSlew       = (UCHAR) data_values[83];
+	ftData.ASchmittInput   = (UCHAR) data_values[84];
+	ftData.ADriveCurrent   = (UCHAR) data_values[85];
+	ftData.BSlowSlew       = (UCHAR) data_values[86];
+	ftData.BSchmittInput   = (UCHAR) data_values[87];
+	ftData.BDriveCurrent   = (UCHAR) data_values[88];
+	ftData.CSlowSlew       = (UCHAR) data_values[89];
+	ftData.CSchmittInput   = (UCHAR) data_values[90];
+	ftData.CDriveCurrent   = (UCHAR) data_values[91];
+	ftData.DSlowSlew       = (UCHAR) data_values[92];
+	ftData.DSchmittInput   = (UCHAR) data_values[93];
+	ftData.DDriveCurrent   = (UCHAR) data_values[94];
+	ftData.ARIIsTXDEN      = (UCHAR) data_values[95];
+	ftData.BRIIsTXDEN      = (UCHAR) data_values[96];
+	ftData.CRIIsTXDEN      = (UCHAR) data_values[97];
+	ftData.DRIIsTXDEN      = (UCHAR) data_values[98];
+	ftData.AIsVCP8         = (UCHAR) data_values[99];
+	ftData.BIsVCP8         = (UCHAR) data_values[100];
+	ftData.CIsVCP8         = (UCHAR) data_values[101];
+	ftData.DIsVCP8         = (UCHAR) data_values[102];
+
+	/* Rev 9 (FT232H) Extensions */
+	ftData.PullDownEnableH    = (UCHAR) data_values[103];
+	ftData.SerNumEnableH      = (UCHAR) data_values[104];
+	ftData.ACSlowSlewH        = (UCHAR) data_values[105];
+	ftData.ACSchmittInputH    = (UCHAR) data_values[106];
+	ftData.ACDriveCurrentH    = (UCHAR) data_values[107];
+	ftData.ADSlowSlewH        = (UCHAR) data_values[108];
+	ftData.ADSchmittInputH    = (UCHAR) data_values[109];
+	ftData.ADDriveCurrentH    = (UCHAR) data_values[110];
+	ftData.Cbus0H             = (UCHAR) data_values[111];
+	ftData.Cbus1H             = (UCHAR) data_values[112];
+	ftData.Cbus2H             = (UCHAR) data_values[113];
+	ftData.Cbus3H             = (UCHAR) data_values[114];
+	ftData.Cbus4H             = (UCHAR) data_values[115];
+	ftData.Cbus5H             = (UCHAR) data_values[116];
+	ftData.Cbus6H             = (UCHAR) data_values[117];
+	ftData.Cbus7H             = (UCHAR) data_values[118];
+	ftData.Cbus8H             = (UCHAR) data_values[119];
+	ftData.Cbus9H             = (UCHAR) data_values[120];
+	ftData.IsFifoH            = (UCHAR) data_values[121];
+	ftData.IsFifoTarH         = (UCHAR) data_values[122];
+	ftData.IsFastSerH         = (UCHAR) data_values[123];
+	ftData.IsFT1248H          = (UCHAR) data_values[124];
+	ftData.FT1248CpolH        = (UCHAR) data_values[125];
+	ftData.FT1248LsbH         = (UCHAR) data_values[126];
+	ftData.FT1248FlowControlH = (UCHAR) data_values[127];
+	ftData.IsVCPH             = (UCHAR) data_values[128];
+	ftData.PowerSaveEnableH   = (UCHAR) data_values[129];
+
+	ftStatus = FT_EE_Program((FT_HANDLE) handle, &ftData);
+	if(ftStatus != FT_OK) {
+		throw_serialcom_exception(env, 2, ftStatus, NULL);
+		return -1;
+	}
+
+	(*env)->ReleaseStringUTFChars(env, manufacturer, manufacturer_buf);
+	(*env)->ReleaseStringUTFChars(env, manufacturerID, manufacturer_idbuf);
+	(*env)->ReleaseStringUTFChars(env, description, description_buf);
+	(*env)->ReleaseStringUTFChars(env, serialNumber, serialNumber_buf);
+	return 0;
+}
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
  * Method:    eeProgramEx
- * Signature: (JILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;[I)I
+ * Signature: (JLjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;[I)I
+ *
+ * @return 0 on success otherwise -1 if an error occurs.
+ * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_eeProgramEx
-  (JNIEnv *, jobject, jlong, jint, jstring, jstring, jstring, jstring, jintArray);
+  (JNIEnv *env, jobject obj, jlong handle, jstring manufacturer, jstring manufacturerID, jstring description,
+		  jstring serialNumber, jintArray values) {
+
+	FT_STATUS ftStatus = 0;
+	FT_PROGRAM_DATA ftData;
+	char *manufacturer_buf;
+	char *manufacturer_idbuf;
+	char *description_buf;
+	char *serialNumber_buf;
+	jint* data_values = NULL;
+
+	data_values = (*env)->GetIntArrayElements(env, values, JNI_FALSE);
+	if((data_values == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+		throw_serialcom_exception(env, 3, 0, E_GETINTARRELEMTSTR);
+		return -1;
+	}
+
+	manufacturer_buf = (char *) (*env)->GetStringUTFChars(env, manufacturer, NULL);
+	if((manufacturer_buf == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+		throw_serialcom_exception(env, 3, 0, E_GETSTRUTFCHARSTR);
+		return -1;
+	}
+	manufacturer_idbuf = (char *) (*env)->GetStringUTFChars(env, manufacturerID, NULL);
+	if((manufacturer_idbuf == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+		(*env)->ReleaseStringUTFChars(env, manufacturer, manufacturer_buf);
+		throw_serialcom_exception(env, 3, 0, E_GETSTRUTFCHARSTR);
+		return -1;
+	}
+	description_buf = (char *) (*env)->GetStringUTFChars(env, description, NULL);
+	if((description_buf == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+		(*env)->ReleaseStringUTFChars(env, manufacturer, manufacturer_buf);
+		(*env)->ReleaseStringUTFChars(env, manufacturerID, manufacturer_idbuf);
+		throw_serialcom_exception(env, 3, 0, E_GETSTRUTFCHARSTR);
+		return -1;
+	}
+	serialNumber_buf = (char *) (*env)->GetStringUTFChars(env, serialNumber, NULL);
+	if((serialNumber_buf == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+		(*env)->ReleaseStringUTFChars(env, manufacturer, manufacturer_buf);
+		(*env)->ReleaseStringUTFChars(env, manufacturerID, manufacturer_idbuf);
+		(*env)->ReleaseStringUTFChars(env, description, description_buf);
+		throw_serialcom_exception(env, 3, 0, E_GETSTRUTFCHARSTR);
+		return -1;
+	}
+
+	ftData.Signature1     = (DWORD) data_values[0]; /* 0x00000000 */
+	ftData.Signature2     = (DWORD) data_values[1]; /* 0xffffffff */
+	ftData.Version        = (DWORD) data_values[2];
+	ftData.VendorId       = (WORD) data_values[3];
+	ftData.ProductId      = (WORD) data_values[4];
+	ftData.Manufacturer   = (DWORD) 0;
+	ftData.ManufacturerId = (DWORD) 0;
+	ftData.Description    = (DWORD) 0;
+	ftData.SerialNumber   = (DWORD) 0;
+	ftData.MaxPower       = (WORD) data_values[9];
+	ftData.PnP            = (WORD) data_values[10];
+	ftData.SelfPowered    = (WORD) data_values[11];
+	ftData.RemoteWakeup   = (WORD) data_values[12];
+
+	/* Rev4 (FT232B) extensions */
+	ftData.Rev4             = (UCHAR) data_values[13];
+	ftData.IsoIn            = (UCHAR) data_values[14];
+	ftData.IsoOut           = (UCHAR) data_values[15];
+	ftData.PullDownEnable   = (UCHAR) data_values[16];
+	ftData.SerNumEnable     = (UCHAR) data_values[17];
+	ftData.USBVersionEnable = (UCHAR) data_values[18];
+	ftData.USBVersion       = (WORD)  data_values[19];
+
+	/* Rev 5 (FT2232) extensions */
+	ftData.Rev5              = (UCHAR) data_values[20];
+	ftData.IsoInA            = (UCHAR) data_values[21];
+	ftData.IsoInB            = (UCHAR) data_values[22];
+	ftData.IsoOutA           = (UCHAR) data_values[23];
+	ftData.IsoOutB           = (UCHAR) data_values[24];
+	ftData.PullDownEnable5   = (UCHAR) data_values[25];
+	ftData.SerNumEnable5     = (UCHAR) data_values[26];
+	ftData.USBVersionEnable5 = (UCHAR) data_values[27];
+	ftData.USBVersion5       = (WORD)  data_values[28];
+	ftData.AIsHighCurrent    = (UCHAR) data_values[29];
+	ftData.BIsHighCurrent    = (UCHAR) data_values[30];
+	ftData.IFAIsFifo         = (UCHAR) data_values[31];
+	ftData.IFAIsFifoTar      = (UCHAR) data_values[32];
+	ftData.IFAIsFastSer      = (UCHAR) data_values[33];
+	ftData.AIsVCP            = (UCHAR) data_values[34];
+	ftData.IFBIsFifo         = (UCHAR) data_values[35];
+	ftData.IFBIsFifoTar      = (UCHAR) data_values[36];
+	ftData.IFBIsFastSer      = (UCHAR) data_values[37];
+	ftData.BIsVCP            = (UCHAR) data_values[38];
+
+	/* Rev 6 (FT232R) extensions */
+	ftData.UseExtOsc       = (UCHAR) data_values[39];
+	ftData.HighDriveIOs    = (UCHAR) data_values[40];
+	ftData.EndpointSize    = (UCHAR) data_values[41];
+	ftData.PullDownEnableR = (UCHAR) data_values[42];
+	ftData.SerNumEnableR   = (UCHAR) data_values[43];
+	ftData.InvertTXD       = (UCHAR) data_values[44];
+	ftData.InvertRXD       = (UCHAR) data_values[45];
+	ftData.InvertRTS       = (UCHAR) data_values[46];
+	ftData.InvertCTS       = (UCHAR) data_values[47];
+	ftData.InvertDTR       = (UCHAR) data_values[48];
+	ftData.InvertDSR       = (UCHAR) data_values[49];
+	ftData.InvertDCD       = (UCHAR) data_values[50];
+	ftData.InvertRI        = (UCHAR) data_values[51];
+	ftData.Cbus0           = (UCHAR) data_values[52];
+	ftData.Cbus1           = (UCHAR) data_values[53];
+	ftData.Cbus2           = (UCHAR) data_values[54];
+	ftData.Cbus3           = (UCHAR) data_values[55];
+	ftData.Cbus4           = (UCHAR) data_values[56];
+	ftData.RIsD2XX         = (UCHAR) data_values[57];
+
+	/* Rev 7 (FT2232H) Extensions */
+	ftData.PullDownEnable7  = (UCHAR) data_values[58];
+	ftData.SerNumEnable7    = (UCHAR) data_values[59];
+	ftData.ALSlowSlew       = (UCHAR) data_values[60];
+	ftData.ALSchmittInput   = (UCHAR) data_values[61];
+	ftData.ALDriveCurrent   = (UCHAR) data_values[62];
+	ftData.AHSlowSlew       = (UCHAR) data_values[63];
+	ftData.AHSchmittInput   = (UCHAR) data_values[64];
+	ftData.AHDriveCurrent   = (UCHAR) data_values[65];
+	ftData.BLSlowSlew       = (UCHAR) data_values[66];
+	ftData.BLSchmittInput   = (UCHAR) data_values[67];
+	ftData.BLDriveCurrent   = (UCHAR) data_values[68];
+	ftData.BHSlowSlew       = (UCHAR) data_values[69];
+	ftData.BHSchmittInput   = (UCHAR) data_values[70];
+	ftData.BHDriveCurrent   = (UCHAR) data_values[71];
+	ftData.IFAIsFifo7       = (UCHAR) data_values[72];
+	ftData.IFAIsFifoTar7    = (UCHAR) data_values[73];
+	ftData.IFAIsFastSer7    = (UCHAR) data_values[74];
+	ftData.AIsVCP7          = (UCHAR) data_values[75];
+	ftData.IFBIsFifo7       = (UCHAR) data_values[76];
+	ftData.IFBIsFifoTar7    = (UCHAR) data_values[77];
+	ftData.IFBIsFastSer7    = (UCHAR) data_values[78];
+	ftData.BIsVCP7          = (UCHAR) data_values[79];
+	ftData.PowerSaveEnable  = (UCHAR) data_values[80];
+
+	/* Rev 8 (FT4232H) Extensions */
+	ftData.PullDownEnable8 = (UCHAR) data_values[81];
+	ftData.SerNumEnable8   = (UCHAR) data_values[82];
+	ftData.ASlowSlew       = (UCHAR) data_values[83];
+	ftData.ASchmittInput   = (UCHAR) data_values[84];
+	ftData.ADriveCurrent   = (UCHAR) data_values[85];
+	ftData.BSlowSlew       = (UCHAR) data_values[86];
+	ftData.BSchmittInput   = (UCHAR) data_values[87];
+	ftData.BDriveCurrent   = (UCHAR) data_values[88];
+	ftData.CSlowSlew       = (UCHAR) data_values[89];
+	ftData.CSchmittInput   = (UCHAR) data_values[90];
+	ftData.CDriveCurrent   = (UCHAR) data_values[91];
+	ftData.DSlowSlew       = (UCHAR) data_values[92];
+	ftData.DSchmittInput   = (UCHAR) data_values[93];
+	ftData.DDriveCurrent   = (UCHAR) data_values[94];
+	ftData.ARIIsTXDEN      = (UCHAR) data_values[95];
+	ftData.BRIIsTXDEN      = (UCHAR) data_values[96];
+	ftData.CRIIsTXDEN      = (UCHAR) data_values[97];
+	ftData.DRIIsTXDEN      = (UCHAR) data_values[98];
+	ftData.AIsVCP8         = (UCHAR) data_values[99];
+	ftData.BIsVCP8         = (UCHAR) data_values[100];
+	ftData.CIsVCP8         = (UCHAR) data_values[101];
+	ftData.DIsVCP8         = (UCHAR) data_values[102];
+
+	/* Rev 9 (FT232H) Extensions */
+	ftData.PullDownEnableH    = (UCHAR) data_values[103];
+	ftData.SerNumEnableH      = (UCHAR) data_values[104];
+	ftData.ACSlowSlewH        = (UCHAR) data_values[105];
+	ftData.ACSchmittInputH    = (UCHAR) data_values[106];
+	ftData.ACDriveCurrentH    = (UCHAR) data_values[107];
+	ftData.ADSlowSlewH        = (UCHAR) data_values[108];
+	ftData.ADSchmittInputH    = (UCHAR) data_values[109];
+	ftData.ADDriveCurrentH    = (UCHAR) data_values[110];
+	ftData.Cbus0H             = (UCHAR) data_values[111];
+	ftData.Cbus1H             = (UCHAR) data_values[112];
+	ftData.Cbus2H             = (UCHAR) data_values[113];
+	ftData.Cbus3H             = (UCHAR) data_values[114];
+	ftData.Cbus4H             = (UCHAR) data_values[115];
+	ftData.Cbus5H             = (UCHAR) data_values[116];
+	ftData.Cbus6H             = (UCHAR) data_values[117];
+	ftData.Cbus7H             = (UCHAR) data_values[118];
+	ftData.Cbus8H             = (UCHAR) data_values[119];
+	ftData.Cbus9H             = (UCHAR) data_values[120];
+	ftData.IsFifoH            = (UCHAR) data_values[121];
+	ftData.IsFifoTarH         = (UCHAR) data_values[122];
+	ftData.IsFastSerH         = (UCHAR) data_values[123];
+	ftData.IsFT1248H          = (UCHAR) data_values[124];
+	ftData.FT1248CpolH        = (UCHAR) data_values[125];
+	ftData.FT1248LsbH         = (UCHAR) data_values[126];
+	ftData.FT1248FlowControlH = (UCHAR) data_values[127];
+	ftData.IsVCPH             = (UCHAR) data_values[128];
+	ftData.PowerSaveEnableH   = (UCHAR) data_values[129];
+
+	ftStatus = FT_EE_ProgramEx((FT_HANDLE) handle, &ftData, manufacturer_buf, manufacturer_idbuf,
+			description_buf, serialNumber_buf);
+	if(ftStatus != FT_OK) {
+		throw_serialcom_exception(env, 2, ftStatus, NULL);
+		return -1;
+	}
+
+	(*env)->ReleaseStringUTFChars(env, manufacturer, manufacturer_buf);
+	(*env)->ReleaseStringUTFChars(env, manufacturerID, manufacturer_idbuf);
+	(*env)->ReleaseStringUTFChars(env, description, description_buf);
+	(*env)->ReleaseStringUTFChars(env, serialNumber, serialNumber_buf);
+	return 0;
+}
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
  * Method:    eeUAsize
  * Signature: (J)I
+ *
+ * @return size of eeprom user area in bytes on success otherwise -1 if an error occurs.
+ * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_eeUAsize
-  (JNIEnv *, jobject, jlong);
+  (JNIEnv *env, jobject obj, jlong handle) {
+
+	FT_STATUS ftStatus = 0;
+	DWORD size = 0;
+	ftStatus = FT_EE_UASize((FT_HANDLE)handle, &size);
+	if(ftStatus != FT_OK) {
+		throw_serialcom_exception(env, 2, ftStatus, NULL);
+		return -1;
+	}
+	return size;
+}
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
  * Method:    eeUAread
  * Signature: (J[BI)I
+ *
+ * @return number of bytes read from eeprom user area on success otherwise -1 if an error occurs.
+ * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_eeUAread
-  (JNIEnv *, jobject, jlong, jbyteArray, jint);
+  (JNIEnv *env, jobject obj, jlong handle, jbyteArray buffer, jint length) {
+
+	int x = 0;
+	DWORD num_bytes_read;
+	FT_STATUS ftStatus = 0;
+	UCHAR *data_char_buffer = NULL;
+	jbyte* data_buffer = NULL;
+
+	data_buffer = (jbyte *) calloc(length, sizeof(jbyte));
+	if(data_buffer == NULL) {
+		throw_serialcom_exception(env, 3, 0, E_CALLOCSTR);
+		return -1;
+	}
+
+	data_char_buffer = (UCHAR *) calloc(length, sizeof(UCHAR));
+	if(data_char_buffer == NULL) {
+		free(data_buffer);
+		throw_serialcom_exception(env, 3, 0, E_CALLOCSTR);
+		return -1;
+	}
+
+	ftStatus = FT_EE_UARead((FT_HANDLE)handle, data_char_buffer, (DWORD)length, &num_bytes_read);
+	if(ftStatus != FT_OK) {
+		free(data_buffer);
+		free(data_char_buffer);
+		throw_serialcom_exception(env, 2, ftStatus, NULL);
+		return -1;
+	}
+
+	if(num_bytes_read > 0) {
+		for(x=0; x<num_bytes_read; x++) {
+			data_buffer[x] = (jbyte) data_char_buffer[x];
+		}
+		(*env)->SetByteArrayRegion(env, buffer, 0, (unsigned int)num_bytes_read, data_buffer);
+		if((*env)->ExceptionOccurred(env)) {
+			free(data_buffer);
+			free(data_char_buffer);
+			throw_serialcom_exception(env, 3, 0, E_SETBYTEARRREGIONSTR);
+			return -1;
+		}
+	}
+
+	free(data_buffer);
+	free(data_char_buffer);
+	return num_bytes_read;
+}
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
  * Method:    eeUAwrite
  * Signature: (J[BI)I
+ *
+ * @return 0 on success otherwise -1 if an error occurs.
+ * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_eeUAwrite
-  (JNIEnv *, jobject, jlong, jbyteArray, jint);
+  (JNIEnv *env, jobject obj, jlong handle, jbyteArray buffer, jint length) {
+
+	int x = 0;
+	FT_STATUS ftStatus = 0;
+	jbyte* data_buffer = NULL;
+	UCHAR *data_to_write = NULL;
+
+	data_buffer = (jbyte *) calloc(length, sizeof(jbyte));
+	if(data_buffer == NULL) {
+		throw_serialcom_exception(env, 3, 0, E_CALLOCSTR);
+		return -1;
+	}
+
+	data_to_write = (UCHAR *) calloc(length, sizeof(UCHAR));
+	if(data_to_write == NULL) {
+		free(data_buffer);
+		throw_serialcom_exception(env, 3, 0, E_CALLOCSTR);
+		return -1;
+	}
+
+	(*env)->GetByteArrayRegion(env, buffer, 0, length, data_buffer);
+	if((*env)->ExceptionOccurred(env)) {
+		free(data_buffer);
+		free(data_to_write);
+		throw_serialcom_exception(env, 3, 0, E_GETBYTEARRREGIONSTR);
+		return -1;
+	}
+
+	for(x=0; x<length; x++) {
+		data_to_write[x] = (UCHAR) data_buffer[x];
+	}
+
+	ftStatus = FT_EE_UAWrite((FT_HANDLE)handle, data_to_write, length);
+	if(ftStatus != FT_OK) {
+		free(data_buffer);
+		free(data_to_write);
+		throw_serialcom_exception(env, 2, ftStatus, NULL);
+		return -1;
+	}
+
+	free(data_buffer);
+	free(data_to_write);
+	return 0;
+}
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
@@ -1984,7 +2699,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
  * Method:    setLatencyTimer
  * Signature: (JI)I
  *
- * @return 0 on success otherwise -1 if error occurs.
+ * @return 0 on success otherwise -1 if an error occurs.
  * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_setLatencyTimer
@@ -2005,7 +2720,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
  * Method:    getLatencyTimer
  * Signature: (J)I
  *
- * @return latency time value on success otherwise -1 if error occurs.
+ * @return latency time value on success otherwise -1 if an error occurs.
  * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_getLatencyTimer
@@ -2027,7 +2742,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
  * Method:    setBitMode
  * Signature: (JII)I
  *
- * @return 0 on success otherwise -1 if error occurs.
+ * @return 0 on success otherwise -1 if an error occurs.
  * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_setBitMode
@@ -2048,7 +2763,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
  * Method:    getBitMode
  * Signature: (J)I
  *
- * @return bit mode value on success otherwise -1 if error occurs.
+ * @return bit mode value on success otherwise -1 if an error occurs.
  * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_getBitMode
@@ -2070,7 +2785,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
  * Method:    setUSBParameters
  * Signature: (JII)I
  *
- * @return 0 on success otherwise -1 if error occurs.
+ * @return 0 on success otherwise -1 if an error occurs.
  * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_setUSBParameters
@@ -2205,7 +2920,7 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID
  * Method:    w32CloseHandle
  * Signature: (J)I
  *
- * @return 0 on success otherwise -1 if error occurs.
+ * @return 0 on success otherwise -1 if an error occurs.
  * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_w32CloseHandle
@@ -2235,7 +2950,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
  * Signature: (J[BI)I
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_w32WriteFile
-  (JNIEnv *, jobject, jlong, jbyteArray, jint) {
+  (JNIEnv *env, jobject obj, jlong handle, jbyteArray, jint) {
 
 }
 
@@ -2245,7 +2960,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
  * Signature: (JZ)I
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_w32GetOverlappedResult
-  (JNIEnv *, jobject, jlong, jboolean) {
+  (JNIEnv *env, jobject obj, jlong handle, jboolean) {
 
 }
 
@@ -2271,6 +2986,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
 		throw_serialcom_exception(env, 3, 0, E_SETRTS);
 		return -1;
 	}
+
 	return 0;
 }
 
@@ -2320,6 +3036,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_w32SetupComm
   (JNIEnv *env, jobject obj, jlong handle, jint readBufSize, jint writeBufSize) {
+
 	BOOL ret = 0;
 	ret = FT_W32_SetupComm((FT_HANDLE)handle, (DWORD)readBufSize, (DWORD)writeBufSize);
 	if(ret == 0) {
@@ -2386,6 +3103,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
 		throw_serialcom_exception(env, 3, 0, E_SETUPCOMMSTATE);
 		return -1;
 	}
+
 	return 0;
 }
 
@@ -2450,6 +3168,7 @@ JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComF
 		throw_serialcom_exception(env, 3, 0, E_SETINTARRREGIONSTR);
 		return NULL;
 	}
+
 	return dcbvalues;
 }
 
@@ -2479,6 +3198,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
 		throw_serialcom_exception(env, 3, 0, E_SETCOMMTIMEOUTS);
 		return -1;
 	}
+
 	return 0;
 }
 
@@ -2520,6 +3240,7 @@ JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComF
 		throw_serialcom_exception(env, 3, 0, E_SETINTARRREGIONSTR);
 		return NULL;
 	}
+
 	return timeout_values;
 }
 
@@ -2540,6 +3261,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
 		throw_serialcom_exception(env, 3, 0, E_SETCOMMBREAK);
 		return -1;
 	}
+
 	return 0;
 }
 
@@ -2839,7 +3561,7 @@ JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComF
 	jintArray info = NULL;
 	jint values[11];
 
-	ret = FT_W32_ClearCommError((FT_HANDLE)handle, &comstat, &errors);
+	ret = FT_W32_ClearCommError((FT_HANDLE)handle, &errors, &comstat);
 	if(ret == 0) {
 		throw_serialcom_exception(env, 3, 0, E_CLEARCOMMERROR);
 		return NULL;

@@ -1280,10 +1280,10 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public FTprogramData eeRead(final long handle, int version) throws SerialComException {
-		byte[] manufacturer = new byte[32];
-		byte[] manufacturerID = new byte[16];
-		byte[] description = new byte[64];
-		byte[] serialNumber = new byte[16];
+		char[] manufacturer = new char[32];
+		char[] manufacturerID = new char[16];
+		char[] description = new char[64];
+		char[] serialNumber = new char[16];
 		FTprogramData ftProgramData;
 
 		int[] info = mFTDID2XXJNIBridge.eeRead(handle, version, manufacturer, manufacturerID, description, serialNumber);
@@ -1302,15 +1302,17 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 * 
 	 * @param handle handle of the device whose contents are to be read.
 	 * @param version of the FT_PROGRAM_DATA structure defined in FTD2XX.h file.
-	 * @param manufacturer byte array of size 32 bytes to save manufacturer name.
-	 * @param manufacturerID byte array of size 16 bytes to save manufacturer ID.
-	 * @param description byte array of size 64 bytes to save device description.
-	 * @param serialNumber byte array of size 16 bytes to save serial number of device.
+	 * @param manufacturer char array of size 32 bytes to save manufacturer name.
+	 * @param manufacturerID char array of size 16 bytes to save manufacturer ID.
+	 * @param description char array of size 64 bytes to save device description.
+	 * @param serialNumber char array of size 16 bytes to save serial number of device.
 	 * @return an object of type FTprogramData containing all data read.
+	 * @throws IllegalArgumentException if manufacturer, manufacturerID, description or serialNumber is
+	 *          null.
 	 * @throws SerialComException if an I/O error occurs.
 	 */
-	public FTprogramData eeReadEx(final long handle, int version, byte[] manufacturer, byte[] manufacturerID, 
-			byte[] description, byte[] serialNumber) throws SerialComException {
+	public FTprogramData eeReadEx(final long handle, int version, char[] manufacturer, char[] manufacturerID, 
+			char[] description, char[] serialNumber) throws SerialComException {
 		FTprogramData ftProgramData;
 
 		// verify correct objects
@@ -1342,23 +1344,27 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	/**
 	 * <p>Executes FT_EE_Program function of D2XX library.</p>
 	 * 
-	 * <p>Programs the EEPROM.</p>
+	 * <p>Programs the EEPROM. When creating array of data values to be written, Manufacturer, 
+	 * ManufacturerId, Description and  should be set to -1.</p>
 	 * 
 	 * @param handle handle of the device whose EEPROM is to be programmed.
-	 * @param version of the FT_PROGRAM_DATA structure defined in FTD2XX.h file.
-	 * @param vid vendor ID (0x0403).
-	 * @param PID product ID (0x6001).
-	 * @param manufacturer byte array of size 32 bytes to save manufacturer name.
-	 * @param manufacturerID byte array of size 16 bytes to save manufacturer ID.
-	 * @param description byte array of size 64 bytes to save device description.
-	 * @param serialNumber byte array of size 16 bytes to save serial number of device.
-	 * @param values array of integer with all values populated in order as declared in FTD2XX.h file.
+	 * @param manufacturer manufacturer name string (see app note for maximum suggested size, typically 32).
+	 * @param manufacturerID manufacturer ID string (see app note for maximum suggested size, typically 16).
+	 * @param description device description (see app note for maximum suggested size, typically 64).
+	 * @param serialNumber serial number of device (see app note for maximum suggested size, typically 16).
+	 * @param values array of integer with all values populated in order as declared in 
+	 *         FT_PROGRAM_DATA structure in FTD2XX.h file.
 	 * @return true is data is programmed into EEPROM.
+	 * @throws IllegalArgumentException if manufacturer, manufacturerID, description or serialNumber is
+	 *          null.
 	 * @throws SerialComException if an I/O error occurs.
 	 */
-	public boolean eeProgram(final long handle, int version, String manufacturer, String manufacturerID, 
+	public boolean eeProgram(final long handle, String manufacturer, String manufacturerID, 
 			String description, String serialNumber, int[] values) throws SerialComException {
-		int ret = mFTDID2XXJNIBridge.eeProgram(handle, version, manufacturer, manufacturerID, description, serialNumber, values);
+		if((manufacturer == null) || (manufacturerID == null) || (description == null) || (serialNumber == null)) {
+			throw new IllegalArgumentException("Arguments manufacturer, manufacturerID, description and serialNumber can not be null !");
+		}
+		int ret = mFTDID2XXJNIBridge.eeProgram(handle, manufacturer, manufacturerID, description, serialNumber, values);
 		if(ret < 0) {
 			throw new SerialComException("Could not program the EEPROM. Please retry !");
 		}
@@ -1369,23 +1375,27 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	/**
 	 * <p>Executes FT_EE_ProgramEx function of D2XX library.</p>
 	 * 
-	 * <p>Programs the EEPROM.</p>
+	 * <p>Programs the EEPROM. When creating array of data values to be written, Manufacturer, 
+	 * ManufacturerId, Description and  should be set to -1.</p>
 	 * 
 	 * @param handle handle of the device whose EEPROM is to be programmed.
-	 * @param version of the FT_PROGRAM_DATA structure defined in FTD2XX.h file.
-	 * @param vid vendor ID (0x0403).
-	 * @param PID product ID (0x6001).
-	 * @param manufacturer manufacturer name string.
-	 * @param manufacturerID manufacturer ID string.
-	 * @param description device description string.
-	 * @param serialNumber serial number of device string.
-	 * @param values array of integer with all values populated in order as declared in FTD2XX.h file.
+	 * @param manufacturer manufacturer name string (see app note for maximum suggested size, typically 32).
+	 * @param manufacturerID manufacturer ID string (see app note for maximum suggested size, typically 16).
+	 * @param description device description (see app note for maximum suggested size, typically 64).
+	 * @param serialNumber serial number of device (see app note for maximum suggested size, typically 16).
+	 * @param values array of integer with all values populated in order as declared in 
+	 *         FT_PROGRAM_DATA structure in FTD2XX.h file.
 	 * @return true is data is programmed into EEPROM.
+	 * @throws IllegalArgumentException if manufacturer, manufacturerID, description or serialNumber is
+	 *          null.
 	 * @throws SerialComException if an I/O error occurs.
 	 */
-	public boolean eeProgramEx(final long handle, int version, String manufacturer, String manufacturerID, 
+	public boolean eeProgramEx(final long handle, String manufacturer, String manufacturerID, 
 			String description, String serialNumber, int[] values) throws SerialComException {
-		int ret = mFTDID2XXJNIBridge.eeProgramEx(handle, version, manufacturer, manufacturerID, description, serialNumber, values);
+		if((manufacturer == null) || (manufacturerID == null) || (description == null) || (serialNumber == null)) {
+			throw new IllegalArgumentException("Arguments manufacturer, manufacturerID, description and serialNumber can not be null !");
+		}
+		int ret = mFTDID2XXJNIBridge.eeProgramEx(handle, manufacturer, manufacturerID, description, serialNumber, values);
 		if(ret < 0) {
 			throw new SerialComException("Could not program the EEPROM. Please retry !");
 		}
@@ -1413,15 +1423,22 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	/**
 	 * <p>Executes FT_EE_UARead function of D2XX library.</p>
 	 * 
-	 * <p>Get the available size of the EEPROM user area.</p>
+	 * <p>Read the contents of the EEPROM user area.</p>
 	 * 
 	 * @param handle handle of the device whose EEPROM area is to be read.
 	 * @param buffer byte buffer to store data.
 	 * @param length number of bytes to read from EEPROM.
 	 * @return number of bytes actually read.
+	 * @throws IllegalArgumentException if buffer is null or length > buffer.length.
 	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public int eeUAread(final long handle, byte[] buffer, int length) throws SerialComException {
+		if(buffer == null) {
+			throw new IllegalArgumentException("Argument buffer can not be null !");
+		}
+		if(length > buffer.length) {
+			throw new IllegalArgumentException("Argument length must be less than or equal to length of buffer !");
+		}
 		int ret = mFTDID2XXJNIBridge.eeUAread(handle, buffer, length);
 		if(ret < 0) {
 			throw new SerialComException("Could not read the EEPROM. Please retry !");
@@ -1436,14 +1453,21 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 * 
 	 * @param handle handle of the device whose EEPROM area is to be written.
 	 * @param buffer byte buffer to containing data.
-	 * @param length number of bytes to write from buffer to EEPROM.
+	 * @param length number of bytes to write from buffer to EEPROM user area.
 	 * @return true on success.
+	 * @throws IllegalArgumentException if buffer is null or length > buffer.length.
 	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public boolean eeUAwrite(final long handle, byte[] buffer, int length) throws SerialComException {
+		if(buffer == null) {
+			throw new IllegalArgumentException("Argument buffer can not be null !");
+		}
+		if(length > buffer.length) {
+			throw new IllegalArgumentException("Argument length must be less than or equal to length of buffer !");
+		}
 		int ret = mFTDID2XXJNIBridge.eeUAwrite(handle, buffer, length);
 		if(ret < 0) {
-			throw new SerialComException("Could not read the EEPROM. Please retry !");
+			throw new SerialComException("Could not write data to the EEPROM. Please retry !");
 		}
 		return true;
 	}

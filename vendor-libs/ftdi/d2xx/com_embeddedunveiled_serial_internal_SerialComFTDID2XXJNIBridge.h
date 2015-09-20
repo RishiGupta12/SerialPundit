@@ -370,26 +370,26 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
  * Method:    eeRead
- * Signature: (JI[B[B[B[B)[I
+ * Signature: (JI[C[C[C[C)[I
  */
 JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_eeRead
-  (JNIEnv *, jobject, jlong, jint, jbyteArray, jbyteArray, jbyteArray, jbyteArray);
+  (JNIEnv *, jobject, jlong, jint, jcharArray, jcharArray, jcharArray, jcharArray);
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
  * Method:    eeProgram
- * Signature: (JILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;[I)I
+ * Signature: (JLjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;[I)I
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_eeProgram
-  (JNIEnv *, jobject, jlong, jint, jstring, jstring, jstring, jstring, jintArray);
+  (JNIEnv *, jobject, jlong, jstring, jstring, jstring, jstring, jintArray);
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
  * Method:    eeProgramEx
- * Signature: (JILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;[I)I
+ * Signature: (JLjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;[I)I
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_eeProgramEx
-  (JNIEnv *, jobject, jlong, jint, jstring, jstring, jstring, jstring, jintArray);
+  (JNIEnv *, jobject, jlong, jstring, jstring, jstring, jstring, jintArray);
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
