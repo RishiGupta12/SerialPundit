@@ -418,10 +418,10 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
  * Method:    eepromRead
- * Signature: (JI[B[B[B[B)[I
+ * Signature: (JI[C[C[C[C)[I
  */
 JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_eepromRead
-  (JNIEnv *, jobject, jlong, jint, jbyteArray, jbyteArray, jbyteArray, jbyteArray);
+  (JNIEnv *, jobject, jlong, jint, jcharArray, jcharArray, jcharArray, jcharArray);
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge

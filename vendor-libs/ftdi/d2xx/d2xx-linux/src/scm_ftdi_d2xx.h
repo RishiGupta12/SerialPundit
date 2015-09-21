@@ -146,6 +146,9 @@
 #define E_PURGECOMM "Could not purge the port !"
 #define E_GETLASTERROR "Could not get the last error value !"
 #define E_CLEARCOMMERROR "Could not get the error and status information !"
+#define E_W32WRITEFILE "Could not write given data to device !"
+#define E_W32READFILE "Could not write given data to device !"
+#define E_WAITCOMEVENT "Could not wait for an event to occur !"
 
 
 /* This holds information for implementing dynamically growing array in C language. */

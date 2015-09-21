@@ -358,7 +358,7 @@ public final class FTeepromXseries extends FTeepromHeader {
 	 * @return driver type.
 	 */
 	public int getADriverType() {
-		return dataXseries[41];
+		return dataXseries[40];
 	}
 
 	/**

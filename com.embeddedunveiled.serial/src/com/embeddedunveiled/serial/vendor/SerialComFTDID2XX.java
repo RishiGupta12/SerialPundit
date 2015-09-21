@@ -480,8 +480,8 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 * @param pvArg1 index in FT device list.
 	 * @param dwFlags flag specifying what operation should be performed.
 	 * @return array of FTdeviceInfo types representing information requested or null if something fails.
-	 * @throws SerialComException if an I/O error occurs.
 	 * @throws IllegalArgumentException if pvArg1 is negative or dwFlags is not one of the valid constants.
+	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public FTdeviceInfo[] listDevices(final int pvArg1, final int dwFlags) throws SerialComException {
 		int i = 0;
@@ -1480,16 +1480,16 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 * 
 	 * @param handle handle of the device whose contents are to be read.
 	 * @param deviceType one of the constants FT_DEVICE_XXXX.
-	 * @param manufacturer byte array of size 32 bytes to save manufacturer name.
-	 * @param manufacturerID byte array of size 16 bytes to save manufacturer ID.
-	 * @param description byte array of size 64 bytes to save device description.
-	 * @param serialNumber byte array of size 16 bytes to save serial number of device.
+	 * @param manufacturer char array to save manufacturer name (suggested size 32).
+	 * @param manufacturerID char array to save manufacturer ID (suggested size 16).
+	 * @param description char array to save device description (suggested size 64).
+	 * @param serialNumber char array to save serial number of device (suggested size 16).
 	 * @return an object of FTeepromData class containing all values read.
 	 * @throws IllegalArgumentException if deviceType is invalid or length of byte arrays are incorrect.
 	 * @throws SerialComException if an I/O error occurs.
 	 */
-	public FTeepromData eepromRead(final long handle, int deviceType, byte[] manufacturer, 
-			byte[] manufacturerID, byte[] description, byte[] serialNumber) throws SerialComException {
+	public FTeepromData eepromRead(final long handle, int deviceType, char[] manufacturer, 
+			char[] manufacturerID, char[] description, char[] serialNumber) throws SerialComException {
 
 		// verify correct device
 		if((deviceType != FT_DEVICE_2232C) && (deviceType != FT_DEVICE_2232H) && (deviceType != FT_DEVICE_232R)
@@ -1570,41 +1570,38 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 			}
 			FTeeprom2232 dev = (FTeeprom2232) eepromData;
 			dataToBeWritten = dev.getAllMembers();
-		}
-		if(devType == FT_DEVICE_2232H) {
+		}else if(devType == FT_DEVICE_2232H) {
 			if(!(eepromData instanceof FTeeprom2232H)) {
 				throw new IllegalArgumentException("For FT_DEVICE_2232H, argument eepromData must be an instance of FTeeprom2232H class !");
 			}
 			FTeeprom2232H dev = (FTeeprom2232H) eepromData;
 			dataToBeWritten = dev.getAllMembers();
-		}
-		if(devType == FT_DEVICE_232R) {
+		}else if(devType == FT_DEVICE_232R) {
 			if(!(eepromData instanceof FTeeprom232R)) {
 				throw new IllegalArgumentException("For FT_DEVICE_232R, argument eepromData must be an instance of FTeeprom232R class !");
 			}
 			FTeeprom232R dev = (FTeeprom232R) eepromData;
 			dataToBeWritten = dev.getAllMembers();
-		}
-		if(devType == FT_DEVICE_232H) {
+		}else if(devType == FT_DEVICE_232H) {
 			if(!(eepromData instanceof FTeeprom232H)) {
 				throw new IllegalArgumentException("For FT_DEVICE_232H, argument eepromData must be an instance of FTeeprom232H class !");
 			}
 			FTeeprom232H dev = (FTeeprom232H) eepromData;
 			dataToBeWritten = dev.getAllMembers();
-		}		
-		if(devType == FT_DEVICE_4232H) {
+		}else if(devType == FT_DEVICE_4232H) {
 			if(!(eepromData instanceof FTeeprom4232H)) {
 				throw new IllegalArgumentException("For FT_DEVICE_4232H, argument eepromData must be an instance of FTeeprom4232H class !");
 			}
 			FTeeprom4232H dev = (FTeeprom4232H) eepromData;
 			dataToBeWritten = dev.getAllMembers();
-		}
-		if(devType == FT_DEVICE_X_SERIES) {
+		}else if(devType == FT_DEVICE_X_SERIES) {
 			if(!(eepromData instanceof FTeepromXseries)) {
 				throw new IllegalArgumentException("For FT_DEVICE_X_SERIES, argument eepromData must be an instance of FTeepromXseries class !");
 			}
 			FTeepromXseries dev = (FTeepromXseries) eepromData;
 			dataToBeWritten = dev.getAllMembers();
+		}else {
+			/* should not happen */
 		}
 
 		// make sure that correct array size is passed to native layer.
@@ -1795,6 +1792,10 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 * 
 	 * <p>Read data from the device.</p>
 	 * 
+	 * <p>Note that SCM supports only non-overlapped version of FT_W32_ReadFile method. If the application 
+	 * wishes to do anything in parallel, it should use java thread. By default this method will block. 
+	 * If non-blocking behavior is required application can set timeouts using w32SetCommTimeouts method.</p>
+	 * 
 	 * @param handle handle of the device from which to read data.
 	 * @param buffer byte buffer where data read will be placed.
 	 * @param numOfBytesToRead number of bytes to be tried to read.
@@ -1809,11 +1810,11 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 		if(numOfBytesToRead <= 0) {
 			throw new IllegalArgumentException("Argument numOfBytesToRead can not be negative or zero !");
 		}
+		
 		int ret = mFTDID2XXJNIBridge.w32ReadFile(handle, buffer, numOfBytesToRead);
 		if(ret < 0) {
 			throw new SerialComException("Could not read the data from the requested device. Please retry !");
 		}
-
 		return ret;
 	}
 
@@ -1822,9 +1823,13 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 * 
 	 * <p>Write data from given buffer to the device.</p>
 	 * 
+	 * <p>Note that SCM supports only non-overlapped version of FT_W32_WriteFile method. If the application 
+	 * wishes to do anything in parallel, it should use java thread. By default this method will block. 
+	 * If non-blocking behavior is required application can set timeouts using w32SetCommTimeouts method.</p>
+	 * 
 	 * @param handle handle of the device to which data is to be sent.
 	 * @param buffer byte buffer that contains the data to be written to the device.
-	 * @param numOfBytesToWrite Number of bytes to write to the device.
+	 * @param numOfBytesToWrite number of bytes to write from buffer to the device.
 	 * @return number of bytes written to the device.
 	 * @throws SerialComException if an I/O error occurs.
 	 * @throws IllegalArgumentException if buffer is null or numOfBytesToWrite is negative or zero.
@@ -1836,11 +1841,11 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 		if(numOfBytesToWrite <= 0) {
 			throw new IllegalArgumentException("Argument numOfBytesToWrite can not be negative or zero !");
 		}
+		
 		int ret = mFTDID2XXJNIBridge.w32WriteFile(handle, buffer, numOfBytesToWrite);
 		if(ret < 0) {
 			throw new SerialComException("Could not send data to the requested device. Please retry !");
 		}
-
 		return ret;
 	}
 
@@ -1849,17 +1854,21 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 * 
 	 * <p>Gets the result of an overlapped operation.</p>
 	 * 
+	 * <P>Note that this method is not supported by SCM as SCM implements only non-overlapped version of 
+	 * FT_W32_WriteFile and FT_W32_ReadFile functions.</p>
+	 * 
 	 * @param handle handle of the device whose baud rate need to be set.
 	 * @param wait Set to TRUE if the function does not return until the operation has been completed.
-	 * @return true if the operation executed successfully.
+	 * @return false always.
 	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public boolean w32GetOverlappedResult(final long handle, boolean wait) throws SerialComException {
-		int ret = mFTDID2XXJNIBridge.w32GetOverlappedResult(handle, wait);
-		if(ret < 0) {
-			throw new SerialComException("Requested operation could not be executed successfully. Please retry !");
-		}
-		return true;
+//		int ret = mFTDID2XXJNIBridge.w32GetOverlappedResult(handle, wait);
+//		if(ret < 0) {
+//			throw new SerialComException("Requested operation could not be executed successfully. Please retry !");
+//		}
+//		return true;
+		return false;
 	}
 
 	/**
@@ -2065,7 +2074,7 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	/**
 	 * <p>Executes FT_W32_GetCommMask function of D2XX library.</p>
 	 * 
-	 * <p>Specifies events that the device has to monitor.</p>
+	 * <p>Retrieves the events that are currently being monitored by a device.</p>
 	 * 
 	 * @param handle handle of the device.
 	 * @return bit mask of the constants EV_XXXXX in SerialComFTDID2XX class.
@@ -2084,9 +2093,12 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 * 
 	 * <p>Waits for an event to occur.</p>
 	 * 
+	 * <p>Note that SCM supports only non-overlapped version of FT_W32_WaitCommEvent method. If the application 
+	 * wishes to do anything in parallel, it should use java thread. By default this method will block.</p>
+	 * 
 	 * @param handle handle of the device.
-	 * @param event bit mask of the constants EV_XXXXX in this class.
-	 * @return true if event happened.
+	 * @param event bit mask of the constants EV_XXXXX defined in SerialComFTDID2XX class.
+	 * @return true when one or more event has happened.
 	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public boolean w32WaitCommEvent(long handle, int event) throws SerialComException {

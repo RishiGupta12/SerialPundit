@@ -214,8 +214,8 @@ public final class SerialComFTDID2XXJNIBridge {
 	public native int eeUAsize(long handle);
 	public native int eeUAread(long handle, byte[] buffer, int length);
 	public native int eeUAwrite(long handle, byte[] buffer, int length);
-	public native int[] eepromRead(long handle, int deviceType, byte[] manufacturer,
-			byte[] manufacturerID, byte[] description, byte[] serialNumber);
+	public native int[] eepromRead(long handle, int deviceType, char[] manufacturer,
+			char[] manufacturerID, char[] description, char[] serialNumber);
 	public native int eepromProgram(long handle, int devType, int[] dataToBeWritten,
 			String manufacturer, String manufacturerID, String description,
 			String serialNumber);
