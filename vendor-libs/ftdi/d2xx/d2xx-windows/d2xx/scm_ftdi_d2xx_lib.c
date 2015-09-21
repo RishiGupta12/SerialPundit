@@ -18,9 +18,13 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 #include <stdio.h>
+
+#if defined (__linux__) || defined (__APPLE__)
+#include <unistd.h>
 #include <errno.h>
+#endif
+
 #include "scm_ftdi_d2xx.h"
 
 /* Allocate memory of given size and initializes elements as appropriate.

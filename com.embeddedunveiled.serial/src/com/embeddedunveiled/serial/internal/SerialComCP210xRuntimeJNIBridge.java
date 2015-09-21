@@ -157,7 +157,7 @@ public final class SerialComCP210xRuntimeJNIBridge {
 
 	public native int readLatch(long handle);
 	public native int writeLatch(long handle, long mask, long latchValue);
-	public native int getPartNumber(long handle);
+	public native String getPartNumber(long handle);
 	public native String getDeviceProductString(long handle);
 	public native String getDeviceSerialNumber(long handle);
 	public native String getDeviceInterfaceString(long handle);

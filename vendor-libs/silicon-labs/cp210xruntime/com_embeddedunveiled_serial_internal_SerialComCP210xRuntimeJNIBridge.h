@@ -26,9 +26,9 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComCP210x
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComCP210xRuntimeJNIBridge
  * Method:    getPartNumber
- * Signature: (J)I
+ * Signature: (J)Ljava/lang/String;
  */
-JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComCP210xRuntimeJNIBridge_getPartNumber
+JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComCP210xRuntimeJNIBridge_getPartNumber
   (JNIEnv *, jobject, jlong);
 
 /*

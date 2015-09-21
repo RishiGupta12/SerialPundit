@@ -16,6 +16,11 @@
  *
  ***************************************************************************************************/
 
+#include <stdarg.h>      /* ISO C Standard. Variable arguments  */
+#include <stdio.h>       /* ISO C99 Standard: Input/output      */
+#include <stdlib.h>      /* Standard ANSI routines              */
+#include <string.h>      /* String function definitions         */
+
 #if defined (__linux__) || defined (__APPLE__)
 
 /* Make primitives such as read and write resume, in case they are interrupted by signal,
@@ -30,10 +35,6 @@
 #endif
 
 #include <unistd.h>      /* UNIX standard function definitions  */
-#include <stdarg.h>      /* ISO C Standard. Variable arguments  */
-#include <stdio.h>       /* ISO C99 Standard: Input/output      */
-#include <stdlib.h>      /* Standard ANSI routines              */
-#include <string.h>      /* String function definitions         */
 #include <fcntl.h>       /* File control definitions            */
 #include <errno.h>       /* Error number definitions            */
 #include <sys/types.h>   /* Primitive System Data Types         */

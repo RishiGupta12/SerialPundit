@@ -88,7 +88,7 @@
 #define SCM_CE_MODE     0x8000
 
 /* Constant string defines */
-#define FAILTHOWEXP "JNI call ThrowNew failed to throw exception"
+#define FAILTHOWEXP "JNI call ThrowNew failed to throw exception !"
 #define SCOMEXPCLASS "com/embeddedunveiled/serial/SerialComException"
 #define JAVALSTRING "java/lang/String"
 #define E_ENBLPARCHKSTR "Parity checking in configureComPortData method needs to be enabled first !"

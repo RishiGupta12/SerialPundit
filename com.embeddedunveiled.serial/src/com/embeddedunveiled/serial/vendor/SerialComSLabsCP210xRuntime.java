@@ -19,6 +19,7 @@ package com.embeddedunveiled.serial.vendor;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+
 import com.embeddedunveiled.serial.SerialComException;
 import com.embeddedunveiled.serial.SerialComLoadException;
 import com.embeddedunveiled.serial.SerialComUnexpectedException;
@@ -45,6 +46,54 @@ import com.embeddedunveiled.serial.internal.SerialComSystemProperty;
  * @author Rishi Gupta
  */
 public final class SerialComSLabsCP210xRuntime extends SerialComVendorLib {
+
+	/**<p>Bit mask to represent mask and latch definition for GPIO0 in CP210X terminology.</p>*/
+	private static final int CP210x_GPIO_0  = 0x0001;
+
+	/**<p>Bit mask to represent mask and latch definition for GPIO1 in CP210X terminology.</p>*/
+	private static final int CP210x_GPIO_1  = 0x0002;
+
+	/**<p>Bit mask to represent mask and latch definition for GPIO2 in CP210X terminology.</p>*/
+	private static final int CP210x_GPIO_2  = 0x0004;
+
+	/**<p>Bit mask to represent mask and latch definition for GPIO3 in CP210X terminology.</p>*/
+	private static final int CP210x_GPIO_3  = 0x0008;
+
+	/**<p>Bit mask to represent mask and latch definition for GPIO4 in CP210X terminology.</p>*/
+	private static final int CP210x_GPIO_4  = 0x0010;
+
+	/**<p>Bit mask to represent mask and latch definition for GPIO5 in CP210X terminology.</p>*/
+	private static final int CP210x_GPIO_5  = 0x0020;
+
+	/**<p>Bit mask to represent mask and latch definition for GPIO6 in CP210X terminology.</p>*/
+	private static final int CP210x_GPIO_6  = 0x0040;
+
+	/**<p>Bit mask to represent mask and latch definition for GPIO7 in CP210X terminology.</p>*/
+	private static final int CP210x_GPIO_7  = 0x0080;
+
+	/**<p>Bit mask to represent mask and latch definition for GPIO8 in CP210X terminology.</p>*/
+	private static final int CP210x_GPIO_8  = 0x0100;
+
+	/**<p>Bit mask to represent mask and latch definition for GPIO9 in CP210X terminology.</p>*/
+	private static final int CP210x_GPIO_9  = 0x0200;
+
+	/**<p>Bit mask to represent mask and latch definition for GPIO10 in CP210X terminology.</p>*/
+	private static final int CP210x_GPIO_10 = 0x0400;
+
+	/**<p>Bit mask to represent mask and latch definition for GPIO11 in CP210X terminology.</p>*/
+	private static final int CP210x_GPIO_11 = 0x0800;
+
+	/**<p>Bit mask to represent mask and latch definition for GPIO12 in CP210X terminology.</p>*/
+	private static final int CP210x_GPIO_12 = 0x1000;
+
+	/**<p>Bit mask to represent mask and latch definition for GPIO13 in CP210X terminology.</p>*/
+	private static final int CP210x_GPIO_13 = 0x2000;
+
+	/**<p>Bit mask to represent mask and latch definition for GPIO14 in CP210X terminology.</p>*/
+	private static final int CP210x_GPIO_14 = 0x4000;
+
+	/**<p>Bit mask to represent mask and latch definition for GPIO15 in CP210X terminology.</p>*/
+	private static final int CP210x_GPIO_15 = 0x8000;
 
 	private final SerialComCP210xRuntimeJNIBridge mSerialComCP210xRuntimeJNIBridge;
 
@@ -79,7 +128,7 @@ public final class SerialComSLabsCP210xRuntime extends SerialComVendorLib {
 	 * <p>Gets the current port latch value from the device.</p>
 	 * 
 	 * @param handle handle of the opened COM port.
-	 * @return GPIO latch value [Logic High = 1, Logic Low = 0].
+	 * @return bit mask of constant(s) CP210x_GPIO_XX.
 	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public long readLatch(final long handle) throws SerialComException {
@@ -97,7 +146,7 @@ public final class SerialComSLabsCP210xRuntime extends SerialComVendorLib {
 	 * 
 	 * @param handle handle of the opened COM port.
 	 * @param mask determines which pins to change [Change = 1, Leave = 0].
-	 * @param latchValue value to write to GPIO latch [Logic High = 1, Logic Low = 0].
+	 * @param latchValue bit mask value to write to GPIO latch [Logic High = 1, Logic Low = 0].
 	 * @return true if value gets set successfully.
 	 * @throws SerialComException if an I/O error occurs.
 	 */
@@ -118,9 +167,9 @@ public final class SerialComSLabsCP210xRuntime extends SerialComVendorLib {
 	 * @return part number of the current device.
 	 * @throws SerialComException if an I/O error occurs.
 	 */
-	public int getPartNumber(final long handle) throws SerialComException {
-		int ret = mSerialComCP210xRuntimeJNIBridge.getPartNumber(handle);
-		if(ret < 0) {
+	public String getPartNumber(final long handle) throws SerialComException {
+		String ret = mSerialComCP210xRuntimeJNIBridge.getPartNumber(handle);
+		if(ret == null) {
 			throw new SerialComException("Could not get the part number of the current device. Please retry !");
 		}
 		return ret;
