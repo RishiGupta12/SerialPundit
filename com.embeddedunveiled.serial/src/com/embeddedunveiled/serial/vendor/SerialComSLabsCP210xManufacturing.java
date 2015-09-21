@@ -27,7 +27,7 @@ import com.embeddedunveiled.serial.internal.SerialComCP210xManufacturingJNIBridg
 import com.embeddedunveiled.serial.internal.SerialComSystemProperty;
 
 /**
- * <p>Silicon labs Inc. provides libraries to communicate with their USB-UART devices. More information can 
+ * <p>Silicon labs provides libraries to communicate with their USB-UART devices. More information can 
  * be found here : https://www.silabs.com/products/mcu/Pages/USBtoUARTBridgeVCPDrivers.aspx</p>
  * 
  * <p>[0] The data types used in java layer may be bigger in size than the native layer. For example; if native 
