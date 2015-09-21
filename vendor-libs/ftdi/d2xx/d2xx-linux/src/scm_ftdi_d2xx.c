@@ -130,10 +130,11 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
  * Method:    getDeviceInfoList
  * Signature: (I)[Ljava/lang/String;
  *
- * @return array of string containing info about connected devices or NULL if something fails.
+ * @return array of string containing info about connected devices or NULL if an error occurs.
  * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
-JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_getDeviceInfoList(JNIEnv *env, jobject obj, jint numOfDevices) {
+JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_getDeviceInfoList(JNIEnv *env,
+		jobject obj, jint numOfDevices) {
 	FT_STATUS ftStatus = 0;
 	FT_DEVICE_LIST_INFO_NODE *devInfo;
 	int i = 0;
@@ -223,7 +224,13 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
 		insert_jstrarraylist(&list, info);
 
 		memset(hexcharbuffer, '\0', sizeof(hexcharbuffer));
+#if defined (__linux__) || defined (__APPLE__)
 		snprintf(hexcharbuffer, 256, "%llX", (unsigned long long int)devInfo[i].ftHandle);
+#endif
+#if defined (_WIN32) && !defined(UNIX)
+		/* windows (or visual studio) may not support c99, so use VS specific cast */
+		snprintf(hexcharbuffer, 256, "%I64X", devInfo[i].ftHandle);
+#endif
 		info = (*env)->NewStringUTF(env, hexcharbuffer);
 		if((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
 			free(devInfo);
@@ -272,10 +279,11 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
  * Method:    getDeviceInfoDetail
  * Signature: (I)[Ljava/lang/String;
  *
- * @return array of string containing info about the device at given index or NULL if something fails.
+ * @return array of string containing info about the device at given index or NULL if an error occurs.
  * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
-JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_getDeviceInfoDetail(JNIEnv *env, jobject obj, jint index) {
+JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_getDeviceInfoDetail(JNIEnv *env,
+		jobject obj, jint index) {
 	FT_STATUS ftStatus = 0;
 	FT_DEVICE_LIST_INFO_NODE *devInfo;
 	int i = 0;
@@ -358,7 +366,14 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
 	}
 	insert_jstrarraylist(&list, info);
 	memset(hexcharbuffer, '\0', sizeof(hexcharbuffer));
-	snprintf(hexcharbuffer, 256, "%llX", (unsigned long long int)devInfo->ftHandle);
+#if defined (__linux__) || defined (__APPLE__)
+	snprintf(hexcharbuffer, 256, "%llX", (unsigned long long int)devInfo[i].ftHandle);
+#endif
+#if defined (_WIN32) && !defined(UNIX)
+	/* windows (or visual studio) may not support c99, so use VS specific cast */
+	snprintf(hexcharbuffer, 256, "%I64X", devInfo[i].ftHandle);
+#endif
+
 	info = (*env)->NewStringUTF(env, hexcharbuffer);
 	if((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
 		free(devInfo);
