@@ -164,7 +164,7 @@ public final class SerialComSLabsCP210xRuntime extends SerialComVendorLib {
 	 * <p>Gets the part number of the current device.</p>
 	 * 
 	 * @param handle handle of the opened COM port.
-	 * @return part number of the current device.
+	 * @return part number string of the current device.
 	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public String getPartNumber(final long handle) throws SerialComException {

@@ -163,11 +163,13 @@ public final class SerialComCP210xManufacturingJNIBridge {
 	public native String getPartNumber(long handle);
 	public native int setVid(long handle, int vid);
 	public native int setPid(long handle, int pid);
-	public native int setProductString(long handle, String description);
+	public native int setProductString(long handle, String product);
 	public native int setSerialNumber(long handle, String serialNumber);
+	public native int setInterfaceString(long handle, byte bInterfaceNumber, String interfaceString);
 	public native int setSelfPower(long handle, boolean selfPower);
 	public native int setMaxPower(long handle, byte maxPower);
 	public native int setFlushBufferConfig(long handle, int flag);
+	public native int setDeviceMode(long handle, byte bDeviceModeECI, byte bDeviceModeSCI);
 	public native int setDeviceVersion(long handle, int version);
 	public native int setBaudRateConfig(long handle, int baudGen, int timer0Reload, int prescalar, int baudrate);
 	public native int setPortConfig(long handle, int mode, int resetLatch, int suspendLatch, int enhancedFxn);
@@ -175,6 +177,7 @@ public final class SerialComCP210xManufacturingJNIBridge {
 	public native int getDeviceVid(long handle);
 	public native int getDevicePid(long handle);
 	public native String getDeviceProductString(long handle);
+	public native String getDeviceInterfaceString(long handle, byte bInterfaceNumber);
 	public native String getDeviceSerialNumber(long handle);
 	public native int getSelfPower(long handle);
 	public native int getMaxPower(long handle);

@@ -90,7 +90,7 @@ void throw_serialcom_exception(JNIEnv *env, int type, int error_code, const char
 		break;
 		case CP210x_GLOBAL_DATA_ERROR: custom_error_msg = "CP210x_GLOBAL_DATA_ERROR";
 		break;
-		case CP210x_FILE_ERROR: custom_error_msg = "CP210x_COMMAND_FAILED";
+		case CP210x_FILE_ERROR: custom_error_msg = "CP210x_FILE_ERROR";
 		break;
 		case CP210x_COMMAND_FAILED: custom_error_msg = "CP210x_COMMAND_FAILED";
 		break;

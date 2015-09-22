@@ -46,8 +46,6 @@ typedef     int     CP210x_STATUS;
 typedef     char    CP210x_PRODUCT_STRING[CP210x_MAX_PRODUCT_STRLEN];
 typedef     char    CP210x_SERIAL_STRING[CP210x_MAX_SERIAL_STRLEN];
 
-#endif //_CP210x_STANDARD_DEF
-
 // Mask and Latch value bit definitions
 #define     CP210x_GPIO_0                       0x0001
 #define     CP210x_GPIO_1                       0x0002
@@ -65,6 +63,10 @@ typedef     char    CP210x_SERIAL_STRING[CP210x_MAX_SERIAL_STRLEN];
 #define     CP210x_GPIO_13                      0x2000
 #define     CP210x_GPIO_14                      0x4000
 #define     CP210x_GPIO_15                      0x8000
+
+#ifdef __cplusplus
+extern "C" {
+#endif // __cplusplus
 
 CP210xRUNTIMEDLL_API CP210x_STATUS WINAPI
 CP210xRT_ReadLatch( HANDLE cyHandle,
@@ -99,3 +101,9 @@ CP210xRT_GetDeviceInterfaceString(HANDLE	cyHandle,
                                   LPVOID lpInterfaceString,
                                   LPBYTE lpbLength,
                                   BOOL bConvertToASCII);
+
+#ifdef __cplusplus
+}
+#endif // __cplusplus
+
+#endif // _CP210x_STANDARD_DEF_

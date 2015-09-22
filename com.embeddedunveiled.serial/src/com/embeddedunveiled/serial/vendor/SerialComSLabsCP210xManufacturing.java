@@ -38,8 +38,11 @@ import com.embeddedunveiled.serial.internal.SerialComSystemProperty;
  * for desired platform or not and also how does a particular API will behave. Also consider paying attention to 
  * valid values and range when passing arguments to a method.</p>
  * 
- * <p>[2] The application note for CP210XRuntime library is here : 
- * https://www.silabs.com/Support%20Documents/TechnicalDocs/an144.pdf</p>
+ * <p>[2] The application note for CP210xManufacturing library is here : 
+ * http://www.silabs.com/Support%20Documents/TechnicalDocs/AN721.pdf</p>
+ *
+ * <p>Silicon labs softwares can be downloaded from here :
+ * http://www.silabs.com/products/Interface/Pages/interface-application-notes.aspx </p>
  * 
  * <p>SCM version 1.0.4 is linked to v3.4 version of CP210xManufacturing library.</p>
  * 
@@ -96,9 +99,10 @@ public final class SerialComSLabsCP210xManufacturing extends SerialComVendorLib 
 
 	/**
 	 * <p>Executes CP210x_GetNumDevices function of CP210xManufacturing library.</p>
+	 * 
 	 * <p>Returns the number of CP210x devices connected to the host.</p>
 	 * 
-	 * @return number of the CP210X devices connected to host presently.
+	 * @return number of the CP210X devices connected to host system presently.
 	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public int getNumDevices() throws SerialComException {
@@ -237,12 +241,13 @@ public final class SerialComSLabsCP210xManufacturing extends SerialComVendorLib 
 	 * <p>Sets the Product Description String of the String Descriptor of a CP210x device.</p>
 	 * 
 	 * @param handle of the device.
-	 * @param description string that need to be saved in device.
+	 * @param product string that need to be saved in device.
 	 * @return true on success.
 	 * @throws SerialComException if an I/O error occurs.
 	 */
-	public boolean setProductString(final long handle, String description) throws SerialComException {
-		int ret = mSerialComCP210xManufacturingJNIBridge.setProductString(handle, description);
+	public boolean setProductString(final long handle, String product) throws SerialComException {
+
+		int ret = mSerialComCP210xManufacturingJNIBridge.setProductString(handle, product);
 		if(ret < 0) {
 			throw new SerialComException("Could not set description for the product. Please retry !");
 		}
@@ -261,9 +266,33 @@ public final class SerialComSLabsCP210xManufacturing extends SerialComVendorLib 
 	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public boolean setSerialNumber(final long handle, String serialNumber) throws SerialComException {
+
 		int ret = mSerialComCP210xManufacturingJNIBridge.setSerialNumber(handle, serialNumber);
 		if(ret < 0) {
 			throw new SerialComException("Could not set serial number for the product. Please retry !");
+		}
+
+		return true;
+	}
+
+	/**
+	 * <p>Executes CP210x_SetInterfaceString function of of CP210xManufacturing library.</p>
+	 * 
+	 * <p>Sets the Serial Number String of the String Descriptor of a CP210x device.</p>
+	 * 
+	 * @param handle of the device.
+	 * @param bInterfaceNumber Set to 0 for Enhanced Interface String, or 1 for Standard Interface String 
+	 *         on the CP2105. 0-3 for the CP2108 which has 4 interfaces.
+	 * @param interfaceString interface string to be set on device.
+	 * @return true on success.
+	 * @throws SerialComException if an I/O error occurs.
+	 */
+	public boolean setInterfaceString(long handle, byte bInterfaceNumber, String interfaceString) 
+			throws SerialComException {
+
+		int ret = mSerialComCP210xManufacturingJNIBridge.setInterfaceString(handle, bInterfaceNumber, interfaceString);
+		if(ret < 0) {
+			throw new SerialComException("Could not set interface string. Please retry !");
 		}
 
 		return true;
@@ -275,11 +304,12 @@ public final class SerialComSLabsCP210xManufacturing extends SerialComVendorLib 
 	 * <p>Sets or clears the Self-Powered bit of the Power Attributes field of the Configuration Descriptor of a CP210x device.</p>
 	 * 
 	 * @param handle of the device.
-	 * @param selfPower if true will set, if false self power bit will be cleared.
+	 * @param selfPower if true self power bit will be set, if false self power bit will be cleared.
 	 * @return true on success.
 	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public boolean setSelfPower(final long handle, boolean selfPower) throws SerialComException {
+
 		int ret = mSerialComCP210xManufacturingJNIBridge.setSelfPower(handle, selfPower);
 		if(ret < 0) {
 			throw new SerialComException("Could not set/clear Self-Powered bit for the product. Please retry !");
@@ -294,11 +324,13 @@ public final class SerialComSLabsCP210xManufacturing extends SerialComVendorLib 
 	 * <p>Sets the Max Power field of the Configuration Descriptor of a CP210x device.</p>
 	 * 
 	 * @param handle of the device.
-	 * @param maxPower 1-byte value representing the maximum power consumption of the CP210x USB device, expressed in 2 mA units.
+	 * @param maxPower 1-byte value representing the maximum power consumption of the CP210x USB device, 
+	 *         expressed in 2 mA units.
 	 * @return true on success.
 	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public boolean setMaxPower(final long handle, byte maxPower) throws SerialComException {
+
 		int ret = mSerialComCP210xManufacturingJNIBridge.setMaxPower(handle, maxPower);
 		if(ret < 0) {
 			throw new SerialComException("Could not set the max power field for the product. Please retry !");
@@ -327,6 +359,28 @@ public final class SerialComSLabsCP210xManufacturing extends SerialComVendorLib 
 		int ret = mSerialComCP210xManufacturingJNIBridge.setFlushBufferConfig(handle, flag);
 		if(ret < 0) {
 			throw new SerialComException("Could not set the flushing configuration for the product. Please retry !");
+		}
+
+		return true;
+	}
+
+	/**
+	 * <p>Executes CP210x_SetDeviceMode function of of CP210xManufacturing library.</p>
+	 * 
+	 * <p>Sets the operating mode (GPIO or Modem) or each Interface of a CP210x device.</p>
+	 * 
+	 * @param handle of the device.
+	 * @param bDeviceModeECI set to 0 for modem mode for Enhanced interface. Set to 1 for GPIO mode.
+	 * @param bDeviceModeSCI set to 0 for modem mode for Enhanced interface. Set to 1 for GPIO mode.
+	 * @return true on success.
+	 * @throws SerialComException if an I/O error occurs.
+	 * @throws IllegalArgumentException if invalid flag is passed.
+	 */
+	public boolean setDeviceMode(final long handle, byte bDeviceModeECI, byte bDeviceModeSCI) 
+			throws SerialComException {
+		int ret = mSerialComCP210xManufacturingJNIBridge.setDeviceMode(handle, bDeviceModeECI, bDeviceModeSCI);
+		if(ret < 0) {
+			throw new SerialComException("Could not set the device configuration. Please retry !");
 		}
 
 		return true;
@@ -404,7 +458,7 @@ public final class SerialComSLabsCP210xManufacturing extends SerialComVendorLib 
 	/**
 	 * <p>Executes CP210x_SetLockValue function of of CP210xManufacturing library.</p>
 	 * 
-	 * <p>Sets the 1-byte Lock Value of a CP210x device.</p>
+	 * <p>Sets the 1-byte lock value of a CP210x device.</p>
 	 * 
 	 * @param handle of the device.
 	 * @return true on success.
@@ -415,14 +469,16 @@ public final class SerialComSLabsCP210xManufacturing extends SerialComVendorLib 
 		if(ret < 0) {
 			throw new SerialComException("Could not set the lock value on the device. Please retry !");
 		}
-
 		return true;
 	}
+
+	/* TODO find CP210xSetDualPortConfig, CP210xSetDualPortConfig, CP210xSetQuadPortConfig, 
+	 * CP210xGetDualPortConfig, CP210xGetQuadPortConfig */
 
 	/**
 	 * <p>Executes CP210x_GetDeviceVid function of CP210xManufacturing library.</p>
 	 * 
-	 * <p>Returns the 2-byte Vendor ID field of the Device Descriptor of a CP210x device.</p>
+	 * <p>Returns the 2-byte Vendor ID field of the device descriptor of a CP210x device.</p>
 	 * 
 	 * @param handle of the device.
 	 * @return USB vendor ID of this device.
@@ -439,7 +495,7 @@ public final class SerialComSLabsCP210xManufacturing extends SerialComVendorLib 
 	/**
 	 * <p>Executes CP210x_GetDevicePid function of CP210xManufacturing library.</p>
 	 * 
-	 * <p>Returns the 2-byte Product ID field of the Device Descriptor of a CP210x device.</p>
+	 * <p>Returns the 2-byte Product ID field of the device descriptor of a CP210x device.</p>
 	 * 
 	 * @param handle of the device.
 	 * @return USB product ID of this device.
@@ -466,6 +522,23 @@ public final class SerialComSLabsCP210xManufacturing extends SerialComVendorLib 
 		String ret = mSerialComCP210xManufacturingJNIBridge.getDeviceProductString(handle);
 		if(ret == null) {
 			throw new SerialComException("Could not get the product description string. Please retry !");
+		}
+		return ret;
+	}
+
+	/**
+	 * <p>Executes CP210x_GetDeviceInterfaceString function of CP210xManufacturing library.</p>
+	 * 
+	 * <p>Gets the interface string of a CP210x device.</p>
+	 * 
+	 * @param handle of the device.
+	 * @return interface string of the device.
+	 * @throws SerialComException if an I/O error occurs.
+	 */
+	public String getDeviceInterfaceString(long handle, byte bInterfaceNumber) throws SerialComException {
+		String ret = mSerialComCP210xManufacturingJNIBridge.getDeviceInterfaceString(handle, bInterfaceNumber);
+		if(ret == null) {
+			throw new SerialComException("Could not get the product serial number string. Please retry !");
 		}
 		return ret;
 	}
@@ -564,7 +637,8 @@ public final class SerialComSLabsCP210xManufacturing extends SerialComVendorLib 
 	 * <p>Gets the baud rate configuration data of a CP210x device.</p>
 	 * 
 	 * @param handle of the device.
-	 * @return array of integers containing values (starting from index 0) baudGen, timer0Reload, prescalar and baudrate respectively.
+	 * @return array of integers containing values (starting from index 0) baudGen, timer0Reload, prescalar and 
+	 *          baudrate respectively.
 	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public int[] getBaudRateConfig(long handle) throws SerialComException {

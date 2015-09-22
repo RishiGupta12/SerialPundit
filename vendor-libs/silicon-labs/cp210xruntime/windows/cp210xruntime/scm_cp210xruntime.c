@@ -57,7 +57,7 @@
  * Method:    readLatch
  * Signature: (J)I
  *
- * @return latch value on success otherwise -1 if error occurs.
+ * @return latch value on success otherwise -1 if an error occurs.
  * @throws SerialComException if any CP210xRT function, JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComCP210xRuntimeJNIBridge_readLatch
@@ -278,7 +278,7 @@ JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComCP2
 	jstring info = NULL;
 
 	memset(interface, '\0', sizeof(interface));
-	ret = CP210xRT_GetDeviceSerialNumber((HANDLE)handle, interface, &length, FALSE);
+	ret = CP210xRT_GetDeviceInterfaceString((HANDLE)handle, interface, &length, FALSE);
 	if(ret != CP210x_SUCCESS) {
 		throw_serialcom_exception(env, 2, ret, NULL);
 		return NULL;

@@ -55,69 +55,64 @@ public class SerialComGenericHidTests {
 		sch.closeHidDevice(handle);
 	}
 
-	@Test
+	@Test(timeout=100)
 	public void testListHIDdevicesWithInfo() throws Exception {
 		SerialComHIDdevice[] devices = sch.listHIDdevicesWithInfo();
 		assertTrue(devices != null);
 		assertTrue(devices.length > 0);
 	}
 
-	@Test
+	@Test(timeout=100)
 	public void testFormatReportToHex() throws Exception {
 		assertEquals("68 65 6C 6C 6F", sch.formatReportToHex("hello".getBytes()));
 	}
 
-	@Test
-	public void testGetReportDescriptorSize() throws Exception {
-		assertEquals(16, sch.getReportDescriptorSize(handle));
-	}
-
-	@Test
+	@Test(timeout=100)
 	public void testWriteOutputReport() throws Exception {
 		byte[] report = { };
 		assertEquals(16, sch.writeOutputReport(handle, (byte)0x00, report));
 	}
 
-	@Test
+	@Test(timeout=100)
 	public void testReadInputReport() throws Exception {
 		byte[] reportBuffer = new byte[17];
 		assertEquals(17, sch.readInputReport(handle, reportBuffer, reportBuffer.length));
 	}
 
-	@Test
+	@Test(timeout=100)
 	public void testReadInputReportWithTimeout() throws Exception {
 		byte[] reportBuffer = new byte[17];
 		assertEquals(17, sch.readInputReportWithTimeout(handle, reportBuffer, reportBuffer.length, 150));
 	}
 
-	@Test
+	@Test(timeout=100)
 	public void testSendFeatureReport() throws Exception {
 		byte[] report = { };
 		assertEquals(16, sch.sendFeatureReport(handle, (byte)0x00, report));
 	}
 
-	@Test
+	@Test(timeout=100)
 	public void testGetFeatureReport() throws Exception {
 		byte[] reportBuffer = new byte[17];
 		assertEquals(17, sch.readInputReport(handle, reportBuffer, reportBuffer.length));
 	}
 
-	@Test
+	@Test(timeout=100)
 	public void testGetManufacturerString() throws Exception {
 		assertEquals("68 65 6C 6C 6F", sch.getManufacturerString(handle));
 	}
 
-	@Test
+	@Test(timeout=100)
 	public void testGetProductString() throws Exception {
 		assertEquals("68 65 6C 6C 6F", sch.getProductString(handle));
 	}
 
-	@Test
+	@Test(timeout=100)
 	public void testGetSerialNumberString() throws Exception {
 		assertEquals("68 65 6C 6C 6F", sch.getSerialNumberString(handle));
 	}
 
-	@Test
+	@Test(timeout=100)
 	public void testGetIndexedString() throws Exception {
 		assertEquals("68 65 6C 6C 6F", sch.getIndexedString(handle, 2));
 	}
