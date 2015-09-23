@@ -15,8 +15,8 @@
 # along with serial communication manager. If not, see <http://www.gnu.org/licenses/>.
 #################################################################################################
 
-# This is a udev rule file for all devices from FTDI with VID 0x0403 (not specific to any
-# FTDI product (USB PID)). Place this file in /etc/udev/rules.d/ for Ubuntu Linux distro.
+# This is a udev rule file for all devices from Silicon Labs with VID 0x10C4 (not specific to any
+# Silicon Labs product (USB PID)). Place this file in /etc/udev/rules.d/ for Ubuntu Linux distro.
 
 # These rules will grant read and write access to all users, include non-privileged users, for all 
 # USB devices that have a matching Vendor ID according to the rules below. If required, more 
@@ -29,11 +29,11 @@
 # Product ID may be case sensitive. Please use dmesg to check device information when device is 
 # plugged in system.
 
-SUBSYSTEM=="usb", ATTRS{idVendor}=="0403", MODE="0666"
-SUBSYSTEM=="usb_device", ATTRS{idVendor}=="0403", MODE="0666"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="10c4", MODE="0666"
+SUBSYSTEM=="usb_device", ATTRS{idVendor}=="10c4", MODE="0666"
 
 # If we want to load these rules for a specific USB product with product ID, here is how to do it
-# (example for FT232R).
+# (example for CP2102).
 
-# SUBSYSTEM=="usb", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", MODE="0666"
-# SUBSYSTEM=="usb_device", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", MODE="0666"
+#SUBSYSTEM=="usb", ATTRS{idVendor}=="10c4", ATTRS{idProduct}=="ea60", MODE="0666"
+#SUBSYSTEM=="usb_device", ATTRS{idVendor}=="10c4", ATTRS{idProduct}=="ea60", MODE="0666"
