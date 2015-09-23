@@ -20,7 +20,7 @@
 
 # When a FTDI device is connected to system linux kernel with udev tries to load appropriate VCP driver
 # for connected device. For Linux default VCP driver and d2xx are mutually exclusive. So this script
-# tries to unload default driver.
+# tries to unload default VCP driver for FTDI devices.
 
 # Note that once the driver has been unloaded then if the device is un-plugged and plugged again into system
 # default driver will get loaded again automatically by udev/kernel. So this script must be run each time

@@ -173,6 +173,9 @@ public final class SerialComCP210xManufacturingJNIBridge {
 	public native int setDeviceVersion(long handle, int version);
 	public native int setBaudRateConfig(long handle, int baudGen, int timer0Reload, int prescalar, int baudrate);
 	public native int setPortConfig(long handle, int mode, int resetLatch, int suspendLatch, int enhancedFxn);
+	public native int setDualPortConfig(long handle, int mode, int resetLatch, int suspendLatch, 
+			int enhancedFxnECI, int enhancedFxnSCI, int enhancedFxnDevice);
+	public native int setQuadPortConfig(long handle, int[] resetLatch, int[] suspendLatch, byte[] config);
 	public native int setLockValue(long handle);
 	public native int getDeviceVid(long handle);
 	public native int getDevicePid(long handle);
@@ -182,6 +185,7 @@ public final class SerialComCP210xManufacturingJNIBridge {
 	public native int getSelfPower(long handle);
 	public native int getMaxPower(long handle);
 	public native int getFlushBufferConfig(long handle);
+	public native byte[] getDeviceMode(long handle);
 	public native int getDeviceVersion(long handle);
 	public native int[] getBaudRateConfig(long handle);
 	public native int[] getPortConfig(long handle);

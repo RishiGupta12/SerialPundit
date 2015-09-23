@@ -77,7 +77,7 @@ public final class FTdeviceInfo {
 	 * <p>Prints information about this FT device on console.</p>
 	 */
 	public void dumpDeviceInfo() {
-		System.out.println("\nLocID : 0x" + locId + 
+		System.out.println("LocID : 0x" + locId + 
 				"\nSerialNumber : " + serialNumber + 
 				"\nDescription : " + description);
 	}

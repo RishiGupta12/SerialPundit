@@ -111,7 +111,7 @@ public class SerialComVendorLib {
 			if(!((cpuArch == SerialComManager.ARCH_AMD64) || (cpuArch == SerialComManager.ARCH_X86))) {
 				throw new SerialComLoadException("Silicon labs cp210x manufacturing dll library is not supported for this CPU architecture !");
 			}
-			if(osType != SerialComManager.OS_WINDOWS) {
+			if((osType != SerialComManager.OS_WINDOWS) && (osType != SerialComManager.OS_LINUX)) {
 				throw new SerialComLoadException("Silicon labs cp210x manufacturing dll library is not supported for this operating system !");
 			}
 			vendorLib = new SerialComSLabsCP210xManufacturing(libDirectory, vlibName, cpuArch, osType, serialComSystemProperty);

@@ -960,6 +960,10 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 * <p>This method blocks until event specified in setEventNotification() method happens. 
 	 * Typically this method should be called from worker thread.</p>
 	 * 
+	 * <p>This method is not in FTDI d2xx but is SCM specific and is to be used in conjunction 
+	 * with setEventNotification method. After calling setEventNotification, call this method to 
+	 * block on desired event.</p>
+	 * 
 	 * @param handle handle of the device for whom event is to happen.
 	 * @param eventMask bit mask of the constants EV_XXXXX in SerialComFTDID2XX class.
 	 * @return true when event occurs.

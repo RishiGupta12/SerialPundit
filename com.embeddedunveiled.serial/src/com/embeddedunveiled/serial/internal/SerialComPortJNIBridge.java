@@ -209,6 +209,10 @@ public final class SerialComPortJNIBridge {
 			}
 
 			input = SerialComPortJNIBridge.class.getResourceAsStream("/tty-libs/" + libToExtractFromJar);
+			if(input == null) {
+				//TODO
+				System.out.println("ji");
+			}
 			output = new FileOutputStream(libFile);
 			if(input != null) {
 				int read;

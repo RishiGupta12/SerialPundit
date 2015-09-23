@@ -40,6 +40,10 @@ import com.embeddedunveiled.serial.internal.SerialComSystemProperty;
  * 
  * <p>[2] The application note for CP210xManufacturing library is here : 
  * http://www.silabs.com/Support%20Documents/TechnicalDocs/AN721.pdf</p>
+ * 
+ * <p>[3] It seems like CP210xManufacturing library uses user space drivers. So if you encounter any problems 
+ * with permissions add following udev rules : 
+ * https://github.com/RishiGupta12/serial-communication-manager/blob/master/tests/scm-cp210x.rules</p>
  *
  * <p>Silicon labs softwares can be downloaded from here :
  * http://www.silabs.com/products/Interface/Pages/interface-application-notes.aspx </p>
@@ -456,6 +460,65 @@ public final class SerialComSLabsCP210xManufacturing extends SerialComVendorLib 
 	}
 
 	/**
+	 * <p>Executes CP210x_SetDualPortConfig function of of CP210xManufacturing library.</p>
+	 * 
+	 * <p>Sets the port configuration of a CP2105 device.</p>
+	 * 
+	 * @param handle of the device.
+	 * @param mode Mode field of DUAL_PORT_CONFIG structure defined in CP210XManufacturingDLL.h header file.
+	 * @param resetLatch Reset_Latch field of DUAL_PORT_CONFIG structure defined in CP210XManufacturingDLL.h header file.
+	 * @param suspendLatch Suspend_Latch field of DUAL_PORT_CONFIG structure defined in CP210XManufacturingDLL.h header file.
+	 * @param enhancedFxnECI EnhancedFxn_ECI field of DUAL_PORT_CONFIG structure defined in CP210XManufacturingDLL.h header file.
+	 * @param enhancedFxnSCI EnhancedFxn_SCI field of DUAL_PORT_CONFIG structure defined in CP210XManufacturingDLL.h header file.
+	 * @param enhancedFxnDevice EnhancedFxn_Device field of DUAL_PORT_CONFIG structure defined in CP210XManufacturingDLL.h header file.
+	 * @return true on success.
+	 * @throws SerialComException if an I/O error occurs.
+	 */
+	public boolean setDualPortConfig(long handle, int mode, int resetLatch, int suspendLatch, int enhancedFxnECI, 
+			int enhancedFxnSCI, int enhancedFxnDevice) throws SerialComException {
+		int ret = mSerialComCP210xManufacturingJNIBridge.setDualPortConfig(handle, mode, resetLatch, 
+				suspendLatch, enhancedFxnECI, enhancedFxnSCI, enhancedFxnDevice);
+		if(ret < 0) {
+			throw new SerialComException("Could not set the dual port configuration values for the device. Please retry !");
+		}
+
+		return true;
+	}
+
+	/**
+	 * <p>Executes CP210x_SetDualPortConfig function of of CP210xManufacturing library.</p>
+	 * 
+	 * <p>Sets the port configuration of a CP2108 device.</p>
+	 * 
+	 * <p>The sequence of resetLatch array starting at index 0 is : Mode_PB0, Mode_PB1, Mode_PB2, Mode_PB3,
+	 * Mode_PB4, LowPower_PB0, LowPower_PB1, LowPower_PB2, LowPower_PB3, LowPower_PB4, Latch_PB0, Latch_PB1,
+	 * Latch_PB2, Latch_PB3, Latch_PB4. The sequence of suspendLatch array starting at index 0 is : Mode_PB0, 
+	 * Mode_PB1, Mode_PB2, Mode_PB3, Mode_PB4, LowPower_PB0, LowPower_PB1, LowPower_PB2, LowPower_PB3, 
+	 * LowPower_PB4, Latch_PB0, Latch_PB1, Latch_PB2, Latch_PB3, Latch_PB4. The sequence for config starting at 
+	 * index 0 is : IPDelay_IFC0, IPDelay_IFC1, IPDelay_IFC2, IPDelay_IFC3, EnhancedFxn_IFC0, EnhancedFxn_IFC1, 
+	 * EnhancedFxn_IFC2, EnhancedFxn_IFC3, EnhancedFxn_Device, ExtClk0Freq, ExtClk1Freq, ExtClk2Freq, ExtClk3Freq 
+	 * respectively.</p>
+	 * 
+	 * @param handle of the device.
+	 * @param resetLatch array of integers containing info related to QUAD_PORT_STATE structure defined in 
+	 *         CP210XManufacturingDLL.h header file.
+	 * @param suspendLatch array of integers containing info related to QUAD_PORT_STATE structure defined 
+	 *         in CP210XManufacturingDLL.h header file.
+	 * @param config array of bytes containing info related to QUAD_PORT_CONFIG structure defined in 
+	 *         CP210XManufacturingDLL.h header file.
+	 * @return true on success.
+	 * @throws SerialComException if an I/O error occurs.
+	 */
+	public boolean setQuadPortConfig(long handle, int[] resetLatch, int[] suspendLatch, byte[] config) throws SerialComException {
+		int ret = mSerialComCP210xManufacturingJNIBridge.setQuadPortConfig(handle, resetLatch, suspendLatch, config);
+		if(ret < 0) {
+			throw new SerialComException("Could not set the dual port configuration values for the device. Please retry !");
+		}
+
+		return true;
+	}
+
+	/**
 	 * <p>Executes CP210x_SetLockValue function of of CP210xManufacturing library.</p>
 	 * 
 	 * <p>Sets the 1-byte lock value of a CP210x device.</p>
@@ -471,9 +534,6 @@ public final class SerialComSLabsCP210xManufacturing extends SerialComVendorLib 
 		}
 		return true;
 	}
-
-	/* TODO find CP210xSetDualPortConfig, CP210xSetDualPortConfig, CP210xSetQuadPortConfig, 
-	 * CP210xGetDualPortConfig, CP210xGetQuadPortConfig */
 
 	/**
 	 * <p>Executes CP210x_GetDeviceVid function of CP210xManufacturing library.</p>
@@ -615,6 +675,23 @@ public final class SerialComSLabsCP210xManufacturing extends SerialComVendorLib 
 	}
 
 	/**
+	 * <p>Executes CP210x_GetDeviceMode function of CP210xManufacturing library.</p>
+	 * 
+	 * <p>Gets the operating modes of interfaces of a CP2105 device.</p>
+	 * 
+	 * @param handle of the device.
+	 * @return DeviceModeECI value at index 0 and DeviceModeSCI value at index 1 in byte array.
+	 * @throws SerialComException if an I/O error occurs.
+	 */
+	public byte[] getDeviceMode(long handle) throws SerialComException {
+		byte[] ret = mSerialComCP210xManufacturingJNIBridge.getDeviceMode(handle);
+		if(ret == null) {
+			throw new SerialComException("Could not get the device mode. Please retry !");
+		}
+		return ret;
+	}
+
+	/**
 	 * <p>Executes CP210x_GetDeviceVersion function of CP210xManufacturing library.</p>
 	 * 
 	 * <p>Returns the device version of a CP210x device.</p>
@@ -637,16 +714,32 @@ public final class SerialComSLabsCP210xManufacturing extends SerialComVendorLib 
 	 * <p>Gets the baud rate configuration data of a CP210x device.</p>
 	 * 
 	 * @param handle of the device.
-	 * @return array of integers containing values (starting from index 0) baudGen, timer0Reload, prescalar and 
-	 *          baudrate respectively.
+	 * @return array of CP210XbaudConfigs objects containing baudrate data.
 	 * @throws SerialComException if an I/O error occurs.
 	 */
-	public int[] getBaudRateConfig(long handle) throws SerialComException {
+	public CP210XbaudConfigs[] getBaudRateConfig(long handle) throws SerialComException {
+
+		CP210XbaudConfigs[] configs = null;
+		int i = 0;
+		int numOfValues = 0;
+
 		int[] ret = mSerialComCP210xManufacturingJNIBridge.getBaudRateConfig(handle);
 		if(ret == null) {
 			throw new SerialComException("Could not get the baud rate configuration values. Please retry !");
 		}
-		return ret;
+
+		// no exception occurred however there is no data read from device.
+		if(ret.length < 4) {
+			return new CP210XbaudConfigs[] { };
+		}
+
+		numOfValues = ret.length / 4;
+		configs = new CP210XbaudConfigs[numOfValues];
+		for(int x = 0; x < numOfValues; x++) {
+			configs[x] = new CP210XbaudConfigs(ret[i], ret[i+1], ret[i+2], ret[i+3]);
+			i = i + 4;
+		}
+		return configs;
 	}
 
 	/**

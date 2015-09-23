@@ -158,7 +158,7 @@ public final class FTdevicelistInfoNode {
 	 * <p>Prints information about this FT device info node on console.</p>
 	 */
 	public void dumpDeviceInfo() {
-		System.out.println("\nFlags : 0x" + flags + 
+		System.out.println("Flags : 0x" + flags + 
 				"\nType : 0x" + type + 
 				"\nID : 0x" + id + 
 				"\nLocId : 0x" + locId + 
