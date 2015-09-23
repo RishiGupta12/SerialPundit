@@ -52,9 +52,7 @@
 								<option id="gnu.c.link.option.paths.1125104273" name="Library search path (-L)" superClass="gnu.c.link.option.paths" valueType="libPaths">
 									<listOptionValue builtIn="false" value="/home/r/ws-host-uart/tmp"/>
 								</option>
-								<option id="gnu.c.link.option.other.1754564881" superClass="gnu.c.link.option.other" valueType="stringList">
-									<listOptionValue builtIn="false" value="--verbose"/>
-								</option>
+								<option id="gnu.c.link.option.other.1754564881" name="Other options (-Xlinker [option])" superClass="gnu.c.link.option.other" valueType="stringList"/>
 								<inputType id="cdt.managedbuild.tool.gnu.c.linker.input.1540976292" superClass="cdt.managedbuild.tool.gnu.c.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
 									<additionalInput kind="additionalinput" paths="$(LIBS)"/>

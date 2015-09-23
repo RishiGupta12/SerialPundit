@@ -242,7 +242,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComCP210x
 
 	CP210x_STATUS ret = 0;
 
-	ret = CP210x_SetVid((HANDLE)handle, (WORD)usbPID);
+	ret = CP210x_SetPid((HANDLE)handle, (WORD)usbPID);
 	if(ret != CP210x_SUCCESS) {
 		throw_serialcom_exception(env, 2, ret, NULL);
 		return -1;
@@ -527,6 +527,27 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComCP210x
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComCP210xManufacturingJNIBridge
+ * Method:    setDualPortConfig
+ * Signature: (JIIIIII)I
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComCP210xManufacturingJNIBridge_setDualPortConfig
+(JNIEnv *env, jobject obj, jlong handle, jint mode, jint resetLatch, jint suspendLatch, jint enhancedFxnECI,
+		jint enhancedFxnSCI, jint enhancedFxnDevice) {
+return -1;
+}
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComCP210xManufacturingJNIBridge
+ * Method:    setQuadPortConfig
+ * Signature: (J[I[I[B)I
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComCP210xManufacturingJNIBridge_setQuadPortConfig
+(JNIEnv *env, jobject obj, jlong handle, jintArray resetLatch, jintArray suspendLatch, jbyteArray config) {
+	return -1;
+}
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComCP210xManufacturingJNIBridge
  * Method:    setLockValue
  * Signature: (J)I
  *
@@ -567,7 +588,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComCP210x
 		return -1;
 	}
 
-	return 0;
+	return (jint)vid;
 }
 
 /*
@@ -590,7 +611,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComCP210x
 		return -1;
 	}
 
-	return 0;
+	return (jint)pid;
 }
 
 /*
@@ -610,7 +631,7 @@ JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComCP2
 	jstring info = NULL;
 
 	memset(product, '\0', sizeof(product));
-	ret = CP210x_GetDeviceProductString((HANDLE)handle, &product, &length, FALSE);
+	ret = CP210x_GetDeviceProductString((HANDLE)handle, &product, &length, TRUE);
 	if(ret != CP210x_SUCCESS) {
 		throw_serialcom_exception(env, 2, ret, NULL);
 		return NULL;
@@ -642,7 +663,7 @@ JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComCP2
 	jstring info = NULL;
 
 	memset(buffer, '\0', sizeof(buffer));
-	ret = CP210x_GetDeviceInterfaceString((HANDLE)handle, (BYTE)bInterfaceNumber, buffer, &length, FALSE);
+	ret = CP210x_GetDeviceInterfaceString((HANDLE)handle, (BYTE)bInterfaceNumber, buffer, &length, TRUE);
 	if(ret != CP210x_SUCCESS) {
 		throw_serialcom_exception(env, 2, ret, NULL);
 		return NULL;
@@ -674,7 +695,7 @@ JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComCP2
 	jstring info = NULL;
 
 	memset(serial, '\0', sizeof(serial));
-	ret = CP210x_GetDeviceSerialNumber((HANDLE)handle, &serial, &length, FALSE);
+	ret = CP210x_GetDeviceSerialNumber((HANDLE)handle, &serial, &length, TRUE);
 	if(ret != CP210x_SUCCESS) {
 		throw_serialcom_exception(env, 2, ret, NULL);
 		return NULL;
@@ -774,6 +795,43 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComCP210x
 	}
 
 	return config;
+}
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComCP210xManufacturingJNIBridge
+ * Method:    getDeviceMode
+ * Signature: (J)[B
+ *
+ * @return array of bytes on success otherwise -1 if an error occurs.
+ * @throws SerialComException if any CP210x function, JNI function, system call or C function fails.
+ */
+JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComCP210xManufacturingJNIBridge_getDeviceMode
+(JNIEnv *env, jobject obj, jlong handle) {
+
+	BYTE deviceModeECI;
+	BYTE deviceModeSCI;
+	CP210x_STATUS ret = 0;
+	jbyte data[2];
+	jbyteArray info;
+
+	ret = CP210x_GetDeviceMode((HANDLE)handle, &deviceModeECI, &deviceModeSCI);
+	if(ret != CP210x_SUCCESS) {
+		throw_serialcom_exception(env, 2, ret, NULL);
+		return NULL;
+	}
+
+	info = (*env)->NewByteArray(env, 2);
+	if((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+		throw_serialcom_exception(env, 3, 0, E_NEWBYTEARRAYSTR);
+		return NULL;
+	}
+
+	(*env)->SetByteArrayRegion(env, info, 0, 2, data);
+	if((*env)->ExceptionOccurred(env)) {
+		throw_serialcom_exception(env, 3, 0, E_SETBYTEARRREGIONSTR);
+		return NULL;
+	}
+	return info;
 }
 
 /*

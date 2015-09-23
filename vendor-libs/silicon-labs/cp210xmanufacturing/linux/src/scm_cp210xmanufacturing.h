@@ -41,6 +41,8 @@
 #define E_GETSTRUTFCHARSTR "JNI call GetStringUTFChars failed !"
 #define E_NEWINTARRAYSTR "JNI call NewIntArray failed !"
 #define E_SETINTARRREGIONSTR "JNI call SetIntArrayRegion failed. Probably index out of bound !"
+#define E_NEWBYTEARRAYSTR "JNI call NewByteArray failed !"
+#define E_SETBYTEARRREGIONSTR "JNI call SetByteArrayRegion failed !"
 
 /* function prototypes (declared in reverse order of use) */
 int LOGE(const char *error_msg);

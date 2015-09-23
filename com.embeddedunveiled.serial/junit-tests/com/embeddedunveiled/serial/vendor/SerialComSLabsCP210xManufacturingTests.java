@@ -64,14 +64,12 @@ public class SerialComSLabsCP210xManufacturingTests {
 	@Test(timeout=100)
 	public void testgetNumDevices() throws Exception {
 		int ret = cpman.getNumDevices();
-		System.out.println("num devices : " + ret);
-		assertEquals(ret, 1);
+		assertTrue(ret >= 1);
 	}
 
 	@Test(timeout=100)
 	public void testgetProductString() throws Exception {
 		String ret = cpman.getProductString(0, SerialComSLabsCP210xManufacturing.CP210x_RETURN_SERIAL_NUMBER);
-		System.out.println("getProductString serial : " + ret);
 		assertTrue(ret != null);
 		assertTrue(ret.length() > 0);
 	}
@@ -79,7 +77,6 @@ public class SerialComSLabsCP210xManufacturingTests {
 	@Test(timeout=100)
 	public void testgetProductString1() throws Exception {
 		String ret = cpman.getProductString(0, SerialComSLabsCP210xManufacturing.CP210x_RETURN_DESCRIPTION);
-		System.out.println("getProductString description : " + ret);
 		assertTrue(ret != null);
 		assertTrue(ret.length() > 0);
 	}
@@ -87,7 +84,6 @@ public class SerialComSLabsCP210xManufacturingTests {
 	@Test(timeout=100)
 	public void testgetProductString2() throws Exception {
 		String ret = cpman.getProductString(0, SerialComSLabsCP210xManufacturing.CP210x_RETURN_FULL_PATH);
-		System.out.println("getProductString path : " + ret);
 		assertTrue(ret != null);
 		assertTrue(ret.length() > 0);
 	}
@@ -95,22 +91,21 @@ public class SerialComSLabsCP210xManufacturingTests {
 	@Test(timeout=100)
 	public void testgetPartNumber() throws Exception {
 		String ret = cpman.getPartNumber(handle);
-		System.out.println("getPartNumber : " + ret);
 		assertTrue(ret != null);
 		assertTrue(ret.length() > 0);
 	}
 
 	//	driver will not be able to identify
-	//	@Test(timeout=100)
-	//	public void testsetVid() throws Exception {
-	//		boolean ret = cpman.setVid(handle, 0x0222);
-	//		assertEquals(ret, true);
-	//	}
-	//	@Test(timeout=100)
-	//	public void testsetPid() throws Exception {
-	//		boolean ret = cpman.setPid(handle, 0x0111);
-	//		assertEquals(ret, true);
-	//	}
+	@Test(timeout=100)
+	public void testsetVid() throws Exception {
+		//		boolean ret = cpman.setVid(handle, 0x0222);
+		//		assertEquals(ret, true);
+	}
+	@Test(timeout=100)
+	public void testsetPid() throws Exception {
+		//		boolean ret = cpman.setPid(handle, 0x0111);
+		//		assertEquals(ret, true);
+	}
 
 	@Test(timeout=100)
 	public void testsetProductString() throws Exception {
@@ -146,18 +141,18 @@ public class SerialComSLabsCP210xManufacturingTests {
 		assertEquals(true, defaultVal);
 	}
 
-	//	@Test(timeout=100)
-	//	public void testsetInterfaceString() throws Exception {
-	//		String defaultVal = cpman.getDeviceInterfaceString(handle, (byte)0);
-	//		assertNotNull(defaultVal);
-	//		assertTrue(defaultVal.length() > 0);
-	//
-	//		assertEquals(true, cpman.setInterfaceString(handle, (byte)0, "iStr"));
-	//		assertEquals("iStr", cpman.getDeviceInterfaceString(handle, (byte)0));
-	//
-	//		assertEquals(true, cpman.setInterfaceString(handle, (byte)0, defaultVal));
-	//		assertEquals(defaultVal, cpman.getDeviceInterfaceString(handle, (byte)0));
-	//	}
+	@Test(timeout=100)
+	public void testsetInterfaceString() throws Exception {
+		String defaultVal = cpman.getDeviceInterfaceString(handle, (byte)0);
+		assertNotNull(defaultVal);
+		assertTrue(defaultVal.length() > 0);
+
+		assertEquals(true, cpman.setInterfaceString(handle, (byte)0, "iStr"));
+		assertEquals("iStr", cpman.getDeviceInterfaceString(handle, (byte)0));
+
+		assertEquals(true, cpman.setInterfaceString(handle, (byte)0, defaultVal));
+		assertEquals(defaultVal, cpman.getDeviceInterfaceString(handle, (byte)0));
+	}
 
 	@Test(timeout=100)
 	public void testsetSelfPower() throws Exception {
@@ -217,14 +212,14 @@ public class SerialComSLabsCP210xManufacturingTests {
 		assertEquals(true, cpman.setFlushBufferConfig(handle, defaultVal));
 		assertEquals(defaultVal, cpman.getFlushBufferConfig(handle));
 	}
-	
-//	@Test(timeout=100)
-//	public void testsetDeviceMode() throws Exception {
-//		byte[] defaultVal = cpman.getDeviceMode(handle);
-//
-//		assertEquals(true, cpman.setDeviceMode(handle, defaultVal[0], defaultVal[1]));
-//	}
-	
+
+	@Test(timeout=100)
+	public void testsetDeviceMode() throws Exception {
+		byte[] defaultVal = cpman.getDeviceMode(handle);
+
+		assertEquals(true, cpman.setDeviceMode(handle, defaultVal[0], defaultVal[1]));
+	}
+
 	@Test(timeout=100)
 	public void testsetDeviceVersion() throws Exception {
 		int defaultVal = cpman.getDeviceVersion(handle);
@@ -235,54 +230,55 @@ public class SerialComSLabsCP210xManufacturingTests {
 		assertEquals(true, cpman.setDeviceVersion(handle, defaultVal));
 		assertEquals(defaultVal, cpman.getDeviceVersion(handle));
 	}
-	
-	
-	
-	
+
+	@Test(timeout=100)
+	public void testsetBaudRateConfig() throws Exception {
+		CP210XbaudConfigs[] config = cpman.getBaudRateConfig(handle);
+
+		assertNotNull(config);
+		assertTrue(config.length > 0);
+	}
+
+	@Test(timeout=100)
+	public void testsetDualPortConfig() throws Exception {
+	}
+
+	@Test(timeout=100)
+	public void testsetQuadPortConfig() throws Exception {
+	}
+
+	@Test(timeout=100)
+	public void testsetLockValue() throws Exception {
+		// 0x00 means unlocked.
+		assertEquals(0x00, cpman.getLockValue(handle));
+	}
+
+	@Test(timeout=100)
+	public void testgetDeviceVid() throws Exception {
+		assertEquals(0x10c4, cpman.getDeviceVid(handle));
+	}
+
+	@Test(timeout=100)
+	public void testgetDevicePid() throws Exception {
+		assertEquals(0xea60, cpman.getDevicePid(handle));
+	}
+
+	@Test(timeout=100)
+	public void testgetDeviceProductString() throws Exception {
+		assertEquals("CP2102 USB to UART Bridge Controller", cpman.getDeviceProductString(handle));
+	}
+
+	@Test(timeout=100)
+	public void testgetDeviceSerialNumber() throws Exception {
+		assertEquals("0001", cpman.getDeviceSerialNumber(handle));
+	}
+
+	@Test(timeout=100)
+	public void testreset() throws Exception {
+		assertEquals(true, cpman.reset(handle));
+	}
+
+	@Test(timeout=100)
+	public void testcreateHexFile() throws Exception {
+	}
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
