@@ -1843,6 +1843,9 @@ public final class SerialComManager {
 	 * current loop line is indicated by no current flowing, and a very long period of no current flowing is often
 	 * caused by a break or other fault in the line.</p>
 	 * 
+	 * <p>All UART devices (or driver) may not support all break timings. For example CP2105 can set break for from 
+	 * 1 to 125 ms or for infinite time. Developers should consult data sheet to know device capabilities.</p>
+	 * 
 	 * @param handle of the opened port.
 	 * @param duration the time in milliseconds for which break will be active.
 	 * @return true on success.

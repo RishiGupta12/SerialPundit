@@ -106,12 +106,91 @@
 /* CP2105 Define bit locations for EnhancedFxn_Device */
 #define SCM_EF_WEAKPULLUP				0x10	/*  Weak Pull-up on */
 
+/* CP2108 Define bit locations for Mode/Latch for Reset and Suspend structures */
+/* PB0 */
+#define  SCM_PORT_TX0       0x0001
+#define  SCM_PORT_RX0       0x0002
+#define  SCM_PORT_RTS0      0x0004
+#define  SCM_PORT_CTS0      0x0008
+#define  SCM_PORT_DTR0      0x0010
+#define  SCM_PORT_DSR0      0x0020
+#define  SCM_PORT_DCD0      0x0040
+#define  SCM_PORT_RI0       0x0080
+#define  SCM_PORT_TX1       0x0100
+#define  SCM_PORT_RX1       0x0200
+#define  SCM_PORT_RTS1      0x0400
+#define  SCM_PORT_CTS1      0x0800
+#define  SCM_PORT_DTR1      0x1000
+#define  SCM_PORT_DSR1      0x2000
+#define  SCM_PORT_DCD1      0x4000
+#define  SCM_PORT_RI1       0x8000
+
+/* PB1 */
+#define  SCM_PORT_GPIO_0    0x0001
+#define  SCM_PORT_GPIO_1    0x0002
+#define  SCM_PORT_GPIO_2    0x0004
+#define  SCM_PORT_GPIO_3    0x0008
+#define  SCM_PORT_GPIO_4    0x0010
+#define  SCM_PORT_GPIO_5    0x0020
+#define  SCM_PORT_GPIO_6    0x0040
+#define  SCM_PORT_GPIO_7    0x0080
+#define  SCM_PORT_GPIO_8    0x0100
+#define  SCM_PORT_GPIO_9    0x0200
+#define  SCM_PORT_GPIO_10   0x0400
+#define  SCM_PORT_GPIO_11   0x0800
+#define  SCM_PORT_GPIO_12   0x1000
+#define  SCM_PORT_GPIO_13   0x2000
+#define  SCM_PORT_GPIO_14   0x4000
+#define  SCM_PORT_GPIO_15   0x8000
+
+/* PB2 */
+#define  SCM_PORT_SUSPEND   0x0001
+#define  SCM_PORT_SUSPEND_BAR   0x0002
+#define  SCM_PORT_DTR2      0x0004
+#define  SCM_PORT_DSR2      0x0008
+
+/* PB3 */
+#define  SCM_PORT_TX2       0x0001
+#define  SCM_PORT_RX2       0x0002
+#define  SCM_PORT_RTS2      0x0004
+#define  SCM_PORT_CTS2      0x0008
+#define  SCM_PORT_DCD2      0x0010
+#define  SCM_PORT_RI2       0x0020
+#define  SCM_PORT_DTR3      0x0040
+#define  SCM_PORT_DSR3      0x0080
+#define  SCM_PORT_DCD3      0x0100
+#define  SCM_PORT_RI3       0x0200
+
+/* PB4 */
+#define  SCM_PORT_RTS3      0x0001
+#define  SCM_PORT_CTS3      0x0002
+#define  SCM_PORT_TX3       0x0004
+#define  SCM_PORT_RX3       0x0008
+
+/* CP2108 Define bit locations for EnhancedFxn_IFCx */
+#define SCM_EF_IFC_GPIO_TXLED   0x01
+#define SCM_EF_IFC_GPIO_RXLED   0x02
+#define SCM_EF_IFC_GPIO_RS485   0x04
+
+/* If the next bit is clear, GPIO1 is low while sending UART data. */
+/* If it is set, GPIO1 is high while sending UART data, and low otherwise. */
+#define SCM_EF_IFC_GPIO_RS485_LOGIC 	0x08
+#define SCM_EF_IFC_GPIO_CLOCK       	0x10
+#define SCM_EF_IFC_DYNAMIC_SUSPEND  	0x40
+
+/* CP2108 Define bit locations for EnhancedFxn_Device. */
+#define SCM_EF_DEVICE_WEAKPULLUP_RESET      0x10
+#define SCM_EF_DEVICE_WEAKPULLUP_SUSPEND    0x20
+#define SCM_EF_DEVICE_DYNAMIC_SUSPEND       0x40
+
+
 /* Constant string defines */
 #define FAILTHOWEXP "JNI call ThrowNew failed to throw exception !"
 #define SCOMEXPCLASS "com/embeddedunveiled/serial/SerialComException"
 #define E_FINDCLASSSCOMEXPSTR "Can not find class com/embeddedunveiled/serial/SerialComException, Probably out of memory."
 #define E_NEWSTRUTFSTR "JNI call NewStringUTF failed !"
 #define E_GETSTRUTFCHARSTR "JNI call GetStringUTFChars failed !"
+#define E_GETINTARRELEMTSTR "JNI call GetIntArrayElements failed !"
 #define E_NEWINTARRAYSTR "JNI call NewIntArray failed !"
 #define E_SETINTARRREGIONSTR "JNI call SetIntArrayRegion failed. Probably index out of bound !"
 #define E_NEWBYTEARRAYSTR "JNI call NewByteArray failed !"

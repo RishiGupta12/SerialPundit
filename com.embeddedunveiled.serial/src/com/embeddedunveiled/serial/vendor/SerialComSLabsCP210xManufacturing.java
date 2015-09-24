@@ -395,6 +395,242 @@ public final class SerialComSLabsCP210xManufacturing extends SerialComVendorLib 
 	 * CP2105 devices.</p>*/
 	public static final int CP2105_EF_WEAKPULLUP	 = 0x10;	// Weak Pull-up on
 
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2108 devices.</p>*/
+	public static final int PB0_PORT_TX0 = 0X0001;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2108 devices.</p>*/
+	public static final int PB0_PORT_RX0 = 0X0002;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2108 devices.</p>*/
+	public static final int PB0_PORT_RTS0 = 0x0004;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2108 devices.</p>*/
+	public static final int PB0_PORT_CTS0 = 0x0008;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2108 devices.</p>*/
+	public static final int PB0_PORT_DTR0 = 0x0010;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2108 devices.</p>*/
+	public static final int PB0_PORT_DSR0 = 0x0020;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2108 devices.</p>*/
+	public static final int PB0_PORT_DCD0 = 0x0040;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2108 devices.</p>*/
+	public static final int PB0_PORT_RI0 = 0X0080;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2108 devices.</p>*/
+	public static final int PB0_PORT_TX1 = 0X0100;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2108 devices.</p>*/
+	public static final int PB0_PORT_RX1 = 0X0200;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2108 devices.</p>*/
+	public static final int PB0_PORT_RTS1 = 0x0400;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2108 devices.</p>*/
+	public static final int PB0_PORT_CTS1 = 0x0800;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2108 devices.</p>*/
+	public static final int PB0_PORT_DTR1 = 0x1000;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2108 devices.</p>*/
+	public static final int PB0_PORT_DSR1 = 0x2000;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2108 devices.</p>*/
+	public static final int PB0_PORT_DCD1 = 0x4000;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2108 devices.</p>*/
+	public static final int PB0_PORT_RI1 = 0X8000;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2108 devices.</p>*/
+	public static final int PB1_PORT_GPIO_0 = 0x0001;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2108 devices.</p>*/
+	public static final int PB1_PORT_GPIO_1 = 0x0002;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2108 devices.</p>*/
+	public static final int PB1_PORT_GPIO_2 = 0x0004;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2108 devices.</p>*/
+	public static final int PB1_PORT_GPIO_3 = 0x0008;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2108 devices.</p>*/
+	public static final int PB1_PORT_GPIO_4 = 0x0010;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2108 devices.</p>*/
+	public static final int PB1_PORT_GPIO_5 = 0x0020;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2108 devices.</p>*/
+	public static final int PB1_PORT_GPIO_6 = 0x0040;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2108 devices.</p>*/
+	public static final int PB1_PORT_GPIO_7 = 0x0080;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2108 devices.</p>*/
+	public static final int PB1_PORT_GPIO_8 = 0x0100;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2108 devices.</p>*/
+	public static final int PB1_PORT_GPIO_9 = 0x0200;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2108 devices.</p>*/
+	public static final int PB1_PORT_GPIO_10 = 0x0400;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2108 devices.</p>*/
+	public static final int PB1_PORT_GPIO_11 = 0x0800;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2108 devices.</p>*/
+	public static final int PB1_PORT_GPIO_12 = 0x1000;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2108 devices.</p>*/
+	public static final int PB1_PORT_GPIO_13 = 0x2000;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2108 devices.</p>*/
+	public static final int PB1_PORT_GPIO_14 = 0x4000;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2108 devices.</p>*/
+	public static final int PB1_PORT_GPIO_15 = 0x8000;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2108 devices.</p>*/
+	public static final int PB2_PORT_SUSPEND = 0x0001;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2108 devices.</p>*/
+	public static final int PB2_PORT_SUSPEND_BAR = 0x0002;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2108 devices.</p>*/
+	public static final int PB2_PORT_DTR2 = 0x0004;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2108 devices.</p>*/
+	public static final int PB2_PORT_DSR2 = 0x0008;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2108 devices.</p>*/
+	public static final int PB3_PORT_TX2 = 0x0001;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2108 devices.</p>*/
+	public static final int PB3_PORT_RX2 = 0x0002;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2108 devices.</p>*/
+	public static final int PB3_PORT_RTS2 = 0x0004;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2108 devices.</p>*/
+	public static final int PB3_PORT_CTS2 = 0x0008;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2108 devices.</p>*/
+	public static final int PB3_PORT_DCD2 = 0x0010;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2108 devices.</p>*/
+	public static final int PB3_PORT_RI2 = 0x0020;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2108 devices.</p>*/
+	public static final int PB3_PORT_DTR3 = 0x0040;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2108 devices.</p>*/
+	public static final int PB3_PORT_DSR3 = 0x0080;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2108 devices.</p>*/
+	public static final int PB3_PORT_DCD3 = 0x0100;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2108 devices.</p>*/
+	public static final int PB3_PORT_RI3 = 0x0200;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2108 devices.</p>*/
+	public static final int PB4_PORT_RTS3 = 0x0001;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2108 devices.</p>*/
+	public static final int PB4_PORT_CTS3 = 0x0002;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2108 devices.</p>*/
+	public static final int PB4_PORT_TX3 = 0x0004;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2108 devices.</p>*/
+	public static final int PB4_PORT_RX3 = 0x0008;
+
+	/**<p>Constant representing one of the bit locations for EnhancedFxn_IFCx to be used mainly for CP2108 
+	 * devices.</p>*/
+	public static final int EF_IFC_GPIO_TXLED = 0x01;
+
+	/**<p>Constant representing one of the bit locations for EnhancedFxn_IFCx to be used mainly for CP2108 
+	 * devices.</p>*/
+	public static final int EF_IFC_GPIO_RXLED = 0x02;
+
+	/**<p>Constant representing one of the bit locations for EnhancedFxn_IFCx to be used mainly for CP2108 
+	 * devices.</p>*/
+	public static final int EF_IFC_GPIO_RS485 = 0x04;
+
+	/**<p>Constant representing one of the bit locations for EnhancedFxn_IFCx to be used mainly for CP2108 
+	 * devices.</p>*/
+	public static final int EF_IFC_GPIO_RS485_LOGIC = 0x08;
+
+	/**<p>Constant representing one of the bit locations for EnhancedFxn_IFCx to be used mainly for CP2108 
+	 * devices.</p>*/
+	public static final int EF_IFC_GPIO_CLOCK = 0x10;
+
+	/**<p>Constant representing one of the bit locations for EnhancedFxn_IFCx to be used mainly for CP2108 
+	 * devices.</p>*/
+	public static final int EF_IFC_DYNAMIC_SUSPEND  = 0x40;
+
+	/**<p>Constant representing one of the bit locations for EnhancedFxn_Device to be used mainly for CP2108 
+	 * devices.</p>*/
+	public static final int EF_DEVICE_WEAKPULLUP_RESET = 0x10;
+
+	/**<p>Constant representing one of the bit locations for EnhancedFxn_Device to be used mainly for CP2108 
+	 * devices.</p>*/
+	public static final int EF_DEVICE_WEAKPULLUP_SUSPEND = 0x20;
+
+	/**<p>Constant representing one of the bit locations for EnhancedFxn_Device to be used mainly for CP2108 
+	 * devices.</p>*/
+	public static final int EF_DEVICE_DYNAMIC_SUSPEND = 0x40;
+
 	private final SerialComCP210xManufacturingJNIBridge mSerialComCP210xManufacturingJNIBridge;
 
 	/**
@@ -668,7 +904,12 @@ public final class SerialComSLabsCP210xManufacturing extends SerialComVendorLib 
 	 * 
 	 * <p>Sets the Flush Buffer configuration of a CP210x device.</p>
 	 * 
-	 * <p>The argument flag can be bit mask of constants FC_OPEN_TX, FC_OPEN_RX, FC_CLOSE_TX, FC_CLOSE_RX.</p>
+	 * <p>The argument flag can be bit mask of constants FC_OPEN_TX, FC_OPEN_RX, FC_CLOSE_TX, FC_CLOSE_RX. 
+	 * For CP2105 bit mask should be FC_OPEN_TX_SCI, FC_OPEN_RX_SCI, FC_CLOSE_TX_SCI, FC_CLOSE_RX_SCI, or 
+	 * FC_OPEN_TX_ECI, FC_OPEN_RX_ECI, FC_CLOSE_TX_ECI, FC_CLOSE_RX_ECI. For CP2108 bit mask should be of 
+	 * FC_OPEN_TX_IFC0, FC_OPEN_RX_IFC0, FC_CLOSE_TX_IFC0, FC_CLOSE_RX_IFC0, FC_OPEN_TX_IFC1, FC_OPEN_RX_IFC1, 
+	 * FC_CLOSE_TX_IFC1, FC_CLOSE_RX_IFC1, FC_OPEN_TX_IFC2, FC_OPEN_RX_IFC2, FC_CLOSE_TX_IFC2, FC_CLOSE_RX_IFC2, 
+	 * FC_OPEN_TX_IFC3, FC_OPEN_RX_IFC3, FC_CLOSE_TX_IFC3, FC_CLOSE_RX_IFC3.</p>
 	 * 
 	 * @param handle of the device.
 	 * @param flag bit mask indicating which buffer to flush and upon which event.
@@ -692,6 +933,9 @@ public final class SerialComSLabsCP210xManufacturing extends SerialComVendorLib 
 	 * <p>Executes CP210x_SetDeviceMode function of of CP210xManufacturing library.</p>
 	 * 
 	 * <p>Sets the operating mode (GPIO or Modem) or each Interface of a CP210x device.</p>
+	 * 
+	 * <p>Devices like CP2105 have more than one serial port (interface). Each serial port can be operated 
+	 * in two modes modem and GPIO respectively. This method can be used to set these modes.</p>
 	 * 
 	 * @param handle of the device.
 	 * @param bDeviceModeECI set to 0 for modem mode for Enhanced interface. Set to 1 for GPIO mode.
@@ -812,12 +1056,15 @@ public final class SerialComSLabsCP210xManufacturing extends SerialComVendorLib 
 	 * 
 	 * <p>The sequence of resetLatch array starting at index 0 is : Mode_PB0, Mode_PB1, Mode_PB2, Mode_PB3,
 	 * Mode_PB4, LowPower_PB0, LowPower_PB1, LowPower_PB2, LowPower_PB3, LowPower_PB4, Latch_PB0, Latch_PB1,
-	 * Latch_PB2, Latch_PB3, Latch_PB4. The sequence of suspendLatch array starting at index 0 is : Mode_PB0, 
+	 * Latch_PB2, Latch_PB3, Latch_PB4.</p>
+	 * 
+	 * <p>The sequence of suspendLatch array starting at index 0 is : Mode_PB0, 
 	 * Mode_PB1, Mode_PB2, Mode_PB3, Mode_PB4, LowPower_PB0, LowPower_PB1, LowPower_PB2, LowPower_PB3, 
-	 * LowPower_PB4, Latch_PB0, Latch_PB1, Latch_PB2, Latch_PB3, Latch_PB4. The sequence for config starting at 
-	 * index 0 is : IPDelay_IFC0, IPDelay_IFC1, IPDelay_IFC2, IPDelay_IFC3, EnhancedFxn_IFC0, EnhancedFxn_IFC1, 
-	 * EnhancedFxn_IFC2, EnhancedFxn_IFC3, EnhancedFxn_Device, ExtClk0Freq, ExtClk1Freq, ExtClk2Freq, ExtClk3Freq 
-	 * respectively.</p>
+	 * LowPower_PB4, Latch_PB0, Latch_PB1, Latch_PB2, Latch_PB3, Latch_PB4.</p>
+	 * 
+	 * <p>The sequence for config starting at index 0 is : IPDelay_IFC0, IPDelay_IFC1, IPDelay_IFC2, IPDelay_IFC3, 
+	 * EnhancedFxn_IFC0, EnhancedFxn_IFC1, EnhancedFxn_IFC2, EnhancedFxn_IFC3, EnhancedFxn_Device, ExtClk0Freq, 
+	 * ExtClk1Freq, ExtClk2Freq, ExtClk3Freq respectively.</p>
 	 * 
 	 * @param handle of the device.
 	 * @param resetLatch array of integers containing info related to QUAD_PORT_STATE structure defined in 
@@ -827,14 +1074,20 @@ public final class SerialComSLabsCP210xManufacturing extends SerialComVendorLib 
 	 * @param config array of bytes containing info related to QUAD_PORT_CONFIG structure defined in 
 	 *         CP210XManufacturingDLL.h header file.
 	 * @return true on success.
+	 * @throws IllegalArgumentException if length of resetLatch, suspendLatch or config is incorrect.
 	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public boolean setQuadPortConfig(long handle, int[] resetLatch, int[] suspendLatch, byte[] config) throws SerialComException {
+		if((resetLatch.length != 15) || (suspendLatch.length != 15)) {
+			throw new IllegalArgumentException("Length of array resetLatch and suspendLatch must be 15 !");
+		}
+		if(config.length != 13) {
+			throw new IllegalArgumentException("Length of array config must be 13 !");
+		}
 		int ret = mSerialComCP210xManufacturingJNIBridge.setQuadPortConfig(handle, resetLatch, suspendLatch, config);
 		if(ret < 0) {
 			throw new SerialComException("Could not set the dual port configuration values for the device. Please retry !");
 		}
-
 		return true;
 	}
 
@@ -890,9 +1143,26 @@ public final class SerialComSLabsCP210xManufacturing extends SerialComVendorLib 
 	}
 
 	/**
+	 * <p>Executes CP210x_GetDeviceManufacturerString function of CP210xManufacturing library.</p>
+	 * 
+	 * <p>Returns the manufacturer string of the String Descriptor of a CP210x device.</p>
+	 * 
+	 * @param handle of the device.
+	 * @return manufacturer of the device.
+	 * @throws SerialComException if an I/O error occurs.
+	 */
+	public String getDeviceManufacturerString(long handle) throws SerialComException {
+		String ret = mSerialComCP210xManufacturingJNIBridge.getDeviceManufacturerString(handle);
+		if(ret == null) {
+			throw new SerialComException("Could not get the manufacturer string. Please retry !");
+		}
+		return ret;
+	}
+
+	/**
 	 * <p>Executes CP210x_GetDeviceProductString function of CP210xManufacturing library.</p>
 	 * 
-	 * <p>Returns the Product Description String of the String Descriptor of a CP210x device.</p>
+	 * <p>Returns the product description string of the String Descriptor of a CP210x device.</p>
 	 * 
 	 * @param handle of the device.
 	 * @return product description of the device.
@@ -926,7 +1196,7 @@ public final class SerialComSLabsCP210xManufacturing extends SerialComVendorLib 
 	/**
 	 * <p>Executes CP210x_GetDeviceSerialNumber function of CP210xManufacturing library.</p>
 	 * 
-	 * <p>Gets the Serial Number String of the String Descriptor of a CP210x device.</p>
+	 * <p>Gets the serial number string of the String Descriptor of a CP210x device.</p>
 	 * 
 	 * @param handle of the device.
 	 * @return serial number of the device.
@@ -1068,14 +1338,61 @@ public final class SerialComSLabsCP210xManufacturing extends SerialComVendorLib 
 	 * <p>Gets the current port pin configuration from the CP210x device.</p>
 	 * 
 	 * @param handle of the device.
-	 * @return array of integers containing values (starting from index 0) mode, resetLatch, suspendLatch, 
-	 *          enhancedFxn respectively.
+	 * @return array of integers containing values (starting from index 0) Mode, Reset_Latch, Suspend_Latch, 
+	 *          EnhancedFxn respectively.
 	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public int[] getPortConfig(long handle) throws SerialComException {
 		int[] ret = mSerialComCP210xManufacturingJNIBridge.getPortConfig(handle);
 		if(ret == null) {
 			throw new SerialComException("Could not get the port configuration values. Please retry !");
+		}
+		return ret;
+	}
+
+	/**
+	 * <p>Executes CP210xGetDualPortConfig function of CP210xManufacturing library.</p>
+	 * 
+	 * <p>Gets the current port pin configuration from the CP210x (typically CP2105) device.</p>
+	 * 
+	 * @param handle of the device.
+	 * @return array of integers containing values (starting from index 0) Mode, Reset_Latch, Suspend_Latch, 
+	 *          EnhancedFxn_ECI, EnhancedFxn_SCI, EnhancedFxn_Device respectively.
+	 * @throws SerialComException if an I/O error occurs.
+	 */
+	public int[] getDualPortConfig(long handle) throws SerialComException {
+		int[] ret = mSerialComCP210xManufacturingJNIBridge.getDualPortConfig(handle);
+		if(ret == null) {
+			throw new SerialComException("Could not get the dual port configuration values. Please retry !");
+		}
+		return ret;
+	}
+
+	/**
+	 * <p>Executes CP210x_GetQuadPortConfig function of CP210xManufacturing library.</p>
+	 * 
+	 * <p>Gets the current port pin configuration from the CP210x (typically CP2108) device.</p>
+	 * 
+	 * <p>The sequence of member values in returned array is : Reset_Latch.Mode_PB0, Reset_Latch.Mode_PB1, 
+	 * Reset_Latch.Mode_PB2, Reset_Latch.Mode_PB3, Reset_Latch.Mode_PB4, Reset_Latch.LowPower_PB0,
+	 * Reset_Latch.LowPower_PB1, Reset_Latch.LowPower_PB2, Reset_Latch.LowPower_PB3, Reset_Latch.LowPower_PB4, 
+	 * Reset_Latch.Latch_PB0, Reset_Latch.Latch_PB1, Reset_Latch.Latch_PB2, Reset_Latch.Latch_PB3, Reset_Latch.Latch_PB4, 
+	 * Suspend_Latch.Mode_PB0, Suspend_Latch.Mode_PB1, Suspend_Latch.Mode_PB2, Suspend_Latch.Mode_PB3, 
+	 * Suspend_Latch.Mode_PB4, Suspend_Latch.LowPower_PB0, Suspend_Latch.LowPower_PB1, Suspend_Latch.LowPower_PB2, 
+	 * Suspend_Latch.LowPower_PB3, Suspend_Latch.LowPower_PB4, Suspend_Latch.Latch_PB0, Suspend_Latch.Latch_PB1, 
+	 * Suspend_Latch.Latch_PB2, Suspend_Latch.Latch_PB3, Suspend_Latch.Latch_PB4, IPDelay_IFC0, IPDelay_IFC1, 
+	 * IPDelay_IFC2, IPDelay_IFC3, EnhancedFxn_IFC0, EnhancedFxn_IFC1, EnhancedFxn_IFC2, EnhancedFxn_IFC3, 
+	 * EnhancedFxn_Device, ExtClk0Freq, ExtClk1Freq, ExtClk2Freq, ExtClk3Freq respectively. </p>
+	 * 
+	 * @param handle of the device.
+	 * @return array of integers containing values (starting from index 0) mode, resetLatch, suspendLatch, 
+	 *          enhancedFxn respectively.
+	 * @throws SerialComException if an I/O error occurs.
+	 */
+	public int[] getQuadPortConfig(long handle) throws SerialComException {
+		int[] ret = mSerialComCP210xManufacturingJNIBridge.getQuadPortConfig(handle);
+		if(ret == null) {
+			throw new SerialComException("Could not get the quad port configuration values. Please retry !");
 		}
 		return ret;
 	}

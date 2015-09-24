@@ -284,4 +284,11 @@ public class SerialComSLabsCP210xManufacturingTests {
 	@Test(timeout=100)
 	public void testcreateHexFile() throws Exception {
 	}
+
+	@Test(timeout=100)
+	public void testgetDeviceManufacturerString() throws Exception {
+		String defaultVal = cpman.getDeviceManufacturerString(handle);
+		assertNotNull(defaultVal);
+		assertTrue(defaultVal.length() > 0);
+	}
 }
