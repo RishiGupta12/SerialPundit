@@ -32,7 +32,10 @@ public class CP210XbaudConfigs {
 	/**
 	 * <p>Allocates a new CP210XbaudConfigs object with given details.</p>
 	 * 
-	 * @param data array containing values of member variables for C structure.
+	 * @param baudGen values of BaudGen member variables for C structure.
+	 * @param timer0Reload values of Timer0Reload member variables for C structure.
+	 * @param prescaler values of Prescaler member variables for C structure.
+	 * @param baudRate values of BaudRate member variables for C structure.
 	 */
 	public CP210XbaudConfigs(int baudGen, int timer0Reload, int prescaler, int baudRate) {
 		this.baudGen = baudGen;
