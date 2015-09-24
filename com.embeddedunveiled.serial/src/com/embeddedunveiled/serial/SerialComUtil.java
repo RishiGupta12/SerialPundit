@@ -1,4 +1,4 @@
-/**
+/*
  * Author : Rishi Gupta
  * 
  * This file is part of 'serial communication manager' library.
@@ -21,15 +21,15 @@ package com.embeddedunveiled.serial;
  * <p>Provides common utility functions for serial port communication related projects.</p>
  */
 public final class SerialComUtil {
-	
+
 	private static final String HEXNUM = "0123456789ABCDEF";
 
 	/**
-     * <p>Allocates a new SerialComUtil object.</p>
-     */
+	 * <p>Allocates a new SerialComUtil object.</p>
+	 */
 	public SerialComUtil() {
 	}
-	
+
 	/**
 	 * <p>This method is for internal use.</p>
 	 * 
@@ -47,14 +47,14 @@ public final class SerialComUtil {
 		if(max < min) {
 			return sb.toString();
 		}
-			
+
 		while (sb.length() < max) {
 			sb.insert(0, paddingChar);
 		}
-		
+
 		return sb.substring(0, min);
 	}
-	
+
 	/**
 	 * <p>This method creates hex string from byte array. This is useful in bluetooth low energy applications where characteristics
 	 * returned are to be interpreted or for example Internet of things applications where sensor data is getting exchanged.</p>
@@ -65,30 +65,31 @@ public final class SerialComUtil {
 	 * @throws IllegalArgumentException if data is null.
 	 */
 	public static String byteArrayToHexString(final byte[] data, final String separator) {
+		StringBuilder sBuilder;
+
 		if(data == null) {
 			throw new IllegalArgumentException("Argument data can not be null !");
 		}
-		
+
 		if(data.length > 0) {
+			sBuilder = new StringBuilder(2 * data.length);
 			if(separator != null) {
-				final StringBuilder sBuilder = new StringBuilder(2 * data.length);
 				for (final byte b : data) {
 					sBuilder.append(HEXNUM.charAt((b & 0xF0) >> 4)).append(HEXNUM.charAt((b & 0x0F)));
 					sBuilder.append(separator);
 				}
-				return sBuilder.toString();
+				sBuilder.deleteCharAt(sBuilder.length() - 1); //remove separator at the end of string.
 			}else {
-				final StringBuilder sBuilder = new StringBuilder(2 * data.length);
 				for (final byte b : data) {
 					sBuilder.append(HEXNUM.charAt((b & 0xF0) >> 4)).append(HEXNUM.charAt((b & 0x0F)));
 				}
-				return sBuilder.toString();
 			}
+			return sBuilder.toString();
 		}
 
 		return new String();
 	}
-	
+
 	/**
 	 * <p>Converts given string in hexa-decimal representation to equivalent byte array.</p>
 	 * 
@@ -106,7 +107,7 @@ public final class SerialComUtil {
 		String hexStr = hexStringData.trim().replaceAll("0x", "");
 		hexStr = hexStr.replaceAll("\\s+","");
 		byte[] data = new byte[hexStr.length()/2];
-		
+
 		while(i <= hexStr.length()-1) {
 			byte character = (byte) Integer.parseInt(hexStr.substring(i, i+2), 16);
 			data[j] = character;
@@ -115,7 +116,7 @@ public final class SerialComUtil {
 		}
 		return data;
 	}
-	
+
 	/**
 	 * <p>Calculates Longitudinal redundancy checksum value for the given byte array.</p>
 	 * 
@@ -128,8 +129,8 @@ public final class SerialComUtil {
 	 * @throws IllegalArgumentException if data is not a byte type array.
 	 */
 	public static byte calculateLRCCheckSum(final byte[] data, int offset, int length) {
-        byte checkSum = 0;
-        
+		byte checkSum = 0;
+
 		if(data == null) {
 			throw new NullPointerException("Argument data can not be null !");
 		}
@@ -139,12 +140,12 @@ public final class SerialComUtil {
 		if(!(data instanceof byte[])) {
 			throw new IllegalArgumentException("Argument data is not byte type array !");
 		}
-		
-        for (int i = offset; i < offset + length; i++) {
-        	checkSum ^= data[i];
-        }
-        return checkSum;
-    }
+
+		for (int i = offset; i < offset + length; i++) {
+			checkSum ^= data[i];
+		}
+		return checkSum;
+	}
 
 	/**
 	 * <p>Converts the given byte's value to an unsigned integer number. The least significant byte (8 bits) of the integer number
@@ -156,7 +157,7 @@ public final class SerialComUtil {
 	public static int byteToUnsignedInt(byte data) {
 		return 0x000000ff & ((int) data);
 	}
-	
+
 	/**
 	 * <p>Converts the given byte's value to an unsigned long number. The least significant byte (8 bits) of the long number 
 	 * will be identical to the byte (8 bits) provided, and the most significant 7 bytes (56 bits) of the long will be zero.</p>
@@ -167,7 +168,7 @@ public final class SerialComUtil {
 	public static long byteToUnsignedLong(byte data) {
 		return 0x00000000000000ff & ((long) data);
 	}
-	
+
 	/**
 	 * <p>Extract and returns the low byte from the short type number passed.</p>
 	 * 
@@ -199,7 +200,7 @@ public final class SerialComUtil {
 	public static int shortToUnsignedInt(short data) {
 		return 0x0000ffff & ((int) data);
 	}
-	
+
 	/**
 	 * <p>Converts the given short's value to an unsigned long number. The least significant 2 byte (16 bits) of the long number
 	 * will be identical to the least significant 2 byte (16 bits) of the short number and the most significant 6 bytes (48 bits) of 
@@ -211,7 +212,7 @@ public final class SerialComUtil {
 	public static long shortToUnsignedLong(short data) {
 		return 0x000000000000ffff & ((long) data);
 	}
-	
+
 	/**
 	 * <p>Converts the given short value to a byte type array in Little endian order.</p>
 	 * 
@@ -220,11 +221,11 @@ public final class SerialComUtil {
 	 */
 	public static byte[] shortToByteArray(short data) {
 		byte[] result = new byte[2];
-	    result[0] = (byte) (data & 0xff);
-	    result[1] = (byte) ((data >>> 8) & 0xff);
-	    return result;
+		result[0] = (byte) (data & 0xff);
+		result[1] = (byte) ((data >>> 8) & 0xff);
+		return result;
 	}
-	
+
 	/**
 	 * <p>Converts the given integer value to an unsigned long number. The least significant 4 bytes (32 bits) of the long number
 	 * will be identical to the least significant 4 bytes (32 bits) of the integer number and the most significant 4 bytes (32 bits) of 
@@ -236,7 +237,7 @@ public final class SerialComUtil {
 	public static long intToUnsignedLong(int data) {
 		return 0x00000000ffffffff & ((long) data);
 	}
-	
+
 	/**
 	 * <p>Converts the given integer value to a byte type array in Little endian order.</p>
 	 * 
@@ -245,13 +246,13 @@ public final class SerialComUtil {
 	 */
 	public static byte[] intToByteArray(int data) {
 		byte[] result = new byte[4];
-	    result[0] = (byte) (data & 0xff);
-	    result[1] = (byte) ((data >>> 8) & 0xff);
-	    result[1] = (byte) ((data >>> 16) & 0xff);
-	    result[1] = (byte) ((data >>> 24) & 0xff);
-	    return result;
+		result[0] = (byte) (data & 0xff);
+		result[1] = (byte) ((data >>> 8) & 0xff);
+		result[1] = (byte) ((data >>> 16) & 0xff);
+		result[1] = (byte) ((data >>> 24) & 0xff);
+		return result;
 	}
-	
+
 	/**
 	 * <p>This converts a number represented in hex string to decimal number. It parses the string 
 	 * argument as a signed long with radix as 16.</p>
@@ -263,7 +264,7 @@ public final class SerialComUtil {
 	public static long hexStrToLongNumber(final String hexNumStr) {
 		return Long.parseLong(hexNumStr, 16);
 	}
-	
+
 	/**
 	 * <p>Converts the given long value to hex string.</p>
 	 * 
@@ -273,7 +274,7 @@ public final class SerialComUtil {
 	public static String longToHexString(long num) {
 		return toHexString(num, '0', 16, 16);
 	}
-	
+
 	/**
 	 * <p>Converts the given integer value to hex string.</p>
 	 * 
@@ -283,7 +284,7 @@ public final class SerialComUtil {
 	public static String intToHexString(int num) {
 		return toHexString(intToUnsignedLong(num), '0', 8, 8);
 	}
-	
+
 	/**
 	 * <p>Converts the given short value to hex string.</p>
 	 * 
@@ -293,7 +294,7 @@ public final class SerialComUtil {
 	public static String shortToHexString(short num) {
 		return toHexString(shortToUnsignedLong(num), '0', 4, 4);
 	}
-	
+
 	/**
 	 * <p>Converts the given byte value to hex string.</p>
 	 * 
@@ -303,5 +304,5 @@ public final class SerialComUtil {
 	public static String byteToHexString(byte num) {
 		return toHexString(byteToUnsignedLong(num), '0', 2, 2);
 	}
-	
+
 }

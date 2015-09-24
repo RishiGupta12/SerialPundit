@@ -17,33 +17,37 @@
 
 package com.embeddedunveiled.serial;
 
-import java.io.IOException;
-
 /** 
- * <p>Limit the scope of exceptions in context of serial port communication only.</p>
+ * <p>Acts as a messenger between application and SCM library to specify 
+ * whether sending/receiving file should continue or be aborted.</p>
  */
-public final class SerialComException extends IOException {
+public final class SerialComXModemAbort {
 
-	private static final long serialVersionUID = -6849706871605796050L;
-	private String exceptionMsg;
-	
+	private boolean abortTransferNow;
+
 	/**
-     * <p>Constructs and allocate a new SerialComException object with the specified detail message.</p>
-     * 
-     * @param exceptionMsg message describing reason for exception.
-     */
-	public SerialComException(String exceptionMsg) {
-		super(exceptionMsg);
-		this.exceptionMsg = exceptionMsg;
+	 * <p>Allocates a new SerialComXModemAbort object.</p>
+	 */
+	public SerialComXModemAbort() {
+		abortTransferNow = false; // initial state.
 	}
 
 	/** 
-	 * <p>Get the specific type of exception. </p>
-	 * 
-	 * @return exceptionMsg reason for exception.
+	 * <p>Instructs SCM library to stop sending file if called by file sender,
+	 *  or to stop receiving file if called by file receiver using xmodem or 
+	 *  its variant protocols.</p>
 	 */
-	public String getExceptionMsg() {
-		return exceptionMsg;
+	public void abortTransfer() {
+		abortTransferNow = true;
 	}
-	
+
+	/** 
+	 * <p>Checks whether file transfer or reception should be aborted or not.</p>
+	 * 
+	 * @return true if it should be aborted otherwise false if file transfer 
+	 *          should continue.
+	 */
+	public boolean isTransferToBeAborted() {
+		return abortTransferNow;
+	}
 }

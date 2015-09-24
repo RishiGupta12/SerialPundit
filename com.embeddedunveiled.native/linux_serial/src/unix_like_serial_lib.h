@@ -35,13 +35,14 @@
 #include <jni.h>
 
 /* Constant string defines */
-#define FAILTHOWEXP "JNI call ThrowNew failed to throw exception"
 #define SCOMEXPCLASS "com/embeddedunveiled/serial/SerialComException"
 #define JAVALSTRING "java/lang/String"
+
+#define FAILTHOWEXP "JNI call ThrowNew failed to throw exception !"
 #define E_ENBLPARCHKSTR "Parity checking in configureComPortData method needs to be enabled first !"
 #define E_GETJVMSTR "JNI call GetJavaVM failed !"
-#define E_FINDCLASSSCOMEXPSTR "Can not find class com/embeddedunveiled/serial/SerialComException, Probably out of memory."
-#define E_FINDCLASSSSTRINGSTR "Can not find class java/lang/String, Probably out of memory !"
+#define E_FINDCLASSSCOMEXPSTR "Can not find class com/embeddedunveiled/serial/SerialComException. Probably out of memory !"
+#define E_FINDCLASSSSTRINGSTR "Can not find class java/lang/String. Probably out of memory !"
 #define E_NEWOBJECTARRAYSTR "JNI call NewObjectArray failed. Probably out of memory !"
 #define E_NEWBYTEARRAYSTR "JNI call NewByteArray failed !"
 #define E_NEWINTARRAYSTR "JNI call NewIntArray failed !"
@@ -71,7 +72,7 @@
 #define E_HCIOPENDEV "Could not open BT HCI device !"
 #define E_HCIREADNAME "Could not read local name of BT HCI device !"
 #define E_HCIBTADDR "Could not determine address of BT HCI device !"
-
+#define E_CANNOTFINDDEVNODE "Failed to find device node from sysfs path !"
 
 /* Custom error codes and messages for SCM library */
 #define ERROR_OFFSET 15000
@@ -174,9 +175,13 @@ extern void mac_usb_device_added(void *refCon, io_iterator_t iterator);
 extern void mac_usb_device_removed(void *refCon, io_iterator_t iterator);
 #endif
 extern jstring linux_clean_up_and_throw_exp(JNIEnv *env, int task, const char *expmsg, struct jstrarray_list *list, struct udev_device *udev_device, struct udev_enumerate *enumerator, struct udev *udev_ctx);
+extern jstring linux_rfcomm_cleanexp(JNIEnv *env, int task, const char *expmsg, struct jstrarray_list *list, struct udev_device *udev_device, struct udev_enumerate *enumerator, struct udev *udev_ctx);
 extern jint is_usb_dev_connected(JNIEnv *env, jobject obj, jint vid, jint pid);
+extern jstring find_driver_for_given_com_port(JNIEnv *env, jstring comPortName);
+extern jstring find_address_irq_for_given_com_port(JNIEnv *env, jlong handle);
 extern jobjectArray list_usb_devices(JNIEnv *env, jobject obj, jint vendor_filter);
 extern jobjectArray list_local_bt_adaptors(JNIEnv *env, jobject obj);
+extern jobjectArray list_bt_rfcomm_dev_nodes(JNIEnv *env, jobject obj);
 extern jobjectArray vcp_node_from_usb_attributes(JNIEnv *env, jobject obj, jint usbvid_to_match, jint usbpid_to_match, jstring serial_num);
 extern int serial_delay(unsigned usecs);
 extern void *data_looper(void *params);

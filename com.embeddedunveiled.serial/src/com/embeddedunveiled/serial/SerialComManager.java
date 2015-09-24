@@ -1,4 +1,4 @@
-/**
+/*
  * Author : Rishi Gupta
  * 
  * This file is part of 'serial communication manager' library.
@@ -30,6 +30,7 @@ import java.util.List;
 import com.embeddedunveiled.serial.bluetooth.SerialComBluetooth;
 import com.embeddedunveiled.serial.internal.SerialComCompletionDispatcher;
 import com.embeddedunveiled.serial.internal.SerialComErrorMapper;
+import com.embeddedunveiled.serial.internal.SerialComHIDJNIBridge;
 import com.embeddedunveiled.serial.internal.SerialComHotPlugInfo;
 import com.embeddedunveiled.serial.internal.SerialComLooper;
 import com.embeddedunveiled.serial.internal.SerialComPlatform;
@@ -38,6 +39,7 @@ import com.embeddedunveiled.serial.internal.SerialComPortJNIBridge;
 import com.embeddedunveiled.serial.internal.SerialComPortsList;
 import com.embeddedunveiled.serial.internal.SerialComSystemProperty;
 import com.embeddedunveiled.serial.usb.SerialComUSB;
+import com.embeddedunveiled.serial.usb.SerialComUSBHID;
 import com.embeddedunveiled.serial.usb.SerialComUSBdevice;
 import com.embeddedunveiled.serial.vendor.SerialComVendorLib;
 
@@ -51,7 +53,7 @@ import com.embeddedunveiled.serial.vendor.SerialComVendorLib;
  */
 public final class SerialComManager {
 
-	/** <p>Relase version of the SCM library. </p>*/
+	/**<p>Release version of the serial communication manager library. </p>*/
 	public static final String JAVA_LIB_VERSION = "1.0.4";
 
 	/** <p>Pre-defined enum constants for baud rate values. </p>*/
@@ -230,21 +232,6 @@ public final class SerialComManager {
 		}
 	}
 
-	/** <p>Pre-defined enum constants for defining translation mode file transfer protocol to use. </p>*/ 
-	public enum FTPMODE {
-		/** <p>Specify translating of data as per the operating system on which receiver application is running. </p>*/
-		TEXT(1),
-		/** <p>Specify no translation on data received. </p>*/
-		BINARY(2);
-		private int value;
-		private FTPMODE(int value) {
-			this.value = value;	
-		}
-		public int getValue() {
-			return this.value;
-		}
-	}
-
 	/** <p>Pre-defined enum constants for defining behavior of byte stream. </p>*/
 	public enum SMODE {
 		/** <p>Read will block till data is available. </p>*/
@@ -396,9 +383,15 @@ public final class SerialComManager {
 	private static int osType;
 	private static int cpuArch;
 	private static int javaABIType;
-	private static SerialComVendorLib mSerialComVendorLib;
 	private static final Object lockA = new Object();
 	private static boolean nativeLibLoadAndInitAlready = false;
+	private static SerialComVendorLib mSerialComVendorLib;
+	private static SerialComHIDJNIBridge mSerialComHIDJNIBridge;
+
+	// Whenever an exception/error occurs in native function, it throws that exception.
+	// When java method return from native call, extra check is added to make error
+	// detection more robust. If for some unexpected reason JVM does not throw exception
+	// then this extra check will make exception to be thrown in java layer.
 
 	/**
 	 * <p>Allocates a new SerialComManager object. Identify operating system type, CPU architecture, prepares 
@@ -458,15 +451,17 @@ public final class SerialComManager {
 	 * 
 	 * <p>This also increase security as the folder may be given specific user permissions.</p>
 	 * 
-	 * @param directoryPath absolute path of directory for extraction
-	 * @param loadedLibName library name without extension (do not append .so, .dll or .dylib etc.)
-	 * @throws SecurityException if java system properties can not be  accessed
-	 * @throws SerialComUnexpectedException if java system property is null
-	 * @throws SerialComLoadException if any file system related issue occurs
-	 * @throws UnsatisfiedLinkError if loading/linking shared library fails
-	 * @throws FileNotFoundException if file "/proc/cpuinfo" can not be found for Linux on ARM platform
-	 * @throws IOException if file operations on "/proc/cpuinfo" fails for Linux on ARM platform
-	 * @throws SerialComException if initializing native library fails
+	 * @param directoryPath absolute path of directory for extraction.
+	 * @param loadedLibName library name without extension (do not append .so, .dll or .dylib etc.).
+	 * @throws SecurityException if java system properties can not be  accessed.
+	 * @throws SerialComUnexpectedException if java system property is null.
+	 * @throws SerialComLoadException if any file system related issue occurs.
+	 * @throws UnsatisfiedLinkError if loading/linking shared library fails.
+	 * @throws FileNotFoundException if file "/proc/cpuinfo" can not be found for Linux on ARM platform.
+	 * @throws IOException if file operations on "/proc/cpuinfo" fails for Linux on ARM platform.
+	 * @throws SerialComException if initializing native library fails.
+	 * @throws IllegalArgumentException if directoryPath is null, directoryPath is empty, 
+	 *          loadedLibName is null or empty.
 	 */
 	public SerialComManager(String directoryPath, String loadedLibName) throws SecurityException, SerialComUnexpectedException, 
 	SerialComLoadException, UnsatisfiedLinkError, SerialComException, FileNotFoundException, IOException {
@@ -516,7 +511,7 @@ public final class SerialComManager {
 	 * <p>Gives library versions of java and native library implementations.</p>
 	 * 
 	 * @return Java and C library versions implementing this library.
-	 * @throws SerialComException if native library version could not be determined
+	 * @throws SerialComException if native library version could not be determined.
 	 */
 	public String getLibraryVersions() throws SerialComException {
 		String version = null;
@@ -533,7 +528,7 @@ public final class SerialComManager {
 	 * <p>Gives operating system type as identified by this library. To interpret return integer see constants defined
 	 * SerialComManager class.</p>
 	 * 
-	 * @return Operating system type as identified by the scm library
+	 * @return Operating system type as identified by the scm library.
 	 */
 	public int getOSType() {
 		return osType;
@@ -543,7 +538,7 @@ public final class SerialComManager {
 	 * <p>Gives CPU/Platform architecture as identified by this library. To interpret return integer see constants defined
 	 * SerialComManager class.</p>
 	 * 
-	 * @return CPU/Platform architecture as identified by the scm library
+	 * @return CPU/Platform architecture as identified by the scm library.
 	 */
 	public int getCPUArchitecture() {
 		return cpuArch;
@@ -574,9 +569,10 @@ public final class SerialComManager {
 	}
 
 	/**
-	 * <p>Returns an array containing information about all the USB devices found by this library. Application can call various 
-	 * methods on returned SerialComUSBdevice class objects to get specific information like vendor id and product id etc. The 
-	 * GUI applications may display a dialogue asking user to connect the end product.</p>
+	 * <p>Returns an array of SerialComUSBdevice class objects containing information about all the USB devices found by this 
+	 * library. Application can call various methods on SerialComUSBdevice object to get specific information like vendor id 
+	 * and product id etc. The GUI applications may display a dialogue box asking user to connect the end product if the desired 
+	 * product is still not connected to system.</p>
 	 * 
 	 * <p>The USB vendor id, USB product id, serial number, product name and manufacturer information is encapsulated in the 
 	 * object of class SerialComUSBdevice returned.</p>
@@ -587,21 +583,24 @@ public final class SerialComManager {
 	 * VID matches VID of FTDI. Then further application may verify PID by calling methods on the USBDevice object. For this 
 	 * purpose argument vendorFilter may be used.</p>
 	 * 
-	 * @param vendorFilter vendor whose devices should be listed (one of the constants SerialComUSB.V_xxxxx or any valid USB VID)
-	 * @return list of the USB devices with information about them or empty array if no device matching given criteria found
+	 * @param vendorFilter vendor whose devices should be listed (one of the constants SerialComUSB.V_xxxxx or any valid USB VID).
+	 * @return list of the USB devices with information about them or empty array if no device matching given criteria found.
 	 * @throws SerialComException if an I/O error occurs.
-	 * @throws IllegalArgumentException if vendorFilter is negative or invalid number
+	 * @throws IllegalArgumentException if vendorFilter is negative or invalid number.
 	 */
 	public SerialComUSBdevice[] listUSBdevicesWithInfo(int vendorFilter) throws SerialComException {
 		int i = 0;
 		int numOfDevices = 0;
 		SerialComUSBdevice[] usbDevicesFound = null;
 		if((vendorFilter < 0) || (vendorFilter > 0XFFFF)) {
-			throw new IllegalArgumentException("Argument vendorFilter can not be negative or greater tha 0xFFFF !");
+			throw new IllegalArgumentException("Argument vendorFilter can not be negative or greater than 0xFFFF !");
 		}
 		String[] usbDevicesInfo = mComPortJNIBridge.listUSBdevicesWithInfo(vendorFilter);
 
 		if(usbDevicesInfo != null) {
+			if(usbDevicesInfo.length < 4) {
+				return new SerialComUSBdevice[] { };
+			}
 			numOfDevices = usbDevicesInfo.length / 5;
 			usbDevicesFound = new SerialComUSBdevice[numOfDevices];
 			for(int x=0; x<numOfDevices; x++) {
@@ -611,7 +610,7 @@ public final class SerialComManager {
 			}
 			return usbDevicesFound;
 		}else {
-			return new SerialComUSBdevice[] { };
+			throw new SerialComException("Could not find USB devices. Please retry !");
 		}	
 	}
 
@@ -662,7 +661,7 @@ public final class SerialComManager {
 	}
 
 	/** 
-	 * <p>This opens a serial port for communication. If an attempt is made to open a port which is already opened exception in throw.</p>
+	 * <p>Opens a serial port for communication. If an attempt is made to open a port which is already opened exception in throw.</p>
 	 * 
 	 * <p>For Linux and Mac OS X, if exclusiveOwnerShip is true, before this method return, the caller will either be exclusive owner
 	 * or not. If the caller is successful in becoming exclusive owner than all the attempt to open the same port again will cause
@@ -720,8 +719,8 @@ public final class SerialComManager {
 
 			handle = mComPortJNIBridge.openComPort(portNameVal, enableRead, enableWrite, exclusiveOwnerShip);
 			if(handle < 0) {
-				/* JNI should have already thrown exception, this is an extra check to increase reliability of program */
-				throw new SerialComException("Could not open the port " + portNameVal + " Please retry !");
+				/* JNI should have already thrown exception, this is an extra check to increase reliability of program. */
+				throw new SerialComException("Could not open the port " + portNameVal + ". Please retry !");
 			}
 			boolean added = mPortHandleInfo.add(new SerialComPortHandleInfo(portNameVal, handle, null, null, null));
 			if(added != true) {
@@ -741,7 +740,7 @@ public final class SerialComManager {
 	 * <p>This method is thread safe.</p>
 	 * 
 	 * @param handle of the port to be closed.
-	 * @return Return true on success in closing the port false otherwise.
+	 * @return Return true if the serial port is closed.
 	 * @throws SerialComException if invalid handle is passed or when it fails in closing the port.
 	 * @throws IllegalStateException if application tries to close port while data/event listener exist.
 	 */
@@ -770,7 +769,10 @@ public final class SerialComManager {
 				throw new IllegalStateException("Closing port without unregistering event listener is not allowed to prevent inconsistency !");
 			}
 
-			mComPortJNIBridge.closeComPort(handle);
+			int ret = mComPortJNIBridge.closeComPort(handle);
+			if(ret < 0) {
+				throw new SerialComException("Could not close the given serial port. Please retry !");
+			}
 
 			/* delete info about this port/handle from global info arraylist. */
 			mPortHandleInfo.remove(mHandleInfo);
@@ -812,7 +814,6 @@ public final class SerialComManager {
 
 		int ret = mComPortJNIBridge.writeBytes(handle, buffer, delay);
 		if(ret < 0) {
-			/* JNI should have already thrown exception, this is an extra check to increase reliability of program */
 			throw new SerialComException("Could not write data to serial port. Please retry !");
 		}
 		return true;
@@ -835,16 +836,21 @@ public final class SerialComManager {
 	}
 
 	/**
-	 * <p>This method writes a single byte to the specified port. The data has been transmitted out of serial port when 
-	 * this method returns.</p>
+	 * <p>This method writes a single byte to the specified port. The data has been transmitted 
+	 * out of serial port when this method returns.</p>
 	 * 
 	 * @param handle handle of the opened port on which to write byte.
-	 * @param data byte to be written to port.
-	 * @return true on success false otherwise.
+	 * @param dataByte byte to be written to port.
+	 * @return true on success.
 	 * @throws SerialComException if an I/O error occurs.
 	 */
-	public boolean writeSingleByte(long handle, byte data) throws SerialComException {
-		return writeBytes(handle, new byte[] { data }, 0);
+	public boolean writeSingleByte(long handle, byte dataByte) throws SerialComException {
+		int ret = mComPortJNIBridge.writeSingleByte(handle, dataByte);
+		if(ret < 0) {
+			/* extra check */
+			throw new SerialComException("Could not write given byte to serial port. Please retry !");
+		}
+		return true;
 	}
 
 	/**
@@ -1826,7 +1832,7 @@ public final class SerialComManager {
 	 * CTS, DSR, RING, CARRIER DETECT, RECEIVER BUFFER, TRANSMIT BUFFER, FRAME ERROR, OVERRUN ERROR, PARITY ERROR,
 	 * BREAK AND BUFFER OVERRUN.</p>
 	 * 
-	 * <p>Note: It is supported for Unix-like OS only. For other operating systems, this will return 0 for all the indexes.</p>
+	 * <p>This is applicable for Linux onle. For other operating systems, this will return 0 for all the indexes.</p>
 	 * 
 	 * @param handle of the port opened on which interrupts might have occurred.
 	 * @return array of integers containing values corresponding to each interrupt source.
@@ -1881,9 +1887,51 @@ public final class SerialComManager {
 
 		status = mComPortJNIBridge.getLinesStatus(handle);
 		if(status == null) {
-			throw new SerialComException("Unknown error occurred !");
+			throw new SerialComException("Failed to get line status for the given handle. Please retry !");
 		}
 		return status;
+	}
+
+	/**
+	 * <p>Gives the name of the driver who is driving the given serial port.</p>
+	 * 
+	 * @param comPortName name only for windows (for ex; COM52), full path for unix-like os (for ex; /dev/ttyUSB0).
+	 * @return name of driver serving given serial port.
+	 * @throws SerialComException if operation can not be completed successfully.
+	 * @throws IllegalArgumentException if argument comPortName is null or is an empty string.
+	 */
+	public String findDriverServingComPort(String comPortName) throws SerialComException {
+		if(comPortName == null) {
+			throw new IllegalArgumentException("Argument comPortName can not be null !");
+		}
+		if(comPortName.length() == 0) {
+			throw new IllegalArgumentException("Argument comPortName can not be empty string !");
+		}
+		if(comPortName.length() > 256) {
+			// linux have 256 as maximum length of file name.
+			throw new IllegalArgumentException("Argument comPortName string can not be greater than 256 in length !");
+		}
+
+		String driverName = mComPortJNIBridge.findDriverServingComPort(comPortName);
+		if(driverName == null) {
+			throw new SerialComException("Failed to find driver serving the given serial port. Please retry !");
+		}
+		return driverName;
+	}
+
+	/**
+	 * <p>Gives the address and IRQ number associated with the given serial port.</p>
+	 * 
+	 * @param handle handle of the opened serial port.
+	 * @return string containing address and irq number.
+	 * @throws SerialComException if operation can not be completed successfully.
+	 */
+	public String findIRQnumberForComPort(long handle) throws SerialComException {
+		String addressAndIRQ = mComPortJNIBridge.findIRQnumberForComPort(handle);
+		if(addressAndIRQ == null) {
+			throw new SerialComException("Failed to find IRQ and address for the given serial port. Please retry !");
+		}
+		return addressAndIRQ;
 	}
 
 	/**
@@ -2021,10 +2069,10 @@ public final class SerialComManager {
 				break;
 			}
 		}
+
 		if(portName == null) {
 			return null;
 		}
-
 		return portName;
 	}
 
@@ -2035,8 +2083,15 @@ public final class SerialComManager {
 	 * @param fileToSend File instance representing file to be sent.
 	 * @param ftpProto file transfer protocol to use for communication over serial port.
 	 * @param ftpVariant variant of file transfer protocol to use.
-	 * @param ftpMode define whether data should be translated(ASCII mode) or not (binary mode).
-	 * @return true on success false otherwise.
+	 * @param textMode if true file will be sent as text file (ASCII mode), if false file will be sent as binary file.
+	 *         The text file must contain only valid ASCII characters.
+	 * @param progressListener object of class which implements ISerialComProgressXmodem interface and is interested in knowing
+	 *         how many blocks have been sent to file receiver till now. If progressListener is null, update will not 
+	 *         be delivered to application.
+	 * @param transferState if application wish to abort sending file at instant of time due to any reason, it can call 
+	 *         abortTransfer method on this object. If the application does not wishes to abort sending file explicitly 
+	 *         transferState can be null.
+	 * @return true on success, false if application instructed to abort.
 	 * @throws SerialComException if invalid handle is passed.
 	 * @throws SecurityException If a security manager exists and its SecurityManager.checkRead(java.lang.String) method denies read access to the file.
 	 * @throws FileNotFoundException if the file does not exist, is a directory rather than a regular file, or for some other reason cannot be opened for reading.
@@ -2044,11 +2099,11 @@ public final class SerialComManager {
 	 * @throws IOException if error occurs while reading data from file to be sent.
 	 * @throws IllegalArgumentException if fileToSend or ftpProto or ftpVariant or ftpMode argument is null.
 	 */
-	public boolean sendFile(long handle, final java.io.File fileToSend, FTPPROTO ftpProto, FTPVAR ftpVariant, FTPMODE ftpMode) throws SerialComException, SecurityException,
-	FileNotFoundException, SerialComTimeOutException, IOException {
+	public boolean sendFile(long handle, final java.io.File fileToSend, FTPPROTO ftpProto, FTPVAR ftpVariant, 
+			boolean textMode, ISerialComProgressXmodem progressListener, SerialComXModemAbort transferState) throws SerialComException, SecurityException,
+			FileNotFoundException, SerialComTimeOutException, IOException {
 		int protocol = 0;
 		int variant = 0;
-		int mode = 0;
 		boolean handlefound = false;
 		boolean result = false;
 
@@ -2060,9 +2115,6 @@ public final class SerialComManager {
 		}
 		if(ftpVariant == null) {
 			throw new IllegalArgumentException("Argument ftpVariant can not be null !");
-		}
-		if(ftpMode == null) {
-			throw new IllegalArgumentException("Argument ftpMode can not be null !");
 		}
 
 		for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
@@ -2077,16 +2129,15 @@ public final class SerialComManager {
 
 		protocol = ftpProto.getValue();
 		variant = ftpVariant.getValue();
-		mode = ftpMode.getValue();
 		if(protocol == 1) {
 			if((variant == 0) || (variant == 1)) {
-				SerialComXModem xmodem = new SerialComXModem(this, handle, fileToSend, mode);
+				SerialComXModem xmodem = new SerialComXModem(this, handle, fileToSend, textMode, progressListener, transferState, osType);
 				result = xmodem.sendFileX();
 			}else if(variant == 2) {
-				SerialComXModemCRC xmodem = new SerialComXModemCRC(this, handle, fileToSend, mode);
+				SerialComXModemCRC xmodem = new SerialComXModemCRC(this, handle, fileToSend, textMode, progressListener, transferState, osType);
 				result = xmodem.sendFileX();
 			}else if(variant == 3) {
-				SerialComXModem1K xmodem = new SerialComXModem1K(this, handle, fileToSend, mode);
+				SerialComXModem1K xmodem = new SerialComXModem1K(this, handle, fileToSend, textMode, progressListener, transferState, osType);
 				result = xmodem.sendFileX();
 			}else {
 			}
@@ -2107,8 +2158,14 @@ public final class SerialComManager {
 	 * @param fileToReceive File instance representing file to be sent.
 	 * @param ftpProto file transfer protocol to use for communication over serial port.
 	 * @param ftpVariant variant of file transfer protocol to use.
-	 * @param ftpMode define whether data should be translated(ASCII mode) or not (binary mode).
-	 * @return true on success false otherwise.
+	 * @param textMode if true file will be received as text file (ASCII mode), if false file will be received as binary file.
+	 * @param progressListener object of class which implements ISerialComProgressXmodem interface and is interested in knowing
+	 *         how many blocks have been received from file sender till now. If progressListener is null, update will not 
+	 *         be delivered to application.
+	 * @param transferState if application wish to abort receiving file at instant of time due to any reason, it can call 
+	 *         abortTransfer method on this object. If the application does not wishes to abort receiving file explicitly 
+	 *         transferState can be null.
+	 * @return true on success, false if application instructed to abort.
 	 * @throws SerialComException if invalid handle is passed.
 	 * @throws SecurityException If a security manager exists and its SecurityManager.checkRead(java.lang.String) method denies read access to the file.
 	 * @throws FileNotFoundException if the file does not exist, is a directory rather than a regular file, or for some other reason cannot be opened for reading.
@@ -2116,11 +2173,11 @@ public final class SerialComManager {
 	 * @throws IOException if error occurs while reading data from file to be sent.
 	 * @throws IllegalArgumentException if fileToReceive or ftpProto or ftpVariant or ftpMode argument is null.
 	 */
-	public boolean receiveFile(long handle, final java.io.File fileToReceive, FTPPROTO ftpProto, FTPVAR ftpVariant, FTPMODE ftpMode) throws SerialComException,
-	SecurityException, FileNotFoundException, SerialComTimeOutException, IOException {
+	public boolean receiveFile(long handle, final java.io.File fileToReceive, FTPPROTO ftpProto, FTPVAR ftpVariant, 
+			boolean textMode, ISerialComProgressXmodem progressListener, SerialComXModemAbort transferState) throws SerialComException, SecurityException, 
+			FileNotFoundException, SerialComTimeOutException, IOException {
 		int protocol = 0;
 		int variant = 0;
-		int mode = 0;
 		boolean handlefound = false;
 		boolean result = false;
 
@@ -2132,9 +2189,6 @@ public final class SerialComManager {
 		}
 		if(ftpVariant == null) {
 			throw new IllegalArgumentException("Argument ftpVariant can not be null !");
-		}
-		if(ftpMode == null) {
-			throw new IllegalArgumentException("Argument ftpMode can not be null !");
 		}
 
 		for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
@@ -2149,16 +2203,15 @@ public final class SerialComManager {
 
 		protocol = ftpProto.getValue();
 		variant = ftpVariant.getValue();
-		mode = ftpMode.getValue();
 		if(protocol == 1) {
 			if((variant == 0) || (variant == 1)) {
-				SerialComXModem xmodem = new SerialComXModem(this, handle, fileToReceive, mode);
+				SerialComXModem xmodem = new SerialComXModem(this, handle, fileToReceive, textMode, progressListener, transferState, osType);
 				result = xmodem.receiveFileX();
 			}else if(variant == 2) {
-				SerialComXModemCRC xmodem = new SerialComXModemCRC(this, handle, fileToReceive, mode);
+				SerialComXModemCRC xmodem = new SerialComXModemCRC(this, handle, fileToReceive, textMode, progressListener, transferState, osType);
 				result = xmodem.receiveFileX();
 			}else if(variant == 3) {
-				SerialComXModem1K xmodem = new SerialComXModem1K(this, handle, fileToReceive, mode);
+				SerialComXModem1K xmodem = new SerialComXModem1K(this, handle, fileToReceive, textMode, progressListener, transferState, osType);
 				result = xmodem.receiveFileX();
 			}else {
 			}
@@ -2299,10 +2352,10 @@ public final class SerialComManager {
 	 */
 	public boolean isUSBDevConnected(int vendorID, int productID) throws SerialComException {
 		if((vendorID < 0) || (vendorID > 0XFFFF)) {
-			throw new IllegalArgumentException("Argument vendorID can not be negative or greater tha 0xFFFF !");
+			throw new IllegalArgumentException("Argument vendorID can not be negative or greater than 0xFFFF !");
 		}
 		if((productID < 0) || (productID > 0XFFFF)) {
-			throw new IllegalArgumentException("Argument productID can not be negative or greater tha 0xFFFF !");
+			throw new IllegalArgumentException("Argument productID can not be negative or greater than 0xFFFF !");
 		}
 
 		int ret = mComPortJNIBridge.isUSBDevConnected(vendorID, productID);
@@ -2360,7 +2413,8 @@ public final class SerialComManager {
 	}
 
 	/**
-	 * <p>Prepares context for serial port communication over Bluetooth.</p>
+	 * <p>Prepares context for serial port communication over Bluetooth using 'serial port profile' (SPP)
+	 * specification of bluetooth standard.</p>
 	 * 
 	 * @return reference to an object of type SerialComBluetooth on which various methods can be invoked.
 	 * @throws SerialComException if could not instantiate class due to some reason.
@@ -2374,7 +2428,7 @@ public final class SerialComManager {
 	}
 
 	/**
-	 * <p>Get an instnace of SerialComUSB for USB operations.</p>
+	 * <p>Get an instance of SerialComUSB class for USB related operations.</p>
 	 * 
 	 * @return reference to an object of type SerialComUSB on which various methods can be invoked.
 	 * @throws SerialComException if could not instantiate class due to some reason.
@@ -2387,4 +2441,51 @@ public final class SerialComManager {
 		return mSerialComUSB;
 	}
 
+	/**
+	 * <p>Initialize and return an instance of requested type for serial communication based on 
+	 * HID specification. The type argument should be HID_GENERIC for most of the applications. 
+	 * However for some very specific need type may be HID_USB, or for Bluetooth HID applicxation
+	 * type may be HID_BLUETOOTH. The SerialComUSBHID and SerialComBluetoothHID classes have some 
+	 * additional methods for HID communication.</p>
+	 * 
+	 * <p>This method will extract native library in directory as specified by directoryPath 
+	 * argument or default directory will be used if directoryPath is null. The native library 
+	 * loaded will be given name as specified by loadedLibName argument or default name will be 
+	 * used if loadedLibName is null.</p>
+	 * 
+	 * @param type one of the constants HID_XXXX defined in SerialComHID.
+	 * @param directoryPath absolute path of directory to be used for extraction.
+	 * @param loadedLibName library name without extension (do not append .so, .dll or .dylib etc.).
+	 * @return reference to an object of requested type SerialComUSB on which various methods can 
+	 *          be invoked.
+	 * @throws SerialComException if could not instantiate class due to some reason.
+	 * @throws SecurityException if java system properties can not be  accessed.
+	 * @throws SerialComUnexpectedException if java system property is null.
+	 * @throws SerialComLoadException if any file system related issue occurs.
+	 * @throws UnsatisfiedLinkError if loading/linking shared library fails.
+	 * @throws FileNotFoundException if file "/proc/cpuinfo" can not be found for Linux on ARM platform.
+	 * @throws IOException if file operations on "/proc/cpuinfo" fails for Linux on ARM platform.
+	 * @throws SerialComException if initializing native library fails.
+	 * @throws IllegalArgumentException if type is an invalid constant.
+	 */
+	public SerialComHID getSerialComHIDInstance(int type, String directoryPath, String loadedLibName) throws SecurityException, 
+	SerialComUnexpectedException, SerialComLoadException, UnsatisfiedLinkError, SerialComException, 
+	FileNotFoundException, IOException {
+		if(mSerialComHIDJNIBridge == null) {
+			mSerialComHIDJNIBridge = new SerialComHIDJNIBridge();
+			SerialComHIDJNIBridge.loadNativeLibrary(directoryPath, loadedLibName, mSerialComSystemProperty, osType, cpuArch, javaABIType);
+		}
+
+		if(type == SerialComHID.HID_GENERIC) {
+			return new SerialComHID(mSerialComHIDJNIBridge);
+		}else if(type == SerialComHID.HID_USB) {
+			return new SerialComUSBHID(mSerialComHIDJNIBridge);
+		}else if(type == SerialComHID.HID_BLUETOOTH) {
+			//TODO
+		}else {
+			throw new IllegalArgumentException("Argument type given is not valid constant !");
+		}
+
+		return null;
+	}
 }

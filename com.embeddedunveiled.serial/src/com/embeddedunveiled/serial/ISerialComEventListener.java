@@ -1,4 +1,4 @@
-/**
+/*
  * Author : Rishi Gupta
  * 
  * This file is part of 'serial communication manager' library.
@@ -18,7 +18,8 @@
 package com.embeddedunveiled.serial;
 
 /**
- * <p>This interface represents Completion handler in our proactor design pattern.</p>
+ * <p>The interface ISerialComEventListener should be implemented by class who wish to 
+ * receive modem/line events on serial port.</p>
  */
 public interface ISerialComEventListener {
 
@@ -31,5 +32,4 @@ public interface ISerialComEventListener {
 	 * @param lineEvent event object containing bit mask of events on serial port control lines
 	 */
 	public abstract void onNewSerialEvent(SerialComLineEvent lineEvent);
-
 }

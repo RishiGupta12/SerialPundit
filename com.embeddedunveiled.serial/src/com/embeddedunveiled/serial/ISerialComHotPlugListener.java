@@ -1,4 +1,4 @@
-/**
+/*
  * Author : Rishi Gupta
  * 
  * This file is part of 'serial communication manager' library.
@@ -18,8 +18,8 @@
 package com.embeddedunveiled.serial;
 
 /**
- * <p>This interface ISerialComHotPlugListener need to be implemented by an application class who wants 
- * to get notified whenever a specified USB device is added to the system or removed from the system.</p>
+ * <p>The interface ISerialComHotPlugListener need to be implemented by class who wish to get notified 
+ * whenever a specified USB device is added to the system or removed from the system.</p>
  * 
  * <p>Application should call registerHotPlugEventListener method in SerialComManager class to register 
  * listener. Whenever an event occurs callback method onHotPlugEvent() gets called containing event that 

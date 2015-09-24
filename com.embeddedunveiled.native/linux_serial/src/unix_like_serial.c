@@ -37,13 +37,16 @@
 #define _GNU_SOURCE
 #endif
 
-#include <unistd.h>      /* UNIX standard function definitions  */
+/* C */
 #include <stdarg.h>      /* ISO C Standard. Variable arguments  */
 #include <stdio.h>       /* ISO C99 Standard: Input/output      */
 #include <stdlib.h>      /* Standard ANSI routines              */
 #include <string.h>      /* String function definitions         */
-#include <fcntl.h>       /* File control definitions            */
 #include <errno.h>       /* Error number definitions            */
+
+/* Unix */
+#include <unistd.h>      /* UNIX standard function definitions  */
+#include <fcntl.h>       /* File control definitions            */
 #include <dirent.h>      /* Format of directory entries         */
 #include <sys/types.h>   /* Primitive System Data Types         */
 #include <sys/stat.h>    /* Defines the structure of the data   */
@@ -232,19 +235,12 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
 	jobjectArray serialDevicesFound = NULL;
 
 #if defined (__linux__)
-	int ret = -1;
-	int num_of_dir_found = 0;
-	char* sysfspath = "/sys/class/tty/";
-	char* ptspath = "/dev/pts/";
-	struct dirent **namelist;
-	DIR *dir_stream = NULL;
-	struct dirent entry;
-	struct dirent *result;
-	regex_t regex;
-	struct stat statbuf = {0};
-	char path[1024];
-	char buffer[1024];
-	char namewithpath[1024];
+	struct udev *udev_ctx;
+	struct udev_enumerate *enumerator;
+	struct udev_list_entry *devices, *dev_list_entry;
+	const char *device_node;
+	const char *path;
+	struct udev_device *udev_device;
 #endif
 #if defined (__APPLE__)
 	CFMutableDictionaryRef matching_dictionary = NULL;
@@ -255,158 +251,45 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
 	char callout_path[512];
 #endif
 
+	/* allocate memory for 100 jstrings */
 	init_jstrarraylist(&list, 100);
 
 #if defined (__linux__)
-	/* (1) $ readlink /sys/class/tty/XXXXXX/device/driver */
-	errno = 0;
-	num_of_dir_found = scandir(sysfspath, &namelist, NULL, NULL);
-	if(num_of_dir_found > 0) {
-		while(num_of_dir_found--) {
-			memset(path, '\0', sizeof(path));
-			if(strcmp(namelist[num_of_dir_found]->d_name, "..") && strcmp(namelist[num_of_dir_found]->d_name, ".")) {
-				strncpy(path, sysfspath, strlen(sysfspath));
-				strncat(path, namelist[num_of_dir_found]->d_name, strlen(namelist[num_of_dir_found]->d_name));
-				strncat(path, "/device", strlen("/device"));
-				errno = 0;
-				ret = lstat(path, &statbuf);
-				if(ret >= 0) {
-					if(S_ISLNK(statbuf.st_mode)) {
-						memset(buffer, '\0', sizeof(buffer));
-						strncpy(path, path, strlen(path));
-						strncat(path, "/driver", strlen("/driver"));
-						ret = readlink(path, buffer, sizeof(buffer));
-						if(ret >= 0) {
-							if(strlen(buffer) > 0) {
-								memset(namewithpath, '\0', sizeof(namewithpath));
-								strncat(strncpy(namewithpath, "/dev/", strlen("/dev/")), namelist[num_of_dir_found]->d_name, strlen(namelist[num_of_dir_found]->d_name));
-								serial_device = (*env)->NewStringUTF(env, namewithpath);
-								if((serial_device == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
-									(*env)->ExceptionClear(env);
-									free_jstrarraylist(&list);
-									free(namelist[num_of_dir_found]);
-									free(namelist);
-									throw_serialcom_exception(env, 3, 0, E_NEWSTRUTFSTR);
-									return NULL;
-								}
-								insert_jstrarraylist(&list, serial_device);
-							}
-						}
-					}
-				}else {
-					if(errno != ENOENT) {
-						free_jstrarraylist(&list);
-						throw_serialcom_exception(env, 1, errno, NULL);
-						return NULL;
-					}
-				}
+	udev_ctx = udev_new();
+	enumerator = udev_enumerate_new(udev_ctx);
+	/* devices which claim to be tty devices will be registered with tty framework whether
+	 * they are real or virtual (ttyUSB, rfcomm, pseudo terminal). */
+	udev_enumerate_add_match_subsystem(enumerator, "tty");
+	udev_enumerate_scan_devices(enumerator);
+	devices = udev_enumerate_get_list_entry(enumerator);
 
-			}
-			free(namelist[num_of_dir_found]);
+	udev_list_entry_foreach(dev_list_entry, devices) {
+		path = udev_list_entry_get_name(dev_list_entry);
+		udev_device = udev_device_new_from_syspath(udev_enumerate_get_udev(enumerator), path);
+		if(udev_device == NULL) {
+			continue;
 		}
-		free(namelist);
-	}else {
-		free_jstrarraylist(&list);
-		throw_serialcom_exception(env, 1, errno, NULL);
-		return NULL;
-	}
 
-	/* (2) Identify serial devices using regex expression. */
-	/* /dev/ttytxXXXX for perle port server */
-	ret = regcomp(&regex, "ttytx[0-9]" , 0);
-	if(ret != 0) {
-		free_jstrarraylist(&list);
-		throw_serialcom_exception(env, 1, ret, NULL);
-		return NULL;
-	}
-
-	errno = 0;
-	dir_stream = opendir("/dev");
-	if(dir_stream == NULL) {
-		free_jstrarraylist(&list);
-		throw_serialcom_exception(env, 1, errno, NULL);
-		return NULL;
-	}
-
-	while(1) {
-		/* Length of d_name field in Linux is 255 and no dynamic calculation is needed. */
-		ret = readdir_r(dir_stream, &entry, &result);      /* thread-safe & reentrant */
-		if(ret == 0) {
-			if(result != NULL) {
-				if((result->d_type == DT_CHR) || (result->d_type == DT_LNK)) {
-					ret = regexec(&regex, result->d_name, 0, NULL, 0);
-					if(ret == 0) {
-						memset(namewithpath, '\0', sizeof(namewithpath));
-						strncat(strncpy(namewithpath, "/dev/", strlen("/dev/")), result->d_name, strlen(result->d_name));
-						serial_device = (*env)->NewStringUTF(env, namewithpath);
-						if((serial_device == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
-							(*env)->ExceptionClear(env);
-							free_jstrarraylist(&list);
-							throw_serialcom_exception(env, 3, 0, E_NEWSTRUTFSTR);
-							return NULL;
-						}
-						insert_jstrarraylist(&list, serial_device);
-					}
-				}
-			}else {
-				break; /* end of the directory stream is reached */
+		/* save the device node */
+		device_node = udev_device_get_devnode(udev_device);
+		if(device_node != NULL) {
+			serial_device = (*env)->NewStringUTF(env, device_node);
+			if((serial_device == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+				(*env)->ExceptionClear(env);
+				udev_device_unref(udev_device);
+				udev_enumerate_unref(enumerator);
+				udev_unref(udev_ctx);
+				free_jstrarraylist(&list);
+				throw_serialcom_exception(env, 3, 0, E_NEWSTRUTFSTR);
+				return NULL;
 			}
-		}else if(ret > 0) {
-			free_jstrarraylist(&list);
-			throw_serialcom_exception(env, 1, EBADF, NULL);
-			return NULL;
-		}else {
+			insert_jstrarraylist(&list, serial_device);
 		}
-	}
 
-	/* clean up */
-	regfree(&regex);
-	errno = 0;
-	ret = closedir(dir_stream);
-	if(ret < 0) {
-		free_jstrarraylist(&list);
-		throw_serialcom_exception(env, 1, errno, NULL);
-		return NULL;
+		udev_device_unref(udev_device);
 	}
-
-	/* (3) $ lstat /dev/pts/X for pseudo terminals */
-	errno = 0;
-	num_of_dir_found = scandir(ptspath, &namelist, NULL, NULL);
-	if(num_of_dir_found > 0) {
-		while(num_of_dir_found--) {
-			memset(namewithpath, '\0', sizeof(namewithpath));
-			if(strcmp(namelist[num_of_dir_found]->d_name, "..") && strcmp(namelist[num_of_dir_found]->d_name, ".")) {
-				strncpy(namewithpath, ptspath, strlen(ptspath));
-				strncat(namewithpath, namelist[num_of_dir_found]->d_name, strlen(namelist[num_of_dir_found]->d_name));
-				errno = 0;
-				ret = lstat(namewithpath, &statbuf);
-				if(ret >= 0) {
-					if(S_ISLNK(statbuf.st_mode) || S_ISCHR(statbuf.st_mode)) {
-						serial_device = (*env)->NewStringUTF(env, namewithpath);
-						if((serial_device == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
-							(*env)->ExceptionClear(env);
-							free_jstrarraylist(&list);
-							throw_serialcom_exception(env, 3, 0, E_NEWSTRUTFSTR);
-							return NULL;
-						}
-						insert_jstrarraylist(&list, serial_device);
-					}
-				}else {
-					if(errno != ENOENT) {
-						free_jstrarraylist(&list);
-						throw_serialcom_exception(env, 1, errno, NULL);
-						return NULL;
-					}
-				}
-			}
-			free(namelist[num_of_dir_found]);
-		}
-		free(namelist);
-	}else {
-		free_jstrarraylist(&list);
-		throw_serialcom_exception(env, 1, errno, NULL);
-		return NULL;
-	}
+	udev_enumerate_unref(enumerator);
+	udev_unref(udev_ctx);
 #endif
 
 #if defined (__APPLE__)
@@ -951,6 +834,37 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
 	}
 
 	free(vec);
+	return -1;
+}
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
+ * Method:    writeSingleByte
+ * Signature: (JB)I
+ *
+ * @return 0 if function succeeds otherwise -1.
+ * @throws SerialComException if any JNI function, system call or C function fails.
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_writeSingleByte(JNIEnv *env, jobject obj, jlong fd, jbyte dataByte) {
+	int ret = -1;
+	while(1) {
+		errno = 0;
+		ret = write(fd, &dataByte, 1);
+		if(ret > 0) {
+			return 0;
+		}else if(ret < 0) {
+			if(errno == EINTR) {
+				errno = 0; // reset.
+				continue;
+			}else {
+				throw_serialcom_exception(env, 1, errno, NULL);
+				return -1;
+			}
+		}else {
+			/* should not happen. */
+			continue;
+		}
+	}
 	return -1;
 }
 
@@ -1990,6 +1904,36 @@ JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComP
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
+ * Method:    findDriverServingComPort
+ * Signature: (Ljava/lang/String;)Ljava/lang/String;
+ *
+ * @return name of driver if found for given serial port, empty string if no driver found for given serial port,
+ *         null if any error occurs.
+ * @throws SerialComException if any JNI function, system call or C function fails.
+ *
+ * Find the name of the driver which is currently associated with the given serial port.
+ */
+JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_findDriverServingComPort(JNIEnv *env, jobject obj, jstring comPortName) {
+	return find_driver_for_given_com_port(env, comPortName);
+}
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
+ * Method:    findIRQnumberForComPort
+ * Signature: (J)Ljava/lang/String;
+ *
+ * @return address and irq string if found fro given handle, empty string if no address/irq found for given handle,
+ *         null if any error occurs.
+ * @throws SerialComException if any JNI function, system call or C function fails.
+ *
+ * Find the address and IRQ number associated with the given handle of serial port.
+ */
+JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_findIRQnumberForComPort(JNIEnv *env, jobject obj, jlong handle) {
+	return find_address_irq_for_given_com_port(env, handle);
+}
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
  * Method:    sendBreak
  * Signature: (JI)I
  *
@@ -2874,6 +2818,19 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_rescanUSBDevicesHW(JNIEnv *env, jobject obj) {
 	return -1;
+}
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
+ * Method:    listBTSPPDevNodesWithInfo
+ * Signature: ()[Ljava/lang/String;
+ *
+ * @return array of Strings containing info about rfcomm device nodes found, NULL if error occurs.
+ * @throws SerialComException if any JNI function, system call or C function fails.
+ */
+JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_listBTSPPDevNodesWithInfo
+  (JNIEnv *env, jobject obj) {
+	return list_bt_rfcomm_dev_nodes(env, obj);
 }
 
 #endif /* End compiling for Unix-like OS. */

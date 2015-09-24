@@ -1,4 +1,4 @@
-/**
+/*
  * Author : Rishi Gupta
  * 
  * This file is part of 'serial communication manager' library.
@@ -18,11 +18,14 @@
 package com.embeddedunveiled.serial;
 
 /**
- * <p>This interface represents Completion handler in our proactor design pattern.</p>
+ * <p>The interface ISerialComDataListener should be implemented by class who wish to 
+ * receive data from serial port.</p>
  */
 public interface ISerialComDataListener {
 
 	/**
+	 * <p> This method is called whenever data is received on serial port.</p>
+	 * 
 	 * <p>The class implementing this interface is expected to override onNewSerialDataAvailable() method.
 	 * This method gets called from the looper thread associated with the corresponding listener (handler).</p>
 	 * 
@@ -32,11 +35,13 @@ public interface ISerialComDataListener {
 	 * <p>In Linux, by default, the listener is called for every new byte available. This behavior can be modified by 
 	 * using available fineTuneRead() API for Linux.</p>
 	 * 
-	 * @param dataEvent event object containing data bytes read from serial port
+	 * @param dataEvent event object containing data bytes read from serial port.
 	 */
 	public abstract void onNewSerialDataAvailable(SerialComDataEvent dataEvent);
 
 	/**
+	 * <p> This method is called whenever an error occurred the data listener mechanism.</p>
+	 * 
 	 * <p>This methods helps in creating fault-tolerant and recoverable application design in case
 	 * unexpected situations like serial port removal, bug encountered in OS or driver during operation
 	 * occurs. In a nutshell situations which are outside the scope of scm may be handled using this method.</p>
@@ -50,5 +55,4 @@ public interface ISerialComDataListener {
 	 * @param errorNum operating system specific error number
 	 */
 	public abstract void onDataListenerError(int errorNum);
-
 }
