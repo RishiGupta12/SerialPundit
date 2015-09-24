@@ -373,7 +373,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
  * Find USB devices with information about them using platform specific facilities.
  */
 JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_listUSBdevicesWithInfo(JNIEnv *env, jobject obj, jint vendorFilter) {
-	return list_usb_devices(env, obj, vendorFilter);
+	return list_usb_devices(env, vendorFilter);
 }
 
 /*
@@ -387,7 +387,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
  * Find the COM Port/ device node assigned to USB-UART converter device using platform specific facilities.
  */
 JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_listComPortFromUSBAttributes(JNIEnv *env, jobject obj, jint vid, jint pid, jstring serial) {
-	return vcp_node_from_usb_attributes(env, obj, vid, pid, serial);
+	return vcp_node_from_usb_attributes(env, vid, pid, serial);
 }
 
 /*
@@ -401,7 +401,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
  * Enumerate and check if given usb device identified by its USB-IF VID and PID is connected to system or not.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_isUSBDevConnected(JNIEnv *env, jobject obj, jint vid, jint pid) {
-	return is_usb_dev_connected(env, obj, vid, pid);
+	return is_usb_dev_connected(env, vid, pid);
 }
 
 /*
@@ -2796,20 +2796,6 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJ
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
- * Method:    listBluetoothAdaptorsWithInfo
- * Signature: ()[Ljava/lang/String;
- *
- * @return array of Strings containing info about bluetooth adaptors found otherwise NULL if error occurs or no adaptors are found.
- * @throws SerialComException if any JNI function, system call or C function fails.
- *
- * Find local bluetooth adaptors with information about them using platform specific facilities.
- */
-JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_listBluetoothAdaptorsWithInfo(JNIEnv *env, jobject obj) {
-	return list_local_bt_adaptors(env, obj);
-}
-
-/*
- * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
  * Method:    rescanUSBDevicesHW
  * Signature: ()I
  *
@@ -2829,8 +2815,13 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
  * @throws SerialComException if any JNI function, system call or C function fails.
  */
 JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_listBTSPPDevNodesWithInfo
+<<<<<<< HEAD
   (JNIEnv *env, jobject obj) {
 	return list_bt_rfcomm_dev_nodes(env, obj);
+=======
+(JNIEnv *env, jobject obj) {
+	return list_bt_rfcomm_dev_nodes(env);
+>>>>>>> upstream/master
 }
 
 #endif /* End compiling for Unix-like OS. */

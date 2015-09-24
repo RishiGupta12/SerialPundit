@@ -57,10 +57,12 @@
       <resource>
        <directory>.</directory>
        <includes>
-         <include>libs/**/*.*</include>
+         <include>tty-libs/*.*</include>
+         <include>hid-libs/*.*</include>
+         <include>vendor-libs/*.*</include>
        </includes>
       </resource>
-    </resources>
+    </resources>    
     <plugins>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>

@@ -1,4 +1,4 @@
-/**
+/*
  * Author : Rishi Gupta
  * 
  * This file is part of 'serial communication manager' library.
@@ -27,7 +27,7 @@ import com.embeddedunveiled.serial.internal.SerialComCP210xManufacturingJNIBridg
 import com.embeddedunveiled.serial.internal.SerialComSystemProperty;
 
 /**
- * <p>Silicon labs Inc. provides libraries to communicate with their USB-UART devices. More information can 
+ * <p>Silicon labs provides libraries to communicate with their USB-UART devices. More information can 
  * be found here : https://www.silabs.com/products/mcu/Pages/USBtoUARTBridgeVCPDrivers.aspx</p>
  * 
  * <p>[0] The data types used in java layer may be bigger in size than the native layer. For example; if native 
@@ -38,9 +38,19 @@ import com.embeddedunveiled.serial.internal.SerialComSystemProperty;
  * for desired platform or not and also how does a particular API will behave. Also consider paying attention to 
  * valid values and range when passing arguments to a method.</p>
  * 
- * <p>[2] The application note for CP210XRuntime library is here : https://www.silabs.com/Support%20Documents/TechnicalDocs/an144.pdf</p>
+ * <p>[2] The application note for CP210xManufacturing library is here : 
+ * http://www.silabs.com/Support%20Documents/TechnicalDocs/AN721.pdf</p>
+ * 
+ * <p>[3] It seems like CP210xManufacturing library uses user space drivers. So if you encounter any problems 
+ * with permissions add following udev rules : 
+ * https://github.com/RishiGupta12/serial-communication-manager/blob/master/tests/scm-cp210x.rules</p>
+ *
+ * <p>Silicon labs softwares can be downloaded from here :
+ * http://www.silabs.com/products/Interface/Pages/interface-application-notes.aspx </p>
  * 
  * <p>SCM version 1.0.4 is linked to v3.4 version of CP210xManufacturing library.</p>
+ * 
+ * @author Rishi Gupta
  */
 public final class SerialComSLabsCP210xManufacturing extends SerialComVendorLib {
 
@@ -65,10 +75,331 @@ public final class SerialComSLabsCP210xManufacturing extends SerialComVendorLib 
 	/**<p>Constant representing one of the bit in bit mask to be used with setFlushBufferConfig() method. </p>*/
 	public static final int FC_CLOSE_RX = 0x08;
 
+	/**<p>Constant representing one of the bit in bit mask to be used with setFlushBufferConfig() method 
+	 * mainly for CP2105 devices. </p>*/
+	public static final int FC_OPEN_TX_SCI = 0x01;
+
+	/**<p>Constant representing one of the bit in bit mask to be used with setFlushBufferConfig() method 
+	 * mainly for CP2105 devices. </p>*/
+	public static final int FC_OPEN_RX_SCI = 0x02;
+
+	/**<p>Constant representing one of the bit in bit mask to be used with setFlushBufferConfig() method 
+	 * mainly for CP2105 devices. </p>*/
+	public static final int FC_CLOSE_TX_SCI = 0x04;
+
+	/**<p>Constant representing one of the bit in bit mask to be used with setFlushBufferConfig() method 
+	 * mainly for CP2105 devices. </p>*/
+	public static final int FC_CLOSE_RX_SCI = 0x08;
+
+	/**<p>Constant representing one of the bit in bit mask to be used with setFlushBufferConfig() method 
+	 * mainly for CP2105 devices. </p>*/
+	public static final int FC_OPEN_TX_ECI = 0x10;
+
+	/**<p>Constant representing one of the bit in bit mask to be used with setFlushBufferConfig() method 
+	 * mainly for CP2105 devices. </p>*/
+	public static final int FC_OPEN_RX_ECI = 0x20;
+
+	/**<p>Constant representing one of the bit in bit mask to be used with setFlushBufferConfig() method 
+	 * mainly for CP2105 devices. </p>*/
+	public static final int FC_CLOSE_TX_ECI = 0x40;
+
+	/**<p>Constant representing one of the bit in bit mask to be used with setFlushBufferConfig() method 
+	 * mainly for CP2105 devices. </p>*/
+	public static final int FC_CLOSE_RX_ECI = 0x80;
+
+	/**<p>Constant representing one of the bit in bit mask to be used with setFlushBufferConfig() method 
+	 * mainly for CP2108 devices. </p>*/
+	public static final int FC_OPEN_TX_IFC0  = 0x0001;
+
+	/**<p>Constant representing one of the bit in bit mask to be used with setFlushBufferConfig() method 
+	 * mainly for CP2108 devices. </p>*/
+	public static final int FC_OPEN_RX_IFC0  = 0x0002;
+
+	/**<p>Constant representing one of the bit in bit mask to be used with setFlushBufferConfig() method 
+	 * mainly for CP2108 devices. </p>*/
+	public static final int FC_CLOSE_TX_IFC0 = 0x0004;
+
+	/**<p>Constant representing one of the bit in bit mask to be used with setFlushBufferConfig() method 
+	 * mainly for CP2108 devices. </p>*/
+	public static final int FC_CLOSE_RX_IFC0 = 0x0008;
+
+	/**<p>Constant representing one of the bit in bit mask to be used with setFlushBufferConfig() method 
+	 * mainly for CP2108 devices. </p>*/
+	public static final int FC_OPEN_TX_IFC1  = 0x0010;
+
+	/**<p>Constant representing one of the bit in bit mask to be used with setFlushBufferConfig() method 
+	 * mainly for CP2108 devices. </p>*/
+	public static final int FC_OPEN_RX_IFC1  = 0x0020;
+
+	/**<p>Constant representing one of the bit in bit mask to be used with setFlushBufferConfig() method 
+	 * mainly for CP2108 devices. </p>*/
+	public static final int FC_CLOSE_TX_IFC1 = 0x0040;
+
+	/**<p>Constant representing one of the bit in bit mask to be used with setFlushBufferConfig() method 
+	 * mainly for CP2108 devices. </p>*/
+	public static final int FC_CLOSE_RX_IFC1 = 0x0080;
+
+	/**<p>Constant representing one of the bit in bit mask to be used with setFlushBufferConfig() method 
+	 * mainly for CP2108 devices. </p>*/
+	public static final int FC_OPEN_TX_IFC2  = 0x0100;
+
+	/**<p>Constant representing one of the bit in bit mask to be used with setFlushBufferConfig() method 
+	 * mainly for CP2108 devices. </p>*/
+	public static final int FC_OPEN_RX_IFC2  = 0x0200;
+
+	/**<p>Constant representing one of the bit in bit mask to be used with setFlushBufferConfig() method 
+	 * mainly for CP2108 devices. </p>*/
+	public static final int FC_CLOSE_TX_IFC2 = 0x0400;
+
+	/**<p>Constant representing one of the bit in bit mask to be used with setFlushBufferConfig() method 
+	 * mainly for CP2108 devices. </p>*/
+	public static final int FC_CLOSE_RX_IFC2 = 0x0800;
+
+	/**<p>Constant representing one of the bit in bit mask to be used with setFlushBufferConfig() method 
+	 * mainly for CP2108 devices. </p>*/
+	public static final int FC_OPEN_TX_IFC3  = 0x1000;
+
+	/**<p>Constant representing one of the bit in bit mask to be used with setFlushBufferConfig() method 
+	 * mainly for CP2108 devices. </p>*/
+	public static final int FC_OPEN_RX_IFC3  = 0x2000;
+
+	/**<p>Constant representing one of the bit in bit mask to be used with setFlushBufferConfig() method 
+	 * mainly for CP2108 devices. </p>*/
+	public static final int FC_CLOSE_TX_IFC3 = 0x4000;
+
+	/**<p>Constant representing one of the bit in bit mask to be used with setFlushBufferConfig() method 
+	 * mainly for CP2108 devices. </p>*/
+	public static final int FC_CLOSE_RX_IFC3 = 0x8000;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2103/4 devices.</p>*/
+	public static final int PORT_RI_ON	= 0x0001;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2103/4 devices.</p>*/
+	public static final int PORT_DCD_ON	= 0x0002;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2103/4 devices.</p>*/
+	public static final int PORT_DTR_ON	= 0x0004;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2103/4 devices.</p>*/
+	public static final int PORT_DSR_ON	= 0x0008;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2103/4 devices.</p>*/
+	public static final int PORT_TXD_ON	= 0x0010;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2103/4 devices.</p>*/
+	public static final int PORT_RXD_ON	= 0x0020;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2103/4 devices.</p>*/
+	public static final int PORT_RTS_ON	= 0x0040;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2103/4 devices.</p>*/
+	public static final int PORT_CTS_ON	= 0x0080;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2103/4 devices.</p>*/
+	public static final int PORT_GPIO_0_ON = 0x0100;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2103/4 devices.</p>*/
+	public static final int PORT_GPIO_1_ON = 0x0200;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2103/4 devices.</p>*/
+	public static final int PORT_GPIO_2_ON = 0x0400;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2103/4 devices.</p>*/
+	public static final int PORT_GPIO_3_ON = 0x0800;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2103/4 devices.</p>*/
+	public static final int PORT_SUSPEND_ON = 0x4000;	// Can't configure latch value
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2103/4 devices.</p>*/
+	public static final int PORT_SUSPEND_BAR_ON = 0x8000;	// Can't configure latch value
+
+	/**<p>Constant representing one of the bit locations for EnhancedFxn features to be used mainly for 
+	 * CP2103/4 devices.</p>*/
+	public static final int EF_GPIO_0_TXLED = 0x01;  // Under device control
+
+	/**<p>Constant representing one of the bit locations for EnhancedFxn features to be used mainly for 
+	 * CP2103/4 devices.</p>*/
+	public static final int EF_GPIO_1_RXLED = 0x02;  // Under device control
+
+	/**<p>Constant representing one of the bit locations for EnhancedFxn features to be used mainly for 
+	 * CP2103/4 devices.</p>*/
+	public static final int EF_GPIO_2_RS485 = 0x04;  // Under device control
+
+	/**<p>Constant representing one of the bit locations for EnhancedFxn features to be used mainly for 
+	 * CP2103/4 devices.</p>*/
+	public static final int EF_RS485_INVERT = 0x08;  // RS485 Invert bit
+
+	/**<p>Constant representing one of the bit locations for EnhancedFxn features to be used mainly for 
+	 * CP2103/4 devices.</p>*/
+	public static final int EF_WEAKPULLUP = 0x10;   // Weak Pull-up on
+
+	/**<p>Constant representing one of the bit locations for EnhancedFxn features to be used mainly for 
+	 * CP2103/4 devices.</p>*/
+	public static final int EF_RESERVED_1 = 0x20;  //  Reserved, leave bit 5 cleared
+
+	/**<p>Constant representing one of the bit locations for EnhancedFxn features to be used mainly for 
+	 * CP2103/4 devices.</p>*/
+	public static final int EF_SERIAL_DYNAMIC_SUSPEND  = 0x40;  //  For 8 UART/Modem signals
+
+	/**<p>Constant representing one of the bit locations for EnhancedFxn features to be used mainly for 
+	 * CP2103/4 devices.</p>*/
+	public static final int EF_GPIO_DYNAMIC_SUSPEND = 0x80;	  //  For 4 GPIO signals
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2105 devices.</p>*/
+	public static final int PORT_RI_SCI_ON = 0x0001;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2105 devices.</p>*/
+	public static final int PORT_DCD_SCI_ON = 0x0002;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2105 devices.</p>*/
+	public static final int PORT_DTR_SCI_ON = 0x0004;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2105 devices.</p>*/
+	public static final int PORT_DSR_SCI_ON = 0x0008;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2105 devices.</p>*/
+	public static final int PORT_TXD_SCI_ON = 0x0010;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2105 devices.</p>*/
+	public static final int PORT_RXD_SCI_ON = 0x0020;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2105 devices.</p>*/
+	public static final int PORT_RTS_SCI_ON = 0x0040;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2105 devices.</p>*/
+	public static final int PORT_CTS_SCI_ON = 0x0080;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2105 devices.</p>*/
+	public static final int PORT_GPIO_0_SCI_ON = 0x0002;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2105 devices.</p>*/
+	public static final int PORT_GPIO_1_SCI_ON = 0x0004;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2105 devices.</p>*/
+	public static final int PORT_GPIO_2_SCI_ON = 0x0008;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2105 devices.</p>*/
+	public static final int PORT_SUSPEND_SCI_ON = 0x0001;	//  Can't configure latch value
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2105 devices.</p>*/
+	public static final int PORT_RI_ECI_ON = 0x0100;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2105 devices.</p>*/
+	public static final int PORT_DCD_ECI_ON = 0x0200;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2105 devices.</p>*/
+	public static final int PORT_DTR_ECI_ON = 0x0400;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2105 devices.</p>*/
+	public static final int PORT_DSR_ECI_ON = 0x0800;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2105 devices.</p>*/
+	public static final int PORT_TXD_ECI_ON = 0x1000;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2105 devices.</p>*/
+	public static final int PORT_RXD_ECI_ON = 0x2000;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2105 devices.</p>*/
+	public static final int PORT_RTS_ECI_ON = 0x4000;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2105 devices.</p>*/
+	public static final int PORT_CTS_ECI_ON = 0x8000;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2105 devices.</p>*/
+	public static final int PORT_GPIO_0_ECI_ON = 0x0400;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2105 devices.</p>*/
+	public static final int PORT_GPIO_1_ECI_ON = 0x0800;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2105 devices.</p>*/
+	public static final int PORT_SUSPEND_ECI_ON = 0x0100;	//  Can't configure latch value
+
+	/**<p>Constant representing one of the bit locations for EnhancedFxn_ECI features to be used mainly 
+	 * for CP2105 devices.</p>*/
+	public static final int EF_GPIO_0_TXLED_ECI = 0x01;	// Under device control
+
+	/**<p>Constant representing one of the bit locations for EnhancedFxn_ECI features to be used mainly 
+	 * for CP2105 devices.</p>*/
+	public static final int EF_GPIO_1_RXLED_ECI = 0x02;	// Under device control
+
+	/**<p>Constant representing one of the bit locations for EnhancedFxn_ECI features to be used mainly 
+	 * for CP2105 devices.</p>*/
+	public static final int EF_GPIO_1_RS485_ECI = 0x04;	// Under device control
+
+	/**<p>Constant representing one of the bit locations for EnhancedFxn_ECI features to be used mainly 
+	 * for CP2105 devices.</p>*/
+	public static final int CP2105_EF_RS485_INVERT = 0x08;	// Under device control
+
+	/**<p>Constant representing one of the bit locations for EnhancedFxn_ECI features to be used mainly 
+	 * for CP2105 devices.</p>*/
+	public static final int EF_INVERT_SUSPEND_ECI = 0x10;	// RS485 Invert bit
+
+	/**<p>Constant representing one of the bit locations for EnhancedFxn_ECI features to be used mainly 
+	 * for CP2105 devices.</p>*/
+	public static final int EF_DYNAMIC_SUSPEND_ECI = 0x40;	// For GPIO signals
+
+	/**<p>Constant representing one of the bit locations for EnhancedFxn_SCI features to be used mainly 
+	 * for CP2105 devices.</p>*/
+	public static final int EF_GPIO_0_TXLED_SCI = 0x01;	// Under device control
+
+	/**<p>Constant representing one of the bit locations for EnhancedFxn_SCI features to be used mainly 
+	 * for CP2105 devices.</p>*/
+	public static final int EF_GPIO_1_RXLED_SCI = 0x02;	// Under device control
+
+	/**<p>Constant representing one of the bit locations for EnhancedFxn_SCI features to be used mainly 
+	 * for CP2105 devices.</p>*/
+	public static final int EF_INVERT_SUSPEND_SCI = 0x10;	// RS485 Invert bit
+
+	/**<p>Constant representing one of the bit locations for EnhancedFxn_SCI features to be used mainly 
+	 * for CP2105 devices.</p>*/
+	public static final int EF_DYNAMIC_SUSPEND_SCI = 0x40;	// For GPIO signals
+
+	/**<p>Constant representing one of the bit locations for EnhancedFxn_Device to be used mainly for 
+	 * CP2105 devices.</p>*/
+	public static final int CP2105_EF_WEAKPULLUP	 = 0x10;	// Weak Pull-up on
+
 	private final SerialComCP210xManufacturingJNIBridge mSerialComCP210xManufacturingJNIBridge;
 
 	/**
-	 * <p>Allocates a new SerialComSLabsCP210xManufacturing object and extract and load shared libraries as required.</p>
+	 * <p>Allocates a new SerialComSLabsCP210xManufacturing object and extract and load shared libraries as 
+	 * required.</p>
 	 * 
 	 * @param libDirectory directory in which native library will be extracted and vendor library will be found.
 	 * @param vlibName name of vendor library to load and link.
@@ -82,17 +413,20 @@ public final class SerialComSLabsCP210xManufacturing extends SerialComVendorLib 
 	 * @throws UnsatisfiedLinkError if loading/linking shared library fails.
 	 * @throws SerialComException if initializing native library fails.
 	 */
-	public SerialComSLabsCP210xManufacturing(File libDirectory, String vlibName, int cpuArch, int osType, SerialComSystemProperty serialComSystemProperty) 
-			throws UnsatisfiedLinkError, SerialComLoadException, SerialComUnexpectedException, SecurityException, FileNotFoundException {
+	public SerialComSLabsCP210xManufacturing(File libDirectory, String vlibName, int cpuArch, int osType, 
+			SerialComSystemProperty serialComSystemProperty) throws UnsatisfiedLinkError, SerialComLoadException, 
+			SerialComUnexpectedException, SecurityException, FileNotFoundException {
 		mSerialComCP210xManufacturingJNIBridge = new SerialComCP210xManufacturingJNIBridge();
-		SerialComCP210xManufacturingJNIBridge.loadNativeLibrary(libDirectory, vlibName, cpuArch, osType, serialComSystemProperty);
+		SerialComCP210xManufacturingJNIBridge.loadNativeLibrary(libDirectory, vlibName, cpuArch, osType, 
+				serialComSystemProperty);
 	}
 
 	/**
 	 * <p>Executes CP210x_GetNumDevices function of CP210xManufacturing library.</p>
+	 * 
 	 * <p>Returns the number of CP210x devices connected to the host.</p>
 	 * 
-	 * @return number of the CP210X devices connected to host presently.
+	 * @return number of the CP210X devices connected to host system presently.
 	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public int getNumDevices() throws SerialComException {
@@ -119,7 +453,8 @@ public final class SerialComSLabsCP210xManufacturing extends SerialComVendorLib 
 	 */
 	public String getProductString(int index, int flag) throws SerialComException {
 		String ret = null;
-		if((flag == CP210x_RETURN_FULL_PATH) || (flag == CP210x_RETURN_DESCRIPTION) || (flag == CP210x_RETURN_SERIAL_NUMBER)) {
+		if((flag == CP210x_RETURN_FULL_PATH) || (flag == CP210x_RETURN_DESCRIPTION) 
+				|| (flag == CP210x_RETURN_SERIAL_NUMBER)) {
 			ret = mSerialComCP210xManufacturingJNIBridge.getProductString(index, flag);
 			if(ret == null) {
 				throw new SerialComException("Could not get the requested information. Please retry !");
@@ -230,12 +565,13 @@ public final class SerialComSLabsCP210xManufacturing extends SerialComVendorLib 
 	 * <p>Sets the Product Description String of the String Descriptor of a CP210x device.</p>
 	 * 
 	 * @param handle of the device.
-	 * @param description string that need to be saved in device.
+	 * @param product string that need to be saved in device.
 	 * @return true on success.
 	 * @throws SerialComException if an I/O error occurs.
 	 */
-	public boolean setProductString(final long handle, String description) throws SerialComException {
-		int ret = mSerialComCP210xManufacturingJNIBridge.setProductString(handle, description);
+	public boolean setProductString(final long handle, String product) throws SerialComException {
+
+		int ret = mSerialComCP210xManufacturingJNIBridge.setProductString(handle, product);
 		if(ret < 0) {
 			throw new SerialComException("Could not set description for the product. Please retry !");
 		}
@@ -249,14 +585,38 @@ public final class SerialComSLabsCP210xManufacturing extends SerialComVendorLib 
 	 * <p>Sets the Serial Number String of the String Descriptor of a CP210x device.</p>
 	 * 
 	 * @param handle of the device.
-	 * @param serial number string that need to be saved in device.
+	 * @param serialNumber string that need to be saved in device.
 	 * @return true on success.
 	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public boolean setSerialNumber(final long handle, String serialNumber) throws SerialComException {
+
 		int ret = mSerialComCP210xManufacturingJNIBridge.setSerialNumber(handle, serialNumber);
 		if(ret < 0) {
 			throw new SerialComException("Could not set serial number for the product. Please retry !");
+		}
+
+		return true;
+	}
+
+	/**
+	 * <p>Executes CP210x_SetInterfaceString function of of CP210xManufacturing library.</p>
+	 * 
+	 * <p>Sets the Serial Number String of the String Descriptor of a CP210x device.</p>
+	 * 
+	 * @param handle of the device.
+	 * @param bInterfaceNumber Set to 0 for Enhanced Interface String, or 1 for Standard Interface String 
+	 *         on the CP2105. 0-3 for the CP2108 which has 4 interfaces.
+	 * @param interfaceString interface string to be set on device.
+	 * @return true on success.
+	 * @throws SerialComException if an I/O error occurs.
+	 */
+	public boolean setInterfaceString(long handle, byte bInterfaceNumber, String interfaceString) 
+			throws SerialComException {
+
+		int ret = mSerialComCP210xManufacturingJNIBridge.setInterfaceString(handle, bInterfaceNumber, interfaceString);
+		if(ret < 0) {
+			throw new SerialComException("Could not set interface string. Please retry !");
 		}
 
 		return true;
@@ -268,11 +628,12 @@ public final class SerialComSLabsCP210xManufacturing extends SerialComVendorLib 
 	 * <p>Sets or clears the Self-Powered bit of the Power Attributes field of the Configuration Descriptor of a CP210x device.</p>
 	 * 
 	 * @param handle of the device.
-	 * @param selfPower if true will set, if false self power bit will be cleared.
+	 * @param selfPower if true self power bit will be set, if false self power bit will be cleared.
 	 * @return true on success.
 	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public boolean setSelfPower(final long handle, boolean selfPower) throws SerialComException {
+
 		int ret = mSerialComCP210xManufacturingJNIBridge.setSelfPower(handle, selfPower);
 		if(ret < 0) {
 			throw new SerialComException("Could not set/clear Self-Powered bit for the product. Please retry !");
@@ -287,11 +648,13 @@ public final class SerialComSLabsCP210xManufacturing extends SerialComVendorLib 
 	 * <p>Sets the Max Power field of the Configuration Descriptor of a CP210x device.</p>
 	 * 
 	 * @param handle of the device.
-	 * @param maxPower 1-byte value representing the maximum power consumption of the CP210x USB device, expressed in 2 mA units.
+	 * @param maxPower 1-byte value representing the maximum power consumption of the CP210x USB device, 
+	 *         expressed in 2 mA units.
 	 * @return true on success.
 	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public boolean setMaxPower(final long handle, byte maxPower) throws SerialComException {
+
 		int ret = mSerialComCP210xManufacturingJNIBridge.setMaxPower(handle, maxPower);
 		if(ret < 0) {
 			throw new SerialComException("Could not set the max power field for the product. Please retry !");
@@ -308,7 +671,7 @@ public final class SerialComSLabsCP210xManufacturing extends SerialComVendorLib 
 	 * <p>The argument flag can be bit mask of constants FC_OPEN_TX, FC_OPEN_RX, FC_CLOSE_TX, FC_CLOSE_RX.</p>
 	 * 
 	 * @param handle of the device.
-	 * @param config flag indicating which buffer to flush and upon which event.
+	 * @param flag bit mask indicating which buffer to flush and upon which event.
 	 * @return true on success.
 	 * @throws SerialComException if an I/O error occurs.
 	 * @throws IllegalArgumentException if invalid flag is passed.
@@ -320,6 +683,28 @@ public final class SerialComSLabsCP210xManufacturing extends SerialComVendorLib 
 		int ret = mSerialComCP210xManufacturingJNIBridge.setFlushBufferConfig(handle, flag);
 		if(ret < 0) {
 			throw new SerialComException("Could not set the flushing configuration for the product. Please retry !");
+		}
+
+		return true;
+	}
+
+	/**
+	 * <p>Executes CP210x_SetDeviceMode function of of CP210xManufacturing library.</p>
+	 * 
+	 * <p>Sets the operating mode (GPIO or Modem) or each Interface of a CP210x device.</p>
+	 * 
+	 * @param handle of the device.
+	 * @param bDeviceModeECI set to 0 for modem mode for Enhanced interface. Set to 1 for GPIO mode.
+	 * @param bDeviceModeSCI set to 0 for modem mode for Enhanced interface. Set to 1 for GPIO mode.
+	 * @return true on success.
+	 * @throws SerialComException if an I/O error occurs.
+	 * @throws IllegalArgumentException if invalid flag is passed.
+	 */
+	public boolean setDeviceMode(final long handle, byte bDeviceModeECI, byte bDeviceModeSCI) 
+			throws SerialComException {
+		int ret = mSerialComCP210xManufacturingJNIBridge.setDeviceMode(handle, bDeviceModeECI, bDeviceModeSCI);
+		if(ret < 0) {
+			throw new SerialComException("Could not set the device configuration. Please retry !");
 		}
 
 		return true;
@@ -381,7 +766,7 @@ public final class SerialComSLabsCP210xManufacturing extends SerialComVendorLib 
 	 * @param mode Mode field of PORT_CONFIG structure defined in CP210XManufacturingDLL.h header file.
 	 * @param resetLatch Reset_Latch field of PORT_CONFIG structure defined in CP210XManufacturingDLL.h header file.
 	 * @param suspendLatch Suspend_Latch field of PORT_CONFIG structure defined in CP210XManufacturingDLL.h header file.
-	 * @param enhancedFXn EnhancedFxn field of PORT_CONFIG structure defined in CP210XManufacturingDLL.h header file.
+	 * @param enhancedFxn EnhancedFxn field of PORT_CONFIG structure defined in CP210XManufacturingDLL.h header file.
 	 * @return true on success.
 	 * @throws SerialComException if an I/O error occurs.
 	 */
@@ -395,9 +780,68 @@ public final class SerialComSLabsCP210xManufacturing extends SerialComVendorLib 
 	}
 
 	/**
+	 * <p>Executes CP210x_SetDualPortConfig function of of CP210xManufacturing library.</p>
+	 * 
+	 * <p>Sets the port configuration of a CP2105 device.</p>
+	 * 
+	 * @param handle of the device.
+	 * @param mode Mode field of DUAL_PORT_CONFIG structure defined in CP210XManufacturingDLL.h header file.
+	 * @param resetLatch Reset_Latch field of DUAL_PORT_CONFIG structure defined in CP210XManufacturingDLL.h header file.
+	 * @param suspendLatch Suspend_Latch field of DUAL_PORT_CONFIG structure defined in CP210XManufacturingDLL.h header file.
+	 * @param enhancedFxnECI EnhancedFxn_ECI field of DUAL_PORT_CONFIG structure defined in CP210XManufacturingDLL.h header file.
+	 * @param enhancedFxnSCI EnhancedFxn_SCI field of DUAL_PORT_CONFIG structure defined in CP210XManufacturingDLL.h header file.
+	 * @param enhancedFxnDevice EnhancedFxn_Device field of DUAL_PORT_CONFIG structure defined in CP210XManufacturingDLL.h header file.
+	 * @return true on success.
+	 * @throws SerialComException if an I/O error occurs.
+	 */
+	public boolean setDualPortConfig(long handle, int mode, int resetLatch, int suspendLatch, int enhancedFxnECI, 
+			int enhancedFxnSCI, int enhancedFxnDevice) throws SerialComException {
+		int ret = mSerialComCP210xManufacturingJNIBridge.setDualPortConfig(handle, mode, resetLatch, 
+				suspendLatch, enhancedFxnECI, enhancedFxnSCI, enhancedFxnDevice);
+		if(ret < 0) {
+			throw new SerialComException("Could not set the dual port configuration values for the device. Please retry !");
+		}
+
+		return true;
+	}
+
+	/**
+	 * <p>Executes CP210x_SetDualPortConfig function of of CP210xManufacturing library.</p>
+	 * 
+	 * <p>Sets the port configuration of a CP2108 device.</p>
+	 * 
+	 * <p>The sequence of resetLatch array starting at index 0 is : Mode_PB0, Mode_PB1, Mode_PB2, Mode_PB3,
+	 * Mode_PB4, LowPower_PB0, LowPower_PB1, LowPower_PB2, LowPower_PB3, LowPower_PB4, Latch_PB0, Latch_PB1,
+	 * Latch_PB2, Latch_PB3, Latch_PB4. The sequence of suspendLatch array starting at index 0 is : Mode_PB0, 
+	 * Mode_PB1, Mode_PB2, Mode_PB3, Mode_PB4, LowPower_PB0, LowPower_PB1, LowPower_PB2, LowPower_PB3, 
+	 * LowPower_PB4, Latch_PB0, Latch_PB1, Latch_PB2, Latch_PB3, Latch_PB4. The sequence for config starting at 
+	 * index 0 is : IPDelay_IFC0, IPDelay_IFC1, IPDelay_IFC2, IPDelay_IFC3, EnhancedFxn_IFC0, EnhancedFxn_IFC1, 
+	 * EnhancedFxn_IFC2, EnhancedFxn_IFC3, EnhancedFxn_Device, ExtClk0Freq, ExtClk1Freq, ExtClk2Freq, ExtClk3Freq 
+	 * respectively.</p>
+	 * 
+	 * @param handle of the device.
+	 * @param resetLatch array of integers containing info related to QUAD_PORT_STATE structure defined in 
+	 *         CP210XManufacturingDLL.h header file.
+	 * @param suspendLatch array of integers containing info related to QUAD_PORT_STATE structure defined 
+	 *         in CP210XManufacturingDLL.h header file.
+	 * @param config array of bytes containing info related to QUAD_PORT_CONFIG structure defined in 
+	 *         CP210XManufacturingDLL.h header file.
+	 * @return true on success.
+	 * @throws SerialComException if an I/O error occurs.
+	 */
+	public boolean setQuadPortConfig(long handle, int[] resetLatch, int[] suspendLatch, byte[] config) throws SerialComException {
+		int ret = mSerialComCP210xManufacturingJNIBridge.setQuadPortConfig(handle, resetLatch, suspendLatch, config);
+		if(ret < 0) {
+			throw new SerialComException("Could not set the dual port configuration values for the device. Please retry !");
+		}
+
+		return true;
+	}
+
+	/**
 	 * <p>Executes CP210x_SetLockValue function of of CP210xManufacturing library.</p>
 	 * 
-	 * <p>Sets the 1-byte Lock Value of a CP210x device.</p>
+	 * <p>Sets the 1-byte lock value of a CP210x device.</p>
 	 * 
 	 * @param handle of the device.
 	 * @return true on success.
@@ -408,14 +852,13 @@ public final class SerialComSLabsCP210xManufacturing extends SerialComVendorLib 
 		if(ret < 0) {
 			throw new SerialComException("Could not set the lock value on the device. Please retry !");
 		}
-
 		return true;
 	}
 
 	/**
 	 * <p>Executes CP210x_GetDeviceVid function of CP210xManufacturing library.</p>
 	 * 
-	 * <p>Returns the 2-byte Vendor ID field of the Device Descriptor of a CP210x device.</p>
+	 * <p>Returns the 2-byte Vendor ID field of the device descriptor of a CP210x device.</p>
 	 * 
 	 * @param handle of the device.
 	 * @return USB vendor ID of this device.
@@ -432,7 +875,7 @@ public final class SerialComSLabsCP210xManufacturing extends SerialComVendorLib 
 	/**
 	 * <p>Executes CP210x_GetDevicePid function of CP210xManufacturing library.</p>
 	 * 
-	 * <p>Returns the 2-byte Product ID field of the Device Descriptor of a CP210x device.</p>
+	 * <p>Returns the 2-byte Product ID field of the device descriptor of a CP210x device.</p>
 	 * 
 	 * @param handle of the device.
 	 * @return USB product ID of this device.
@@ -459,6 +902,23 @@ public final class SerialComSLabsCP210xManufacturing extends SerialComVendorLib 
 		String ret = mSerialComCP210xManufacturingJNIBridge.getDeviceProductString(handle);
 		if(ret == null) {
 			throw new SerialComException("Could not get the product description string. Please retry !");
+		}
+		return ret;
+	}
+
+	/**
+	 * <p>Executes CP210x_GetDeviceInterfaceString function of CP210xManufacturing library.</p>
+	 * 
+	 * <p>Gets the interface string of a CP210x device.</p>
+	 * 
+	 * @param handle of the device.
+	 * @return interface string of the device.
+	 * @throws SerialComException if an I/O error occurs.
+	 */
+	public String getDeviceInterfaceString(long handle, byte bInterfaceNumber) throws SerialComException {
+		String ret = mSerialComCP210xManufacturingJNIBridge.getDeviceInterfaceString(handle, bInterfaceNumber);
+		if(ret == null) {
+			throw new SerialComException("Could not get the product serial number string. Please retry !");
 		}
 		return ret;
 	}
@@ -535,6 +995,23 @@ public final class SerialComSLabsCP210xManufacturing extends SerialComVendorLib 
 	}
 
 	/**
+	 * <p>Executes CP210x_GetDeviceMode function of CP210xManufacturing library.</p>
+	 * 
+	 * <p>Gets the operating modes of interfaces of a CP2105 device.</p>
+	 * 
+	 * @param handle of the device.
+	 * @return DeviceModeECI value at index 0 and DeviceModeSCI value at index 1 in byte array.
+	 * @throws SerialComException if an I/O error occurs.
+	 */
+	public byte[] getDeviceMode(long handle) throws SerialComException {
+		byte[] ret = mSerialComCP210xManufacturingJNIBridge.getDeviceMode(handle);
+		if(ret == null) {
+			throw new SerialComException("Could not get the device mode. Please retry !");
+		}
+		return ret;
+	}
+
+	/**
 	 * <p>Executes CP210x_GetDeviceVersion function of CP210xManufacturing library.</p>
 	 * 
 	 * <p>Returns the device version of a CP210x device.</p>
@@ -557,15 +1034,32 @@ public final class SerialComSLabsCP210xManufacturing extends SerialComVendorLib 
 	 * <p>Gets the baud rate configuration data of a CP210x device.</p>
 	 * 
 	 * @param handle of the device.
-	 * @return array of integers containing values (starting from index 0) baudGen, timer0Reload, prescalar and baudrate respectively.
+	 * @return array of CP210XbaudConfigs objects containing baudrate data.
 	 * @throws SerialComException if an I/O error occurs.
 	 */
-	public int[] getBaudRateConfig(long handle) throws SerialComException {
+	public CP210XbaudConfigs[] getBaudRateConfig(long handle) throws SerialComException {
+
+		CP210XbaudConfigs[] configs = null;
+		int i = 0;
+		int numOfValues = 0;
+
 		int[] ret = mSerialComCP210xManufacturingJNIBridge.getBaudRateConfig(handle);
 		if(ret == null) {
 			throw new SerialComException("Could not get the baud rate configuration values. Please retry !");
 		}
-		return ret;
+
+		// no exception occurred however there is no data read from device.
+		if(ret.length < 4) {
+			return new CP210XbaudConfigs[] { };
+		}
+
+		numOfValues = ret.length / 4;
+		configs = new CP210XbaudConfigs[numOfValues];
+		for(int x = 0; x < numOfValues; x++) {
+			configs[x] = new CP210XbaudConfigs(ret[i], ret[i+1], ret[i+2], ret[i+3]);
+			i = i + 4;
+		}
+		return configs;
 	}
 
 	/**
@@ -574,7 +1068,8 @@ public final class SerialComSLabsCP210xManufacturing extends SerialComVendorLib 
 	 * <p>Gets the current port pin configuration from the CP210x device.</p>
 	 * 
 	 * @param handle of the device.
-	 * @return array of integers containing values (starting from index 0) mode, resetLatch, suspendLatch, enhancedFxn respectively.
+	 * @return array of integers containing values (starting from index 0) mode, resetLatch, suspendLatch, 
+	 *          enhancedFxn respectively.
 	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public int[] getPortConfig(long handle) throws SerialComException {

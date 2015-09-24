@@ -1,4 +1,4 @@
-/**
+/*
  * Author : Rishi Gupta
  * 
  * This file is part of 'serial communication manager' library.
@@ -19,13 +19,15 @@ package com.embeddedunveiled.serial.bluetooth;
 
 /**
  * <p>Represents the local device Bluetooth adapter and information about it.</p>
+ * 
+ * @author Rishi Gupta
  */
 public final class SerialComBluetoothAdapter {
 
-	private String name = null;
-	private String address = null;
-	private String type = null;
-	private String bus = null;
+	private String name;
+	private String address;
+	private String type;
+	private String bus;
 
 	/**
 	 * <p>Construct and allocates a new SerialComBluetoothAdapter object with given details.</p>
@@ -39,7 +41,7 @@ public final class SerialComBluetoothAdapter {
 		this.type = type;
 		this.bus = bus;
 	}
-	
+
 	/**
 	 * <p>Get the friendly Bluetooth name of the local Bluetooth adapter. 
 	 * This name is visible to remote Bluetooth devices.</p>
@@ -54,7 +56,7 @@ public final class SerialComBluetoothAdapter {
 	 * <p>Returns the hardware address of the local Bluetooth adapter 
 	 * for example "00:11:22:AA:BB:CC".</p>
 	 *
-	 * @return Bluetooth hardware address as string
+	 * @return Bluetooth hardware address as string.
 	 */
 	public String getAddress() {
 		return address;
@@ -82,7 +84,10 @@ public final class SerialComBluetoothAdapter {
 	 * <p>Prints information about this Bluetooth adaptor on console.</p>
 	 */
 	public void dumpDeviceInfo() {
-		System.out.println("\nName : " + name + "\nAddress : " + address + "\nType : " + type + "\nBus : " + bus);
+		System.out.println(
+				"Name : " + name + 
+				"\nAddress : " + address + 
+				"\nType : " + type + 
+				"\nBus : " + bus);
 	}
-
 }

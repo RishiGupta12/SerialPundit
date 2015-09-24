@@ -36,6 +36,7 @@ import com.embeddedunveiled.serial.internal.SerialComPortJNIBridge;
  * 
  * <p>The IOCTL number (operation code) are unique to each driver and must be obtained from them.</p>
  * 
+ * @author Rishi Gupta
  */
 public final class SerialComIOCTLExecutor {
 

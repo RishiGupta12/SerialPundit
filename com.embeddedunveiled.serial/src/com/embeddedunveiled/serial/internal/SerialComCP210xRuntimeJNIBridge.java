@@ -1,4 +1,4 @@
-/**
+/*
  * Author : Rishi Gupta
  * 
  * This file is part of 'serial communication manager' library.
@@ -26,7 +26,10 @@ import com.embeddedunveiled.serial.SerialComManager;
 import com.embeddedunveiled.serial.SerialComUnexpectedException;
 
 /**
- * <p>This class is an interface between java and native shared library.</p>
+ * <p>This class is an interface between java and native shared library. The native library is found 
+ * in 'vendor-libs' folder in 'scm-x.x.x.jar' file.</p>
+ * 
+ * @author Rishi Gupta
  */
 public final class SerialComCP210xRuntimeJNIBridge {
 
@@ -37,7 +40,9 @@ public final class SerialComCP210xRuntimeJNIBridge {
 	}
 
 	/**
-	 * <p>Extract native library from jar in a working directory and load it. Also load vendor's library.</p>
+	 * <p>Extract native library from jar in a working directory, load and link it. The 'vendor-libs' folder in 
+	 * 'scm-x.x.x.jar' file is searched for the required native library for vendor specific communication. It 
+	 * also load vendor's native shared library.</p>
 	 *  
 	 * @param libDirectory directory in which native library will be extracted and vendor library will be found
 	 * @param vlibName name of vendor library to load and link
@@ -152,7 +157,7 @@ public final class SerialComCP210xRuntimeJNIBridge {
 
 	public native int readLatch(long handle);
 	public native int writeLatch(long handle, long mask, long latchValue);
-	public native int getPartNumber(long handle);
+	public native String getPartNumber(long handle);
 	public native String getDeviceProductString(long handle);
 	public native String getDeviceSerialNumber(long handle);
 	public native String getDeviceInterfaceString(long handle);

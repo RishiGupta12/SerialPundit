@@ -19,6 +19,8 @@ package com.embeddedunveiled.serial;
 
 /**
  * <p>Provides common utility functions for serial port communication related projects.</p>
+ * 
+ * @author Rishi Gupta
  */
 public final class SerialComUtil {
 
@@ -31,7 +33,7 @@ public final class SerialComUtil {
 	}
 
 	/**
-	 * <p>This method is for internal use.</p>
+	 * <p>Internal use.</p>
 	 * 
 	 * @param num the long number to convert.
 	 * @param paddingChar the character to use for padding.
@@ -40,8 +42,8 @@ public final class SerialComUtil {
 	 */
 	private static String toHexString(final long num, final char paddingChar, int min, int max) {
 		/* Formats a long number into the specified length hex String. This is identical to Long.toHexString() 
-		 * except that it pads (with 0's), or truncates, to the specified size. If max < min, the functionality is 
-		 * exactly as Long.toHexString(). */
+		 * except that it pads (with 0's), or truncates, to the specified size. If max < min, the 
+		 * functionality is exactly as Long.toHexString(). */
 		StringBuffer sb = new StringBuffer(Long.toHexString(num));
 
 		if(max < min) {
@@ -56,8 +58,9 @@ public final class SerialComUtil {
 	}
 
 	/**
-	 * <p>This method creates hex string from byte array. This is useful in bluetooth low energy applications where characteristics
-	 * returned are to be interpreted or for example Internet of things applications where sensor data is getting exchanged.</p>
+	 * <p>This method creates hex string from byte array. This is useful in bluetooth low energy applications 
+	 * where characteristics returned are to be interpreted or for example Internet of things applications where 
+	 * sensor data is getting exchanged.</p>
 	 * 
 	 * @param data byte array to be converted into string.
 	 * @param separator to be inserted after each hex value.
@@ -108,7 +111,11 @@ public final class SerialComUtil {
 		hexStr = hexStr.replaceAll("\\s+","");
 		byte[] data = new byte[hexStr.length()/2];
 
+<<<<<<< HEAD
 		while(i <= hexStr.length()-1) {
+=======
+		while(i <= (hexStr.length() - 1)) {
+>>>>>>> upstream/master
 			byte character = (byte) Integer.parseInt(hexStr.substring(i, i+2), 16);
 			data[j] = character;
 			j++;
@@ -118,16 +125,14 @@ public final class SerialComUtil {
 	}
 
 	/**
-	 * <p>Calculates Longitudinal redundancy checksum value for the given byte array.</p>
-	 * 
-	 * @param data byte type buffer for whom LRC checksum is to be calculated.
-	 * @param offset position in supplied data buffer from where LRC calculation should start.
-	 * @param length position in data buffer till which LRC should be calculated from offset.
-	 * @return LRC checksum value for the given byte array.
-	 * @throws NullPointerException if <code>data</code> is <code>null</code>.
-	 * @throws IndexOutOfBoundsException if offset is negative, length is negative, or length is greater than data.length - offset.
-	 * @throws IllegalArgumentException if data is not a byte type array.
+	 * <p>Converts a binary-coded decimal number into decimal number string. The decimal point 
+	 * will be placed between 2nd and third digit of the result returned. This can be used for 
+	 * example to decode USB specification release number which is encoded in BCD format.</p>
+	 *
+	 * @param bcd binary-coded decimal to decode.
+	 * @return decoded binary-coded decimal.
 	 */
+<<<<<<< HEAD
 	public static byte calculateLRCCheckSum(final byte[] data, int offset, int length) {
 		byte checkSum = 0;
 
@@ -145,11 +150,16 @@ public final class SerialComUtil {
 			checkSum ^= data[i];
 		}
 		return checkSum;
+=======
+	public static String decodeBCD(final short bcd) {
+		return String.format("%x.%02x", (bcd & 0xFF00) >> 8, bcd & 0x00FF);
+>>>>>>> upstream/master
 	}
 
 	/**
-	 * <p>Converts the given byte's value to an unsigned integer number. The least significant byte (8 bits) of the integer number
-	 * will be identical to the byte (8 bits) provided, and the most significant 3 bytes (24 bits) of the integer will be zero.</p>
+	 * <p>Converts the given byte's value to an unsigned integer number. The least significant byte (8 bits) of 
+	 * the integer number will be identical to the byte (8 bits) provided, and the most significant 3 bytes 
+	 * (24 bits) of the integer will be zero.</p>
 	 * 
 	 * @param data the byte to convert.
 	 * @return An unsigned integer number representing the given byte.
@@ -159,8 +169,9 @@ public final class SerialComUtil {
 	}
 
 	/**
-	 * <p>Converts the given byte's value to an unsigned long number. The least significant byte (8 bits) of the long number 
-	 * will be identical to the byte (8 bits) provided, and the most significant 7 bytes (56 bits) of the long will be zero.</p>
+	 * <p>Converts the given byte's value to an unsigned long number. The least significant byte (8 bits) of 
+	 * the long number will be identical to the byte (8 bits) provided, and the most significant 7 bytes 
+	 * (56 bits) of the long will be zero.</p>
 	 * 
 	 * @param data the byte to convert.
 	 * @return An unsigned long number representing the given byte.
@@ -190,9 +201,9 @@ public final class SerialComUtil {
 	}
 
 	/**
-	 * <p>Converts the given short's value to an unsigned integer number. The least significant 2 byte (16 bits) of the integer number
-	 * will be identical to the least significant 2 byte (16 bits) of the short number and the most significant 2 bytes (16 bits) of 
-	 * the integer will be zero.</p>
+	 * <p>Converts the given short's value to an unsigned integer number. The least significant 2 byte 
+	 * (16 bits) of the integer number will be identical to the least significant 2 byte (16 bits) of 
+	 * the short number and the most significant 2 bytes (16 bits) of the integer will be zero.</p>
 	 * 
 	 * @param data the short type value to convert.
 	 * @return An unsigned integer number representing the given short number.
@@ -202,9 +213,9 @@ public final class SerialComUtil {
 	}
 
 	/**
-	 * <p>Converts the given short's value to an unsigned long number. The least significant 2 byte (16 bits) of the long number
-	 * will be identical to the least significant 2 byte (16 bits) of the short number and the most significant 6 bytes (48 bits) of 
-	 * the long number will be zero.</p>
+	 * <p>Converts the given short's value to an unsigned long number. The least significant 2 byte 
+	 * (16 bits) of the long number will be identical to the least significant 2 byte (16 bits) of the 
+	 * short number and the most significant 6 bytes (48 bits) of the long number will be zero.</p>
 	 * 
 	 * @param data the short type value to convert.
 	 * @return An unsigned long number representing the given short number.
@@ -227,9 +238,9 @@ public final class SerialComUtil {
 	}
 
 	/**
-	 * <p>Converts the given integer value to an unsigned long number. The least significant 4 bytes (32 bits) of the long number
-	 * will be identical to the least significant 4 bytes (32 bits) of the integer number and the most significant 4 bytes (32 bits) of 
-	 * the long number will be zero.</p>
+	 * <p>Converts the given integer value to an unsigned long number. The least significant 4 bytes 
+	 * (32 bits) of the long number will be identical to the least significant 4 bytes (32 bits) of the 
+	 * integer number and the most significant 4 bytes (32 bits) of the long number will be zero.</p>
 	 * 
 	 * @param data the int type value to convert.
 	 * @return An unsigned long number representing the given int number.
@@ -259,7 +270,8 @@ public final class SerialComUtil {
 	 * 
 	 * @param hexNumStr hex-string to be converted.
 	 * @return a long type number repressing given hex string.
-	 * @throws NumberFormatException if the given hex string can not be converted into numerical representation.
+	 * @throws NumberFormatException if the given hex string can not be converted into numerical 
+	 *          representation.
 	 */
 	public static long hexStrToLongNumber(final String hexNumStr) {
 		return Long.parseLong(hexNumStr, 16);
@@ -305,4 +317,21 @@ public final class SerialComUtil {
 		return toHexString(byteToUnsignedLong(num), '0', 2, 2);
 	}
 
+<<<<<<< HEAD
+=======
+	/**
+	 * <p>Appends given byte array to another given byte array and return newly constructed 
+	 * byte array.</p>
+	 * 
+	 * @param dataA one of the array that need to be added first.
+	 * @param dataB array that will be appended to array represented by dataA.
+	 * @return a byte array constructed out of appending dataB array to dataA array.
+	 */
+	public static byte[] concat(byte[] dataA, byte[] dataB) {
+		byte[] result = new byte[dataA.length + dataB.length];
+		System.arraycopy(dataA, 0, result, 0, dataA.length);
+		System.arraycopy(dataB, 0, result, dataA.length, dataB.length);
+		return result;
+	}
+>>>>>>> upstream/master
 }

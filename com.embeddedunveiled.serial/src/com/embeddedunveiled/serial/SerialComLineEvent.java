@@ -22,6 +22,8 @@ package com.embeddedunveiled.serial;
  * methods on an instance of this class to know which event has happen and to get its details.
  * Whenever an event happens, an object of this class containing details about the event is passed to
  * registered listener.</p>
+ * 
+ * @author Rishi Gupta
  */
 
 public final class SerialComLineEvent {

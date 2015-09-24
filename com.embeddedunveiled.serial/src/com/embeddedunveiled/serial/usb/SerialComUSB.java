@@ -1,4 +1,4 @@
-/**
+/*
  * Author : Rishi Gupta
  * 
  * This file is part of 'serial communication manager' library.
@@ -26,14 +26,17 @@ import com.embeddedunveiled.serial.internal.SerialComPortJNIBridge;
  * <p>An end product may be based on dedicated USB-UART bridge IC for providing serial over USB or 
  * may use general purpose microcontroller like PIC18F4550 from Microchip technology Inc. and 
  * program appropriate firmware (USB CDC) into ti to provide UART communication over USB port.</p>
+ * 
+ * @author Rishi Gupta
  */
-public class SerialComUSB {
+public final class SerialComUSB {
 
 	/** <p>Value indicating all vendors (vendor neutral operation).</p>*/
-	public static final int V_ALL =  0x0000;
+	public static final int V_ALL = 0x0000;
 
-	/** <p>Value indicating vendor - Future technology devices international, Ltd. It manufactures FT232 USB-UART bridge IC.</p>*/
-	public static final int V_FTDI =  0x0403;
+	/** <p>Value indicating vendor - Future technology devices international, Ltd. It manufactures FT232 
+	 * USB-UART bridge IC.</p>*/
+	public static final int V_FTDI = 0x0403;
 
 	/** <p>Value indicating vendor - Silicon Laboratories. It manufactures CP2102 USB-UART bridge IC.</p>*/
 	public static final int V_SLABS = 0x10C4;
@@ -47,13 +50,15 @@ public class SerialComUSB {
 	/** <p>Value indicating vendor - Exar corporation. It manufactures XR21V1410 USB-UART bridge IC.</p>*/
 	public static final int V_EXAR = 0x04E2;
 
-	/** <p>Value indicating vendor - Atmel corporation. It manufactures AT90USxxx and other processors which can be used as USB-UART bridge.</p>*/
-	public static final int V_ATML =  0x03EB;
+	/** <p>Value indicating vendor - Atmel corporation. It manufactures AT90USxxx and other processors which 
+	 * can be used as USB-UART bridge.</p>*/
+	public static final int V_ATML = 0x03EB;
 
 	/** <p>Value indicating vendor - MosChip semiconductor. It manufactures MCS7810 USB-UART bridge IC.</p>*/
 	public static final int V_MOSCHP = 0x9710;
 
-	/** <p>Value indicating vendor - Cypress semiconductor corporation. It manufactures CY7C65213 USB-UART bridge IC.</p>*/
+	/** <p>Value indicating vendor - Cypress semiconductor corporation. It manufactures CY7C65213 USB-UART 
+	 * bridge IC.</p>*/
 	public static final int V_CYPRS = 0x04B4;
 
 	/** <p>Value indicating vendor - Texas instruments, Inc. It manufactures TUSB3410 USB-UART bridge IC.</p>*/
@@ -68,7 +73,8 @@ public class SerialComUSB {
 	/** <p>Value indicating vendor - NXP semiconductors. It manufactures LPC134x series of microcontrollers.</p>*/
 	public static final int V_NXP = 0x1FC9;
 
-	/** <p>Value indicating vendor - Renesas electronics (NEC electronics). It manufactures μPD78F0730 microcontroller which can be used as USB-UART converter.</p>*/
+	/** <p>Value indicating vendor - Renesas electronics (NEC electronics). It manufactures μPD78F0730 
+	 * microcontroller which can be used as USB-UART converter.</p>*/
 	public static final int V_RNSAS = 0x0409;
 
 	/** <p>The value indicating that the USB device can have any vendor id and product id. </p>*/
@@ -81,6 +87,7 @@ public class SerialComUSB {
 	public static final int DEV_REMOVED  = 0x02;
 
 	SerialComPortJNIBridge mComPortJNIBridge;
+
 	/**
 	 * <p>Allocates a new SerialComUSB object.</p>
 	 * @param mComPortJNIBridge 
@@ -90,9 +97,9 @@ public class SerialComUSB {
 	}
 
 	/**
-	 * <p>Causes re-scan for USB devices. It is equivalent to clicking the "Scan for hardware changes" button 
-	 * in the Device Manager. Only USB hardware is checked for new devices. This can be of use when trying to recover 
-	 * devices programmatically.</p>
+	 * <p>Causes re-scan for USB devices. It is equivalent to clicking the "Scan for hardware changes" 
+	 * button  in the Device Manager. Only USB hardware is checked for new devices. This can be of use 
+	 * when trying to recover devices programmatically.</p>
 	 * 
 	 * <p>This is applicable to Windows operating system only.</p>
 	 * 
@@ -102,7 +109,7 @@ public class SerialComUSB {
 	public boolean rescanUSBDevicesHW() throws SerialComException {
 		int ret = mComPortJNIBridge.rescanUSBDevicesHW();
 		if(ret < 0) {
-			throw new SerialComException("Could not cause rescanning for hardware change. Please retry !");
+			throw new SerialComException("Could not cause re-scanning for hardware change. Please retry !");
 		}
 		return true;
 	}

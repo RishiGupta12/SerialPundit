@@ -1,4 +1,4 @@
-/**
+/*
  * Author : Rishi Gupta
  * 
  * This file is part of 'serial communication manager' library.
@@ -27,7 +27,8 @@ import com.embeddedunveiled.serial.internal.SerialComSystemProperty;
 
 /**
  * <p>Microchip Technology Inc provides a shared library known as 'SimpleIO' for communicating with their 
- * USB-UART devices. More information can be found here : http://www.microchip.com/wwwproducts/devices.aspx?dDocName=en546923</p>
+ * USB-UART devices. More information can be found here : 
+ * http://www.microchip.com/wwwproducts/devices.aspx?dDocName=en546923</p>
  * 
  * <p>[0] The data types used in java layer may be bigger in size than the native layer. For example; if native 
  * function returns 16 bit signed integer, than java method will return 32 bit integer. This is done to make 
@@ -38,6 +39,8 @@ import com.embeddedunveiled.serial.internal.SerialComSystemProperty;
  * valid values and range when passing arguments to a method.</p>
  * 
  * <p>SCM version 1.0.4 is linked to 1.4.0 version of SimpleIO library.</p>
+ * 
+ * @author Rishi Gupta
  */
 public final class SerialComMCHPSimpleIO extends SerialComVendorLib {
 
@@ -73,10 +76,12 @@ public final class SerialComMCHPSimpleIO extends SerialComVendorLib {
 	 * @throws UnsatisfiedLinkError if loading/linking shared library fails.
 	 * @throws SerialComException if initializing native library fails.
 	 */
-	public SerialComMCHPSimpleIO(File libDirectory, String vlibName, int cpuArch, int osType, SerialComSystemProperty serialComSystemProperty) 
-			throws UnsatisfiedLinkError, SerialComLoadException, SerialComUnexpectedException, SecurityException, FileNotFoundException {
+	public SerialComMCHPSimpleIO(File libDirectory, String vlibName, int cpuArch, int osType, 
+			SerialComSystemProperty serialComSystemProperty) throws UnsatisfiedLinkError, SerialComLoadException, 
+			SerialComUnexpectedException, SecurityException, FileNotFoundException {
 		mSerialComMCHPSIOJNIBridge = new SerialComMCHPSIOJNIBridge();
-		SerialComMCHPSIOJNIBridge.loadNativeLibrary(libDirectory, vlibName, cpuArch, osType, serialComSystemProperty);
+		SerialComMCHPSIOJNIBridge.loadNativeLibrary(libDirectory, vlibName, cpuArch, osType, 
+				serialComSystemProperty);
 	}
 
 	/**
@@ -126,20 +131,24 @@ public final class SerialComMCHPSimpleIO extends SerialComVendorLib {
 	 * <p>The argument rxLEDMode and txLEDMode can be one of these constants OFF, ON, TOGGLE, BLINKSLOW, BLINKFAST 
 	 * defined in SerialComMCHPSimpleIO class.</p>
 	 * 
-	 * @param ioMap A byte which represents the input/output state of the pins (each bit may be either a 1 for input, and 0 for output).
+	 * @param ioMap A byte which represents the input/output state of the pins (each bit may be either a 1 for 
+	 *         input, and 0 for output).
 	 * @param baudRateParam the default communication baud rate.
 	 * @param rxLEDMode defines the behavior of the RX Led.
 	 * @param txLEDMode defines the behavior of the TX Led.
-	 * @param flow establishes the default flow control method (false - no HW flow control, true - RTS/CTS flow control).
+	 * @param flow establishes the default flow control method (false - no HW flow control, true - RTS/CTS flow 
+	 *         control).
 	 * @param uload enables/disables the GP1 pin as a USB configuration status indicator.
 	 * @param sspnd enables/disables the GP0 pin as a USB suspend status pin.
-	 * @param invert enables/disables the UART lines states: (1) Normal – Tx/Rx idle high; CTS/RTS active low, (2) Inverted – Tx/Rx idle low; CTS/RTS active high.
+	 * @param invert enables/disables the UART lines states: (1) Normal – Tx/Rx idle high; CTS/RTS active low, 
+	 *         (2) Inverted – Tx/Rx idle low; CTS/RTS active high.
 	 * @return true if the device is configured as given.
 	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public boolean configureMCP2200(byte ioMap, long baudRateParam, int rxLEDMode, int txLEDMode, boolean flow,
 			boolean uload, boolean sspnd, boolean invert) throws SerialComException {
-		int ret = mSerialComMCHPSIOJNIBridge.configureMCP2200(ioMap, baudRateParam, rxLEDMode, txLEDMode, flow, uload, sspnd, invert);
+		int ret = mSerialComMCHPSIOJNIBridge.configureMCP2200(ioMap, baudRateParam, rxLEDMode, txLEDMode, 
+				flow, uload, sspnd, invert);
 		if(ret < 0) {
 			throw new SerialComException("Could not configure the device using given parameters. Please retry !");
 		}
@@ -301,7 +310,7 @@ public final class SerialComMCHPSimpleIO extends SerialComVendorLib {
 		}
 		return ret;
 	}
-	
+
 	/**
 	 * <p>Executes GetDeviceInfo function of 'SimpleIO-xxxx' library.</p>
 	 * <p>Find the pathname for one of the connected devices.</p>
@@ -501,7 +510,8 @@ public final class SerialComMCHPSimpleIO extends SerialComVendorLib {
 	 * 
 	 * @param ioMap a byte which represents a bitmap of the GPIO configuration. A bit set to '1' will be a 
 	 * digital input, a bit set to '0' will be a digital output.
-	 * @param ucDefValue the default value that will be loaded to the output latch (effect only on the pins configured as outputs).
+	 * @param ucDefValue the default value that will be loaded to the output latch (effect only on the pins 
+	 *         configured as outputs).
 	 * @return true if GPIO gets configured successfully.
 	 * @throws SerialComException if an I/O error occurs.
 	 */
@@ -512,5 +522,4 @@ public final class SerialComMCHPSimpleIO extends SerialComVendorLib {
 		}
 		return true;
 	}
-
 }

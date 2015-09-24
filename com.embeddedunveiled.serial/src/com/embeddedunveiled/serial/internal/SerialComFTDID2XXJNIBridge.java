@@ -1,4 +1,4 @@
-/**
+/*
  * Author : Rishi Gupta
  * 
  * This file is part of 'serial communication manager' library.
@@ -27,7 +27,10 @@ import com.embeddedunveiled.serial.SerialComManager;
 import com.embeddedunveiled.serial.SerialComUnexpectedException;
 
 /**
- * <p>This class is an interface between java and native shared library.</p>
+ * <p>This class is an interface between java and native shared library. The native library is found 
+ * in 'vendor-libs' folder in 'scm-x.x.x.jar' file.</p>
+ * 
+ * @author Rishi Gupta
  */
 public final class SerialComFTDID2XXJNIBridge {
 
@@ -38,7 +41,9 @@ public final class SerialComFTDID2XXJNIBridge {
 	}
 
 	/**
-	 * <p>Extract native library from jar in a working directory and load it. Also load vendor's library.</p>
+	 * <p>Extract native library from jar in a working directory, load and link it. The 'vendor-libs' folder in 
+	 * 'scm-x.x.x.jar' file is searched for the required native library for vendor specific communication. It 
+	 * also load vendor's native shared library.</p>
 	 *  
 	 * @param libDirectory directory in which native library will be extracted and vendor library will be found
 	 * @param vlibName name of vendor library to load and link
@@ -151,7 +156,7 @@ public final class SerialComFTDID2XXJNIBridge {
 		return true;
 	}
 
-	// D2XX Classic Functions
+	/* D2XX Classic Functions */
 	public native int setVidPid(int vid, int pid);
 	public native int[] getVidPid();
 	public native int createDeviceInfoList();
@@ -179,7 +184,8 @@ public final class SerialComFTDID2XXJNIBridge {
 	public native long getLibraryVersion();
 	public native long getComPortNumber(long handle);
 	public native long[] getStatus(long handle);
-	// TODO FT_SetEventNotification
+	public native long setEventNotification(long handle, int eventMask);
+	public native int setEventNotificationWait(long eventHandle);
 	public native int setChars(long handle, char eventChar, char eventEnable, char errorChar, char errorEnable);
 	public native int setBreakOn(long handle);
 	public native int setBreakOff(long handle);
@@ -194,26 +200,36 @@ public final class SerialComFTDID2XXJNIBridge {
 	public native int restartInTask(long handle);
 	public native int setDeadmanTimeout(long handle, int count);
 
-	// EEPROM Programming Interface Functions
+	/* EEPROM Programming Interface Functions */
 	public native int readEE(long handle, int offset);
 	public native int writeEE(long handle, int offset, int valueToWrite);
 	public native int eraseEE(long handle);
-	//TODO FT_EE_Read
-	//TODO FT_EE_Readex
-	//TODO FT_EE_program
-	//TODO FT_EE_programex
+	public native int[] eeRead(long handle, int version, char[] manufacturer, char[] manufacturerID, 
+			char[] description, char[] serialNumber);
+	// eeReadEx also calls eeRead()
+	public native int eeProgram(long handle, String manufacturer, String manufacturerID, 
+			String description, String serialNumber, int[] values);
+	public native int eeProgramEx(long handle, String manufacturer, String manufacturerID, 
+			String description, String serialNumber, int[] values);
 	public native int eeUAsize(long handle);
 	public native int eeUAread(long handle, byte[] buffer, int length);
 	public native int eeUAwrite(long handle, byte[] buffer, int length);
+	public native int[] eepromRead(long handle, int deviceType, char[] manufacturer,
+			char[] manufacturerID, char[] description, char[] serialNumber);
+	public native int eepromProgram(long handle, int devType, int[] dataToBeWritten,
+			String manufacturer, String manufacturerID, String description,
+			String serialNumber);
 
-	// Extended API Functions
+	/* Extended API Functions */
 	public native int setLatencyTimer(long handle, int value);
 	public native int getLatencyTimer(long handle);
 	public native int setBitMode(long handle, int mask, int mode);
 	public native int getBitMode(long handle);
 	public native int setUSBParameters(long handle, int inTransferSize, int outTransferSize);
 
-	// FT-Win32 API Functions
+	/* FT-Win32 API Functions */
+	public native long w32CreateFile(String serialNum, String description,
+			long location, int dwAttrsAndFlags, int dwAccess, boolean overLapped);
 	public native int w32CloseHandle(long handle);
 	public native int w32ReadFile(long handle, byte[] buffer, int numOfBytesToRead);
 	public native int w32WriteFile(long handle, byte[] buffer, int numOfBytesToWrite);
@@ -221,8 +237,8 @@ public final class SerialComFTDID2XXJNIBridge {
 	public native int w32EscapeCommFunction(long handle, short function);
 	public native int w32GetCommModemStatus(long handle);
 	public native int w32SetupComm(long handle, int readBufSize, int writeBufSize);
-	public native int w32SetCommState(long handle, String[] dcb);
-	public native String[] w32GetCommState(long handle);
+	public native int w32SetCommState(long handle, int[] dcb);
+	public native int[] w32GetCommState(long handle);
 	public native int w32SetCommTimeouts(long handle, int readIntervalTimeout,
 			int readTotalTimeoutMultiplier, int readTotalTimeoutConstant,
 			int writeTotalTimeoutMultiplier, int writeTotalTimeoutConstant);
@@ -234,5 +250,5 @@ public final class SerialComFTDID2XXJNIBridge {
 	public native int w32WaitCommEvent(long handle, int event);
 	public native int w32PurgeComm(long handle, int event);
 	public native String w32GetLastError(long handle);
-	public native String[] w32ClearCommError(long handle);	
+	public native int[] w32ClearCommError(long handle);
 }

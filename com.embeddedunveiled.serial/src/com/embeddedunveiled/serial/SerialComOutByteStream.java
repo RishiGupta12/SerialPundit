@@ -24,6 +24,8 @@ import com.embeddedunveiled.serial.internal.SerialComPortHandleInfo;
 
 /**
  * <p>Represents an output stream of bytes that gets sent over to serial port for transmission.</p>
+ * 
+ * @author Rishi Gupta
  */
 public final class SerialComOutByteStream extends OutputStream {
 
@@ -41,7 +43,8 @@ public final class SerialComOutByteStream extends OutputStream {
 	 * @param streamMode indicates blocking or non-blocking behavior of stream.
 	 * @throws SerialComException if serial port can not be configured for specified write behavior.
 	 */
-	public SerialComOutByteStream(SerialComManager scm, SerialComPortHandleInfo portHandleInfo, long handle, SMODE streamMode) throws SerialComException {
+	public SerialComOutByteStream(SerialComManager scm, SerialComPortHandleInfo portHandleInfo, long handle, 
+			SMODE streamMode) throws SerialComException {
 		this.scm = scm;
 		this.portHandleInfo = portHandleInfo;
 		this.handle = handle;
@@ -125,7 +128,7 @@ public final class SerialComOutByteStream extends OutputStream {
 		if(!(data instanceof byte[])) {
 			throw new IllegalArgumentException("Argument data is not byte type array !");
 		}
-		
+
 		try {
 			int x = 0;
 			int i = off;
@@ -151,7 +154,7 @@ public final class SerialComOutByteStream extends OutputStream {
 			throw new IOException("The byte stream has been closed !");
 		}
 	}
-	
+
 	/**
 	 * <p>This method releases the OutputStream object internally associated with the operating handle.</p>
 	 * <p>To actually close the port closeComPort() method should be used.</p>

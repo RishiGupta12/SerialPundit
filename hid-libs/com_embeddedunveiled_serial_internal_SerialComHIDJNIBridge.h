@@ -9,18 +9,32 @@ extern "C" {
 #endif
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
+<<<<<<< HEAD
  * Method:    listHIDdevicesWithInfo
  * Signature: ()[Ljava/lang/String;
  */
 JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_listHIDdevicesWithInfo
+=======
+ * Method:    initNativeLib
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_initNativeLib
+>>>>>>> upstream/master
   (JNIEnv *, jobject);
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
+<<<<<<< HEAD
  * Method:    openHidDevice
  * Signature: (Ljava/lang/String;)J
  */
 JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_openHidDevice
+=======
+ * Method:    openHidDeviceByPath
+ * Signature: (Ljava/lang/String;)J
+ */
+JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_openHidDeviceByPath
+>>>>>>> upstream/master
   (JNIEnv *, jobject, jstring);
 
 /*
@@ -33,6 +47,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
+<<<<<<< HEAD
  * Method:    getReportDescriptorSize
  * Signature: (J)I
  */
@@ -46,6 +61,13 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_writeOutputReport
   (JNIEnv *, jobject, jlong, jbyte, jbyteArray);
+=======
+ * Method:    writeOutputReport
+ * Signature: (JB[BI)I
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_writeOutputReport
+  (JNIEnv *, jobject, jlong, jbyte, jbyteArray, jint);
+>>>>>>> upstream/master
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
@@ -66,18 +88,40 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
  * Method:    sendFeatureReport
+<<<<<<< HEAD
  * Signature: (JB[B)I
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_sendFeatureReport
   (JNIEnv *, jobject, jlong, jbyte, jbyteArray);
+=======
+ * Signature: (JB[BI)I
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_sendFeatureReport
+  (JNIEnv *, jobject, jlong, jbyte, jbyteArray, jint);
+>>>>>>> upstream/master
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
  * Method:    getFeatureReport
+<<<<<<< HEAD
  * Signature: (J[B)I
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_getFeatureReport
   (JNIEnv *, jobject, jlong, jbyteArray);
+=======
+ * Signature: (JB[BI)I
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_getFeatureReport
+  (JNIEnv *, jobject, jlong, jbyte, jbyteArray, jint);
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
+ * Method:    listHIDdevicesWithInfo
+ * Signature: ()[Ljava/lang/String;
+ */
+JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_listHIDdevicesWithInfo
+  (JNIEnv *, jobject);
+>>>>>>> upstream/master
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
@@ -113,6 +157,17 @@ JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHID
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
+<<<<<<< HEAD
+=======
+ * Method:    getReportDescriptor
+ * Signature: (J)[B
+ */
+JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_getReportDescriptor
+  (JNIEnv *, jobject, jlong);
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
+>>>>>>> upstream/master
  * Method:    listUSBHIDdevicesWithInfo
  * Signature: (I)[Ljava/lang/String;
  */
@@ -122,10 +177,17 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
  * Method:    openHidDeviceByUSBAttributes
+<<<<<<< HEAD
  * Signature: (IILjava/lang/String;)J
  */
 JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_openHidDeviceByUSBAttributes
   (JNIEnv *, jobject, jint, jint, jstring);
+=======
+ * Signature: (IILjava/lang/String;III)J
+ */
+JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_openHidDeviceByUSBAttributes
+  (JNIEnv *, jobject, jint, jint, jstring, jint, jint, jint);
+>>>>>>> upstream/master
 
 #ifdef __cplusplus
 }

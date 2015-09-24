@@ -1,4 +1,4 @@
-/**
+/*
  * Author : Rishi Gupta
  * 
  * This file is part of 'serial communication manager' library.
@@ -20,10 +20,12 @@ package com.embeddedunveiled.serial.vendor;
 import com.embeddedunveiled.serial.SerialComUtil;
 
 /**
- * <p>Represents information about an opened FT device.</p>
+ * <p>Represents an opened FT device with information about it.</p>
+ * 
+ * @author Rishi Gupta
  */
 public final class FTOpenedDeviceInfo {
-	
+
 	private String type = null;
 	private String id = null;
 	private String serialNumber = null;
@@ -43,27 +45,27 @@ public final class FTOpenedDeviceInfo {
 		this.serialNumber = serialNumber;
 		this.description = description;
 	}
-	
+
 	/** 
 	 * <p>Retrieves the type for this opened FT device.</p>
 	 * 
 	 * @return type for this FT device info node.
-	 * @throws NumberFormatException if the type hex string can not be converted into numerical representation
+	 * @throws NumberFormatException if the type hex string can not be converted into numerical representation.
 	 */
 	public long getType() {
 		return SerialComUtil.hexStrToLongNumber(type);
 	}
-	
+
 	/** 
 	 * <p>Retrieves the id for this opened FT device.</p>
 	 * 
-	 * @return id for this FT device info node
-	 * @throws NumberFormatException if the id hex string can not be converted into numerical representation
+	 * @return id for this FT device info node.
+	 * @throws NumberFormatException if the id hex string can not be converted into numerical representation.
 	 */
 	public long getId() {
 		return SerialComUtil.hexStrToLongNumber(id);
 	}
-	
+
 	/** 
 	 * <p>Retrieves the serial number string for this opened FT device.</p>
 	 * 
@@ -72,7 +74,7 @@ public final class FTOpenedDeviceInfo {
 	public String getSerialNumber() {
 		return serialNumber;
 	}
-	
+
 	/** 
 	 * <p>Retrieves the description for this opened FT device.</p>
 	 * 
@@ -81,15 +83,14 @@ public final class FTOpenedDeviceInfo {
 	public String getDescription() {
 		return description;
 	}
-	
+
 	/** 
 	 * <p>Prints information about this opened FT device on console.</p>
 	 */
 	public void dumpDeviceInfo() {
 		System.out.println("\nType : " + type + 
-				            "\nID : 0x" + id + 
-				            "\nSerialNumber : " + serialNumber + 
-				            "\nDescription : " + description);
+				"\nID : 0x" + id + 
+				"\nSerialNumber : " + serialNumber + 
+				"\nDescription : " + description);
 	}
-
 }

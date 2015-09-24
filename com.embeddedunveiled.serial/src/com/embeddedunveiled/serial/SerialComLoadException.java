@@ -22,6 +22,8 @@ import java.io.IOException;
 /** 
  * <p>This exception is thrown if native shared library extraction sub-system encounter any error. 
  * This limit the scope of exceptions in context of serial operation only. </p>
+ * 
+ * @author Rishi Gupta
  */
 public final class SerialComLoadException extends IOException {
 
@@ -35,5 +37,4 @@ public final class SerialComLoadException extends IOException {
 	public SerialComLoadException(String exceptionMsg) {
 		super(exceptionMsg);
 	}
-	
 }

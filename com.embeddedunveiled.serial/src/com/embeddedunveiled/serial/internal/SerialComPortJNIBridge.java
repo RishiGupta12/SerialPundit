@@ -1,4 +1,4 @@
-/**
+/*
  * Author : Rishi Gupta
  * 
  * This file is part of 'serial communication manager' library.
@@ -30,7 +30,10 @@ import com.embeddedunveiled.serial.internal.SerialComLooper;
 import com.embeddedunveiled.serial.internal.SerialComSystemProperty;
 
 /**
- * <p>This class is an interface between java and native shared library.</p>
+ * <p>This class is an interface between java and native shared library. The native library is found 
+ * in 'tty-libs' folder in 'scm-x.x.x.jar' file.</p>
+ * 
+ * @author Rishi Gupta
  */
 public final class SerialComPortJNIBridge {
 
@@ -41,7 +44,8 @@ public final class SerialComPortJNIBridge {
 	}
 
 	/**
-	 * <p>Extract native library from jar in a working directory, load and link it.</p> 
+	 * <p>Extract native library from jar in a working directory, load and link it. The 'tty-libs' folder in 
+	 * 'scm-x.x.x.jar' file is searched for the required native library for serial port communication.</p> 
 	 * 
 	 * @param directoryPath null for default directory or user supplied directory path
 	 * @param loadedLibName null for default name or user supplied name of loaded library
@@ -204,7 +208,11 @@ public final class SerialComPortJNIBridge {
 				libFile = new File(workingDir.getAbsolutePath() + fileSeparator + loadedLibName.trim() + libExtension);
 			}
 
-			input = SerialComPortJNIBridge.class.getResourceAsStream("/libs/" + libToExtractFromJar);
+			input = SerialComPortJNIBridge.class.getResourceAsStream("/tty-libs/" + libToExtractFromJar);
+			if(input == null) {
+				//TODO
+				System.out.println("ji");
+			}
 			output = new FileOutputStream(libFile);
 			if(input != null) {
 				int read;
@@ -219,10 +227,10 @@ public final class SerialComPortJNIBridge {
 				if((libFile != null) && libFile.exists() && libFile.isFile()) {
 					// congratulations successfully extracted
 				}else {
-					throw new SerialComLoadException("Can not extract native shared library from scm-x.x.x.jar file !");
+					throw new SerialComLoadException("Can not extract native shared library " + libToExtractFromJar + " from scm-x.x.x.jar file !");
 				}
 			}else {
-				throw new SerialComLoadException("Can not get shared library resource as stream from scm-x.x.x.jar file using class loader !");
+				throw new SerialComLoadException("Can not get shared library " + libToExtractFromJar + " resource as stream from scm-x.x.x.jar file using class loader !");
 			}
 		} catch (Exception e) {
 			throw (SerialComLoadException) new SerialComLoadException(libFile.toString()).initCause(e);
@@ -272,12 +280,15 @@ public final class SerialComPortJNIBridge {
 	public native int readBytesDirect(long handle, ByteBuffer buffer, int offset, int length);
 	public native int writeBytes(long handle, byte[] buffer, int delay);
 	public native int writeBytesDirect(long handle, ByteBuffer buffer, int offset, int length);
+	public native int writeSingleByte(long handle, byte dataByte);
 
 	// Modem control, buffer
 	public native int setRTS(long handle, boolean enabled);
 	public native int setDTR(long handle, boolean enabled);
 	public native int[] getLinesStatus(long handle);
 	public native int[] getInterruptCount(long handle);
+	public native String findDriverServingComPort(String comPortName);
+	public native String findIRQnumberForComPort(long handle);
 	public native int sendBreak(long handle, int duration);
 	public native int[] getByteCount(long handle);
 	public native int clearPortIOBuffers(long handle, boolean rxPortbuf, boolean txPortbuf);
@@ -307,5 +318,5 @@ public final class SerialComPortJNIBridge {
 	public native int rescanUSBDevicesHW();
 
 	// Bluetooth
-	public native String[] listBluetoothAdaptorsWithInfo();
+	public native String[] listBTSPPDevNodesWithInfo();
 }

@@ -81,6 +81,14 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComCP210x
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComCP210xManufacturingJNIBridge
+ * Method:    setInterfaceString
+ * Signature: (JBLjava/lang/String;)I
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComCP210xManufacturingJNIBridge_setInterfaceString
+  (JNIEnv *, jobject, jlong, jbyte, jstring);
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComCP210xManufacturingJNIBridge
  * Method:    setSelfPower
  * Signature: (JZ)I
  */
@@ -105,6 +113,14 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComCP210x
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComCP210xManufacturingJNIBridge
+ * Method:    setDeviceMode
+ * Signature: (JBB)I
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComCP210xManufacturingJNIBridge_setDeviceMode
+  (JNIEnv *, jobject, jlong, jbyte, jbyte);
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComCP210xManufacturingJNIBridge
  * Method:    setDeviceVersion
  * Signature: (JI)I
  */
@@ -126,6 +142,22 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComCP210x
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComCP210xManufacturingJNIBridge_setPortConfig
   (JNIEnv *, jobject, jlong, jint, jint, jint, jint);
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComCP210xManufacturingJNIBridge
+ * Method:    setDualPortConfig
+ * Signature: (JIIIIII)I
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComCP210xManufacturingJNIBridge_setDualPortConfig
+  (JNIEnv *, jobject, jlong, jint, jint, jint, jint, jint, jint);
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComCP210xManufacturingJNIBridge
+ * Method:    setQuadPortConfig
+ * Signature: (J[I[I[B)I
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComCP210xManufacturingJNIBridge_setQuadPortConfig
+  (JNIEnv *, jobject, jlong, jintArray, jintArray, jbyteArray);
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComCP210xManufacturingJNIBridge
@@ -161,6 +193,14 @@ JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComCP2
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComCP210xManufacturingJNIBridge
+ * Method:    getDeviceInterfaceString
+ * Signature: (JB)Ljava/lang/String;
+ */
+JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComCP210xManufacturingJNIBridge_getDeviceInterfaceString
+  (JNIEnv *, jobject, jlong, jbyte);
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComCP210xManufacturingJNIBridge
  * Method:    getDeviceSerialNumber
  * Signature: (J)Ljava/lang/String;
  */
@@ -189,6 +229,14 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComCP210x
  * Signature: (J)I
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComCP210xManufacturingJNIBridge_getFlushBufferConfig
+  (JNIEnv *, jobject, jlong);
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComCP210xManufacturingJNIBridge
+ * Method:    getDeviceMode
+ * Signature: (J)[B
+ */
+JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComCP210xManufacturingJNIBridge_getDeviceMode
   (JNIEnv *, jobject, jlong);
 
 /*

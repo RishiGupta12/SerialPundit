@@ -27,12 +27,14 @@ package com.embeddedunveiled.serial;
  * 
  * <p>During development avoid connecting more than one device containing the same VID, PID, and serial 
  * number combination.</p>
+ * 
+ * @author Rishi Gupta
  */
 public interface ISerialComHotPlugListener {
 
 	/** 
-	 * <p>Whenever a USB device is plugged into system or unplugged from system, onHotPlugEvent() method will
-	 * be called by native layer.</p>
+	 * <p>Whenever a USB device is plugged into system or unplugged from system, onHotPlugEvent() method 
+	 * will be called by native layer.</p>
 	 * 
 	 * <p>The event value SerialComUSB.DEV_ADDED indicates USB device has been added to the system. 
 	 * The event value SerialComUSB.DEV_REMOVED indicates USB device has been removed from system.</p>

@@ -35,14 +35,25 @@ void throw_serialcom_exception(JNIEnv *env, int type, int error_code, const char
 	jint ret = 0;
 	char buffer[256];
 	char *custom_error_msg = NULL;
+<<<<<<< HEAD
 	jclass serialComExceptionClass = NULL;
+=======
+
+>>>>>>> upstream/master
 #if _POSIX_C_SOURCE >= 200112L || _XOPEN_SOURCE >= 600 && ! _GNU_SOURCE
 #else
 	char *error_msg = NULL;
 #endif
 	(*env)->ExceptionClear(env);
+<<<<<<< HEAD
 	serialComExceptionClass = (*env)->FindClass(env, SCOMEXPCLASS);
 	if((serialComExceptionClass == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+=======
+
+	/* exception of this class will be thrown whenever it occurs */
+	jclass serialComExpCls = (*env)->FindClass(env, SCOMEXPCLASS);
+	if((serialComExpCls == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+>>>>>>> upstream/master
 		(*env)->ExceptionClear(env);
 		LOGE(E_FINDCLASSSCOMEXPSTR);
 		return;
@@ -53,19 +64,31 @@ void throw_serialcom_exception(JNIEnv *env, int type, int error_code, const char
 		/* This need to be made more portable to remove compiler specific dependency */
 #if _POSIX_C_SOURCE >= 200112L || _XOPEN_SOURCE >= 600 && ! _GNU_SOURCE
 		strerror_r(error_code, buffer, 256);
+<<<<<<< HEAD
 		ret = (*env)->ThrowNew(env, serialComExceptionClass, buffer);
+=======
+		ret = (*env)->ThrowNew(env, serialComExpCls, buffer);
+>>>>>>> upstream/master
 		if(ret < 0) {
 			LOGE(FAILTHOWEXP);
 		}
 #else
 		error_msg = strerror_r(error_code, buffer, 256);
 		if(error_msg == NULL) {
+<<<<<<< HEAD
 			ret = (*env)->ThrowNew(env, serialComExceptionClass, buffer);
+=======
+			ret = (*env)->ThrowNew(env, serialComExpCls, buffer);
+>>>>>>> upstream/master
 			if(ret < 0) {
 				LOGE(FAILTHOWEXP);
 			}
 		}else {
+<<<<<<< HEAD
 			ret = (*env)->ThrowNew(env, serialComExceptionClass, error_msg);
+=======
+			ret = (*env)->ThrowNew(env, serialComExpCls, error_msg);
+>>>>>>> upstream/master
 			if(ret < 0) {
 				LOGE(FAILTHOWEXP);
 			}
@@ -76,13 +99,21 @@ void throw_serialcom_exception(JNIEnv *env, int type, int error_code, const char
 		switch (error_code) {
 
 		}
+<<<<<<< HEAD
 		ret = (*env)->ThrowNew(env, serialComExceptionClass, custom_error_msg);
+=======
+		ret = (*env)->ThrowNew(env, serialComExpCls, custom_error_msg);
+>>>>>>> upstream/master
 		if(ret < 0) {
 			LOGE(FAILTHOWEXP);
 		}
 	}else {
 		/* Caller has given exception message explicitly */
+<<<<<<< HEAD
 		ret = (*env)->ThrowNew(env, serialComExceptionClass, msg);
+=======
+		ret = (*env)->ThrowNew(env, serialComExpCls, msg);
+>>>>>>> upstream/master
 		if(ret < 0) {
 			LOGE(FAILTHOWEXP);
 		}

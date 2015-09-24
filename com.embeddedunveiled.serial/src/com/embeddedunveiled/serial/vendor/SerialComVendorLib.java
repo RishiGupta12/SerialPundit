@@ -1,4 +1,4 @@
-/**
+/*
  * Author : Rishi Gupta
  * 
  * This file is part of 'serial communication manager' library.
@@ -30,20 +30,26 @@ import com.embeddedunveiled.serial.internal.SerialComSystemProperty;
  * <p>Super class for all classes which implements vendor specific API to talk to 
  * their devices using the libraries provided by vendor. These libraries from vendor 
  * may be propriety or not.</p>
+ * 
+ * @author Rishi Gupta
  */
 public class SerialComVendorLib {
 
-	/**<p>The value indicating proprietary D2XX software interface from Future Technology Devices International Ltd.</p>*/
+	/**<p>The value indicating proprietary D2XX software interface from Future Technology Devices 
+	 * International Ltd.</p>*/
 	public static final int VLIB_FTDI_D2XX = 0x01;
 
 	/**<p>The value indicating 'SimpleIO' library from Microchip Technology Inc.</p>*/
 	public static final int VLIB_MCHP_SIMPLEIO = 0x02;
-	
+
 	/**<p>The value indicating 'CP210xRuntime' library from Silicon Laboratories, Inc.</p>*/
 	public static final int VLIB_SLABS_CP210XRUNTIME = 0x03;
-	
+
 	/**<p>The value indicating 'CP210xManufacturing' library from Silicon Laboratories, Inc.</p>*/
 	public static final int VLIB_SLABS_CP210XMANUFACTURING = 0x04;
+
+	/**<p>The value indicating 'USBXpress' library from Silicon Laboratories, Inc.</p>*/
+	public static final int VLIB_SLABS_USBXPRESS = 0x05;
 
 	/**
 	 * <p>Allocates a new SerialComVendorLib object.</p>
@@ -66,12 +72,12 @@ public class SerialComVendorLib {
 	 * @throws FileNotFoundException if the vendor library file is not found.
 	 * @throws UnsatisfiedLinkError if loading/linking shared library fails.
 	 * @throws SerialComException if an I/O error occurs.
-	 * @throws SerialComLoadException if the library can not be found, extracted or loaded
-	 *                                 if the mentioned library is not supported by vendor for 
-	 *                                 operating system and cpu architecture combination.
+	 * @throws SerialComLoadException if the library can not be found, extracted or loaded 
+	 *                                 if the mentioned library is not supported by vendor for operating 
+	 *                                 system and cpu architecture combination.
 	 */
-	public SerialComVendorLib getVendorLibInstance(int vendorLibIdentifier, File libDirectory, String vlibName, int cpuArch, int osType,
-			SerialComSystemProperty serialComSystemProperty) throws UnsatisfiedLinkError, 
+	public SerialComVendorLib getVendorLibInstance(int vendorLibIdentifier, File libDirectory, String vlibName, 
+			int cpuArch, int osType, SerialComSystemProperty serialComSystemProperty) throws UnsatisfiedLinkError, 
 			SerialComLoadException, SerialComUnexpectedException, SecurityException, FileNotFoundException {
 		SerialComVendorLib vendorLib = null;
 		if(vendorLibIdentifier == VLIB_FTDI_D2XX) {
@@ -105,8 +111,17 @@ public class SerialComVendorLib {
 			if(!((cpuArch == SerialComManager.ARCH_AMD64) || (cpuArch == SerialComManager.ARCH_X86))) {
 				throw new SerialComLoadException("Silicon labs cp210x manufacturing dll library is not supported for this CPU architecture !");
 			}
-			if(osType != SerialComManager.OS_WINDOWS) {
+			if((osType != SerialComManager.OS_WINDOWS) && (osType != SerialComManager.OS_LINUX)) {
 				throw new SerialComLoadException("Silicon labs cp210x manufacturing dll library is not supported for this operating system !");
+			}
+			vendorLib = new SerialComSLabsCP210xManufacturing(libDirectory, vlibName, cpuArch, osType, serialComSystemProperty);
+			return vendorLib;
+		}else if(vendorLibIdentifier == VLIB_SLABS_USBXPRESS) {
+			if(!((cpuArch == SerialComManager.ARCH_AMD64) || (cpuArch == SerialComManager.ARCH_X86))) {
+				throw new SerialComLoadException("Silicon labs usbxpress library is not supported for this CPU architecture !");
+			}
+			if(osType != SerialComManager.OS_WINDOWS) {
+				throw new SerialComLoadException("Silicon labs usbxpress library is not supported for this operating system !");
 			}
 			vendorLib = new SerialComSLabsCP210xManufacturing(libDirectory, vlibName, cpuArch, osType, serialComSystemProperty);
 			return vendorLib;
@@ -115,5 +130,4 @@ public class SerialComVendorLib {
 
 		return null;
 	}
-
 }

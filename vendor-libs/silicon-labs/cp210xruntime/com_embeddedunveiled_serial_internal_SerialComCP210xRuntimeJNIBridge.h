@@ -18,17 +18,17 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComCP210x
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComCP210xRuntimeJNIBridge
  * Method:    writeLatch
- * Signature: (JJJ)Z
+ * Signature: (JJJ)I
  */
-JNIEXPORT jboolean JNICALL Java_com_embeddedunveiled_serial_internal_SerialComCP210xRuntimeJNIBridge_writeLatch
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComCP210xRuntimeJNIBridge_writeLatch
   (JNIEnv *, jobject, jlong, jlong, jlong);
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComCP210xRuntimeJNIBridge
  * Method:    getPartNumber
- * Signature: (J)I
+ * Signature: (J)Ljava/lang/String;
  */
-JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComCP210xRuntimeJNIBridge_getPartNumber
+JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComCP210xRuntimeJNIBridge_getPartNumber
   (JNIEnv *, jobject, jlong);
 
 /*

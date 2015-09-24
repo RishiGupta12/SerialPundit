@@ -1,4 +1,4 @@
-/**
+/*
  * Author : Rishi Gupta
  * 
  * This file is part of 'serial communication manager' library.
@@ -21,9 +21,11 @@ import com.embeddedunveiled.serial.SerialComUtil;
 
 /**
  * <p>Represents a FT_DEVICE_LIST_INFO_NODE structure.</p>
+ * 
+ * @author Rishi Gupta
  */
 public final class FTdevicelistInfoNode {
-	
+
 	private String flags = null;
 	private String type = null;
 	private String id = null;
@@ -43,7 +45,8 @@ public final class FTdevicelistInfoNode {
 	 * @param description description of this device.
 	 * @param ftHandle handle for this device.
 	 */
-	public FTdevicelistInfoNode(String flags, String type, String id, String locId, String serialNumber, String description, String ftHandle) {
+	public FTdevicelistInfoNode(String flags, String type, String id, String locId, String serialNumber, 
+			String description, String ftHandle) {
 		this.flags = flags;
 		this.type = type;
 		this.id = id;
@@ -52,7 +55,7 @@ public final class FTdevicelistInfoNode {
 		this.description = description;
 		this.ftHandle = ftHandle;
 	}
-	
+
 	/** 
 	 * <p>Retrieves the flags for this FT device info node.</p>
 	 * 
@@ -62,7 +65,7 @@ public final class FTdevicelistInfoNode {
 	public long getFlags() {
 		return SerialComUtil.hexStrToLongNumber(flags);
 	}
-	
+
 	/** 
 	 * <p>Interpret the flags of this device giving information about whether port is open or closed and 
 	 * is it enumerated as high speed or full speed usb device.</p>
@@ -72,27 +75,27 @@ public final class FTdevicelistInfoNode {
 	 */
 	public String[] interpretFlags() {
 		String[] info = new String[2];
-		
+
 		// The flag value is a 4-byte bit map containing miscellaneous data
 		short flagBitMap = (short) SerialComUtil.hexStrToLongNumber(flags);
-		
+
 		// Bit 0 (least significant bit) of this number indicates if the port is open (1) or closed (0).
 		if((0x01 & flagBitMap) == 0x01) {
 			info[0] = new String("Port status : open");
 		}else {
 			info[0] = new String("Port status : closed");
 		}
-		
+
 		// Bit 1 indicates if the device is enumerated as a high-speed USB device (2) or a full-speed USB device (0).
 		if((0x02 & flagBitMap) == 0x02) {
 			info[1] = new String("Enumerated as : high-speed USB device");
 		}else {
 			info[1] = new String("Enumerated as : full-speed USB device");
 		}
-		
+
 		return info;
 	}
-	
+
 	/** 
 	 * <p>Retrieves the type for this FT device info node.</p>
 	 * 
@@ -102,7 +105,7 @@ public final class FTdevicelistInfoNode {
 	public long getType() {
 		return SerialComUtil.hexStrToLongNumber(type);
 	}
-	
+
 	/** 
 	 * <p>Retrieves the id for this FT device info node.</p>
 	 * 
@@ -112,7 +115,7 @@ public final class FTdevicelistInfoNode {
 	public long getId() {
 		return SerialComUtil.hexStrToLongNumber(id);
 	}
-	
+
 	/** 
 	 * <p>Retrieves the locId for this FT device info node.</p>
 	 * 
@@ -122,7 +125,7 @@ public final class FTdevicelistInfoNode {
 	public long getLocId() {
 		return SerialComUtil.hexStrToLongNumber(locId);
 	}
-	
+
 	/** 
 	 * <p>Retrieves the serial number string for this FT device info node.</p>
 	 * 
@@ -131,7 +134,7 @@ public final class FTdevicelistInfoNode {
 	public String getSerialNumber() {
 		return serialNumber;
 	}
-	
+
 	/** 
 	 * <p>Retrieves the description for this FT device info node.</p>
 	 * 
@@ -140,7 +143,7 @@ public final class FTdevicelistInfoNode {
 	public String getDescription() {
 		return description;
 	}
-	
+
 	/** 
 	 * <p>Retrieves the ftHandle for this FT device info node.</p>
 	 * 
@@ -150,18 +153,17 @@ public final class FTdevicelistInfoNode {
 	public long getFThandle() {
 		return SerialComUtil.hexStrToLongNumber(ftHandle);
 	}
-	
+
 	/** 
 	 * <p>Prints information about this FT device info node on console.</p>
 	 */
 	public void dumpDeviceInfo() {
-		System.out.println("\nFlags : 0x" + flags + 
-				            "\nType : 0x" + type + 
-				            "\nID : 0x" + id + 
-				            "\nLocId : 0x" + locId + 
-				            "\nSerialNumber : " + serialNumber + 
-				            "\nDescription : " + description + 
-				            "\nftHandle : 0x" + ftHandle );
+		System.out.println("Flags : 0x" + flags + 
+				"\nType : 0x" + type + 
+				"\nID : 0x" + id + 
+				"\nLocId : 0x" + locId + 
+				"\nSerialNumber : " + serialNumber + 
+				"\nDescription : " + description + 
+				"\nftHandle : 0x" + ftHandle );
 	}
-
 }

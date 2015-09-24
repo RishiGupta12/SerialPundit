@@ -22,6 +22,8 @@ import java.io.IOException;
 /** 
  * <p>Exception thrown in situation which was not supposed to happen. 
  * This limit the scope of exceptions in context of serial operation only.</p>
+ * 
+ * @author Rishi Gupta
  */
 public final class SerialComUnexpectedException extends IOException {
 
@@ -36,5 +38,4 @@ public final class SerialComUnexpectedException extends IOException {
 	public SerialComUnexpectedException(String exceptionMsg) {
 		super(exceptionMsg);
 	}
-
 }

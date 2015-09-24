@@ -22,12 +22,17 @@
 #include <stdio.h>
 #include <errno.h>
 #include <sys/ioctl.h>
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/master
 #if defined (__linux__)
 #include <linux/types.h>
 #include <linux/input.h>
 #include <libudev.h>
 #include <linux/hidraw.h>
 #endif
+<<<<<<< HEAD
 #if defined (__APPLE__)
 #endif
 #include <jni.h>
@@ -39,6 +44,30 @@ jstring get_hiddev_info_string(JNIEnv *env, jlong fd, int task) {
 	jstring info_string = NULL;
 
 #if defined (__linux__)
+=======
+
+#if defined (__APPLE__)
+#include <CoreFoundation/CoreFoundation.h>
+#include <IOKit/hid/IOHIDKeys.h>
+#include <IOKit/hid/IOHIDManager.h>
+#endif
+
+#include <jni.h>
+#include "unix_like_hid.h"
+
+#if defined (__linux__)
+/*
+ * Find the required information from USB device (parent udev device) of given HID device
+ * (child udev device).
+ *
+ * @return required information string if found, empty string if required information is not
+ *         provided by underlying system, NULL if any error occurs.
+ * @throws SerialComException if any JNI function, system call or C function fails.
+ */
+jstring linux_get_hiddev_info_string(JNIEnv *env, jlong fd, int info_required) {
+
+	jstring info_string = NULL;
+>>>>>>> upstream/master
 	int ret = -1;
 	struct hidraw_devinfo info;
 	struct stat st;
@@ -47,6 +76,7 @@ jstring get_hiddev_info_string(JNIEnv *env, jlong fd, int task) {
 	struct udev_device *usb_udev_device;
 	const char *sysattr_val;
 	int bus = 0;
+<<<<<<< HEAD
 #endif
 
 #if defined (__APPLE__)
@@ -54,6 +84,10 @@ jstring get_hiddev_info_string(JNIEnv *env, jlong fd, int task) {
 
 #if defined (__linux__)
 	/* Find device is present on which bus in system */
+=======
+
+	/* find transport/bus used by given HID device. */
+>>>>>>> upstream/master
 	errno = 0;
 	ret = ioctl(fd, HIDIOCGRAWINFO, &info);
 	if(ret < 0) {
@@ -99,7 +133,11 @@ jstring get_hiddev_info_string(JNIEnv *env, jlong fd, int task) {
 			return NULL;
 		}
 
+<<<<<<< HEAD
 		if(task == 1) {
+=======
+		if(info_required == 1) {
+>>>>>>> upstream/master
 			sysattr_val = udev_device_get_sysattr_value(usb_udev_device, "manufacturer");
 			if(sysattr_val != NULL) {
 				info_string = (*env)->NewStringUTF(env, sysattr_val);
@@ -112,7 +150,11 @@ jstring get_hiddev_info_string(JNIEnv *env, jlong fd, int task) {
 				throw_serialcom_exception(env, 3, 0, E_NEWSTRUTFSTR);
 				return NULL;
 			}
+<<<<<<< HEAD
 		}else if(task == 2) {
+=======
+		}else if(info_required == 2) {
+>>>>>>> upstream/master
 			sysattr_val = udev_device_get_sysattr_value(usb_udev_device, "product");
 			if(sysattr_val != NULL) {
 				info_string = (*env)->NewStringUTF(env, sysattr_val);
@@ -125,7 +167,11 @@ jstring get_hiddev_info_string(JNIEnv *env, jlong fd, int task) {
 				throw_serialcom_exception(env, 3, 0, E_NEWSTRUTFSTR);
 				return NULL;
 			}
+<<<<<<< HEAD
 		}else if(task == 3) {
+=======
+		}else if(info_required == 3) {
+>>>>>>> upstream/master
 			sysattr_val = udev_device_get_sysattr_value(usb_udev_device, "serial");
 			if(sysattr_val != NULL) {
 				info_string = (*env)->NewStringUTF(env, sysattr_val);
@@ -148,6 +194,7 @@ jstring get_hiddev_info_string(JNIEnv *env, jlong fd, int task) {
 	/* clean up */
 	udev_device_unref(udev_device);
 	udev_unref(udev_ctx);
+<<<<<<< HEAD
 #endif
 
 #if defined (__APPLE__)
@@ -155,3 +202,81 @@ jstring get_hiddev_info_string(JNIEnv *env, jlong fd, int task) {
 
 	return info_string;
 }
+=======
+
+	return info_string;
+}
+#endif
+
+#if defined (__APPLE__)
+/*
+ * Find the required information about USB HID device using API provided in IOHIDxxx.
+ *
+ * @return required information string if found, empty string if required information is not
+ *         provided by underlying system, NULL if any error occurs.
+ * @throws SerialComException if any JNI function, system call or C function fails.
+ */
+jstring mac_get_hiddev_info_string(JNIEnv *env, jlong fd, int info_required) {
+	int bus = 0;
+	char charbuffer[128];
+	jstring info_string = NULL;
+	CFStringRef str_ref;
+
+	/* find transport/bus used by given HID device. */
+	str_ref = IOHIDDeviceGetProperty(fd, CFSTR(kIOHIDTransportKey));
+	if(str_ref == NULL) {
+		throw_serialcom_exception(env, 3, 0, E_COULDNOTTARNSPORT);
+		return NULL;
+	}
+	memset(charbuffer, '\0', sizeof(charbuffer));
+	CFStringGetCString(str_ref, charbuffer, sizeof(charbuffer), kCFStringEncodingUTF8);
+	CFRelease(str_ref);
+	if((strcmp(charbuffer, "USB") == 0) || (strcmp(charbuffer, "usb") == 0)) {
+		bus = 1;
+	}else if((strcmp(charbuffer, "BLUETOOTH") == 0) || (strcmp(charbuffer, "bluetooth") == 0) ||
+			(strcmp(charbuffer, "Bluetooth") == 0)) {
+		bus = 2;
+	}else {
+	}
+
+	if(bus == 1) {
+		memset(charbuffer, '\0', sizeof(charbuffer));
+		if(info_required == 1) {
+			str_ref = IOHIDDeviceGetProperty(fd, kIOHIDManufacturerKey);
+			if(str_ref != NULL) {
+				CFStringGetCString(str_ref, charbuffer, sizeof(charbuffer), kCFStringEncodingUTF8);
+				CFRelease(str_ref);
+			}else {
+				strcpy(charbuffer, "");
+			}
+		}else if(info_required == 2) {
+			str_ref = IOHIDDeviceGetProperty(fd, kIOHIDProductKey);
+			if(str_ref != NULL) {
+				CFStringGetCString(str_ref, charbuffer, sizeof(charbuffer), kCFStringEncodingUTF8);
+				CFRelease(str_ref);
+			}else {
+				strcpy(charbuffer, "");
+			}
+		}else if(info_required == 3) {
+			str_ref = IOHIDDeviceGetProperty(fd, kIOHIDSerialNumberKey);
+			if(str_ref != NULL) {
+				CFStringGetCString(str_ref, charbuffer, sizeof(charbuffer), kCFStringEncodingUTF8);
+				CFRelease(str_ref);
+			}else {
+				strcpy(charbuffer, "");
+			}
+		}else {
+		}
+		info_string = (*env)->NewStringUTF(env, charbuffer);
+		if((info_string == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+			throw_serialcom_exception(env, 3, 0, E_NEWSTRUTFSTR);
+			return NULL;
+		}
+	}else if(bus ==2) {
+	}else {
+	}
+
+	return info_string;
+}
+#endif
+>>>>>>> upstream/master

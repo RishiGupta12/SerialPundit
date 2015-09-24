@@ -28,6 +28,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.embeddedunveiled.serial.bluetooth.SerialComBluetooth;
+import com.embeddedunveiled.serial.bluetooth.SerialComBluetoothSPPDevNode;
+import com.embeddedunveiled.serial.internal.SerialComBluetoothJNIBridge;
 import com.embeddedunveiled.serial.internal.SerialComCompletionDispatcher;
 import com.embeddedunveiled.serial.internal.SerialComErrorMapper;
 import com.embeddedunveiled.serial.internal.SerialComHIDJNIBridge;
@@ -50,19 +52,25 @@ import com.embeddedunveiled.serial.vendor.SerialComVendorLib;
  * <p>To get an instance of {@link SerialComIOCTLExecutor} call the {@link #getIOCTLExecutor} method.</p>
  * 
  * @author Rishi Gupta
+ * @version 1.0.4
  */
 public final class SerialComManager {
 
+<<<<<<< HEAD
 	/**<p>Release version of the serial communication manager library. </p>*/
+=======
+	/**<p>Production release version of the serial communication manager library. </p>*/
+>>>>>>> upstream/master
 	public static final String JAVA_LIB_VERSION = "1.0.4";
 
 	/** <p>Pre-defined enum constants for baud rate values. </p>*/
 	public enum BAUDRATE {
-		B0(0), B50(50), B75(75), B110(110), B134(134), B150(150), B200(200), B300(300), B600(600), B1200(1200),
-		B1800(1800), B2400(2400), B4800(4800), B9600(9600), B14400(14400), B19200(19200), B28800(28800), B38400(38400),
-		B56000(56000), B57600(57600), B115200(115200), B128000(128000), B153600(153600), B230400(230400), B256000(256000), 
-		B460800(460800), B500000(500000), B576000(576000), B921600(921600), B1000000(1000000), B1152000(1152000),
-		B1500000(1500000),B2000000(2000000), B2500000(2500000), B3000000(3000000), B3500000(3500000), B4000000(4000000),
+		B0(0), B50(50), B75(75), B110(110), B134(134), B150(150), B200(200), B300(300), B600(600), 
+		B1200(1200), B1800(1800), B2400(2400), B4800(4800), B9600(9600), B14400(14400), B19200(19200), 
+		B28800(28800), B38400(38400), B56000(56000), B57600(57600), B115200(115200), B128000(128000), 
+		B153600(153600), B230400(230400), B256000(256000), B460800(460800), B500000(500000), 
+		B576000(576000), B921600(921600), B1000000(1000000), B1152000(1152000), B1500000(1500000), 
+		B2000000(2000000), B2500000(2500000), B3000000(3000000), B3500000(3500000), B4000000(4000000),
 		BCUSTOM(251);
 		private int value;
 		private BAUDRATE(int value) {
@@ -370,7 +378,6 @@ public final class SerialComManager {
 	private List<SerialComHotPlugInfo> mHotPlugListenerInfo = Collections.synchronizedList(hotPlugListenerInfo);
 
 	private SerialComIOCTLExecutor mSerialComIOCTLExecutor;
-	private SerialComBluetooth mSerialComBluetooth;
 	private SerialComUSB mSerialComUSB;
 	private SerialComPlatform mSerialComPlatform;
 	private final SerialComSystemProperty mSerialComSystemProperty;
@@ -387,6 +394,10 @@ public final class SerialComManager {
 	private static boolean nativeLibLoadAndInitAlready = false;
 	private static SerialComVendorLib mSerialComVendorLib;
 	private static SerialComHIDJNIBridge mSerialComHIDJNIBridge;
+<<<<<<< HEAD
+=======
+	private static SerialComBluetoothJNIBridge mSerialComBluetoothJNIBridge;
+>>>>>>> upstream/master
 
 	// Whenever an exception/error occurs in native function, it throws that exception.
 	// When java method return from native call, extra check is added to make error
@@ -569,6 +580,7 @@ public final class SerialComManager {
 	}
 
 	/**
+<<<<<<< HEAD
 	 * <p>Returns an array of SerialComUSBdevice class objects containing information about all the USB devices found by this 
 	 * library. Application can call various methods on SerialComUSBdevice object to get specific information like vendor id 
 	 * and product id etc. The GUI applications may display a dialogue box asking user to connect the end product if the desired 
@@ -585,6 +597,26 @@ public final class SerialComManager {
 	 * 
 	 * @param vendorFilter vendor whose devices should be listed (one of the constants SerialComUSB.V_xxxxx or any valid USB VID).
 	 * @return list of the USB devices with information about them or empty array if no device matching given criteria found.
+=======
+	 * <p>Returns an array of SerialComUSBdevice class objects containing information about all the USB devices 
+	 * found by this library. Application can call various methods on SerialComUSBdevice object to get specific 
+	 * information like vendor id and product id etc. The GUI applications may display a dialogue box asking 
+	 * user to connect the end product if the desired product is still not connected to system.</p>
+	 * 
+	 * <p>The USB vendor id, USB product id, serial number, product name and manufacturer information is 
+	 * encapsulated in the object of class SerialComUSBdevice returned.</p>
+	 * 
+	 * <p>Some USB-UART chip manufactures may give some unique USB PID(s) to end product manufactures at minimal 
+	 * or no cost. Applications written for these end products may be interested in finding devices only from the 
+	 * USB-UART chip manufacturer. For example, an application built for finger print scanner based on FT232 IC 
+	 * will like to list only those devices whose VID matches VID of FTDI. Then further application may verify 
+	 * PID by calling methods on the USBDevice object. For this purpose argument vendorFilter may be used.</p>
+	 * 
+	 * @param vendorFilter vendor whose devices should be listed (one of the constants SerialComUSB.V_xxxxx or 
+	 *         any valid USB VID).
+	 * @return list of the USB devices with information about them or empty array if no device matching given 
+	 *          criteria found.
+>>>>>>> upstream/master
 	 * @throws SerialComException if an I/O error occurs.
 	 * @throws IllegalArgumentException if vendorFilter is negative or invalid number.
 	 */
@@ -601,12 +633,16 @@ public final class SerialComManager {
 			if(usbDevicesInfo.length < 4) {
 				return new SerialComUSBdevice[] { };
 			}
+<<<<<<< HEAD
 			numOfDevices = usbDevicesInfo.length / 5;
+=======
+			numOfDevices = usbDevicesInfo.length / 7;
+>>>>>>> upstream/master
 			usbDevicesFound = new SerialComUSBdevice[numOfDevices];
 			for(int x=0; x<numOfDevices; x++) {
 				usbDevicesFound[x] = new SerialComUSBdevice(usbDevicesInfo[i], usbDevicesInfo[i+1], usbDevicesInfo[i+2], 
-						usbDevicesInfo[i+3], usbDevicesInfo[i+4]);
-				i = i + 5;
+						usbDevicesInfo[i+3], usbDevicesInfo[i+4], usbDevicesInfo[i+5], usbDevicesInfo[i+6]);
+				i = i + 7;
 			}
 			return usbDevicesFound;
 		}else {
@@ -638,20 +674,20 @@ public final class SerialComManager {
 	 * @param serialNumber USB serial number of device to match (case insensitive) or null if not to be matched
 	 * @return list of COM port(s) (device node) for given USB device or empty array if no com port is assigned
 	 * @throws SerialComException if an I/O error occurs.
-	 * @throws IllegalArgumentException if usbVidToMatch or usbPidToMatch is negative or or invalid number
+	 * @throws IllegalArgumentException if usbVidToMatch or usbPidToMatch is negative or or invalid number.
 	 */
 	public String[] listComPortFromUSBAttributes(int usbVidToMatch, int usbPidToMatch, final String serialNumber) throws SerialComException {
-		if(usbVidToMatch < 0) {
-			throw new IllegalArgumentException("Argument usbVidToMatch can not be negative !");
+		if((usbVidToMatch < 0) || (usbVidToMatch > 0XFFFF)) {
+			throw new IllegalArgumentException("Argument usbVidToMatch can not be negative or greater than 0xFFFF !");
 		}
-		if(usbPidToMatch < 0) {
-			throw new IllegalArgumentException("Argument usbPidToMatch can not be negative !");
+		if((usbPidToMatch < 0) || (usbPidToMatch > 0XFFFF)) {
+			throw new IllegalArgumentException("Argument usbPidToMatch can not be negative or greater than 0xFFFF !");
 		}
-
 		String serialNum = null;
 		if(serialNumber != null) {
 			serialNum = serialNumber.toLowerCase();
 		}
+
 		String[] comPortsInfo = mComPortJNIBridge.listComPortFromUSBAttributes(usbVidToMatch, usbPidToMatch, serialNum);
 		if(comPortsInfo != null) {
 			return comPortsInfo;
@@ -659,6 +695,37 @@ public final class SerialComManager {
 			return new String[] { };
 		}	
 	}
+
+	/**
+	 * <p>Gives device node, remote bluetooth device address and channel number in use for device nodes 
+	 * which are using the RFCOMM service for emulating serial port over bluetooth.</p>
+	 * 
+	 * @return list of the BT SPP device node(s) with information about them or empty array if no 
+	 *          device node is found.
+	 * @throws SerialComException if an I/O error occurs.
+	 */
+	public SerialComBluetoothSPPDevNode[] listBTSPPDevNodesWithInfo() throws SerialComException {
+		int i = 0;
+		int numOfDevices = 0;
+		SerialComBluetoothSPPDevNode[] btSerialNodesFound = null;
+		String[] btSerialNodesInfo = mComPortJNIBridge.listBTSPPDevNodesWithInfo();
+
+		if(btSerialNodesInfo != null) {
+			if(btSerialNodesInfo.length < 2) {
+				return new SerialComBluetoothSPPDevNode[] { };
+			}
+			numOfDevices = btSerialNodesInfo.length / 3;
+			btSerialNodesFound = new SerialComBluetoothSPPDevNode[numOfDevices];
+			for(int x=0; x<numOfDevices; x++) {
+				btSerialNodesFound[x] = new SerialComBluetoothSPPDevNode(btSerialNodesInfo[i], btSerialNodesInfo[i+1], 
+						btSerialNodesInfo[i+2]);
+				i = i + 3;
+			}
+			return btSerialNodesFound;
+		}else {
+			throw new SerialComException("Could not find HID devices. Please retry !");
+		}
+	}	
 
 	/** 
 	 * <p>Opens a serial port for communication. If an attempt is made to open a port which is already opened exception in throw.</p>
@@ -1394,21 +1461,23 @@ public final class SerialComManager {
 	}
 
 	/**
-	 * <p>This method assert/de-assert RTS line of serial port. Set "true" for asserting signal, false otherwise. 
-	 * This changes the state of RTS line electrically.</p>
+	 * <p>This method assert/de-assert RTS line of serial port. Set "true" for asserting signal, 
+	 * false otherwise. This changes the state of RTS line electrically.</p>
 	 * 
-	 * <p>RTS and DTR lines can be asserted or de-asserted even when using no flow control on serial port.</p>
+	 * <p>RTS and DTR lines can be asserted or de-asserted even when using no flow control on 
+	 * serial port.</p>
 	 * 
-	 * <p>The RS-232 standard defines the voltage levels that correspond to logical one and logical zero levels for the data 
-	 * transmission and the control signal lines. Valid signals are either in the range of +3 to +15 volts or the range 
-	 * −3 to −15 volts with respect to the ground/common pin; consequently, the range between −3 to +3 volts is not a 
-	 * valid RS-232 level.</p>
+	 * <p>The RS-232 standard defines the voltage levels that correspond to logical one and logical 
+	 * zero levels for the data transmission and the control signal lines. Valid signals are either 
+	 * in the range of +3 to +15 volts or the range −3 to −15 volts with respect to the ground/common 
+	 * pin; consequently, the range between −3 to +3 volts is not a valid RS-232 level.</p>
 	 * 
-	 * <p>In asserted condition, voltage at pin number 7 (RTS signal) will be greater than 3 volts. Voltage 5.0 volts
-	 * was observed when using USB-UART converter http://www.amazon.in/Bafo-USB-Serial-Converter-DB9/dp/B002SCRCDG.</p>
+	 * <p>In asserted condition, voltage at pin number 7 (RTS signal) will be greater than 3 volts. 
+	 * Voltage 5.0 volts was observed when using USB-UART converter : 
+	 * http://www.amazon.in/Bafo-USB-Serial-Converter-DB9/dp/B002SCRCDG.</p>
 	 * 
-	 * <p>On some hardware IC, signals may be active low and therefore for actual voltage datasheet should be consulted. Also please check if the 
-	 * driver supports setting RTS/DTR lines or not.<p>
+	 * <p>On some hardware IC, signals may be active low and therefore for actual voltage datasheet 
+	 * should be consulted. Also please check if the driver supports setting RTS/DTR lines or not.<p>
 	 * 
 	 * @param handle of the opened port.
 	 * @param enabled if true RTS will be asserted and vice-versa.
@@ -1418,17 +1487,22 @@ public final class SerialComManager {
 	public boolean setRTS(long handle, boolean enabled) throws SerialComException {
 		int ret = mComPortJNIBridge.setRTS(handle, enabled);
 		if(ret < 0) {
-			/* extra check  */
 			throw new SerialComException("Could not set RTS line to desired state. Please retry !");
 		}
 		return true;
 	}
 
 	/**
-	 * <p>This method assert/de-assert DTR line of serial port. Set "true" for asserting signal, false otherwise. 
-	 * This changes the state of RTS line electrically.</p>
+	 * <p>This method assert/de-assert DTR line of serial port. Set "true" for asserting signal, false 
+	 * otherwise. This changes the state of RTS line electrically.</p>
 	 * 
-	 * <p>RTS and DTR lines can be asserted or de-asserted even when using no flow control on serial port.</p>
+	 * <p>RTS and DTR lines can be asserted or de-asserted even when a serial port is configured as 
+	 * 'flow control none'.</p>
+	 * 
+	 * <p>It is possible to establish PPP connections to transmit binary data over a two (or more) wire 
+	 * interface with full handshaking and modem control signaling if the driver is configured for this. 
+	 * Refer application note from FTDI for details : AN232B-09 Using the Modem Emulation Mode in FTDI's 
+	 * VCP Driver.</p>
 	 * 
 	 * @param handle of the opened port.
 	 * @param enabled if true DTR will be asserted and vice-versa.
@@ -1438,7 +1512,6 @@ public final class SerialComManager {
 	public boolean setDTR(long handle, boolean enabled) throws SerialComException {
 		int ret = mComPortJNIBridge.setDTR(handle, enabled);
 		if(ret < 0) {
-			/* extra check */
 			throw new SerialComException("Could not set DTR line to desired state. Please retry !");
 		}
 		return true;
@@ -1923,7 +1996,11 @@ public final class SerialComManager {
 	 * <p>Gives the address and IRQ number associated with the given serial port.</p>
 	 * 
 	 * @param handle handle of the opened serial port.
+<<<<<<< HEAD
 	 * @return string containing address and irq number.
+=======
+	 * @return string containing address and irq number in hexadecimal represenation.
+>>>>>>> upstream/master
 	 * @throws SerialComException if operation can not be completed successfully.
 	 */
 	public String findIRQnumberForComPort(long handle) throws SerialComException {
@@ -1969,21 +2046,27 @@ public final class SerialComManager {
 	}
 
 	/**
-	 * <p>This registers a listener who will be invoked whenever a USB device has been plugged or un-plugged in system. This method can 
-	 * be used to write auto discovery applications for example when a hardware USB device is added to system, application can automatically 
-	 * detect and identify it and launch appropriate service.</p>
+	 * <p>This registers a listener who will be invoked whenever a USB device has been plugged or 
+	 * un-plugged in system. This method can be used to write auto discovery applications for example 
+	 * when a hardware USB device is added to system, application can automatically detect and identify 
+	 * it and launch appropriate service.</p>
 	 * 
-	 * <p>Application must implement ISerialComHotPlugListener interface and override onHotPlugEvent method. The event value 
-	 * SerialComUSB.DEV_ADDED indicates USB device has been added to the system. The event value SerialComUSB.DEV_REMOVED 
-	 * indicates USB device has been removed from system.</p>
+	 * <p>This API can be used for detecting both USB-HID and USB-CDC devices. Essentially this API is 
+	 * USB interface agnostic; meaning it would invoke listener for matching USB device irresepective of 
+	 * functionality offered by USB device.</p> 
 	 * 
-	 * <p>Application can specify the usb device for which callback should be called based on USB VID and USB PID. If the value of 
-	 * filterVID is specified however the value of filterPID is constant SerialComUSB.DEV_ANY, then callback will be called 
-	 * for USB device which matches given VID and its PID can have any value. If the value of filterPID is specified however the 
-	 * value of filterVID is constant SerialComUSB.DEV_ANY, then callback will be called for USB device which matches given PID 
-	 * and its VID can have any value.</p>
+	 * <p>Application must implement ISerialComHotPlugListener interface and override onHotPlugEvent method. 
+	 * The event value SerialComUSB.DEV_ADDED indicates USB device has been added to the system. The event 
+	 * value SerialComUSB.DEV_REMOVED indicates USB device has been removed from system.</p>
 	 * 
-	 * <p>If both filterVID and filterPID are set to SerialComUSB.DEV_ANY, then callback will be called for every USB device.</p>
+	 * <p>Application can specify the usb device for which callback should be called based on USB VID and 
+	 * USB PID. If the value of filterVID is specified however the value of filterPID is constant SerialComUSB.DEV_ANY, 
+	 * then callback will be called for USB device which matches given VID and its PID can have any value. 
+	 * If the value of filterPID is specified however the value of filterVID is constant SerialComUSB.DEV_ANY, 
+	 * then callback will be called for USB device which matches given PID and its VID can have any value.</p>
+	 * 
+	 * <p>If both filterVID and filterPID are set to SerialComUSB.DEV_ANY, then callback will be called for 
+	 * every USB device.</p>
 	 * 
 	 * @param hotPlugListener object of class which implements ISerialComHotPlugListener interface.
 	 * @param filterVID USB vendor ID to match.
@@ -2413,6 +2496,7 @@ public final class SerialComManager {
 	}
 
 	/**
+<<<<<<< HEAD
 	 * <p>Prepares context for serial port communication over Bluetooth using 'serial port profile' (SPP)
 	 * specification of bluetooth standard.</p>
 	 * 
@@ -2428,6 +2512,8 @@ public final class SerialComManager {
 	}
 
 	/**
+=======
+>>>>>>> upstream/master
 	 * <p>Get an instance of SerialComUSB class for USB related operations.</p>
 	 * 
 	 * @return reference to an object of type SerialComUSB on which various methods can be invoked.
@@ -2442,6 +2528,53 @@ public final class SerialComManager {
 	}
 
 	/**
+<<<<<<< HEAD
+=======
+	 * <p>Initialize and return an instance of SerialComBluetooth for the given bluetooth stack. It prepares 
+	 * context for serial port communication over Bluetooth using 'serial port profile' (SPP) specification 
+	 * of bluetooth standard.</p></p>
+	 * 
+	 * <p>This method will extract native library in directory as specified by directoryPath 
+	 * argument or default directory will be used if directoryPath is null. The native library 
+	 * loaded will be given name as specified by loadedLibName argument or default name will be 
+	 * used if loadedLibName is null.</p>
+	 * 
+	 * @param type one of the constants BTSTACK_XX_XX defined in SerialComBluetooth class.
+	 * @param directoryPath absolute path of directory to be used for extraction.
+	 * @param loadedLibName library name without extension (do not append .so, .dll or .dylib etc.).
+	 * @return reference to an object of requested type SerialComUSB on which various methods can 
+	 *          be invoked.
+	 * @throws SerialComException if could not instantiate class due to some reason.
+	 * @throws SecurityException if java system properties can not be  accessed.
+	 * @throws SerialComUnexpectedException if java system property is null.
+	 * @throws SerialComLoadException if any file system related issue occurs.
+	 * @throws UnsatisfiedLinkError if loading/linking shared library fails.
+	 * @throws FileNotFoundException if file "/proc/cpuinfo" can not be found for Linux on ARM platform.
+	 * @throws IOException if file operations on "/proc/cpuinfo" fails for Linux on ARM platform.
+	 * @throws SerialComException if initializing native library fails.
+	 * @throws IllegalArgumentException if {@code btStack} is an invalid constant.
+	 */
+	public SerialComBluetooth getSerialComBluetoothInstance(int btStack, String directoryPath, 
+			String loadedLibName) throws SecurityException, SerialComUnexpectedException, SerialComLoadException, 
+			UnsatisfiedLinkError, SerialComException, FileNotFoundException, IOException {
+		if(osType == SerialComManager.OS_LINUX) {
+			if(btStack == SerialComBluetooth.BTSTACK_LINUX_BLUEZ) {
+			}else {
+				throw new IllegalArgumentException("Argument btStack does not indicate bluetooth stack supported by this library !");
+			}
+		}
+
+		if(mSerialComBluetoothJNIBridge == null) {
+			mSerialComBluetoothJNIBridge = new SerialComBluetoothJNIBridge();
+			SerialComBluetoothJNIBridge.loadNativeLibrary(directoryPath, loadedLibName, mSerialComSystemProperty, 
+					osType, cpuArch, javaABIType, btStack);
+		}
+
+		return new SerialComBluetooth(mSerialComBluetoothJNIBridge);
+	}
+
+	/**
+>>>>>>> upstream/master
 	 * <p>Initialize and return an instance of requested type for serial communication based on 
 	 * HID specification. The type argument should be HID_GENERIC for most of the applications. 
 	 * However for some very specific need type may be HID_USB, or for Bluetooth HID applicxation
@@ -2453,7 +2586,11 @@ public final class SerialComManager {
 	 * loaded will be given name as specified by loadedLibName argument or default name will be 
 	 * used if loadedLibName is null.</p>
 	 * 
+<<<<<<< HEAD
 	 * @param type one of the constants HID_XXXX defined in SerialComHID.
+=======
+	 * @param type one of the constants HID_XXXX defined in SerialComHID class.
+>>>>>>> upstream/master
 	 * @param directoryPath absolute path of directory to be used for extraction.
 	 * @param loadedLibName library name without extension (do not append .so, .dll or .dylib etc.).
 	 * @return reference to an object of requested type SerialComUSB on which various methods can 
@@ -2471,6 +2608,7 @@ public final class SerialComManager {
 	public SerialComHID getSerialComHIDInstance(int type, String directoryPath, String loadedLibName) throws SecurityException, 
 	SerialComUnexpectedException, SerialComLoadException, UnsatisfiedLinkError, SerialComException, 
 	FileNotFoundException, IOException {
+<<<<<<< HEAD
 		if(mSerialComHIDJNIBridge == null) {
 			mSerialComHIDJNIBridge = new SerialComHIDJNIBridge();
 			SerialComHIDJNIBridge.loadNativeLibrary(directoryPath, loadedLibName, mSerialComSystemProperty, osType, cpuArch, javaABIType);
@@ -2480,6 +2618,22 @@ public final class SerialComManager {
 			return new SerialComHID(mSerialComHIDJNIBridge);
 		}else if(type == SerialComHID.HID_USB) {
 			return new SerialComUSBHID(mSerialComHIDJNIBridge);
+=======
+		int ret = 0;
+		if(mSerialComHIDJNIBridge == null) {
+			mSerialComHIDJNIBridge = new SerialComHIDJNIBridge();
+			SerialComHIDJNIBridge.loadNativeLibrary(directoryPath, loadedLibName, mSerialComSystemProperty, osType, cpuArch, javaABIType);
+			ret = mSerialComHIDJNIBridge.initNativeLib();
+			if(ret < 0) {
+				throw new SerialComException("Failed to initilize the native library. Please retry !");
+			}
+		}
+
+		if(type == SerialComHID.HID_GENERIC) {
+			return new SerialComHID(mSerialComHIDJNIBridge, osType);
+		}else if(type == SerialComHID.HID_USB) {
+			return new SerialComUSBHID(mSerialComHIDJNIBridge, osType);
+>>>>>>> upstream/master
 		}else if(type == SerialComHID.HID_BLUETOOTH) {
 			//TODO
 		}else {

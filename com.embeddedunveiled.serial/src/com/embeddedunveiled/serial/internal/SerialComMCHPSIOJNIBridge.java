@@ -1,4 +1,4 @@
-/**
+/*
  * Author : Rishi Gupta
  * 
  * This file is part of 'serial communication manager' library.
@@ -27,7 +27,10 @@ import com.embeddedunveiled.serial.SerialComManager;
 import com.embeddedunveiled.serial.SerialComUnexpectedException;
 
 /**
- * <p>This class is an interface between java and native shared library.</p>
+ * <p>This class is an interface between java and native shared library. The native library is found 
+ * in 'vendor-libs' folder in 'scm-x.x.x.jar' file.</p>
+ * 
+ * @author Rishi Gupta
  */
 public final class SerialComMCHPSIOJNIBridge {
 
@@ -38,7 +41,9 @@ public final class SerialComMCHPSIOJNIBridge {
 	}
 
 	/**
-	 * <p>Extract native library from jar in a working directory and load it. Also load vendor's library.</p>
+	 * <p>Extract native library from jar in a working directory, load and link it. The 'vendor-libs' folder in 
+	 * 'scm-x.x.x.jar' file is searched for the required native library for vendor specific communication. It 
+	 * also load vendor's native shared library.</p>
 	 *  
 	 * @param libDirectory directory in which native library will be extracted and vendor library will be found
 	 * @param vlibName name of vendor library to load and link
