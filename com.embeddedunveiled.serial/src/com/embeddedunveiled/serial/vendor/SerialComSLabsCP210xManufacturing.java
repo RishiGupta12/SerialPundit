@@ -75,6 +75,326 @@ public final class SerialComSLabsCP210xManufacturing extends SerialComVendorLib 
 	/**<p>Constant representing one of the bit in bit mask to be used with setFlushBufferConfig() method. </p>*/
 	public static final int FC_CLOSE_RX = 0x08;
 
+	/**<p>Constant representing one of the bit in bit mask to be used with setFlushBufferConfig() method 
+	 * mainly for CP2105 devices. </p>*/
+	public static final int FC_OPEN_TX_SCI = 0x01;
+
+	/**<p>Constant representing one of the bit in bit mask to be used with setFlushBufferConfig() method 
+	 * mainly for CP2105 devices. </p>*/
+	public static final int FC_OPEN_RX_SCI = 0x02;
+
+	/**<p>Constant representing one of the bit in bit mask to be used with setFlushBufferConfig() method 
+	 * mainly for CP2105 devices. </p>*/
+	public static final int FC_CLOSE_TX_SCI = 0x04;
+
+	/**<p>Constant representing one of the bit in bit mask to be used with setFlushBufferConfig() method 
+	 * mainly for CP2105 devices. </p>*/
+	public static final int FC_CLOSE_RX_SCI = 0x08;
+
+	/**<p>Constant representing one of the bit in bit mask to be used with setFlushBufferConfig() method 
+	 * mainly for CP2105 devices. </p>*/
+	public static final int FC_OPEN_TX_ECI = 0x10;
+
+	/**<p>Constant representing one of the bit in bit mask to be used with setFlushBufferConfig() method 
+	 * mainly for CP2105 devices. </p>*/
+	public static final int FC_OPEN_RX_ECI = 0x20;
+
+	/**<p>Constant representing one of the bit in bit mask to be used with setFlushBufferConfig() method 
+	 * mainly for CP2105 devices. </p>*/
+	public static final int FC_CLOSE_TX_ECI = 0x40;
+
+	/**<p>Constant representing one of the bit in bit mask to be used with setFlushBufferConfig() method 
+	 * mainly for CP2105 devices. </p>*/
+	public static final int FC_CLOSE_RX_ECI = 0x80;
+
+	/**<p>Constant representing one of the bit in bit mask to be used with setFlushBufferConfig() method 
+	 * mainly for CP2108 devices. </p>*/
+	public static final int FC_OPEN_TX_IFC0  = 0x0001;
+
+	/**<p>Constant representing one of the bit in bit mask to be used with setFlushBufferConfig() method 
+	 * mainly for CP2108 devices. </p>*/
+	public static final int FC_OPEN_RX_IFC0  = 0x0002;
+
+	/**<p>Constant representing one of the bit in bit mask to be used with setFlushBufferConfig() method 
+	 * mainly for CP2108 devices. </p>*/
+	public static final int FC_CLOSE_TX_IFC0 = 0x0004;
+
+	/**<p>Constant representing one of the bit in bit mask to be used with setFlushBufferConfig() method 
+	 * mainly for CP2108 devices. </p>*/
+	public static final int FC_CLOSE_RX_IFC0 = 0x0008;
+
+	/**<p>Constant representing one of the bit in bit mask to be used with setFlushBufferConfig() method 
+	 * mainly for CP2108 devices. </p>*/
+	public static final int FC_OPEN_TX_IFC1  = 0x0010;
+
+	/**<p>Constant representing one of the bit in bit mask to be used with setFlushBufferConfig() method 
+	 * mainly for CP2108 devices. </p>*/
+	public static final int FC_OPEN_RX_IFC1  = 0x0020;
+
+	/**<p>Constant representing one of the bit in bit mask to be used with setFlushBufferConfig() method 
+	 * mainly for CP2108 devices. </p>*/
+	public static final int FC_CLOSE_TX_IFC1 = 0x0040;
+
+	/**<p>Constant representing one of the bit in bit mask to be used with setFlushBufferConfig() method 
+	 * mainly for CP2108 devices. </p>*/
+	public static final int FC_CLOSE_RX_IFC1 = 0x0080;
+
+	/**<p>Constant representing one of the bit in bit mask to be used with setFlushBufferConfig() method 
+	 * mainly for CP2108 devices. </p>*/
+	public static final int FC_OPEN_TX_IFC2  = 0x0100;
+
+	/**<p>Constant representing one of the bit in bit mask to be used with setFlushBufferConfig() method 
+	 * mainly for CP2108 devices. </p>*/
+	public static final int FC_OPEN_RX_IFC2  = 0x0200;
+
+	/**<p>Constant representing one of the bit in bit mask to be used with setFlushBufferConfig() method 
+	 * mainly for CP2108 devices. </p>*/
+	public static final int FC_CLOSE_TX_IFC2 = 0x0400;
+
+	/**<p>Constant representing one of the bit in bit mask to be used with setFlushBufferConfig() method 
+	 * mainly for CP2108 devices. </p>*/
+	public static final int FC_CLOSE_RX_IFC2 = 0x0800;
+
+	/**<p>Constant representing one of the bit in bit mask to be used with setFlushBufferConfig() method 
+	 * mainly for CP2108 devices. </p>*/
+	public static final int FC_OPEN_TX_IFC3  = 0x1000;
+
+	/**<p>Constant representing one of the bit in bit mask to be used with setFlushBufferConfig() method 
+	 * mainly for CP2108 devices. </p>*/
+	public static final int FC_OPEN_RX_IFC3  = 0x2000;
+
+	/**<p>Constant representing one of the bit in bit mask to be used with setFlushBufferConfig() method 
+	 * mainly for CP2108 devices. </p>*/
+	public static final int FC_CLOSE_TX_IFC3 = 0x4000;
+
+	/**<p>Constant representing one of the bit in bit mask to be used with setFlushBufferConfig() method 
+	 * mainly for CP2108 devices. </p>*/
+	public static final int FC_CLOSE_RX_IFC3 = 0x8000;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2103/4 devices.</p>*/
+	public static final int PORT_RI_ON	= 0x0001;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2103/4 devices.</p>*/
+	public static final int PORT_DCD_ON	= 0x0002;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2103/4 devices.</p>*/
+	public static final int PORT_DTR_ON	= 0x0004;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2103/4 devices.</p>*/
+	public static final int PORT_DSR_ON	= 0x0008;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2103/4 devices.</p>*/
+	public static final int PORT_TXD_ON	= 0x0010;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2103/4 devices.</p>*/
+	public static final int PORT_RXD_ON	= 0x0020;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2103/4 devices.</p>*/
+	public static final int PORT_RTS_ON	= 0x0040;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2103/4 devices.</p>*/
+	public static final int PORT_CTS_ON	= 0x0080;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2103/4 devices.</p>*/
+	public static final int PORT_GPIO_0_ON = 0x0100;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2103/4 devices.</p>*/
+	public static final int PORT_GPIO_1_ON = 0x0200;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2103/4 devices.</p>*/
+	public static final int PORT_GPIO_2_ON = 0x0400;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2103/4 devices.</p>*/
+	public static final int PORT_GPIO_3_ON = 0x0800;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2103/4 devices.</p>*/
+	public static final int PORT_SUSPEND_ON = 0x4000;	// Can't configure latch value
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2103/4 devices.</p>*/
+	public static final int PORT_SUSPEND_BAR_ON = 0x8000;	// Can't configure latch value
+
+	/**<p>Constant representing one of the bit locations for EnhancedFxn features to be used mainly for 
+	 * CP2103/4 devices.</p>*/
+	public static final int EF_GPIO_0_TXLED = 0x01;  // Under device control
+
+	/**<p>Constant representing one of the bit locations for EnhancedFxn features to be used mainly for 
+	 * CP2103/4 devices.</p>*/
+	public static final int EF_GPIO_1_RXLED = 0x02;  // Under device control
+
+	/**<p>Constant representing one of the bit locations for EnhancedFxn features to be used mainly for 
+	 * CP2103/4 devices.</p>*/
+	public static final int EF_GPIO_2_RS485 = 0x04;  // Under device control
+
+	/**<p>Constant representing one of the bit locations for EnhancedFxn features to be used mainly for 
+	 * CP2103/4 devices.</p>*/
+	public static final int EF_RS485_INVERT = 0x08;  // RS485 Invert bit
+
+	/**<p>Constant representing one of the bit locations for EnhancedFxn features to be used mainly for 
+	 * CP2103/4 devices.</p>*/
+	public static final int EF_WEAKPULLUP = 0x10;   // Weak Pull-up on
+
+	/**<p>Constant representing one of the bit locations for EnhancedFxn features to be used mainly for 
+	 * CP2103/4 devices.</p>*/
+	public static final int EF_RESERVED_1 = 0x20;  //  Reserved, leave bit 5 cleared
+
+	/**<p>Constant representing one of the bit locations for EnhancedFxn features to be used mainly for 
+	 * CP2103/4 devices.</p>*/
+	public static final int EF_SERIAL_DYNAMIC_SUSPEND  = 0x40;  //  For 8 UART/Modem signals
+
+	/**<p>Constant representing one of the bit locations for EnhancedFxn features to be used mainly for 
+	 * CP2103/4 devices.</p>*/
+	public static final int EF_GPIO_DYNAMIC_SUSPEND = 0x80;	  //  For 4 GPIO signals
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2105 devices.</p>*/
+	public static final int PORT_RI_SCI_ON = 0x0001;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2105 devices.</p>*/
+	public static final int PORT_DCD_SCI_ON = 0x0002;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2105 devices.</p>*/
+	public static final int PORT_DTR_SCI_ON = 0x0004;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2105 devices.</p>*/
+	public static final int PORT_DSR_SCI_ON = 0x0008;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2105 devices.</p>*/
+	public static final int PORT_TXD_SCI_ON = 0x0010;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2105 devices.</p>*/
+	public static final int PORT_RXD_SCI_ON = 0x0020;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2105 devices.</p>*/
+	public static final int PORT_RTS_SCI_ON = 0x0040;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2105 devices.</p>*/
+	public static final int PORT_CTS_SCI_ON = 0x0080;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2105 devices.</p>*/
+	public static final int PORT_GPIO_0_SCI_ON = 0x0002;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2105 devices.</p>*/
+	public static final int PORT_GPIO_1_SCI_ON = 0x0004;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2105 devices.</p>*/
+	public static final int PORT_GPIO_2_SCI_ON = 0x0008;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2105 devices.</p>*/
+	public static final int PORT_SUSPEND_SCI_ON = 0x0001;	//  Can't configure latch value
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2105 devices.</p>*/
+	public static final int PORT_RI_ECI_ON = 0x0100;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2105 devices.</p>*/
+	public static final int PORT_DCD_ECI_ON = 0x0200;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2105 devices.</p>*/
+	public static final int PORT_DTR_ECI_ON = 0x0400;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2105 devices.</p>*/
+	public static final int PORT_DSR_ECI_ON = 0x0800;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2105 devices.</p>*/
+	public static final int PORT_TXD_ECI_ON = 0x1000;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2105 devices.</p>*/
+	public static final int PORT_RXD_ECI_ON = 0x2000;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2105 devices.</p>*/
+	public static final int PORT_RTS_ECI_ON = 0x4000;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2105 devices.</p>*/
+	public static final int PORT_CTS_ECI_ON = 0x8000;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2105 devices.</p>*/
+	public static final int PORT_GPIO_0_ECI_ON = 0x0400;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2105 devices.</p>*/
+	public static final int PORT_GPIO_1_ECI_ON = 0x0800;
+
+	/**<p>Constant representing one of the bit locations for Mode/Latch for Reset and Suspend features to 
+	 * be used mainly for CP2105 devices.</p>*/
+	public static final int PORT_SUSPEND_ECI_ON = 0x0100;	//  Can't configure latch value
+
+	/**<p>Constant representing one of the bit locations for EnhancedFxn_ECI features to be used mainly 
+	 * for CP2105 devices.</p>*/
+	public static final int EF_GPIO_0_TXLED_ECI = 0x01;	// Under device control
+
+	/**<p>Constant representing one of the bit locations for EnhancedFxn_ECI features to be used mainly 
+	 * for CP2105 devices.</p>*/
+	public static final int EF_GPIO_1_RXLED_ECI = 0x02;	// Under device control
+
+	/**<p>Constant representing one of the bit locations for EnhancedFxn_ECI features to be used mainly 
+	 * for CP2105 devices.</p>*/
+	public static final int EF_GPIO_1_RS485_ECI = 0x04;	// Under device control
+
+	/**<p>Constant representing one of the bit locations for EnhancedFxn_ECI features to be used mainly 
+	 * for CP2105 devices.</p>*/
+	public static final int CP2105_EF_RS485_INVERT = 0x08;	// Under device control
+
+	/**<p>Constant representing one of the bit locations for EnhancedFxn_ECI features to be used mainly 
+	 * for CP2105 devices.</p>*/
+	public static final int EF_INVERT_SUSPEND_ECI = 0x10;	// RS485 Invert bit
+
+	/**<p>Constant representing one of the bit locations for EnhancedFxn_ECI features to be used mainly 
+	 * for CP2105 devices.</p>*/
+	public static final int EF_DYNAMIC_SUSPEND_ECI = 0x40;	// For GPIO signals
+
+	/**<p>Constant representing one of the bit locations for EnhancedFxn_SCI features to be used mainly 
+	 * for CP2105 devices.</p>*/
+	public static final int EF_GPIO_0_TXLED_SCI = 0x01;	// Under device control
+
+	/**<p>Constant representing one of the bit locations for EnhancedFxn_SCI features to be used mainly 
+	 * for CP2105 devices.</p>*/
+	public static final int EF_GPIO_1_RXLED_SCI = 0x02;	// Under device control
+
+	/**<p>Constant representing one of the bit locations for EnhancedFxn_SCI features to be used mainly 
+	 * for CP2105 devices.</p>*/
+	public static final int EF_INVERT_SUSPEND_SCI = 0x10;	// RS485 Invert bit
+
+	/**<p>Constant representing one of the bit locations for EnhancedFxn_SCI features to be used mainly 
+	 * for CP2105 devices.</p>*/
+	public static final int EF_DYNAMIC_SUSPEND_SCI = 0x40;	// For GPIO signals
+
+	/**<p>Constant representing one of the bit locations for EnhancedFxn_Device to be used mainly for 
+	 * CP2105 devices.</p>*/
+	public static final int CP2105_EF_WEAKPULLUP	 = 0x10;	// Weak Pull-up on
+
 	private final SerialComCP210xManufacturingJNIBridge mSerialComCP210xManufacturingJNIBridge;
 
 	/**

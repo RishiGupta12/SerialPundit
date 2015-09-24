@@ -241,6 +241,9 @@ public class SerialComSLabsCP210xManufacturingTests {
 
 	@Test(timeout=100)
 	public void testsetDualPortConfig() throws Exception {
+		int[] dualportconfig = cpman.getDualPortConfig(handle);
+		assertNotNull(dualportconfig);
+		assertTrue(dualportconfig.length == 6);
 	}
 
 	@Test(timeout=100)

@@ -502,6 +502,8 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComCP210x
  * Method:    setPortConfig
  * Signature: (JIIII)I
  *
+ * This function may be mainly applicable for CP2103/4 devices.
+ *
  * @return 0 on success otherwise -1 if an error occurs.
  * @throws SerialComException if any CP210x function, JNI function, system call or C function fails.
  */
@@ -509,12 +511,165 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComCP210x
 (JNIEnv *env, jobject obj, jlong handle, jint mode, jint resetLatch, jint suspendLatch, jint enhancedFxn) {
 
 	CP210x_STATUS ret = 0;
-	PORT_CONFIG configuration;
+	PORT_CONFIG configuration = { 0 };
 
-	configuration.Mode = (WORD)mode;
-	configuration.Reset_Latch = (WORD)resetLatch;
-	configuration.Suspend_Latch = (WORD)suspendLatch;
-	configuration.EnhancedFxn = (unsigned char)enhancedFxn;
+	/* mode push pull or open drain */
+	if((mode & SCM_PORT_RI_ON) == SCM_PORT_RI_ON) {
+		configuration.Mode = configuration.Mode | PORT_RI_ON;
+	}
+	if((mode & SCM_PORT_DCD_ON) == SCM_PORT_DCD_ON) {
+		configuration.Mode = configuration.Mode | PORT_DCD_ON;
+	}
+	if((mode & SCM_PORT_DTR_ON) == SCM_PORT_DTR_ON) {
+		configuration.Mode = configuration.Mode | PORT_DTR_ON;
+	}
+	if((mode & SCM_PORT_DSR_ON) == SCM_PORT_DSR_ON) {
+		configuration.Mode = configuration.Mode | PORT_DSR_ON;
+	}
+	if((mode & SCM_PORT_TXD_ON) == SCM_PORT_TXD_ON) {
+		configuration.Mode = configuration.Mode | PORT_TXD_ON;
+	}
+	if((mode & SCM_PORT_RXD_ON) == SCM_PORT_RXD_ON) {
+		configuration.Mode = configuration.Mode | PORT_RXD_ON;
+	}
+	if((mode & SCM_PORT_RTS_ON) == SCM_PORT_RTS_ON) {
+		configuration.Mode = configuration.Mode | PORT_RTS_ON;
+	}
+	if((mode & SCM_PORT_CTS_ON) == SCM_PORT_CTS_ON) {
+		configuration.Mode = configuration.Mode | PORT_CTS_ON;
+	}
+	if((mode & SCM_PORT_GPIO_0_ON) == SCM_PORT_GPIO_0_ON) {
+		configuration.Mode = configuration.Mode | PORT_GPIO_0_ON;
+	}
+	if((mode & SCM_PORT_GPIO_1_ON) == SCM_PORT_GPIO_1_ON) {
+		configuration.Mode = configuration.Mode | PORT_GPIO_1_ON;
+	}
+	if((mode & SCM_PORT_GPIO_2_ON) == SCM_PORT_GPIO_2_ON) {
+		configuration.Mode = configuration.Mode | PORT_GPIO_2_ON;
+	}
+	if((mode & SCM_PORT_GPIO_3_ON) == SCM_PORT_GPIO_3_ON) {
+		configuration.Mode = configuration.Mode | PORT_GPIO_3_ON;
+	}
+	if((mode & SCM_PORT_SUSPEND_ON) == SCM_PORT_SUSPEND_ON) {
+		configuration.Mode = configuration.Mode | PORT_SUSPEND_ON;
+	}
+	if((mode & SCM_PORT_SUSPEND_BAR_ON) == SCM_PORT_SUSPEND_BAR_ON) {
+		configuration.Mode = configuration.Mode | PORT_SUSPEND_BAR_ON;
+	}
+
+	/* reset latch logic high or low */
+	if((resetLatch & SCM_PORT_RI_ON) == SCM_PORT_RI_ON) {
+		configuration.Reset_Latch = configuration.Reset_Latch | PORT_RI_ON;
+	}
+	if((resetLatch & SCM_PORT_DCD_ON) == SCM_PORT_DCD_ON) {
+		configuration.Reset_Latch = configuration.Reset_Latch | PORT_DCD_ON;
+	}
+	if((resetLatch & SCM_PORT_DTR_ON) == SCM_PORT_DTR_ON) {
+		configuration.Reset_Latch = configuration.Reset_Latch | PORT_DTR_ON;
+	}
+	if((resetLatch & SCM_PORT_DSR_ON) == SCM_PORT_DSR_ON) {
+		configuration.Reset_Latch = configuration.Reset_Latch | PORT_DSR_ON;
+	}
+	if((resetLatch & SCM_PORT_TXD_ON) == SCM_PORT_TXD_ON) {
+		configuration.Reset_Latch = configuration.Reset_Latch | PORT_TXD_ON;
+	}
+	if((resetLatch & SCM_PORT_RXD_ON) == SCM_PORT_RXD_ON) {
+		configuration.Reset_Latch = configuration.Reset_Latch | PORT_RXD_ON;
+	}
+	if((resetLatch & SCM_PORT_RTS_ON) == SCM_PORT_RTS_ON) {
+		configuration.Reset_Latch = configuration.Reset_Latch | PORT_RTS_ON;
+	}
+	if((resetLatch & SCM_PORT_CTS_ON) == SCM_PORT_CTS_ON) {
+		configuration.Reset_Latch = configuration.Reset_Latch | PORT_CTS_ON;
+	}
+	if((resetLatch & SCM_PORT_GPIO_0_ON) == SCM_PORT_GPIO_0_ON) {
+		configuration.Reset_Latch = configuration.Reset_Latch | PORT_GPIO_0_ON;
+	}
+	if((resetLatch & SCM_PORT_GPIO_1_ON) == SCM_PORT_GPIO_1_ON) {
+		configuration.Reset_Latch = configuration.Reset_Latch | PORT_GPIO_1_ON;
+	}
+	if((resetLatch & SCM_PORT_GPIO_2_ON) == SCM_PORT_GPIO_2_ON) {
+		configuration.Reset_Latch = configuration.Reset_Latch | PORT_GPIO_2_ON;
+	}
+	if((resetLatch & SCM_PORT_GPIO_3_ON) == SCM_PORT_GPIO_3_ON) {
+		configuration.Reset_Latch = configuration.Reset_Latch | PORT_GPIO_3_ON;
+	}
+	if((resetLatch & SCM_PORT_SUSPEND_ON) == SCM_PORT_SUSPEND_ON) {
+		configuration.Reset_Latch = configuration.Reset_Latch | PORT_SUSPEND_ON;
+	}
+	if((resetLatch & SCM_PORT_SUSPEND_BAR_ON) == SCM_PORT_SUSPEND_BAR_ON) {
+		configuration.Reset_Latch = configuration.Reset_Latch | PORT_SUSPEND_BAR_ON;
+	}
+
+	/* suspend latch logic high or low */
+	if((suspendLatch & SCM_PORT_RI_ON) == SCM_PORT_RI_ON) {
+		configuration.Suspend_Latch = configuration.Suspend_Latch | PORT_RI_ON;
+	}
+	if((suspendLatch & SCM_PORT_DCD_ON) == SCM_PORT_DCD_ON) {
+		configuration.Suspend_Latch = configuration.Suspend_Latch | PORT_DCD_ON;
+	}
+	if((suspendLatch & SCM_PORT_DTR_ON) == SCM_PORT_DTR_ON) {
+		configuration.Suspend_Latch = configuration.Suspend_Latch | PORT_DTR_ON;
+	}
+	if((suspendLatch & SCM_PORT_DSR_ON) == SCM_PORT_DSR_ON) {
+		configuration.Suspend_Latch = configuration.Suspend_Latch | PORT_DSR_ON;
+	}
+	if((suspendLatch & SCM_PORT_TXD_ON) == SCM_PORT_TXD_ON) {
+		configuration.Suspend_Latch = configuration.Suspend_Latch | PORT_TXD_ON;
+	}
+	if((suspendLatch & SCM_PORT_RXD_ON) == SCM_PORT_RXD_ON) {
+		configuration.Suspend_Latch = configuration.Suspend_Latch | PORT_RXD_ON;
+	}
+	if((suspendLatch & SCM_PORT_RTS_ON) == SCM_PORT_RTS_ON) {
+		configuration.Suspend_Latch = configuration.Suspend_Latch | PORT_RTS_ON;
+	}
+	if((suspendLatch & SCM_PORT_CTS_ON) == SCM_PORT_CTS_ON) {
+		configuration.Suspend_Latch = configuration.Suspend_Latch | PORT_CTS_ON;
+	}
+	if((suspendLatch & SCM_PORT_GPIO_0_ON) == SCM_PORT_GPIO_0_ON) {
+		configuration.Suspend_Latch = configuration.Suspend_Latch | PORT_GPIO_0_ON;
+	}
+	if((suspendLatch & SCM_PORT_GPIO_1_ON) == SCM_PORT_GPIO_1_ON) {
+		configuration.Suspend_Latch = configuration.Suspend_Latch | PORT_GPIO_1_ON;
+	}
+	if((suspendLatch & SCM_PORT_GPIO_2_ON) == SCM_PORT_GPIO_2_ON) {
+		configuration.Suspend_Latch = configuration.Suspend_Latch | PORT_GPIO_2_ON;
+	}
+	if((suspendLatch & SCM_PORT_GPIO_3_ON) == SCM_PORT_GPIO_3_ON) {
+		configuration.Suspend_Latch = configuration.Suspend_Latch | PORT_GPIO_3_ON;
+	}
+	if((suspendLatch & SCM_PORT_SUSPEND_ON) == SCM_PORT_SUSPEND_ON) {
+		configuration.Suspend_Latch = configuration.Suspend_Latch | PORT_SUSPEND_ON;
+	}
+	if((suspendLatch & SCM_PORT_SUSPEND_BAR_ON) == SCM_PORT_SUSPEND_BAR_ON) {
+		configuration.Suspend_Latch = configuration.Suspend_Latch | PORT_SUSPEND_BAR_ON;
+	}
+
+	/* enhanced functions */
+	if((enhancedFxn & SCM_EF_GPIO_0_TXLED) == SCM_EF_GPIO_0_TXLED) {
+		configuration.EnhancedFxn = configuration.EnhancedFxn | EF_GPIO_0_TXLED;
+	}
+	if((enhancedFxn & SCM_EF_GPIO_1_RXLED) == SCM_EF_GPIO_1_RXLED) {
+		configuration.EnhancedFxn = configuration.EnhancedFxn | EF_GPIO_1_RXLED;
+	}
+	if((enhancedFxn & SCM_EF_GPIO_2_RS485) == SCM_EF_GPIO_2_RS485) {
+		configuration.EnhancedFxn = configuration.EnhancedFxn | EF_GPIO_2_RS485;
+	}
+	if((enhancedFxn & SCM_EF_RS485_INVERT) == SCM_EF_RS485_INVERT) {
+		configuration.EnhancedFxn = configuration.EnhancedFxn | EF_RS485_INVERT;
+	}
+	if((enhancedFxn & SCM_EF_WEAKPULLUP) == SCM_EF_WEAKPULLUP) {
+		configuration.EnhancedFxn = configuration.EnhancedFxn | EF_WEAKPULLUP;
+	}
+	if((enhancedFxn & SCM_EF_RESERVED_1) == SCM_EF_RESERVED_1) {
+		configuration.EnhancedFxn = configuration.EnhancedFxn | EF_RESERVED_1;
+	}
+	if((enhancedFxn & SCM_EF_SERIAL_DYNAMIC_SUSPEND) == SCM_EF_SERIAL_DYNAMIC_SUSPEND) {
+		configuration.EnhancedFxn = configuration.EnhancedFxn | EF_SERIAL_DYNAMIC_SUSPEND;
+	}
+	if((enhancedFxn & SCM_EF_GPIO_DYNAMIC_SUSPEND) == SCM_EF_GPIO_DYNAMIC_SUSPEND) {
+		configuration.EnhancedFxn = configuration.EnhancedFxn | EF_GPIO_DYNAMIC_SUSPEND;
+	}
 
 	ret = CP210x_SetPortConfig((HANDLE)handle, &configuration);
 	if(ret != CP210x_SUCCESS) {
@@ -529,11 +684,281 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComCP210x
  * Class:     com_embeddedunveiled_serial_internal_SerialComCP210xManufacturingJNIBridge
  * Method:    setDualPortConfig
  * Signature: (JIIIIII)I
+ *
+ * This function may be mainly applicable for CP2105 devices.
+ *
+ * @return 0 on success otherwise -1 if an error occurs.
+ * @throws SerialComException if any CP210x function, JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComCP210xManufacturingJNIBridge_setDualPortConfig
 (JNIEnv *env, jobject obj, jlong handle, jint mode, jint resetLatch, jint suspendLatch, jint enhancedFxnECI,
 		jint enhancedFxnSCI, jint enhancedFxnDevice) {
-return -1;
+
+	CP210x_STATUS ret = 0;
+	DUAL_PORT_CONFIG configuration = { 0 };
+
+	/* mode push pull or open drain */
+	if((mode & SCM_PORT_RI_SCI_ON) == SCM_PORT_RI_SCI_ON) {
+		configuration.Mode = configuration.Mode | PORT_RI_SCI_ON;
+	}
+	if((mode & SCM_PORT_DCD_SCI_ON) == SCM_PORT_DCD_SCI_ON) {
+		configuration.Mode = configuration.Mode | PORT_DCD_SCI_ON;
+	}
+	if((mode & SCM_PORT_DTR_SCI_ON) == SCM_PORT_DTR_SCI_ON) {
+		configuration.Mode = configuration.Mode | PORT_DTR_SCI_ON;
+	}
+	if((mode & SCM_PORT_DSR_SCI_ON) == SCM_PORT_DSR_SCI_ON) {
+		configuration.Mode = configuration.Mode | PORT_DSR_SCI_ON;
+	}
+	if((mode & SCM_PORT_TXD_SCI_ON) == SCM_PORT_TXD_SCI_ON) {
+		configuration.Mode = configuration.Mode | PORT_TXD_SCI_ON;
+	}
+	if((mode & SCM_PORT_RXD_SCI_ON) == SCM_PORT_RXD_SCI_ON) {
+		configuration.Mode = configuration.Mode | PORT_RXD_SCI_ON;
+	}
+	if((mode & SCM_PORT_RTS_SCI_ON) == SCM_PORT_RTS_SCI_ON) {
+		configuration.Mode = configuration.Mode | PORT_RTS_SCI_ON;
+	}
+	if((mode & SCM_PORT_CTS_SCI_ON) == SCM_PORT_CTS_SCI_ON) {
+		configuration.Mode = configuration.Mode | PORT_CTS_SCI_ON;
+	}
+	if((mode & SCM_PORT_GPIO_0_SCI_ON) == SCM_PORT_GPIO_0_SCI_ON) {
+		configuration.Mode = configuration.Mode | PORT_GPIO_0_SCI_ON;
+	}
+	if((mode & SCM_PORT_GPIO_1_SCI_ON) == SCM_PORT_GPIO_1_SCI_ON) {
+		configuration.Mode = configuration.Mode | PORT_GPIO_1_SCI_ON;
+	}
+	if((mode & SCM_PORT_GPIO_2_SCI_ON) == SCM_PORT_GPIO_2_SCI_ON) {
+		configuration.Mode = configuration.Mode | PORT_GPIO_2_SCI_ON;
+	}
+	if((mode & SCM_PORT_SUSPEND_SCI_ON) == SCM_PORT_SUSPEND_SCI_ON) {
+		configuration.Mode = configuration.Mode | PORT_SUSPEND_SCI_ON;
+	}
+
+	if((mode & SCM_PORT_RI_ECI_ON) == SCM_PORT_RI_ECI_ON) {
+		configuration.Mode = configuration.Mode | PORT_RI_ECI_ON;
+	}
+	if((mode & SCM_PORT_DCD_ECI_ON) == SCM_PORT_DCD_ECI_ON) {
+		configuration.Mode = configuration.Mode | PORT_DCD_ECI_ON;
+	}
+	if((mode & SCM_PORT_DTR_ECI_ON) == SCM_PORT_DTR_ECI_ON) {
+		configuration.Mode = configuration.Mode | PORT_DTR_ECI_ON;
+	}
+	if((mode & SCM_PORT_DSR_ECI_ON) == SCM_PORT_DSR_ECI_ON) {
+		configuration.Mode = configuration.Mode | PORT_DSR_ECI_ON;
+	}
+	if((mode & SCM_PORT_TXD_ECI_ON) == SCM_PORT_TXD_ECI_ON) {
+		configuration.Mode = configuration.Mode | PORT_TXD_ECI_ON;
+	}
+	if((mode & SCM_PORT_RXD_ECI_ON) == SCM_PORT_RXD_ECI_ON) {
+		configuration.Mode = configuration.Mode | PORT_RXD_ECI_ON;
+	}
+	if((mode & SCM_PORT_RTS_ECI_ON) == SCM_PORT_RTS_ECI_ON) {
+		configuration.Mode = configuration.Mode | PORT_RTS_ECI_ON;
+	}
+	if((mode & SCM_PORT_CTS_ECI_ON) == SCM_PORT_CTS_ECI_ON) {
+		configuration.Mode = configuration.Mode | PORT_CTS_ECI_ON;
+	}
+	if((mode & SCM_PORT_GPIO_0_ECI_ON) == SCM_PORT_GPIO_0_ECI_ON) {
+		configuration.Mode = configuration.Mode | PORT_GPIO_0_ECI_ON;
+	}
+	if((mode & SCM_PORT_GPIO_1_ECI_ON) == SCM_PORT_GPIO_1_ECI_ON) {
+		configuration.Mode = configuration.Mode | PORT_GPIO_1_ECI_ON;
+	}
+	if((mode & SCM_PORT_SUSPEND_ECI_ON) == SCM_PORT_SUSPEND_ECI_ON) {
+		configuration.Mode = configuration.Mode | PORT_SUSPEND_ECI_ON;
+	}
+
+	/* reset latch logic high or low */
+	if((resetLatch & SCM_PORT_RI_SCI_ON) == SCM_PORT_RI_SCI_ON) {
+		configuration.Reset_Latch = configuration.Reset_Latch | PORT_RI_SCI_ON;
+	}
+	if((resetLatch & SCM_PORT_DCD_SCI_ON) == SCM_PORT_DCD_SCI_ON) {
+		configuration.Reset_Latch = configuration.Reset_Latch | PORT_DCD_SCI_ON;
+	}
+	if((resetLatch & SCM_PORT_DTR_SCI_ON) == SCM_PORT_DTR_SCI_ON) {
+		configuration.Reset_Latch = configuration.Reset_Latch | PORT_DTR_SCI_ON;
+	}
+	if((resetLatch & SCM_PORT_DSR_SCI_ON) == SCM_PORT_DSR_SCI_ON) {
+		configuration.Reset_Latch = configuration.Reset_Latch | PORT_DSR_SCI_ON;
+	}
+	if((resetLatch & SCM_PORT_TXD_SCI_ON) == SCM_PORT_TXD_SCI_ON) {
+		configuration.Reset_Latch = configuration.Reset_Latch | PORT_TXD_SCI_ON;
+	}
+	if((resetLatch & SCM_PORT_RXD_SCI_ON) == SCM_PORT_RXD_SCI_ON) {
+		configuration.Reset_Latch = configuration.Reset_Latch | PORT_RXD_SCI_ON;
+	}
+	if((resetLatch & SCM_PORT_RTS_SCI_ON) == SCM_PORT_RTS_SCI_ON) {
+		configuration.Reset_Latch = configuration.Reset_Latch | PORT_RTS_SCI_ON;
+	}
+	if((resetLatch & SCM_PORT_CTS_SCI_ON) == SCM_PORT_CTS_SCI_ON) {
+		configuration.Reset_Latch = configuration.Reset_Latch | PORT_CTS_SCI_ON;
+	}
+	if((resetLatch & SCM_PORT_GPIO_0_SCI_ON) == SCM_PORT_GPIO_0_SCI_ON) {
+		configuration.Reset_Latch = configuration.Reset_Latch | PORT_GPIO_0_SCI_ON;
+	}
+	if((resetLatch & SCM_PORT_GPIO_1_SCI_ON) == SCM_PORT_GPIO_1_SCI_ON) {
+		configuration.Reset_Latch = configuration.Reset_Latch | PORT_GPIO_1_SCI_ON;
+	}
+	if((resetLatch & SCM_PORT_GPIO_2_SCI_ON) == SCM_PORT_GPIO_2_SCI_ON) {
+		configuration.Reset_Latch = configuration.Reset_Latch | PORT_GPIO_2_SCI_ON;
+	}
+	if((resetLatch & SCM_PORT_SUSPEND_SCI_ON) == SCM_PORT_SUSPEND_SCI_ON) {
+		configuration.Reset_Latch = configuration.Reset_Latch | PORT_SUSPEND_SCI_ON;
+	}
+
+	if((resetLatch & SCM_PORT_RI_ECI_ON) == SCM_PORT_RI_ECI_ON) {
+		configuration.Reset_Latch = configuration.Reset_Latch | PORT_RI_ECI_ON;
+	}
+	if((resetLatch & SCM_PORT_DCD_ECI_ON) == SCM_PORT_DCD_ECI_ON) {
+		configuration.Reset_Latch = configuration.Reset_Latch | PORT_DCD_ECI_ON;
+	}
+	if((resetLatch & SCM_PORT_DTR_ECI_ON) == SCM_PORT_DTR_ECI_ON) {
+		configuration.Reset_Latch = configuration.Reset_Latch | PORT_DTR_ECI_ON;
+	}
+	if((resetLatch & SCM_PORT_DSR_ECI_ON) == SCM_PORT_DSR_ECI_ON) {
+		configuration.Reset_Latch = configuration.Reset_Latch | PORT_DSR_ECI_ON;
+	}
+	if((resetLatch & SCM_PORT_TXD_ECI_ON) == SCM_PORT_TXD_ECI_ON) {
+		configuration.Reset_Latch = configuration.Reset_Latch | PORT_TXD_ECI_ON;
+	}
+	if((resetLatch & SCM_PORT_RXD_ECI_ON) == SCM_PORT_RXD_ECI_ON) {
+		configuration.Reset_Latch = configuration.Reset_Latch | PORT_RXD_ECI_ON;
+	}
+	if((resetLatch & SCM_PORT_RTS_ECI_ON) == SCM_PORT_RTS_ECI_ON) {
+		configuration.Reset_Latch = configuration.Reset_Latch | PORT_RTS_ECI_ON;
+	}
+	if((resetLatch & SCM_PORT_CTS_ECI_ON) == SCM_PORT_CTS_ECI_ON) {
+		configuration.Reset_Latch = configuration.Reset_Latch | PORT_CTS_ECI_ON;
+	}
+	if((resetLatch & SCM_PORT_GPIO_0_ECI_ON) == SCM_PORT_GPIO_0_ECI_ON) {
+		configuration.Reset_Latch = configuration.Reset_Latch | PORT_GPIO_0_ECI_ON;
+	}
+	if((resetLatch & SCM_PORT_GPIO_1_ECI_ON) == SCM_PORT_GPIO_1_ECI_ON) {
+		configuration.Reset_Latch = configuration.Reset_Latch | PORT_GPIO_1_ECI_ON;
+	}
+	if((resetLatch & SCM_PORT_SUSPEND_ECI_ON) == SCM_PORT_SUSPEND_ECI_ON) {
+		configuration.Reset_Latch = configuration.Reset_Latch | PORT_SUSPEND_ECI_ON;
+	}
+
+	/* suspend latch logic high or low */
+	if((suspendLatch & SCM_PORT_RI_SCI_ON) == SCM_PORT_RI_SCI_ON) {
+		configuration.Suspend_Latch = configuration.Suspend_Latch | PORT_RI_SCI_ON;
+	}
+	if((suspendLatch & SCM_PORT_DCD_SCI_ON) == SCM_PORT_DCD_SCI_ON) {
+		configuration.Suspend_Latch = configuration.Suspend_Latch | PORT_DCD_SCI_ON;
+	}
+	if((suspendLatch & SCM_PORT_DTR_SCI_ON) == SCM_PORT_DTR_SCI_ON) {
+		configuration.Suspend_Latch = configuration.Suspend_Latch | PORT_DTR_SCI_ON;
+	}
+	if((suspendLatch & SCM_PORT_DSR_SCI_ON) == SCM_PORT_DSR_SCI_ON) {
+		configuration.Suspend_Latch = configuration.Suspend_Latch | PORT_DSR_SCI_ON;
+	}
+	if((suspendLatch & SCM_PORT_TXD_SCI_ON) == SCM_PORT_TXD_SCI_ON) {
+		configuration.Suspend_Latch = configuration.Suspend_Latch | PORT_TXD_SCI_ON;
+	}
+	if((suspendLatch & SCM_PORT_RXD_SCI_ON) == SCM_PORT_RXD_SCI_ON) {
+		configuration.Suspend_Latch = configuration.Suspend_Latch | PORT_RXD_SCI_ON;
+	}
+	if((suspendLatch & SCM_PORT_RTS_SCI_ON) == SCM_PORT_RTS_SCI_ON) {
+		configuration.Suspend_Latch = configuration.Suspend_Latch | PORT_RTS_SCI_ON;
+	}
+	if((suspendLatch & SCM_PORT_CTS_SCI_ON) == SCM_PORT_CTS_SCI_ON) {
+		configuration.Suspend_Latch = configuration.Suspend_Latch | PORT_CTS_SCI_ON;
+	}
+	if((suspendLatch & SCM_PORT_GPIO_0_SCI_ON) == SCM_PORT_GPIO_0_SCI_ON) {
+		configuration.Suspend_Latch = configuration.Suspend_Latch | PORT_GPIO_0_SCI_ON;
+	}
+	if((suspendLatch & SCM_PORT_GPIO_1_SCI_ON) == SCM_PORT_GPIO_1_SCI_ON) {
+		configuration.Suspend_Latch = configuration.Suspend_Latch | PORT_GPIO_1_SCI_ON;
+	}
+	if((suspendLatch & SCM_PORT_GPIO_2_SCI_ON) == SCM_PORT_GPIO_2_SCI_ON) {
+		configuration.Suspend_Latch = configuration.Suspend_Latch | PORT_GPIO_2_SCI_ON;
+	}
+	if((suspendLatch & SCM_PORT_SUSPEND_SCI_ON) == SCM_PORT_SUSPEND_SCI_ON) {
+		configuration.Suspend_Latch = configuration.Suspend_Latch | PORT_SUSPEND_SCI_ON;
+	}
+
+	if((suspendLatch & SCM_PORT_RI_ECI_ON) == SCM_PORT_RI_ECI_ON) {
+		configuration.Suspend_Latch = configuration.Suspend_Latch | PORT_RI_ECI_ON;
+	}
+	if((suspendLatch & SCM_PORT_DCD_ECI_ON) == SCM_PORT_DCD_ECI_ON) {
+		configuration.Suspend_Latch = configuration.Suspend_Latch | PORT_DCD_ECI_ON;
+	}
+	if((suspendLatch & SCM_PORT_DTR_ECI_ON) == SCM_PORT_DTR_ECI_ON) {
+		configuration.Suspend_Latch = configuration.Suspend_Latch | PORT_DTR_ECI_ON;
+	}
+	if((suspendLatch & SCM_PORT_DSR_ECI_ON) == SCM_PORT_DSR_ECI_ON) {
+		configuration.Suspend_Latch = configuration.Suspend_Latch | PORT_DSR_ECI_ON;
+	}
+	if((suspendLatch & SCM_PORT_TXD_ECI_ON) == SCM_PORT_TXD_ECI_ON) {
+		configuration.Suspend_Latch = configuration.Suspend_Latch | PORT_TXD_ECI_ON;
+	}
+	if((suspendLatch & SCM_PORT_RXD_ECI_ON) == SCM_PORT_RXD_ECI_ON) {
+		configuration.Suspend_Latch = configuration.Suspend_Latch | PORT_RXD_ECI_ON;
+	}
+	if((suspendLatch & SCM_PORT_RTS_ECI_ON) == SCM_PORT_RTS_ECI_ON) {
+		configuration.Suspend_Latch = configuration.Suspend_Latch | PORT_RTS_ECI_ON;
+	}
+	if((suspendLatch & SCM_PORT_CTS_ECI_ON) == SCM_PORT_CTS_ECI_ON) {
+		configuration.Suspend_Latch = configuration.Suspend_Latch | PORT_CTS_ECI_ON;
+	}
+	if((suspendLatch & SCM_PORT_GPIO_0_ECI_ON) == SCM_PORT_GPIO_0_ECI_ON) {
+		configuration.Suspend_Latch = configuration.Suspend_Latch | PORT_GPIO_0_ECI_ON;
+	}
+	if((suspendLatch & SCM_PORT_GPIO_1_ECI_ON) == SCM_PORT_GPIO_1_ECI_ON) {
+		configuration.Suspend_Latch = configuration.Suspend_Latch | PORT_GPIO_1_ECI_ON;
+	}
+	if((suspendLatch & SCM_PORT_SUSPEND_ECI_ON) == SCM_PORT_SUSPEND_ECI_ON) {
+		configuration.Suspend_Latch = configuration.Suspend_Latch | PORT_SUSPEND_ECI_ON;
+	}
+
+	/* enhanced functions ECI */
+	if((enhancedFxnECI & SCM_EF_GPIO_0_TXLED_ECI) == SCM_EF_GPIO_0_TXLED_ECI) {
+		configuration.EnhancedFxn_ECI = configuration.EnhancedFxn_ECI | EF_GPIO_0_TXLED_ECI;
+	}
+	if((enhancedFxnECI & SCM_EF_GPIO_1_RXLED_ECI) == SCM_EF_GPIO_1_RXLED_ECI) {
+		configuration.EnhancedFxn_ECI = configuration.EnhancedFxn_ECI | EF_GPIO_1_RXLED_ECI;
+	}
+	if((enhancedFxnECI & SCM_EF_GPIO_1_RS485_ECI) == SCM_EF_GPIO_1_RS485_ECI) {
+		configuration.EnhancedFxn_ECI = configuration.EnhancedFxn_ECI | EF_GPIO_1_RS485_ECI;
+	}
+	if((enhancedFxnECI & SCM_EF_RS485_INVERT) == SCM_EF_RS485_INVERT) {
+		configuration.EnhancedFxn_ECI = configuration.EnhancedFxn_ECI | EF_RS485_INVERT;
+	}
+	if((enhancedFxnECI & SCM_EF_INVERT_SUSPEND_ECI) == SCM_EF_INVERT_SUSPEND_ECI) {
+		configuration.EnhancedFxn_ECI = configuration.EnhancedFxn_ECI | EF_INVERT_SUSPEND_ECI;
+	}
+	if((enhancedFxnECI & SCM_EF_DYNAMIC_SUSPEND_ECI) == SCM_EF_DYNAMIC_SUSPEND_ECI) {
+		configuration.EnhancedFxn_ECI = configuration.EnhancedFxn_ECI | EF_DYNAMIC_SUSPEND_ECI;
+	}
+
+	/* enhanced functions SCI */
+	if((enhancedFxnSCI & SCM_EF_GPIO_0_TXLED_SCI) == SCM_EF_GPIO_0_TXLED_SCI) {
+		configuration.EnhancedFxn_SCI = configuration.EnhancedFxn_SCI | EF_GPIO_0_TXLED_SCI;
+	}
+	if((enhancedFxnSCI & SCM_EF_GPIO_1_RXLED_SCI) == SCM_EF_GPIO_1_RXLED_SCI) {
+		configuration.EnhancedFxn_SCI = configuration.EnhancedFxn_SCI | EF_GPIO_1_RXLED_SCI;
+	}
+	if((enhancedFxnSCI & SCM_EF_INVERT_SUSPEND_SCI) == SCM_EF_INVERT_SUSPEND_SCI) {
+		configuration.EnhancedFxn_SCI = configuration.EnhancedFxn_SCI | EF_INVERT_SUSPEND_SCI;
+	}
+	if((enhancedFxnSCI & SCM_EF_DYNAMIC_SUSPEND_SCI) == SCM_EF_DYNAMIC_SUSPEND_SCI) {
+		configuration.EnhancedFxn_SCI = configuration.EnhancedFxn_SCI | EF_DYNAMIC_SUSPEND_SCI;
+	}
+
+	/* enhanced functions device */
+	if((enhancedFxnDevice & SCM_EF_WEAKPULLUP) == SCM_EF_WEAKPULLUP) {
+		configuration.EnhancedFxn_Device = configuration.EnhancedFxn_Device | EF_WEAKPULLUP;
+	}
+
+	ret = CP210x_SetDualPortConfig((HANDLE)handle, &configuration);
+	if(ret != CP210x_SUCCESS) {
+		throw_serialcom_exception(env, 2, ret, NULL);
+		return -1;
+	}
+
+	return 0;
 }
 
 /*

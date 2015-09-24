@@ -77,13 +77,13 @@ public class Test74  {
 			}catch (Exception e) {
 				System.out.println("\n" + e.getMessage());
 			}
-			
+
 			try {
 				System.out.println("\ngetDeviceProductString : " + cpman.getDeviceProductString(handle));
 			}catch (Exception e) {
 				System.out.println("\n" + e.getMessage());
 			}
-			
+
 			try {
 				System.out.println("\ninterface string : " + cpman.getDeviceInterfaceString(handle, (byte)0));
 			}catch (Exception e) {
@@ -95,7 +95,7 @@ public class Test74  {
 			}catch (Exception e) {
 				System.out.println("\n" + e.getMessage());
 			}
-			
+
 			try {
 				System.out.println("\ngetDeviceSerialNumber : " + cpman.getDeviceSerialNumber(handle));
 			}catch (Exception e) {
@@ -137,7 +137,7 @@ public class Test74  {
 				System.out.println("\n");
 				CP210XbaudConfigs[] baud = cpman.getBaudRateConfig(handle);
 				for(int x=0; x<baud.length; x++) {
-//					baud[x].dumpBaudInfo();
+					//					baud[x].dumpBaudInfo();
 				}
 			}catch (Exception e) {
 				System.out.println("\n" + e.getMessage());
@@ -145,9 +145,18 @@ public class Test74  {
 
 			try {
 				int[] portconfig = cpman.getPortConfig(handle);
-				System.out.println("\n" + "port config : " + portconfig[0] + portconfig[1] + portconfig[2] + portconfig[3]);
+				System.out.println("\n" + "port config : " + portconfig[0] + portconfig[1] + portconfig[2] 
+						+ portconfig[3]);
 			}catch (Exception e) {
 				System.out.println("\n" + "port config : " + e.getMessage());
+			}
+
+			try {
+				int[] dualportconfig = cpman.getDualPortConfig(handle);
+				System.out.println("\n" + "dual port config : " + dualportconfig[0] + dualportconfig[1] + dualportconfig[2] 
+						+ dualportconfig[3] + dualportconfig[4] + dualportconfig[5]);
+			}catch (Exception e) {
+				System.out.println("\n" + "dual port config : " + e.getMessage());
 			}
 
 			try {
@@ -173,7 +182,7 @@ public class Test74  {
 			}catch (Exception e) {
 				System.out.println("\n" + e.getMessage());
 			}
-			
+
 			try {
 				System.out.println("\n" + "Close : " + cpman.close(handle));
 			}catch (Exception e) {
