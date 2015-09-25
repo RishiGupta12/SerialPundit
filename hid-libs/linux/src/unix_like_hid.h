@@ -83,7 +83,8 @@ struct jstrarray_list {
 };
 
 /* function prototypes (declared in reverse order of use) */
-int LOGE(const char *error_msg);
+int LOGE(const char *msga, const char *msgb);
+int LOGEN(const char *msga, const char *msgb, unsigned int error_num);
 void throw_serialcom_exception(JNIEnv *env, int type, int error_code, const char *);
 void free_jstrarraylist(struct jstrarray_list *al);
 void insert_jstrarraylist(struct jstrarray_list *al, jstring element);

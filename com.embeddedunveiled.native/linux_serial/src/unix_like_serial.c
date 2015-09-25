@@ -165,7 +165,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
 		serialComExceptionClass = (*env)->FindClass(env, SCOMEXPCLASS);
 		if((serialComExceptionClass == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
 			(*env)->ExceptionClear(env);
-			LOGE(E_FINDCLASSSCOMEXPSTR);
+			LOGE(E_FINDCLASSSCOMEXPSTR, "init native lib");
 			return -1;
 		}
 		(*env)->ThrowNew(env, serialComExceptionClass, E_GETJVMSTR);

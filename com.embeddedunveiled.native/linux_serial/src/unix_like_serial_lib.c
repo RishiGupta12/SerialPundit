@@ -70,19 +70,7 @@
 #include <jni.h>
 #include "unix_like_serial_lib.h"
 
-#define DBG 1
-
 JavaVM *jvm_event;
-
-/*
- * Prints fatal error on console. In future we may pass this message back to java layer where
- * it can log using any logging framework or simply choose to discard.
- */
-int LOGE(const char *error_msg) {
-	fprintf(stderr, "%s\n", error_msg);
-	fflush(stderr);
-	return 0;
-}
 
 /* pselect() is used to provide delay whenever required. It returns errno as is and let caller decide
  * what to do if pselect fails. This returns negative value if function fails. The caller must multiply
@@ -445,7 +433,7 @@ void event_exit_signal_handler(int signal_number) {
 	if(signal_number == SIGUSR1) {
 		ret = (*jvm_event)->DetachCurrentThread(jvm_event);
 		if(ret != JNI_OK) {
-			LOGE(E_DETACHCURTHREAD);
+			LOGE(E_DETACHCURTHREAD, "exit signal handler.");
 		}
 		pthread_exit((void *)0);
 	}

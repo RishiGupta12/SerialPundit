@@ -91,6 +91,8 @@
 #define FAILTHOWEXP "JNI call ThrowNew failed to throw exception !"
 #define SCOMEXPCLASS "com/embeddedunveiled/serial/SerialComException"
 #define JAVALSTRING "java/lang/String"
+
+#define E_UNKNOWN "Unknown error occurred !"
 #define E_ENBLPARCHKSTR "Parity checking in configureComPortData method needs to be enabled first !"
 #define E_GETJVMSTR "JNI call GetJavaVM failed !"
 #define E_FINDCLASSSCOMEXPSTR "Can not find class com/embeddedunveiled/serial/SerialComException, Probably out of memory."
@@ -159,10 +161,11 @@ struct jstrarray_list {
 };
 
 /* function prototypes (declared in reverse order of use) */
-extern int LOGE(const char *error_msg);
-extern void throw_serialcom_exception(JNIEnv *env, int type, int error_code, const char *);
-extern void free_jstrarraylist(struct jstrarray_list *al);
-extern void insert_jstrarraylist(struct jstrarray_list *al, jstring element);
-extern void init_jstrarraylist(struct jstrarray_list *al, int initial_size);
+int LOGE(const char *msga, const char *msgb);
+int LOGEN(const char *msga, const char *msgb, unsigned int error_num);
+void throw_serialcom_exception(JNIEnv *env, int type, int error_code, const char *);
+void free_jstrarraylist(struct jstrarray_list *al);
+void insert_jstrarraylist(struct jstrarray_list *al, jstring element);
+void init_jstrarraylist(struct jstrarray_list *al, int initial_size);
 
 #endif /* SCM_FTDI_D2XX_LIB_H_ */

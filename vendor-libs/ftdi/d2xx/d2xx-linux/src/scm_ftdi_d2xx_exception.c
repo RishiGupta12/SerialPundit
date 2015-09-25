@@ -21,25 +21,39 @@
 #include <stdio.h>
 
 #if defined (__linux__) || defined (__APPLE__)
-#include <errno.h>
 #include <unistd.h>
+#include <errno.h>
 #endif
 
-#include "CP210xManufacturing.h"
-#include "scm_cp210xmanufacturing.h"
+#include <jni.h>
+#include "scm_ftdi_d2xx.h"
+
+/*
+ * Prints fatal error on console. Java application can deploy a Java level framework which redirects
+ * data for STDERR to a log file.
+ */
+int LOGE(const char *msg_a, const char *msg_b) {
+	fprintf(stderr, "%s , %s\n", msg_a, msg_b);
+	fflush(stderr);
+	return 0;
+}
+
+int LOGEN(const char *msg_a, const char *msg_b, unsigned int error_num) {
+	fprintf(stderr, "%s , %s , error code : %d\n", msg_a, msg_b, error_num);
+	fflush(stderr);
+	return 0;
+}
 
 /*
  * For C-standard/POSIX/OS specific/Custom/JNI errors, this function is called. It sets a pointer which is checked
- * by java method when native function returns. If the pointer is set exception of class as set by this function is
- * thrown.
+ * by java method when native function returns. If the pointer is set exception of class as set by this function is thrown.
  *
- * The type 1 indicates standard (C-standard/POSIX/OS specific) error, 2 indicate custom (defined by this library)
- * error, 3 indicates custom error with message string.
+ * The type 1 indicates standard (C-standard/POSIX/OS specific) error, 2 indicate custom (defined by this library) error,
+ * 3 indicates custom error with message string.
  */
 void throw_serialcom_exception(JNIEnv *env, int type, int error_code, const char *msg) {
 	jint ret = 0;
 	char buffer[256];
-	char *custom_error_msg = NULL;
 	jclass serialComExceptionClass = NULL;
 #if _POSIX_C_SOURCE >= 200112L || _XOPEN_SOURCE >= 600 && ! _GNU_SOURCE
 #else
@@ -49,7 +63,7 @@ void throw_serialcom_exception(JNIEnv *env, int type, int error_code, const char
 	serialComExceptionClass = (*env)->FindClass(env, SCOMEXPCLASS);
 	if((serialComExceptionClass == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
 		(*env)->ExceptionClear(env);
-		LOGE(E_FINDCLASSSCOMEXPSTR);
+		LOGE(E_FINDCLASSSCOMEXPSTR, FAILTHOWEXP);
 		return;
 	}
 
@@ -57,10 +71,15 @@ void throw_serialcom_exception(JNIEnv *env, int type, int error_code, const char
 		/* Caller has given posix/os-standard error code, get error message corresponding to this code. */
 		/* This need to be made more portable to remove compiler specific dependency */
 #if _POSIX_C_SOURCE >= 200112L || _XOPEN_SOURCE >= 600 && ! _GNU_SOURCE
-		strerror_r(error_code, buffer, 256);
+		memset(buffer, '\0', sizeof(buffer));
+		errno = 0;
+		ret = strerror_r(error_code, buffer, 256);
+		if(ret < 0) {
+			LOGEN(FAILTHOWEXP, "strerror_r", error_code);
+		}
 		ret = (*env)->ThrowNew(env, serialComExceptionClass, buffer);
 		if(ret < 0) {
-			LOGE(FAILTHOWEXP);
+			LOGE(FAILTHOWEXP, buffer);
 		}
 #else
 		error_msg = strerror_r(error_code, buffer, 256);
@@ -78,36 +97,57 @@ void throw_serialcom_exception(JNIEnv *env, int type, int error_code, const char
 #endif
 	}else if(type == 2) {
 		/* Caller has given custom error code, need to get exception message corresponding to this code. */
+		memset(buffer, '\0', sizeof(buffer));
 		switch (error_code) {
-		case CP210x_DEVICE_NOT_FOUND: custom_error_msg = "CP210x_DEVICE_NOT_FOUND";
+		case FT_INVALID_HANDLE: strcpy(buffer, "FT_INVALID_HANDLE");
 		break;
-		case CP210x_INVALID_HANDLE: custom_error_msg = "CP210x_INVALID_HANDLE";
+		case FT_DEVICE_NOT_FOUND: strcpy(buffer, "FT_DEVICE_NOT_FOUND");
 		break;
-		case CP210x_INVALID_PARAMETER: custom_error_msg = "CP210x_INVALID_PARAMETER";
+		case FT_DEVICE_NOT_OPENED: strcpy(buffer, "FT_DEVICE_NOT_OPENED");
 		break;
-		case CP210x_DEVICE_IO_FAILED: custom_error_msg = "CP210x_DEVICE_IO_FAILED";
+		case FT_IO_ERROR: strcpy(buffer, "FT_IO_ERROR");
 		break;
-		case CP210x_FUNCTION_NOT_SUPPORTED: custom_error_msg = "CP210x_FUNCTION_NOT_SUPPORTED";
+		case FT_INSUFFICIENT_RESOURCES: strcpy(buffer, "FT_INSUFFICIENT_RESOURCES");
 		break;
-		case CP210x_GLOBAL_DATA_ERROR: custom_error_msg = "CP210x_GLOBAL_DATA_ERROR";
+		case FT_INVALID_PARAMETER: strcpy(buffer, "FT_INVALID_PARAMETER");
 		break;
-		case CP210x_FILE_ERROR: custom_error_msg = "CP210x_FILE_ERROR";
+		case FT_INVALID_BAUD_RATE: strcpy(buffer, "FT_INVALID_BAUD_RATE");
 		break;
-		case CP210x_COMMAND_FAILED: custom_error_msg = "CP210x_COMMAND_FAILED";
+		case FT_DEVICE_NOT_OPENED_FOR_ERASE: strcpy(buffer, "FT_DEVICE_NOT_OPENED_FOR_ERASE");
 		break;
-		case CP210x_INVALID_ACCESS_TYPE: custom_error_msg = "CP210x_INVALID_ACCESS_TYPE";
+		case FT_DEVICE_NOT_OPENED_FOR_WRITE: strcpy(buffer, "FT_DEVICE_NOT_OPENED_FOR_WRITE");
 		break;
-		default : custom_error_msg = "Unknown error occurred !";
+		case FT_FAILED_TO_WRITE_DEVICE: strcpy(buffer, "FT_FAILED_TO_WRITE_DEVICE");
+		break;
+		case FT_EEPROM_READ_FAILED: strcpy(buffer, "FT_EEPROM_READ_FAILED");
+		break;
+		case FT_EEPROM_WRITE_FAILED: strcpy(buffer, "FT_EEPROM_WRITE_FAILED");
+		break;
+		case FT_EEPROM_ERASE_FAILED: strcpy(buffer, "FT_EEPROM_ERASE_FAILED");
+		break;
+		case FT_EEPROM_NOT_PRESENT: strcpy(buffer, "FT_EEPROM_NOT_PRESENT");
+		break;
+		case FT_EEPROM_NOT_PROGRAMMED: strcpy(buffer, "FT_EEPROM_NOT_PROGRAMMED");
+		break;
+		case FT_INVALID_ARGS: strcpy(buffer, "FT_INVALID_ARGS");
+		break;
+		case FT_NOT_SUPPORTED: strcpy(buffer, "FT_NOT_SUPPORTED");
+		break;
+		case FT_OTHER_ERROR: strcpy(buffer, "FT_OTHER_ERROR");
+		break;
+		case FT_DEVICE_LIST_NOT_READY: strcpy(buffer, "FT_DEVICE_LIST_NOT_READY");
+		break;
+		default : strcpy(buffer, E_UNKNOWN);
 		}
-		ret = (*env)->ThrowNew(env, serialComExceptionClass, custom_error_msg);
+		ret = (*env)->ThrowNew(env, serialComExceptionClass, buffer);
 		if(ret < 0) {
-			LOGE(FAILTHOWEXP);
+			LOGE(FAILTHOWEXP, buffer);
 		}
 	}else {
 		/* Caller has given exception message explicitly */
 		ret = (*env)->ThrowNew(env, serialComExceptionClass, msg);
 		if(ret < 0) {
-			LOGE(FAILTHOWEXP);
+			LOGE(FAILTHOWEXP, msg);
 		}
 	}
 }
