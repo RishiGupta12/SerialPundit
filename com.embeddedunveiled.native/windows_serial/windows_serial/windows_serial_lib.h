@@ -15,6 +15,7 @@
  * along with serial communication manager. If not, see <http://www.gnu.org/licenses/>.
  *
  ***************************************************************************************************/
+ 
 #pragma once
 
 #ifndef WINDOWS_SERIAL_LIB_H_
@@ -23,11 +24,61 @@
 #include <jni.h>
 #include <windows.h>
 
-/* Error offset added for actual error code reporting by java layer. */
-#define ERR_OFFSET 320
-
 /* This is the maximum number of threads and hence data listeners instance we support. */
 #define MAX_NUM_THREADS 1024
+
+/* Constant string defines */
+#define SCOMEXPCLASS "com/embeddedunveiled/serial/SerialComException"
+#define JAVALSTRING "java/lang/String"
+#define FAILTHOWEXP "JNI call ThrowNew failed to throw exception !"
+
+#define E_UNKNOWN "Unknown error occurred !"
+#define E_ENBLPARCHKSTR "Parity checking in configureComPortData method needs to be enabled first !"
+#define E_GETJVMSTR "JNI call GetJavaVM failed !"
+#define E_FINDCLASSSCOMEXPSTR "Can not find class com/embeddedunveiled/serial/SerialComException. Probably out of memory !"
+#define E_FINDCLASSSSTRINGSTR "Can not find class java/lang/String. Probably out of memory !"
+#define E_NEWOBJECTARRAYSTR "JNI call NewObjectArray failed. Probably out of memory !"
+#define E_NEWBYTEARRAYSTR "JNI call NewByteArray failed !"
+#define E_NEWINTARRAYSTR "JNI call NewIntArray failed !"
+#define E_SETOBJECTARRAYSTR "JNI call SetObjectArrayElement failed. Either index violation or wrong class used !"
+#define E_SETBYTEARRREGIONSTR "JNI call SetByteArrayRegion failed !"
+#define E_SETINTARRREGIONSTR "JNI call SetIntArrayRegion failed !"
+#define E_NEWSTRUTFSTR "JNI call NewStringUTF failed !"
+#define E_GETSTRUTFCHARSTR "JNI call GetStringUTFChars failed !"
+#define E_GETBYTEARRELEMTSTR "JNI call GetByteArrayElements failed !"
+#define E_GETBYTEARRREGIONSTR "JNI call GetByteArrayRegion failed !"
+#define E_NEWGLOBALREFSTR "JNI Call NewGlobalRef failed !"
+#define E_DELGLOBALREFSTR "JNI Call DeleteGlobalRef failed !"
+#define E_MALLOCSTR "malloc() failed to allocate requested memory !"
+#define E_CALLOCSTR "calloc() failed to allocate requested memory !"
+#define E_REALLOCSTR "realloc() failed to allocate requested memory !"
+#define E_ATTACHCURRENTTHREADSTR "JNI call AttachCurrentThread failed !"
+#define E_GETOBJECTCLASSSTR "JNI call GetObjectClass failed !"
+#define E_GETMETHODIDSTR "JNI call GetMethodID failed !"
+#define E_DETACHCURTHREAD "JNI call DetachCurrentThread failed !"
+#define E_SIGNALINSTFAILSTR "Failed to install signal handler !"
+#define E_CALLVOIDMETHDSTR "JNI call CallVoidMethod failed !"
+#define E_UDEVNEWSTR "Could not create udev context !"
+#define E_UDEVNETLINKSTR "Could not create udev monitor !"
+#define E_IOSRVMATUSBDEVSTR "Function call IOServiceMatching('IOUSBDevice') failed !"
+#define E_GETDIRCTBUFADDRSTR "JNI call GetDirectBufferAddress failed !"
+#define E_VIOVNTINVALIDSTR "The length of data supplied exceeds maximum limit !"
+#define E_HCIOPENDEV "Could not open BT HCI device !"
+#define E_HCIREADNAME "Could not read local name of BT HCI device !"
+#define E_HCIBTADDR "Could not determine address of BT HCI device !"
+#define E_CANNOTFINDDEVNODE "Failed to find device node from sysfs path !"
+
+/* Custom error codes and messages for SCM library */
+#define ERROR_OFFSET 15000
+#define E_CALLOC              (ERROR_OFFSET + 1)
+#define E_ATTACHCURRENTTHREAD (ERROR_OFFSET + 2)
+#define E_GETOBJECTCLASS      (ERROR_OFFSET + 3)
+#define E_GETMETHODID         (ERROR_OFFSET + 4)
+#define E_SIGNALINSTFAIL      (ERROR_OFFSET + 5)
+#define E_CALLVOIDMETHD       (ERROR_OFFSET + 6)
+#define E_UDEVNEW             (ERROR_OFFSET + 7)
+#define E_UDEVNETLINK         (ERROR_OFFSET + 8)
+#define E_IOSRVMATUSBDEV      (ERROR_OFFSET + 9)
 
 /* Structure representing data that is passed to each data looper thread
  * with info corresponding to that file descriptor. */
@@ -59,149 +110,19 @@ struct port_info {
 	struct port_info *info;
 };
 
-/* ERROR MAPPING FROM WINDOWS TO JAVA LAYER
- *
- * This is taken from /usr/include/asm-generic/errno.h and /usr/include/asm-generic/errno-base.h
- * Basically, java layer defines error code and its meaning for this serial library. Now because unix-like OS and Windows
- * has different error numbers, the native library maps OS specific error number to the error number defined by java layer.
- * For the sake of easiness, java layer uses unix-like error numbers which means, only Windows error numbers need to be
- * mapped to java layer specific error numbers. */
-#define EPERM		 1	/* Operation not permitted */
-#define ENOENT		 2	/* No such file or directory */
-#define	 ESRCH		 3	/* No such process */
-#define	 EINTR		 4	/* Interrupted system call */
-#define EIO		     5	/* I/O error */
-#define ENXIO		 6	/* No such device or address */
-#define E2BIG		 7	/* Argument list too long */
-#define ENOEXEC		 8	/* Exec format error */
-#define EBADF		 9	/* Bad file number */
-#define ECHILD		10	/* No child processes */
-#define	 EAGAIN		11	/* Try again */
-#define	 ENOMEM		12	/* Out of memory */
-#define	 EACCES		13	/* Permission denied */
-#define EFAULT		14	/* Bad address */
-#define	 ENOTBLK	15	/* Block device required */
-#define	 EBUSY		16	/* Device or resource busy */
-#define	 EEXIST		17	/* File exists */
-#define	 EXDEV		18	/* Cross-device link */
-#define	 ENODEV		19	/* No such device */
-#define	 ENOTDIR	20	/* Not a directory */
-#define	 EISDIR		21	/* Is a directory */
-#define	 EINVAL		22	/* Invalid argument */
-#define	 ENFILE		23	/* File table overflow */
-#define EMFILE		24	/* Too many open files */
-#define	 ENOTTY		25	/* Not a typewriter */
-#define	 ETXTBSY	26	/* Text file busy */
-#define	 EFBIG		27	/* File too large */
-#define	 ENOSPC		28	/* No space left on device */
-#define	 ESPIPE		29	/* Illegal seek */
-#define EROFS		30	/* Read-only file system */
-#define EMLINK		31	/* Too many links */
-#define	 EPIPE		32	/* Broken pipe */
-#define	 EDOM		33	/* Math argument out of domain of func */
-#define	 ERANGE		34	/* Math result not representable */
-#define EDEADLK		35	/* Resource deadlock would occur */
-#define	 ENAMETOOLONG	36	/* File name too long */
-#define	 ENOLCK		37	/* No record locks available */
-#define	 ENOSYS		38	/* Function not implemented */
-#define	 ENOTEMPTY	39	/* Directory not empty */
-#define	 ELOOP		40	/* Too many symbolic links encountered */
-#define	 EWOULDBLOCK	EAGAIN	/* Operation would block */
-#define ENOMSG		42	/* No message of desired type */
-#define EIDRM		43	/* Identifier removed */
-#define ECHRNG		44	/* Channel number out of range */
-#define	 EL2NSYNC	45	/* Level 2 not synchronized */
-#define	 EL3HLT		46	/* Level 3 halted */
-#define	 EL3RST		47	/* Level 3 reset */
-#define	 ELNRNG		48	/* Link number out of range */
-#define	 EUNATCH	49	/* Protocol driver not attached */
-#define	 ENOCSI		50	/* No CSI structure available */
-#define	 EL2HLT		51	/* Level 2 halted */
-#define EBADE		52	/* Invalid exchange */
-#define EBADR		53	/* Invalid request descriptor */
-#define EXFULL		54	/* Exchange full */
-#define	 ENOANO		55	/* No anode */
-#define	 EBADRQC	56	/* Invalid request code */
-#define	 EBADSLT	57	/* Invalid slot */
-#define	 EDEADLOCK	EDEADLK
-#define	 EBFONT		59	/* Bad font file format */
-#define	 ENOSTR		60	/* Device not a stream */
-#define ENODATA		61	/* No data available */
-#define	 ETIME		62	/* Timer expired */
-#define	 ENOSR		63	/* Out of streams resources */
-#define	 ENONET		64	/* Machine is not on the network */
-#define	 ENOPKG		65	/* Package not installed */
-#define	 EREMOTE	66	/* Object is remote */
-#define ENOLINK		67	/* Link has been severed */
-#define EADV		68	/* Advertise error */
-#define ESRMNT		69	/* Srmount error */
-#define	 ECOMM		70	/* Communication error on send */
-#define	 EPROTO		71	/* Protocol error */
-#define	 EMULTIHOP	72	/* Multihop attempted */
-#define	 EDOTDOT	73	/* RFS specific error */
-#define	 EBADMSG	74	/* Not a data message */
-#define	 EOVERFLOW	75	/* Value too large for defined data type */
-#define	 ENOTUNIQ	76	/* Name not unique on network */
-#define	 EBADFD		77	/* File descriptor in bad state */
-#define EREMCHG		78	/* Remote address changed */
-#define	 ELIBACC	79	/* Can not access a needed shared library */
-#define ELIBBAD		80	/* Accessing a corrupted shared library */
-#define	 ELIBSCN	81	/* .lib section in a.out corrupted */
-#define	 ELIBMAX	82	/* Attempting to link in too many shared libraries */
-#define ELIBEXEC	83	/* Cannot exec a shared library directly */
-#define EILSEQ		84	/* Illegal byte sequence */
-#define	 ERESTART	85	/* Interrupted system call should be restarted */
-#define	 ESTRPIPE	86	/* Streams pipe error */
-#define	 EUSERS		87	/* Too many users */
-#define	 ENOTSOCK	88	/* Socket operation on non-socket */
-#define	 EDESTADDRREQ	89	/* Destination address required */
-#define	 EMSGSIZE	90	/* Message too long */
-#define	 EPROTOTYPE	91	/* Protocol wrong type for socket */
-#define	 ENOPROTOOPT	92	/* Protocol not available */
-#define	 EPROTONOSUPPORT	93	/* Protocol not supported */
-#define	 ESOCKTNOSUPPORT	94	/* Socket type not supported */
-#define EOPNOTSUPP	95	/* Operation not supported on transport endpoint */
-#define	 EPFNOSUPPORT	96	/* Protocol family not supported */
-#define	 EAFNOSUPPORT	97	/* Address family not supported by protocol */
-#define	 EADDRINUSE	    98	/* Address already in use */
-#define	 EADDRNOTAVAIL	99	/* Cannot assign requested address */
-#define	 ENETDOWN	    100	/* Network is down */
-#define	 ENETUNREACH	101	/* Network is unreachable */
-#define ENETRESET	    102	/* Network dropped connection because of reset */
-#define	 ECONNABORTED	103	/* Software caused connection abort */
-#define ECONNRESET	    104	/* Connection reset by peer */
-#define	 ENOBUFS		105	/* No buffer space available */
-#define	 EISCONN		106	/* Transport endpoint is already connected */
-#define	 ENOTCONN	    107	/* Transport endpoint is not connected */
-#define	 ESHUTDOWN	    108	/* Cannot send after transport endpoint shutdown */
-#define	 ETOOMANYREFS	109	/* Too many references: cannot splice */
-#define	 ETIMEDOUT	    110	/* Connection timed out */
-#define	 ECONNREFUSED	111	/* Connection refused */
-#define	 EHOSTDOWN	    112	/* Host is down */
-#define	 EHOSTUNREACH	113	/* No route to host */
-#define EALREADY	    114	/* Operation already in progress */
-#define EINPROGRESS   	115	/* Operation now in progress */
-#define ESTALE		    116	/* Stale NFS file handle */
-#define EUCLEAN		    117	/* Structure needs cleaning */
-#define	 ENOTNAM		118	/* Not a XENIX named type file */
-#define	 ENAVAIL		119	/* No XENIX semaphores available */
-#define	 EISNAM		120	/* Is a named type file */
-#define	 EREMOTEIO	121	/* Remote I/O error */
-#define	 EDQUOT		122	/* Quota exceeded */
-#define	 ENOMEDIUM	123	/* No medium found */
-#define	 EMEDIUMTYPE	124	/* Wrong medium type */
-#define ECANCELED	125	/* Operation Canceled */
-#define ENOKEY		126	/* Required key not available */
-#define	 EKEYEXPIRED	127	/* Key has expired */
-#define	 EKEYREVOKED	128	/* Key has been revoked */
-#define	 EKEYREJECTED	129	/* Key was rejected by service */
-/* for robust mutexes */
-#define EOWNERDEAD	130	/* Owner died */
-#define	 ENOTRECOVERABLE	131	/* State not recoverable */
-#define ERFKILL		132	/* Operation not possible due to RF-kill */
-#define EHWPOISON	133	/* Memory page has hardware error */
+/* This holds information for implementing dynamically growing array in C language. */
+struct jstrarray_list {
+	jstring *base;      /* pointer to an array of pointers to string */
+	int index;         /* array element index                       */
+	int current_size;  /* size of this array                        */
+};
 
-/* Serial library specific additions. */
-#define ETOOMANYOP 239
+/* function prototypes (declared in reverse order of use) */
+int LOGE(const char *msga, const char *msgb);
+int LOGEN(const char *msga, const char *msgb, unsigned int error_num);
+void throw_serialcom_exception(JNIEnv *env, int type, int error_code, const char *);
+void free_jstrarraylist(struct jstrarray_list *al);
+void insert_jstrarraylist(struct jstrarray_list *al, jstring element);
+void init_jstrarraylist(struct jstrarray_list *al, int initial_size);
 
 #endif /* WINDOWS_SERIAL_LIB_H_ */
