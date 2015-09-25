@@ -16,13 +16,16 @@
  *
  ***************************************************************************************************/
 
+#include "stdafx.h"
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
-#include <stdio.h>
-#include <errno.h>
+#include <windows.h>
+#include <process.h>
+#include <tchar.h>
+
 #include <jni.h>
-#include "unix_like_serial_lib.h"
+#include "windows_serial_lib.h"
 
 /* Allocate memory of given size and initializes elements as appropriate.
  * The elements in this array list will be java.lang.String object constructed

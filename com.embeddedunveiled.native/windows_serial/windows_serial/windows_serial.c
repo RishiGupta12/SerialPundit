@@ -31,20 +31,8 @@
 /* Common interface with java layer for supported OS types. */
 #include "../../com_embeddedunveiled_serial_SerialComJNINativeInterface.h"
 
-/* function prototypes */
-extern void LOGE(JNIEnv *env);
-extern int serial_delay(unsigned ms);
-extern unsigned WINAPI event_data_looper(LPVOID lpParam);
-extern unsigned WINAPI port_monitor(LPVOID lpParam);
-int setupLooperThread(JNIEnv *env, jobject obj, jlong handle, jobject looper_obj_ref, int data_enabled, int event_enabled, int global_index, int new_dtp_index);
-
-#define DBG 1
-
 #undef  UART_NATIVE_LIB_VERSION
 #define UART_NATIVE_LIB_VERSION "1.0.4"
-
-#define CommInBufSize 8192
-#define CommOutBufSize 3072
 
 /* Reference to JVM shared among all the threads within a process. It may be unsafe to cache a JNIEnv* instance
    and keep using it, as it may vary depending on the currently active thread. So save a JavaVM* instance only, 
@@ -65,7 +53,7 @@ struct port_info port_monitor_info[MAX_NUM_THREADS] = { { 0 } };
  * Used to protect global data from concurrent access. */
 CRITICAL_SECTION csmutex;
 
-/* Called when library is loaded or un-loaded. */
+/* Called when library is loaded or un-loaded. This clean up resources on library exit. */
 BOOL WINAPI DllMain(HANDLE hModule, DWORD reason_for_call, LPVOID lpReserved) {
 	switch (reason_for_call) {
 		case DLL_PROCESS_DETACH:
@@ -76,37 +64,59 @@ BOOL WINAPI DllMain(HANDLE hModule, DWORD reason_for_call, LPVOID lpReserved) {
 }
 
 /*
-* Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
-* Method:    initNativeLib
-* Signature: ()I
-*
-* This function save reference to JVM which will be used across native library, threads etc.
-*/
+ * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
+ * Method:    initNativeLib
+ * Signature: ()I
+ *
+ * @return 0 on success otherwise -1 if an error occurs.
+ * @throws SerialComException if any JNI function, OS API call or C function fails.
+ *
+ * This function save reference to JVM which will be used across native library, threads etc.
+ * It creates and prepares critical section object to synchronize access to global data.
+ * Clear all exceptions and prepares SerialComException class for exception throwing.
+ */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_initNativeLib(JNIEnv *env, jobject obj) {
 	int ret = 0;
+	jclass serialComExceptionClass = NULL;
+
 	ret = (*env)->GetJavaVM(env, &jvm);
 	if(ret < 0) {
-		if(DBG) fprintf(stderr, "%s \n", "NATIVE initNativeLib() could not get JVM.");
-		if(DBG) fflush(stderr);
-		return -240;
+		serialComExceptionClass = (*env)->FindClass(env, SCOMEXPCLASS);
+		if((serialComExceptionClass == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+			(*env)->ExceptionClear(env);
+			LOGE(E_FINDCLASSSCOMEXPSTR, "NATIVE initNativeLib() could not get JVM.");
+			return -1;
+		}
+		(*env)->ThrowNew(env, serialComExceptionClass, E_GETJVMSTR);
+		return -1;
 	}
 
 	/* Initialise critical section (does not return any value). */
 	InitializeCriticalSection(&csmutex);
-	return 0;
+
+	/* clear if something unexpected was there. */
+	if((*env)->ExceptionCheck(env) == JNI_TRUE) {
+		(*env)->ExceptionClear(env);
+	}
+	return 0;	
 }
 
 /*
-* Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
-* Method:    getNativeLibraryVersion
-* Signature: ()Ljava/lang/String;
-*
-* This might return null which is handled by java layer.
-*/
-JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_getNativeLibraryVersion(JNIEnv *env, jobject obj) {
-	jstring version = (*env)->NewStringUTF(env, UART_NATIVE_LIB_VERSION);
-	if((*env)->ExceptionOccurred(env)) {
-		LOGE(env);
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
+ * Method:    getNativeLibraryVersion
+ * Signature: ()Ljava/lang/String;
+ * 
+ * Returns native library version from hard-coded string or null.
+ * 
+ * @return version string if function succeeds otherwise NULL.
+ * @throws SerialComException if any JNI function, OS API call or C function fails.
+ */
+JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_getNativeLibraryVersion(JNIEnv *env, jobject obj) {
+	jstring version = NULL;
+	version = (*env)->NewStringUTF(env, UART_NATIVE_LIB_VERSION);
+	if((version == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+		throw_serialcom_exception(env, 3, 0, E_NEWSTRUTFSTR);
+		return NULL;
 	}
 	return version;
 }

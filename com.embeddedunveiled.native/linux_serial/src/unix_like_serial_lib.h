@@ -74,6 +74,7 @@
 #define E_HCIREADNAME "Could not read local name of BT HCI device !"
 #define E_HCIBTADDR "Could not determine address of BT HCI device !"
 #define E_CANNOTFINDDEVNODE "Failed to find device node from sysfs path !"
+#define E_WRITEZERONOTALLOWED "Write requires at least one byte data !"
 
 /* Custom error codes and messages for SCM library */
 #define ERROR_OFFSET 15000

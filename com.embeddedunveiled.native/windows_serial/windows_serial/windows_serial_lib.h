@@ -27,6 +27,9 @@
 /* This is the maximum number of threads and hence data listeners instance we support. */
 #define MAX_NUM_THREADS 1024
 
+#define CommInBufSize 8192
+#define CommOutBufSize 3072
+
 /* Constant string defines */
 #define SCOMEXPCLASS "com/embeddedunveiled/serial/SerialComException"
 #define JAVALSTRING "java/lang/String"
@@ -124,5 +127,10 @@ void throw_serialcom_exception(JNIEnv *env, int type, int error_code, const char
 void free_jstrarraylist(struct jstrarray_list *al);
 void insert_jstrarraylist(struct jstrarray_list *al, jstring element);
 void init_jstrarraylist(struct jstrarray_list *al, int initial_size);
+
+int serial_delay(unsigned ms);
+unsigned WINAPI event_data_looper(LPVOID lpParam);
+unsigned WINAPI port_monitor(LPVOID lpParam);
+int setupLooperThread(JNIEnv *env, jobject obj, jlong handle, jobject looper_obj_ref, int data_enabled, int event_enabled, int global_index, int new_dtp_index);
 
 #endif /* WINDOWS_SERIAL_LIB_H_ */
