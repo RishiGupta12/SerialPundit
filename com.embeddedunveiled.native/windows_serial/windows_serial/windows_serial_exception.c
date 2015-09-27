@@ -21,6 +21,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <windows.h>
+#include <strsafe.h>
 #include <process.h>
 #include <tchar.h>
 
@@ -52,6 +53,7 @@ int LOGEN(const char *msg_a, const char *msg_b, unsigned int error_num) {
  * error, 3 indicates custom error with message string, 4 indicates error number specific to Windows OS.
  */
 void throw_serialcom_exception(JNIEnv *env, int type, int error_code, const char *msg) {
+
 	DWORD ret = -1;
 	char buffer[256];
 	jclass serialComExceptionClass = NULL;
@@ -88,8 +90,18 @@ void throw_serialcom_exception(JNIEnv *env, int type, int error_code, const char
 			LOGE(FAILTHOWEXP, buffer);
 		}
 	}else if(type == 4) {
-
-
+		/* Caller has given Windows error code */
+		memset(buffer, '\0', sizeof(buffer));
+		ret = FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+							 NULL, error_code, MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US), 
+							 (LPSTR) &buffer, sizeof(buffer), NULL);
+		if(ret == 0) {
+			LOGEN(FAILTHOWEXP, "FormatMessageA", GetLastError());
+		}
+		ret = (*env)->ThrowNew(env, serialComExceptionClass, buffer);
+		if(ret < 0) {
+			LOGE(FAILTHOWEXP, buffer);
+		}
 	}else {
 		/* Caller has given exception message explicitly */
 		ret = (*env)->ThrowNew(env, serialComExceptionClass, msg);
