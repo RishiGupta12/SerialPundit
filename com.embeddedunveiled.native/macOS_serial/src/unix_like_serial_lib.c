@@ -1020,3 +1020,4 @@ void *usb_hot_plug_monitor(void *arg) {
 #if defined (__SunOS)
 #endif
 }
+

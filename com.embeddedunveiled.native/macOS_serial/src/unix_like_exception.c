@@ -39,13 +39,14 @@ int LOGEN(const char *msg_a, const char *msg_b, unsigned int error_num) {
 	fflush(stderr);
 	return 0;
 }
-
+ 
 /*
  * For C-standard/POSIX/OS specific/Custom/JNI errors, this function is called. It sets a pointer which is checked
- * by java method when native function returns. If the pointer is set exception of class as set by this function is thrown.
+ * by java method when native function returns. If the pointer is set exception of class as set by this function is 
+ * thrown.
  *
- * The type 1 indicates standard (C-standard/POSIX/OS specific) error, 2 indicate custom (defined by this library) error,
- * 3 indicates custom error with message string.
+ * The type 1 indicates standard (C-standard/POSIX/OS specific) error, 2 indicate custom (defined by this library) 
+ * error, 3 indicates custom error with message string.
  */
 void throw_serialcom_exception(JNIEnv *env, int type, int error_code, const char *msg) {
 	jint ret = 0;
@@ -127,3 +128,4 @@ void throw_serialcom_exception(JNIEnv *env, int type, int error_code, const char
 		}
 	}
 }
+

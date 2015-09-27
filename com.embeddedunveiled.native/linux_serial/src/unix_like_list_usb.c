@@ -386,3 +386,4 @@ jobjectArray list_usb_devices(JNIEnv *env, jint vendor_to_match) {
 	free_jstrarraylist(&list);
 	return usbDevicesFound;
 }
+

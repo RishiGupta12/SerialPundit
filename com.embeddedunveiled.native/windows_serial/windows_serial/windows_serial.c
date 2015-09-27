@@ -18,9 +18,14 @@
 
 /* stdafx.h must come as first include file if you are using precompiled headers and Microsoft compiler. */
 #include "stdafx.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+
+/* C */
+#include <stdarg.h>      /* ISO C Standard. Variable arguments  */
+#include <stdio.h>       /* ISO C99 Standard: Input/output      */
+#include <stdlib.h>      /* Standard ANSI routines              */
+#include <string.h>      /* String function definitions         */
+
+/* Windows */
 #include <windows.h>
 #include <process.h>
 #include <tchar.h>
@@ -63,19 +68,22 @@ BOOL WINAPI DllMain(HANDLE hModule, DWORD reason_for_call, LPVOID lpReserved) {
 	return TRUE;
 }
 
-/*
- * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
+ /*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
  * Method:    initNativeLib
  * Signature: ()I
  *
- * @return 0 on success otherwise -1 if an error occurs.
- * @throws SerialComException if any JNI function, OS API call or C function fails.
+ * This function gets the JVM interface (used in the Invocation API) associated with the current
+ * thread and save it so that it can be used across native library, threads etc. It creates and
+ * prepares critical section to synchronize access to global data. Clear all exceptions and prepares
+ * SerialComException class for exception throwing.
  *
- * This function save reference to JVM which will be used across native library, threads etc.
- * It creates and prepares critical section object to synchronize access to global data.
- * Clear all exceptions and prepares SerialComException class for exception throwing.
+ * @return 0 on success otherwise -1 if an error occurs.
+ * @throws SerialComException if any JNI function, Win API call or C function fails.
  */
-JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_initNativeLib(JNIEnv *env, jobject obj) {
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_initNativeLib(JNIEnv *env, 
+	jobject obj) {
+	
 	int ret = 0;
 	jclass serialComExceptionClass = NULL;
 
@@ -109,9 +117,10 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
  * Returns native library version from hard-coded string or null.
  * 
  * @return version string if function succeeds otherwise NULL.
- * @throws SerialComException if any JNI function, OS API call or C function fails.
+ * @throws SerialComException if any JNI function, Win API call or C function fails.
  */
-JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_getNativeLibraryVersion(JNIEnv *env, jobject obj) {
+JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_getNativeLibraryVersion(JNIEnv *env, 
+	jobject obj) {
 	jstring version = NULL;
 	version = (*env)->NewStringUTF(env, UART_NATIVE_LIB_VERSION);
 	if((version == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
@@ -122,17 +131,21 @@ JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPor
 }
 
 /*
-* Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
-* Method:    getSerialPortNames
-* Signature: ()[Ljava/lang/String;
-*
-* This returns serial style ports known to system at this moment. This information is gleaned by reading windows registry for serial ports.
-* Use registry editor to see available serial ports; HKEY_LOCAL_MACHINE->HARDWARE->DEVICEMAP->SERIALCOMM.
-* 
-* In Linux/Mac where predefined fixed size array is used, maximum upto 1024 port scan be found and reported by this library. However in 
-* Windows there is no such limitation.
-*/
-JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_getSerialPortNames(JNIEnv *env, jobject obj, jobject status) {
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
+ * Method:    listAvailableComPorts
+ * Signature: ()[Ljava/lang/String;
+ *
+ * This returns serial style ports known to system at this moment. This information is gleaned by reading 
+ * windows registry for serial ports.
+ * 
+ * Use registry editor to see available serial ports; HKEY_LOCAL_MACHINE->HARDWARE->DEVICEMAP->SERIALCOMM.
+ *
+ * @return array of serial ports found in system on success otherwise NULL if an error occurs.
+ * @throws SerialComException if any JNI function, Win API call or C function fails.
+ */
+JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_listAvailableComPorts(JNIEnv *env,
+		jobject obj) {
+
 	LONG result = 0;
 	HKEY hKey;
 	TCHAR achClass[MAX_PATH] = TEXT("");  /* buffer for class name       */
@@ -264,14 +277,71 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINati
 }
 
 /*
-* Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
-* Method:    openComPort
-* Signature: (Ljava/lang/String;ZZZ)J
-*
-* Communications ports cannot be shared in the same manner as text files are shared in Windows.
-* Use overlapped I/O for simultaneous reading/writing. Nonoverlapped I/O causes WriteFile to block if a ReadFile is in progress, and vice versa.
-*/
-JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_openComPort(JNIEnv *env, jobject obj, jstring portName, jboolean enableRead, jboolean enableWrite, jboolean exclusiveOwner) {
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
+ * Method:    listUSBdevicesWithInfo
+ * Signature: (I)[Ljava/lang/String;
+ *
+ * Find USB devices with information about them using platform specific facilities.
+ *
+ * @return array of Strings containing info about USB device(s) otherwise NULL if an error occurs or no
+ *         devices found.
+ * @throws SerialComException if any JNI function, Win API call or C function fails.
+ */
+JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_listUSBdevicesWithInfo(JNIEnv *env,
+		jobject obj, jint vendorFilter) {
+	return list_usb_devices(env, vendorFilter);
+}
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
+ * Method:    listComPortFromUSBAttributes
+ * Signature: (IILjava/lang/String;)[Ljava/lang/String;
+ *
+ * Find the COM Port/ device node assigned to USB-UART converter device using platform specific
+ * facilities.
+ *
+ * @return array of Strings containing com ports if found matching given criteria otherwise NULL if
+ *         error occurs or no node matching criteria is found.
+ * @throws SerialComException if any JNI function, Win API call or C function fails.
+
+ */
+JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_listComPortFromUSBAttributes(JNIEnv *env,
+		jobject obj, jint vid, jint pid, jstring serial) {
+	return vcp_node_from_usb_attributes(env, vid, pid, serial);
+}
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
+ * Method:    isUSBDevConnected
+ * Signature: (II)I
+ *
+ * Enumerate and check if given usb device identified by its USB-IF VID and PID is connected to
+ * system or not.
+ *
+ * @return 1 if device is connected, 0 if not connected , -1 if an error occurs.
+ * @throws SerialComException if any JNI function, Win API call or C function fails.
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_isUSBDevConnected(JNIEnv *env,
+		jobject obj, jint vid, jint pid) {
+	return is_usb_dev_connected(env, vid, pid);
+}
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
+ * Method:    openComPort
+ * Signature: (Ljava/lang/String;ZZZ)J
+ *
+ * Communications ports cannot be shared in the same manner as text files are shared in Windows.
+ * Use overlapped I/O for simultaneous reading/writing. Nonoverlapped I/O causes WriteFile to 
+ * block if a ReadFile is in progress, and vice versa.
+ *
+ * @return valid handle on success otherwise -1 if an error occurs.
+ * @throws SerialComException if any JNI function, Win API call or C function fails.
+ */
+JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_openComPort(JNIEnv *env,
+		jobject obj, jstring portName, jboolean enableRead, 
+		jboolean enableWrite, jboolean exclusiveOwner) {
+
 	int ret = 0;
 	DWORD errorVal;
 	int negative = -1;
@@ -411,26 +481,28 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInter
 	/* Reset communication mask. */
 	SetCommMask(hComm, EV_BREAK|EV_CTS|EV_DSR|EV_ERR|EV_RING|EV_RLSD|EV_RXCHAR|EV_RXFLAG|EV_TXEMPTY);
 
-	/* Abort outstanding I/O operations, clear port's I/O buffer (flush old garbage values). */
-	PurgeComm(hComm, PURGE_RXABORT | PURGE_RXCLEAR | PURGE_TXABORT | PURGE_TXCLEAR);
-
 	return (jlong)hComm;
 }
 
 /*
-* Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
-* Method:    closeComPort
-* Signature: (J)I
-*
-* Exclusive ownership is cleared automatically upon port close.
-*/
-JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_closeComPort(JNIEnv *env, jobject obj, jlong handle) {
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
+ * Method:    closeComPort
+ * Signature: (J)I
+ *
+ * Exclusive ownership is cleared automatically upon port close.
+ *
+ * @return 0 on success otherwise -1 if an error occurs.
+ * @throws SerialComException if any JNI function, Win API call or C function fails.
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_closeComPort(JNIEnv *env, 
+	jobject obj, jlong handle) {
+
 	jint ret = -1;
 	jint negative = -1;
 	HANDLE hComm = (HANDLE)handle;
 	DWORD errorVal;
 
-	/* Flush remaining data in IO buffers. */
+	/* Flush remaining data in IO buffers if any by chance. */
 	ret = FlushFileBuffers(hComm);
 	if(ret == 0) {
 		errorVal = GetLastError();
@@ -465,23 +537,36 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 }
 
 /*
- * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
  * Method:    readBytes
  * Signature: (JI)[B
  *
- * Default number of bytes to read is set to 1024 in java layer. To maintain performance, we extract field ID
- * (object that carries error details) only when error occurs.
- * 
+ * The maximum number of bytes that read system call can read is the value that can be 
+ * stored in an object of type ssize_t. In JNI programming 'jbyte' is 'signed char'. 
+ * Default count is set to 1024 in java layer.
+ *
  * 1. If data is read from serial port and no error occurs, return array of bytes.
  * 2. If there is no data to read from serial port and no error occurs, return NULL.
- * 3. If error occurs for whatever reason, return NULL and set status variable to Windows specific error number.
+ * 3. If error occurs for whatever reason, return NULL and throw exception.
+ *
+ * The number of bytes return can be less than the request number of bytes but can never be 
+ * greater than the requested number of bytes. This is implemented using total_read variable. 
+ * Size request should not be more than 2048.
+ *
+ * This function do not block any signals and handles the following scenarios :
+ * 1. Complete read in 1st pass itself.
+ * 2. Partial read followed by complete read.
+ * 3. Partial read followed by partial read then complete read.
  * 
- * The number of bytes return can be less than the request number of bytes but can never be greater than the requested
- * number of bytes. This is implemented using total_read variable. 1 <= Size request <= 2048.
- * 
- * Blocking read with 150ms timeout. If data is available return even before 150ms has passed. use GetTickCount64() for approx checking.
+ * Blocking read with 150ms timeout. If data is available return even before 150ms has passed. 
+ * use GetTickCount64() for rough experiments.
+ *
+ * @return data read or NULL.
+ * @throws SerialComException if any JNI function, Win API call or C function fails.
  */
-JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_readBytes(JNIEnv *env, jobject obj, jlong handle, jint count, jobject status) {
+JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_readBytes(JNIEnv *env,
+		jobject obj, jlong handle, jint count) {
+
 	int ret = 0;
 	int negative = -1;
 	HANDLE hComm = (HANDLE)handle;
@@ -651,15 +736,333 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINative
 	return NULL;
 }
 
+
 /*
 * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
-* Method:    writeBytes
-* Signature: (J[BI)I
+* Method:    readBytes
+* Signature: (JI)[B
 *
-* Note that write method return success does not mean data has been sent to receiver. Therefore we flush data after writing using 'TCSBRK' ioctl.
-* Delay is in micro-seconds.
+* Default number of bytes to read is set to 1024 in java layer. To maintain performance, we extract field ID
+* (object that carries error details) only when error occurs.
+*
+* 1. If data is read from serial port and no error occurs, return array of bytes.
+* 2. If there is no data to read from serial port and no error occurs, return NULL.
+* 3. If error occurs for whatever reason, return NULL and set status variable to Windows specific error number.
+*
+* The number of bytes return can be less than the request number of bytes but can never be greater than the requested
+* number of bytes. This is implemented using total_read variable. 1 <= Size request <= 2048.
+*
+* Blocking read until data is available. Once data is available timeouts as defined in COMMTIMEOUTS structure comes into picture.
 */
-JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_writeBytes(JNIEnv *env, jobject obj, jlong handle, jbyteArray buffer, jint delay) {
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
+ * Method:    readBytesBlocking
+ * Signature: (JI)[B
+ *
+ * The maximum number of bytes that read system call can read is the value that can be 
+ * stored in an object of type ssize_t. In JNI programming 'jbyte' is 'signed char'. 
+ * Default count is set to 1024 in java layer.
+ *
+ * 1. If data is read from serial port and no error occurs, return array of bytes.
+ * 2. If there is no data to read from serial port and no error occurs, return NULL.
+ * 3. If error occurs for whatever reason, return NULL and throw exception.
+ *
+ * The number of bytes return can be less than the request number of bytes but can never be 
+ * greater than the requested number of bytes. This is implemented using total_read variable. 
+ * Size request should not be more than 2048.
+ *
+ * This function do not block any signals and handles the following scenarios :
+ * 1. Complete read in 1st pass itself.
+ * 2. Partial read followed by complete read.
+ * 3. Partial read followed by partial read then complete read.
+ * 
+ * Blocking read until data is available. Once data is available timeouts as defined in 
+ * COMMTIMEOUTS structure comes into picture.
+ *
+ * @return data read after coming out of blocking state or NULL if an error occurs.
+ * @throws SerialComException if any JNI function, Win API call or C function fails.
+ */
+ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_readBytesBlocking(JNIEnv *env,
+		jobject obj, jlong handle, jint count) {
+	
+	int ret = 0;
+	int negative = -1;
+	HANDLE hComm = (HANDLE)handle;
+	DWORD errorVal;
+	jbyte data_buf[2 * 1024];
+	DWORD num_of_bytes_read;
+	OVERLAPPED overlapped;
+	OVERLAPPED ovRead;
+	jbyteArray data_read;
+	DWORD events_mask = 0;
+	DWORD wait_status = 0;
+	int loop = 1;
+	DWORD errors;
+	COMSTAT comstat;
+
+	while (loop != -1) {
+		memset(&overlapped, 0, sizeof(overlapped));
+		overlapped.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
+
+		if(overlapped.hEvent == NULL) {
+			if (DBG) fprintf(stderr, "%s\n", "NATIVE CreateEvent() in readBytesBlocking() failed creating overlapped event handle !");
+			if (DBG) fflush(stderr);
+			return NULL;
+		}
+
+		ret = WaitCommEvent(hComm, &events_mask, &overlapped);
+		if(ret == 0) {
+			errorVal = GetLastError();
+			if(errorVal == ERROR_IO_PENDING) {
+				wait_status = WaitForSingleObject(overlapped.hEvent, INFINITE);
+				ClearCommError(hComm, &errors, &comstat);
+				if(comstat.cbInQue == 0) {
+					CloseHandle(overlapped.hEvent);
+					continue;
+				}
+				switch (wait_status) {
+					case WAIT_OBJECT_0 :
+						CloseHandle(overlapped.hEvent);
+						if(!(events_mask & EV_RXCHAR)) {
+							continue; // loop back for events other than data character
+						}
+						loop = -1;
+						break;
+					case WAIT_TIMEOUT :
+					case WAIT_FAILED :
+					default :
+						errorVal = GetLastError();
+						CloseHandle(overlapped.hEvent);
+						jclass statusClass = (*env)->GetObjectClass(env, status);
+						if(statusClass == NULL) {
+							if (DBG) fprintf(stderr, "%s \n", "NATIVE readBytesBlocking() could not get class of object of type SerialComReadStatus !");
+							if (DBG) fflush(stderr);
+							return NULL;
+						}
+						jfieldID status_fid = (*env)->GetFieldID(env, statusClass, "status", "I");
+						if(status_fid == NULL) {
+							if (DBG) fprintf(stderr, "%s \n", "NATIVE readBytesBlocking() failed to retrieve field id of field status in class SerialComReadStatus !");
+							if (DBG) fflush(stderr);
+							return NULL;
+						}
+						if((*env)->ExceptionOccurred(env)) {
+							LOGE(env);
+						}
+						(*env)->SetIntField(env, status, status_fid, (negative * (errorVal + ERR_OFFSET)));
+						return NULL;
+				}
+			}
+		}else {
+			ClearCommError(hComm, &errors, &comstat);
+			if(comstat.cbInQue == 0) {
+				CloseHandle(overlapped.hEvent);
+				continue;
+			}
+			loop = -1;
+		}
+	}
+
+	memset(&ovRead, 0, sizeof(ovRead));
+	ovRead.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
+	if(ovRead.hEvent == NULL) {
+		if (DBG) fprintf(stderr, "%s\n", "NATIVE CreateEvent() in readBytesBlocking() failed creating overlapped event handle !");
+		if (DBG) fflush(stderr);
+		return NULL;
+	}
+
+	/* ReadFile resets the event to a nonsignaled state when it begins the I/O operation. */
+	ret = ReadFile(hComm, data_buf, count, &num_of_bytes_read, &ovRead);
+
+	if(ret == 0) {
+		errorVal = GetLastError();
+		if (errorVal == ERROR_IO_PENDING) {
+
+			wait_status = WaitForSingleObject(ovRead.hEvent, 1000);
+
+			if(wait_status == WAIT_OBJECT_0) {
+				ret = GetOverlappedResult(hComm, &ovRead, &num_of_bytes_read, FALSE);
+				if(ret > 0) {
+					/* return data read from serial port */
+					data_read = (*env)->NewByteArray(env, num_of_bytes_read);
+					(*env)->SetByteArrayRegion(env, data_read, 0, num_of_bytes_read, data_buf);
+					CloseHandle(ovRead.hEvent);
+					return data_read;
+				}else if(ret == 0) {
+					errorVal = GetLastError();
+					if((errorVal == ERROR_HANDLE_EOF) || (errorVal == ERROR_IO_INCOMPLETE)) {
+						return NULL;
+					}else {
+						/* This indicates error. */
+						jclass statusClass = (*env)->GetObjectClass(env, status);
+						if(statusClass == NULL) {
+							if (DBG) fprintf(stderr, "%s \n", "NATIVE readBytesBlocking() could not get class of object of type SerialComReadStatus !");
+							if (DBG) fflush(stderr);
+							CloseHandle(ovRead.hEvent);
+							return NULL;
+						}
+
+						jfieldID status_fid = (*env)->GetFieldID(env, statusClass, "status", "I");
+						if(status_fid == NULL) {
+							if (DBG) fprintf(stderr, "%s \n", "NATIVE readBytesBlocking() failed to retrieve field id of field status in class SerialComReadStatus !");
+							if (DBG) fflush(stderr);
+							CloseHandle(ovRead.hEvent);
+							return NULL;
+						}
+						if((*env)->ExceptionOccurred(env)) {
+							LOGE(env);
+						}
+
+						if((errorVal == ERROR_INVALID_USER_BUFFER) || (errorVal == ERROR_NOT_ENOUGH_MEMORY)) {
+							errorVal = ETOOMANYOP;
+						}else if((errorVal == ERROR_NOT_ENOUGH_QUOTA) || (errorVal == ERROR_INSUFFICIENT_BUFFER)) {
+							errorVal = ENOMEM;
+						}else if(errorVal == ERROR_OPERATION_ABORTED) {
+							errorVal = ECANCELED;
+						}else {
+						}
+
+						(*env)->SetIntField(env, status, status_fid, (negative * (errorVal + ERR_OFFSET)));
+						CloseHandle(ovRead.hEvent);
+						return NULL;
+					}
+				}else {
+				}
+			}else if(wait_status == WAIT_FAILED) {
+				/* This indicates error. */
+				errorVal = GetLastError();
+				jclass statusClass = (*env)->GetObjectClass(env, status);
+				if(statusClass == NULL) {
+					if (DBG) fprintf(stderr, "%s \n", "NATIVE readBytesBlocking() could not get class of object of type SerialComReadStatus !");
+					if (DBG) fflush(stderr);
+					CloseHandle(ovRead.hEvent);
+					return NULL;
+				}
+
+				jfieldID status_fid = (*env)->GetFieldID(env, statusClass, "status", "I");
+				if(status_fid == NULL) {
+					if (DBG) fprintf(stderr, "%s \n", "NATIVE readBytesBlocking() failed to retrieve field id of field status in class SerialComReadStatus !");
+					if (DBG) fflush(stderr);
+					CloseHandle(ovRead.hEvent);
+					return NULL;
+				}
+				if((*env)->ExceptionOccurred(env)) {
+					LOGE(env);
+				}
+
+				if((errorVal == ERROR_INVALID_USER_BUFFER) || (errorVal == ERROR_NOT_ENOUGH_MEMORY)) {
+					errorVal = ETOOMANYOP;
+				}else if((errorVal == ERROR_NOT_ENOUGH_QUOTA) || (errorVal == ERROR_INSUFFICIENT_BUFFER)) {
+					errorVal = ENOMEM;
+				}else if(errorVal == ERROR_OPERATION_ABORTED) {
+					errorVal = ECANCELED;
+				}else {
+				}
+
+				(*env)->SetIntField(env, status, status_fid, (negative * (errorVal + ERR_OFFSET)));
+				CloseHandle(ovRead.hEvent);
+				return NULL;
+			}else if(wait_status == WAIT_TIMEOUT) {
+			}else {
+			}
+		}else {
+			/* This indicates error. */
+			jclass statusClass = (*env)->GetObjectClass(env, status);
+			if(statusClass == NULL) {
+				if (DBG) fprintf(stderr, "%s \n", "NATIVE readBytesBlocking() could not get class of object of type SerialComReadStatus !");
+				if (DBG) fflush(stderr);
+				CloseHandle(ovRead.hEvent);
+				return NULL;
+			}
+
+			jfieldID status_fid = (*env)->GetFieldID(env, statusClass, "status", "I");
+			if(status_fid == NULL) {
+				if (DBG) fprintf(stderr, "%s \n", "NATIVE readBytesBlocking() failed to retrieve field id of field status in class SerialComReadStatus !");
+				if (DBG) fflush(stderr);
+				CloseHandle(ovRead.hEvent);
+				return NULL;
+			}
+			if((*env)->ExceptionOccurred(env)) {
+				LOGE(env);
+			}
+
+			if((errorVal == ERROR_INVALID_USER_BUFFER) || (errorVal == ERROR_NOT_ENOUGH_MEMORY)) {
+				errorVal = ETOOMANYOP;
+			}else if((errorVal == ERROR_NOT_ENOUGH_QUOTA) || (errorVal == ERROR_INSUFFICIENT_BUFFER)) {
+				errorVal = ENOMEM;
+			}else if(errorVal == ERROR_OPERATION_ABORTED) {
+				errorVal = ECANCELED;
+			}else {
+			}
+
+			(*env)->SetIntField(env, status, status_fid, (negative * (errorVal + ERR_OFFSET)));
+			CloseHandle(ovRead.hEvent);
+			return NULL;
+		}
+	}else if(ret > 0) {
+		/* This indicates we got success and have read data in first go itself. */
+		data_read = (*env)->NewByteArray(env, num_of_bytes_read);
+		(*env)->SetByteArrayRegion(env, data_read, 0, num_of_bytes_read, data_buf);
+		CloseHandle(ovRead.hEvent);
+		return data_read;
+	}else {
+	}
+
+	CloseHandle(ovRead.hEvent);
+	return NULL;
+}
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
+ * Method:    readBytesDirect
+ * Signature: (JLjava/nio/ByteBuffer;II)I
+ *
+ * It does not modify the direct byte buffer attributes position, capacity, limit and mark. The
+ * application design is expected to take care of this as and when required in appropriate manner.
+ *
+ * @return number of bytes read from serial port, 0 if there was no data in serial port buffer, -1 
+  *        if an error occurs.
+ * @throws SerialComException if any JNI function, Win API call or C function fails.
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_readBytesDirect(JNIEnv *env,
+		jobject obj, jlong handle, jobject buffer, jint offset, jint length) {
+}
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
+ * Method:    writeSingleByte
+ * Signature: (JB)I
+ *
+ * @return 0 on success otherwise -1 if an error occurs.
+ * @throws SerialComException if any JNI function, Win API call or C function fails.
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_writeSingleByte(JNIEnv *env,
+		jobject obj, jlong handle, jbyte dataByte) {
+		
+}
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
+ * Method:    writeBytes
+ * Signature: (J[BI)I
+ *
+ * Try writing all data using a loop by handling partial writes. tcdrain() waits until all output written
+ * to the object referred to by fd has been transmitted. This is used to make sure that data gets sent out
+ * of the serial port physically before write returns.
+ *
+ * If the number of bytes to be written is 0, then behavior is undefined as per POSIX standard. Therefore
+ * we do not allow dummy writes with absolutely no data at all and this is handled at java layer. This
+ * function does not block any signals.
+ *
+ * To segregate issues with buffer size or handling from device or driver specific implementation consider
+ * using pseudo terminals (/dev/pts/1). If this works then check termios structure settings for real device.
+ *
+ * @return 0 on success otherwise -1 if an error occurs.
+ * @throws SerialComException if any JNI function, Win API call or C function fails.
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_writeBytes(JNIEnv *env,
+		jobject obj, jlong handle, jbyteArray buffer, jint delay) {
+	
 	int ret = 0;
 	int status = 0;
 	BOOL result = FALSE;
@@ -762,11 +1165,41 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 }
 
 /*
-* Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
-* Method:    configureComPortData
-* Signature: (JIIIII)I
-*/
-JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_configureComPortData(JNIEnv *env, jobject obj, jlong handle, jint dataBits, jint stopBits, jint parity, jint baudRateTranslated, jint custBaudTranslated) {
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
+ * Method:    writeBytesDirect
+ * Signature: (JLjava/nio/ByteBuffer;II)I
+ *
+ * Sends data bytes from Java NIO direct byte buffer out of serial port from the given position upto
+ * length number of bytes. If the number of bytes to be written is less than or equal to 3*1024
+ * non-vectored write() is used otherwise vectored writev() is used.
+ *
+ * This function handles partial write scenario for both vectored and non-vectored write operations.
+ *
+ * It does not modify the direct byte buffer attributes position, capacity, limit and mark. The application
+ * design is expected to take care of this as and when required in appropriate manner. Also it does not consume
+ * or modify the data in the given buffer.
+ *
+ * @return number of bytes written to serial port on success otherwise -1 if an error occurs.
+ * @throws SerialComException if any JNI function, Win API call or C function fails.
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_writeBytesDirect(JNIEnv *env,
+		jobject obj, jlong fd, jobject buffer, jint offset, jint length) {
+}
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
+ * Method:    configureComPortData
+ * Signature: (JIIIII)I
+ *
+ * Configures format of data that will be exchanged through serial port electrically.
+ *
+ * @return 0 on success otherwise -1 if an error occurs.
+ * @throws SerialComException if any JNI function, Win API call or C function fails.
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_configureComPortData(JNIEnv *env,
+		jobject obj, jlong handle, jint dataBits, jint stopBits, jint parity, jint baudRateTranslated,
+		jint custBaudTranslated) {
+
 	int ret = 0;
 	DWORD errorVal = 0;
 	int negative = -1;
@@ -914,12 +1347,27 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 }
 
 /*
-* Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
-* Method:    configureComPortControl
-* Signature: (JICCZZ)I
-*
-*/
-JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_configureComPortControl(JNIEnv *env, jobject obj, jlong handle, jint flowctrl, jchar xon, jchar xoff, jboolean ParFraError, jboolean overFlowErr) {
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
+ * Method:    configureComPortControl
+ * Signature: (JICCZZ)I
+ *
+ * Defines how the data communication through serial port will be controlled.
+ *
+ * For software flow control; IXON, IXOFF, and IXANY are used . If IXOFF is set, then software 
+ * flow control is enabled on the TTY's input queue. The TTY transmits a STOP character when the 
+ * program cannot keep up with its input queue and transmits a START character when its input queue 
+ * in nearly empty again. If IXON is set, software flow control is enabled on the TTY's output queue. 
+ * The TTY blocks writes by the program when the device to which it is connected cannot keep up with 
+ * it. If IXANY is set, then any character received by the TTY from the device restarts the output 
+ * that has been suspended.
+ *
+ * @return 0 on success otherwise -1 if an error occurs.
+ * @throws SerialComException if any JNI function, Win API call or C function fails.
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_configureComPortControl(JNIEnv *env,
+		jobject obj, jlong handle, jint flowctrl, jchar xon, jchar xoff, 
+		jboolean ParFraError, jboolean overFlowErr) {
+		
 	int ret = 0;
 	DWORD errorVal;
 	int negative = -1;
@@ -937,7 +1385,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 		return (negative * (errorVal + ERR_OFFSET));
 	}
 
-	/* Set flow control. Details can be found here https://msdn.microsoft.com/en-us/library/ff802693.aspx */
+	/* Set flow control. */
 	dcb.fDtrControl = DTR_CONTROL_ENABLE;
 	dcb.fRtsControl = RTS_CONTROL_ENABLE;
 	if(flowctrl == 1) {                          /* No flow control. */
@@ -979,80 +1427,37 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 		}
 		return (negative * (errorVal + ERR_OFFSET));
 	}
+	
+	/* Abort outstanding I/O operations, clear port's I/O buffer (flush old garbage values). */
+	PurgeComm(hComm, PURGE_RXABORT | PURGE_RXCLEAR | PURGE_TXABORT | PURGE_TXCLEAR);
 
 	return 0;
 }
 
 /*
-* Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
-* Method:    setRTS
-* Signature: (JZ)I
-*
-* Set the RTS signal high or low as requested by application.
-*/
-JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_setRTS(JNIEnv *env, jobject obj, jlong handle, jboolean enabled) {
-	int ret = 0;
-	int negative = -1;
-	DWORD errorVal;
-	HANDLE hComm = (HANDLE)handle;
-	DWORD RTSVAL;
-
-	if(enabled == JNI_TRUE){
-		RTSVAL = SETRTS;
-	}else {
-		RTSVAL = CLRRTS;
-	}
-
-	ret = EscapeCommFunction(hComm, RTSVAL);
-	if(ret == 0) {
-		errorVal = GetLastError();
-		if(DBG) fprintf(stderr, "%s %ld\n", "NATIVE EscapeCommFunction() in setRTS() failed with error number : ", errorVal);
-		if(DBG) fflush(stderr);
-		return (negative * (errorVal + ERR_OFFSET));
-	}
-
-	return 0;
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
+ * Method:    getCurrentConfigurationU
+ * Signature: (J)[I
+ *
+ * @return NULL always.
+ */
+JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_getCurrentConfigurationU(JNIEnv *env, 
+	jobject obj, jlong handle) {
+	return NULL;
 }
 
 /*
-* Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
-* Method:    setDTR
-* Signature: (JZ)I
-*
-* Set the DTR signal high or low as requested by application.
-*/
-JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_setDTR(JNIEnv *env, jobject obj, jlong handle, jboolean enabled) {
-	int ret = 0;
-	int negative = -1;
-	DWORD errorVal;
-	HANDLE hComm = (HANDLE)handle;
-	DWORD DTRVAL;
-
-	if(enabled == JNI_TRUE){
-		DTRVAL = SETDTR;
-	}else {
-		DTRVAL = CLRDTR;
-	}
-
-	ret = EscapeCommFunction(hComm, DTRVAL);
-	if(ret == 0) {
-		errorVal = GetLastError();
-		if(DBG) fprintf(stderr, "%s %ld\n", "NATIVE EscapeCommFunction() in setDTR() failed with error number : ", errorVal);
-		if(DBG) fflush(stderr);
-		return (negative * (errorVal + ERR_OFFSET));
-	}
-
-	return 0;
-}
-
-/*
-* Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
-* Method:    getCurrentConfigurationW
-* Signature: (J)[Ljava/lang/String;
-*
-* We return the bit mask as it is with out interpretation so that application can manipulate easily using mathematics.
-*/
-JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_getCurrentConfigurationW(JNIEnv *env, jobject obj, jlong handle) {
+ * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
+ * Method:    getCurrentConfigurationW
+ * Signature: (J)[Ljava/lang/String;
+ *
+ * @return serial port configuration array constructed out of termios structure on success otherwise
+ *         NULL if an error occurs.
+ * @throws SerialComException if any JNI function, Win API call or C function fails.
+ */
+JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_getCurrentConfigurationW(JNIEnv *env, 
+	jobject obj, jlong handle) {
+	
 	int ret = 0;
 	DWORD errorVal;
 	int negative = -1;
@@ -1445,13 +1850,19 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINati
 }
 
 /*
-* Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
-* Method:    getByteCount
-* Signature: (J)[I
-*
-* Return array's sequence is error number, number of input bytes, number of output bytes in serial port buffer.
-*/
-JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_getByteCount(JNIEnv *env, jobject obj, jlong handle) {
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
+ * Method:    getByteCount
+ * Signature: (J)[I
+ *
+ * Return array's sequence is number of input bytes, number of output bytes in tty buffers.
+ *
+ * @return array containing number of bytes in input and output buffer 0 on success otherwise
+ *         NULL if an error occurs.
+ * @throws SerialComException if any JNI function, Win API call or C function fails.
+ */
+JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_getByteCount(JNIEnv *env,
+		jobject obj, jlong handle) {
+		
 	int ret = 0;
 	int errorVal = 0;
 	int negative = -1;
@@ -1479,14 +1890,19 @@ JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeI
 }
 
 /*
-* Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
-* Method:    clearPortIOBuffers
-* Signature: (JZZ)I
-*
-*  This will discard all pending data in given buffers. Received data therefore can not be read by application or/and data to be transmitted
-*  in output buffer will get discarded i.e. not transmitted.
-*/
-JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_clearPortIOBuffers(JNIEnv *env, jobject obj, jlong handle, jboolean rxPortbuf, jboolean txPortbuf) {
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
+ * Method:    clearPortIOBuffers
+ * Signature: (JZZ)I
+ *
+ * This will discard all pending data in given buffers. Received data therefore can not be read by
+ * application or/and data to be transmitted in output buffer will get discarded i.e. not transmitted.
+ *
+ * @return 0 on success otherwise -1 if an error occurs.
+ * @throws SerialComException if any JNI function, Win API call or C function fails.
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_clearPortIOBuffers(JNIEnv *env,
+		jobject obj, jlong handle, jboolean rxPortbuf, jboolean txPortbuf) {
+
 	int ret = -1;
 	int negative = -1;
 	DWORD errorVal = -1;
@@ -1515,15 +1931,96 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 }
 
 /*
-* Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
-* Method:    getLinesStatus
-* Signature: (J)[I
-*
-* The status of modem/control lines is returned as array of integers where '1' means line is asserted and '0' means de-asserted.
-* The sequence of lines matches in both java layer and native layer.
-* Last three values, DTR, RTS, LOOP are set to 0, as windows does not have any API to read there status.
-*/
-JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_getLinesStatus(JNIEnv *env, jobject obj, jlong handle) {
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
+ * Method:    setRTS
+ * Signature: (JZ)I
+ *
+ * Sets the RTS line to low or high voltages as defined by enabled argument. This causes value
+ * in UART control register to change.
+ *
+ * @return 0 on success otherwise -1 if an error occurs.
+ * @throws SerialComException if any JNI function, Win API call or C function fails.
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_setRTS(JNIEnv *env,
+		jobject obj, jlong handle, jboolean enabled) {
+
+	int ret = 0;
+	int negative = -1;
+	DWORD errorVal;
+	HANDLE hComm = (HANDLE)handle;
+	DWORD RTSVAL;
+
+	if(enabled == JNI_TRUE){
+		RTSVAL = SETRTS;
+	}else {
+		RTSVAL = CLRRTS;
+	}
+
+	ret = EscapeCommFunction(hComm, RTSVAL);
+	if(ret == 0) {
+		errorVal = GetLastError();
+		if(DBG) fprintf(stderr, "%s %ld\n", "NATIVE EscapeCommFunction() in setRTS() failed with error number : ", errorVal);
+		if(DBG) fflush(stderr);
+		return (negative * (errorVal + ERR_OFFSET));
+	}
+
+	return 0;
+}
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
+ * Method:    setDTR
+ * Signature: (JZ)I
+ *
+ * Sets the DTR line to low or high voltages as defined by enabled argument. This causes value in
+ * UART control register to change.
+ *
+ * @return 0 on success otherwise -1 if an error occurs.
+ * @throws SerialComException if any JNI function, Win API call or C function fails.
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_setDTR(JNIEnv *env,
+		jobject obj, jlong handle, jboolean enabled) {
+
+	int ret = 0;
+	int negative = -1;
+	DWORD errorVal;
+	HANDLE hComm = (HANDLE)handle;
+	DWORD DTRVAL;
+
+	if(enabled == JNI_TRUE){
+		DTRVAL = SETDTR;
+	}else {
+		DTRVAL = CLRDTR;
+	}
+
+	ret = EscapeCommFunction(hComm, DTRVAL);
+	if(ret == 0) {
+		errorVal = GetLastError();
+		if(DBG) fprintf(stderr, "%s %ld\n", "NATIVE EscapeCommFunction() in setDTR() failed with error number : ", errorVal);
+		if(DBG) fflush(stderr);
+		return (negative * (errorVal + ERR_OFFSET));
+	}
+
+	return 0;
+}
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
+ * Method:    getLinesStatus
+ * Signature: (J)[I
+ *
+ * The status of modem/control lines is returned as array of integers where '1' means line is asserted
+ * and '0' means de-asserted. The sequence of lines matches in both java layer and native layer.
+ * Last three values i.e. DTR, RTS, LOOP are set to 0, as windows does not have any API to read there 
+ * status.
+ *
+ * @return array containing status of modem control lines 0 on success otherwise NULL if
+ *         an error occurs.
+ * @throws SerialComException if anyone; FindClass, GetJavaVM or pthread_mutex_init function fails.
+ */
+JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_getLinesStatus(JNIEnv *env,
+		jobject obj, jlong handle) {
+
 	int ret = -1;
 	DWORD errorVal = -1;
 	int negative = -1;
@@ -1556,13 +2053,53 @@ JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeI
 }
 
 /*
-* Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
-* Method:    sendBreak
-* Signature: (JI)I
-*
-* The duration is in milliseconds. This applies break condition as per EIA232 standard.
-*/
-JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_sendBreak(JNIEnv *env, jobject obj, jlong handle, jint duration) {
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
+ * Method:    findDriverServingComPort
+ * Signature: (Ljava/lang/String;)Ljava/lang/String;
+ *
+ * Find the name of the driver which is currently associated with the given serial port.
+ *
+ * @return name of driver if found for given serial port, empty string if no driver found for
+ * given serial port,
+ *         NULL if any error occurs.
+ * @throws SerialComException if any JNI function, Win API call or C function fails.
+ */
+JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_findDriverServingComPort(JNIEnv *env,
+		jobject obj, jstring comPortName) {
+	return find_driver_for_given_com_port(env, comPortName);
+}
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
+ * Method:    findIRQnumberForComPort
+ * Signature: (J)Ljava/lang/String;
+ *
+ * Find the address and IRQ number associated with the given handle of serial port.
+ *
+ * @return address and IRQ string if found for given handle, empty string if no address/IRQ found for
+ *         given handle, NULL if any error occurs.
+ * @throws SerialComException if any JNI function, Win API call or C function fails.
+ */
+JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_findIRQnumberForComPort(JNIEnv *env,
+		jobject obj, jlong handle) {
+	return find_address_irq_for_given_com_port(env, handle);
+}
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
+ * Method:    sendBreak
+ * Signature: (JI)I
+ *
+ * The duration is in milliseconds. If the line is held in the logic low condition (space in
+ * UART jargon) for longer than a character time, this is a break condition that can be detected by
+ * the UART. This applies break condition as per EIA232 standard.
+ *
+ * @return 0 on success otherwise -1 if an error occurs.
+ * @throws SerialComException if any JNI function, Win API call or C function fails.
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_sendBreak(JNIEnv *env,
+		jobject obj, jlong handle, jint duration) {
+
 	int ret = -1;
 	int negative = -1;
 	DWORD errorVal = -1;
@@ -1590,27 +2127,33 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 }
 
 /*
-* Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
-* Method:    getInterruptCount
-* Signature: (J)I
-*
-* This is not supported by Windows OS itself. Return 0 for all indexes.
-*/
-JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_getInterruptCount(JNIEnv *env, jobject obj, jlong handle) {
-	jint count_info[12] = { 0 };
-	jintArray interrupt_info = (*env)->NewIntArray(env, sizeof(count_info));
-	(*env)->SetIntArrayRegion(env, interrupt_info, 0, sizeof(count_info), count_info);
-	return interrupt_info;
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
+ * Method:    getInterruptCount
+ * Signature: (J)[I
+ *
+ * Not supported by Windows itself (this function will return NULL).
+ *
+ * @return always NULL.
+ */
+JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_getInterruptCount(JNIEnv *env,
+		jobject obj, jlong handle) {
+		return NULL;
 }
 
 /*
- * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
  * Method:    fineTuneRead
  * Signature: (JIIIII)I
  *
- * This method gives more precise control on behavior of read operation.
+ * This function gives more precise control over the behavior of read operation in terms of
+ * timeout and number of bytes.
+ *
+ * @return 0 on success otherwise -1 if an error occurs.
+ * @throws SerialComException if any JNI function, Win API call or C function fails.
  */
-JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_fineTuneRead(JNIEnv *env, jobject obj, jlong handle, jint a, jint b, jint rit, jint rttm, jint rttc) {
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_fineTuneRead(JNIEnv *env,
+		jobject obj, jlong fd, jint vmin, jint vtime, jint a, jint b, jint c) {
+
 	int ret = 0;
 	int negative = -1;
 	DWORD errorVal;
@@ -1642,139 +2185,16 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 	return 0;
 }
 
-/* 
-* Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
-* Method:    setUpDataLooperThread
-* Signature: (JLcom/embeddedunveiled/serial/SerialComLooper;)I
-* 
-* Both setUpDataLooperThread() and setUpEventLooperThread() call same function setupLooperThread() to create managed thread.
-*/
-JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_setUpDataLooperThread(JNIEnv *env, jobject obj, jlong handle, jobject looper) {
-	/* Check whether thread for this handle already exist or not. If it exist just update event
-	 * mask to wait for otherwise create thread. */
-	int x = 0;
-	int ret = 0;
-	int thread_exist = 0;
-	int negative = -1;
-	struct looper_thread_params *ptr;
-	ptr = handle_looper_info;
-	HANDLE hComm = (HANDLE)handle;
-	DWORD event_mask;
-	DWORD updated_mask = 0;
-	DWORD error_type = 0;
-	COMSTAT com_stat;
-	DWORD errorVal;
-	int global_index = dtp_index;
-	int new_dtp_index = 1;
-
-	for (x = 0; x < MAX_NUM_THREADS; x++) {
-		if(ptr->hComm == hComm) {
-			thread_exist = 1;
-			break;
-		}
-		ptr++;
-	}
-
-	if(thread_exist == 1) {
-		/* Thread exist so just update event to listen to. */
-		ret = GetCommMask(hComm, &event_mask);
-		updated_mask = event_mask | EV_RXCHAR;
-		ret = SetCommMask(hComm, updated_mask);
-		if(ret == 0) {
-			errorVal = GetLastError();
-			if(DBG) fprintf(stderr, "%s%ld\n", "NATIVE setUpDataLooperThread() failed in SetCommMask() with error number : ", errorVal);
-			if(DBG) fprintf(stderr, "%s \n", "Try again !");
-			if(DBG) fflush(stderr);
-			ClearCommError(hComm, &error_type, &com_stat);
-			return (negative * (errorVal + ERR_OFFSET));
-		}
-
-		/* set data_enabled flag */
-		ptr->data_enabled = 1;
-	}else {
-		/* Not found in our records, so we create the thread. */
-		ptr = handle_looper_info;
-		for (x = 0; x < MAX_NUM_THREADS; x++) {
-			if(ptr->hComm == (HANDLE)-1) {
-				global_index = x;
-				new_dtp_index = 0;
-				break;
-			}
-			ptr++;
-		}
-		/* new_dtp_index is 0 if we reuse existing index otherwise 1. */
-		return setupLooperThread(env, obj, handle, looper, 1, 0, global_index, new_dtp_index);
-	}
-
-	return 0;
-}
 /*
-* Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
-* Method:    setUpEventLooperThread
-* Signature: (JLcom/embeddedunveiled/serial/SerialComLooper;)I
-
-* Both data and event creation function call same function setupLooperThread().
-*/
-JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_setUpEventLooperThread(JNIEnv *env, jobject obj, jlong handle, jobject looper) {
-	/* Check whether thread for this handle already exist or not.
-	* If it exist just update event mask to wait for otherwise create thread. */
-	int x = 0;
-	int ret = 0;
-	int negative = -1;
-	int thread_exist = 0;
-	struct looper_thread_params *ptr;
-	ptr = handle_looper_info;
-	HANDLE hComm = (HANDLE)handle;
-	DWORD event_mask;
-	DWORD updated_mask = 0;
-	DWORD error_type = 0;
-	COMSTAT com_stat;
-	DWORD errorVal;
-	int global_index = dtp_index;
-	int new_dtp_index = 1;
-
-	for(x = 0; x < MAX_NUM_THREADS; x++) {
-		if(ptr->hComm == hComm) {
-			thread_exist = 1;
-			break;
-		}
-		ptr++;
-	}
-
-	if(thread_exist == 1) {
-		/* Thread exist so just update event to listen to. */
-		ret = GetCommMask(hComm, &event_mask);
-		updated_mask = event_mask | EV_BREAK | EV_CTS | EV_DSR | EV_ERR | EV_RING | EV_RLSD | EV_RXFLAG;
-		ret = SetCommMask(hComm, updated_mask);
-		if(ret == 0) {
-			errorVal = GetLastError();
-			if(DBG) fprintf(stderr, "%s %ld\n", "NATIVE setUpEventLooperThread() failed in SetCommMask() with error number : ", errorVal);
-			if(DBG) fprintf(stderr, "%s \n", "Try again !");
-			if(DBG) fflush(stderr);
-			ClearCommError(hComm, &error_type, &com_stat);
-			return (negative * (errorVal + ERR_OFFSET));
-		}
-		/* set event_enabled flag */
-		ptr->event_enabled = 1;
-	}else {
-		/* Not found in our records, so we create the thread. */
-		ptr = handle_looper_info;
-		for (x = 0; x < MAX_NUM_THREADS; x++) {
-			if (ptr->hComm == (HANDLE)-1) {
-				global_index = x;
-				new_dtp_index = 0;
-				break;
-			}
-			ptr++;
-		}
-		/* new_dtp_index is 0 if we reuse existing index otherwise 1. */
-		return setupLooperThread(env, obj, handle, looper, 0, 1, global_index, new_dtp_index);
-	}
-
-	return -240;
-}
-
-int setupLooperThread(JNIEnv *env, jobject obj, jlong handle, jobject looper_obj_ref, int data_enabled, int event_enabled, int global_index, int new_dtp_index) {
+ * Both setUpDataLooperThread() and setUpEventLooperThread() 
+ * call same function setupLooperThread() to create managed thread.
+ *
+ * @return 0 on success otherwise -1 if an error occurs.
+ * @throws SerialComException if any JNI function, Win API call or C function fails.
+ */
+int setupLooperThread(JNIEnv *env, jobject obj, jlong handle, jobject looper_obj_ref, int data_enabled, 
+	int event_enabled, int global_index, int new_dtp_index) {
+	
 	int negative = -1;
 	HANDLE hComm = (HANDLE)handle;
 	HANDLE thread_handle;
@@ -1856,15 +2276,95 @@ int setupLooperThread(JNIEnv *env, jobject obj, jlong handle, jobject looper_obj
 }
 
 /*
- * Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
+ * Method:    setUpDataLooperThread
+ * Signature: (JLcom/embeddedunveiled/serial/internal/SerialComLooper;)I
+ *
+ * Creates new native worker thread. Both setUpDataLooperThread() and setUpEventLooperThread() 
+ * call same function setupLooperThread() to create managed thread.
+ *
+ * @return 0 on success otherwise -1 if an error occurs.
+ * @throws SerialComException if any JNI function, Win API call or C function fails.
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_setUpDataLooperThread(JNIEnv *env,
+		jobject obj, jlong handle, jobject looper) {
+
+	/* Check whether thread for this handle already exist or not. If it exist just update event
+	 * mask to wait for otherwise create thread. */
+	int x = 0;
+	int ret = 0;
+	int thread_exist = 0;
+	int negative = -1;
+	struct looper_thread_params *ptr;
+	ptr = handle_looper_info;
+	HANDLE hComm = (HANDLE)handle;
+	DWORD event_mask;
+	DWORD updated_mask = 0;
+	DWORD error_type = 0;
+	COMSTAT com_stat;
+	DWORD errorVal;
+	int global_index = dtp_index;
+	int new_dtp_index = 1;
+
+	for (x = 0; x < MAX_NUM_THREADS; x++) {
+		if(ptr->hComm == hComm) {
+			thread_exist = 1;
+			break;
+		}
+		ptr++;
+	}
+
+	if(thread_exist == 1) {
+		/* Thread exist so just update event to listen to. */
+		ret = GetCommMask(hComm, &event_mask);
+		updated_mask = event_mask | EV_RXCHAR;
+		ret = SetCommMask(hComm, updated_mask);
+		if(ret == 0) {
+			errorVal = GetLastError();
+			if(DBG) fprintf(stderr, "%s%ld\n", "NATIVE setUpDataLooperThread() failed in SetCommMask() with error number : ", errorVal);
+			if(DBG) fprintf(stderr, "%s \n", "Try again !");
+			if(DBG) fflush(stderr);
+			ClearCommError(hComm, &error_type, &com_stat);
+			return (negative * (errorVal + ERR_OFFSET));
+		}
+
+		/* set data_enabled flag */
+		ptr->data_enabled = 1;
+	}else {
+		/* Not found in our records, so we create the thread. */
+		ptr = handle_looper_info;
+		for (x = 0; x < MAX_NUM_THREADS; x++) {
+			if(ptr->hComm == (HANDLE)-1) {
+				global_index = x;
+				new_dtp_index = 0;
+				break;
+			}
+			ptr++;
+		}
+		/* new_dtp_index is 0 if we reuse existing index otherwise 1. */
+		return setupLooperThread(env, obj, handle, looper, 1, 0, global_index, new_dtp_index);
+	}
+
+	return 0;
+}
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
  * Method:    destroyDataLooperThread
  * Signature: (J)I
- * 
- * If a process attempts to change the device handle's event mask by using the SetCommMask function while an overlapped  WaitCommEvent operation is 
- * in progress, WaitCommEvent returns immediately. Further WaitForMultipleObjects() comes out of waiting state when signaled. When either WaitCommEvent
- * or WaitForMultipleObjects returns, thread can check if it asked to exit. This is equivalent to 'evfd' concept used in Linux.
+ *
+ * If a process attempts to change the device handle's event mask by using the SetCommMask function 
+ * while an overlapped  WaitCommEvent operation is in progress, WaitCommEvent returns immediately. 
+ * Further WaitForMultipleObjects() comes out of waiting state when signaled. When either WaitCommEvent
+ * or WaitForMultipleObjects returns, thread can check if it asked to exit. This is equivalent to 'evfd' 
+ * concept used in Linux.
+ *
+ * @return 0 on success otherwise -1 if an error occurs.
+ * @throws SerialComException if any JNI function, Win API call or C function fails.
  */
-JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_destroyDataLooperThread(JNIEnv *env, jobject obj, jlong handle) {
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_destroyDataLooperThread(JNIEnv *env,
+		jobject obj, jlong handle) {
+
 	int ret = 0;
 	int x = 0;
 	int negative = -1;
@@ -1950,12 +2450,89 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 
 	return 0;
 }
+
 /*
-* Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
-* Method:    destroyEventLooperThread
-* Signature: (J)I
-*/
-JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_destroyEventLooperThread(JNIEnv *env, jobject obj, jlong handle) {
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
+ * Method:    setUpEventLooperThread
+ * Signature: (JLcom/embeddedunveiled/serial/internal/SerialComLooper;)I
+ * 
+ * Both data and event creation function call same function setupLooperThread().
+ * 
+ * @return 0 on success otherwise -1 if an error occurs.
+ * @throws SerialComException if any JNI function, Win API call or C function fails.
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_setUpEventLooperThread(JNIEnv *env,
+		jobject obj, jlong handle, jobject looper) {
+
+	/* Check whether thread for this handle already exist or not.
+	* If it exist just update event mask to wait for otherwise create thread. */
+	int x = 0;
+	int ret = 0;
+	int negative = -1;
+	int thread_exist = 0;
+	struct looper_thread_params *ptr;
+	ptr = handle_looper_info;
+	HANDLE hComm = (HANDLE)handle;
+	DWORD event_mask;
+	DWORD updated_mask = 0;
+	DWORD error_type = 0;
+	COMSTAT com_stat;
+	DWORD errorVal;
+	int global_index = dtp_index;
+	int new_dtp_index = 1;
+
+	for(x = 0; x < MAX_NUM_THREADS; x++) {
+		if(ptr->hComm == hComm) {
+			thread_exist = 1;
+			break;
+		}
+		ptr++;
+	}
+
+	if(thread_exist == 1) {
+		/* Thread exist so just update event to listen to. */
+		ret = GetCommMask(hComm, &event_mask);
+		updated_mask = event_mask | EV_BREAK | EV_CTS | EV_DSR | EV_ERR | EV_RING | EV_RLSD | EV_RXFLAG;
+		ret = SetCommMask(hComm, updated_mask);
+		if(ret == 0) {
+			errorVal = GetLastError();
+			if(DBG) fprintf(stderr, "%s %ld\n", "NATIVE setUpEventLooperThread() failed in SetCommMask() with error number : ", errorVal);
+			if(DBG) fprintf(stderr, "%s \n", "Try again !");
+			if(DBG) fflush(stderr);
+			ClearCommError(hComm, &error_type, &com_stat);
+			return (negative * (errorVal + ERR_OFFSET));
+		}
+		/* set event_enabled flag */
+		ptr->event_enabled = 1;
+	}else {
+		/* Not found in our records, so we create the thread. */
+		ptr = handle_looper_info;
+		for (x = 0; x < MAX_NUM_THREADS; x++) {
+			if (ptr->hComm == (HANDLE)-1) {
+				global_index = x;
+				new_dtp_index = 0;
+				break;
+			}
+			ptr++;
+		}
+		/* new_dtp_index is 0 if we reuse existing index otherwise 1. */
+		return setupLooperThread(env, obj, handle, looper, 0, 1, global_index, new_dtp_index);
+	}
+
+	return -240;
+}
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
+ * Method:    destroyEventLooperThread
+ * Signature: (J)I
+ *
+ * @return 0 on success otherwise -1 if an error occurs.
+ * @throws SerialComException if any JNI function, Win API call or C function fails.
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_destroyEventLooperThread(JNIEnv *env,
+		jobject obj, jlong handle) {
+
 	int ret = 0;
 	int x = 0;
 	int negative = -1;
@@ -2031,12 +2608,20 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 }
 
 /*
-* Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
-* Method:    registerPortMonitorListener
-* Signature: (JLcom/embeddedunveiled/serial/IPortMonitor;)I
-*
-*/
-JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_registerPortMonitorListener(JNIEnv *env, jobject obj, jlong handle, jstring portName, jobject listener) {
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
+ * Method:    registerHotPlugEventListener
+ * Signature: (Lcom/embeddedunveiled/serial/ISerialComHotPlugListener;II)I
+ *
+ * Create a native thread that works with operating system specific mechanism for USB hot plug
+ * facility. In thread_info array, location 0 contains return code while location 1 contains index of
+ * global array at which info about thread is stored.
+ *
+ * @return 0 on success otherwise -1 if an error occurs.
+ * @throws SerialComException if any JNI function, Win API call or C function fails.
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_registerHotPlugEventListener(JNIEnv *env,
+		jobject obj, jobject hotPlugListener, jint filterVID, jint filterPID) {
+
 	int negative = -1;
 	HANDLE hComm = (HANDLE)handle;
 	HANDLE thread_handle;
@@ -2093,11 +2678,19 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 }
 
 /*
-* Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
-* Method:    unregisterPortMonitorListener
-* Signature: (J)I
-*/
-JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_unregisterPortMonitorListener(JNIEnv *env, jobject obj, jlong handle) {
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
+ * Method:    unregisterHotPlugEventListener
+ * Signature: (I)I
+ *
+ * Destroy worker thread used for USB hot plug monitoring. The java layer sends index in array
+ * where info about the thread to be destroyed is stored.
+ *
+ * @return 0 on success otherwise -1 if an error occurs.
+ * @throws SerialComException if any JNI function, Win API call or C function fails.
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_unregisterHotPlugEventListener(JNIEnv *env,
+		jobject obj, jint index) {
+
 	int ret = -1;
 	int negative = -1;
 	int x = -1;
@@ -2130,244 +2723,139 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 }
 
 /*
-* Class:     com_embeddedunveiled_serial_SerialComJNINativeInterface
-* Method:    readBytes
-* Signature: (JI)[B
-*
-* Default number of bytes to read is set to 1024 in java layer. To maintain performance, we extract field ID
-* (object that carries error details) only when error occurs.
-*
-* 1. If data is read from serial port and no error occurs, return array of bytes.
-* 2. If there is no data to read from serial port and no error occurs, return NULL.
-* 3. If error occurs for whatever reason, return NULL and set status variable to Windows specific error number.
-*
-* The number of bytes return can be less than the request number of bytes but can never be greater than the requested
-* number of bytes. This is implemented using total_read variable. 1 <= Size request <= 2048.
-*
-* Blocking read until data is available. Once data is available timeouts as defined in COMMTIMEOUTS structure comes into picture.
-*/
-JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_readBytesBlocking(JNIEnv *env, jobject obj, jlong handle, jint count, jobject status) {
-	int ret = 0;
-	int negative = -1;
-	HANDLE hComm = (HANDLE)handle;
-	DWORD errorVal;
-	jbyte data_buf[2 * 1024];
-	DWORD num_of_bytes_read;
-	OVERLAPPED overlapped;
-	OVERLAPPED ovRead;
-	jbyteArray data_read;
-	DWORD events_mask = 0;
-	DWORD wait_status = 0;
-	int loop = 1;
-	DWORD errors;
-	COMSTAT comstat;
-
-	while (loop != -1) {
-		memset(&overlapped, 0, sizeof(overlapped));
-		overlapped.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
-		if(overlapped.hEvent == NULL) {
-			if (DBG) fprintf(stderr, "%s\n", "NATIVE CreateEvent() in readBytesBlocking() failed creating overlapped event handle !");
-			if (DBG) fflush(stderr);
-			return NULL;
-		}
-
-		ret = WaitCommEvent(hComm, &events_mask, &overlapped);
-		if(ret == 0) {
-			errorVal = GetLastError();
-			if(errorVal == ERROR_IO_PENDING) {
-				wait_status = WaitForSingleObject(overlapped.hEvent, INFINITE);
-				ClearCommError(hComm, &errors, &comstat);
-				if(comstat.cbInQue == 0) {
-					CloseHandle(overlapped.hEvent);
-					continue;
-				}
-				switch (wait_status) {
-					case WAIT_OBJECT_0 :
-						CloseHandle(overlapped.hEvent);
-						if(!(events_mask & EV_RXCHAR)) {
-							continue; // loop back for events other than data character
-						}
-						loop = -1;
-						break;
-					case WAIT_TIMEOUT :
-					case WAIT_FAILED :
-					default :
-						errorVal = GetLastError();
-						CloseHandle(overlapped.hEvent);
-						jclass statusClass = (*env)->GetObjectClass(env, status);
-						if(statusClass == NULL) {
-							if (DBG) fprintf(stderr, "%s \n", "NATIVE readBytesBlocking() could not get class of object of type SerialComReadStatus !");
-							if (DBG) fflush(stderr);
-							return NULL;
-						}
-						jfieldID status_fid = (*env)->GetFieldID(env, statusClass, "status", "I");
-						if(status_fid == NULL) {
-							if (DBG) fprintf(stderr, "%s \n", "NATIVE readBytesBlocking() failed to retrieve field id of field status in class SerialComReadStatus !");
-							if (DBG) fflush(stderr);
-							return NULL;
-						}
-						if((*env)->ExceptionOccurred(env)) {
-							LOGE(env);
-						}
-						(*env)->SetIntField(env, status, status_fid, (negative * (errorVal + ERR_OFFSET)));
-						return NULL;
-				}
-			}
-		}else {
-			ClearCommError(hComm, &errors, &comstat);
-			if(comstat.cbInQue == 0) {
-				CloseHandle(overlapped.hEvent);
-				continue;
-			}
-			loop = -1;
-		}
-	}
-
-	memset(&ovRead, 0, sizeof(ovRead));
-	ovRead.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
-	if(ovRead.hEvent == NULL) {
-		if (DBG) fprintf(stderr, "%s\n", "NATIVE CreateEvent() in readBytesBlocking() failed creating overlapped event handle !");
-		if (DBG) fflush(stderr);
-		return NULL;
-	}
-
-	/* ReadFile resets the event to a nonsignaled state when it begins the I/O operation. */
-	ret = ReadFile(hComm, data_buf, count, &num_of_bytes_read, &ovRead);
-
-	if(ret == 0) {
-		errorVal = GetLastError();
-		if (errorVal == ERROR_IO_PENDING) {
-
-			wait_status = WaitForSingleObject(ovRead.hEvent, 1000);
-
-			if(wait_status == WAIT_OBJECT_0) {
-				ret = GetOverlappedResult(hComm, &ovRead, &num_of_bytes_read, FALSE);
-				if(ret > 0) {
-					/* return data read from serial port */
-					data_read = (*env)->NewByteArray(env, num_of_bytes_read);
-					(*env)->SetByteArrayRegion(env, data_read, 0, num_of_bytes_read, data_buf);
-					CloseHandle(ovRead.hEvent);
-					return data_read;
-				}else if(ret == 0) {
-					errorVal = GetLastError();
-					if((errorVal == ERROR_HANDLE_EOF) || (errorVal == ERROR_IO_INCOMPLETE)) {
-						return NULL;
-					}else {
-						/* This indicates error. */
-						jclass statusClass = (*env)->GetObjectClass(env, status);
-						if(statusClass == NULL) {
-							if (DBG) fprintf(stderr, "%s \n", "NATIVE readBytesBlocking() could not get class of object of type SerialComReadStatus !");
-							if (DBG) fflush(stderr);
-							CloseHandle(ovRead.hEvent);
-							return NULL;
-						}
-
-						jfieldID status_fid = (*env)->GetFieldID(env, statusClass, "status", "I");
-						if(status_fid == NULL) {
-							if (DBG) fprintf(stderr, "%s \n", "NATIVE readBytesBlocking() failed to retrieve field id of field status in class SerialComReadStatus !");
-							if (DBG) fflush(stderr);
-							CloseHandle(ovRead.hEvent);
-							return NULL;
-						}
-						if((*env)->ExceptionOccurred(env)) {
-							LOGE(env);
-						}
-
-						if((errorVal == ERROR_INVALID_USER_BUFFER) || (errorVal == ERROR_NOT_ENOUGH_MEMORY)) {
-							errorVal = ETOOMANYOP;
-						}else if((errorVal == ERROR_NOT_ENOUGH_QUOTA) || (errorVal == ERROR_INSUFFICIENT_BUFFER)) {
-							errorVal = ENOMEM;
-						}else if(errorVal == ERROR_OPERATION_ABORTED) {
-							errorVal = ECANCELED;
-						}else {
-						}
-
-						(*env)->SetIntField(env, status, status_fid, (negative * (errorVal + ERR_OFFSET)));
-						CloseHandle(ovRead.hEvent);
-						return NULL;
-					}
-				}else {
-				}
-			}else if(wait_status == WAIT_FAILED) {
-				/* This indicates error. */
-				errorVal = GetLastError();
-				jclass statusClass = (*env)->GetObjectClass(env, status);
-				if(statusClass == NULL) {
-					if (DBG) fprintf(stderr, "%s \n", "NATIVE readBytesBlocking() could not get class of object of type SerialComReadStatus !");
-					if (DBG) fflush(stderr);
-					CloseHandle(ovRead.hEvent);
-					return NULL;
-				}
-
-				jfieldID status_fid = (*env)->GetFieldID(env, statusClass, "status", "I");
-				if(status_fid == NULL) {
-					if (DBG) fprintf(stderr, "%s \n", "NATIVE readBytesBlocking() failed to retrieve field id of field status in class SerialComReadStatus !");
-					if (DBG) fflush(stderr);
-					CloseHandle(ovRead.hEvent);
-					return NULL;
-				}
-				if((*env)->ExceptionOccurred(env)) {
-					LOGE(env);
-				}
-
-				if((errorVal == ERROR_INVALID_USER_BUFFER) || (errorVal == ERROR_NOT_ENOUGH_MEMORY)) {
-					errorVal = ETOOMANYOP;
-				}else if((errorVal == ERROR_NOT_ENOUGH_QUOTA) || (errorVal == ERROR_INSUFFICIENT_BUFFER)) {
-					errorVal = ENOMEM;
-				}else if(errorVal == ERROR_OPERATION_ABORTED) {
-					errorVal = ECANCELED;
-				}else {
-				}
-
-				(*env)->SetIntField(env, status, status_fid, (negative * (errorVal + ERR_OFFSET)));
-				CloseHandle(ovRead.hEvent);
-				return NULL;
-			}else if(wait_status == WAIT_TIMEOUT) {
-			}else {
-			}
-		}else {
-			/* This indicates error. */
-			jclass statusClass = (*env)->GetObjectClass(env, status);
-			if(statusClass == NULL) {
-				if (DBG) fprintf(stderr, "%s \n", "NATIVE readBytesBlocking() could not get class of object of type SerialComReadStatus !");
-				if (DBG) fflush(stderr);
-				CloseHandle(ovRead.hEvent);
-				return NULL;
-			}
-
-			jfieldID status_fid = (*env)->GetFieldID(env, statusClass, "status", "I");
-			if(status_fid == NULL) {
-				if (DBG) fprintf(stderr, "%s \n", "NATIVE readBytesBlocking() failed to retrieve field id of field status in class SerialComReadStatus !");
-				if (DBG) fflush(stderr);
-				CloseHandle(ovRead.hEvent);
-				return NULL;
-			}
-			if((*env)->ExceptionOccurred(env)) {
-				LOGE(env);
-			}
-
-			if((errorVal == ERROR_INVALID_USER_BUFFER) || (errorVal == ERROR_NOT_ENOUGH_MEMORY)) {
-				errorVal = ETOOMANYOP;
-			}else if((errorVal == ERROR_NOT_ENOUGH_QUOTA) || (errorVal == ERROR_INSUFFICIENT_BUFFER)) {
-				errorVal = ENOMEM;
-			}else if(errorVal == ERROR_OPERATION_ABORTED) {
-				errorVal = ECANCELED;
-			}else {
-			}
-
-			(*env)->SetIntField(env, status, status_fid, (negative * (errorVal + ERR_OFFSET)));
-			CloseHandle(ovRead.hEvent);
-			return NULL;
-		}
-	}else if(ret > 0) {
-		/* This indicates we got success and have read data in first go itself. */
-		data_read = (*env)->NewByteArray(env, num_of_bytes_read);
-		(*env)->SetByteArrayRegion(env, data_read, 0, num_of_bytes_read, data_buf);
-		CloseHandle(ovRead.hEvent);
-		return data_read;
-	}else {
-	}
-
-	CloseHandle(ovRead.hEvent);
-	return NULL;
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
+ * Method:    pauseListeningEvents
+ * Signature: (J)I
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_pauseListeningEvents(JNIEnv *env,
+		jobject obj, jlong fd) {
+	return -1;
 }
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
+ * Method:    resumeListeningEvents
+ * Signature: (J)I
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_resumeListeningEvents(JNIEnv *env,
+		jobject obj, jlong fd) {
+	return -1;
+}
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
+ * Method:    ioctlExecuteOperation
+ * Signature: (JJ)J
+ *
+ * @return 0 on success otherwise -1 if an error occurs.
+ * @throws SerialComException if any JNI function, Win API call or C function fails.
+ */
+JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_ioctlExecuteOperation(JNIEnv *env,
+		jobject obj, jlong fd, jlong operationCode) {
+	int ret = 0;
+
+	errno = 0;
+	ret = ioctl(fd, operationCode);
+	if(ret < 0) {
+		throw_serialcom_exception(env, 1, errno, NULL);
+		return -1;
+	}
+	return 0;
+}
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
+ * Method:    ioctlSetValue
+ * Signature: (JJJ)J
+ *
+ * @return 0 on success otherwise -1 if an error occurs.
+ * @throws SerialComException if any JNI function, Win API call or C function fails.
+ */
+JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_ioctlSetValue(JNIEnv *env,
+		jobject obj, jlong fd, jlong operationCode, jlong value) {
+		
+	int ret = 0;
+	errno = 0;
+	ret = ioctl(fd, operationCode, value);
+	if(ret < 0) {
+		throw_serialcom_exception(env, 1, errno, NULL);
+		return -1;
+	}
+	return 0;
+}
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
+ * Method:    ioctlGetValue
+ * Signature: (JJ)J
+ *
+ * @return 0 on success otherwise -1 if an error occurs.
+ * @throws SerialComException if any JNI function, Win API call or C function fails.
+ */
+JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_ioctlGetValue(JNIEnv *env,
+		jobject obj, jlong fd, jlong operationCode) {
+		
+	int ret = 0;
+	long value = 0;
+	errno = 0;
+	ret = ioctl(fd, operationCode, &value);
+	if(ret < 0) {
+		throw_serialcom_exception(env, 1, errno, NULL);
+		return -1;
+	}
+	return value;
+}
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
+ * Method:    ioctlSetValueIntArray
+ * Signature: (JJ[I)J
+ *
+ * @return 0 on success otherwise -1 if an error occurs.
+ * @throws SerialComException if any JNI function, Win API call or C function fails.
+ */
+JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_ioctlSetValueIntArray(JNIEnv *env,
+		jobject obj, jlong v, jlong f, jintArray r) {
+	return -1;
+}
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
+ * Method:    ioctlSetValueCharArray
+ * Signature: (JJ[B)J
+ *
+ * @return 0 on success otherwise -1 if an error occurs.
+ * @throws SerialComException if any JNI function, Win API call or C function fails.
+ */
+JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_ioctlSetValueCharArray(JNIEnv *env,
+		jobject obj, jlong q, jlong c, jbyteArray v) {
+	return -1;
+}
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
+ * Method:    rescanUSBDevicesHW
+ * Signature: ()I
+ * 
+ * Applicable to Windows operating system only.
+ *
+ * @return -1 always.
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_rescanUSBDevicesHW(JNIEnv *env,
+		jobject obj) {
+	return -1;
+}
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
+ * Method:    listBTSPPDevNodesWithInfo
+ * Signature: ()[Ljava/lang/String;
+ *
+ * @return array of Strings containing info about rfcomm device nodes found, NULL if error occurs.
+ * @throws SerialComException if any JNI function, Win API call or C function fails.
+ */
+JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_listBTSPPDevNodesWithInfo(JNIEnv *env,
+		jobject obj) {
+	return list_bt_rfcomm_dev_nodes(env);
+}
+

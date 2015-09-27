@@ -270,3 +270,4 @@ jstring find_driver_for_given_com_port(JNIEnv *env, jstring comPortName) {
 	}
 	return driver_name;
 }
+

@@ -129,8 +129,16 @@ void insert_jstrarraylist(struct jstrarray_list *al, jstring element);
 void init_jstrarraylist(struct jstrarray_list *al, int initial_size);
 
 int serial_delay(unsigned ms);
-unsigned WINAPI event_data_looper(LPVOID lpParam);
-unsigned WINAPI port_monitor(LPVOID lpParam);
+jint is_usb_dev_connected(JNIEnv *env, jint vid, jint pid);
+jstring find_driver_for_given_com_port(JNIEnv *env, jstring comPortName);
+jstring find_address_irq_for_given_com_port(JNIEnv *env, jlong fd);
+jobjectArray list_usb_devices(JNIEnv *env, jint vendor_filter);
+jobjectArray list_bt_rfcomm_dev_nodes(JNIEnv *env);
+jobjectArray vcp_node_from_usb_attributes(JNIEnv *env, jint usbvid_to_match, jint usbpid_to_match, jstring serial_num);
+
 int setupLooperThread(JNIEnv *env, jobject obj, jlong handle, jobject looper_obj_ref, int data_enabled, int event_enabled, int global_index, int new_dtp_index);
+unsigned WINAPI event_data_looper(LPVOID lpParam);
+unsigned WINAPI usb_hot_plug_monitor(LPVOID lpParam);
 
 #endif /* WINDOWS_SERIAL_LIB_H_ */
+

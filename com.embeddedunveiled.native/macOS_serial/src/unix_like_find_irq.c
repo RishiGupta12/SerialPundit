@@ -34,7 +34,7 @@
 /*
  * Find the address and IRQ number associated with the given handle of serial port.
  */
-jstring find_address_irq_for_given_com_port(JNIEnv *env, jlong handle) {
+jstring find_address_irq_for_given_com_port(JNIEnv *env, jlong fd) {
 	char serial_info[256];
 	jstring addressIRQInfo = NULL;
 #if defined (__linux__)
@@ -50,7 +50,7 @@ jstring find_address_irq_for_given_com_port(JNIEnv *env, jlong handle) {
 #if defined (__linux__)
 	port_info.reserved_char[0] = 0;
 	errno = 0;
-	ret = ioctl(handle, TIOCGSERIAL, &port_info);
+	ret = ioctl(fd, TIOCGSERIAL, &port_info);
 	if(ret < 0) {
 		throw_serialcom_exception(env, 1, errno, NULL);
 		return NULL;
@@ -71,3 +71,4 @@ jstring find_address_irq_for_given_com_port(JNIEnv *env, jlong handle) {
 
 	return addressIRQInfo;
 }
+

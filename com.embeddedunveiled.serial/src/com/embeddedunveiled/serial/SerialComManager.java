@@ -1848,6 +1848,10 @@ public final class SerialComManager {
 	 * current loop line is indicated by no current flowing, and a very long period of no current flowing is often
 	 * caused by a break or other fault in the line.</p>
 	 * 
+	 * Recognizing break condition on line is the responsibility of the UART IC, but if for some reason (such as a 
+	 * limited UART that does not implement this functionality) the UART fails to do so, reception of a break will 
+	 * manifest itself as a large number of framing errors.
+	 * 
 	 * <p>All UART devices (or driver) may not support all break timings. For example CP2105 can set break for from 
 	 * 1 to 125 ms or for infinite time. Developers should consult data sheet to know device capabilities.</p>
 	 * 

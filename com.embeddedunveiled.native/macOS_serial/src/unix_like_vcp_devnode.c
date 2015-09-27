@@ -195,3 +195,4 @@ jobjectArray vcp_node_from_usb_attributes(JNIEnv *env, jint usbvid_to_match, jin
 
 	return NULL;
 }
+
