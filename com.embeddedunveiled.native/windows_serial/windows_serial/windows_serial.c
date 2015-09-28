@@ -146,7 +146,6 @@ JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPor
 JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_listAvailableComPorts(JNIEnv *env,
 		jobject obj) {
 
-	LONG result = 0;
 	HKEY hKey;
 	TCHAR achClass[MAX_PATH] = TEXT("");  /* buffer for class name       */
 	DWORD cchClassName = MAX_PATH;        /* size of class string        */
@@ -158,16 +157,21 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
 	DWORD cbMaxValueData;                 /* longest value data          */
 	DWORD cbSecurityDescriptor;           /* size of security descriptor */
 	FILETIME ftLastWriteTime;             /* last write time             */
-	DWORD i = 0;
+	LONG result = 0;
 	DWORD ret_code = 0;
-	int negative = -1;
 	TCHAR nameBuffer[1024];
 	DWORD cchValueName = 1024;
 	TCHAR valueBuffer[1024];
 	DWORD cchValueData = 1024;
-
-	jobjectArray ports_found = NULL;
-	jclass stringClass = (*env)->FindClass(env, "java/lang/String");
+	
+	int x = 0;
+	struct jstrarray_list list = {0};
+	jstring serial_device;
+	jclass strClass = NULL;
+	jobjectArray serialDevicesFound = NULL;
+	
+	/* allocate memory for 100 jstrings */
+	init_jstrarraylist(&list, 100);
 
 	/* Try to open the registry key for serial communication devices. */
 	result = RegOpenKeyEx(HKEY_LOCAL_MACHINE,     /* pre-defined key                                                                    */
@@ -175,33 +179,9 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
 		0,                                        /* option to apply when opening the key                                               */
 		KEY_READ | KEY_WOW64_64KEY,               /* access rights to the key to be opened, user might run 32 bit JRE on 64 bit machine */
 		&hKey);                                   /* variable that receives a handle to the opened key                                  */
-
+		
 	if(result != ERROR_SUCCESS) {
-		jclass statusClass = (*env)->GetObjectClass(env, status);
-		if (statusClass == NULL) {
-			if (DBG) fprintf(stderr, "%s\n", "NATIVE getSerialPortNames() could not get class of object of type SerialComRetStatus !");
-			if (DBG) fflush(stderr);
-			return NULL;
-		}
-		jfieldID status_fid = (*env)->GetFieldID(env, statusClass, "status", "I");
-		if (status_fid == NULL) {
-			if (DBG) fprintf(stderr, "%s\n", "NATIVE getSerialPortNames() failed to retrieve field id of field status in class SerialComRetStatus !");
-			if (DBG) fflush(stderr);
-			return NULL;
-		}
-		if ((*env)->ExceptionOccurred(env)) {
-			LOGE(env);
-		}
-		ret_code = result + ERR_OFFSET;
-		if(result == ERROR_FILE_NOT_FOUND) {
-			ret_code = ENOENT;
-		}else if (result == ERROR_ACCESS_DENIED) {
-			ret_code = EACCES;
-		}else {
-		}
-		(*env)->SetIntField(env, status, status_fid, (negative*ret_code));
-		if (DBG) fprintf(stderr, "%s %d\n", "NATIVE getSerialPortNames() failed to open registry key with Windows error no : -", result);
-		if (DBG) fflush(stderr);
+		throw_serialcom_exception(env, 4, result, NULL);
 		return NULL;
 	}
 
@@ -223,7 +203,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
 	/* For each entry try to get names and return array constructed out of these names. */
 	if(cValues > 0) {
 		ports_found = (*env)->NewObjectArray(env, cValues, stringClass, NULL);
-			for (i = 0; i < cValues; i++) {
+			for (x = 0; x < cValues; x++) {
 				nameBuffer[0] = '\0';
 				valueBuffer[0] = '\0';
 				cchValueName = 1024;
@@ -238,42 +218,54 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
 					&cchValueData);          /* pointer to a variable that specifies the size of the buffer pointed to by the lpData parameter       */
 				if(result == ERROR_SUCCESS) {
 					valueBuffer[cchValueData / 2] = '\0';
-					(*env)->SetObjectArrayElement(env, ports_found, i, (*env)->NewString(env, valueBuffer, (cchValueData / 2)));
-				}else if(result == ERROR_MORE_DATA) {
-					if(DBG) fprintf(stderr, "%s \n", "NATIVE getSerialPortNames() failed to read registry value with ERROR_MORE_DATA !");
-					if(DBG) fflush(stderr);
-					break;
+					serial_device = (*env)->NewString(env, valueBuffer, (cchValueData / 2)));
+					if((serial_device == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+						(*env)->ExceptionClear(env);
+						RegCloseKey(hKey);
+						free_jstrarraylist(&list);
+						throw_serialcom_exception(env, 3, 0, E_NEWSTRUTFSTR);
+						return NULL;
+					}
+					insert_jstrarraylist(&list, serial_device);
 				}else if(result == ERROR_NO_MORE_ITEMS) {
 					break;
 				}else {
-					if(DBG) fprintf(stderr, "%s%ld \n", "NATIVE getSerialPortNames() failed to read registry value with error number ", result);
-					if(DBG) fflush(stderr);
-					jclass statusClass = (*env)->GetObjectClass(env, status);
-					if (statusClass == NULL) {
-						if (DBG) fprintf(stderr, "%s\n", "NATIVE getSerialPortNames() could not get class of object of type SerialComRetStatus !");
-						if (DBG) fflush(stderr);
-						return NULL;
-					}
-					jfieldID status_fid = (*env)->GetFieldID(env, statusClass, "status", "I");
-					if (status_fid == NULL) {
-						if (DBG) fprintf(stderr, "%s\n", "NATIVE getSerialPortNames() failed to retrieve field id of field status in class SerialComRetStatus !");
-						if (DBG) fflush(stderr);
-						return NULL;
-					}
-					if ((*env)->ExceptionOccurred(env)) {
-						LOGE(env);
-					}
-					ret_code = result + ERR_OFFSET;
-					(*env)->SetIntField(env, status, status_fid, (negative*ret_code));
-					ports_found = NULL;
-					break;
 				}
 			}
 	}
-
-	/* NULL is returned in case no port found or an exception occurs. */
+	
+	/* Close the key , no more required. */
 	RegCloseKey(hKey);
-	return ports_found;
+	
+	/* Create a JAVA/JNI style array of String object, populate it and return to java layer. */
+	strClass = (*env)->FindClass(env, JAVALSTRING);
+	if((strClass == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+		(*env)->ExceptionClear(env);
+		free_jstrarraylist(&list);
+		throw_serialcom_exception(env, 3, 0, E_FINDCLASSSSTRINGSTR);
+		return NULL;
+	}
+
+	serialDevicesFound = (*env)->NewObjectArray(env, (jsize) list.index, strClass, NULL);
+	if((serialDevicesFound == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+		(*env)->ExceptionClear(env);
+		free_jstrarraylist(&list);
+		throw_serialcom_exception(env, 3, 0, E_NEWOBJECTARRAYSTR);
+		return NULL;
+	}
+
+	for (x=0; x < list.index; x++) {
+		(*env)->SetObjectArrayElement(env, serialDevicesFound, x, list.base[x]);
+		if((*env)->ExceptionOccurred(env)) {
+			(*env)->ExceptionClear(env);
+			free_jstrarraylist(&list);
+			throw_serialcom_exception(env, 3, 0, E_SETOBJECTARRAYSTR);
+			return NULL;
+		}
+	}
+
+	free_jstrarraylist(&list);
+	return serialDevicesFound;	
 }
 
 /*
@@ -343,22 +335,19 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJ
 		jboolean enableWrite, jboolean exclusiveOwner) {
 
 	int ret = 0;
-	DWORD errorVal;
-	int negative = -1;
 	DWORD dwerror = 0;
 	COMSTAT comstat;
-	HANDLE hComm = INVALID_HANDLE_VALUE;
 	int OPEN_MODE = 0;
 	int SHARING = 0;
 	DCB dcb = { 0 };                      /* Device control block for RS-232 serial devices */
 	COMMTIMEOUTS lpCommTimeouts;
 	wchar_t portFullName[512] = { 0 };
+	HANDLE hComm = INVALID_HANDLE_VALUE;
 
 	const jchar* port = (*env)->GetStringChars(env, portName, JNI_FALSE);
-	if(port == NULL) {
-		if(DBG) fprintf(stderr, "%s \n", "NATIVE openComPort() failed to create port name string from JNI environment.");
-		if(DBG) fflush(stderr);
-		return -240;
+	if((port == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+		throw_serialcom_exception(env, 3, 0, E_GETSTRUTFCHARSTR);
+		return -1;
 	}
 
 	/* To specify a COM port number greater than 9, use the following syntax : "\\.\COMXX". */
@@ -390,20 +379,8 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJ
 	(*env)->ReleaseStringChars(env, portName, port);
 
 	if(hComm == INVALID_HANDLE_VALUE) {
-		errorVal = GetLastError();
-		if(errorVal == ERROR_SHARING_VIOLATION) {
-			return (negative * EBUSY);
-		}else if(errorVal == ERROR_ACCESS_DENIED) {
-			return (negative * EACCES);
-		}else if((errorVal == ERROR_FILE_NOT_FOUND) || (errorVal == ERROR_PATH_NOT_FOUND)) {
-			return (negative * ENXIO);
-		}else if(errorVal == ERROR_INVALID_NAME) {
-			return (negative * EINVAL);
-		}else {
-			if(DBG) fprintf(stderr, "%s %ld\n", "NATIVE CreateFile() in openComPort() failed with error number : ", errorVal);
-			if(DBG) fflush(stderr);
-			return negative * (errorVal + ERR_OFFSET);
-		}
+		throw_serialcom_exception(env, 4, GetLastError(), NULL);
+		return -1;
 	}
 
 	/* Clear the device's communication error flag if set previously due to any reason. */
@@ -414,17 +391,16 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJ
 	   but is free to use any input and output (I/O) buffering scheme. */
 	SetupComm(hComm, CommInBufSize, CommOutBufSize);
 
-	/* Make sure that the device we are going to operate on, is a valid serial port. */
+	/* Make sure that the device we are going to operate on, is a valid serial port in sane state. */
 	SecureZeroMemory(&dcb, sizeof(DCB));
 	dcb.DCBlength = sizeof(DCB);
 
 	/* Retrieves the current control settings for a specified communications device. */
 	ret = GetCommState(hComm, &dcb);
 	if(ret == 0) {
-		if(DBG) fprintf(stderr, "%s \n", "NATIVE GetCommState() in openComPort() failed.");
-		if(DBG) fflush(stderr);
 		CloseHandle(hComm);
-		return (negative * EINVAL);
+		throw_serialcom_exception(env, 4, GetLastError(), NULL);
+		return -1;
 	}
 
 	/* Set port to 9600 8N1 setting, no flow control. Bring the port in sane state. */
@@ -450,32 +426,21 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJ
 	dcb.fNull = FALSE;              /* Do not discard when null bytes are received. */
 	ret = SetCommState(hComm, &dcb);
 	if(ret == 0) {
-		errorVal = GetLastError();
-		if(errorVal == ERROR_INVALID_PARAMETER) {
-			if(DBG)fprintf(stderr, "%s %ld\n", "NATIVE SetCommState() in openComPort() failed with error number : ", errorVal);
-			if(DBG) fflush(stderr);
-			CloseHandle(hComm);
-			return (negative * EINVAL);
-		}
-		fprintf(stderr, "%s %ld\n", "NATIVE SetCommState() in openComPort() failed with error number : ", errorVal);
-		fflush(stderr);
 		CloseHandle(hComm);
-		return (negative * (errorVal + ERR_OFFSET));
+		throw_serialcom_exception(env, 4, GetLastError(), NULL);
+		return -1;
 	}
 
-	/* Set correct timing parameters that will define how ReadFile and WriteFile functions will behave. */
+	/* Set correct default timing parameters that will define how ReadFile and WriteFile functions will behave. */
 	SecureZeroMemory(&lpCommTimeouts, sizeof(COMMTIMEOUTS));
 	lpCommTimeouts.ReadIntervalTimeout = 1;
 	lpCommTimeouts.ReadTotalTimeoutConstant = 150;
 	lpCommTimeouts.WriteTotalTimeoutConstant = 1000;
 	ret = SetCommTimeouts(hComm, &lpCommTimeouts);
 	if(ret == 0) {
-		errorVal = GetLastError();
-		if(DBG) fprintf(stderr, "%s%ld\n", "NATIVE SetCommTimeouts() in openComPort() failed with error number : ", errorVal);
-		if(DBG) fprintf(stderr, "%s \n", "PLEASE RETRY OPENING SERIAL PORT.");
-		if(DBG) fflush(stderr);
 		CloseHandle(hComm);
-		return (negative * (errorVal + ERR_OFFSET));
+		throw_serialcom_exception(env, 4, GetLastError(), NULL);
+		return -1;
 	}
 	
 	/* Reset communication mask. */

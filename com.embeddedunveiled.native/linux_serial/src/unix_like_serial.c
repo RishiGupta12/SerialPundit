@@ -462,12 +462,11 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJ
 	/* Don't become controlling terminal and do not wait for DCD line to be enabled from other end. */
 	errno = 0;
 	fd = open(portpath, OPEN_MODE | O_NDELAY | O_NOCTTY);
+	(*env)->ReleaseStringUTFChars(env, portName, portpath);
 	if(fd < 0) {
-		(*env)->ReleaseStringUTFChars(env, portName, portpath);
 		throw_serialcom_exception(env, 1, errno, NULL);
 		return -1;
 	}
-	(*env)->ReleaseStringUTFChars(env, portName, portpath);
 
 	/* Enable blocking I/O behavior. Control behavior through VMIN and VTIME. */
 	n = fcntl(fd, F_GETFL, 0);
