@@ -462,11 +462,13 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJ
 	/* Don't become controlling terminal and do not wait for DCD line to be enabled from other end. */
 	errno = 0;
 	fd = open(portpath, OPEN_MODE | O_NDELAY | O_NOCTTY);
-	(*env)->ReleaseStringUTFChars(env, portName, portpath);
 	if(fd < 0) {
+		(*env)->ReleaseStringUTFChars(env, portName, portpath);
 		throw_serialcom_exception(env, 1, errno, NULL);
 		return -1;
 	}
+	
+	(*env)->ReleaseStringUTFChars(env, portName, portpath);
 
 	/* Enable blocking I/O behavior. Control behavior through VMIN and VTIME. */
 	n = fcntl(fd, F_GETFL, 0);
@@ -1739,7 +1741,7 @@ JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComP
  * Method:    getCurrentConfigurationW
  * Signature: (J)[Ljava/lang/String;
  *
- * Required for Windows only.
+ * Applicable for Windows OS only.
  *
  * @return NULL always.
  */
@@ -1769,14 +1771,14 @@ JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComP
 	errno = 0;
 	ret = ioctl(fd, FIONREAD, &val[0]);
 	if(ret < 0) {
-		throw_serialcom_exception(env, 1,errno, NULL);
+		throw_serialcom_exception(env, 1, errno, NULL);
 		return NULL;
 	}
 
 	errno = 0;
 	ret = ioctl(fd, TIOCOUTQ, &val[1]);
 	if(ret < 0) {
-		throw_serialcom_exception(env, 1,errno, NULL);
+		throw_serialcom_exception(env, 1, errno, NULL);
 		return NULL;
 	}
 
@@ -1791,6 +1793,7 @@ JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComP
 		throw_serialcom_exception(env, 3, 0, E_SETINTARRREGIONSTR);
 		return NULL;
 	}
+	
 	return byteCounts;
 }
 
@@ -1808,33 +1811,27 @@ JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComP
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_clearPortIOBuffers(JNIEnv *env,
 		jobject obj, jlong fd, jboolean rxPortbuf, jboolean txPortbuf) {
 		
-	int ret = -1;
-
+	int ret = 0;
+	int PORTIOBUFFER = 0;
+	
 	if((rxPortbuf == JNI_TRUE) && (txPortbuf == JNI_TRUE)) {
-		errno = 0;
 		/* flushes both the input and output queue. */
-		ret = tcflush(fd, TCIOFLUSH);
-		if(ret < 0) {
-			throw_serialcom_exception(env, 1, errno, NULL);
-			return -1;
-		}
+		PORTIOBUFFER = TCIOFLUSH;
 	}else if(rxPortbuf == JNI_TRUE) {
-		errno = 0;
 		/* flushes the input queue, which contains data that have been received but not yet read. */
-		ret = tcflush(fd, TCIFLUSH);
-		if(ret < 0) {
-			throw_serialcom_exception(env, 1, errno, NULL);
-			return -1;
-		}
+		PORTIOBUFFER = TCIFLUSH;
 	}else if(txPortbuf == JNI_TRUE) {
-		errno = 0;
 		/* flushes the output queue, which contains data that have been written but not yet transmitted. */
-		ret = tcflush(fd, TCOFLUSH);
-		if(ret < 0) {
-			throw_serialcom_exception(env, 1, errno, NULL);
-			return -1;
-		}
+		PORTIOBUFFER = TCOFLUSH;
 	}else {
+		/* this case is handled in java layer itself */
+	}	
+	
+	errno = 0;
+	ret = tcflush(fd, PORTIOBUFFER);
+	if(ret < 0) {
+		throw_serialcom_exception(env, 1, errno, NULL);
+		return -1;
 	}
 
 	return 0;
@@ -1855,9 +1852,9 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
 		jobject obj, jlong fd, jboolean enabled) {
 		
 	int ret = -1;
-	int status = -1;
+	int status = 0;
 
-	/* Get current configuration. */
+	/* Get current state details. */
 	errno = 0;
 	ret = ioctl(fd, TIOCMGET, &status);
 	if(ret < 0) {
@@ -1897,7 +1894,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
 		jobject obj, jlong fd, jboolean enabled) {
 		
 	int ret = -1;
-	int status = -1;
+	int status = 0;
 
 	errno = 0;
 	ret = ioctl(fd, TIOCMGET, &status);

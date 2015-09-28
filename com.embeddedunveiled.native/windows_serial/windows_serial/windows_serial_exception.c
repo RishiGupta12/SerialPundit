@@ -65,10 +65,26 @@ void throw_serialcom_exception(JNIEnv *env, int type, int error_code, const char
 		LOGE(E_FINDCLASSSCOMEXPSTR, FAILTHOWEXP);
 		return;
 	}
-
-	if(type == 1) {
-		/* Caller has given posix error code, get error message corresponding to this code. */
-		return;
+	
+	if(type == 4) {
+		/* Caller has given Windows error code */
+		memset(buffer, '\0', sizeof(buffer));
+		ret = FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+							 NULL, error_code, MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US), 
+							 (LPSTR) &buffer, sizeof(buffer), NULL);
+		if(ret == 0) {
+			LOGEN(FAILTHOWEXP, "FormatMessageA", GetLastError());
+		}
+		ret = (*env)->ThrowNew(env, serialComExceptionClass, buffer);
+		if(ret < 0) {
+			LOGE(FAILTHOWEXP, buffer);
+		}
+	}else if(type == 3) {
+		/* Caller has given exception message explicitly */
+		ret = (*env)->ThrowNew(env, serialComExceptionClass, msg);
+		if(ret < 0) {
+			LOGE(FAILTHOWEXP, msg);
+		}
 	}else if(type == 2) {
 		/* Caller has given custom error code, need to get exception message corresponding to this code. */
 		memset(buffer, '\0', sizeof(buffer));
@@ -89,25 +105,10 @@ void throw_serialcom_exception(JNIEnv *env, int type, int error_code, const char
 		if(ret < 0) {
 			LOGE(FAILTHOWEXP, buffer);
 		}
-	}else if(type == 4) {
-		/* Caller has given Windows error code */
-		memset(buffer, '\0', sizeof(buffer));
-		ret = FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-							 NULL, error_code, MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US), 
-							 (LPSTR) &buffer, sizeof(buffer), NULL);
-		if(ret == 0) {
-			LOGEN(FAILTHOWEXP, "FormatMessageA", GetLastError());
-		}
-		ret = (*env)->ThrowNew(env, serialComExceptionClass, buffer);
-		if(ret < 0) {
-			LOGE(FAILTHOWEXP, buffer);
-		}
+	}else if(type == 1) {
+		/* Caller has given posix error code, get error message corresponding to this code. */
+		return;
 	}else {
-		/* Caller has given exception message explicitly */
-		ret = (*env)->ThrowNew(env, serialComExceptionClass, msg);
-		if(ret < 0) {
-			LOGE(FAILTHOWEXP, msg);
-		}
 	}
 }
 

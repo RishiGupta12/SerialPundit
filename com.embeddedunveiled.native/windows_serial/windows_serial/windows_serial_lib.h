@@ -71,6 +71,8 @@
 #define E_HCIBTADDR "Could not determine address of BT HCI device !"
 #define E_CANNOTFINDDEVNODE "Failed to find device node from sysfs path !"
 
+#define E_CANNOTCREATEEVENT "CreateEvent() failed to create overlapped event handle !"
+
 /* Custom error codes and messages for SCM library */
 #define ERROR_OFFSET 15000
 #define E_CALLOC              (ERROR_OFFSET + 1)
