@@ -76,15 +76,18 @@ JavaVM *jvm_event;
  * what to do if pselect fails. This returns negative value if function fails. The caller must multiply
  * return value by -1 to get actual errno value. */
 int serial_delay(unsigned milliSeconds) {
+
 	int ret = 0;
-	struct timespec t;
-	t.tv_sec  = milliSeconds/1000;
-	t.tv_nsec = 0;
+	struct timespec ts;
+	ts.tv_sec  = milliSeconds/1000;
+	ts.tv_nsec = 0;
+	
 	errno = 0;
-	ret = pselect(1, 0, 0, 0, &t, 0);
+	ret = pselect(1, 0, 0, 0, &ts, 0);
 	if(ret < 0) {
 		return -1 * errno;
 	}
+	
 	return 0;
 }
 
@@ -271,7 +274,7 @@ void *data_looper(void *arg) {
 	EV_SET(&chlist[1], pipe1[0], EVFILT_READ, EV_ADD , 0, 0, NULL);
 #endif
 
-	/* indicate success to caller so it can return success to java layer */
+	/* indicate success to the caller so it can return success to java layer */
 	((struct com_thread_params*) arg)->data_init_done = 0;
 	pthread_mutex_unlock(((struct com_thread_params*) arg)->mutex);
 

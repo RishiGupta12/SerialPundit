@@ -1926,6 +1926,8 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
  *
  * The status of modem/control lines is returned as array of integers where '1' means line is asserted
  * and '0' means de-asserted. The sequence of lines matches in both java layer and native layer.
+ * 
+ * Return sequence is CTS, DSR, DCD, RI, LOOP, RTS, DTR respectively.
  *
  * @return array containing status of modem control lines 0 on success otherwise NULL if
  *         an error occurs.
@@ -1959,6 +1961,7 @@ JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComP
 	status[4] = 0;
 	status[5] = (lines_status & TIOCM_RTS) ? 1 : 0;
 	status[6] = (lines_status & TIOCM_DTR) ? 1 : 0;
+	
 	(*env)->SetIntArrayRegion(env, current_status, 0, 7, status);
 	if((*env)->ExceptionOccurred(env)) {
 		throw_serialcom_exception(env, 3, 0, E_SETINTARRREGIONSTR);
@@ -1976,8 +1979,7 @@ JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComP
  * Find the name of the driver which is currently associated with the given serial port.
  *
  * @return name of driver if found for given serial port, empty string if no driver found for
- * given serial port,
- *         NULL if any error occurs.
+ *         given serial port, NULL if any error occurs.
  * @throws SerialComException if any JNI function, system call or C function fails.
  */
 JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_findDriverServingComPort(JNIEnv *env,
@@ -2328,6 +2330,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
 	struct com_thread_params *ptr = NULL;
 	pthread_t data_thread_id = 0;
 	void *status = NULL;
+	
 #if defined (__linux__)
 	uint64_t value = 1;
 #endif

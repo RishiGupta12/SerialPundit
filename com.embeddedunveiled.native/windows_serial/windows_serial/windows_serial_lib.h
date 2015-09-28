@@ -90,14 +90,16 @@
 struct looper_thread_params {
 	JavaVM *jvm;
 	HANDLE hComm;
-	HANDLE thread_handle;
 	jobject looper;
-	int data_enabled;
-	int event_enabled;
+	HANDLE thread_handle;
+	HANDLE wait_event_handles[2];
 	int thread_exit;
 	CRITICAL_SECTION *csmutex;
-	HANDLE wait_event_handles[2];
+	int data_enabled;
+	int event_enabled;
 	int init_done;
+	int custom_err_code;
+	int standard_err_code;
 };
 
 struct port_info {

@@ -1756,6 +1756,8 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
  * and '0' means de-asserted. The sequence of lines matches in both java layer and native layer.
  * Last three values i.e. DTR, RTS, LOOP are set to 0, as Windows does not have any API to read there 
  * status.
+ * 
+ * Return sequence is CTS, DSR, DCD, RI, LOOP, RTS, DTR respectively.
  *
  * @return array containing status of modem control lines 0 on success otherwise NULL if
  *         an error occurs.
@@ -1765,34 +1767,37 @@ JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComP
 		jobject obj, jlong handle) {
 
 	int ret = -1;
-	DWORD errorVal = -1;
-	int negative = -1;
-	int status[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
-	HANDLE hComm = (HANDLE)handle;
-	DWORD modem_stat;
-	jintArray current_status = (*env)->NewIntArray(env, 8);
+	DWORD modem_stat = 0;
+	jint status[7] = {0};
+	jintArray current_status = NULL;
 
-	ret = GetCommModemStatus(hComm, &modem_stat);
-	if(ret == 0) {
-		errorVal = GetLastError();
-		if(DBG) fprintf(stderr, "%s %ld\n", "NATIVE GetCommModemStatus() in getLinesStatus() failed with error number : ", errorVal);
-		if(DBG) fflush(stderr);
-		status[0] = (negative * (errorVal + ERR_OFFSET));
-		(*env)->SetIntArrayRegion(env, current_status, 0, 8, status);
-		return current_status;
+	current_status = (*env)->NewIntArray(env, 7);
+	if((current_status == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+		throw_serialcom_exception(env, 3, 0, E_NEWINTARRAYSTR);
+		return NULL;
 	}
-
-	status[0] = 0;
-	status[1] = (modem_stat & MS_CTS_ON)  ? 1 : 0;
-	status[2] = (modem_stat & MS_DSR_ON)  ? 1 : 0;
-	status[3] = (modem_stat & MS_RLSD_ON) ? 1 : 0;
-	status[4] = (modem_stat & MS_RING_ON) ? 1 : 0;
+	
+	ret = GetCommModemStatus((HANDLE)handle, &modem_stat);
+	if(ret == 0) {
+		throw_serialcom_exception(env, 4, GetLastError(), NULL);
+		return NULL;
+	}
+	
+	status[0] = (modem_stat & MS_CTS_ON)  ? 1 : 0;
+	status[1] = (modem_stat & MS_DSR_ON)  ? 1 : 0;
+	status[2] = (modem_stat & MS_RLSD_ON) ? 1 : 0;
+	status[3] = (modem_stat & MS_RING_ON) ? 1 : 0;
+	status[4] = 0;
 	status[5] = 0;
 	status[6] = 0;
-	status[7] = 0;
+	
+	(*env)->SetIntArrayRegion(env, current_status, 0, 7, status);
+	if((*env)->ExceptionOccurred(env)) {
+		throw_serialcom_exception(env, 3, 0, E_SETINTARRREGIONSTR);
+		return NULL;
+	}
 
-	(*env)->SetIntArrayRegion(env, current_status, 0, 8, status);
-	return current_status;
+	return current_status;	
 }
 
 /*
@@ -1803,8 +1808,7 @@ JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComP
  * Find the name of the driver which is currently associated with the given serial port.
  *
  * @return name of driver if found for given serial port, empty string if no driver found for
- * given serial port,
- *         NULL if any error occurs.
+ *         given serial port, NULL if any error occurs.
  * @throws SerialComException if any JNI function, Win API call or C function fails.
  */
 JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_findDriverServingComPort(JNIEnv *env,
@@ -1844,26 +1848,25 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
 		jobject obj, jlong handle, jint duration) {
 
 	int ret = -1;
-	int negative = -1;
-	DWORD errorVal = -1;
-	HANDLE hComm = (HANDLE)handle;
 
-	ret = SetCommBreak(hComm);
+	/* Set break condition. */
+	ret = SetCommBreak((HANDLE)handle);
 	if(ret == 0) {
-		errorVal = GetLastError();
-		if(DBG) fprintf(stderr, "%s%ld\n", "NATIVE SetCommBreak() in sendBreak() failed with error number : ", errorVal);
-		if(DBG) fflush(stderr);
-		return (negative * (errorVal + ERR_OFFSET));
+		throw_serialcom_exception(env, 4, GetLastError(), NULL);
+		return -1;
 	}
 
-	serial_delay(duration);
+	ret = serial_delay(duration);
+	if(ret < 0) {
+		throw_serialcom_exception(env, 1, (-1 * ret), NULL);
+		return -1;
+	}
 
-	ret = ClearCommBreak(hComm);
+	/* Release break condition. */
+	ret = ClearCommBreak((HANDLE)handle);
 	if(ret == 0) {
-		errorVal = GetLastError();
-		if(DBG) fprintf(stderr, "%s%ld\n", "NATIVE ClearCommBreak() in sendBreak() failed with error number : ", errorVal);
-		if(DBG) fflush(stderr);
-		return (negative * (errorVal + ERR_OFFSET));
+		throw_serialcom_exception(env, 4, GetLastError(), NULL);
+		return -1;
 	}
 
 	return 0;
@@ -1874,7 +1877,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
  * Method:    getInterruptCount
  * Signature: (J)[I
  *
- * Not supported by Windows itself (this function will return NULL).
+ * Not supported by Windows itself.
  *
  * @return always NULL.
  */
@@ -1898,31 +1901,22 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
 		jobject obj, jlong fd, jint vmin, jint vtime, jint a, jint b, jint c) {
 
 	int ret = 0;
-	int negative = -1;
-	DWORD errorVal;
-	COMMTIMEOUTS lpCommTimeouts;
-	HANDLE hComm = (HANDLE)handle;
+	COMMTIMEOUTS lpCommTimeouts = { 0 };
 	
-	ret = GetCommTimeouts(hComm, &lpCommTimeouts);
+	ret = GetCommTimeouts((HANDLE)handle, &lpCommTimeouts);
 	if(ret == 0) {
-		errorVal = GetLastError();
-		if(DBG) fprintf(stderr, "%s %ld\n", "NATIVE fineTuneRead() failed in GetCommTimeouts() with error number : ", errorVal);
-		if(DBG) fprintf(stderr, "%s \n", "please retry tuning again.");
-		if(DBG) fflush(stderr);
-		return (negative * (errorVal + ERR_OFFSET));
+		throw_serialcom_exception(env, 4, GetLastError(), NULL);
+		return -1;
 	}
 	
 	lpCommTimeouts.ReadIntervalTimeout = rit;
 	lpCommTimeouts.ReadTotalTimeoutMultiplier = rttm;
 	lpCommTimeouts.ReadTotalTimeoutConstant = rttc;
 	
-	ret = SetCommTimeouts(hComm, &lpCommTimeouts);
+	ret = SetCommTimeouts((HANDLE)handle, &lpCommTimeouts);
 	if(ret == 0) {
-		errorVal = GetLastError();
-		if(DBG) fprintf(stderr, "%s%ld\n", "NATIVE fineTuneRead() failed in SetCommTimeouts() with error number : ", errorVal);
-		if(DBG) fprintf(stderr, "%s \n", "please retry tuning again.");
-		if(DBG) fflush(stderr);
-		return (negative * (errorVal + ERR_OFFSET));
+		throw_serialcom_exception(env, 4, GetLastError(), NULL);
+		return -1;
 	}
 	
 	return 0;
@@ -1938,7 +1932,6 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
 int setupLooperThread(JNIEnv *env, jobject obj, jlong handle, jobject looper_obj_ref, int data_enabled, 
 	int event_enabled, int global_index, int new_dtp_index) {
 	
-	int negative = -1;
 	HANDLE hComm = (HANDLE)handle;
 	HANDLE thread_handle;
 	struct looper_thread_params params;
@@ -1949,31 +1942,34 @@ int setupLooperThread(JNIEnv *env, jobject obj, jlong handle, jobject looper_obj
 	EnterCriticalSection(&csmutex);
 
 	jobject looper_ref = (*env)->NewGlobalRef(env, looper_obj_ref);
-	if(looper_ref == NULL) {
-		if(DBG) fprintf(stderr, "%s \n", "NATIVE setupLooperThread() failed to create global reference for looper object !");
-		if(DBG) fflush(stderr);
+	if((looper_ref == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
 		LeaveCriticalSection(&csmutex);
-		return -240;
+		throw_serialcom_exception(env, 3, 0, E_NEWGLOBALREFSTR);
+		return -1;
 	}
 
 	/* Set the values that will be passed to data thread. */
 	params.jvm = jvm;
 	params.hComm = hComm;
 	params.looper = looper_ref;
-	params.data_enabled = data_enabled;
-	params.event_enabled = event_enabled;
-	params.thread_exit = 0;
-	params.csmutex = &csmutex;           /* Same mutex is shared across all the threads. */
+	params.thread_handle = 0;
 	params.wait_event_handles[0] = 0;
 	params.wait_event_handles[1] = 0;
-	params.init_done = 0;
+	params.thread_exit = 0;
+	params.csmutex = &csmutex;           /* Same mutex is shared across all the threads. */
+	params.data_enabled = data_enabled;
+	params.event_enabled = event_enabled;
+	params.init_done = -1;
+	params.custom_err_code = 0;
+	params.standard_err_code = 0;
 
 	/* We have prepared data to be passed to thread, so create reference and pass it. */
 	handle_looper_info[global_index] = params;
 	void *arg = &handle_looper_info[global_index];
 
-	/* Managed thread creation. The _beginthreadex initializes Certain CRT (C Run-Time) internals that ensures that other C functions will
-	   work exactly as expected. */
+	/* Managed thread creation. The _beginthreadex initializes Certain CRT (C Run-Time) internals that 
+	 * ensures that other C functions will work exactly as expected. */
+	_set_errno(0);
 	thread_handle = (HANDLE) _beginthreadex(NULL,   /* default security attributes */
 					0,                              /* use default stack size      */
 					&event_data_looper,             /* thread function name        */
@@ -1981,16 +1977,11 @@ int setupLooperThread(JNIEnv *env, jobject obj, jlong handle, jobject looper_obj
 					0,                              /* start thread immediately    */
 					&thread_id);                    /* thread identifier           */
 	if(thread_handle == 0) {
-		if(DBG) fprintf(stderr, "%s%d\n", "NATIVE setupLooperThread() failed to create looper thread with error number : -", errno);
-		if(DBG) fprintf(stderr, "%s \n", "PLEASE TRY AGAIN !");
-		if(DBG) fflush(stderr);
 		(*env)->DeleteGlobalRef(env, looper_ref);
+		throw_serialcom_exception(env, 5, errno, NULL);
 		LeaveCriticalSection(&csmutex);
-		return (negative * (errno + ERR_OFFSET));
+		return -1;
 	}
-
-	/* Save the thread handle which will be used when listener is unregistered. */
-	((struct looper_thread_params*) arg)->thread_handle = thread_handle;
 
 	if(new_dtp_index) {
 		/* update address where data parameters for next thread will be stored. */
@@ -1998,24 +1989,30 @@ int setupLooperThread(JNIEnv *env, jobject obj, jlong handle, jobject looper_obj
 	}
 
 	LeaveCriticalSection(&csmutex);
+	
+	/* wait till thread initialize completely, then return success. */
+	while(-1 == ((struct looper_thread_params*) arg)->init_done) { }
+	
+	if(0 == ((struct looper_thread_params*) arg)->init_done) {
+		/* Save the thread handle which will be used when listener is unregistered. */
+		((struct looper_thread_params*) arg)->thread_handle = thread_handle;
+	}else {
+		WaitForSingleObject(((struct looper_thread_params*) arg)->thread_handle, INFINITE);
+		CloseHandle(((struct looper_thread_params*) arg)->thread_handle);
+		((struct looper_thread_params*) arg)->thread_handle = 0;
+		(*env)->DeleteGlobalRef(env, looper_ref);
 
-	/* let thread initialize completely and then return success. */
-	while (1) {
-		if(((struct looper_thread_params*) arg)->init_done == 0) {
-			continue;
-		}
-		if(((struct looper_thread_params*) arg)->init_done == 1) {
-			return 0; /* success */
+		if((((struct looper_thread_params*) arg)->custom_err_code) > 0) {
+			/* indicates custom error message should be used in exception.*/
+			throw_serialcom_exception(env, 2, ((struct looper_thread_params*) arg)->custom_err_code, NULL);
 		}else {
-			WaitForSingleObject(((struct looper_thread_params*) arg)->thread_handle, INFINITE);
-			CloseHandle(((struct looper_thread_params*) arg)->thread_handle);
-			((struct looper_thread_params*) arg)->thread_handle = 0;
-			(*env)->DeleteGlobalRef(env, looper_ref);
-			return ((struct looper_thread_params*) arg)->init_done;  /* return error value contained in init_done varaible */
+			/* indicates posix/os-specific error message should be used in exception.*/
+			throw_serialcom_exception(env, 1, ((struct looper_thread_params*) arg)->standard_err_code, NULL);
 		}
+		return -1;
 	}
 
-	return 0;
+	return 0; /* success */
 }
 
 /*
@@ -2037,7 +2034,6 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
 	int x = 0;
 	int ret = 0;
 	int thread_exist = 0;
-	int negative = -1;
 	struct looper_thread_params *ptr;
 	ptr = handle_looper_info;
 	HANDLE hComm = (HANDLE)handle;
@@ -2045,7 +2041,6 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
 	DWORD updated_mask = 0;
 	DWORD error_type = 0;
 	COMSTAT com_stat;
-	DWORD errorVal;
 	int global_index = dtp_index;
 	int new_dtp_index = 1;
 
@@ -2063,12 +2058,8 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
 		updated_mask = event_mask | EV_RXCHAR;
 		ret = SetCommMask(hComm, updated_mask);
 		if(ret == 0) {
-			errorVal = GetLastError();
-			if(DBG) fprintf(stderr, "%s%ld\n", "NATIVE setUpDataLooperThread() failed in SetCommMask() with error number : ", errorVal);
-			if(DBG) fprintf(stderr, "%s \n", "Try again !");
-			if(DBG) fflush(stderr);
-			ClearCommError(hComm, &error_type, &com_stat);
-			return (negative * (errorVal + ERR_OFFSET));
+			throw_serialcom_exception(env, 4, GetLastError(), NULL);
+			return -1;
 		}
 
 		/* set data_enabled flag */
@@ -2110,48 +2101,43 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
 
 	int ret = 0;
 	int x = 0;
-	int negative = -1;
 	DWORD a = 0;
 	DWORD b = a & EV_CTS;
-	HANDLE hComm = (HANDLE)handle;
 	DWORD error_type = 0;
-	COMSTAT com_stat;
 	DWORD event_mask = 0;
-	DWORD errorVal;
+	COMSTAT com_stat;
+	HANDLE hComm = (HANDLE)handle;
 	struct looper_thread_params *ptr;
 	int reset_hComm_field = 0;
 
 	/* handle_looper_info is global array holding all the information. */
 	ptr = handle_looper_info;
 
+	EnterCriticalSection(&csmutex);
+
 	ret = GetCommMask(hComm, &event_mask);
 	if(ret == 0) {
-		errorVal = GetLastError();
-		if(DBG) fprintf(stderr, "%s %ld\n", "NATIVE destroyDataLooperThread() failed in GetCommMask() with error number : ", errorVal);
-		if(DBG) fprintf(stderr, "%s \n", "Try again !");
-		if(DBG) fflush(stderr);
-		ClearCommError(hComm, &error_type, &com_stat);
+		throw_serialcom_exception(env, 4, GetLastError(), NULL);
 		LeaveCriticalSection(&csmutex);
-		return (negative * (errorVal + ERR_OFFSET)); /* For unrecoverable errors we would like to exit and try again. */
+		return -1;
 	}
 
 	if((b & event_mask) == 1) {
 		/* Event listener exist, so just tell thread to wait for control events events only. */
 		event_mask = 0;
 		event_mask = event_mask | EV_BREAK | EV_CTS | EV_DSR | EV_ERR | EV_RING | EV_RLSD | EV_RXFLAG;
+		
 		ret = SetCommMask(hComm, event_mask);
 		if(ret == 0) {
-			errorVal = GetLastError();
-			if(DBG) fprintf(stderr, "%s %ld\n", "NATIVE destroyDataLooperThread() failed in SetCommMask() with error number : ", errorVal);
-			if(DBG) fprintf(stderr, "%s \n", "Try again !");
-			if(DBG) fflush(stderr);
-			ClearCommError(hComm, &error_type, &com_stat);
-			return (negative * (errorVal + ERR_OFFSET));
+			throw_serialcom_exception(env, 4, GetLastError(), NULL);
+			LeaveCriticalSection(&csmutex);
+			return -1;
 		}
+		
 		/* unset data_enabled flag */
 		ptr = handle_looper_info;
 		for (x = 0; x < MAX_NUM_THREADS; x++) {
-			if (ptr->hComm == hComm) {
+			if(ptr->hComm == hComm) {
 				ptr->data_enabled = 0;
 				break;
 			}
@@ -2174,10 +2160,9 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
 	/* This causes WaitForMultipleObjects() in worker thread to come out of waiting state. */
 	ret = SetEvent(ptr->wait_event_handles[0]);
 	if(ret == 0) {
-		errorVal = GetLastError();
-		if(DBG) fprintf(stderr, "%s %ld\n", "NATIVE destroyDataLooperThread() failed in SetEvent() with error number : ", errorVal);
-		if(DBG) fflush(stderr);
-		return (negative * (errorVal + ERR_OFFSET));
+		throw_serialcom_exception(env, 4, GetLastError(), NULL);
+		LeaveCriticalSection(&csmutex);
+		return -1;
 	}
 
 	/* Wait till worker thread actually terminate and OS clean up resources. */
@@ -2186,11 +2171,12 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
 	ptr->thread_handle = 0;
 
 	/* If neither data nor event thread exist for this file descriptor remove entry for it from global array. */
-	if (reset_hComm_field) {
+	if(reset_hComm_field) {
 		ptr->hComm = -1;
 		(*env)->DeleteGlobalRef(env, ptr->looper);
 	}
 
+	LeaveCriticalSection(&csmutex);
 	return 0;
 }
 
@@ -2211,7 +2197,6 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
 	* If it exist just update event mask to wait for otherwise create thread. */
 	int x = 0;
 	int ret = 0;
-	int negative = -1;
 	int thread_exist = 0;
 	struct looper_thread_params *ptr;
 	ptr = handle_looper_info;
@@ -2220,11 +2205,10 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
 	DWORD updated_mask = 0;
 	DWORD error_type = 0;
 	COMSTAT com_stat;
-	DWORD errorVal;
 	int global_index = dtp_index;
 	int new_dtp_index = 1;
 
-	for(x = 0; x < MAX_NUM_THREADS; x++) {
+	for (x = 0; x < MAX_NUM_THREADS; x++) {
 		if(ptr->hComm == hComm) {
 			thread_exist = 1;
 			break;
@@ -2236,18 +2220,18 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
 		/* Thread exist so just update event to listen to. */
 		ret = GetCommMask(hComm, &event_mask);
 		updated_mask = event_mask | EV_BREAK | EV_CTS | EV_DSR | EV_ERR | EV_RING | EV_RLSD | EV_RXFLAG;
+		
 		ret = SetCommMask(hComm, updated_mask);
 		if(ret == 0) {
-			errorVal = GetLastError();
-			if(DBG) fprintf(stderr, "%s %ld\n", "NATIVE setUpEventLooperThread() failed in SetCommMask() with error number : ", errorVal);
-			if(DBG) fprintf(stderr, "%s \n", "Try again !");
-			if(DBG) fflush(stderr);
-			ClearCommError(hComm, &error_type, &com_stat);
-			return (negative * (errorVal + ERR_OFFSET));
+			throw_serialcom_exception(env, 4, GetLastError(), NULL);
+			return -1;
 		}
+		
 		/* set event_enabled flag */
 		ptr->event_enabled = 1;
+		
 	}else {
+	
 		/* Not found in our records, so we create the thread. */
 		ptr = handle_looper_info;
 		for (x = 0; x < MAX_NUM_THREADS; x++) {
@@ -2258,11 +2242,12 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
 			}
 			ptr++;
 		}
+		
 		/* new_dtp_index is 0 if we reuse existing index otherwise 1. */
 		return setupLooperThread(env, obj, handle, looper, 0, 1, global_index, new_dtp_index);
 	}
 
-	return -240;
+	return 0;
 }
 
 /*
@@ -2275,21 +2260,29 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterface_destroyEventLooperThread(JNIEnv *env,
 		jobject obj, jlong handle) {
-
+	
 	int ret = 0;
 	int x = 0;
-	int negative = -1;
 	DWORD a = 0;
 	DWORD b = a & EV_RXCHAR;
-	HANDLE hComm = (HANDLE)handle;
 	DWORD error_type = 0;
-	COMSTAT com_stat;
 	DWORD event_mask = 0;
-	ret = GetCommMask(hComm, &event_mask);
+	COMSTAT com_stat;
+	HANDLE hComm = (HANDLE)handle;
 	struct looper_thread_params *ptr;
-	ptr = handle_looper_info;
-	DWORD errorVal = 0;
 	int reset_hComm_field = 0;
+	
+	/* handle_looper_info is global array holding all the information. */
+	ptr = handle_looper_info;
+
+	EnterCriticalSection(&csmutex);
+
+	ret = GetCommMask(hComm, &event_mask);
+	if(ret == 0) {
+		throw_serialcom_exception(env, 4, GetLastError(), NULL);
+		LeaveCriticalSection(&csmutex);
+		return -1;
+	}
 
 	if((b & event_mask) == 1) {
 		/* Data listener exist, so just tell thread to wait for data events only. */
@@ -2297,13 +2290,11 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 		event_mask = event_mask | EV_RXCHAR;
 		ret = SetCommMask(hComm, event_mask);
 		if(ret == 0) {
-			errorVal = GetLastError();
-			if(DBG) fprintf(stderr, "%s %ld\n", "NATIVE destroyEventLooperThread() failed in SetCommMask() with error number : ", errorVal);
-			if(DBG) fprintf(stderr, "%s \n", "Try again !");
-			if(DBG) fflush(stderr);
-			ClearCommError(hComm, &error_type, &com_stat);
-			return (negative * (errorVal + ERR_OFFSET));
+			throw_serialcom_exception(env, 4, GetLastError(), NULL);
+			LeaveCriticalSection(&csmutex);
+			return -1;
 		}
+		
 		/* unset event_enabled flag */
 		ptr = handle_looper_info;
 		for (x = 0; x < MAX_NUM_THREADS; x++) {
@@ -2313,7 +2304,9 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 			}
 			ptr++;
 		}
+		
 	}else {
+	
 		/* Destroy thread as data listener does not exist and user wish to unregister event listener also. */
 		for (x = 0; x < MAX_NUM_THREADS; x++) {
 			if(ptr->hComm == hComm) {
@@ -2329,10 +2322,9 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 		/* This causes thread to come out of waiting state. */
 		ret = SetEvent(ptr->wait_event_handles[0]);
 		if(ret == 0) {
-			errorVal = GetLastError();
-			if(DBG) fprintf(stderr, "%s %ld\n", "NATIVE destroyEventLooperThread() failed in SetEvent() with error number : ", errorVal);
-			if(DBG) fflush(stderr);
-			return (negative * (errorVal + ERR_OFFSET));
+			throw_serialcom_exception(env, 4, GetLastError(), NULL);
+			LeaveCriticalSection(&csmutex);
+			return -1;
 		}
 	}
 
@@ -2347,6 +2339,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 		(*env)->DeleteGlobalRef(env, ptr->looper);
 	}
 
+	LeaveCriticalSection(&csmutex);
 	return 0;
 }
 
@@ -2396,6 +2389,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
 
 	/* Managed thread creation. The _beginthreadex initializes Certain CRT (C Run-Time) internals that ensures that other C functions will
 	   work exactly as expected. */
+	_set_errno(0);
 	thread_handle = (HANDLE)_beginthreadex(NULL,   /* default security attributes */
 		0,                                         /* use default stack size      */
 		&port_monitor,                             /* thread function name        */
@@ -2403,12 +2397,9 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
 		0,                                         /* start thread immediately    */
 		&thread_id);                               /* thread identifier           */
 	if(thread_handle == 0) {
-		if(DBG) fprintf(stderr, "%s%d\n", "NATIVE registerPortMonitorListener() failed to create monitor thread with error number : -", errno);
-		if(DBG) fprintf(stderr, "%s \n", "PLEASE TRY AGAIN !");
-		if(DBG) fflush(stderr);
 		(*env)->DeleteGlobalRef(env, portListener);
 		LeaveCriticalSection(&csmutex);
-		return (negative * (errno + ERR_OFFSET));
+		return -1;
 	}
 
 	/* Save the data thread handle which will be used when listener is unregistered. */
@@ -2495,15 +2486,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
  */
 JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_ioctlExecuteOperation(JNIEnv *env,
 		jobject obj, jlong fd, jlong operationCode) {
-	int ret = 0;
-
-	errno = 0;
-	ret = ioctl(fd, operationCode);
-	if(ret < 0) {
-		throw_serialcom_exception(env, 1, errno, NULL);
-		return -1;
-	}
-	return 0;
+	return -1;
 }
 
 /*
@@ -2516,15 +2499,7 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJ
  */
 JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_ioctlSetValue(JNIEnv *env,
 		jobject obj, jlong fd, jlong operationCode, jlong value) {
-		
-	int ret = 0;
-	errno = 0;
-	ret = ioctl(fd, operationCode, value);
-	if(ret < 0) {
-		throw_serialcom_exception(env, 1, errno, NULL);
-		return -1;
-	}
-	return 0;
+	return -1;
 }
 
 /*
@@ -2537,16 +2512,7 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJ
  */
 JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_ioctlGetValue(JNIEnv *env,
 		jobject obj, jlong fd, jlong operationCode) {
-		
-	int ret = 0;
-	long value = 0;
-	errno = 0;
-	ret = ioctl(fd, operationCode, &value);
-	if(ret < 0) {
-		throw_serialcom_exception(env, 1, errno, NULL);
-		return -1;
-	}
-	return value;
+	return -1;
 }
 
 /*

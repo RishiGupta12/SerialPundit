@@ -55,6 +55,7 @@ int LOGEN(const char *msg_a, const char *msg_b, unsigned int error_num) {
 void throw_serialcom_exception(JNIEnv *env, int type, int error_code, const char *msg) {
 
 	DWORD ret = -1;
+	errno_t err_code = 0;
 	char buffer[256];
 	jclass serialComExceptionClass = NULL;
 
@@ -66,49 +67,59 @@ void throw_serialcom_exception(JNIEnv *env, int type, int error_code, const char
 		return;
 	}
 	
-	if(type == 4) {
-		/* Caller has given Windows error code */
-		memset(buffer, '\0', sizeof(buffer));
-		ret = FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-							 NULL, error_code, MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US), 
-							 (LPSTR) &buffer, sizeof(buffer), NULL);
-		if(ret == 0) {
-			LOGEN(FAILTHOWEXP, "FormatMessageA", GetLastError());
-		}
-		ret = (*env)->ThrowNew(env, serialComExceptionClass, buffer);
-		if(ret < 0) {
-			LOGE(FAILTHOWEXP, buffer);
-		}
-	}else if(type == 3) {
-		/* Caller has given exception message explicitly */
-		ret = (*env)->ThrowNew(env, serialComExceptionClass, msg);
-		if(ret < 0) {
-			LOGE(FAILTHOWEXP, msg);
-		}
-	}else if(type == 2) {
-		/* Caller has given custom error code, need to get exception message corresponding to this code. */
-		memset(buffer, '\0', sizeof(buffer));
-		switch (error_code) {
-		case E_CALLOC : strcpy(buffer, E_CALLOCSTR);
-		break;
-		case E_ATTACHCURRENTTHREAD : strcpy(buffer,  E_ATTACHCURRENTTHREADSTR);
-		break;
-		case E_GETOBJECTCLASS : strcpy(buffer, E_GETOBJECTCLASSSTR);
-		break;
-		case E_GETMETHODID : strcpy(buffer, E_GETMETHODIDSTR);
-		break;
-		case E_CALLVOIDMETHD : strcpy(buffer, E_CALLVOIDMETHDSTR);
-		break;
-		default : strcpy(buffer, E_UNKNOWN);
-		}
-		ret = (*env)->ThrowNew(env, serialComExceptionClass, buffer);
-		if(ret < 0) {
-			LOGE(FAILTHOWEXP, buffer);
-		}
-	}else if(type == 1) {
-		/* Caller has given posix error code, get error message corresponding to this code. */
-		return;
-	}else {
+	switch(type) {
+		case 4 :
+			/* Caller has given Windows error code */
+			memset(buffer, '\0', sizeof(buffer));
+			ret = FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+									 NULL, error_code, MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US), 
+									 (LPSTR) &buffer, sizeof(buffer), NULL);
+			if(ret == 0) {
+				LOGEN(FAILTHOWEXP, "FormatMessageA()", GetLastError());
+			}
+			ret = (*env)->ThrowNew(env, serialComExceptionClass, buffer);
+			if(ret < 0) {
+				LOGE(FAILTHOWEXP, buffer);
+			}
+			break;
+		case 3 :
+			/* Caller has given exception message explicitly */
+			ret = (*env)->ThrowNew(env, serialComExceptionClass, msg);
+			if(ret < 0) {
+				LOGE(FAILTHOWEXP, msg);
+			}
+			break;
+		case 2 :
+			/* Caller has given custom error code, need to get exception message corresponding to this code. */
+			memset(buffer, '\0', sizeof(buffer));
+			switch (error_code) {
+				case E_CALLOC : strcpy(buffer, E_CALLOCSTR);
+					break;
+				case E_ATTACHCURRENTTHREAD : strcpy(buffer,  E_ATTACHCURRENTTHREADSTR);
+					break;
+				case E_GETOBJECTCLASS : strcpy(buffer, E_GETOBJECTCLASSSTR);
+					break;
+				case E_GETMETHODID : strcpy(buffer, E_GETMETHODIDSTR);
+					break;
+				case E_CALLVOIDMETHD : strcpy(buffer, E_CALLVOIDMETHDSTR);
+					break;
+				default : strcpy(buffer, E_UNKNOWN);
+			}
+			ret = (*env)->ThrowNew(env, serialComExceptionClass, buffer);
+			if(ret < 0) {
+				LOGE(FAILTHOWEXP, buffer);
+			}
+			break;
+		case 1 :
+			/* Caller has given posix error code, get error message corresponding to this code. */
+			return;
+		case 5 :
+			/* Caller has given <errno.h> error code for windows, get error message corresponding to this code. */
+			memset(buffer, '\0', sizeof(buffer));
+			err_code = strerror_s(buffer,  sizeof(buffer), error_code);
+			if(err_code != 0) {
+				LOGEN(FAILTHOWEXP, "strerror_s()", err_code);
+			}
 	}
 }
 

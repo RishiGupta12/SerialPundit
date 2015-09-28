@@ -23,14 +23,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <tchar.h>
-#include <jni.h>
+
 #include <windows.h>
 #include <process.h>
 #include <dbt.h>
-#include "windows_serial_lib.h"
+#include <tchar.h>
 
-#define DBG 1
+#include <jni.h>
+#include "windows_serial_lib.h"
 
 /* Access to global shared information */
 struct port_info *port_monitor_info_ptr = NULL;
@@ -41,16 +41,22 @@ void LOGE(JNIEnv *env) {
 	(*env)->ExceptionClear(env);
 }
 
-/* Provide delay whenever required. */
+/* WaitForSingleObject() is used to provide delay whenever required. It returns errno as is and 
+ * let caller decide what to do if WaitForSingleObject fails. This returns negative value if function 
+ * fails. The caller must multiply return value by -1 to get actual errno code. */
 int serial_delay(unsigned milli_seconds) {
+
 	DWORD wait_status = 0;
 	OVERLAPPED ov = { 0 };
+	
 	ov.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
 	if(ov.hEvent == NULL) {
 		return (-1 * GetLastError());
 	}
+	
 	wait_status = WaitForSingleObject(ov.hEvent, milli_seconds);
 	CloseHandle(ov.hEvent);
+	
 	switch (wait_status) {
 		case WAIT_TIMEOUT:
 			return 0;
@@ -61,28 +67,27 @@ int serial_delay(unsigned milli_seconds) {
 		case WAIT_FAILED :
 			return (-1 * GetLastError());
 	}
+	
 	return -1;
 }
 
 /* This thread wait for both data and control event both to occur on the specified port. When data is received on port or a control event has
  * occurred, it enqueue this to data or event to corresponding queue. Separate blocking queue for data and events are managed by java layer. */
 unsigned __stdcall event_data_looper(void* arg) {
+
 	int ret = 0;
-	int negative = -1;
+	int error_count = 0;
 	BOOL result = FALSE;
 	COMSTAT com_stat;
 	DWORD error_type = 0;
 	DWORD errorVal = 0;
 	DWORD events_mask = 0;
 	DWORD mask_applied = 0;
-	jbyte data_buf[1024];
-	DWORD num_of_bytes_read;
-	jbyteArray data_read;
+	DWORD num_of_bytes_read = 0;
 	OVERLAPPED overlapped;
 	BOOL eventOccurred = FALSE;
 	DWORD dwEvent;
-	int error_count = 0;
-
+	
 	int CTS =  0x01;  // 0000001
 	int DSR =  0x02;  // 0000010
 	int DCD =  0x04;  // 0000100
@@ -90,6 +95,15 @@ unsigned __stdcall event_data_looper(void* arg) {
 	int lines_status = 0;
 	int cts, dsr, dcd, ri = 0;
 	int event = 0;
+	
+	void* env1;
+	JNIEnv* env;
+	jbyte data_buf[1024];
+	jbyteArray data_read;
+	jclass SerialComLooper = NULL;
+	jmethodID data_mid = NULL;
+	jmethodID mide = NULL;
+	jmethodID event_mid = NULL;
 
 	struct looper_thread_params* params = (struct looper_thread_params*) arg;
 	JavaVM *jvm = (*params).jvm;
@@ -98,67 +112,51 @@ unsigned __stdcall event_data_looper(void* arg) {
 	int data_enabled = (*params).data_enabled;
 	int event_enabled = (*params).event_enabled;
 
-	/* The JNIEnv is valid only in the current thread. So, threads created should attach itself to the VM and obtain a JNI interface pointer. */
-	void* env1;
-	JNIEnv* env;
+	/* The JNIEnv is valid only in the current thread. So, threads created should attach 
+	 * itself to the VM and obtain a JNI interface pointer. */
 	if((*jvm)->AttachCurrentThread(jvm, &env1, NULL) != JNI_OK) {
-		if(DBG) fprintf(stderr, "%s \n", "NATIVE event_data_looper() thread failed to attach itself to JVM.");
-		if(DBG) fflush(stderr);
-		((struct looper_thread_params*) arg)->init_done = -240;
+		((struct looper_thread_params*) arg)->custom_err_code = E_ATTACHCURRENTTHREAD;
+		((struct looper_thread_params*) arg)->init_done = 2;
 		_endthreadex(0);
 		return 0;
 	}
 	env = (JNIEnv*) env1;
 
-	/* Local references are valid for the duration of a native method call. They are freed automatically after the native method returns. */
-	jclass SerialComLooper = (*env)->GetObjectClass(env, looper);
-	if(SerialComLooper == NULL) {
-		if(DBG) fprintf(stderr, "%s \n", "NATIVE event_data_looper() thread could not get class of object of type looper !");
-		if(DBG) fprintf(stderr, "%s \n", "NATIVE event_data_looper() thread exiting. Please RETRY registering data listener !");
-		if(DBG) fflush(stderr);
-		((struct looper_thread_params*) arg)->init_done = -240;
+	/* Local references are valid for the duration of a native method call.
+	   They are freed automatically after the native method returns.
+	   Local references are only valid in the thread in which they are created.
+	   The native code must not pass local references from one thread to another if required. */
+	SerialComLooper = (*env)->GetObjectClass(env, looper);
+	if((SerialComLooper == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+		((struct looper_thread_params*) arg)->custom_err_code = E_GETOBJECTCLASS;
+		((struct looper_thread_params*) arg)->init_done = 2;
 		(*jvm)->DetachCurrentThread(jvm);
 		_endthreadex(0);
 		return 0;   /* For unrecoverable errors we would like to exit and try again. */
 	}
-
-	jmethodID event_mid = (*env)->GetMethodID(env, SerialComLooper, "insertInEventQueue", "(I)V");
-	if((*env)->ExceptionOccurred(env)) {
-		LOGE(env);
-	}
-	if(event_mid == NULL) {
-		if(DBG) fprintf(stderr, "%s \n", "NATIVE event_data_looper() thread failed to retrieve method id of method insertInEventQueue in class SerialComLooper !");
-		if(DBG) fprintf(stderr, "%s \n", "NATIVE event_data_looper() thread exiting. Please RETRY registering event listener !");
-		if(DBG) fflush(stderr);
-		((struct looper_thread_params*) arg)->init_done = -240;
+	
+	event_mid = (*env)->GetMethodID(env, SerialComLooper, "insertInEventQueue", "(I)V");
+	if((data_mid == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+		((struct looper_thread_params*) arg)->custom_err_code = E_GETMETHODID;
+		((struct looper_thread_params*) arg)->init_done = 2;
 		(*jvm)->DetachCurrentThread(jvm);
 		_endthreadex(0);
 		return 0;
 	}
-
-	jmethodID data_mid = (*env)->GetMethodID(env, SerialComLooper, "insertInDataQueue", "([B)V");
-	if((*env)->ExceptionOccurred(env)) {
-		LOGE(env);
-	}
-	if(data_mid == NULL) {
-		if(DBG) fprintf(stderr, "%s \n", "NATIVE event_data_looper() thread failed to retrieve method id of method insertInDataQueue in class SerialComLooper !");
-		if(DBG) fprintf(stderr, "%s \n", "NATIVE event_data_looper() thread exiting. Please RETRY registering data listener !");
-		if(DBG) fflush(stderr);
-		((struct looper_thread_params*) arg)->init_done = -240;
+	
+	data_mid = (*env)->GetMethodID(env, SerialComLooper, "insertInDataQueue", "([B)V");
+	if((data_mid == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+		((struct looper_thread_params*) arg)->custom_err_code = E_GETMETHODID;
+		((struct looper_thread_params*) arg)->init_done = 2;
 		(*jvm)->DetachCurrentThread(jvm);
 		_endthreadex(0);
 		return 0;
 	}
-
-	jmethodID mide = (*env)->GetMethodID(env, SerialComLooper, "insertInDataErrorQueue", "(I)V");
-	if((*env)->ExceptionOccurred(env)) {
-		LOGE(env);
-	}
-	if(mide == NULL) {
-		if (DBG) fprintf(stderr, "%s \n", "NATIVE event_data_looper() thread failed to retrieve method id of method insertInDataErrorQueue in class SerialComLooper !");
-		if (DBG) fprintf(stderr, "%s \n", "NATIVE event_data_looper() thread exiting. Please RETRY registering listener !");
-		if (DBG) fflush(stderr);
-		((struct looper_thread_params*) arg)->init_done = -240;
+	
+	mide = (*env)->GetMethodID(env, SerialComLooper, "insertInDataErrorQueue", "(I)V");
+	if((mide == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+		((struct looper_thread_params*) arg)->custom_err_code = E_GETMETHODID;
+		((struct looper_thread_params*) arg)->init_done = 2;
 		(*jvm)->DetachCurrentThread(jvm);
 		_endthreadex(0);
 		return 0;
@@ -175,11 +173,8 @@ unsigned __stdcall event_data_looper(void* arg) {
 
 	ret = SetCommMask(hComm, mask_applied);
 	if(ret == 0) {
-		errorVal = GetLastError();
-		if(DBG) fprintf(stderr, "%s %ld\n", "NATIVE event_data_looper() failed in SetCommMask() with error number : ", errorVal);
-		if(DBG) fflush(stderr);
-		ClearCommError(hComm, &error_type, &com_stat);
-		((struct looper_thread_params*) arg)->init_done = (negative * (errorVal + ERR_OFFSET));
+		((struct looper_thread_params*) arg)->standard_err_code = GetLastError();
+		((struct looper_thread_params*) arg)->init_done = 2;
 		(*jvm)->DetachCurrentThread(jvm);
 		_endthreadex(0);
 		return 0;
@@ -187,40 +182,39 @@ unsigned __stdcall event_data_looper(void* arg) {
 
 	((struct looper_thread_params*) arg)->wait_event_handles[0] = CreateEvent(NULL, FALSE, FALSE, NULL);
 	if(((struct looper_thread_params*) arg)->wait_event_handles[0] == NULL) {
-		errorVal = GetLastError();
-		if(DBG) fprintf(stderr, "%s\n", "NATIVE event_data_looper() failed to create thread exit event handle with error number : ", errorVal);
-		if(DBG) fflush(stderr);
-		((struct looper_thread_params*) arg)->init_done = (negative * (errorVal + ERR_OFFSET));
+		((struct looper_thread_params*) arg)->standard_err_code = GetLastError();
+		((struct looper_thread_params*) arg)->init_done = 2;
 		(*jvm)->DetachCurrentThread(jvm);
 		_endthreadex(0);
 		return 0;
 	}
 
-	/* indicate success to caller so it can return success to java layer */
-	((struct looper_thread_params*) arg)->init_done = 1;
+	/* indicate success to the caller so it can return success to java layer */
+	((struct looper_thread_params*) arg)->init_done = 0;
 
-	/* This keep looping forever until listener is unregistered, waiting for data or event and passing it to java layer which put it in the queue. */
+	/* This keep looping forever until listener is unregistered, waiting for data or 
+	 * event and passing it to java layer which put it in the queue. */
 	while(1) {
+	
 		eventOccurred = FALSE;
 
-		/* The OVERLAPPED structure is used by the kernel to store progress of the operation. Only hEvent member need to be initialled and others 
-		   can be left 0. The OVERLAPPED structure must contain a handle to a manual-reset event object.  */
+		/* The OVERLAPPED structure is used by the kernel to store progress of the operation. 
+		 * Only hEvent member need to be initialled and others can be left 0. The OVERLAPPED 
+		 * structure must contain a handle to a manual-reset event object.  */
 		memset(&overlapped, 0, sizeof(overlapped));
 		overlapped.hEvent = CreateEvent(NULL, FALSE, FALSE, NULL);   /* auto reset, unnamed event object */
 		if(overlapped.hEvent == NULL) {
-			errorVal = GetLastError();
-			if(DBG) fprintf(stderr, "%s\n", "NATIVE CreateEvent() in event_data_looper() failed creating overlapped event handle with error number : ", errorVal);
-			if(DBG) fflush(stderr);
+			LOGEN("CreateEvent()", "event_data_looper() failed creating overlapped event handle with error number : ", GetLastError());
 			continue;
 		}
 
 		((struct looper_thread_params*) arg)->wait_event_handles[1] = overlapped.hEvent;
 
-		/* If the overlapped operation cannot be completed immediately, the function returns FALSE and the GetLastError function returns ERROR_IO_PENDING,
-		   indicating that the operation is executing in the background. When this happens, the system sets the hEvent member of the OVERLAPPED structure
-		   to the not-signaled state before WaitCommEvent returns, and then it sets it to the signaled state when one of the specified events or an error 
-		   occurs. */
-
+		/* If the overlapped operation cannot be completed immediately, the function returns FALSE 
+		 * and the GetLastError function returns ERROR_IO_PENDING, indicating that the operation is 
+		 * executing in the background. When this happens, the system sets the hEvent member of the 
+		 * OVERLAPPED structure to the not-signaled state before WaitCommEvent returns, and then it 
+		 * sets it to the signaled state when one of the specified events or an error occurs. */
 		ret = WaitCommEvent(hComm, &events_mask, &overlapped);
 		if(ret == 0) {
 			errorVal = GetLastError();
@@ -242,12 +236,10 @@ unsigned __stdcall event_data_looper(void* arg) {
 						eventOccurred = TRUE;
 						break;
 					case WAIT_FAILED:
-						if(DBG) fprintf(stderr, "Unexpected WAIT_FAILED in WaitForMultipleObjects() with error : %ld\n", GetLastError());
-						if(DBG) fflush(stderr);
+						LOGEN("event_data_looper()", "Unexpected WAIT_FAILED in WaitForMultipleObjects() with error code : ", GetLastError());
 						break;
 					default:
-						if(DBG) fprintf(stderr, "Unexpected WaitForMultipleObjects() with error : %ld\n", GetLastError());
-						if(DBG) fflush(stderr);
+						LOGEN("event_data_looper()", "Unexpected WAIT_FAILED in WaitForMultipleObjects() with error code : ", GetLastError());
 				}
 			}else {
 				if(((struct looper_thread_params*) arg)->data_enabled == 1) {
@@ -309,8 +301,7 @@ unsigned __stdcall event_data_looper(void* arg) {
 								}
 							}
 						}else {
-							if(DBG) fprintf(stderr, "ReadFile failed with error : %ld\n", errorVal);
-							if(DBG) fflush(stderr);
+							LOGEN("event_data_looper()", "ReadFile() failed with error code : ", errorVal);
 						}
 					}
 
@@ -329,9 +320,7 @@ unsigned __stdcall event_data_looper(void* arg) {
 
 					ret = GetCommModemStatus(hComm, &lines_status);
 					if(ret == 0) {
-						errorVal = GetLastError();
-						if(DBG) fprintf(stderr, "%s %ld\n", "NATIVE GetCommModemStatus() in data_event_looper() failed with error number : ", errorVal);
-						if(DBG) fflush(stderr);
+						LOGEN("event_data_looper()", "GetCommModemStatus() failed with error code : ", GetLastError());
 						continue;
 					}
 
