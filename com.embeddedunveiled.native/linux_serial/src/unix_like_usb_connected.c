@@ -173,3 +173,4 @@ jint is_usb_dev_connected(JNIEnv *env, jint usbvid_to_match, jint usbpid_to_matc
 
 	return 0;
 }
+

@@ -25,16 +25,32 @@
 #include "unix_like_serial_lib.h"
 
 /*
+ * Prints fatal error on console. Java application can deploy a Java level framework which redirects
+ * data for STDERR to a log file.
+ */
+int LOGE(const char *msg_a, const char *msg_b) {
+	fprintf(stderr, "%s , %s\n", msg_a, msg_b);
+	fflush(stderr);
+	return 0;
+}
+
+int LOGEN(const char *msg_a, const char *msg_b, unsigned int error_num) {
+	fprintf(stderr, "%s , %s , error code : %d\n", msg_a, msg_b, error_num);
+	fflush(stderr);
+	return 0;
+}
+ 
+/*
  * For C-standard/POSIX/OS specific/Custom/JNI errors, this function is called. It sets a pointer which is checked
- * by java method when native function returns. If the pointer is set exception of class as set by this function is thrown.
+ * by java method when native function returns. If the pointer is set exception of class as set by this function is 
+ * thrown.
  *
- * The type 1 indicates standard (C-standard/POSIX/OS specific) error, 2 indicate custom (defined by this library) error,
- * 3 indicates custom error with message string.
+ * The type 1 indicates standard (C-standard/POSIX) error, 2 indicate custom (defined by this library) 
+ * error, 3 indicates custom error with message string.
  */
 void throw_serialcom_exception(JNIEnv *env, int type, int error_code, const char *msg) {
 	jint ret = 0;
 	char buffer[256];
-	char *custom_error_msg = NULL;
 	jclass serialComExceptionClass = NULL;
 #if _POSIX_C_SOURCE >= 200112L || _XOPEN_SOURCE >= 600 && ! _GNU_SOURCE
 #else
@@ -44,18 +60,23 @@ void throw_serialcom_exception(JNIEnv *env, int type, int error_code, const char
 	serialComExceptionClass = (*env)->FindClass(env, SCOMEXPCLASS);
 	if((serialComExceptionClass == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
 		(*env)->ExceptionClear(env);
-		LOGE(E_FINDCLASSSCOMEXPSTR);
+		LOGE(E_FINDCLASSSCOMEXPSTR, FAILTHOWEXP);
 		return;
 	}
 
 	if(type == 1) {
-		/* Caller has given posix/os-standard error code, get error message corresponding to this code. */
+		/* Caller has given posix error code, get error message corresponding to this code. */
 		/* This need to be made more portable to remove compiler specific dependency */
 #if _POSIX_C_SOURCE >= 200112L || _XOPEN_SOURCE >= 600 && ! _GNU_SOURCE
-		strerror_r(error_code, buffer, 256);
+		memset(buffer, '\0', sizeof(buffer));
+		errno = 0;
+		ret = strerror_r(error_code, buffer, 256);
+		if(ret < 0) {
+			LOGEN(FAILTHOWEXP, "strerror_r", error_code);
+		}
 		ret = (*env)->ThrowNew(env, serialComExceptionClass, buffer);
 		if(ret < 0) {
-			LOGE(FAILTHOWEXP);
+			LOGE(FAILTHOWEXP, buffer);
 		}
 #else
 		error_msg = strerror_r(error_code, buffer, 256);
@@ -73,36 +94,38 @@ void throw_serialcom_exception(JNIEnv *env, int type, int error_code, const char
 #endif
 	}else if(type == 2) {
 		/* Caller has given custom error code, need to get exception message corresponding to this code. */
+		memset(buffer, '\0', sizeof(buffer));
 		switch (error_code) {
-			case E_CALLOC : custom_error_msg = E_CALLOCSTR;
-				break;
-			case E_ATTACHCURRENTTHREAD : custom_error_msg = E_ATTACHCURRENTTHREADSTR;
-				break;
-			case E_GETOBJECTCLASS : custom_error_msg = E_GETOBJECTCLASSSTR;
-				break;
-			case E_GETMETHODID : custom_error_msg = E_GETMETHODIDSTR;
-				break;
-			case E_SIGNALINSTFAIL : custom_error_msg = E_SIGNALINSTFAILSTR;
-				break;
-			case E_CALLVOIDMETHD : custom_error_msg = E_CALLVOIDMETHDSTR;
-				break;
-			case E_UDEVNEW : custom_error_msg = E_UDEVNEWSTR;
-				break;
-			case E_UDEVNETLINK : custom_error_msg = E_UDEVNETLINKSTR;
-				break;
-			case E_IOSRVMATUSBDEV : custom_error_msg = E_IOSRVMATUSBDEVSTR;
-				break;
-			default : custom_error_msg = "Unknown error occurred !";
+		case E_CALLOC : strcpy(buffer, E_CALLOCSTR);
+		break;
+		case E_ATTACHCURRENTTHREAD : strcpy(buffer,  E_ATTACHCURRENTTHREADSTR);
+		break;
+		case E_GETOBJECTCLASS : strcpy(buffer, E_GETOBJECTCLASSSTR);
+		break;
+		case E_GETMETHODID : strcpy(buffer, E_GETMETHODIDSTR);
+		break;
+		case E_SIGNALINSTFAIL : strcpy(buffer, E_SIGNALINSTFAILSTR);
+		break;
+		case E_CALLVOIDMETHD : strcpy(buffer, E_CALLVOIDMETHDSTR);
+		break;
+		case E_UDEVNEW : strcpy(buffer, E_UDEVNEWSTR);
+		break;
+		case E_UDEVNETLINK : strcpy(buffer, E_UDEVNETLINKSTR);
+		break;
+		case E_IOSRVMATUSBDEV : strcpy(buffer, E_IOSRVMATUSBDEVSTR);
+		break;
+		default : strcpy(buffer, E_UNKNOWN);
 		}
-		ret = (*env)->ThrowNew(env, serialComExceptionClass, custom_error_msg);
+		ret = (*env)->ThrowNew(env, serialComExceptionClass, buffer);
 		if(ret < 0) {
-			LOGE(FAILTHOWEXP);
+			LOGE(FAILTHOWEXP, buffer);
 		}
 	}else {
 		/* Caller has given exception message explicitly */
 		ret = (*env)->ThrowNew(env, serialComExceptionClass, msg);
 		if(ret < 0) {
-			LOGE(FAILTHOWEXP);
+			LOGE(FAILTHOWEXP, msg);
 		}
 	}
 }
+

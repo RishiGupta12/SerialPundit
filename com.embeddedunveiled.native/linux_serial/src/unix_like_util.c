@@ -31,8 +31,7 @@
 void init_jstrarraylist(struct jstrarray_list *al, int initial_size) {
 	al->base = (jstring *) calloc(initial_size, sizeof(jstring));
 	if(al->base == NULL) {
-		fprintf(stderr, "array calloc %s %d\n", "failed : ", errno);
-		fflush(stderr);
+		LOGE(E_CALLOCSTR, "init_jstrarraylist() !");
 	}
 	al->index = 0;
 	al->current_size = initial_size;
@@ -45,9 +44,7 @@ void insert_jstrarraylist(struct jstrarray_list *al, jstring element) {
 		al->current_size = al->current_size * 2;
 		al->base = (jstring *) realloc(al->base, al->current_size * sizeof(jstring));
 		if(al->base == NULL) {
-
-			fprintf(stderr, "array realloc %s %d\n", "failed : ", errno);
-			fflush(stderr);
+			LOGE(E_REALLOCSTR, "insert_jstrarraylist() !");
 		}
 	}
 	al->base[al->index] = element;
@@ -59,3 +56,4 @@ void insert_jstrarraylist(struct jstrarray_list *al, jstring element) {
 void free_jstrarraylist(struct jstrarray_list *al) {
 	free(al->base);
 }
+

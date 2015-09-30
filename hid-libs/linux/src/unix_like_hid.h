@@ -108,6 +108,7 @@ struct jstrarray_list {
 
 /* function prototypes (declared in reverse order of use) */
 <<<<<<< HEAD
+<<<<<<< HEAD
 extern int LOGE(const char *error_msg);
 extern void throw_serialcom_exception(JNIEnv *env, int type, int error_code, const char *);
 extern void free_jstrarraylist(struct jstrarray_list *al);
@@ -120,6 +121,10 @@ extern jstring get_hiddev_indexed_string(JNIEnv *env, jlong fd, int index);
 extern jlong open_by_usb_attrributes(JNIEnv *env, jint usbvid, jint usbpid, jstring usbserialnumber);
 =======
 int LOGE(const char *error_msg);
+=======
+int LOGE(const char *msga, const char *msgb);
+int LOGEN(const char *msga, const char *msgb, unsigned int error_num);
+>>>>>>> upstream/master
 void throw_serialcom_exception(JNIEnv *env, int type, int error_code, const char *);
 void free_jstrarraylist(struct jstrarray_list *al);
 void insert_jstrarraylist(struct jstrarray_list *al, jstring element);

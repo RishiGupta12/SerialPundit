@@ -32,8 +32,21 @@
 SUBSYSTEM=="usb", ATTRS{idVendor}=="10c4", MODE="0666"
 SUBSYSTEM=="usb_device", ATTRS{idVendor}=="10c4", MODE="0666"
 
-# If we want to load these rules for a specific USB product with product ID, here is how to do it
-# (example for CP2102).
-
+# If we want to load these rules for a specific USB product with product ID, here is how to do it:
+# (example for CP2101/2/3/4).
 #SUBSYSTEM=="usb", ATTRS{idVendor}=="10c4", ATTRS{idProduct}=="ea60", MODE="0666"
 #SUBSYSTEM=="usb_device", ATTRS{idVendor}=="10c4", ATTRS{idProduct}=="ea60", MODE="0666"
+
+# CP2105
+#SUBSYSTEM=="usb", ATTRS{idVendor}=="10c4", ATTRS{idProduct}=="ea70", MODE="0666"
+#SUBSYSTEM=="usb_device", ATTRS{idVendor}=="10c4", ATTRS{idProduct}=="ea60", MODE="0666"
+
+# CP2108
+#SUBSYSTEM=="usb", ATTRS{idVendor}=="10c4", ATTRS{idProduct}=="ea71", MODE="0666"
+#SUBSYSTEM=="usb_device", ATTRS{idVendor}=="10c4", ATTRS{idProduct}=="ea60", MODE="0666"
+
+# CP2110
+#SUBSYSTEM=="usb", ATTRS{idVendor}=="10c4", ATTRS{idProduct}=="ea80", MODE="0666"
+#SUBSYSTEM=="usb_device", ATTRS{idVendor}=="10c4", ATTRS{idProduct}=="ea60", MODE="0666"
+
+

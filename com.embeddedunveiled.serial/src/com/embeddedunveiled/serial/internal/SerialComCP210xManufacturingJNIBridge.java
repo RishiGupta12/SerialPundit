@@ -160,6 +160,7 @@ public final class SerialComCP210xManufacturingJNIBridge {
 	public native int reset(long handle);
 	public native int createHexFile(long handle, String fileName);
 	public native String getPartNumber(long handle);
+	public native String getDeviceManufacturerString(long handle);
 
 	public native long open(int index);
 	public native int close(long handle);
@@ -203,8 +204,10 @@ public final class SerialComCP210xManufacturingJNIBridge {
 
 	public native int setDualPortConfig(long handle, int mode, int resetLatch, int suspendLatch, 
 			int enhancedFxnECI, int enhancedFxnSCI, int enhancedFxnDevice);
+	public native int[] getDualPortConfig(long handle);
 
 	public native int setQuadPortConfig(long handle, int[] resetLatch, int[] suspendLatch, byte[] config);
+	public native int[] getQuadPortConfig(long handle);
 
 	public native int setLockValue(long handle);
 	public native int getLockValue(long handle);

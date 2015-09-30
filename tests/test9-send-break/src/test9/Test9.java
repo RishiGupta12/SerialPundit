@@ -31,7 +31,7 @@ public class Test9 {
 			SerialComManager scm = new SerialComManager();
 
 			String PORT = null;
-			int osType = SerialComManager.getOSType();
+			int osType = scm.getOSType();
 			if(osType == SerialComManager.OS_LINUX) {
 				PORT = "/dev/ttyUSB0";
 			}else if(osType == SerialComManager.OS_WINDOWS) {

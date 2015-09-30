@@ -70,33 +70,24 @@
 #include <jni.h>
 #include "unix_like_serial_lib.h"
 
-#define DBG 1
-
 JavaVM *jvm_event;
-
-/*
- * Prints fatal error on console. In future we may pass this message back to java layer where
- * it can log using any logging framework or simply choose to discard.
- */
-int LOGE(const char *error_msg) {
-	fprintf(stderr, "%s\n", error_msg);
-	fflush(stderr);
-	return 0;
-}
 
 /* pselect() is used to provide delay whenever required. It returns errno as is and let caller decide
  * what to do if pselect fails. This returns negative value if function fails. The caller must multiply
  * return value by -1 to get actual errno value. */
 int serial_delay(unsigned milliSeconds) {
+
 	int ret = 0;
-	struct timespec t;
-	t.tv_sec  = milliSeconds/1000;
-	t.tv_nsec = 0;
+	struct timespec ts;
+	ts.tv_sec  = milliSeconds/1000;
+	ts.tv_nsec = 0;
+	
 	errno = 0;
-	ret = pselect(1, 0, 0, 0, &t, 0);
+	ret = pselect(1, 0, 0, 0, &ts, 0);
 	if(ret < 0) {
 		return -1 * errno;
 	}
+	
 	return 0;
 }
 
@@ -283,7 +274,7 @@ void *data_looper(void *arg) {
 	EV_SET(&chlist[1], pipe1[0], EVFILT_READ, EV_ADD , 0, 0, NULL);
 #endif
 
-	/* indicate success to caller so it can return success to java layer */
+	/* indicate success to the caller so it can return success to java layer */
 	((struct com_thread_params*) arg)->data_init_done = 0;
 	pthread_mutex_unlock(((struct com_thread_params*) arg)->mutex);
 
@@ -446,7 +437,7 @@ void event_exit_signal_handler(int signal_number) {
 	if(signal_number == SIGUSR1) {
 		ret = (*jvm_event)->DetachCurrentThread(jvm_event);
 		if(ret != JNI_OK) {
-			LOGE(E_DETACHCURTHREAD);
+			LOGE(E_DETACHCURTHREAD, "exit signal handler.");
 		}
 		pthread_exit((void *)0);
 	}
@@ -1033,3 +1024,4 @@ void *usb_hot_plug_monitor(void *arg) {
 #if defined (__SunOS)
 #endif
 }
+

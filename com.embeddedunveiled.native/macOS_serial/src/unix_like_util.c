@@ -45,6 +45,7 @@ void insert_jstrarraylist(struct jstrarray_list *al, jstring element) {
 		al->current_size = al->current_size * 2;
 		al->base = (jstring *) realloc(al->base, al->current_size * sizeof(jstring));
 		if(al->base == NULL) {
+
 			fprintf(stderr, "array realloc %s %d\n", "failed : ", errno);
 			fflush(stderr);
 		}
@@ -58,3 +59,4 @@ void insert_jstrarraylist(struct jstrarray_list *al, jstring element) {
 void free_jstrarraylist(struct jstrarray_list *al) {
 	free(al->base);
 }
+

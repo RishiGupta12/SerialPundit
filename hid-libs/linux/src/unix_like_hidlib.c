@@ -24,14 +24,6 @@
 #include <jni.h>
 #include "unix_like_hid.h"
 
-/* Prints fatal error on console. In future we may pass this message back to java layer where
- * it can log using any logging framework or simply choose to discard. */
-int LOGE(const char *error_msg) {
-	fprintf(stderr, "%s\n", error_msg);
-	fflush(stderr);
-	return 0;
-}
-
 /* Allocate memory of given size and initializes elements as appropriate.
  * The elements in this array list will be java.lang.String object constructed
  * from an array of characters in modified UTF-8 encoding by calling JNI

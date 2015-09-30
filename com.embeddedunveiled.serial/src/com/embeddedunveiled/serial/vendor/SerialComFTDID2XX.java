@@ -147,37 +147,37 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	}
 
 	/**<p>Value indicating devices unknown to D2XX library.</p>*/
-	private static final int FT_DEVICE_UNKNOWN = 0X01;
+	public static final int FT_DEVICE_UNKNOWN = 0X01;
 
 	/**<p>Value indicating FTDI AM devices.</p>*/
-	private static final int FT_DEVICE_AM = 0x02;
+	public static final int FT_DEVICE_AM = 0x02;
 
 	/**<p>Value indicating FTDI BM devices.</p>*/
-	private static final int FT_DEVICE_BM = 0x03;
+	public static final int FT_DEVICE_BM = 0x03;
 
 	/**<p>Value indicating FTDI 100AX devices.</p>*/
-	private static final int FT_DEVICE_100AX = 0X04;
+	public static final int FT_DEVICE_100AX = 0X04;
 
 	/**<p>Value indicating FTDI 232B (FT2xxB) devices.</p>*/
-	private static final int FT_DEVICE_232B = 0X05;
+	public static final int FT_DEVICE_232B = 0X05;
 
 	/**<p>Value indicating FTDI 232R devices.</p>*/
-	private static final int FT_DEVICE_232R = 0X06;
+	public static final int FT_DEVICE_232R = 0X06;
 
 	/**<p>Value indicating FTDI 232H devices.</p>*/
-	private static final int FT_DEVICE_232H = 0X07;
+	public static final int FT_DEVICE_232H = 0X07;
 
 	/**<p>Value indicating FTDI 2232C devices.</p>*/
-	private static final int FT_DEVICE_2232C = 0X08;
+	public static final int FT_DEVICE_2232C = 0X08;
 
 	/**<p>Value indicating FTDI 2232H devices.</p>*/
-	private static final int FT_DEVICE_2232H = 0X09;
+	public static final int FT_DEVICE_2232H = 0X09;
 
 	/**<p>Value indicating FTDI 4232H devices.</p>*/
-	private static final int FT_DEVICE_4232H = 0X10;
+	public static final int FT_DEVICE_4232H = 0X10;
 
 	/**<p>Value indicating FTDI X (FT2xxX) series devices.</p>*/
-	private static final int FT_DEVICE_X_SERIES = 0X11;
+	public static final int FT_DEVICE_X_SERIES = 0X11;
 
 	/**<p>Bit mask to represent opening device for reading in D2XX terminology. </p>*/
 	public static final int GENERIC_READ = 0x01;  // 0000001
@@ -1814,7 +1814,7 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 		if(numOfBytesToRead <= 0) {
 			throw new IllegalArgumentException("Argument numOfBytesToRead can not be negative or zero !");
 		}
-		
+
 		int ret = mFTDID2XXJNIBridge.w32ReadFile(handle, buffer, numOfBytesToRead);
 		if(ret < 0) {
 			throw new SerialComException("Could not read the data from the requested device. Please retry !");
@@ -1845,7 +1845,7 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 		if(numOfBytesToWrite <= 0) {
 			throw new IllegalArgumentException("Argument numOfBytesToWrite can not be negative or zero !");
 		}
-		
+
 		int ret = mFTDID2XXJNIBridge.w32WriteFile(handle, buffer, numOfBytesToWrite);
 		if(ret < 0) {
 			throw new SerialComException("Could not send data to the requested device. Please retry !");
@@ -1867,11 +1867,11 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public boolean w32GetOverlappedResult(final long handle, boolean wait) throws SerialComException {
-//		int ret = mFTDID2XXJNIBridge.w32GetOverlappedResult(handle, wait);
-//		if(ret < 0) {
-//			throw new SerialComException("Requested operation could not be executed successfully. Please retry !");
-//		}
-//		return true;
+		//		int ret = mFTDID2XXJNIBridge.w32GetOverlappedResult(handle, wait);
+		//		if(ret < 0) {
+		//			throw new SerialComException("Requested operation could not be executed successfully. Please retry !");
+		//		}
+		//		return true;
 		return false;
 	}
 

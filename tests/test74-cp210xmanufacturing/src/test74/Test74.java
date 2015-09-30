@@ -30,7 +30,7 @@ public class Test74  {
 	static long handle;
 	static String vendorSuppliedLib;
 	static String libpath;
-	static int index = 4;
+	static int index = 3;
 
 	public static void main(String[] args) {
 		try {
@@ -51,7 +51,7 @@ public class Test74  {
 				handle = cpman.open(index);
 				System.out.println("\nhandle : " + handle);
 			}catch (Exception e) {
-				System.out.println("\n handle : " + e.getMessage());
+				System.out.println("\nhandle : " + e.getMessage());
 			}
 
 			try {
@@ -88,6 +88,12 @@ public class Test74  {
 				System.out.println("\ninterface string : " + cpman.getDeviceInterfaceString(handle, (byte)0));
 			}catch (Exception e) {
 				System.out.println("\ninterface string : " + e.getMessage());
+			}
+
+			try {
+				System.out.println("\ngetDeviceManufacturerString : " + cpman.getDeviceManufacturerString(handle));
+			}catch (Exception e) {
+				System.out.println("\n" + e.getMessage());
 			}
 
 			try {
@@ -137,7 +143,7 @@ public class Test74  {
 				System.out.println("\n");
 				CP210XbaudConfigs[] baud = cpman.getBaudRateConfig(handle);
 				for(int x=0; x<baud.length; x++) {
-					//					baud[x].dumpBaudInfo();
+					baud[x].dumpBaudInfo();
 				}
 			}catch (Exception e) {
 				System.out.println("\n" + e.getMessage());
@@ -153,10 +159,20 @@ public class Test74  {
 
 			try {
 				int[] dualportconfig = cpman.getDualPortConfig(handle);
-				System.out.println("\n" + "dual port config : " + dualportconfig[0] + dualportconfig[1] + dualportconfig[2] 
-						+ dualportconfig[3] + dualportconfig[4] + dualportconfig[5]);
+				System.out.println("\n" + "dual port config : " + dualportconfig[0] + dualportconfig[1] + 
+						dualportconfig[2] + dualportconfig[3] + dualportconfig[4] + dualportconfig[5]);
 			}catch (Exception e) {
 				System.out.println("\n" + "dual port config : " + e.getMessage());
+			}
+
+			try {
+				int[] quadportconfig = cpman.getQuadPortConfig(handle);
+				System.out.println("\n" + "quad port config array length : " + quadportconfig.length);
+				for(int x=0; x<quadportconfig.length; x++) {
+					System.out.println("\n" + "quad port config " + x + " : " + quadportconfig[x]);
+				}
+			}catch (Exception e) {
+				System.out.println("\n" + "quad port config : " + e.getMessage());
 			}
 
 			try {

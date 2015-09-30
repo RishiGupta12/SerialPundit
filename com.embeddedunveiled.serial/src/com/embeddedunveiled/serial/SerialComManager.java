@@ -51,6 +51,11 @@ import com.embeddedunveiled.serial.vendor.SerialComVendorLib;
  * 
  * <p>To get an instance of {@link SerialComIOCTLExecutor} call the {@link #getIOCTLExecutor} method.</p>
  * 
+ * [x] Native layer if fails to throw exception when an error occurs would log error message to STDERR file. 
+ *     It is assumed that Java application running on production systems will deploy a Java logger which will 
+ *     redirect STDERR messages to a log file. This way if an error occurs and native layer could not throw 
+ *     exception for example in out of memory case it will still be logged for later analysis.</p>
+ * 
  * @author Rishi Gupta
  * @version 1.0.4
  */
@@ -1872,6 +1877,13 @@ public final class SerialComManager {
 	 * Signaling, which was the traditional signaling used for tele-typewriters. The "spacing" condition of a 
 	 * current loop line is indicated by no current flowing, and a very long period of no current flowing is often
 	 * caused by a break or other fault in the line.</p>
+	 * 
+	 * Recognizing break condition on line is the responsibility of the UART IC, but if for some reason (such as a 
+	 * limited UART that does not implement this functionality) the UART fails to do so, reception of a break will 
+	 * manifest itself as a large number of framing errors.
+	 * 
+	 * <p>All UART devices (or driver) may not support all break timings. For example CP2105 can set break for from 
+	 * 1 to 125 ms or for infinite time. Developers should consult data sheet to know device capabilities.</p>
 	 * 
 	 * @param handle of the opened port.
 	 * @param duration the time in milliseconds for which break will be active.
