@@ -32,8 +32,7 @@ public final class SerialComUSBdevice {
 	private String serial;
 	private String product;
 	private String manufacturer;
-	private String busNumber;
-	private String devNumber;
+	private String location;
 
 	/**
 	 * <p>Construct and allocates a new SerialComUSBdevice object with given details.</p>
@@ -43,19 +42,17 @@ public final class SerialComUSBdevice {
 	 * @param serial serial number of this device.
 	 * @param product product identifier/description of this device.
 	 * @param manufacturer company manufacturing of this device.
-	 * @param busNumber usb bus number on which this device is connected.
-	 * @param devNumber usb device number as assigned by operating system.
+	 * @param location location information of this device.
 	 * @throws SerialComException if the object can not be constructed.
 	 */
 	public SerialComUSBdevice(String idVendor, String idProduct, String serial, String product, 
-			String manufacturer, String busNumber, String devNumber) {
+			String manufacturer, String location) {
 		this.idVendor = idVendor;
 		this.idProduct = idProduct;
 		this.serial = serial;
 		this.product = product;
 		this.manufacturer = manufacturer;
-		this.busNumber = busNumber;
-		this.devNumber = devNumber;
+		this.location = location;
 	}
 
 	/** 
@@ -114,31 +111,12 @@ public final class SerialComUSBdevice {
 	}
 
 	/** 
-	 * <p>Retrieves the USB bus number on which this USB device is connected.</p>
+	 * <p>Retrieves the location information of this usb device.</p>
 	 * 
-	 * @return bus number of which this USB device is connected.
-	 * @throws NumberFormatException if the USB bus number string can not be converted into 
-	 *          numerical representation.
+	 * @return location information about this USB device.
 	 */
-	public int getBusNumber() {
-		if("---".equals(busNumber)) {
-			return 0;
-		}
-		return Integer.parseInt(busNumber, 10);
-	}
-
-	/** 
-	 * <p>Retrieves the USB device number as assigned by operating system.</p>
-	 * 
-	 * @return USB device number as assigned by operating system.
-	 * @throws NumberFormatException if the USB device number string can not be converted into 
-	 *          numerical representation.
-	 */
-	public int getUSBDeviceNumberInSystem() {
-		if("---".equals(devNumber)) {
-			return 0;
-		}
-		return Integer.parseInt(devNumber, 10);
+	public String getLocation() {
+		return location;
 	}
 
 	/** 
@@ -151,7 +129,6 @@ public final class SerialComUSBdevice {
 				"\nSerial number : " + serial + 
 				"\nProduct : " + product + 
 				"\nManufacturer : " + manufacturer +
-				"\nUSB bus number : " + busNumber + 
-				"\nUSB Device number : " + devNumber);
+				"\nLocation : " + location);
 	}
 }

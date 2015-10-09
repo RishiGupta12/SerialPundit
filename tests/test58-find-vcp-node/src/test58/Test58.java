@@ -23,45 +23,98 @@ import com.embeddedunveiled.serial.SerialComManager;
 
 public class Test58 {
 	public static void main(String[] args) {
+		SerialComManager scm = null;
 		try {
-			SerialComManager scm = new SerialComManager();
+			scm = new SerialComManager();
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		try {
+			// CP2102
+			String[] vcpNodes = scm.findComPortFromUSBAttributes(0x10C4, 0xEA60, "0001");
+			for(int x=0; x< vcpNodes.length; x++) {
+				System.out.println("cp2102 " + vcpNodes[x]);
+			}
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		try {
 			// FTDI FT232RL
-			String[] vcpNodes = scm.listComPortFromUSBAttributes(0x0403, 0x6001, "A70362A3");
+			String[] vcpNodes = scm.findComPortFromUSBAttributes(0x0403, 0x6001, null);
 			for(int x=0; x< vcpNodes.length; x++) {
-				System.out.println(vcpNodes[x]);
+				System.out.println("FT232RL " + vcpNodes[x]);
 			}
 		}catch (Exception e) {
 			e.printStackTrace();
 		}
 		
 		try {
-			SerialComManager scm = new SerialComManager();
+			// FTDI FT232RL
+			String[] vcpNodes = scm.findComPortFromUSBAttributes(0x0403, 0x6001, "A70362A3");
+			for(int x=0; x< vcpNodes.length; x++) {
+				System.out.println("FT232RL " + vcpNodes[x]);
+			}
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		try {
+			// FTDI FT232RL
+			String[] vcpNodes = scm.findComPortFromUSBAttributes(0x0403, 0x6001, "A602RDCH");
+			for(int x=0; x< vcpNodes.length; x++) {
+				System.out.println("FT232RL " + vcpNodes[x]);
+			}
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		try {
 			// Prolific PL2303
-			String[] vcpNodes = scm.listComPortFromUSBAttributes(0x067B, 0x2303, null);
+			String[] vcpNodes = scm.findComPortFromUSBAttributes(0x067B, 0x2303, null);
 			for(int x=0; x< vcpNodes.length; x++) {
-				System.out.println(vcpNodes[x]);
+				System.out.println("PL2303 " + vcpNodes[x]);
 			}
 		}catch (Exception e) {
 			e.printStackTrace();
 		}
 		
 		try {
-			SerialComManager scm = new SerialComManager();
 			// Microchip 18F4550 (CDC RS-232 Emulation Demo)
-			String[] vcpNodes = scm.listComPortFromUSBAttributes(0x04D8, 0x000A, null);
+			String[] vcpNodes = scm.findComPortFromUSBAttributes(0x04D8, 0x000A, null);
 			for(int x=0; x< vcpNodes.length; x++) {
-				System.out.println(vcpNodes[x]);
+				System.out.println("18F4550 " + vcpNodes[x]);
 			}
 		}catch (Exception e) {
 			e.printStackTrace();
 		}
 		
 		try {
-			SerialComManager scm = new SerialComManager();
-			// Chinese CH341
-			String[] vcpNodes = scm.listComPortFromUSBAttributes(0x4348, 0x5523, null);
+			// Mcp2200
+			String[] vcpNodes = scm.findComPortFromUSBAttributes(0x04D8, 0x00DF, "0000980371");
 			for(int x=0; x< vcpNodes.length; x++) {
-				System.out.println(vcpNodes[x]);
+				System.out.println("Mcp2200 " + vcpNodes[x]);
+			}
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		try {
+			// Mcp2200
+			String[] vcpNodes = scm.findComPortFromUSBAttributes(0x04D8, 0x00DF, null);
+			for(int x=0; x< vcpNodes.length; x++) {
+				System.out.println("Mcp2200 " + vcpNodes[x]);
+			}
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		try {
+			// Chinese CH341
+			String[] vcpNodes = scm.findComPortFromUSBAttributes(0x4348, 0x5523, null);
+			for(int x=0; x< vcpNodes.length; x++) {
+				System.out.println("CH341 " + vcpNodes[x]);
 			}
 		}catch (Exception e) {
 			e.printStackTrace();

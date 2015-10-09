@@ -612,12 +612,12 @@ public final class SerialComManager {
 			if(usbDevicesInfo.length < 4) {
 				return new SerialComUSBdevice[] { };
 			}
-			numOfDevices = usbDevicesInfo.length / 7;
+			numOfDevices = usbDevicesInfo.length / 6;
 			usbDevicesFound = new SerialComUSBdevice[numOfDevices];
 			for(int x=0; x<numOfDevices; x++) {
 				usbDevicesFound[x] = new SerialComUSBdevice(usbDevicesInfo[i], usbDevicesInfo[i+1], usbDevicesInfo[i+2], 
-						usbDevicesInfo[i+3], usbDevicesInfo[i+4], usbDevicesInfo[i+5], usbDevicesInfo[i+6]);
-				i = i + 7;
+						usbDevicesInfo[i+3], usbDevicesInfo[i+4], usbDevicesInfo[i+5]);
+				i = i + 6;
 			}
 			return usbDevicesFound;
 		}else {
@@ -626,7 +626,7 @@ public final class SerialComManager {
 	}
 
 	/**
-	 * <p>Gives COM port (COMxx or ttySx) assigned by operating system to the given USB-UART device.</p>
+	 * <p>Gives COM port (COMxx/ttySx) of a connected USB-UART device (CDC/ACM Interface) assigned by operating system.</p>
 	 * 
 	 * <p>Assume a bar code scanner using FTDI chip FT232R is to be used by application at point of sale.
 	 * First we need to know whether it is connect to system or not. This can be done using listUSBdevicesWithInfo() 
@@ -664,11 +664,11 @@ public final class SerialComManager {
 		}
 
 		String[] comPortsInfo = mComPortJNIBridge.findComPortFromUSBAttributes(usbVidToMatch, usbPidToMatch, serialNum);
-		if(comPortsInfo != null) {
-			return comPortsInfo;
-		}else {
-			return new String[] { };
-		}	
+		if(comPortsInfo == null) {
+			throw new SerialComException("Could not find COM port for given device. Please retry !");
+		}
+
+		return comPortsInfo;
 	}
 
 	/**

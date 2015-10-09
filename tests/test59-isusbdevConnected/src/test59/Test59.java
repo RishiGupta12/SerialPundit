@@ -26,35 +26,66 @@ public class Test59 {
 		try {
 			SerialComManager scm = new SerialComManager();
 			// FTDI FT232RL
-			System.out.println("status : " + scm.isUSBDevConnected(0x0403, 0x6001));
+			System.out.println("FT232 status : " + scm.isUSBDevConnected(0x0403, 0x6001, null));
 		}catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+		try {
+			SerialComManager scm = new SerialComManager();
+			// FTDI FT232RL
+			System.out.println("FT232 status (with serial) : " + scm.isUSBDevConnected(0x0403, 0x6001, "A7036479"));
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+
 		try {
 			SerialComManager scm = new SerialComManager();
 			// Prolific PL2303
-			System.out.println("status : " + scm.isUSBDevConnected(0x067B, 0x2303));
+			System.out.println("PL2303 status : " + scm.isUSBDevConnected(0x067B, 0x2303, null));
 		}catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 		try {
 			SerialComManager scm = new SerialComManager();
-			// Microchip 18F4550 (CDC RS-232 Emulation Demo)
-			System.out.println("status : " + scm.isUSBDevConnected(0x04D8, 0x000A));
+			// Microchip MCP2200
+			System.out.println("MCP2200 status : " + scm.isUSBDevConnected(0x04D8, 0x00DF, null));
 		}catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 		try {
 			SerialComManager scm = new SerialComManager();
-			// Chinese CH341
-			System.out.println("status : " + scm.isUSBDevConnected(0x4348, 0x5523));
+			// Microchip MCP2200
+			System.out.println("MCP2200 status (with serial): " + scm.isUSBDevConnected(0x04D8, 0x00DF, "0000980371"));
 		}catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
+		try {
+			SerialComManager scm = new SerialComManager();
+			// Chinese CH340
+			System.out.println("CH340 status : " + scm.isUSBDevConnected(0x4348, 0x5523, null));
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		try {
+			SerialComManager scm = new SerialComManager();
+			// Silicon labs CP2102
+			System.out.println("CP2102 status : " + scm.isUSBDevConnected(0x10C4, 0xEA60, null));
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		try {
+			SerialComManager scm = new SerialComManager();
+			// Silicon labs CP2102
+			System.out.println("CP2102 status (with serial): " + scm.isUSBDevConnected(0x10C4, 0xEA60, "0001"));
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+
 		System.out.println("\ndone");
 	}
 }

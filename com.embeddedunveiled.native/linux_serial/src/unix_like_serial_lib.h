@@ -22,7 +22,7 @@
 #if defined (__linux__)
 #include <libudev.h>
 #endif
-#include <pthread.h>
+
 #if defined (__APPLE__)
 #include <CoreFoundation/CoreFoundation.h>
 #include <IOKit/IOKitLib.h>
@@ -32,6 +32,8 @@
 #include <IOKit/IOMessage.h>
 #include <IOKit/usb/IOUSBLib.h>
 #endif
+
+#include <pthread.h>
 #include <jni.h>
 
 /* Constant string defines */
@@ -171,28 +173,29 @@ void throw_serialcom_exception(JNIEnv *env, int type, int error_code, const char
 void free_jstrarraylist(struct jstrarray_list *al);
 void insert_jstrarraylist(struct jstrarray_list *al, jstring element);
 void init_jstrarraylist(struct jstrarray_list *al, int initial_size);
-
 int serial_delay(unsigned ms);
 
+#if defined (__linux__)
+jstring linux_listusb_clean_throw_exp(JNIEnv *env, int task, const char *expmsg, struct jstrarray_list *list, struct udev_device *udev_device, struct udev_enumerate *enumerator, struct udev *udev_ctx);
+jstring linux_rfcomm_cleanexp(JNIEnv *env, int task, const char *expmsg, struct jstrarray_list *list, struct udev_device *udev_device, struct udev_enumerate *enumerator, struct udev *udev_ctx);
+#endif
+
 #if defined (__APPLE__)
-jstring mac_clean_up_and_throw_exp(JNIEnv *env, struct jstrarray_list *list, io_service_t usb_dev_obj, io_iterator_t iterator)
+jstring mac_listusb_clean_throw_exp(JNIEnv *env, struct jstrarray_list *list, io_service_t usb_dev_obj, io_iterator_t iterator)
 void mac_indicate_thread_exit(void *info);
 void mac_usb_device_added(void *refCon, io_iterator_t iterator);
 void mac_usb_device_removed(void *refCon, io_iterator_t iterator);
 #endif
 
-jstring linux_clean_up_and_throw_exp(JNIEnv *env, int task, const char *expmsg, struct jstrarray_list *list, struct udev_device *udev_device, struct udev_enumerate *enumerator, struct udev *udev_ctx);
-jstring linux_rfcomm_cleanexp(JNIEnv *env, int task, const char *expmsg, struct jstrarray_list *list, struct udev_device *udev_device, struct udev_enumerate *enumerator, struct udev *udev_ctx);
-jint is_usb_dev_connected(JNIEnv *env, jint vid, jint pid);
-jstring find_driver_for_given_com_port(JNIEnv *env, jstring comPortName);
+jint is_usb_dev_connected(JNIEnv *env, jint usbvid_to_match, jint usbpid_to_match, jstring serial_number);
+jstring find_driver_for_given_com_port(JNIEnv *env, jstring com_port_name);
 jstring find_address_irq_for_given_com_port(JNIEnv *env, jlong fd);
 jobjectArray list_usb_devices(JNIEnv *env, jint vendor_filter);
 jobjectArray list_bt_rfcomm_dev_nodes(JNIEnv *env);
-jobjectArray vcp_node_from_usb_attributes(JNIEnv *env, jint usbvid_to_match, jint usbpid_to_match, jstring serial_num);
+jobjectArray vcp_node_from_usb_attributes(JNIEnv *env, jint usbvid_to_match, jint usbpid_to_match, jstring serial_numer);
 
 void *data_looper(void *params);
 void *event_looper(void *params);
 void *usb_hot_plug_monitor(void *params);
 
 #endif /* UNIX_LIKE_SERIAL_LIB_H_ */
-

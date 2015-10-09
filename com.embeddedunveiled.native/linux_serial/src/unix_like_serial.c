@@ -409,7 +409,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
  * Method:    isUSBDevConnected
- * Signature: (II)I
+ * Signature: (IILjava/lang/String;)I
  *
  * Enumerate and check if given usb device identified by its USB-IF VID and PID is connected to
  * system or not.
@@ -418,8 +418,8 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
  * @throws SerialComException if any JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_isUSBDevConnected(JNIEnv *env,
-		jobject obj, jint vid, jint pid) {
-	return is_usb_dev_connected(env, vid, pid);
+		jobject obj, jint vid, jint pid, jstring serialNumber) {
+	return is_usb_dev_connected(env, vid, pid, serialNumber);
 }
 
 /*
@@ -2000,7 +2000,7 @@ JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPor
  * @throws SerialComException if any JNI function, system call or C function fails.
  */
 JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_findIRQnumberForComPort(JNIEnv *env,
-		jobject obj, jlong handle) {
+		jobject obj, jlong fd) {
 	return find_address_irq_for_given_com_port(env, fd);
 }
 
