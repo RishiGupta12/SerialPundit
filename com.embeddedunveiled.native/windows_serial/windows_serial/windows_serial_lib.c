@@ -23,23 +23,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
 #include <windows.h>
 #include <process.h>
 #include <dbt.h>
 #include <tchar.h>
-
+#include <strsafe.h>
 #include <jni.h>
 #include "windows_serial_lib.h"
 
 /* Access to global shared information */
 struct port_info *port_monitor_info_ptr = NULL;
-
-/* Do not let any exception propagate. Handle and clear it. */
-void LOGE(JNIEnv *env) {
-	(*env)->ExceptionDescribe(env);
-	(*env)->ExceptionClear(env);
-}
 
 /* WaitForSingleObject() is used to provide delay whenever required. It returns errno as is and 
  * let caller decide what to do if WaitForSingleObject fails. This returns negative value if function 
@@ -78,7 +71,6 @@ unsigned __stdcall event_data_looper(void* arg) {
 	int ret = 0;
 	int error_count = 0;
 	BOOL result = FALSE;
-	COMSTAT com_stat;
 	DWORD error_type = 0;
 	DWORD errorVal = 0;
 	DWORD events_mask = 0;
@@ -247,7 +239,7 @@ unsigned __stdcall event_data_looper(void* arg) {
 					if(error_count > 25) {
 						(*env)->CallVoidMethod(env, looper, mide, errorVal);
 						if((*env)->ExceptionOccurred(env)) {
-							LOGE(env);
+							LOGEN("event_data_looper()", "WaitCommEvent() failed with error code : ", errorVal);
 						}
 						error_count = 0; /* reset error_count */
 					}
@@ -282,7 +274,7 @@ unsigned __stdcall event_data_looper(void* arg) {
 							(*env)->SetByteArrayRegion(env, data_read, 0, num_of_bytes_read, data_buf);
 							(*env)->CallVoidMethod(env, looper, data_mid, data_read);
 							if((*env)->ExceptionOccurred(env)) {
-								LOGE(env);
+								LOGE("event_data_looper()", "JNI call CallVoidMethod() failed");
 							}
 						}
 					}else {
@@ -295,7 +287,7 @@ unsigned __stdcall event_data_looper(void* arg) {
 										(*env)->SetByteArrayRegion(env, data_read, 0, num_of_bytes_read, data_buf);
 										(*env)->CallVoidMethod(env, looper, data_mid, data_read);
 										if((*env)->ExceptionOccurred(env)) {
-											LOGE(env);
+											LOGE("event_data_looper()", "JNI call CallVoidMethod() failed");
 										}
 									}
 								}
@@ -348,7 +340,7 @@ unsigned __stdcall event_data_looper(void* arg) {
 						   if(DBG) fflush(stderr); */
 						(*env)->CallVoidMethod(env, looper, event_mid, event);
 						if((*env)->ExceptionOccurred(env)) {
-							LOGE(env);
+							LOGE("event_data_looper()", "JNI call CallVoidMethod() failed");
 						}
 					}
 			}
@@ -387,7 +379,7 @@ LRESULT CALLBACK event_message_handler(HWND window_handle, UINT msg, WPARAM even
 						env = ptr->env;
 						(*env)->CallVoidMethod(env, ptr->port_listener, ptr->port_monitor_mid, 1); /* 1 represents addition of device */
 						if ((*env)->ExceptionOccurred(env)) {
-							LOGE(env);
+							LOGE("event_message_handler()", "JNI call CallVoidMethod() failed");
 						}
 						handle_found = 0;
 					}
@@ -406,7 +398,7 @@ LRESULT CALLBACK event_message_handler(HWND window_handle, UINT msg, WPARAM even
 							env = ptr->env;
 							(*env)->CallVoidMethod(env, ptr->port_listener, ptr->port_monitor_mid, 2); /* 2 represents device is un-plugged */
 							if ((*env)->ExceptionOccurred(env)) {
-								LOGE(env);
+								LOGE("event_message_handler()", "JNI call CallVoidMethod() failed");
 							}
 						}
 						handle_found = 0;
@@ -471,27 +463,19 @@ unsigned __stdcall port_monitor(void *arg) {
 	};
 
 	if((*jvm)->AttachCurrentThread(jvm, &env1, NULL) != JNI_OK) {
-		if(DBG) fprintf(stderr, "%s \n", "NATIVE event_looper() thread failed to attach itself to JVM.");
-		if(DBG) fflush(stderr);
 	}
 	env = (JNIEnv*)env1;
 
 	jclass port_monitor_class = (*env)->GetObjectClass(env, port_listener);
 	if(port_monitor_class == NULL) {
-		if(DBG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread could not get class of object of type IPortMonitor !");
-		if(DBG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread exiting.  Please RETRY registering port monitor listener !");
-		if(DBG) fflush(stderr);
 		return 0;
 	}
 
 	jmethodID port_monitor_mid = (*env)->GetMethodID(env, port_monitor_class, "onPortMonitorEvent", "(I)V");
 	if((*env)->ExceptionOccurred(env)) {
-		LOGE(env);
+		LOGE("event_message_handler()", "JNI call 1 failed");
 	}
 	if(port_monitor_mid == NULL) {
-		if(DBG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread failed to retrieve method id of method onPortRemovedEvent !");
-		if(DBG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread exiting.  Please RETRY registering port monitor listener !");
-		if(DBG) fflush(stderr);
 		return 0;
 	}
 
@@ -512,17 +496,11 @@ unsigned __stdcall port_monitor(void *arg) {
 	/* Registers a window class for subsequent use in calls to the CreateWindow or CreateWindowEx function.  */
 	atom = RegisterClassEx(&wndClass);
 	if(atom == 0) {
-		if(DBG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread failed to register class with system !");
-		if(DBG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread exiting. Please RETRY registering port monitor listener !");
-		if(DBG) fflush(stderr);
 	}
 
 	/* Create message only window.  Windows will deliver messages to this window. */
 	window_handle = CreateWindowEx(WS_EX_TOPMOST, window_class_name, TEXT("b"), 0, 0, 0, 0, 0, HWND_MESSAGE, 0, 0, 0);
 	if(window_handle == NULL) {
-		if(DBG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread failed to create message only window !");
-		if(DBG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread exiting. Please RETRY registering port monitor listener !");
-		if(DBG) fflush(stderr);
 		UnregisterClass(wndClass.lpszClassName, hInstance);
 		return 0;
 	}
@@ -538,9 +516,6 @@ unsigned __stdcall port_monitor(void *arg) {
 														 &dbch,                         /* type of device for which notification will be sent */
 														 DEVICE_NOTIFY_WINDOW_HANDLE);  /* type of recipient handle */
 		if(notification_handle == NULL) {
-			if(DBG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread failed to register device notfication with system !");
-			if(DBG) fprintf(stderr, "%s \n", "NATIVE port_monitor() thread exiting. Please RETRY registering port monitor listener !");
-			if(DBG) fflush(stderr);
 			DestroyWindow(window_handle);
 			UnregisterClass(wndClass.lpszClassName, hInstance);
 			return 0;
@@ -573,8 +548,6 @@ unsigned __stdcall port_monitor(void *arg) {
 			break;
 		}else {
 			errorVal = GetLastError();
-			if (DBG) fprintf(stderr, "%s %ld\n", "NATIVE port_monitor() failed to retrieve message for event with error number : ", errorVal);
-			if (DBG) fflush(stderr);
 		}
 	}
 

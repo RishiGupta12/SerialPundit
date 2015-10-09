@@ -38,5 +38,26 @@
     <ClCompile Include="windows_serial_lib.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="windows_serial_util.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="windows_serial_vcp_devnode.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="windows_serial_usb_connected.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="windows_serial_list_usb.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="windows_serial_find_irq.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="windows_serial_exception.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="windows_serial_driver_name.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

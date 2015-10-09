@@ -72,14 +72,15 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <TargetName>windows_1.0.3_x86_64</TargetName>
+    <TargetName>windows_1.0.4_x86_64</TargetName>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir);</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <TargetName>windows_1.0.2_x86_64</TargetName>
+    <TargetName>windows_1.0.4_x86_64</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -162,7 +163,14 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="windows_serial.c" />
+    <ClCompile Include="windows_serial_driver_name.c" />
+    <ClCompile Include="windows_serial_exception.c" />
+    <ClCompile Include="windows_serial_find_irq.c" />
     <ClCompile Include="windows_serial_lib.c" />
+    <ClCompile Include="windows_serial_list_usb.c" />
+    <ClCompile Include="windows_serial_usb_connected.c" />
+    <ClCompile Include="windows_serial_util.c" />
+    <ClCompile Include="windows_serial_vcp_devnode.c" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
