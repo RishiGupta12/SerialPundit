@@ -626,7 +626,7 @@ public final class SerialComManager {
 	}
 
 	/**
-	 * <p>Gives COM port (device node) assigned by operating system to the given USB-UART device.</p>
+	 * <p>Gives COM port (COMxx or ttySx) assigned by operating system to the given USB-UART device.</p>
 	 * 
 	 * <p>Assume a bar code scanner using FTDI chip FT232R is to be used by application at point of sale.
 	 * First we need to know whether it is connect to system or not. This can be done using listUSBdevicesWithInfo() 
@@ -644,14 +644,14 @@ public final class SerialComManager {
 	 * <p>The reason why this method returns array instead of string is that two or more USB-UART converters connected 
 	 * to system might have exactly same USB attributes. So this will list COM ports assigned to all of them.<p>
 	 * 
-	 * @param usbVidToMatch USB vendor id of the device to match
-	 * @param usbPidToMatch USB product id of the device to match
-	 * @param serialNumber USB serial number of device to match (case insensitive) or null if not to be matched
-	 * @return list of COM port(s) (device node) for given USB device or empty array if no com port is assigned
+	 * @param usbVidToMatch USB vendor id of the device to match.
+	 * @param usbPidToMatch USB product id of the device to match.
+	 * @param serialNumber USB serial number (case insensitive, optional) of device to match or null if not to be matched.
+	 * @return list of COM port(s) (device node) for given USB device or empty array if no COM port is assigned.
 	 * @throws SerialComException if an I/O error occurs.
 	 * @throws IllegalArgumentException if usbVidToMatch or usbPidToMatch is negative or or invalid number.
 	 */
-	public String[] listComPortFromUSBAttributes(int usbVidToMatch, int usbPidToMatch, final String serialNumber) throws SerialComException {
+	public String[] findComPortFromUSBAttributes(int usbVidToMatch, int usbPidToMatch, final String serialNumber) throws SerialComException {
 		if((usbVidToMatch < 0) || (usbVidToMatch > 0XFFFF)) {
 			throw new IllegalArgumentException("Argument usbVidToMatch can not be negative or greater than 0xFFFF !");
 		}
@@ -663,7 +663,7 @@ public final class SerialComManager {
 			serialNum = serialNumber.toLowerCase();
 		}
 
-		String[] comPortsInfo = mComPortJNIBridge.listComPortFromUSBAttributes(usbVidToMatch, usbPidToMatch, serialNum);
+		String[] comPortsInfo = mComPortJNIBridge.findComPortFromUSBAttributes(usbVidToMatch, usbPidToMatch, serialNum);
 		if(comPortsInfo != null) {
 			return comPortsInfo;
 		}else {
@@ -2407,11 +2407,12 @@ public final class SerialComManager {
 	 * 
 	 * @param vendorID USB-IF vendor ID of the USB device to match.
 	 * @param productID product ID of the USB device to match.
+	 * @param serialNumver USB device's serial number (case insensitive, optional). If not required it can be null.
 	 * @return true is device is connected otherwise false.
 	 * @throws SerialComException if an I/O error occurs.
 	 * @throws IllegalArgumentException if productID or vendorID is negative or invalid.
 	 */
-	public boolean isUSBDevConnected(int vendorID, int productID) throws SerialComException {
+	public boolean isUSBDevConnected(int vendorID, int productID, String serialNumber) throws SerialComException {
 		if((vendorID < 0) || (vendorID > 0XFFFF)) {
 			throw new IllegalArgumentException("Argument vendorID can not be negative or greater than 0xFFFF !");
 		}
@@ -2419,7 +2420,7 @@ public final class SerialComManager {
 			throw new IllegalArgumentException("Argument productID can not be negative or greater than 0xFFFF !");
 		}
 
-		int ret = mComPortJNIBridge.isUSBDevConnected(vendorID, productID);
+		int ret = mComPortJNIBridge.isUSBDevConnected(vendorID, productID, serialNumber);
 		if(ret < 0) {
 			throw new SerialComException("Unknown error occurred !");
 		}else if(ret == 1) {

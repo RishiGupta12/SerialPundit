@@ -376,7 +376,8 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
  * Method:    listUSBdevicesWithInfo
  * Signature: (I)[Ljava/lang/String;
  *
- * Find USB devices with information about them using platform specific facilities.
+ * Find USB devices with information about them using platform specific facilities. The info sequence is :
+ * Vendor ID, Product ID, Serial number, Product, Manufacturer, USB bus number, USB Device number.
  *
  * @return array of Strings containing info about USB device(s) otherwise NULL if an error occurs or no
  *         devices found.
@@ -389,7 +390,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
- * Method:    listComPortFromUSBAttributes
+ * Method:    findComPortFromUSBAttributes
  * Signature: (IILjava/lang/String;)[Ljava/lang/String;
  *
  * Find the COM Port/ device node assigned to USB-UART converter device using platform specific
@@ -400,7 +401,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
  * @throws SerialComException if any JNI function, system call or C function fails.
 
  */
-JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_listComPortFromUSBAttributes(JNIEnv *env,
+JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_findComPortFromUSBAttributes(JNIEnv *env,
 		jobject obj, jint vid, jint pid, jstring serial) {
 	return vcp_node_from_usb_attributes(env, vid, pid, serial);
 }

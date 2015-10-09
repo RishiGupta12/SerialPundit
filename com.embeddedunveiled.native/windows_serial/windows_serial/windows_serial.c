@@ -16,6 +16,8 @@
 *
 *************************************************************************************************************/
 
+/* Project is built with unicode characterset. */
+
 /* stdafx.h must come as first include file if you are using precompiled headers and Microsoft compiler. */
 #include "stdafx.h"
 
@@ -159,10 +161,10 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
 	FILETIME ftLastWriteTime;             /* last write time             */
 	LONG result = 0;
 	DWORD ret_code = 0;
-	TCHAR nameBuffer[1024];
 	DWORD cchValueName = 1024;
-	TCHAR valueBuffer[1024];
 	DWORD cchValueData = 1024;
+	TCHAR nameBuffer[1024];
+	TCHAR valueBuffer[1024];
 	
 	int x = 0;
 	struct jstrarray_list list = {0};
@@ -273,7 +275,8 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
  * Method:    listUSBdevicesWithInfo
  * Signature: (I)[Ljava/lang/String;
  *
- * Find USB devices with information about them using platform specific facilities.
+ * Find USB devices with information about them using platform specific facilities. The info sequence is :
+ * Vendor ID, Product ID, Serial number, Product, Manufacturer, USB bus number, USB Device number.
  *
  * @return array of Strings containing info about USB device(s) otherwise NULL if an error occurs or no
  *         devices found.
@@ -2056,6 +2059,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
 		/* Thread exist so just update event to listen to. */
 		ret = GetCommMask(hComm, &event_mask);
 		updated_mask = event_mask | EV_RXCHAR;
+		
 		ret = SetCommMask(hComm, updated_mask);
 		if(ret == 0) {
 			throw_serialcom_exception(env, 4, GetLastError(), NULL);
@@ -2229,9 +2233,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
 		
 		/* set event_enabled flag */
 		ptr->event_enabled = 1;
-		
 	}else {
-	
 		/* Not found in our records, so we create the thread. */
 		ptr = handle_looper_info;
 		for (x = 0; x < MAX_NUM_THREADS; x++) {
@@ -2288,6 +2290,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 		/* Data listener exist, so just tell thread to wait for data events only. */
 		event_mask = 0;
 		event_mask = event_mask | EV_RXCHAR;
+		
 		ret = SetCommMask(hComm, event_mask);
 		if(ret == 0) {
 			throw_serialcom_exception(env, 4, GetLastError(), NULL);
@@ -2304,9 +2307,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 			}
 			ptr++;
 		}
-		
 	}else {
-	
 		/* Destroy thread as data listener does not exist and user wish to unregister event listener also. */
 		for (x = 0; x < MAX_NUM_THREADS; x++) {
 			if(ptr->hComm == hComm) {

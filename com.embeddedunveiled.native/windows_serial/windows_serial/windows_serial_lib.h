@@ -30,6 +30,13 @@
 #define CommInBufSize 8192
 #define CommOutBufSize 3072
 
+/* The GUID_DEVINTERFACE_USB_DEVICE device interface class is defined for USB devices that are attached to a USB hub.
+ * The system-supplied USB hub driver registers instances of GUID_DEVINTERFACE_USB_DEVICE to notify the system and 
+ * applications of the presence of USB devices that are attached to a USB hub. */
+#if !defined(GUID_DEVINTERFACE_USB_DEVICE)
+const GUID GUID_DEVINTERFACE_USB_DEVICE = { 0xA5DCBF10, 0x6530, 0x11D2, {0x90, 0x1F, 0x00, 0xC0, 0x4F, 0xB9, 0x51, 0xED} };
+#endif
+
 /* Constant string defines */
 #define SCOMEXPCLASS "com/embeddedunveiled/serial/SerialComException"
 #define JAVALSTRING "java/lang/String"
