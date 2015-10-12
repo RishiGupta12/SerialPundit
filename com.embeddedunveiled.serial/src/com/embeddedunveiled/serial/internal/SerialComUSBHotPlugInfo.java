@@ -17,43 +17,44 @@
 
 package com.embeddedunveiled.serial.internal;
 
-import com.embeddedunveiled.serial.ISerialComHotPlugListener;
+import com.embeddedunveiled.serial.ISerialComUSBHotPlugListener;
 
 /**
- * <p>Encapsulates the information associated with hot plug listener and its native part.</p>
+ * <p>Encapsulates the information associated with USB hot plug listener and 
+ * its native part.</p>
  * 
  * @author Rishi Gupta
  */
-public final class SerialComHotPlugInfo {
-	
+public final class SerialComUSBHotPlugInfo {
+
 	private int index = -1;
-	private ISerialComHotPlugListener mSerialComHotPlugListener = null;
+	private ISerialComUSBHotPlugListener mSerialComUSBHotPlugListener = null;
 
 	/**
-	 * <p>Allocates a new SerialComHotPlugInfo object.</p>
+	 * <p>Allocates a new SerialComUSBHotPlugInfo object.</p>
 	 * 
-	 * @param mSerialComHotPlugListener listener for which info this is stored
+	 * @param mSerialComUSBHotPlugListener listener for which info this is stored
 	 * @param index array index at which information about native thread is stored for this listener
 	 */
-	public SerialComHotPlugInfo(ISerialComHotPlugListener mSerialComHotPlugListener, int index) {
-		this.mSerialComHotPlugListener = mSerialComHotPlugListener;
+	public SerialComUSBHotPlugInfo(ISerialComUSBHotPlugListener mSerialComUSBHotPlugListener, int index) {
+		this.mSerialComUSBHotPlugListener = mSerialComUSBHotPlugListener;
 		this.index = index;
 	}
-	
+
 	/** 
-	 * <p>Gives reference to ISerialComHotPlugListener object.</p>
-	 * @return reference to ISerialComHotPlugListener object
+	 * <p>Gives reference to ISerialComUSBHotPlugListener object.</p>
+	 * 
+	 * @return reference to ISerialComUSBHotPlugListener object
 	 */	
-	public ISerialComHotPlugListener getSerialComHotPlugListener() {
-		return mSerialComHotPlugListener;
+	public ISerialComUSBHotPlugListener getSerialComUSBHotPlugListener() {
+		return mSerialComUSBHotPlugListener;
 	}
 
 	/** 
-	 * <p>Gives index of information about this hot plug listener.</p>
-	 * @return array index of information about hot plug listener
+	 * <p>Gives index of information about this USB hot plug listener.</p>
+	 * @return array index of information about USB hot plug listener
 	 */
-	public int getSerialComHotPlugListenerIndex() {
+	public int getSerialComUSBHotPlugListenerIndex() {
 		return index;
 	}
-
 }

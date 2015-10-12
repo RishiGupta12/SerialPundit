@@ -217,18 +217,18 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
- * Method:    registerHotPlugEventListener
- * Signature: (Lcom/embeddedunveiled/serial/ISerialComHotPlugListener;II)I
+ * Method:    registerUSBHotPlugEventListener
+ * Signature: (Lcom/embeddedunveiled/serial/ISerialComUSBHotPlugListener;IILjava/lang/String;)I
  */
-JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_registerHotPlugEventListener
-  (JNIEnv *, jobject, jobject, jint, jint);
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_registerUSBHotPlugEventListener
+  (JNIEnv *, jobject, jobject, jint, jint, jstring);
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
- * Method:    unregisterHotPlugEventListener
+ * Method:    unregisterUSBHotPlugEventListener
  * Signature: (I)I
  */
-JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_unregisterHotPlugEventListener
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_unregisterUSBHotPlugEventListener
   (JNIEnv *, jobject, jint);
 
 /*

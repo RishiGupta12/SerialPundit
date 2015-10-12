@@ -27,13 +27,11 @@ import java.util.Collections;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.embeddedunveiled.serial.bluetooth.SerialComBluetooth;
-import com.embeddedunveiled.serial.bluetooth.SerialComBluetoothSPPDevNode;
 import com.embeddedunveiled.serial.internal.SerialComBluetoothJNIBridge;
 import com.embeddedunveiled.serial.internal.SerialComCompletionDispatcher;
 import com.embeddedunveiled.serial.internal.SerialComErrorMapper;
 import com.embeddedunveiled.serial.internal.SerialComHIDJNIBridge;
-import com.embeddedunveiled.serial.internal.SerialComHotPlugInfo;
+import com.embeddedunveiled.serial.internal.SerialComUSBHotPlugInfo;
 import com.embeddedunveiled.serial.internal.SerialComLooper;
 import com.embeddedunveiled.serial.internal.SerialComPlatform;
 import com.embeddedunveiled.serial.internal.SerialComPortHandleInfo;
@@ -44,6 +42,8 @@ import com.embeddedunveiled.serial.usb.SerialComUSB;
 import com.embeddedunveiled.serial.usb.SerialComUSBHID;
 import com.embeddedunveiled.serial.usb.SerialComUSBdevice;
 import com.embeddedunveiled.serial.vendor.SerialComVendorLib;
+import com.embeddedunveiled.serial.bluetooth.SerialComBluetooth;
+import com.embeddedunveiled.serial.bluetooth.SerialComBluetoothSPPDevNode;
 
 /**
  * <p>Root of this library.</p>
@@ -375,8 +375,8 @@ public final class SerialComManager {
 	private ArrayList<SerialComPortHandleInfo> handleInfo = new ArrayList<SerialComPortHandleInfo>();
 	private List<SerialComPortHandleInfo> mPortHandleInfo = Collections.synchronizedList(handleInfo);
 
-	private ArrayList<SerialComHotPlugInfo> hotPlugListenerInfo = new ArrayList<SerialComHotPlugInfo>();
-	private List<SerialComHotPlugInfo> mHotPlugListenerInfo = Collections.synchronizedList(hotPlugListenerInfo);
+	private ArrayList<SerialComUSBHotPlugInfo> usbHotPlugListenerInfo = new ArrayList<SerialComUSBHotPlugInfo>();
+	private List<SerialComUSBHotPlugInfo> mUSBHotPlugListenerInfo = Collections.synchronizedList(usbHotPlugListenerInfo);
 
 	private SerialComIOCTLExecutor mSerialComIOCTLExecutor;
 	private SerialComUSB mSerialComUSB;
@@ -534,8 +534,8 @@ public final class SerialComManager {
 	}
 
 	/**
-	 * <p>Gives operating system type as identified by this library. To interpret return integer see constants defined
-	 * SerialComManager class.</p>
+	 * <p>Gives operating system type as identified by this library. To interpret return integer see 
+	 * constants defined SerialComManager class.</p>
 	 * 
 	 * @return Operating system type as identified by the scm library.
 	 */
@@ -630,16 +630,16 @@ public final class SerialComManager {
 	 * 
 	 * <p>Assume a bar code scanner using FTDI chip FT232R is to be used by application at point of sale.
 	 * First we need to know whether it is connect to system or not. This can be done using listUSBdevicesWithInfo() 
-	 * or by using hot plug listener depending upon application design.</p>
+	 * or by using USB hot plug listener depending upon application design.</p>
 	 * 
 	 * <p>Once it is known that the device is connected to system, we application need to open it. For this, application 
 	 * needs to know the COM port number or device node corresponding to the scanner. It is for this purpose this method 
 	 * can be used.</p>
 	 * 
-	 * <p>Another use case of this API is to align application design with true spirit of hot plugging in operating system. 
-	 * When a USB-UART device is connected, OS may assign different COM port number or device node to the same device 
-	 * depending upon system scenario. Generally we need to write custom udev rules so that device node will be same. 
-	 * Using this API this limitation can be overcome.
+	 * <p>Another use case of this API is to align application design with true spirit of USB hot plugging in operating 
+	 * system. When a USB-UART device is connected, OS may assign different COM port number or device node to the same 
+	 * device depending upon system scenario. Generally we need to write custom udev rules so that device node will be 
+	 * same. Using this API this limitation can be overcome.
 	 * 
 	 * <p>The reason why this method returns array instead of string is that two or more USB-UART converters connected 
 	 * to system might have exactly same USB attributes. So this will list COM ports assigned to all of them.<p>
@@ -2033,7 +2033,7 @@ public final class SerialComManager {
 	 * USB interface agnostic; meaning it would invoke listener for matching USB device irresepective of 
 	 * functionality offered by USB device.</p> 
 	 * 
-	 * <p>Application must implement ISerialComHotPlugListener interface and override onHotPlugEvent method. 
+	 * <p>Application must implement ISerialComUSBHotPlugListener interface and override onUSBHotPlugEvent method. 
 	 * The event value SerialComUSB.DEV_ADDED indicates USB device has been added to the system. The event 
 	 * value SerialComUSB.DEV_REMOVED indicates USB device has been removed from system.</p>
 	 * 
@@ -2046,14 +2046,16 @@ public final class SerialComManager {
 	 * <p>If both filterVID and filterPID are set to SerialComUSB.DEV_ANY, then callback will be called for 
 	 * every USB device.</p>
 	 * 
-	 * @param hotPlugListener object of class which implements ISerialComHotPlugListener interface.
+	 * @param hotPlugListener object of class which implements ISerialComUSBHotPlugListener interface.
 	 * @param filterVID USB vendor ID to match.
 	 * @param filterPID USB product ID to match.
+	 * @param serialNumber serial number of USB device (case insensitive, optional) to match.
 	 * @return true on success.
 	 * @throws SerialComException if registration fails due to some reason.
 	 * @throws IllegalArgumentException if hotPlugListener is null or if USB VID or USB PID are invalid numbers.
 	 */
-	public boolean registerHotPlugEventListener(final ISerialComHotPlugListener hotPlugListener, int filterVID, int filterPID) throws SerialComException {
+	public boolean registerUSBHotPlugEventListener(final ISerialComUSBHotPlugListener hotPlugListener, 
+			int filterVID, int filterPID, String serialNumber) throws SerialComException {
 		if(hotPlugListener == null) {
 			throw new IllegalArgumentException("Argument hotPlugListener can not be null !");
 		}
@@ -2063,15 +2065,15 @@ public final class SerialComManager {
 		}
 
 		synchronized(lockB) {
-			int ret = mComPortJNIBridge.registerHotPlugEventListener(hotPlugListener, filterVID, filterPID);
+			int ret = mComPortJNIBridge.registerUSBHotPlugEventListener(hotPlugListener, filterVID, filterPID, serialNumber);
 			if(ret < 0) {
-				throw new SerialComException("Failed to register hotplug listener. Please retry !");
+				throw new SerialComException("Failed to register USB hotplug listener. Please retry !");
 			}
 
-			boolean added = mHotPlugListenerInfo.add(new SerialComHotPlugInfo(hotPlugListener, ret));
+			boolean added = mUSBHotPlugListenerInfo.add(new SerialComUSBHotPlugInfo(hotPlugListener, ret));
 			if(added != true) {
-				unregisterHotPlugEventListener(hotPlugListener);
-				throw new SerialComException("Could not save info about hot plug listener locally. Please retry !");
+				unregisterUSBHotPlugEventListener(hotPlugListener);
+				throw new SerialComException("Could not save info about USB hot plug listener locally. Please retry !");
 			}
 		}
 
@@ -2079,36 +2081,37 @@ public final class SerialComManager {
 	}
 
 	/**
-	 * <p>This unregisters listener and terminate native thread used for monitoring specified hot plug events.</p>
+	 * <p>This unregisters listener and terminate native thread used for monitoring specified USB hot 
+	 * plug events.</p>
 	 * 
-	 * @param hotPlugListener object of class which implemented ISerialComHotPlugListener interface.
+	 * @param hotPlugListener object of class which implemented ISerialComUSBHotPlugListener interface.
 	 * @return true on success.
 	 * @throws SerialComException un-registration fails due to some reason.
 	 * @throws IllegalArgumentException if hotPlugListener is null.
 	 */
-	public boolean unregisterHotPlugEventListener(final ISerialComHotPlugListener hotPlugListener) throws SerialComException {
+	public boolean unregisterUSBHotPlugEventListener(final ISerialComUSBHotPlugListener hotPlugListener) throws SerialComException {
 		int index = -1;
-		SerialComHotPlugInfo mListenerInfo = null;
+		SerialComUSBHotPlugInfo mListenerInfo = null;
 		if(hotPlugListener == null) {
 			throw new IllegalArgumentException("Argument hotPlugListener can not be null !");
 		}
 
-		for(SerialComHotPlugInfo mInfo: mHotPlugListenerInfo){
-			if(mInfo.getSerialComHotPlugListener() ==  hotPlugListener) {
-				index = mInfo.getSerialComHotPlugListenerIndex();
+		for(SerialComUSBHotPlugInfo mInfo: mUSBHotPlugListenerInfo){
+			if(mInfo.getSerialComUSBHotPlugListener() ==  hotPlugListener) {
+				index = mInfo.getSerialComUSBHotPlugListenerIndex();
 				mListenerInfo = mInfo;
 				break;
 			}
 		}
 		if(index == -1) {
-			throw new SerialComException("This listener is not registered !");
+			throw new SerialComException("This USB Hot plug listener is not registered !");
 		}
 
 		synchronized(lockB) {
-			mComPortJNIBridge.unregisterHotPlugEventListener(index);
+			mComPortJNIBridge.unregisterUSBHotPlugEventListener(index);
 
 			/* delete info about this listener from global info arraylist. */
-			mHotPlugListenerInfo.remove(mListenerInfo);
+			mUSBHotPlugListenerInfo.remove(mListenerInfo);
 		}
 
 		return true;

@@ -18,13 +18,14 @@
 
 package test21;
 
-import com.embeddedunveiled.serial.ISerialComHotPlugListener;
+import com.embeddedunveiled.serial.ISerialComUSBHotPlugListener;
 import com.embeddedunveiled.serial.SerialComManager;
+import com.embeddedunveiled.serial.usb.SerialComUSB;
 
 // event 2 indicates port removal, 1 indicates additional of port
-class portWatcher implements ISerialComHotPlugListener {
+class portWatcher implements ISerialComUSBHotPlugListener {
 	@Override
-	public void onHotPlugEvent(int arg0) {
+	public void onUSBHotPlugEvent(int arg0) {
 		System.out.println("event " + arg0);
 	}
 }
@@ -35,10 +36,10 @@ public class Test21 {
 			SerialComManager scm = new SerialComManager();
 			portWatcher pw = new portWatcher();
 			
-//			scm.registerHotPlugEventListener(pw, SerialComManager.USB_DEV_ANY, SerialComManager.USB_DEV_ANY);
-			scm.registerHotPlugEventListener(pw, 0x0403, 0x6001);
-			Thread.sleep(100000);
-			scm.unregisterHotPlugEventListener(pw);
+//			scm.registerUSBHotPlugEventListener(pw, SerialComUSB.DEV_ANY, SerialComUSB.DEV_ANY);
+			scm.registerUSBHotPlugEventListener(pw, 0x0403, 0x6001, "A7036479");
+			Thread.sleep(3000);
+			scm.unregisterUSBHotPlugEventListener(pw);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

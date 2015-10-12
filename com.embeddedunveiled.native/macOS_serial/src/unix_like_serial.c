@@ -121,9 +121,9 @@ pthread_mutex_t mutex = {{0}};
 pthread_mutex_t mutex = {0};
 #endif
 
-/* Holds information for hot plug port monitor facility. */
-int port_monitor_index = 0;
-struct port_info port_monitor_info[MAX_NUM_THREADS] = { {0} };
+/* Holds information for USB hot plug monitor facility. */
+int usb_dev_monitor_index = 0;
+struct usb_dev_monitor_info usb_hotplug_monitor_info[MAX_NUM_THREADS] = { { 0 } };
 
 /* For Solaris, we maintain an array which will list all ports that have been opened. Now if
  * somebody tries to open already opened port claiming to be exclusive owner, we will deny the
@@ -376,7 +376,8 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
  * Method:    listUSBdevicesWithInfo
  * Signature: (I)[Ljava/lang/String;
  *
- * Find USB devices with information about them using platform specific facilities.
+ * Find USB devices with information about them using platform specific facilities. The info sequence is :
+ * Vendor ID, Product ID, Serial number, Product, Manufacturer, USB bus number, USB Device number.
  *
  * @return array of Strings containing info about USB device(s) otherwise NULL if an error occurs or no
  *         devices found.
@@ -389,7 +390,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
- * Method:    listComPortFromUSBAttributes
+ * Method:    findComPortFromUSBAttributes
  * Signature: (IILjava/lang/String;)[Ljava/lang/String;
  *
  * Find the COM Port/ device node assigned to USB-UART converter device using platform specific
@@ -400,7 +401,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
  * @throws SerialComException if any JNI function, system call or C function fails.
 
  */
-JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_listComPortFromUSBAttributes(JNIEnv *env,
+JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_findComPortFromUSBAttributes(JNIEnv *env,
 		jobject obj, jint vid, jint pid, jstring serial) {
 	return vcp_node_from_usb_attributes(env, vid, pid, serial);
 }
@@ -408,7 +409,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
  * Method:    isUSBDevConnected
- * Signature: (II)I
+ * Signature: (IILjava/lang/String;)I
  *
  * Enumerate and check if given usb device identified by its USB-IF VID and PID is connected to
  * system or not.
@@ -417,8 +418,8 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
  * @throws SerialComException if any JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_isUSBDevConnected(JNIEnv *env,
-		jobject obj, jint vid, jint pid) {
-	return is_usb_dev_connected(env, vid, pid);
+		jobject obj, jint vid, jint pid, jstring serialNumber) {
+	return is_usb_dev_connected(env, vid, pid, serialNumber);
 }
 
 /*
@@ -467,6 +468,7 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJ
 		throw_serialcom_exception(env, 1, errno, NULL);
 		return -1;
 	}
+	
 	(*env)->ReleaseStringUTFChars(env, portName, portpath);
 
 	/* Enable blocking I/O behavior. Control behavior through VMIN and VTIME. */
@@ -1740,7 +1742,7 @@ JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComP
  * Method:    getCurrentConfigurationW
  * Signature: (J)[Ljava/lang/String;
  *
- * Required for Windows only.
+ * Applicable for Windows OS only.
  *
  * @return NULL always.
  */
@@ -1770,14 +1772,14 @@ JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComP
 	errno = 0;
 	ret = ioctl(fd, FIONREAD, &val[0]);
 	if(ret < 0) {
-		throw_serialcom_exception(env, 1,errno, NULL);
+		throw_serialcom_exception(env, 1, errno, NULL);
 		return NULL;
 	}
 
 	errno = 0;
 	ret = ioctl(fd, TIOCOUTQ, &val[1]);
 	if(ret < 0) {
-		throw_serialcom_exception(env, 1,errno, NULL);
+		throw_serialcom_exception(env, 1, errno, NULL);
 		return NULL;
 	}
 
@@ -1792,6 +1794,7 @@ JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComP
 		throw_serialcom_exception(env, 3, 0, E_SETINTARRREGIONSTR);
 		return NULL;
 	}
+	
 	return byteCounts;
 }
 
@@ -1809,33 +1812,27 @@ JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComP
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_clearPortIOBuffers(JNIEnv *env,
 		jobject obj, jlong fd, jboolean rxPortbuf, jboolean txPortbuf) {
 		
-	int ret = -1;
-
+	int ret = 0;
+	int PORTIOBUFFER = 0;
+	
 	if((rxPortbuf == JNI_TRUE) && (txPortbuf == JNI_TRUE)) {
-		errno = 0;
 		/* flushes both the input and output queue. */
-		ret = tcflush(fd, TCIOFLUSH);
-		if(ret < 0) {
-			throw_serialcom_exception(env, 1, errno, NULL);
-			return -1;
-		}
+		PORTIOBUFFER = TCIOFLUSH;
 	}else if(rxPortbuf == JNI_TRUE) {
-		errno = 0;
 		/* flushes the input queue, which contains data that have been received but not yet read. */
-		ret = tcflush(fd, TCIFLUSH);
-		if(ret < 0) {
-			throw_serialcom_exception(env, 1, errno, NULL);
-			return -1;
-		}
+		PORTIOBUFFER = TCIFLUSH;
 	}else if(txPortbuf == JNI_TRUE) {
-		errno = 0;
 		/* flushes the output queue, which contains data that have been written but not yet transmitted. */
-		ret = tcflush(fd, TCOFLUSH);
-		if(ret < 0) {
-			throw_serialcom_exception(env, 1, errno, NULL);
-			return -1;
-		}
+		PORTIOBUFFER = TCOFLUSH;
 	}else {
+		/* this case is handled in java layer itself */
+	}	
+	
+	errno = 0;
+	ret = tcflush(fd, PORTIOBUFFER);
+	if(ret < 0) {
+		throw_serialcom_exception(env, 1, errno, NULL);
+		return -1;
 	}
 
 	return 0;
@@ -1856,9 +1853,9 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
 		jobject obj, jlong fd, jboolean enabled) {
 		
 	int ret = -1;
-	int status = -1;
+	int status = 0;
 
-	/* Get current configuration. */
+	/* Get current state details. */
 	errno = 0;
 	ret = ioctl(fd, TIOCMGET, &status);
 	if(ret < 0) {
@@ -1898,7 +1895,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
 		jobject obj, jlong fd, jboolean enabled) {
 		
 	int ret = -1;
-	int status = -1;
+	int status = 0;
 
 	errno = 0;
 	ret = ioctl(fd, TIOCMGET, &status);
@@ -1930,6 +1927,8 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
  *
  * The status of modem/control lines is returned as array of integers where '1' means line is asserted
  * and '0' means de-asserted. The sequence of lines matches in both java layer and native layer.
+ * 
+ * Return sequence is CTS, DSR, DCD, RI, LOOP, RTS, DTR respectively.
  *
  * @return array containing status of modem control lines 0 on success otherwise NULL if
  *         an error occurs.
@@ -1963,6 +1962,7 @@ JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComP
 	status[4] = 0;
 	status[5] = (lines_status & TIOCM_RTS) ? 1 : 0;
 	status[6] = (lines_status & TIOCM_DTR) ? 1 : 0;
+	
 	(*env)->SetIntArrayRegion(env, current_status, 0, 7, status);
 	if((*env)->ExceptionOccurred(env)) {
 		throw_serialcom_exception(env, 3, 0, E_SETINTARRREGIONSTR);
@@ -1980,8 +1980,7 @@ JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComP
  * Find the name of the driver which is currently associated with the given serial port.
  *
  * @return name of driver if found for given serial port, empty string if no driver found for
- * given serial port,
- *         NULL if any error occurs.
+ *         given serial port, NULL if any error occurs.
  * @throws SerialComException if any JNI function, system call or C function fails.
  */
 JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_findDriverServingComPort(JNIEnv *env,
@@ -2001,7 +2000,7 @@ JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPor
  * @throws SerialComException if any JNI function, system call or C function fails.
  */
 JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_findIRQnumberForComPort(JNIEnv *env,
-		jobject obj, jlong handle) {
+		jobject obj, jlong fd) {
 	return find_address_irq_for_given_com_port(env, fd);
 }
 
@@ -2332,6 +2331,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
 	struct com_thread_params *ptr = NULL;
 	pthread_t data_thread_id = 0;
 	void *status = NULL;
+	
 #if defined (__linux__)
 	uint64_t value = 1;
 #endif
@@ -2601,29 +2601,30 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_SerialComJNINativeInterf
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
- * Method:    registerHotPlugEventListener
- * Signature: (Lcom/embeddedunveiled/serial/ISerialComHotPlugListener;II)I
+ * Method:    registerUSBHotPlugEventListener
+ * Signature: (Lcom/embeddedunveiled/serial/ISerialComUSBHotPlugListener;IILjava/lang/String;)I
  *
  * Create a native thread that works with operating system specific mechanism for USB hot plug
- * facility. In thread_info array, location 0 contains return code while location 1 contains index of
- * global array at which info about thread is stored.
+ * facility.
  *
- * @return 0 on success otherwise -1 if an error occurs.
+ * @return index of an array at which information about this worker thread is saved on success
+ *         otherwise -1 if an error occurs.
  * @throws SerialComException if any JNI function, system call or C function fails.
  */
-JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_registerHotPlugEventListener(JNIEnv *env,
-		jobject obj, jobject hotPlugListener, jint filterVID, jint filterPID) {
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_registerUSBHotPlugEventListener(JNIEnv *env,
+		jobject obj, jobject hotPlugListener, jint filterVID, jint filterPID, jstring serialNumber) {
 
 	int ret = -1;
 	int x = 0;
 	int empty_index_found = 0;
-	struct port_info *ptr = NULL;
+	struct usb_dev_monitor_info *ptr = NULL;
 	pthread_t thread_id = 0;
 	void *arg = NULL;
-	struct port_info params;
+	struct usb_dev_monitor_info params;
 	jobject usbHotPlugListener = NULL;
+	const char* serial_number = NULL;
 
-	ptr = port_monitor_info;
+	ptr = &usb_hotplug_monitor_info[0];
 	pthread_mutex_lock(&mutex);
 
 	usbHotPlugListener = (*env)->NewGlobalRef(env, hotPlugListener);
@@ -2631,6 +2632,14 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
 		pthread_mutex_unlock(&mutex);
 		throw_serialcom_exception(env, 3, 0, E_NEWGLOBALREFSTR);
 		return -1;
+	}
+
+	if(serialNumber != NULL) {
+		serial_number = (*env)->GetStringUTFChars(env, serialNumber, NULL);
+		if((serial_number == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+			throw_serialcom_exception(env, 3, 0, E_GETSTRUTFCHARSTR);
+			return -1;
+		}
 	}
 
 	/* Check if there is an unused index then we will reuse it. */
@@ -2644,8 +2653,14 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
 
 	params.jvm = jvm;
 	params.usbHotPlugEventListener = usbHotPlugListener;
-	params.filterVID = filterVID;
-	params.filterPID = filterPID;
+	params.usb_vid_to_match = filterVID;
+	params.usb_pid_to_match = filterPID;
+	if(serialNumber != NULL) {
+		memset(params.serial_number_to_match, '\0', sizeof(params.serial_number_to_match));
+		strcpy(params.serial_number_to_match, serial_number);
+	}else {
+		params.serial_number_to_match[0] = '\0';
+	}
 	params.thread_exit = 0;
 	params.init_done = -1;
 	params.custom_err_code = 0;
@@ -2658,22 +2673,22 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
 	params.empty_iterator_added = 0;
 	params.empty_iterator_removed = 0;
 	if(empty_index_found == 1) {
-		params.data = &port_monitor_info[x];
+		params.data = &usb_hotplug_monitor_info[x];
 	}else {
-		params.data = &port_monitor_info[port_monitor_index];
+		params.data = &usb_hotplug_monitor_info[usb_dev_monitor_index];
 	}
 #endif
 	if(empty_index_found == 1) {
-		port_monitor_info[x] = params;
-		arg = &port_monitor_info[x];
+		usb_hotplug_monitor_info[x] = params;
+		arg = &usb_hotplug_monitor_info[x];
 	}else {
-		port_monitor_info[port_monitor_index] = params;
-		arg = &port_monitor_info[port_monitor_index];
+		usb_hotplug_monitor_info[usb_dev_monitor_index] = params;
+		arg = &usb_hotplug_monitor_info[usb_dev_monitor_index];
 	}
 
-	pthread_attr_init(&((struct port_info*) arg)->thread_attr);
-	pthread_attr_setdetachstate(&((struct port_info*) arg)->thread_attr, PTHREAD_CREATE_JOINABLE);
-	ret = pthread_create(&thread_id, NULL, &usb_hot_plug_monitor, arg);
+	pthread_attr_init(&((struct usb_dev_monitor_info*) arg)->thread_attr);
+	pthread_attr_setdetachstate(&((struct usb_dev_monitor_info*) arg)->thread_attr, PTHREAD_CREATE_JOINABLE);
+	ret = pthread_create(&thread_id, NULL, &usb_device_hotplug_monitor, arg);
 	if(ret != 0) {
 		(*env)->DeleteGlobalRef(env, usbHotPlugListener);
 		pthread_mutex_unlock(&mutex);
@@ -2684,40 +2699,43 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
 	pthread_mutex_unlock(&mutex);
 
 	/* let the worker thread initialize completely and then return success/failure. */
-	while(((struct port_info*) arg)->init_done == -1) { }
+	while(((struct usb_dev_monitor_info*) arg)->init_done == -1) {
+		fflush(stderr);
+		fflush(stderr);
+	}
 
-	if(0 == ((struct port_info*) arg)->init_done) {
+	if(0 == ((struct usb_dev_monitor_info*) arg)->init_done) {
 		/* Save the thread id which will be used when listener is unregistered. */
-		((struct port_info*) arg)->thread_id = thread_id;
+		((struct usb_dev_monitor_info*) arg)->thread_id = thread_id;
 		if(empty_index_found == 1) {
 			return x;
 		}else {
 			/* update index where data for next thread will be saved. */
-			port_monitor_index++;
-
-			return (port_monitor_index - 1);
+			usb_dev_monitor_index++;
+			return (usb_dev_monitor_index - 1);
 		}
 	}else {
 		(*env)->DeleteGlobalRef(env, usbHotPlugListener);
-		pthread_attr_destroy(&((struct port_info*) arg)->thread_attr);
-		((struct port_info*) arg)->thread_id = 0;
+		pthread_attr_destroy(&((struct usb_dev_monitor_info*) arg)->thread_attr);
+		((struct usb_dev_monitor_info*) arg)->thread_id = 0;
 
-		if((((struct port_info*) arg)->custom_err_code) > 0) {
+		if((((struct usb_dev_monitor_info*) arg)->custom_err_code) > 0) {
 			/* indicates custom error message should be used in exception.*/
-			throw_serialcom_exception(env, 2, ((struct port_info*) arg)->custom_err_code, NULL);
+			throw_serialcom_exception(env, 2, ((struct usb_dev_monitor_info*) arg)->custom_err_code, NULL);
 		}else {
 			/* indicates posix/os-specific error message should be used in exception.*/
-			throw_serialcom_exception(env, 1, ((struct port_info*) arg)->standard_err_code, NULL);
+			throw_serialcom_exception(env, 1, ((struct usb_dev_monitor_info*) arg)->standard_err_code, NULL);
 		}
 		return -1;
 	}
 
-	return 0; /* success */
+	/* should not be reached */
+	return -1;
 }
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
- * Method:    unregisterHotPlugEventListener
+ * Method:    unregisterUSBHotPlugEventListener
  * Signature: (I)I
  *
  * Destroy worker thread used for USB hot plug monitoring. The java layer sends index in array
@@ -2726,13 +2744,13 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
  * @return 0 on success otherwise -1 if an error occurs.
  * @throws SerialComException if any JNI function, system call or C function fails.
  */
-JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_unregisterHotPlugEventListener(JNIEnv *env,
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_unregisterUSBHotPlugEventListener(JNIEnv *env,
 		jobject obj, jint index) {
 		
 #if defined (__linux__) || defined (__APPLE__)
 	int ret = -1;
 	void *status = NULL;
-	struct port_info *ptr = &port_monitor_info[index];
+	struct usb_dev_monitor_info *ptr = &usb_hotplug_monitor_info[index];
 
 #if defined (__linux__)
 	uint64_t value = 1;

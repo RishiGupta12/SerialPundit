@@ -45,7 +45,7 @@ int LOGEN(const char *msg_a, const char *msg_b, unsigned int error_num) {
  * by java method when native function returns. If the pointer is set exception of class as set by this function is 
  * thrown.
  *
- * The type 1 indicates standard (C-standard/POSIX/OS specific) error, 2 indicate custom (defined by this library) 
+ * The type 1 indicates standard (C-standard/POSIX) error, 2 indicate custom (defined by this library) 
  * error, 3 indicates custom error with message string.
  */
 void throw_serialcom_exception(JNIEnv *env, int type, int error_code, const char *msg) {
@@ -65,7 +65,7 @@ void throw_serialcom_exception(JNIEnv *env, int type, int error_code, const char
 	}
 
 	if(type == 1) {
-		/* Caller has given posix/os-standard error code, get error message corresponding to this code. */
+		/* Caller has given posix error code, get error message corresponding to this code. */
 		/* This need to be made more portable to remove compiler specific dependency */
 #if _POSIX_C_SOURCE >= 200112L || _XOPEN_SOURCE >= 600 && ! _GNU_SOURCE
 		memset(buffer, '\0', sizeof(buffer));

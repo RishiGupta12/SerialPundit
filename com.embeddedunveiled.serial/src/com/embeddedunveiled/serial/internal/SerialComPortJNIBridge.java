@@ -22,7 +22,7 @@ import java.nio.ByteBuffer;
 import java.io.InputStream;
 import java.io.FileOutputStream;
 
-import com.embeddedunveiled.serial.ISerialComHotPlugListener;
+import com.embeddedunveiled.serial.ISerialComUSBHotPlugListener;
 import com.embeddedunveiled.serial.SerialComLoadException;
 import com.embeddedunveiled.serial.SerialComManager;
 import com.embeddedunveiled.serial.SerialComUnexpectedException;
@@ -294,8 +294,8 @@ public final class SerialComPortJNIBridge {
 	public native int clearPortIOBuffers(long handle, boolean rxPortbuf, boolean txPortbuf);
 
 	// Hot-plug
-	public native int registerHotPlugEventListener(ISerialComHotPlugListener hotPlugListener, int filterVID, int filterPID);
-	public native int unregisterHotPlugEventListener(int index);
+	public native int registerUSBHotPlugEventListener(ISerialComUSBHotPlugListener hotPlugListener, int filterVID, int filterPID, String serialNumber);
+	public native int unregisterUSBHotPlugEventListener(int index);
 
 	// Configuration
 	public native int configureComPortData(long handle, int dataBits, int stopBits, int parity, int baudRateTranslated, int custBaudTranslated);

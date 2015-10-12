@@ -107,7 +107,7 @@ public class SerialComHID {
 	/**
 	 * <p>Opens a HID device for communication using its path name.</p>
 	 * 
-	 * <P>Applications can register hotplug listener to get notified when the desired USB device is plugged 
+	 * <P>Applications can register USB hot plug listener to get notified when the desired USB device is plugged 
 	 * into system. Once the listener is invoked indicating device is added, application can find the device 
 	 * node representing this USB-HID device and proceed to open it.</p>
 	 * 
@@ -119,7 +119,7 @@ public class SerialComHID {
 	 * @return handle of the opened HID device.
 	 * @throws SerialComException if an IO error occurs.
 	 * @throws IllegalArgumentException if pathName is null or empty string.
-	 * @see com.embeddedunveiled.serial.SerialComManager#registerHotPlugEventListener(ISerialComHotPlugListener, int, int)
+	 * @see com.embeddedunveiled.serial.SerialComManager#registerUSBHotPlugEventListener(ISerialComUSBHotPlugListener, int, int)
 	 * @see com.embeddedunveiled.serial.SerialComHID#listHIDdevicesWithInfo()
 	 */
 	public final long openHidDevice(final String pathName) throws SerialComException {

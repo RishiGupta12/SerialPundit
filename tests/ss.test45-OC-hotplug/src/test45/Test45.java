@@ -17,54 +17,28 @@
 
 package test45;
 
+import com.embeddedunveiled.serial.ISerialComUSBHotPlugListener;
 import com.embeddedunveiled.serial.SerialComManager;
-import com.embeddedunveiled.serial.SerialComManager.BAUDRATE;
-import com.embeddedunveiled.serial.SerialComManager.DATABITS;
-import com.embeddedunveiled.serial.SerialComManager.FLOWCONTROL;
-import com.embeddedunveiled.serial.SerialComManager.PARITY;
-import com.embeddedunveiled.serial.SerialComManager.STOPBITS;
-import com.embeddedunveiled.serial.ISerialComHotPlugListener;
 
 //event 2 indicates port removal, 1 indicates additional of port
-class portWatcher implements ISerialComHotPlugListener {
+class portWatcher implements ISerialComUSBHotPlugListener {
 	@Override
-	public void onHotPlugEvent(int arg0) {
+	public void onUSBHotPlugEvent(int arg0) {
 		System.out.println("event " + arg0);
 	}
 }
 
 public class Test45 {
 	public static void main(String[] args) {
-		int x = 0;
 		try {
 			SerialComManager scm = new SerialComManager();
-
-			String PORT = null;
-			int osType = scm.getOSType();
-			if(osType == SerialComManager.OS_LINUX) {
-				PORT = "/dev/ttyUSB0";
-			}else if(osType == SerialComManager.OS_WINDOWS) {
-				PORT = "COM51";
-			}else if(osType == SerialComManager.OS_MAC_OS_X) {
-				PORT = "/dev/cu.usbserial-A70362A3";
-			}else if(osType == SerialComManager.OS_SOLARIS) {
-				PORT = null;
-			}else{
-			}
-			
-			long handle = scm.openComPort(PORT, true, true, true);
-			scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
-			scm.configureComPortControl(handle, FLOWCONTROL.NONE, '$', '$', false, false);
-			
+			int x = 0;
 			for (x=0; x<500000; x++) {
 				System.out.println("Iteration :" + x);
 				portWatcher pw = new portWatcher();
-				scm.registerHotPlugEventListener(pw, 0x0403, 0x6001);
-//				Thread.sleep(100);
-				scm.unregisterHotPlugEventListener(pw);
-//				Thread.sleep(100);
+				scm.registerUSBHotPlugEventListener(pw, 0x0403, 0x6001, null);
+				scm.unregisterUSBHotPlugEventListener(pw);
 			}
-			scm.closeComPort(handle);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

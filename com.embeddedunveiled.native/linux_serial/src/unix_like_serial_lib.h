@@ -111,13 +111,15 @@ struct com_thread_params {
 	pthread_attr_t event_thread_attr;
 };
 
-/* The port_info structure has platform specific fields based on how thread is created, destroyed and what data need to be passed.*/
-struct port_info {
 #if defined (__linux__)
+/* The port_info structure has platform specific fields based on how thread is created,
+ * destroyed and what data need to be passed.*/
+struct usb_dev_monitor_info {
 	JavaVM *jvm;
 	jobject usbHotPlugEventListener;
-	jint filterVID;
-	jint filterPID;
+	int usb_vid_to_match;
+	int usb_pid_to_match;
+	char serial_number_to_match[64];
 	int thread_exit;
 	pthread_t thread_id;
 	pthread_attr_t thread_attr;
@@ -126,36 +128,39 @@ struct port_info {
 	int standard_err_code;
 	int custom_err_code;
 	int evfd;
-#elif defined (__APPLE__)
-	JavaVM *jvm;
-	JNIEnv* env;
-	jobject usbHotPlugEventListener;
-	jmethodID onHotPlugEventMethodID;
-	jint filterVID;
-	jint filterPID;
-	int thread_exit;
-	pthread_t thread_id;
-	pthread_attr_t thread_attr;
-	pthread_mutex_t *mutex;
-	int init_done;
-	CFRunLoopSourceRef exit_run_loop_source;
-	CFRunLoopRef run_loop;
-	struct port_info *data;
-	IONotificationPortRef notification_port;
-	int empty_iterator_added;
-	int empty_iterator_removed;
-	jmethodID mid;
-#elif defined (__SunOS)
-#else
-#endif
 };
+#endif
 
 #if defined (__APPLE__)
 /* Structure to hold reference to driver and subscribed notification. */
 struct driver_ref {
 	io_service_t service;
 	io_object_t notification;
-	struct port_info *data;
+	struct usb_dev_monitor_info *data;
+};
+
+struct usb_dev_monitor_info {
+	JavaVM *jvm;
+	JNIEnv* env;
+	jobject usbHotPlugEventListener;
+	jmethodID onUSBHotPlugEventMethodID;
+	int usb_vid_to_match;
+	int usb_pid_to_match;
+	char serial_number_to_match[64];
+	int thread_exit;
+	pthread_t thread_id;
+	pthread_attr_t thread_attr;
+	pthread_mutex_t *mutex;
+	int init_done;
+	int standard_err_code;
+	int custom_err_code;
+	CFRunLoopSourceRef exit_run_loop_source;
+	CFRunLoopRef run_loop;
+	struct usb_dev_monitor_info *data;
+	IONotificationPortRef notification_port;
+	int empty_iterator_added;
+	int empty_iterator_removed;
+	jmethodID mid;
 };
 #endif
 
@@ -196,6 +201,6 @@ jobjectArray vcp_node_from_usb_attributes(JNIEnv *env, jint usbvid_to_match, jin
 
 void *data_looper(void *params);
 void *event_looper(void *params);
-void *usb_hot_plug_monitor(void *params);
+void *usb_device_hotplug_monitor(void *params);
 
 #endif /* UNIX_LIKE_SERIAL_LIB_H_ */
