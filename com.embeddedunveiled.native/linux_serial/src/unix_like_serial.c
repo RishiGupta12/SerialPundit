@@ -65,6 +65,7 @@
 #include <stddef.h>         /* Avoid OS/lib implementation specific dependencies. */
 #include <libudev.h>
 #include <time.h>
+#include <stdint.h>
 #endif
 
 #if defined (__APPLE__)
@@ -160,8 +161,8 @@ __attribute__((destructor)) static void exit_scmlib() {
  * @throws SerialComException if any JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_initNativeLib(JNIEnv *env, 
-	jobject obj) {
-	
+		jobject obj) {
+
 	int ret = 0;
 	jclass serialComExceptionClass = NULL;
 
@@ -438,7 +439,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
 JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_openComPort(JNIEnv *env,
 		jobject obj, jstring portName, jboolean enableRead, 
 		jboolean enableWrite, jboolean exclusiveOwner) {
-		
+
 	int ret = -1;
 	jlong fd = -1;
 	int OPEN_MODE = -1;
@@ -468,7 +469,7 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJ
 		throw_serialcom_exception(env, 1, errno, NULL);
 		return -1;
 	}
-	
+
 	(*env)->ReleaseStringUTFChars(env, portName, portpath);
 
 	/* Enable blocking I/O behavior. Control behavior through VMIN and VTIME. */
@@ -508,8 +509,8 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJ
  * @throws SerialComException if any JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_closeComPort(JNIEnv *env, 
-	jobject obj, jlong fd) {
-	
+		jobject obj, jlong fd) {
+
 	int ret = -1;
 	int exit_loop = 0;
 
@@ -579,7 +580,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
  */
 JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_readBytes(JNIEnv *env,
 		jobject obj, jlong fd, jint count) {
-		
+
 	int i = -1;
 	int index = 0;
 	int partial_data = -1;
@@ -691,12 +692,12 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialCom
  * application design is expected to take care of this as and when required in appropriate manner.
  *
  * @return number of bytes read from serial port, 0 if there was no data in serial port buffer, -1 
-  *        if an error occurs.
+ *        if an error occurs.
  * @throws SerialComException if any JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_readBytesDirect(JNIEnv *env,
 		jobject obj, jlong fd, jobject buffer, jint offset, jint length) {
-		
+
 	int ret = 0;
 	int num_bytes_to_read = 0;
 	int num_bytes_read_from_port = 0;
@@ -877,7 +878,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_writeSingleByte(JNIEnv *env,
 		jobject obj, jlong fd, jbyte dataByte) {
-		
+
 	int ret = -1;
 	while(1) {
 		errno = 0;
@@ -921,7 +922,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_writeBytes(JNIEnv *env,
 		jobject obj, jlong fd, jbyteArray buffer, jint delay) {
-		
+
 	int ret = -1;
 	int index = 0;
 	int status = 0;
@@ -1022,7 +1023,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_writeBytesDirect(JNIEnv *env,
 		jobject obj, jlong fd, jobject buffer, jint offset, jint length) {
-		
+
 	jbyte* data_buf = NULL;
 	int ret = 0;
 	int count = 0;
@@ -1475,7 +1476,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_configureComPortControl(JNIEnv *env,
 		jobject obj, jlong fd, jint flowctrl, jchar xon, jchar xoff, 
 		jboolean ParFraError, jboolean overFlowErr) {
-		
+
 	int ret = 0;
 
 #if defined (__linux__)
@@ -1639,8 +1640,8 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
  * @throws SerialComException if any JNI function, system call or C function fails.
  */
 JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_getCurrentConfigurationU(JNIEnv *env, 
-	jobject obj, jlong fd) {
-	
+		jobject obj, jlong fd) {
+
 	int ret = -1;
 	jint err[] = {-1};
 	jintArray errr = NULL;
@@ -1764,7 +1765,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
  */
 JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_getByteCount(JNIEnv *env,
 		jobject obj, jlong fd) {
-		
+
 	int ret = -1;
 	jint val[2] = {0, 0};
 	jintArray byteCounts = NULL;
@@ -1794,7 +1795,7 @@ JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComP
 		throw_serialcom_exception(env, 3, 0, E_SETINTARRREGIONSTR);
 		return NULL;
 	}
-	
+
 	return byteCounts;
 }
 
@@ -1811,10 +1812,10 @@ JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComP
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_clearPortIOBuffers(JNIEnv *env,
 		jobject obj, jlong fd, jboolean rxPortbuf, jboolean txPortbuf) {
-		
+
 	int ret = 0;
 	int PORTIOBUFFER = 0;
-	
+
 	if((rxPortbuf == JNI_TRUE) && (txPortbuf == JNI_TRUE)) {
 		/* flushes both the input and output queue. */
 		PORTIOBUFFER = TCIOFLUSH;
@@ -1827,7 +1828,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
 	}else {
 		/* this case is handled in java layer itself */
 	}	
-	
+
 	errno = 0;
 	ret = tcflush(fd, PORTIOBUFFER);
 	if(ret < 0) {
@@ -1851,7 +1852,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_setRTS(JNIEnv *env,
 		jobject obj, jlong fd, jboolean enabled) {
-		
+
 	int ret = -1;
 	int status = 0;
 
@@ -1893,7 +1894,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_setDTR(JNIEnv *env,
 		jobject obj, jlong fd, jboolean enabled) {
-		
+
 	int ret = -1;
 	int status = 0;
 
@@ -1936,7 +1937,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
  */
 JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_getLinesStatus(JNIEnv *env,
 		jobject obj, jlong fd) {
-		
+
 	int ret = -1;
 	int lines_status = 0;
 	jint status[7] = {0};
@@ -1962,7 +1963,7 @@ JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComP
 	status[4] = 0;
 	status[5] = (lines_status & TIOCM_RTS) ? 1 : 0;
 	status[6] = (lines_status & TIOCM_DTR) ? 1 : 0;
-	
+
 	(*env)->SetIntArrayRegion(env, current_status, 0, 7, status);
 	if((*env)->ExceptionOccurred(env)) {
 		throw_serialcom_exception(env, 3, 0, E_SETINTARRREGIONSTR);
@@ -2020,7 +2021,7 @@ JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPor
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_sendBreak(JNIEnv *env,
 		jobject obj, jlong fd, jint duration) {
-		
+
 	int ret = -1;
 
 	/* Set break condition. */
@@ -2331,7 +2332,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
 	struct com_thread_params *ptr = NULL;
 	pthread_t data_thread_id = 0;
 	void *status = NULL;
-	
+
 #if defined (__linux__)
 	uint64_t value = 1;
 #endif
@@ -2739,21 +2740,22 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
  * Signature: (I)I
  *
  * Destroy worker thread used for USB hot plug monitoring. The java layer sends index in array
- * where info about the thread to be destroyed is stored.
+ * where info about the native thread to be destroyed is stored.
  *
  * @return 0 on success otherwise -1 if an error occurs.
  * @throws SerialComException if any JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_unregisterUSBHotPlugEventListener(JNIEnv *env,
-		jobject obj, jint index) {
-		
+		jobject obj, jint indexOfArrayElement) {
+
 #if defined (__linux__) || defined (__APPLE__)
 	int ret = -1;
 	void *status = NULL;
-	struct usb_dev_monitor_info *ptr = &usb_hotplug_monitor_info[index];
+	struct usb_dev_monitor_info *ptr = &usb_hotplug_monitor_info[indexOfArrayElement];
 
 #if defined (__linux__)
-	uint64_t value = 1;
+	ssize_t size;
+	uint64_t value = 34;
 #endif
 
 	pthread_mutex_lock(&mutex);
@@ -2762,10 +2764,10 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
 	ptr->thread_exit = 1;
 
 #if defined (__linux__)
-	/* make epoll come out of waiting state through event on evfd. */
+	/* make pselect come out of waiting state through event on evfd. */
 	errno = 0;
-	ret = write(ptr->evfd, &value, sizeof(value));
-	if(ret < 0) {
+	size = write(ptr->evfd, &value, sizeof(value));
+	if(size != sizeof(uint64_t)) {
 		pthread_mutex_unlock(&mutex);
 		throw_serialcom_exception(env, 1, errno, NULL);
 		return -1;

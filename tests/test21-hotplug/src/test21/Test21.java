@@ -33,13 +33,24 @@ class portWatcher implements ISerialComUSBHotPlugListener {
 public class Test21 {
 	public static void main(String[] args) {
 		try {
+			int handle = 0;
 			SerialComManager scm = new SerialComManager();
 			portWatcher pw = new portWatcher();
-			
-//			scm.registerUSBHotPlugEventListener(pw, SerialComUSB.DEV_ANY, SerialComUSB.DEV_ANY);
-			scm.registerUSBHotPlugEventListener(pw, 0x0403, 0x6001, "A7036479");
-			Thread.sleep(3000);
-			scm.unregisterUSBHotPlugEventListener(pw);
+
+			//			handle = scm.registerUSBHotPlugEventListener(pw, SerialComUSB.DEV_ANY, SerialComUSB.DEV_ANY);
+
+			System.out.println("registering");
+			//			handle = scm.registerUSBHotPlugEventListener(pw, 0x0403, 0x6001, "A7036479");
+
+			handle = scm.registerUSBHotPlugEventListener(pw, 0x10C4, 0xEA60, "0001");
+
+			System.out.println("sleeping");
+			Thread.sleep(5000);
+
+			System.out.println("unregsitering");
+			scm.unregisterUSBHotPlugEventListener(handle);
+
+			System.out.println("unregistered");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

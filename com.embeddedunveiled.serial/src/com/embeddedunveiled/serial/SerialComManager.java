@@ -2050,68 +2050,56 @@ public final class SerialComManager {
 	 * @param filterVID USB vendor ID to match.
 	 * @param filterPID USB product ID to match.
 	 * @param serialNumber serial number of USB device (case insensitive, optional) to match.
-	 * @return true on success.
+	 * @return opaque handle on success that should be passed to unregisterUSBHotPlugEventListener method 
+	 *          for unregistering this listener.
 	 * @throws SerialComException if registration fails due to some reason.
 	 * @throws IllegalArgumentException if hotPlugListener is null or if USB VID or USB PID are invalid numbers.
 	 */
-	public boolean registerUSBHotPlugEventListener(final ISerialComUSBHotPlugListener hotPlugListener, 
+	public int registerUSBHotPlugEventListener(final ISerialComUSBHotPlugListener hotPlugListener, 
 			int filterVID, int filterPID, String serialNumber) throws SerialComException {
+		
+		int opaqueHandle = 0;
+		
 		if(hotPlugListener == null) {
 			throw new IllegalArgumentException("Argument hotPlugListener can not be null !");
 		}
 
-		if((filterVID < 0) || (filterPID < 0)) {
-			throw new IllegalArgumentException("USB VID or PID can not be negative number(s) !");
+		if((filterVID < 0) || (filterPID < 0) || (filterVID > 0XFFFF) || (filterPID > 0XFFFF)) {
+			throw new IllegalArgumentException("USB VID or PID can not be negative number(s) or greater than 0xFFFF !");
 		}
 
 		synchronized(lockB) {
-			int ret = mComPortJNIBridge.registerUSBHotPlugEventListener(hotPlugListener, filterVID, filterPID, serialNumber);
-			if(ret < 0) {
-				throw new SerialComException("Failed to register USB hotplug listener. Please retry !");
-			}
-
-			boolean added = mUSBHotPlugListenerInfo.add(new SerialComUSBHotPlugInfo(hotPlugListener, ret));
-			if(added != true) {
-				unregisterUSBHotPlugEventListener(hotPlugListener);
-				throw new SerialComException("Could not save info about USB hot plug listener locally. Please retry !");
+			opaqueHandle = mComPortJNIBridge.registerUSBHotPlugEventListener(hotPlugListener, filterVID, filterPID, serialNumber);
+			if(opaqueHandle < 0) {
+				throw new SerialComException("Could not register USB device hotplug listener. Please retry !");
 			}
 		}
 
-		return true;
+		return opaqueHandle;
 	}
 
 	/**
-	 * <p>This unregisters listener and terminate native thread used for monitoring specified USB hot 
-	 * plug events.</p>
+	 * <p>This unregisters listener and terminate native thread used for monitoring specified USB device 
+	 * insertion or removal.</p>
 	 * 
-	 * @param hotPlugListener object of class which implemented ISerialComUSBHotPlugListener interface.
+	 * @param opaqueHandle handle returned by registerUSBHotPlugEventListener method for this listener.
 	 * @return true on success.
-	 * @throws SerialComException un-registration fails due to some reason.
-	 * @throws IllegalArgumentException if hotPlugListener is null.
+	 * @throws SerialComException if un-registration fails due to some reason.
+	 * @throws IllegalArgumentException if argument opaqueHandle is negative.
 	 */
-	public boolean unregisterUSBHotPlugEventListener(final ISerialComUSBHotPlugListener hotPlugListener) throws SerialComException {
-		int index = -1;
-		SerialComUSBHotPlugInfo mListenerInfo = null;
-		if(hotPlugListener == null) {
-			throw new IllegalArgumentException("Argument hotPlugListener can not be null !");
+	public boolean unregisterUSBHotPlugEventListener(final int opaqueHandle) throws SerialComException {
+		int ret = 0;
+		
+		if(opaqueHandle < 0) {
+			throw new IllegalArgumentException("Argument opaqueHandle can not be negative !");
 		}
-
-		for(SerialComUSBHotPlugInfo mInfo: mUSBHotPlugListenerInfo){
-			if(mInfo.getSerialComUSBHotPlugListener() ==  hotPlugListener) {
-				index = mInfo.getSerialComUSBHotPlugListenerIndex();
-				mListenerInfo = mInfo;
-				break;
-			}
-		}
-		if(index == -1) {
-			throw new SerialComException("This USB Hot plug listener is not registered !");
-		}
-
+		
 		synchronized(lockB) {
-			mComPortJNIBridge.unregisterUSBHotPlugEventListener(index);
-
-			/* delete info about this listener from global info arraylist. */
-			mUSBHotPlugListenerInfo.remove(mListenerInfo);
+			ret = mComPortJNIBridge.unregisterUSBHotPlugEventListener(opaqueHandle);
+		}
+		
+		if(ret < 0) {
+			throw new SerialComException("Could not un-register USB device hotplug listener. Please retry !");
 		}
 
 		return true;
