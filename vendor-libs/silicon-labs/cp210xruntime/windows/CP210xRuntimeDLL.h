@@ -1,4 +1,3 @@
-
 // The following ifdef block is the standard way of creating macros which make exporting
 // from a DLL simpler. All files within this DLL are compiled with the CP210xRUNTIMEDLL_EXPORTS
 // symbol defined on the command line. this symbol should not be defined on any project
@@ -68,39 +67,39 @@ typedef     char    CP210x_SERIAL_STRING[CP210x_MAX_SERIAL_STRLEN];
 extern "C" {
 #endif // __cplusplus
 
-CP210xRUNTIMEDLL_API CP210x_STATUS WINAPI
-CP210xRT_ReadLatch( HANDLE cyHandle,
-                    LPWORD  lpLatch);
+	CP210xRUNTIMEDLL_API CP210x_STATUS WINAPI
+		CP210xRT_ReadLatch(HANDLE cyHandle,
+		LPWORD  lpLatch);
 
-CP210xRUNTIMEDLL_API CP210x_STATUS WINAPI
-CP210xRT_WriteLatch(HANDLE cyHandle,
-                    WORD    mask,
-                    WORD    latch);
+	CP210xRUNTIMEDLL_API CP210x_STATUS WINAPI
+		CP210xRT_WriteLatch(HANDLE cyHandle,
+		WORD    mask,
+		WORD    latch);
 
 
-CP210xRUNTIMEDLL_API CP210x_STATUS WINAPI
-CP210xRT_GetPartNumber(HANDLE cyHandle,
-                       LPBYTE   lpbPartNum);
+	CP210xRUNTIMEDLL_API CP210x_STATUS WINAPI
+		CP210xRT_GetPartNumber(HANDLE cyHandle,
+		LPBYTE   lpbPartNum);
 
-CP210xRUNTIMEDLL_API CP210x_STATUS WINAPI
-CP210xRT_GetDeviceProductString(HANDLE  cyHandle,
-                                LPVOID  lpProduct,
-                                LPBYTE  lpbLength,
-                                BOOL    bConvertToASCII = TRUE
-                                );
+	CP210xRUNTIMEDLL_API CP210x_STATUS WINAPI
+		CP210xRT_GetDeviceProductString(HANDLE  cyHandle,
+		LPVOID  lpProduct,
+		LPBYTE  lpbLength,
+		BOOL    bConvertToASCII
+		);
 
-CP210xRUNTIMEDLL_API CP210x_STATUS WINAPI
-CP210xRT_GetDeviceSerialNumber(HANDLE   cyHandle,
-                               LPVOID   lpSerialNumber,
-                               LPBYTE   lpbLength,
-                               BOOL     bConvertToASCII = TRUE
-                               );
+	CP210xRUNTIMEDLL_API CP210x_STATUS WINAPI
+		CP210xRT_GetDeviceSerialNumber(HANDLE   cyHandle,
+		LPVOID   lpSerialNumber,
+		LPBYTE   lpbLength,
+		BOOL     bConvertToASCII
+		);
 
-CP210xRUNTIMEDLL_API CP210x_STATUS WINAPI
-CP210xRT_GetDeviceInterfaceString(HANDLE	cyHandle,
-                                  LPVOID lpInterfaceString,
-                                  LPBYTE lpbLength,
-                                  BOOL bConvertToASCII);
+	CP210xRUNTIMEDLL_API CP210x_STATUS WINAPI
+		CP210xRT_GetDeviceInterfaceString(HANDLE	cyHandle,
+		LPVOID lpInterfaceString,
+		LPBYTE lpbLength,
+		BOOL bConvertToASCII);
 
 #ifdef __cplusplus
 }

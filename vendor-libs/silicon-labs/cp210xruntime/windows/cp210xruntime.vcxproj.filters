@@ -15,28 +15,19 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="ReadMe.txt" />
+    <ClCompile Include="scm_cp210xruntime.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="scm_cp210xruntime_exp.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="stdafx.h">
+    <ClInclude Include="CP210xRuntimeDLL.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="targetver.h">
+    <ClInclude Include="scm_cp210xruntime.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="windows_serial_lib.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="stdafx.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="windows_serial.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="windows_serial_lib.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
 </Project>
