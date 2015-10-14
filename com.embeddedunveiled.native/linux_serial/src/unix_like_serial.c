@@ -1015,8 +1015,8 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
  * This function handles partial write scenario for both vectored and non-vectored write operations.
  *
  * It does not modify the direct byte buffer attributes position, capacity, limit and mark. The application
- * design is expected to take care of this as and when required in appropriate manner. Also it does not consume
- * or modify the data in the given buffer.
+ * design is expected to take care of this as and when required in appropriate manner in Java layer itself.
+ * Also it does not consume or modify the data in the given buffer.
  *
  * @return number of bytes written to serial port on success otherwise -1 if an error occurs.
  * @throws SerialComException if any JNI function, system call or C function fails.
