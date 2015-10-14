@@ -9,8 +9,6 @@
 // Includes
 /////////////////////////////////////////////////////////////////////////////
 
-#include "Types.h"
-
 // GetProductString() function flags
 #define		CP210x_RETURN_SERIAL_NUMBER			0x00
 #define		CP210x_RETURN_DESCRIPTION			0x01
@@ -27,7 +25,7 @@
 #define		CP210x_CP2105_VERSION				0x05
 #define		CP210x_CP2108_VERSION				0x08
 #define		CP210x_CP2109_VERSION				0x09
-											
+
 // Return codes									
 #define		CP210x_SUCCESS                      0x00
 #define		CP210x_DEVICE_NOT_FOUND				0xFF
@@ -44,8 +42,8 @@
 typedef		int		CP210x_STATUS;
 
 #endif //_CP210x_STANDARD_DEF
-						
-						
+
+
 // Buffer size limits
 //
 // CP2101/2/3/4
@@ -240,42 +238,42 @@ typedef	struct
 //
 typedef struct
 {
-    WORD Mode_PB0;
-    WORD Mode_PB1;
-    WORD Mode_PB2;
-    WORD Mode_PB3;
-    WORD Mode_PB4;
+	WORD Mode_PB0;
+	WORD Mode_PB1;
+	WORD Mode_PB2;
+	WORD Mode_PB3;
+	WORD Mode_PB4;
 
-    WORD LowPower_PB0;
-    WORD LowPower_PB1;
-    WORD LowPower_PB2;
-    WORD LowPower_PB3;
-    WORD LowPower_PB4;
+	WORD LowPower_PB0;
+	WORD LowPower_PB1;
+	WORD LowPower_PB2;
+	WORD LowPower_PB3;
+	WORD LowPower_PB4;
 
-    WORD Latch_PB0;
-    WORD Latch_PB1;
-    WORD Latch_PB2;
-    WORD Latch_PB3;
-    WORD Latch_PB4;
+	WORD Latch_PB0;
+	WORD Latch_PB1;
+	WORD Latch_PB2;
+	WORD Latch_PB3;
+	WORD Latch_PB4;
 } QUAD_PORT_STATE;
 
 typedef struct
 {
-    QUAD_PORT_STATE Reset_Latch;
-    QUAD_PORT_STATE Suspend_Latch;
-    BYTE IPDelay_IFC0;
-    BYTE IPDelay_IFC1;
-    BYTE IPDelay_IFC2;
-    BYTE IPDelay_IFC3;
-    BYTE EnhancedFxn_IFC0;
-    BYTE EnhancedFxn_IFC1;
-    BYTE EnhancedFxn_IFC2;
-    BYTE EnhancedFxn_IFC3;
-    BYTE EnhancedFxn_Device;
-    BYTE ExtClk0Freq;
-    BYTE ExtClk1Freq;
-    BYTE ExtClk2Freq;
-    BYTE ExtClk3Freq;
+	QUAD_PORT_STATE Reset_Latch;
+	QUAD_PORT_STATE Suspend_Latch;
+	BYTE IPDelay_IFC0;
+	BYTE IPDelay_IFC1;
+	BYTE IPDelay_IFC2;
+	BYTE IPDelay_IFC3;
+	BYTE EnhancedFxn_IFC0;
+	BYTE EnhancedFxn_IFC1;
+	BYTE EnhancedFxn_IFC2;
+	BYTE EnhancedFxn_IFC3;
+	BYTE EnhancedFxn_Device;
+	BYTE ExtClk0Freq;
+	BYTE ExtClk1Freq;
+	BYTE ExtClk2Freq;
+	BYTE ExtClk3Freq;
 } QUAD_PORT_CONFIG;
 
 //
@@ -362,252 +360,252 @@ typedef struct
 extern "C" {
 #endif
 
-CP210x_STATUS CP210x_GetNumDevices(
-	LPDWORD	lpdwNumDevices
-	);
+	CP210x_STATUS CP210x_GetNumDevices(
+		LPDWORD	lpdwNumDevices
+		);
 
-CP210x_STATUS CP210x_GetProductString(
-	DWORD	dwDeviceNum,
-	LPVOID	lpvDeviceString,
-	DWORD	dwFlags
-	);
+	CP210x_STATUS CP210x_GetProductString(
+		DWORD	dwDeviceNum,
+		LPVOID	lpvDeviceString,
+		DWORD	dwFlags
+		);
 
-CP210x_STATUS CP210x_Open(
-	DWORD	dwDevice,
-	HANDLE*	cyHandle
-	); 
+	CP210x_STATUS CP210x_Open(
+		DWORD	dwDevice,
+		HANDLE*	cyHandle
+		);
 
-CP210x_STATUS CP210x_Close(
-	HANDLE	cyHandle
-	);
+	CP210x_STATUS CP210x_Close(
+		HANDLE	cyHandle
+		);
 
-CP210x_STATUS 
-CP210x_GetPartNumber(
-	HANDLE cyHandle,
-	LPBYTE	lpbPartNum
-	);
+	CP210x_STATUS
+		CP210x_GetPartNumber(
+		HANDLE cyHandle,
+		LPBYTE	lpbPartNum
+		);
 
-CP210x_STATUS	
-CP210x_SetVid(
-	HANDLE	cyHandle,
-	WORD	wVid
-	);
+	CP210x_STATUS
+		CP210x_SetVid(
+		HANDLE	cyHandle,
+		WORD	wVid
+		);
 
-CP210x_STATUS	
-CP210x_SetPid(
-	HANDLE	cyHandle,
-	WORD	wPid
-	);
+	CP210x_STATUS
+		CP210x_SetPid(
+		HANDLE	cyHandle,
+		WORD	wPid
+		);
 
-CP210x_STATUS	
-CP210x_SetManufacturerString(
-	HANDLE	cyHandle,
-	LPVOID	lpvManufacturer,
-	BYTE	bLength,
-	BOOL	bConvertToUnicode
-	);
+	CP210x_STATUS
+		CP210x_SetManufacturerString(
+		HANDLE	cyHandle,
+		LPVOID	lpvManufacturer,
+		BYTE	bLength,
+		BOOL	bConvertToUnicode
+		);
 
-CP210x_STATUS	
-CP210x_SetProductString(
-	HANDLE	cyHandle,
-	LPVOID	lpvProduct,
-	BYTE	bLength,
-	BOOL	bConvertToUnicode
-	);
+	CP210x_STATUS
+		CP210x_SetProductString(
+		HANDLE	cyHandle,
+		LPVOID	lpvProduct,
+		BYTE	bLength,
+		BOOL	bConvertToUnicode
+		);
 
-CP210x_STATUS	
-CP210x_SetInterfaceString(
-	HANDLE cyHandle,
-	BYTE bInterfaceNumber,
-	LPVOID lpvInterface,
-	BYTE bLength,
-	BOOL bConvertToUnicode
-	);
+	CP210x_STATUS
+		CP210x_SetInterfaceString(
+		HANDLE cyHandle,
+		BYTE bInterfaceNumber,
+		LPVOID lpvInterface,
+		BYTE bLength,
+		BOOL bConvertToUnicode
+		);
 
-CP210x_STATUS	
-CP210x_SetSerialNumber(
-	HANDLE	cyHandle,
-	LPVOID	lpvSerialNumber,
-	BYTE	bLength,
-	BOOL	bConvertToUnicode
-	);
+	CP210x_STATUS
+		CP210x_SetSerialNumber(
+		HANDLE	cyHandle,
+		LPVOID	lpvSerialNumber,
+		BYTE	bLength,
+		BOOL	bConvertToUnicode
+		);
 
-CP210x_STATUS	
-CP210x_SetSelfPower(
-	HANDLE cyHandle, 
-	BOOL bSelfPower
-	);
+	CP210x_STATUS
+		CP210x_SetSelfPower(
+		HANDLE cyHandle,
+		BOOL bSelfPower
+		);
 
-CP210x_STATUS	
-CP210x_SetMaxPower(
-	HANDLE cyHandle,
-	BYTE bMaxPower
-	);
+	CP210x_STATUS
+		CP210x_SetMaxPower(
+		HANDLE cyHandle,
+		BYTE bMaxPower
+		);
 
-CP210x_STATUS	
-CP210x_SetFlushBufferConfig(
-	HANDLE cyHandle,
-	WORD wFlushBufferConfig
-	);
+	CP210x_STATUS
+		CP210x_SetFlushBufferConfig(
+		HANDLE cyHandle,
+		WORD wFlushBufferConfig
+		);
 
-CP210x_STATUS	
-CP210x_SetDeviceMode(
-	HANDLE cyHandle,
-	BYTE bDeviceModeECI,
-	BYTE bDeviceModeSCI
-	);
+	CP210x_STATUS
+		CP210x_SetDeviceMode(
+		HANDLE cyHandle,
+		BYTE bDeviceModeECI,
+		BYTE bDeviceModeSCI
+		);
 
-CP210x_STATUS	
-CP210x_SetDeviceVersion(
-	HANDLE cyHandle,
-	WORD wVersion
-	);
+	CP210x_STATUS
+		CP210x_SetDeviceVersion(
+		HANDLE cyHandle,
+		WORD wVersion
+		);
 
-CP210x_STATUS 
-CP210x_SetBaudRateConfig(
-	HANDLE	cyHandle,
-	BAUD_CONFIG* baudConfigData
-	);
+	CP210x_STATUS
+		CP210x_SetBaudRateConfig(
+		HANDLE	cyHandle,
+		BAUD_CONFIG* baudConfigData
+		);
 
-CP210x_STATUS 
-CP210x_SetPortConfig(	
-	HANDLE cyHandle,
-	PORT_CONFIG*	PortConfig
-	);
+	CP210x_STATUS
+		CP210x_SetPortConfig(
+		HANDLE cyHandle,
+		PORT_CONFIG*	PortConfig
+		);
 
-CP210x_STATUS 
-CP210x_SetDualPortConfig(	
-	HANDLE cyHandle,
-	DUAL_PORT_CONFIG*	DualPortConfig
-	);
+	CP210x_STATUS
+		CP210x_SetDualPortConfig(
+		HANDLE cyHandle,
+		DUAL_PORT_CONFIG*	DualPortConfig
+		);
 
-CP210x_STATUS 
-CP210x_SetQuadPortConfig(	
-	HANDLE cyHandle,
-	QUAD_PORT_CONFIG*	QuadPortConfig
-	);
+	CP210x_STATUS
+		CP210x_SetQuadPortConfig(
+		HANDLE cyHandle,
+		QUAD_PORT_CONFIG*	QuadPortConfig
+		);
 
-CP210x_STATUS 
-CP210x_SetLockValue(
-	HANDLE cyHandle
-	);
+	CP210x_STATUS
+		CP210x_SetLockValue(
+		HANDLE cyHandle
+		);
 
-CP210x_STATUS	
-CP210x_GetDeviceVid(
-	HANDLE	cyHandle,
-	LPWORD	lpwVid
-	);
+	CP210x_STATUS
+		CP210x_GetDeviceVid(
+		HANDLE	cyHandle,
+		LPWORD	lpwVid
+		);
 
-CP210x_STATUS	
-CP210x_GetDevicePid(
-	HANDLE	cyHandle,
-	LPWORD	lpwPid
-	);
+	CP210x_STATUS
+		CP210x_GetDevicePid(
+		HANDLE	cyHandle,
+		LPWORD	lpwPid
+		);
 
-CP210x_STATUS	
-CP210x_GetDeviceManufacturerString(	
-	HANDLE	cyHandle,
-	LPVOID	lpManufacturer,
-	LPBYTE	lpbLength,
-	BOOL	bConvertToASCII
-	);
+	CP210x_STATUS
+		CP210x_GetDeviceManufacturerString(
+		HANDLE	cyHandle,
+		LPVOID	lpManufacturer,
+		LPBYTE	lpbLength,
+		BOOL	bConvertToASCII
+		);
 
-CP210x_STATUS	
-CP210x_GetDeviceProductString(	
-	HANDLE	cyHandle,
-	LPVOID	lpProduct,
-	LPBYTE	lpbLength,
-	BOOL	bConvertToASCII
-	);
+	CP210x_STATUS
+		CP210x_GetDeviceProductString(
+		HANDLE	cyHandle,
+		LPVOID	lpProduct,
+		LPBYTE	lpbLength,
+		BOOL	bConvertToASCII
+		);
 
-CP210x_STATUS	
-CP210x_GetDeviceInterfaceString(
-	HANDLE cyHandle,
-	BYTE bInterfaceNumber,
-	LPVOID lpInterface,
-	LPBYTE lpbLength,
-	BOOL bConvertToASCII
-	);
+	CP210x_STATUS
+		CP210x_GetDeviceInterfaceString(
+		HANDLE cyHandle,
+		BYTE bInterfaceNumber,
+		LPVOID lpInterface,
+		LPBYTE lpbLength,
+		BOOL bConvertToASCII
+		);
 
-CP210x_STATUS	
-CP210x_GetDeviceSerialNumber(	
-	HANDLE	cyHandle,
-	LPVOID	lpSerialNumber,
-	LPBYTE	lpbLength,
-	BOOL	bConvertToASCII
-	);
+	CP210x_STATUS
+		CP210x_GetDeviceSerialNumber(
+		HANDLE	cyHandle,
+		LPVOID	lpSerialNumber,
+		LPBYTE	lpbLength,
+		BOOL	bConvertToASCII
+		);
 
-CP210x_STATUS	
-CP210x_GetSelfPower(
-	HANDLE	cyHandle,
-	LPBOOL	lpbSelfPower
-	);
+	CP210x_STATUS
+		CP210x_GetSelfPower(
+		HANDLE	cyHandle,
+		LPBOOL	lpbSelfPower
+		);
 
-CP210x_STATUS	
-CP210x_GetMaxPower(
-	HANDLE	cyHandle,
-	LPBYTE	lpbPower
-	);
+	CP210x_STATUS
+		CP210x_GetMaxPower(
+		HANDLE	cyHandle,
+		LPBYTE	lpbPower
+		);
 
-CP210x_STATUS	
-CP210x_GetFlushBufferConfig(
-	HANDLE cyHandle,
-	LPWORD lpwFlushBufferConfig
-	);
+	CP210x_STATUS
+		CP210x_GetFlushBufferConfig(
+		HANDLE cyHandle,
+		LPWORD lpwFlushBufferConfig
+		);
 
-CP210x_STATUS	
-CP210x_GetDeviceMode(
-	HANDLE cyHandle,
-	LPBYTE lpbDeviceModeECI,
-	LPBYTE lpbDeviceModeSCI
-	);
+	CP210x_STATUS
+		CP210x_GetDeviceMode(
+		HANDLE cyHandle,
+		LPBYTE lpbDeviceModeECI,
+		LPBYTE lpbDeviceModeSCI
+		);
 
-CP210x_STATUS	
-CP210x_GetDeviceVersion(
-	HANDLE	cyHandle,
-	LPWORD	lpwVersion
-	);
+	CP210x_STATUS
+		CP210x_GetDeviceVersion(
+		HANDLE	cyHandle,
+		LPWORD	lpwVersion
+		);
 
-CP210x_STATUS 
-CP210x_GetBaudRateConfig(
-	HANDLE	cyHandle,
-	BAUD_CONFIG* baudConfigData
-	);
+	CP210x_STATUS
+		CP210x_GetBaudRateConfig(
+		HANDLE	cyHandle,
+		BAUD_CONFIG* baudConfigData
+		);
 
-CP210x_STATUS 
-CP210x_GetPortConfig(	
-	HANDLE cyHandle,
-	PORT_CONFIG*	PortConfig
-	);
+	CP210x_STATUS
+		CP210x_GetPortConfig(
+		HANDLE cyHandle,
+		PORT_CONFIG*	PortConfig
+		);
 
-CP210x_STATUS 
-CP210x_GetDualPortConfig(	
-	HANDLE cyHandle,
-	DUAL_PORT_CONFIG*	DualPortConfig
-	);
+	CP210x_STATUS
+		CP210x_GetDualPortConfig(
+		HANDLE cyHandle,
+		DUAL_PORT_CONFIG*	DualPortConfig
+		);
 
-CP210x_STATUS 
-CP210x_GetQuadPortConfig(	
-	HANDLE cyHandle,
-	QUAD_PORT_CONFIG*	QuadPortConfig
-	);
+	CP210x_STATUS
+		CP210x_GetQuadPortConfig(
+		HANDLE cyHandle,
+		QUAD_PORT_CONFIG*	QuadPortConfig
+		);
 
-CP210x_STATUS 
-CP210x_GetLockValue(	
-	HANDLE cyHandle,
-	LPBYTE	lpbLockValue
-	);
+	CP210x_STATUS
+		CP210x_GetLockValue(
+		HANDLE cyHandle,
+		LPBYTE	lpbLockValue
+		);
 
-CP210x_STATUS	
-CP210x_Reset(
-	HANDLE	cyHandle
-	);
+	CP210x_STATUS
+		CP210x_Reset(
+		HANDLE	cyHandle
+		);
 
-CP210x_STATUS 
-CP210x_CreateHexFile(	
-	HANDLE cyHandle,
-	LPCSTR lpvFileName
-	);
+	CP210x_STATUS
+		CP210x_CreateHexFile(
+		HANDLE cyHandle,
+		LPCSTR lpvFileName
+		);
 
 
 #ifdef __cplusplus

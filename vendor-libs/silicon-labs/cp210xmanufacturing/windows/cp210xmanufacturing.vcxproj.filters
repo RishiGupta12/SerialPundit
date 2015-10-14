@@ -15,27 +15,18 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="ReadMe.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="stdafx.h">
+    <ClInclude Include="CP210xManufacturing.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="targetver.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="windows_serial_lib.h">
+    <ClInclude Include="scm_cp210xmanufacturing.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="stdafx.c">
+    <ClCompile Include="scm_210xmanufacturing.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="windows_serial.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="windows_serial_lib.c">
+    <ClCompile Include="scm_210xmanufacturing_exp.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
