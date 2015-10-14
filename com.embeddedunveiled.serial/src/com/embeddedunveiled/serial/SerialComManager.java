@@ -31,7 +31,6 @@ import com.embeddedunveiled.serial.internal.SerialComBluetoothJNIBridge;
 import com.embeddedunveiled.serial.internal.SerialComCompletionDispatcher;
 import com.embeddedunveiled.serial.internal.SerialComErrorMapper;
 import com.embeddedunveiled.serial.internal.SerialComHIDJNIBridge;
-import com.embeddedunveiled.serial.internal.SerialComUSBHotPlugInfo;
 import com.embeddedunveiled.serial.internal.SerialComLooper;
 import com.embeddedunveiled.serial.internal.SerialComPlatform;
 import com.embeddedunveiled.serial.internal.SerialComPortHandleInfo;
@@ -374,9 +373,6 @@ public final class SerialComManager {
 	 *  making structural changes. This array can be sorted array if scaled to large scale.</p>*/
 	private ArrayList<SerialComPortHandleInfo> handleInfo = new ArrayList<SerialComPortHandleInfo>();
 	private List<SerialComPortHandleInfo> mPortHandleInfo = Collections.synchronizedList(handleInfo);
-
-	private ArrayList<SerialComUSBHotPlugInfo> usbHotPlugListenerInfo = new ArrayList<SerialComUSBHotPlugInfo>();
-	private List<SerialComUSBHotPlugInfo> mUSBHotPlugListenerInfo = Collections.synchronizedList(usbHotPlugListenerInfo);
 
 	private SerialComIOCTLExecutor mSerialComIOCTLExecutor;
 	private SerialComUSB mSerialComUSB;
