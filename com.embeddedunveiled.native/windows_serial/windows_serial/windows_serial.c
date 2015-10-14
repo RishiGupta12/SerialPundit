@@ -16,9 +16,11 @@
 *
 *************************************************************************************************************/
 
-/* Project is built with unicode character-set enabled. */
+/* Project is built with unicode character set enabled. The multi threaded (MD) version of run time library is 
+ * used. Worker threads are created through _beginthreadex() to make sure CRT functions are accessed in thread 
+ * safe way. */
 
-/* stdafx.h must come as first include file if you are using precompiled headers and Microsoft compiler. */
+/* stdafx.h must come as first include when using precompiled headers and Microsoft compiler. */
 #include "stdafx.h"
 
 /* C */
@@ -54,15 +56,15 @@ JavaVM *jvm;
 int dtp_index = 0;
 struct looper_thread_params handle_looper_info[MAX_NUM_THREADS] = { 0 };
 
-/* Holds information for port monitor facility. */
-int port_monitor_index = 0;
-struct port_info port_monitor_info[MAX_NUM_THREADS] = { { 0 } };
+/* Holds information for USB hot plug monitor facility. */
+int usb_dev_monitor_index = 0;
+struct usb_dev_monitor_info usb_hotplug_monitor_info[MAX_NUM_THREADS] = { { 0 } };
 
 /* The threads of a single process can use a critical section object for mutual-exclusion synchronization.
  * Used to protect global data from concurrent access. */
 CRITICAL_SECTION csmutex;
 
-/* Called when library is loaded or un-loaded. This clean up resources on library exit. */
+/* Called when this shared library is loaded or un-loaded. This clean up resources on library exit. */
 BOOL WINAPI DllMain(HANDLE hModule, DWORD reason_for_call, LPVOID lpReserved) {
 	switch (reason_for_call) {
 		case DLL_PROCESS_DETACH:
@@ -123,11 +125,11 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
  * @return version string if function succeeds otherwise NULL.
  * @throws SerialComException if any JNI function, Win API call or C function fails.
  */
-JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_getNativeLibraryVersion(JNIEnv *env, 
-	jobject obj) {
+JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_getNativeLibraryVersion(JNIEnv *env, jobject obj) {
 	jstring version = NULL;
 	version = (*env)->NewStringUTF(env, UART_NATIVE_LIB_VERSION);
 	if((version == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+		(*env)->ExceptionClear(env);
 		throw_serialcom_exception(env, 3, 0, E_NEWSTRUTFSTR);
 		return NULL;
 	}
@@ -301,7 +303,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
  * @throws SerialComException if any JNI function, Win API call or C function fails.
 
  */
-JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_listComPortFromUSBAttributes(JNIEnv *env,
+JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_findComPortFromUSBAttributes(JNIEnv *env,
 		jobject obj, jint vid, jint pid, jstring serial) {
 	return vcp_node_from_usb_attributes(env, vid, pid, serial);
 }
@@ -309,7 +311,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
  * Method:    isUSBDevConnected
- * Signature: (II)I
+ * Signature: (IILjava/lang/String;)I
  *
  * Enumerate and check if given usb device identified by its USB-IF VID and PID is connected to
  * system or not. USB serial number is optional and case-insensitive.
@@ -485,7 +487,6 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
 
 	/* Close the port. */
 	ret = CloseHandle((HANDLE)handle);
-
 	if(ret == 0) {
 		errorVal = GetLastError();
 		if(errorVal == ERROR_INVALID_HANDLE) {
@@ -531,7 +532,6 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialCom
 		jobject obj, jlong handle, jint count) {
 
 	int ret = 0;
-	HANDLE hComm = (HANDLE)handle;
 	DWORD errorVal = 0;
 	jbyte data_buf[2*1024];
 	OVERLAPPED overlapped;
@@ -548,7 +548,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialCom
 	}
 
 	/* ReadFile resets the event to a nonsignaled state when it begins the I/O operation. */
-	ret = ReadFile(hComm, data_buf, count, &num_of_bytes_read, &overlapped);
+	ret = ReadFile((HANDLE)handle, data_buf, count, &num_of_bytes_read, &overlapped);
 
 	if(ret == 0) {
 		errorVal = GetLastError();
@@ -557,7 +557,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialCom
 			wait_status = WaitForSingleObject(overlapped.hEvent, 1000);
 
 			if(wait_status == WAIT_OBJECT_0) {
-				ret = GetOverlappedResult(hComm, &overlapped, &num_of_bytes_read, FALSE);
+				ret = GetOverlappedResult((HANDLE)handle, &overlapped, &num_of_bytes_read, FALSE);
 				CloseHandle(overlapped.hEvent);
 
 				if(ret > 0) {
@@ -647,7 +647,6 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialCom
 		jobject obj, jlong handle, jint count) {
 	
 	int ret = 0;
-	HANDLE hComm = (HANDLE)handle;
 	DWORD errorVal;
 	jbyte data_buf[2 * 1024];
 	DWORD num_of_bytes_read;
@@ -669,12 +668,12 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialCom
 			return NULL;
 		}
 
-		ret = WaitCommEvent(hComm, &events_mask, &overlapped);
+		ret = WaitCommEvent((HANDLE)handle, &events_mask, &overlapped);
 		if(ret == 0) {
 			errorVal = GetLastError();
 			if(errorVal == ERROR_IO_PENDING) {
 				wait_status = WaitForSingleObject(overlapped.hEvent, INFINITE);
-				ClearCommError(hComm, &errors, &comstat);
+				ClearCommError((HANDLE)handle, &errors, &comstat);
 				if(comstat.cbInQue == 0) {
 					CloseHandle(overlapped.hEvent);
 					continue;
@@ -697,7 +696,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialCom
 				}
 			}
 		}else {
-			ClearCommError(hComm, &errors, &comstat);
+			ClearCommError((HANDLE)handle, &errors, &comstat);
 			if(comstat.cbInQue == 0) {
 				CloseHandle(overlapped.hEvent);
 				continue;
@@ -714,7 +713,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialCom
 	}
 
 	/* ReadFile resets the event to a nonsignaled state when it begins the I/O operation. */
-	ret = ReadFile(hComm, data_buf, count, &num_of_bytes_read, &ovRead);
+	ret = ReadFile((HANDLE)handle, data_buf, count, &num_of_bytes_read, &ovRead);
 
 	if(ret == 0) {
 		errorVal = GetLastError();
@@ -723,7 +722,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialCom
 			wait_status = WaitForSingleObject(ovRead.hEvent, 1000);
 
 			if(wait_status == WAIT_OBJECT_0) {
-				ret = GetOverlappedResult(hComm, &ovRead, &num_of_bytes_read, FALSE);
+				ret = GetOverlappedResult((HANDLE)handle, &ovRead, &num_of_bytes_read, FALSE);
 				if(ret > 0) {
 					/* return data read from serial port */
 					data_read = (*env)->NewByteArray(env, num_of_bytes_read);
@@ -863,14 +862,14 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
 	
 	int ret = 0;
 	int status = 0;
+	int index = 0;
 	BOOL result = FALSE;
 	DWORD errorVal = 0;
-	HANDLE hComm = (HANDLE)handle;
+	OVERLAPPED ovWrite;
+	DWORD num_of_bytes_written = 0;
+
 	jbyte* data_buf = (*env)->GetByteArrayElements(env, buffer, JNI_FALSE);
 	DWORD num_bytes_to_write = (*env)->GetArrayLength(env, buffer);
-	DWORD num_of_bytes_written = 0;
-	OVERLAPPED ovWrite;
-	int index = 0;
 
 	/* Only hEvent member need to be initialled and others can be left 0. */
 	memset(&ovWrite, 0, sizeof(ovWrite));
@@ -882,62 +881,65 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
 	}
 
 	if(delay == 0) {
-		// no delay between successive bytes sent
-		result = WriteFile(hComm, data_buf, num_bytes_to_write, &num_of_bytes_written, &ovWrite);
+		/* no delay between successive bytes sent */
+		result = WriteFile((HANDLE)handle, data_buf, num_bytes_to_write, &num_of_bytes_written, &ovWrite);
 		if(result == FALSE) {
 			errorVal = GetLastError();
 			if(errorVal == ERROR_IO_PENDING) {
 				if(WaitForSingleObject(ovWrite.hEvent, 1000) == WAIT_OBJECT_0) {
-					ret = GetOverlappedResult(hComm, &ovWrite, &num_of_bytes_written, TRUE);
+					ret = GetOverlappedResult((HANDLE)handle, &ovWrite, &num_of_bytes_written, TRUE);
 					if(ret == 0) {
-						errorVal = GetLastError();
-						status = -1;
+						(*env)->ReleaseByteArrayElements(env, buffer, data_buf, 0);
+						CloseHandle(ovWrite.hEvent);
+						throw_serialcom_exception(env, 4, GetLastError(), NULL);
+						return -1;
 					}else {
-						// success, so flush all data out of serial port
-						FlushFileBuffers(hComm);
+						/* success, so flush all data out of serial port */
+						FlushFileBuffers((HANDLE)handle);
 					}
 				}
 			}else {
-				status = -1;
+				(*env)->ReleaseByteArrayElements(env, buffer, data_buf, 0);
+				CloseHandle(ovWrite.hEvent);
+				throw_serialcom_exception(env, 4, errorVal, NULL);
+				return -1;
 			}
 		}else {
-			// success in one shot
-			FlushFileBuffers(hComm);
+			/* success in one shot, so flush all data out of serial port */
+			FlushFileBuffers((HANDLE)handle);
 		}
 	}else {
-		// delay between successive bytes sent
+		/* delay between successive bytes sent */
 		while (num_bytes_to_write > 0) {
-			result = WriteFile(hComm, &data_buf[index], 1, &num_of_bytes_written, &ovWrite);
+			result = WriteFile((HANDLE)handle, &data_buf[index], 1, &num_of_bytes_written, &ovWrite);
 			if(result == FALSE) {
 				errorVal = GetLastError();
 				if(errorVal == ERROR_IO_PENDING) {
 					if(WaitForSingleObject(ovWrite.hEvent, 1000) == WAIT_OBJECT_0) {
-						ret = GetOverlappedResult(hComm, &ovWrite, &num_of_bytes_written, TRUE);
+						ret = GetOverlappedResult((HANDLE)handle, &ovWrite, &num_of_bytes_written, TRUE);
 						if(ret == 0) {
-							errorVal = GetLastError();
-							num_bytes_to_write = -1;
-							status = -1;
+							(*env)->ReleaseByteArrayElements(env, buffer, data_buf, 0);
+							CloseHandle(ovWrite.hEvent);
+							throw_serialcom_exception(env, 4, GetLastError(), NULL);
+							return -1;
 						}
 					}
 				}else {
-					num_bytes_to_write = -1;
-					status = -1;
+					(*env)->ReleaseByteArrayElements(env, buffer, data_buf, 0);
+					CloseHandle(ovWrite.hEvent);
+					throw_serialcom_exception(env, 4, errorVal, NULL);
+					return -1;
 				}
 			}
 			num_bytes_to_write -= num_of_bytes_written;
 			index = index + num_of_bytes_written;
-			FlushFileBuffers(hComm);
+			FlushFileBuffers((HANDLE)handle);
 			serial_delay(delay);
 		}
 	}
 
 	(*env)->ReleaseByteArrayElements(env, buffer, data_buf, 0);
 	CloseHandle(ovWrite.hEvent);
-
-	if(-1 == status) {
-		throw_serialcom_exception(env, 4, errorVal, NULL);
-	}
-
 	return 0;
 }
 
@@ -947,21 +949,95 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
  * Signature: (JLjava/nio/ByteBuffer;II)I
  *
  * Sends data bytes from Java NIO direct byte buffer out of serial port from the given position upto
- * length number of bytes. If the number of bytes to be written is less than or equal to 3*1024
- * non-vectored write() is used otherwise vectored writev() is used.
- *
- * This function handles partial write scenario for both vectored and non-vectored write operations.
+ * length number of bytes in chunks of 1024 bytes. This function handles partial write scenario for write 
+ * operations.
  *
  * It does not modify the direct byte buffer attributes position, capacity, limit and mark. The application
- * design is expected to take care of this as and when required in appropriate manner. Also it does not consume
- * or modify the data in the given buffer.
+ * design is expected to take care of this as and when required in appropriate manner in Java layer itself. 
+ * Also it does not consume or modify the data in the given buffer.
  *
  * @return number of bytes written to serial port on success otherwise -1 if an error occurs.
  * @throws SerialComException if any JNI function, Win API call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_writeBytesDirect(JNIEnv *env,
-		jobject obj, jlong fd, jobject buffer, jint offset, jint length) {
-	return -1;
+		jobject obj, jlong handle, jobject buffer, jint offset, jint length) {
+
+	int i = 0;
+	int ret = 0;
+	BOOL result = FALSE;
+	int index = 0;
+	DWORD num_of_bytes_written = 0;
+	DWORD num_bytes_to_write = 0;
+	int total_bytes_written = 0;
+	int remaining_bytes = 0;
+	OVERLAPPED ovWrite;
+	jbyte* data_buf = NULL;
+	DWORD errorVal = 0;
+
+	/* get base address of this direct byte buffer */
+	data_buf = (jbyte *)(*env)->GetDirectBufferAddress(env, buffer);
+	if ((data_buf == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+		throw_serialcom_exception(env, 3, 0, E_GETDIRCTBUFADDRSTR);
+		return -1;
+	}
+
+	/* Only hEvent member need to be initialled and others can be left 0. */
+	memset(&ovWrite, 0, sizeof(ovWrite));
+	ovWrite.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
+	if (ovWrite.hEvent == NULL) {
+		(*env)->ReleaseByteArrayElements(env, buffer, data_buf, 0);
+		throw_serialcom_exception(env, 4, GetLastError(), NULL);
+		return -1;
+	}
+
+	/* initial settings for WriteFile() */
+	index = offset;
+	if (length < 1024) {
+		num_bytes_to_write = length;
+	}else {
+		num_bytes_to_write = 1024;
+	}
+
+	while (total_bytes_written < length) {
+		result = WriteFile((HANDLE)handle, &data_buf[index], num_bytes_to_write, &num_of_bytes_written, &ovWrite);
+		if (result == FALSE) {
+			errorVal = GetLastError();
+			if (errorVal == ERROR_IO_PENDING) {
+				if (WaitForSingleObject(ovWrite.hEvent, 1000) == WAIT_OBJECT_0) {
+					ret = GetOverlappedResult((HANDLE)handle, &ovWrite, &num_of_bytes_written, TRUE);
+					if (ret == 0) {
+						(*env)->ReleaseByteArrayElements(env, buffer, data_buf, 0);
+						CloseHandle(ovWrite.hEvent);
+						throw_serialcom_exception(env, 4, GetLastError(), NULL);
+						return -1;
+					}
+					/* success, sent data out of serial port physically */
+					FlushFileBuffers((HANDLE)handle);
+				}
+			}else {
+				(*env)->ReleaseByteArrayElements(env, buffer, data_buf, 0);
+				CloseHandle(ovWrite.hEvent);
+				throw_serialcom_exception(env, 4, errorVal, NULL);
+				return -1;
+			}
+		}else {
+			/* success in one shot, sent data out of serial port physically */
+			FlushFileBuffers((HANDLE)handle);
+		}
+
+		total_bytes_written = total_bytes_written + num_of_bytes_written;
+		index = index + num_of_bytes_written;
+		remaining_bytes = length - total_bytes_written;
+		if (remaining_bytes >= 1024) {
+			num_bytes_to_write = 1024;
+		}else {
+			num_bytes_to_write = remaining_bytes;
+		}
+	}
+
+	(*env)->ReleaseByteArrayElements(env, buffer, data_buf, 0);
+	CloseHandle(ovWrite.hEvent);
+	return total_bytes_written;
 }
 
 /*
@@ -1207,6 +1283,30 @@ JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComP
 	return NULL;
 }
 
+/* clean up and throw exception if function to get current serial port configuration fails. */
+jobject getCurrentConfigurationW_clean_exp(JNIEnv *env, int task, const char *expmsg, struct jstrarray_list *list) {
+	(*env)->ExceptionClear(env);
+	free_jstrarraylist(list);
+
+	jclass serialComExceptionClass = (*env)->FindClass(env, SCOMEXPCLASS);
+	if ((serialComExceptionClass == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+		(*env)->ExceptionClear(env);
+		if (task == 1) {
+			LOGE(E_FINDCLASSSCOMEXPSTR, E_NEWSTRUTFSTR);
+		}else {
+			LOGE(E_FINDCLASSSCOMEXPSTR, expmsg);
+		}
+		return NULL;
+	}
+
+	if (task == 1) {
+		(*env)->ThrowNew(env, serialComExceptionClass, E_NEWSTRUTFSTR);
+	}else {
+		(*env)->ThrowNew(env, serialComExceptionClass, expmsg);
+	}
+	return NULL;
+}
+
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
  * Method:    getCurrentConfigurationW
@@ -1219,420 +1319,298 @@ JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComP
 JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_getCurrentConfigurationW(JNIEnv *env,
 	jobject obj, jlong handle) {
 	
+	DCB dcb;
 	int ret = 0;
-	HANDLE hComm = (HANDLE)handle;
-	DCB dcb = { 0 };
-	char tmp[100] = { 0 };  /* 100 is selected randomly. */
-	char tmp1[100] = { 0 };
-	char *tmp1Ptr = tmp1;
+	int x = 0;
+	char buffer[128];
+	struct jstrarray_list list = { 0 };
+	jstring info;
+	jclass strClass = NULL;
+	jobjectArray currentConfigurationRead = NULL;
+
+	init_jstrarraylist(&list, 35);
 
 	FillMemory(&dcb, sizeof(dcb), 0);
 	dcb.DCBlength = sizeof(DCB);
-	ret = GetCommState(hComm, &dcb);
+	ret = GetCommState((HANDLE)handle, &dcb);
 	if(ret == 0) {
 		throw_serialcom_exception(env, 4, GetLastError(), NULL);
 		return NULL;
 	}
 
-	jclass strClass = (*env)->FindClass(env, "java/lang/String");
-	if((*env)->ExceptionOccurred(env)) {
-		throw_serialcom_exception(env, 3, GetLastError(), E_FINDCLASSSSTRINGSTR);
-		return NULL;
+	_snprintf_s(buffer, 128, 128, "DCBlength : %lu\0", dcb.DCBlength);
+	info = (*env)->NewStringUTF(env, buffer);
+	if ((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+		return getCurrentConfigurationW_clean_exp(env, 1, 0, &list);
 	}
+	insert_jstrarraylist(&list, info);
 
-	jobjectArray current_config = (*env)->NewObjectArray(env, 28, strClass, NULL);
-	if((*env)->ExceptionOccurred(env)) {
-		/* TODO */
+	_snprintf_s(buffer, 128, 128, "BaudRate : %lu\0", dcb.BaudRate);
+	info = (*env)->NewStringUTF(env, buffer);
+	if ((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+		return getCurrentConfigurationW_clean_exp(env, 1, 0, &list);
 	}
+	insert_jstrarraylist(&list, info);
 
-	char* dcblength = "DCBlength : ";
-	memset(tmp, 0, sizeof(tmp));
-	memset(tmp1, 0, sizeof(tmp1));
-	strcpy_s(tmp, sizeof(tmp), dcblength);
-	sprintf_s(tmp1, sizeof(tmp1), "%lu", dcb.DCBlength);
-	strcat_s(tmp, sizeof(tmp), tmp1Ptr);
-	strcat_s(tmp, sizeof(tmp), "\n");
-	(*env)->SetObjectArrayElement(env, current_config, 0, (*env)->NewStringUTF(env, tmp));
-	if((*env)->ExceptionOccurred(env)) {
-		throw_serialcom_exception(env, 4, 0, E_SETOBJECTARRAYSTR);
-		return NULL;
-	}
-
-	char* dcbbaud = "BaudRate : ";
-	memset(tmp, 0, sizeof(tmp));
-	memset(tmp1, 0, sizeof(tmp1));
-	strcpy_s(tmp, sizeof(tmp), dcbbaud);
-	sprintf_s(tmp1, sizeof(tmp1), "%lu", dcb.BaudRate);
-	strcat_s(tmp, sizeof(tmp), tmp1Ptr);
-	strcat_s(tmp, sizeof(tmp), "\n");
-	(*env)->SetObjectArrayElement(env, current_config, 1, (*env)->NewStringUTF(env, tmp));
-	if((*env)->ExceptionOccurred(env)) {
-		throw_serialcom_exception(env, 4, 0, E_SETOBJECTARRAYSTR);
-		return NULL;
-	}
-
-	char* dcbbin = "fBinary : ";
-	memset(tmp, 0, sizeof(tmp));
-	strcpy_s(tmp, sizeof(tmp), dcbbin);
-	if(dcb.fBinary == TRUE) {
-		strcat_s(tmp, sizeof(tmp), "TRUE");
+	if (dcb.fBinary == TRUE) {
+		_snprintf_s(buffer, 128, 128, "fBinary : TRUE\0");
 	}else {
-		strcat_s(tmp, sizeof(tmp), "FALSE");
+		_snprintf_s(buffer, 128, 128, "fBinary : FALSE\0");
 	}
-	strcat_s(tmp, sizeof(tmp), "\n");
-	(*env)->SetObjectArrayElement(env, current_config, 2, (*env)->NewStringUTF(env, tmp));
-	if((*env)->ExceptionOccurred(env)) {
-		throw_serialcom_exception(env, 4, 0, E_SETOBJECTARRAYSTR);
-		return NULL;
+	info = (*env)->NewStringUTF(env, buffer);
+	if ((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+		return getCurrentConfigurationW_clean_exp(env, 1, 0, &list);
 	}
+	insert_jstrarraylist(&list, info);
 
-	char* dcbpar = "fParity : ";
-	memset(tmp, 0, sizeof(tmp));
-	strcpy_s(tmp, sizeof(tmp), dcbpar);
-	if(dcb.fParity == TRUE) {
-		strcat_s(tmp, sizeof(tmp), "TRUE");
+	if (dcb.fParity == TRUE) {
+		_snprintf_s(buffer, 128, 128, "fParity : TRUE\0");
 	}else {
-		strcat_s(tmp, sizeof(tmp), "FALSE");
+		_snprintf_s(buffer, 128, 128, "fParity : FALSE\0");
 	}
-	strcat_s(tmp, sizeof(tmp), "\n");
-	(*env)->SetObjectArrayElement(env, current_config, 3, (*env)->NewStringUTF(env, tmp));
-	if((*env)->ExceptionOccurred(env)) {
-		throw_serialcom_exception(env, 4, 0, E_SETOBJECTARRAYSTR);
-		return NULL;
+	info = (*env)->NewStringUTF(env, buffer);
+	if ((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+		return getCurrentConfigurationW_clean_exp(env, 1, 0, &list);
 	}
+	insert_jstrarraylist(&list, info);
 
-	char* dcbocts = "fOutxCtsFlow : ";
-	memset(tmp, 0, sizeof(tmp));
-	strcpy_s(tmp, sizeof(tmp), dcbocts);
-	if(dcb.fOutxCtsFlow == TRUE) {
-		strcat_s(tmp, sizeof(tmp), "TRUE");
+	if (dcb.fOutxCtsFlow == TRUE) {
+		_snprintf_s(buffer, 128, 128, "fOutxCtsFlow : TRUE\0");
 	}else {
-		strcat_s(tmp, sizeof(tmp), "FALSE");
+		_snprintf_s(buffer, 128, 128, "fOutxCtsFlow : FALSE\0");
 	}
-	strcat_s(tmp, sizeof(tmp), "\n");
-	(*env)->SetObjectArrayElement(env, current_config, 4, (*env)->NewStringUTF(env, tmp));
-	if((*env)->ExceptionOccurred(env)) {
-		throw_serialcom_exception(env, 4, 0, E_SETOBJECTARRAYSTR);
-		return NULL;
+	info = (*env)->NewStringUTF(env, buffer);
+	if ((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+		return getCurrentConfigurationW_clean_exp(env, 1, 0, &list);
 	}
+	insert_jstrarraylist(&list, info);
 
-	char* dcbodsr = "fOutxDsrFlow : ";
-	memset(tmp, 0, sizeof(tmp));
-	strcpy_s(tmp, sizeof(tmp), dcbodsr);
-	if(dcb.fOutxDsrFlow == TRUE) {
-		strcat_s(tmp, sizeof(tmp), "TRUE");
+	if (dcb.fOutxDsrFlow == TRUE) {
+		_snprintf_s(buffer, 128, 128, "fOutxDsrFlow : TRUE\0");
 	}else {
-		strcat_s(tmp, sizeof(tmp), "FALSE");
+		_snprintf_s(buffer, 128, 128, "fOutxDsrFlow : FALSE\0");
 	}
-	strcat_s(tmp, sizeof(tmp), "\n");
-	(*env)->SetObjectArrayElement(env, current_config, 5, (*env)->NewStringUTF(env, tmp));
-	if((*env)->ExceptionOccurred(env)) {
-		throw_serialcom_exception(env, 4, 0, E_SETOBJECTARRAYSTR);
-		return NULL;
+	info = (*env)->NewStringUTF(env, buffer);
+	if ((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+		return getCurrentConfigurationW_clean_exp(env, 1, 0, &list);
 	}
+	insert_jstrarraylist(&list, info);
 
-	char* dcbdtrc = "fDtrControl : ";
-	memset(tmp, 0, sizeof(tmp));
-	strcpy_s(tmp, sizeof(tmp), dcbdtrc);
 	if(dcb.fDtrControl == DTR_CONTROL_DISABLE) {
-		strcat_s(tmp, sizeof(tmp), "DTR_CONTROL_DISABLE");
+		_snprintf_s(buffer, 128, 128, "fDtrControl : DTR_CONTROL_DISABLE\0");
 	}else if(dcb.fDtrControl == DTR_CONTROL_ENABLE) {
-		strcat_s(tmp, sizeof(tmp), "DTR_CONTROL_ENABLE");
+		_snprintf_s(buffer, 128, 128, "fDtrControl : DTR_CONTROL_ENABLE\0");
 	}else if(dcb.fDtrControl == DTR_CONTROL_HANDSHAKE) {
-		strcat_s(tmp, sizeof(tmp), "DTR_CONTROL_HANDSHAKE");
+		_snprintf_s(buffer, 128, 128, "fDtrControl : DTR_CONTROL_HANDSHAKE\0");
 	}else {
 	}
-	strcat_s(tmp, sizeof(tmp), "\n");
-	(*env)->SetObjectArrayElement(env, current_config, 6, (*env)->NewStringUTF(env, tmp));
-	if((*env)->ExceptionOccurred(env)) {
-		throw_serialcom_exception(env, 4, 0, E_SETOBJECTARRAYSTR);
-		return NULL;
+	info = (*env)->NewStringUTF(env, buffer);
+	if ((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+		return getCurrentConfigurationW_clean_exp(env, 1, 0, &list);
 	}
+	insert_jstrarraylist(&list, info);
 
-	char* dcbdsrs = "fDsrSensitivity : ";
-	memset(tmp, 0, sizeof(tmp));
-	strcpy_s(tmp, sizeof(tmp), dcbdsrs);
-	if(dcb.fDsrSensitivity == TRUE) {
-		strcat_s(tmp, sizeof(tmp), "TRUE");
+	if (dcb.fDsrSensitivity == TRUE) {
+		_snprintf_s(buffer, 128, 128, "fDsrSensitivity : TRUE\0");
 	}else {
-		strcat_s(tmp, sizeof(tmp), "FALSE");
+		_snprintf_s(buffer, 128, 128, "fDsrSensitivity : FALSE\0");
 	}
-	strcat_s(tmp, sizeof(tmp), "\n");
-	(*env)->SetObjectArrayElement(env, current_config, 7, (*env)->NewStringUTF(env, tmp));
-	if((*env)->ExceptionOccurred(env)) {
-		throw_serialcom_exception(env, 4, 0, E_SETOBJECTARRAYSTR);
-		return NULL;
+	info = (*env)->NewStringUTF(env, buffer);
+	if ((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+		return getCurrentConfigurationW_clean_exp(env, 1, 0, &list);
 	}
+	insert_jstrarraylist(&list, info);
 
-	char* dcbtxcox = "fTXContinueOnXoff : ";
-	memset(tmp, 0, sizeof(tmp));
-	strcpy_s(tmp, sizeof(tmp), dcbtxcox);
-	if(dcb.fTXContinueOnXoff == TRUE) {
-		strcat_s(tmp, sizeof(tmp), "TRUE");
+	if (dcb.fTXContinueOnXoff == TRUE) {
+		_snprintf_s(buffer, 128, 128, "fTXContinueOnXoff : TRUE\0");
 	}else {
-		strcat_s(tmp, sizeof(tmp), "FALSE");
+		_snprintf_s(buffer, 128, 128, "fTXContinueOnXoff : FALSE\0");
 	}
-	strcat_s(tmp, sizeof(tmp), "\n");
-	(*env)->SetObjectArrayElement(env, current_config, 8, (*env)->NewStringUTF(env, tmp));
-	if ((*env)->ExceptionOccurred(env)) {
-		throw_serialcom_exception(env, 4, 0, E_SETOBJECTARRAYSTR);
-		return NULL;
+	info = (*env)->NewStringUTF(env, buffer);
+	if ((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+		return getCurrentConfigurationW_clean_exp(env, 1, 0, &list);
 	}
+	insert_jstrarraylist(&list, info);
 
-	char* dcbfox = "fOutX : ";
-	memset(tmp, 0, sizeof(tmp));
-	strcpy_s(tmp, sizeof(tmp), dcbfox);
-	if(dcb.fOutX == TRUE) {
-		strcat_s(tmp, sizeof(tmp), "TRUE");
+	if (dcb.fOutX == TRUE) {
+		_snprintf_s(buffer, 128, 128, "fOutX : TRUE\0");
 	}else {
-		strcat_s(tmp, sizeof(tmp), "FALSE");
+		_snprintf_s(buffer, 128, 128, "fOutX : FALSE\0");
 	}
-	strcat_s(tmp, sizeof(tmp), "\n");
-	(*env)->SetObjectArrayElement(env, current_config, 9, (*env)->NewStringUTF(env, tmp));
-	if((*env)->ExceptionOccurred(env)) {
-		throw_serialcom_exception(env, 4, 0, E_SETOBJECTARRAYSTR);
-		return NULL;
+	info = (*env)->NewStringUTF(env, buffer);
+	if ((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+		return getCurrentConfigurationW_clean_exp(env, 1, 0, &list);
 	}
+	insert_jstrarraylist(&list, info);
 
-	char* dcbfix = "fInX : ";
-	memset(tmp, 0, sizeof(tmp));
-	strcpy_s(tmp, sizeof(tmp), dcbfix);
 	if (dcb.fInX == TRUE) {
-		strcat_s(tmp, sizeof(tmp), "TRUE");
+		_snprintf_s(buffer, 128, 128, "fInX : TRUE\0");
 	}else {
-		strcat_s(tmp, sizeof(tmp), "FALSE");
+		_snprintf_s(buffer, 128, 128, "fInX : FALSE\0");
 	}
-	(*env)->SetObjectArrayElement(env, current_config, 10, (*env)->NewStringUTF(env, tmp));
-	if((*env)->ExceptionOccurred(env)) {
-		throw_serialcom_exception(env, 4, 0, E_SETOBJECTARRAYSTR);
-		return NULL;
+	info = (*env)->NewStringUTF(env, buffer);
+	if ((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+		return getCurrentConfigurationW_clean_exp(env, 1, 0, &list);
 	}
+	insert_jstrarraylist(&list, info);
 
-	char* dcbec = "fErrorChar : ";
-	memset(tmp, 0, sizeof(tmp));
-	strcpy_s(tmp, sizeof(tmp), dcbec);
-	if(dcb.fErrorChar == TRUE) {
-		strcat_s(tmp, sizeof(tmp), "TRUE");
+	if (dcb.fErrorChar == TRUE) {
+		_snprintf_s(buffer, 128, 128, "fErrorChar : TRUE\0");
 	}else {
-		strcat_s(tmp, sizeof(tmp), "FALSE");
+		_snprintf_s(buffer, 128, 128, "fErrorChar : FALSE\0");
 	}
-	strcat_s(tmp, sizeof(tmp), "\n");
-	(*env)->SetObjectArrayElement(env, current_config, 11, (*env)->NewStringUTF(env, tmp));
-	if((*env)->ExceptionOccurred(env)) {
-		throw_serialcom_exception(env, 4, 0, E_SETOBJECTARRAYSTR);
-		return NULL;
+	info = (*env)->NewStringUTF(env, buffer);
+	if ((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+		return getCurrentConfigurationW_clean_exp(env, 1, 0, &list);
 	}
+	insert_jstrarraylist(&list, info);
 
-	char* dcbfn = "fNull : ";
-	memset(tmp, 0, sizeof(tmp));
-	strcpy_s(tmp, sizeof(tmp), dcbfn);
-	if(dcb.fNull == TRUE) {
-		strcat_s(tmp, sizeof(tmp), "TRUE");
+	if (dcb.fNull == TRUE) {
+		_snprintf_s(buffer, 128, 128, "fNull : TRUE\0");
 	}else {
-		strcat_s(tmp, sizeof(tmp), "FALSE");
+		_snprintf_s(buffer, 128, 128, "fNull : FALSE\0");
 	}
-	strcat_s(tmp, sizeof(tmp), "\n");
-	(*env)->SetObjectArrayElement(env, current_config, 12, (*env)->NewStringUTF(env, tmp));
-	if((*env)->ExceptionOccurred(env)) {
-		throw_serialcom_exception(env, 4, 0, E_SETOBJECTARRAYSTR);
-		return NULL;
+	info = (*env)->NewStringUTF(env, buffer);
+	if ((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+		return getCurrentConfigurationW_clean_exp(env, 1, 0, &list);
 	}
+	insert_jstrarraylist(&list, info);
 
-	char* dcbrtsc = "fRtsControl : ";
-	memset(tmp, 0, sizeof(tmp));
-	strcpy_s(tmp, sizeof(tmp), dcbrtsc);
-	if(dcb.fRtsControl == DTR_CONTROL_DISABLE) {
-		strcat_s(tmp, sizeof(tmp), "RTS_CONTROL_DISABLE");
-	}else if(dcb.fRtsControl == DTR_CONTROL_ENABLE) {
-		strcat_s(tmp, sizeof(tmp), "RTS_CONTROL_ENABLE");
-	}else if(dcb.fRtsControl == DTR_CONTROL_HANDSHAKE) {
-		strcat_s(tmp, sizeof(tmp), "RTS_CONTROL_HANDSHAKE");
-	}else if(dcb.fRtsControl == RTS_CONTROL_TOGGLE) {
-		strcat_s(tmp, sizeof(tmp), "RTS_CONTROL_TOGGLE");
+	if (dcb.fRtsControl == RTS_CONTROL_DISABLE) {
+		_snprintf_s(buffer, 128, 128, "fRtsControl : RTS_CONTROL_DISABLE\0");
+	}else if (dcb.fRtsControl == RTS_CONTROL_ENABLE) {
+		_snprintf_s(buffer, 128, 128, "fRtsControl : RTS_CONTROL_ENABLE\0");
+	}else if (dcb.fRtsControl == RTS_CONTROL_HANDSHAKE) {
+		_snprintf_s(buffer, 128, 128, "fRtsControl : RTS_CONTROL_HANDSHAKE\0");
+	}else if (dcb.fRtsControl == RTS_CONTROL_TOGGLE) {
+		_snprintf_s(buffer, 128, 128, "fRtsControl : RTS_CONTROL_TOGGLE\0");
 	}else {
 	}
-	strcat_s(tmp, sizeof(tmp), "\n");
-	(*env)->SetObjectArrayElement(env, current_config, 13, (*env)->NewStringUTF(env, tmp));
-	if((*env)->ExceptionOccurred(env)) {
-		throw_serialcom_exception(env, 4, 0, E_SETOBJECTARRAYSTR);
-		return NULL;
+	info = (*env)->NewStringUTF(env, buffer);
+	if ((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+		return getCurrentConfigurationW_clean_exp(env, 1, 0, &list);
 	}
+	insert_jstrarraylist(&list, info);
 
-	char* dcbabo = "fAbortOnError : ";
-	memset(tmp, 0, sizeof(tmp));
-	strcpy_s(tmp, sizeof(tmp), dcbabo);
-	if(dcb.fAbortOnError == TRUE) {
-		strcat_s(tmp, sizeof(tmp), "TRUE");
+	if (dcb.fAbortOnError == TRUE) {
+		_snprintf_s(buffer, 128, 128, "fAbortOnError : TRUE\0");
 	}else {
-		strcat_s(tmp, sizeof(tmp), "FALSE");
+		_snprintf_s(buffer, 128, 128, "fAbortOnError : FALSE\0");
 	}
-	strcat_s(tmp, sizeof(tmp), "\n");
-	(*env)->SetObjectArrayElement(env, current_config, 14, (*env)->NewStringUTF(env, tmp));
-	if((*env)->ExceptionOccurred(env)) {
-		throw_serialcom_exception(env, 4, 0, E_SETOBJECTARRAYSTR);
-		return NULL;
+	info = (*env)->NewStringUTF(env, buffer);
+	if ((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+		return getCurrentConfigurationW_clean_exp(env, 1, 0, &list);
+	}
+	insert_jstrarraylist(&list, info);
+
+	info = (*env)->NewStringUTF(env, "fDummy2 : NA");
+	if ((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+		return getCurrentConfigurationW_clean_exp(env, 1, 0, &list);
+	}
+	insert_jstrarraylist(&list, info);
+
+	info = (*env)->NewStringUTF(env, "wReserved : NA");
+	if ((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+		return getCurrentConfigurationW_clean_exp(env, 1, 0, &list);
+	}
+	insert_jstrarraylist(&list, info);
+
+	_snprintf_s(buffer, 128, 128, "XonLim : %lu\0", dcb.XonLim);
+	info = (*env)->NewStringUTF(env, buffer);
+	if ((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+		return getCurrentConfigurationW_clean_exp(env, 1, 0, &list);
+	}
+	insert_jstrarraylist(&list, info);
+
+	_snprintf_s(buffer, 128, 128, "XoffLim : %lu\0", dcb.XoffLim);
+	info = (*env)->NewStringUTF(env, buffer);
+	if ((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+		return getCurrentConfigurationW_clean_exp(env, 1, 0, &list);
+	}
+	insert_jstrarraylist(&list, info);
+
+	_snprintf_s(buffer, 128, 128, "ByteSize : %lu\0", dcb.ByteSize);
+	info = (*env)->NewStringUTF(env, buffer);
+	if ((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+		return getCurrentConfigurationW_clean_exp(env, 1, 0, &list);
+	}
+	insert_jstrarraylist(&list, info);
+
+	_snprintf_s(buffer, 128, 128, "Parity : %lu\0", dcb.Parity);
+	info = (*env)->NewStringUTF(env, buffer);
+	if ((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+		return getCurrentConfigurationW_clean_exp(env, 1, 0, &list);
+	}
+	insert_jstrarraylist(&list, info);
+
+	_snprintf_s(buffer, 128, 128, "StopBits : %lu\0", dcb.StopBits);
+	info = (*env)->NewStringUTF(env, buffer);
+	if ((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+		return getCurrentConfigurationW_clean_exp(env, 1, 0, &list);
+	}
+	insert_jstrarraylist(&list, info);
+
+	_snprintf_s(buffer, 128, 128, "XonChar : %c\0", dcb.XonChar);
+	info = (*env)->NewStringUTF(env, buffer);
+	if ((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+		return getCurrentConfigurationW_clean_exp(env, 1, 0, &list);
+	}
+	insert_jstrarraylist(&list, info);
+
+	_snprintf_s(buffer, 128, 128, "XoffChar : %c\0", dcb.XoffChar);
+	info = (*env)->NewStringUTF(env, buffer);
+	if ((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+		return getCurrentConfigurationW_clean_exp(env, 1, 0, &list);
+	}
+	insert_jstrarraylist(&list, info);
+
+	_snprintf_s(buffer, 128, 128, "ErrorChar : %c\0", dcb.ErrorChar);
+	info = (*env)->NewStringUTF(env, buffer);
+	if ((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+		return getCurrentConfigurationW_clean_exp(env, 1, 0, &list);
+	}
+	insert_jstrarraylist(&list, info);
+
+	_snprintf_s(buffer, 128, 128, "EofChar : %c\0", (char)dcb.EofChar);
+	info = (*env)->NewStringUTF(env, buffer);
+	if ((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+		return getCurrentConfigurationW_clean_exp(env, 1, 0, &list);
+	}
+	insert_jstrarraylist(&list, info);
+
+	_snprintf_s(buffer, 128, 128, "EvtChar : %c\0", dcb.EvtChar);
+	info = (*env)->NewStringUTF(env, buffer);
+	if ((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+		return getCurrentConfigurationW_clean_exp(env, 1, 0, &list);
+	}
+	insert_jstrarraylist(&list, info);
+
+	info = (*env)->NewStringUTF(env, "wReserved1 : NA");
+	if ((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+		return getCurrentConfigurationW_clean_exp(env, 1, 0, &list);
+	}
+	insert_jstrarraylist(&list, info);
+
+	/* Create a JAVA/JNI style array of String object, populate it and return to java layer. */
+	strClass = (*env)->FindClass(env, JAVALSTRING);
+	if ((strClass == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+		return getCurrentConfigurationW_clean_exp(env, 2, E_FINDCLASSSSTRINGSTR, &list);
 	}
 
-	char* dcbfdu = "fDummy2 : NA";
-	memset(tmp, 0, sizeof(tmp));
-	strcpy_s(tmp, sizeof(tmp), dcbfdu);
-	strcat_s(tmp, sizeof(tmp), "\n");
-	(*env)->SetObjectArrayElement(env, current_config, 15, (*env)->NewStringUTF(env, tmp));
-	if((*env)->ExceptionOccurred(env)) {
-		throw_serialcom_exception(env, 4, 0, E_SETOBJECTARRAYSTR);
-		return NULL;
+	currentConfigurationRead = (*env)->NewObjectArray(env, (jsize)list.index, strClass, NULL);
+	if ((currentConfigurationRead == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+		return getCurrentConfigurationW_clean_exp(env, 2, E_NEWOBJECTARRAYSTR, &list);
 	}
 
-	char* dcbwrs = "wReserved : NA";
-	memset(tmp, 0, sizeof(tmp));
-	strcpy_s(tmp, sizeof(tmp), dcbwrs);
-	strcat_s(tmp, sizeof(tmp), "\n");
-	(*env)->SetObjectArrayElement(env, current_config, 16, (*env)->NewStringUTF(env, tmp));
-	if((*env)->ExceptionOccurred(env)) {
-		throw_serialcom_exception(env, 4, 0, E_SETOBJECTARRAYSTR);
-		return NULL;
+	for (x = 0; x < list.index; x++) {
+		(*env)->SetObjectArrayElement(env, currentConfigurationRead, x, list.base[x]);
+		if ((*env)->ExceptionOccurred(env)) {
+			return getCurrentConfigurationW_clean_exp(env, 2, E_SETOBJECTARRAYSTR, &list);
+		}
 	}
 
-	char* dcbxom = "XonLim : ";
-	memset(tmp, 0, sizeof(tmp));
-	memset(tmp1, 0, sizeof(tmp1));
-	strcpy_s(tmp, sizeof(tmp), dcbxom);
-	sprintf_s(tmp1, sizeof(tmp1), "%lu", dcb.XonLim);
-	strcat_s(tmp, sizeof(tmp), tmp1Ptr);
-	strcat_s(tmp, sizeof(tmp), "\n");
-	(*env)->SetObjectArrayElement(env, current_config, 17, (*env)->NewStringUTF(env, tmp));
-	if((*env)->ExceptionOccurred(env)) {
-		throw_serialcom_exception(env, 4, 0, E_SETOBJECTARRAYSTR);
-		return NULL;
-	}
-
-	char* dcbxof = "XoffLim : ";
-	memset(tmp, 0, sizeof(tmp));
-	memset(tmp1, 0, sizeof(tmp1));
-	strcpy_s(tmp, sizeof(tmp), dcbxof);
-	sprintf_s(tmp1, sizeof(tmp1), "%lu", dcb.XoffLim);
-	strcat_s(tmp, sizeof(tmp), tmp1Ptr);
-	strcat_s(tmp, sizeof(tmp), "\n");
-	(*env)->SetObjectArrayElement(env, current_config, 18, (*env)->NewStringUTF(env, tmp));
-	if((*env)->ExceptionOccurred(env)) {
-		throw_serialcom_exception(env, 4, 0, E_SETOBJECTARRAYSTR);
-		return NULL;
-	}
-
-	char* dcbbs = "ByteSize : ";
-	memset(tmp, 0, sizeof(tmp));
-	memset(tmp1, 0, sizeof(tmp1));
-	strcpy_s(tmp, sizeof(tmp), dcbbs);
-	sprintf_s(tmp1, sizeof(tmp1), "%lu", dcb.ByteSize);
-	strcat_s(tmp, sizeof(tmp), tmp1Ptr);
-	strcat_s(tmp, sizeof(tmp), "\n");
-	(*env)->SetObjectArrayElement(env, current_config, 19, (*env)->NewStringUTF(env, tmp));
-	if((*env)->ExceptionOccurred(env)) {
-		throw_serialcom_exception(env, 4, 0, E_SETOBJECTARRAYSTR);
-		return NULL;
-	}
-
-	char* dcbpr = "Parity : ";
-	memset(tmp, 0, sizeof(tmp));
-	memset(tmp1, 0, sizeof(tmp1));
-	strcpy_s(tmp, sizeof(tmp), dcbpr);
-	sprintf_s(tmp1, sizeof(tmp1), "%lu", dcb.Parity);
-	strcat_s(tmp, sizeof(tmp), tmp1Ptr);
-	strcat_s(tmp, sizeof(tmp), "\n");
-	(*env)->SetObjectArrayElement(env, current_config, 20, (*env)->NewStringUTF(env, tmp));
-	if((*env)->ExceptionOccurred(env)) {
-		throw_serialcom_exception(env, 4, 0, E_SETOBJECTARRAYSTR);
-		return NULL;
-	}
-
-	char* dcbsb = "StopBits : ";
-	memset(tmp, 0, sizeof(tmp));
-	memset(tmp1, 0, sizeof(tmp1));
-	strcpy_s(tmp, sizeof(tmp), dcbsb);
-	sprintf_s(tmp1, sizeof(tmp1), "%lu", dcb.StopBits);
-	strcat_s(tmp, sizeof(tmp), tmp1Ptr);
-	strcat_s(tmp, sizeof(tmp), "\n");
-	(*env)->SetObjectArrayElement(env, current_config, 21, (*env)->NewStringUTF(env, tmp));
-	if((*env)->ExceptionOccurred(env)) {
-		throw_serialcom_exception(env, 4, 0, E_SETOBJECTARRAYSTR);
-		return NULL;
-	}
-
-	char* dcbxoc = "XonChar : ";
-	memset(tmp, 0, sizeof(tmp));
-	memset(tmp1, 0, sizeof(tmp1));
-	strcpy_s(tmp, sizeof(tmp), dcbxoc);
-	sprintf_s(tmp1, sizeof(tmp1), "%lc", dcb.XonChar);
-	strcat_s(tmp, sizeof(tmp), tmp1Ptr);
-	strcat_s(tmp, sizeof(tmp), "\n");
-	(*env)->SetObjectArrayElement(env, current_config, 22, (*env)->NewStringUTF(env, tmp));
-	if((*env)->ExceptionOccurred(env)) {
-		throw_serialcom_exception(env, 4, 0, E_SETOBJECTARRAYSTR);
-		return NULL;
-	}
-
-	char* dcbxofc = "XoffChar : ";
-	memset(tmp, 0, sizeof(tmp));
-	memset(tmp1, 0, sizeof(tmp1));
-	strcpy_s(tmp, sizeof(tmp), dcbxofc);
-	sprintf_s(tmp1, sizeof(tmp1), "%lc", dcb.XoffChar);
-	strcat_s(tmp, sizeof(tmp), tmp1Ptr);
-	strcat_s(tmp, sizeof(tmp), "\n");
-	(*env)->SetObjectArrayElement(env, current_config, 23, (*env)->NewStringUTF(env, tmp));
-	if((*env)->ExceptionOccurred(env)) {
-		throw_serialcom_exception(env, 4, 0, E_SETOBJECTARRAYSTR);
-		return NULL;
-	}
-
-	char* dcberh = "ErrorChar : ";
-	memset(tmp, 0, sizeof(tmp));
-	memset(tmp1, 0, sizeof(tmp1));
-	strcpy_s(tmp, sizeof(tmp), dcberh);
-	sprintf_s(tmp1, sizeof(tmp1), "%lc", dcb.ErrorChar);
-	strcat_s(tmp, sizeof(tmp), tmp1Ptr);
-	strcat_s(tmp, sizeof(tmp), "\n");
-	(*env)->SetObjectArrayElement(env, current_config, 24, (*env)->NewStringUTF(env, tmp));
-	if((*env)->ExceptionOccurred(env)) {
-		throw_serialcom_exception(env, 4, 0, E_SETOBJECTARRAYSTR);
-		return NULL;
-	}
-
-	char* dcbeofch = "EofChar : ";
-	memset(tmp, 0, sizeof(tmp));
-	memset(tmp1, 0, sizeof(tmp1));
-	strcpy_s(tmp, sizeof(tmp), dcbeofch);
-	sprintf_s(tmp1, sizeof(tmp1), "%lc", (char)dcb.EofChar);
-	strcat_s(tmp, sizeof(tmp), tmp1Ptr);
-	strcat_s(tmp, sizeof(tmp), "\n");
-	(*env)->SetObjectArrayElement(env, current_config, 25, (*env)->NewStringUTF(env, tmp));
-	if((*env)->ExceptionOccurred(env)) {
-		throw_serialcom_exception(env, 4, 0, E_SETOBJECTARRAYSTR);
-		return NULL;
-	}
-
-	char* dcbevar = "EvtChar : ";
-	memset(tmp, 0, sizeof(tmp));
-	memset(tmp1, 0, sizeof(tmp1));
-	strcpy_s(tmp, sizeof(tmp), dcbevar);
-	sprintf_s(tmp1, sizeof(tmp1), "%lc", dcb.EvtChar);
-	strcat_s(tmp, sizeof(tmp), tmp1Ptr);
-	strcat_s(tmp, sizeof(tmp), "\n");
-	(*env)->SetObjectArrayElement(env, current_config, 26, (*env)->NewStringUTF(env, tmp));
-	if((*env)->ExceptionOccurred(env)) {
-		throw_serialcom_exception(env, 4, 0, E_SETOBJECTARRAYSTR);
-		return NULL;
-	}
-
-	char* dcbwrsa = "wReserved1 : NA";
-	memset(tmp, 0, sizeof(tmp));
-	strcpy_s(tmp, sizeof(tmp), dcbwrsa);
-	(*env)->SetObjectArrayElement(env, current_config, 27, (*env)->NewStringUTF(env, tmp));
-	if((*env)->ExceptionOccurred(env)) {
-		throw_serialcom_exception(env, 4, 0, E_SETOBJECTARRAYSTR);
-		return NULL;
-	}
-
-	return current_config;
+	free_jstrarraylist(&list);
+	return currentConfigurationRead;
 }
 
 /*
@@ -1640,7 +1618,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
  * Method:    getByteCount
  * Signature: (J)[I
  *
- * Return array's sequence is number of input bytes, number of output bytes in tty buffers.
+ * Return array's sequence is : number of input bytes, number of output bytes in tty buffers.
  *
  * @return array containing number of bytes in input and output buffer 0 on success otherwise
  *         NULL if an error occurs.
@@ -1912,7 +1890,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
  * Method:    getInterruptCount
  * Signature: (J)[I
  *
- * Not supported by Windows itself.
+ * Not supported by Windows OS itself. Applicable mainly for Linux.
  *
  * @return always NULL.
  */
@@ -2373,26 +2351,146 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
 }
 
 /*
- * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
- * Method:    registerHotPlugEventListener
- * Signature: (Lcom/embeddedunveiled/serial/ISerialComHotPlugListener;II)I
- *
- * Create a native thread that works with operating system specific mechanism for USB hot plug
- * facility. In thread_info array, location 0 contains return code while location 1 contains index of
- * global array at which info about thread is stored.
- *
- * @return 0 on success otherwise -1 if an error occurs.
- * @throws SerialComException if any JNI function, Win API call or C function fails.
- */
-JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_registerHotPlugEventListener(JNIEnv *env,
-		jobject obj, jobject hotPlugListener, jint filterVID, jint filterPID) {
+* Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
+* Method:    registerUSBHotPlugEventListener
+* Signature: (Lcom/embeddedunveiled/serial/ISerialComUSBHotPlugListener;IILjava/lang/String;)I
+*
+* Create a native thread that works with operating system specific mechanism for USB hot plug
+* facility.
+*
+* @return index of an array at which information about this worker thread is saved on success
+*         otherwise -1 if an error occurs.
+* @throws SerialComException if any JNI function, WIN API call or C function fails.
+*/
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_registerUSBHotPlugEventListener(JNIEnv *env,
+	jobject obj, jobject hotPlugListener, jint filterVID, jint filterPID, jstring serialNumber) {
 
-	return 0;
+	int x = 0;
+	DWORD errorVal = 0;
+	HANDLE thread_handle = 0;
+	struct usb_dev_monitor_info params;
+	unsigned thread_id = 0;
+	int empty_index_found = 0;
+	struct usb_dev_monitor_info *ptr = NULL;
+	void *arg;
+	jobject usbHotPlugListener = NULL;
+	const char* serial_number = NULL;
+
+	ptr = &usb_hotplug_monitor_info[0];
+	EnterCriticalSection(&csmutex);
+
+	usbHotPlugListener = (*env)->NewGlobalRef(env, hotPlugListener);
+	if ((usbHotPlugListener == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+		throw_serialcom_exception(env, 3, 0, E_NEWGLOBALREFSTR);
+		LeaveCriticalSection(&csmutex);
+		return -1;
+	}
+
+	if (serialNumber != NULL) {
+		serial_number = (*env)->GetStringUTFChars(env, serialNumber, NULL);
+		if ((serial_number == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+			throw_serialcom_exception(env, 3, 0, E_GETSTRUTFCHARSTR);
+			LeaveCriticalSection(&csmutex);
+			return -1;
+		}
+	}
+
+	/* Check if there is an unused index then we will reuse it. */
+	for (x = 0; x < MAX_NUM_THREADS; x++) {
+		if (ptr->thread_handle == 0) {
+			empty_index_found = 1;
+			break;
+		}
+		ptr++;
+	}
+
+	params.jvm = jvm;
+	params.wait_event_handle = 0;
+	params.usbHotPlugEventListener = usbHotPlugListener;
+	params.thread_exit = 0;
+	params.usb_vid_to_match = (int) filterVID;
+	params.usb_pid_to_match = (int) filterPID;
+	if (serialNumber != NULL) {
+		memset(params.serial_number_to_match, '\0', sizeof(params.serial_number_to_match));
+		strcpy_s(params.serial_number_to_match, sizeof(params.serial_number_to_match), serial_number);
+	}else {
+		params.serial_number_to_match[0] = '\0';
+	}
+	params.init_done = -1;
+	params.custom_err_code = -1;
+	params.standard_err_code = -1;
+	params.csmutex = &csmutex;
+	params.info = usb_hotplug_monitor_info;
+	if (empty_index_found == 1) {
+		usb_hotplug_monitor_info[x] = params;
+		arg = &usb_hotplug_monitor_info[x];
+	}else {
+		usb_hotplug_monitor_info[usb_dev_monitor_index] = params;
+		arg = &usb_hotplug_monitor_info[usb_dev_monitor_index];
+	}
+
+	/* Managed thread creation. The _beginthreadex initializes Certain CRT (C Run-Time) internals that ensures 
+	   that other C functions wilL work exactly as expected. */
+	_set_errno(0);
+	thread_handle = (HANDLE) _beginthreadex(NULL,                         /* default security attributes */
+											0,                            /* use default stack size      */
+											&usb_device_hotplug_monitor,  /* thread function name        */
+											arg,                          /* argument to thread function */
+											0,                            /* start thread immediately    */
+											&thread_id);                  /* thread identifier           */
+	if (thread_handle == 0) {
+		(*env)->DeleteGlobalRef(env, hotPlugListener);
+		throw_serialcom_exception(env, 5, errno, NULL);
+		LeaveCriticalSection(&csmutex);
+		return -1;
+	}
+
+	/* Save the data thread handle which will be used when listener is unregistered. */
+	((struct usb_dev_monitor_info*) arg)->thread_handle = thread_handle;
+
+	LeaveCriticalSection(&csmutex);
+
+	/* wait till worker thread initialize completely */
+	while (-1 == ((struct usb_dev_monitor_info*) arg)->init_done) { 
+		fflush(stderr);
+		fflush(stderr);
+		fflush(stderr);
+	}
+
+	if (0 == ((struct usb_dev_monitor_info*) arg)->init_done) {
+		/* Save the thread handle which will be used when listener is unregistered. */
+		((struct usb_dev_monitor_info*) arg)->thread_handle = thread_handle;
+
+		if (empty_index_found == 1) {
+			return x;
+		}else {
+			/* update index where data for next thread will be saved. */
+			usb_dev_monitor_index++;
+			return (usb_dev_monitor_index - 1);
+		}
+	}else {
+		WaitForSingleObject(((struct usb_dev_monitor_info*) arg)->thread_handle, INFINITE);
+		CloseHandle(((struct usb_dev_monitor_info*) arg)->thread_handle);
+		((struct usb_dev_monitor_info*) arg)->thread_handle = 0;
+		(*env)->DeleteGlobalRef(env, hotPlugListener);
+
+		if ((((struct usb_dev_monitor_info*) arg)->custom_err_code) > 0) {
+			/* indicates custom error message should be used in exception.*/
+			throw_serialcom_exception(env, 2, ((struct usb_dev_monitor_info*) arg)->custom_err_code, NULL);
+		}else {
+			/* indicates posix/os-specific error message should be used in exception.*/
+			throw_serialcom_exception(env, 1, ((struct usb_dev_monitor_info*) arg)->standard_err_code, NULL);
+		}
+		return -1;
+	}
+
+	/* should not be reached */
+	return -1;
 }
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
- * Method:    unregisterHotPlugEventListener
+ * Method:    unregisterUSBHotPlugEventListener
  * Signature: (I)I
  *
  * Destroy worker thread used for USB hot plug monitoring. The java layer sends index in array
@@ -2401,9 +2499,34 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
  * @return 0 on success otherwise -1 if an error occurs.
  * @throws SerialComException if any JNI function, Win API call or C function fails.
  */
-JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_unregisterHotPlugEventListener(JNIEnv *env,
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_unregisterUSBHotPlugEventListener(JNIEnv *env,
 		jobject obj, jint index) {
 
+	int ret = 0;
+	struct usb_dev_monitor_info *ptr = &usb_hotplug_monitor_info[index];
+
+	EnterCriticalSection(&csmutex);
+
+	/* Set the flag that will be checked by worker thread for exit condition. */
+	ptr->thread_exit = 1;
+
+	/* make worker thread come out of waiting state through posting message to message queue. */
+	ret = PostMessage(ptr->window_handle, 0x0100, 0, 0);
+	if (ret == 0) {
+		throw_serialcom_exception(env, 4, GetLastError(), NULL);
+		LeaveCriticalSection(&csmutex);
+		return -1;
+	}
+
+	/* Wait till worker thread actually terminate and OS clean up resources. */
+	WaitForSingleObject(ptr->thread_handle, INFINITE);
+	CloseHandle(ptr->thread_handle);
+	ptr->thread_handle = 0;
+	ptr->window_handle = 0;
+
+	(*env)->DeleteGlobalRef(env, ptr->usbHotPlugEventListener);
+
+	LeaveCriticalSection(&csmutex);
 	return 0;
 }
 

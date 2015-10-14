@@ -29,18 +29,20 @@
  * that are attached to a USB hub. */
 static const GUID GUID_DEVINTERFACE_USB_DEVICE = { 0xA5DCBF10L, 0x6530, 0x11D2, { 0x90, 0x1F, 0x00, 0xC0, 0x4F, 0xB9, 0x51, 0xED } };
 
+/* System defined device property keys */
 static const DEVPROPKEY DEVPKEY_Device_BusReportedDeviceDesc = { 0x540b947e, 0x8b40, 0x45bc, 0xa8, 0xa2, 0x6a, 0x0b, 0x89, 0x4c, 0xbd, 0xa2, 4 };
 static const DEVPROPKEY DEVPKEY_Device_Manufacturer  = { 0xa45c254e, 0xdf1c, 0x4efd, 0x80, 0x20, 0x67, 0xd1, 0x46, 0xa8, 0x50, 0xe0, 13 };
 static const DEVPROPKEY DEVPKEY_Device_LocationInfo  = { 0xa45c254e, 0xdf1c, 0x4efd, 0x80, 0x20, 0x67, 0xd1, 0x46, 0xa8, 0x50, 0xe0, 15 };
 static const DEVPROPKEY DEVPKEY_Device_LocationPaths = { 0xa45c254e, 0xdf1c, 0x4efd, 0x80, 0x20, 0x67, 0xd1, 0x46, 0xa8, 0x50, 0xe0, 37 };
 
 /*
-* Finds information about USB devices using operating system specific facilities and API.
-* The sequence of entries in array must match with what java layer expect. If a particular USB attribute
-* is not set in descriptor or can not be obtained "---" is placed in its place.
-
-The USB host controller has an embedded hub called the root hub.
-*/
+ * The sequence of entries in array must match with what java layer expect (6 informations
+ * per USB device). If a particular USB attribute is not set in descriptor or can not be
+ * obtained "---" is placed in its place.
+ *
+ * Returns array of USB device's information found, empty array if no USB device is found,
+ * NULL if an error occurs (additionally throws exception).
+ */
 jobjectArray list_usb_devices(JNIEnv *env, jint vendor_to_match) {
 
 	int x = 0;
@@ -214,15 +216,7 @@ jobjectArray list_usb_devices(JNIEnv *env, jint vendor_to_match) {
 		usb_dev_info = (*env)->NewString(env, buffer, (jsize) _tcslen(buffer));
 		insert_jstrarraylist(&list, usb_dev_info);
 
-		/* BUS NUMBER */
-		usb_dev_info = (*env)->NewStringUTF(env, "---");
-		insert_jstrarraylist(&list, usb_dev_info);
-
-		/* CONNECTED USB DEVICE NUMBER */
-		usb_dev_info = (*env)->NewStringUTF(env, "---");
-		insert_jstrarraylist(&list, usb_dev_info);
-
-		/* Location paths + Location info, get separately and then create a sinle string */
+		/* LOCATION (Location paths + Location info, get separately and then create a single string) */
 		memset(buffer, '\0', sizeof(buffer));
 		ret = SetupDiGetDeviceRegistryProperty(usb_dev_info_set, &usb_dev_instance, SPDRP_LOCATION_PATHS, &regproptype, (BYTE *)buffer, sizeof(buffer), &size);
 		if (ret == FALSE) {

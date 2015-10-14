@@ -38,22 +38,23 @@ static const DEVPROPKEY DEVPKEY_Device_ClassGuid = { 0xa45c254e, 0xdf1c, 0x4efd,
  * Find device nodes (like COMxx) assigned by operating system to the USB-UART bridge/converter(s)
  * from the USB device attributes. USB device can be composite or non-composite. The USB strings are Unicoded.
  *
- * 1. Iterate over all USB devices and check if the given USB device is connected or not by matching vid, pid and serial number.
+ * 1. Iterate over all USB devices and check if the given USB device is connected or not by matching vid, pid and serial 
+ *    number.
  *
  * 2. If connetced try to see if it has child or not. If not then check if this device is CDC/ACM device, if yes get COM port
  *    assigned to it and add in array to be returned to application.
  *
- * 3. If the connected USB device has one child (one interface), check if this interface is Ports class (COM and LPT ports in windows).
- *    if yes get COM port assigned to it and add in array to be returned to application.
+ * 3. If the connected USB device has one child (one interface), check if this interface is Ports class (COM and LPT ports
+ *    in windows). If yes get COM port assigned to it and add in array to be returned to application.
  *
- * 4. If the USB device has more than one interface, than iterate over all the interfaces using parent->child>sibling relationship
- *    as done in windows. Parent is USB device itself, first child will be the first interface in this device and sibling will be the 
- *    next interface in this device. While iterating over interfaces check if it is CDC/ACM and if yes get COM port assigned to it 
- *    and add in array to be returned to application.
+ * 4. If the USB device has more than one interface, than iterate over all the interfaces using parent->child>sibling 
+ *    relationship as done in windows. Parent is USB device itself, first child will be the first interface in this device and 
+ *	  sibling will be the next interface in this device. While iterating over interfaces check if it is CDC/ACM and if yes get 
+ *	  COM port assigned to it and add in array to be returned to application.
  * 
  * Another approach might be to iterate over all usb devices (GUID GUID_DEVINTERFACE_USB_DEVICE) and then for each usb device 
- * iterate over com ports (GUID_DEVINTERFACE_SERENUM_BUS_ENUMERATOR) and match container ID. Device nodes created for a USB device 
- * and all its interfaces will have exactly same container ID. This is done in windows to create device centric tree.
+ * iterate over com ports (GUID_DEVINTERFACE_SERENUM_BUS_ENUMERATOR) and match container ID. Device nodes created for a USB 
+ * device and all its interfaces will have exactly same container ID. This is done in windows to create device centric tree.
  * 
  * Return COM port node(s) if found, 0 length array if no COM port(s) found, NULL if an error occurs.
  */
@@ -95,6 +96,16 @@ jobjectArray vcp_node_from_usb_attributes(JNIEnv *env, jint usbvid_to_match, jin
 	jclass strClass = NULL;
 	jstring vcp_node;
 	jobjectArray vcpPortsFound = NULL;
+
+	/* extract serial number if application has given */
+	if (serial_number != NULL) {
+		serial = (*env)->GetStringChars(env, serial_number, JNI_FALSE);
+		if ((serial == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+			(*env)->ExceptionClear(env);
+			throw_serialcom_exception(env, 3, 0, E_GETSTRCHARSTR);
+			return NULL;
+		}
+	}
 
 	init_jstrarraylist(&list, 50);
 
@@ -182,16 +193,8 @@ jobjectArray vcp_node_from_usb_attributes(JNIEnv *env, jint usbvid_to_match, jin
 			continue;
 		}
 
-		/* extract serial number (as an array of Unicode characters) and match if required */
-		if(serial_number != NULL) {
-			serial = (*env)->GetStringChars(env, serial_number, JNI_FALSE);
-			if((serial == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
-				(*env)->ExceptionClear(env);
-				SetupDiDestroyDeviceInfoList(usb_dev_info_set);
-				free_jstrarraylist(&list);
-				throw_serialcom_exception(env, 3, 0, E_GETSTRUTFCHARSTR);
-				return NULL;
-			}
+		/* match serial number if requested by application */
+		if(serial != NULL) {
 			x++;
 			i = 0;
 			while (buffer[x] != '\0') {
@@ -338,7 +341,7 @@ jobjectArray vcp_node_from_usb_attributes(JNIEnv *env, jint usbvid_to_match, jin
 			cmret = CM_Get_Sibling(&next_sibling, current_sibling, 0);
 			if (cmret != CR_SUCCESS) {
 				if (cmret == CR_NO_SUCH_DEVNODE) {
-					/* done iterating over all interfaces */
+					/* done iterating over all interfaces, move to next examine next USB device */
 					break;
 				}else {
 					SetupDiDestroyDeviceInfoList(usb_dev_info_set);
