@@ -48,7 +48,7 @@ import com.embeddedunveiled.serial.internal.SerialComSystemProperty;
  * <p>Silicon labs softwares can be downloaded from here :
  * http://www.silabs.com/products/Interface/Pages/interface-application-notes.aspx </p>
  * 
- * <p>SCM version 1.0.4 is linked to v6.2.0.0 version of CP210xManufacturing library.</p>
+ * <p>SCM version 1.0.4 is linked to v6.2.0.0 version of CP210xManufacturing library (libcp210xmanufacturing.so, CP210xManufacturing.dll).</p>
  * 
  * @author Rishi Gupta
  */

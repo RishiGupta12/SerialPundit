@@ -67,7 +67,14 @@ BOOL WINAPI DllMain(HANDLE hModule, DWORD reason_for_call, LPVOID lpReserved) {
 	return TRUE;
 }
 
-/* */
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComMCHPSIOJNIBridge
+ * Method:    loadAndLinkSimpleIODLL
+ * Signature: (Ljava/lang/String;)I
+ *
+ * @return 0 on success or -1 if an error occurs.
+ * @throws SerialComException if any JNI function, Win API call or C function fails.
+ */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComMCHPSIOJNIBridge_loadAndLinkSimpleIODLL
 (JNIEnv *env, jobject obj, jstring vendorLibraryWithAbsolutePath) {
 

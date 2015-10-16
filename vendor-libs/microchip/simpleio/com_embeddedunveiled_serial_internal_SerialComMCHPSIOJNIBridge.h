@@ -9,6 +9,14 @@ extern "C" {
 #endif
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComMCHPSIOJNIBridge
+ * Method:    loadAndLinkSimpleIODLL
+ * Signature: (Ljava/lang/String;)I
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComMCHPSIOJNIBridge_loadAndLinkSimpleIODLL
+  (JNIEnv *, jclass, jstring);
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComMCHPSIOJNIBridge
  * Method:    initMCP2200
  * Signature: (II)I
  */

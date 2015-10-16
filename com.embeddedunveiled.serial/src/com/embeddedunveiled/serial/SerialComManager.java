@@ -2053,9 +2053,9 @@ public final class SerialComManager {
 	 */
 	public int registerUSBHotPlugEventListener(final ISerialComUSBHotPlugListener hotPlugListener, 
 			int filterVID, int filterPID, String serialNumber) throws SerialComException {
-		
+
 		int opaqueHandle = 0;
-		
+
 		if(hotPlugListener == null) {
 			throw new IllegalArgumentException("Argument hotPlugListener can not be null !");
 		}
@@ -2085,15 +2085,15 @@ public final class SerialComManager {
 	 */
 	public boolean unregisterUSBHotPlugEventListener(final int opaqueHandle) throws SerialComException {
 		int ret = 0;
-		
+
 		if(opaqueHandle < 0) {
 			throw new IllegalArgumentException("Argument opaqueHandle can not be negative !");
 		}
-		
+
 		synchronized(lockB) {
 			ret = mComPortJNIBridge.unregisterUSBHotPlugEventListener(opaqueHandle);
 		}
-		
+
 		if(ret < 0) {
 			throw new SerialComException("Could not un-register USB device hotplug listener. Please retry !");
 		}
@@ -2389,8 +2389,8 @@ public final class SerialComManager {
 	}
 
 	/**
-	 * <p>Checks whether a particular USB device identified by vendor id and product id is connected to 
-	 * the system or not.</p>
+	 * <p>Checks whether a particular USB device identified by vendor id, product id and serial number is 
+	 * connected to the system or not. The connection infomration is obtained from the operating system.</p>
 	 * 
 	 * @param vendorID USB-IF vendor ID of the USB device to match.
 	 * @param productID product ID of the USB device to match.
