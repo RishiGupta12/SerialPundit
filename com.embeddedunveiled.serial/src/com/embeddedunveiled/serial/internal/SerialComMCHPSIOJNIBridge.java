@@ -61,7 +61,6 @@ public final class SerialComMCHPSIOJNIBridge {
 			SerialComLoadException, SerialComUnexpectedException, SecurityException, FileNotFoundException {
 		String libToExtractFromJar = null;
 		File libFile = null;
-		File vlibFile = null;
 		InputStream input = null;
 		FileOutputStream output = null;
 		String fileSeparator = null;

@@ -269,7 +269,8 @@ public final class SerialComMCHPSimpleIO extends SerialComVendorLib {
 	 * <p>Executes SelectDevice function of 'SimpleIO-xxxx' library.</p>
 	 * <p>Selects one of the active devices in the system.</p>
 	 * 
-	 * @param uiDeviceNumber the ID of the device to select (can have a value between 0 to (number of devices - 1).
+	 * @param uiDeviceNumber the ID of the device to select (can have a value between 0 to (number 
+	 *         of devices - 1).
 	 * @return true if the requested device gets selected successfully.
 	 * @throws SerialComException if an I/O error occurs.
 	 */
@@ -315,6 +316,7 @@ public final class SerialComMCHPSimpleIO extends SerialComVendorLib {
 	 * <p>Executes GetDeviceInfo function of 'SimpleIO-xxxx' library.</p>
 	 * <p>Find the pathname for one of the connected devices.</p>
 	 * 
+	 * @param uiDeviceNumber device number about whom information is to be fetched.
 	 * @return a string containing the pathname of the given device id.
 	 * @throws SerialComException if an I/O error occurs.
 	 */
@@ -345,6 +347,7 @@ public final class SerialComMCHPSimpleIO extends SerialComVendorLib {
 	 * <p>Executes ReadEEPROM function of 'SimpleIO-xxxx' library.</p>
 	 * <p>Reads a byte from the EEPROM at the given address.</p>
 	 * 
+	 * @param uiEEPAddress EEPROM address from where to read value.
 	 * @return value at given address.
 	 * @throws SerialComException if an I/O error occurs.
 	 */
@@ -360,6 +363,8 @@ public final class SerialComMCHPSimpleIO extends SerialComVendorLib {
 	 * <p>Executes WriteEEPROM function of 'SimpleIO-xxxx' library.</p>
 	 * <p>Reads a byte value to the given EEPROM address.</p>
 	 * 
+	 * @param uiEEPAddress EEPROM address to write at.
+	 * @param ucValue value to write at given address.
 	 * @return true of value gets written successfully at given address.
 	 * @throws SerialComException if an I/O error occurs.
 	 */
@@ -378,6 +383,7 @@ public final class SerialComMCHPSimpleIO extends SerialComVendorLib {
 	 * <p>The argument mode can be one of these constants OFF, ON, TOGGLE, BLINKSLOW, BLINKFAST 
 	 * defined in SerialComMCHPSimpleIO class.</p>
 	 * 
+	 * @param mode mode as described above.
 	 * @return true if the mode is set successfully.
 	 * @throws SerialComException if an I/O error occurs.
 	 */
@@ -396,6 +402,7 @@ public final class SerialComMCHPSimpleIO extends SerialComVendorLib {
 	 * <p>The argument mode can be one of these constants OFF, ON, TOGGLE, BLINKSLOW, BLINKFAST 
 	 * defined in SerialComMCHPSimpleIO class.</p>
 	 * 
+	 * @param mode mode as described above.
 	 * @return true if the mode is set successfully.
 	 * @throws SerialComException if an I/O error occurs.
 	 */
@@ -443,7 +450,8 @@ public final class SerialComMCHPSimpleIO extends SerialComVendorLib {
 	 * <p>Executes fnSuspend function of 'SimpleIO-xxxx' library.</p>
 	 * <p>Configures the MCP2200 to invert the UART polarity or not.</p>
 	 * 
-	 * @param onOff if 1 GP0 will reflect the USB Suspend/Resume states, if 0 GP0 will not reflect the USB Suspend/Resume states (can be used as GPIO).
+	 * @param onOff if 1 GP0 will reflect the USB Suspend/Resume states, if 0 GP0 will not reflect 
+	 *         the USB Suspend/Resume states (can be used as GPIO).
 	 * @return true if GP0 gets configured successfully.
 	 * @throws SerialComException if an I/O error occurs.
 	 */
@@ -491,8 +499,8 @@ public final class SerialComMCHPSimpleIO extends SerialComVendorLib {
 	 * <p>Executes ConfigureIO function of 'SimpleIO-xxxx' library.</p>
 	 * <p>Configures the GPIO pins for Digital Input, Digital Output.</p>
 	 * 
-	 * @param ioMap a byte which represents a bitmap of the GPIO configuration. A bit set to '1' will be a 
-	 * digital input, a bit set to '0' will be a digital output.
+	 * @param ioMap a byte which represents a bitmap of the GPIO configuration. A bit set to '1' 
+	 *         will be a digital input, a bit set to '0' will be a digital output.
 	 * @return true if GPIO gets configured successfully.
 	 * @throws SerialComException if an I/O error occurs.
 	 */
@@ -508,8 +516,8 @@ public final class SerialComMCHPSimpleIO extends SerialComVendorLib {
 	 * <p>Executes ConfigureIoDefaultOutput function of 'SimpleIO-xxxx' library.</p>
 	 * <p>Configures the IO pins for Digital Input, Digital Output and also the default output latch value.</p>
 	 * 
-	 * @param ioMap a byte which represents a bitmap of the GPIO configuration. A bit set to '1' will be a 
-	 * digital input, a bit set to '0' will be a digital output.
+	 * @param ioMap a byte which represents a bitmap of the GPIO configuration. A bit set to '1' 
+	 *         will be a digital input, a bit set to '0' will be a digital output.
 	 * @param ucDefValue the default value that will be loaded to the output latch (effect only on the pins 
 	 *         configured as outputs).
 	 * @return true if GPIO gets configured successfully.
