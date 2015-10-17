@@ -780,7 +780,8 @@ public final class SerialComManager {
 	 * @param handle of the port to be closed.
 	 * @return Return true if the serial port is closed.
 	 * @throws SerialComException if invalid handle is passed or when it fails in closing the port.
-	 * @throws IllegalStateException if application tries to close port while data/event listener exist.
+	 * @throws IllegalStateException if application tries to close port while data/event listeners, 
+	 *          or input/output byte streams exist.
 	 */
 	public boolean closeComPort(long handle) throws SerialComException {
 		boolean handlefound = false;
@@ -799,12 +800,18 @@ public final class SerialComManager {
 				throw new SerialComException("Supplied handle is unknown. Please pass valid handle !");
 			}
 
+			/* Proper clean up requires that sw/hw resources should be freed before closing the serial port */
 			if(mHandleInfo.getDataListener() != null) {
-				/* Proper clean up requires that, native thread should be destroyed before closing port. */
 				throw new IllegalStateException("Closing port without unregistering data listener is not allowed to prevent inconsistency !");
 			}
 			if(mHandleInfo.getEventListener() != null) {
 				throw new IllegalStateException("Closing port without unregistering event listener is not allowed to prevent inconsistency !");
+			}
+			if(mHandleInfo.getSerialComInByteStream() != null) {
+				throw new IllegalStateException("Input byte stream must be closed before closing the serial port !");
+			}
+			if(mHandleInfo.getSerialComOutByteStream() != null) {
+				throw new IllegalStateException("Output byte stream must be closed before closing the serial port !");
 			}
 
 			int ret = mComPortJNIBridge.closeComPort(handle);
@@ -2277,7 +2284,8 @@ public final class SerialComManager {
 	 * <p>Prepares context and returns an input streams of bytes for receiving data bytes from the 
 	 * serial port.</p>
 	 * 
-	 * <p>A handle can have only one input stream. Application should close stream after it is done.</p>
+	 * <p>A serial port handle can have only one input stream associated with it. Application should close 
+	 * the created stream after it is no longer required.</p>
 	 * 
 	 * @param handle handle of the opened port from which to read data bytes.
 	 * @return reference to an object of type SerialComInByteStream.
@@ -2320,7 +2328,8 @@ public final class SerialComManager {
 	 * <p>Prepares context and returns an output streams of bytes for transferring data bytes out of 
 	 * serial port.</p>
 	 * 
-	 * <p>A handle can have only one output stream. Application should close stream after it is done.</p>
+	 * <p>A serial port handle can have only one output stream associated with it. Application should 
+	 * close the created stream after it is no longer required.</p>
 	 * 
 	 * <p>Using SerialComOutByteStream for writing data while not using SerialComInByteStream for
 	 * reading is a valid use case.</p>
