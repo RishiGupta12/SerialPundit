@@ -112,7 +112,6 @@ jstring find_driver_for_given_com_port(JNIEnv *env, jstring comPortName) {
 				}
 
 				if(check_for_parent == 1) {
-					parent_device = NULL; /* reset */
 					parent_device = udev_device_get_parent(udev_device);
 					if(parent_device != NULL) {
 						prop_val_driver_name = udev_device_get_driver(parent_device);
@@ -141,8 +140,7 @@ jstring find_driver_for_given_com_port(JNIEnv *env, jstring comPortName) {
 				}
 
 				if(check_for_parent == 1) {
-					parent_device = NULL; /* reset */
-					parent_device = udev_device_get_parent(udev_device);
+					parent_device = udev_device_get_parent(parent_device );
 					if(parent_device != NULL) {
 						prop_val_driver_name = udev_device_get_driver(parent_device);
 						if(prop_val_driver_name != NULL) {
@@ -167,8 +165,7 @@ jstring find_driver_for_given_com_port(JNIEnv *env, jstring comPortName) {
 				}
 
 				if(check_for_parent == 1) {
-					parent_device = NULL; /* reset */
-					parent_device = udev_device_get_parent(udev_device);
+					parent_device = udev_device_get_parent(parent_device);
 					if(parent_device != NULL) {
 						prop_val_driver_name = udev_device_get_driver(parent_device);
 						if(prop_val_driver_name != NULL) {
@@ -193,10 +190,9 @@ jstring find_driver_for_given_com_port(JNIEnv *env, jstring comPortName) {
 				}
 
 				if(check_for_parent == 1) {
-					parent_device = NULL; /* reset */
 					parent_device = udev_device_get_parent(udev_device);
 					if(parent_device != NULL) {
-						prop_val_driver_name = udev_device_get_driver(parent_device);
+						prop_val_driver_name = udev_device_get_driver(parent_device );
 						if(prop_val_driver_name != NULL) {
 							driver_name = (*env)->NewStringUTF(env, prop_val_driver_name);
 							if((driver_name == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
@@ -219,8 +215,7 @@ jstring find_driver_for_given_com_port(JNIEnv *env, jstring comPortName) {
 				}
 
 				if(check_for_parent == 1) {
-					parent_device = NULL; /* reset */
-					parent_device = udev_device_get_parent(udev_device);
+					parent_device = udev_device_get_parent(parent_device);
 					if(parent_device != NULL) {
 						prop_val_driver_name = udev_device_get_driver(parent_device);
 						if(prop_val_driver_name != NULL) {
