@@ -15,8 +15,8 @@
 # along with serial communication manager. If not, see <http://www.gnu.org/licenses/>.
 #################################################################################################
 
-# This is a udev rule file for all devices from Silicon Labs with VID 0x10C4 (not specific to any
-# Silicon Labs product (USB PID)). Place this file in /etc/udev/rules.d/ for Ubuntu Linux distro.
+# This is a udev rule file for all devices from Microchip Inc. with VID 0x04D8 (not specific to any
+# Microchip Inc. product (USB PID)). Place this file in /etc/udev/rules.d/ for Ubuntu Linux distro.
 
 # These rules will grant read and write access to all users, include non-privileged users, for all 
 # USB devices that have a matching Vendor ID according to the rules below. If required, more 
@@ -27,26 +27,14 @@
 # This file can be renamed as per the requirement. After putting it in /etc/udev/rules.d/ directory 
 # udev need not be restarted. Just un-lug or plug the device in USB port again. Also vendor ID and 
 # Product ID may be case sensitive. Please use dmesg to check device information when device is 
-# plugged in system.
+# plugged in system. System supplied default rules are generally placed in /lib/udev/rules.d and gets
+# overridden by rules placed in /etc/udev/rules.d directory.
 
-SUBSYSTEM=="usb", ATTRS{idVendor}=="10c4", MODE="0666"
-SUBSYSTEM=="usb_device", ATTRS{idVendor}=="10c4", MODE="0666"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="04d8", MODE="0666"
+SUBSYSTEM=="usb_device", ATTRS{idVendor}=="04d8", MODE="0666"
 
 # If we want to load these rules for a specific USB product with product ID, here is how to do it:
-# (example for CP2101/2/3/4).
-#SUBSYSTEM=="usb", ATTRS{idVendor}=="10c4", ATTRS{idProduct}=="ea60", MODE="0666"
-#SUBSYSTEM=="usb_device", ATTRS{idVendor}=="10c4", ATTRS{idProduct}=="ea60", MODE="0666"
-
-# CP2105
-#SUBSYSTEM=="usb", ATTRS{idVendor}=="10c4", ATTRS{idProduct}=="ea70", MODE="0666"
-#SUBSYSTEM=="usb_device", ATTRS{idVendor}=="10c4", ATTRS{idProduct}=="ea60", MODE="0666"
-
-# CP2108
-#SUBSYSTEM=="usb", ATTRS{idVendor}=="10c4", ATTRS{idProduct}=="ea71", MODE="0666"
-#SUBSYSTEM=="usb_device", ATTRS{idVendor}=="10c4", ATTRS{idProduct}=="ea60", MODE="0666"
-
-# CP2110
-#SUBSYSTEM=="usb", ATTRS{idVendor}=="10c4", ATTRS{idProduct}=="ea80", MODE="0666"
-#SUBSYSTEM=="usb_device", ATTRS{idVendor}=="10c4", ATTRS{idProduct}=="ea60", MODE="0666"
-
+# (example for MCP2221).
+#SUBSYSTEM=="usb", ATTRS{idVendor}=="04d8", ATTRS{idProduct}=="00dd", MODE="0666"
+#SUBSYSTEM=="usb_device", ATTRS{idVendor}=="04d8", ATTRS{idProduct}=="00dd", MODE="0666"
 
