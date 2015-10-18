@@ -41,6 +41,7 @@ PROJECT
 - Support for fault tolerant and recoverable application design.
 - Extensively documented both Java (online javadocs) and C code.
 - Scripts for quick build and testing project
+- Fully Optimized for power, performance and memory.
 
 ##Getting started
 

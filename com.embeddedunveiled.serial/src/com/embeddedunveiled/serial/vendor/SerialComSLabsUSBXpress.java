@@ -43,7 +43,7 @@ import com.embeddedunveiled.serial.internal.SerialComSystemProperty;
  * 
  * <p>[3] It seems like USBXpress library uses user space drivers. So if you encounter any problems 
  * with permissions add the following udev rules file at appropriate location in your system : 
- * https://github.com/RishiGupta12/serial-communication-manager/blob/master/tests/scm-cp210x.rules</p>
+ * https://github.com/RishiGupta12/serial-communication-manager/blob/master/tests/99-scm-cp210x.rules</p>
  * 
  * <p>SCM version 1.0.4 is linked to v4.0 version of USBXpress from silicon labs.</p>
  * 

@@ -113,7 +113,7 @@ public class SerialComHID {
 	 * 
 	 * <p>In Linux it may be required to add correct udev rules so as to grant permission to 
 	 * access to the USB-HID device. Refer this udev rule file for MCP2200 as an example : 
-	 * https://github.com/RishiGupta12/serial-communication-manager/blob/master/tests/scm-mcp2200-hid.rules</p>
+	 * https://github.com/RishiGupta12/serial-communication-manager/blob/master/tests/99-scm-mcp2200-hid.rules</p>
 	 * 
 	 * @param pathName device node full path for Unix-like OS and port name for Windows.
 	 * @return handle of the opened HID device.
