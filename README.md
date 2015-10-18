@@ -25,7 +25,7 @@ LEGACY
 - Hardware and software flow-control options.
 
 OTHERS
-- USB HID for communication with HID devices.
+- USB HID for communicating with HID devices (composite USB-UART-HID devices like MCP2200, CP2110 etc).
 - Vendor libraries like D2XX FROM ftdi, SimpleIO from microchip, USBXpress from silicon labs etc supported.
 - X/Y/Z file transfer protocol API with progress listener for GUI applications, text/binary mode, and abort command.
 - Extraction of shared libraries at user defined locations for security.
