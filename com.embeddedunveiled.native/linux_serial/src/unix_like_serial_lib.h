@@ -198,6 +198,7 @@ jstring find_address_irq_for_given_com_port(JNIEnv *env, jlong fd);
 jobjectArray list_usb_devices(JNIEnv *env, jint vendor_filter);
 jobjectArray list_bt_rfcomm_dev_nodes(JNIEnv *env);
 jobjectArray vcp_node_from_usb_attributes(JNIEnv *env, jint usbvid_to_match, jint usbpid_to_match, jstring serial_numer);
+jobjectArray get_usbdev_powerinfo(JNIEnv *env, jstring comPortName);
 
 void *data_looper(void *params);
 void *event_looper(void *params);

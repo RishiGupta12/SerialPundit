@@ -35,7 +35,7 @@ public final class SerialComUSBdevice {
 	private String location;
 
 	/**
-	 * <p>Construct and allocates a new SerialComUSBdevice object with given details.</p>
+	 * <p>Construct and allocates a new SerialComUSBdevice object with the given details.</p>
 	 * 
 	 * @param idVendor USB-IF unique vendor id of this device.
 	 * @param idProduct USB product id of this device.

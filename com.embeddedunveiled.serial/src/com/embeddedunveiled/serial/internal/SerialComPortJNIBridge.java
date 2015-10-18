@@ -315,6 +315,7 @@ public final class SerialComPortJNIBridge {
 	public native String[] listUSBdevicesWithInfo(int vendorFilter);
 	public native String[] findComPortFromUSBAttributes(int usbVidToMatch, int usbPidToMatch, String serialNumber);
 	public native int isUSBDevConnected(int vendorID, int productID, String serialNumber);
+	public native String[] getCDCUSBDevPowerInfo(String portNameVal);
 	public native int rescanUSBDevicesHW();
 
 	// Bluetooth

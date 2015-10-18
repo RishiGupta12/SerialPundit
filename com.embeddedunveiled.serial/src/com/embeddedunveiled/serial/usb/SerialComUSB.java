@@ -25,7 +25,7 @@ import com.embeddedunveiled.serial.internal.SerialComPortJNIBridge;
  * 
  * <p>An end product may be based on dedicated USB-UART bridge IC for providing serial over USB or 
  * may use general purpose microcontroller like PIC18F4550 from Microchip technology Inc. and 
- * program appropriate firmware (USB CDC) into ti to provide UART communication over USB port.</p>
+ * program appropriate firmware (USB CDC) into it to provide UART communication over USB port.</p>
  * 
  * @author Rishi Gupta
  */
@@ -94,6 +94,40 @@ public final class SerialComUSB {
 	 */
 	public SerialComUSB(SerialComPortJNIBridge mComPortJNIBridge) {
 		this.mComPortJNIBridge = mComPortJNIBridge;
+	}
+	
+	/**
+	 * <p>Read all the power management related information about a particular USB device. The returned 
+	 * instance of SerialComUSBPowerInfo class contains information about auto suspend, selective suspend,
+	 * current power status etc.</p>
+	 * 
+	 * 
+	 * @param comPort serial port name/path (COMxx, /dev/ttyUSBx) which is associated with a particular
+	 *         USB CDC/ACM interface in the USB device to be analyzed for power management.
+	 * @return an instance of SerialComUSBPowerInfo class containing operating system and device specific 
+	 *          information about power management or null if given COM port does not belong to a USB 
+	 *          device.
+	 * @throws SerialComException if an I/O error occurs.
+	 */
+	public SerialComUSBPowerInfo getCDCUSBDevPowerInfo(String comPort) throws SerialComException {
+		if(comPort == null) {
+			throw new IllegalArgumentException("Argument comPort can not be null !");
+		}
+		String portNameVal = comPort.trim();
+		if(portNameVal.length() == 0) {
+			throw new IllegalArgumentException("Argument comPort can not be empty string !");
+		}
+		
+		String[] usbPowerInfo = mComPortJNIBridge.getCDCUSBDevPowerInfo(portNameVal);
+		if(usbPowerInfo != null) {
+			if(usbPowerInfo.length > 2) {
+				return new SerialComUSBPowerInfo(usbPowerInfo[0], usbPowerInfo[1], usbPowerInfo[2]);
+			}
+		}else {
+			throw new SerialComException("Could not find USB devices. Please retry !");
+		}
+		
+		return null;
 	}
 
 	/**

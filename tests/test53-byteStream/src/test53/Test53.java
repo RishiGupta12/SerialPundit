@@ -52,9 +52,6 @@ public final class Test53 {
 			}else{
 			}
 
-			PORT = "/dev/pts/4";
-			PORT1 = "/dev/pts/5";
-
 			/* tests with non-blocking mode */
 			long handle = scm.openComPort(PORT, true, true, true);
 			scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
