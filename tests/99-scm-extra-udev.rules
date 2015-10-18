@@ -1,0 +1,62 @@
+#
+# Author : Rishi Gupta
+# 
+# This file is part of 'serial communication manager' library.
+#
+# The 'serial communication manager' is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by the Free Software 
+# Foundation, either version 3 of the License, or (at your option) any later version.
+#
+# The 'serial communication manager' is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
+# PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with serial communication manager. If not, see <http://www.gnu.org/licenses/>.
+#################################################################################################
+
+# These are udev rules that can be used based on system and application design requirement.
+
+
+### Create symlink
+
+# When a USB-UART matching VID, PID and serial number is added to the system create a symlink to it.
+# This will save time to find the device node assigned to the device.
+
+SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", ATTRS{serial}=="A7036479", SYMLINK+="scm_custom_link"
+
+
+### Run an external program
+
+# Run an external program (.jar, shell script, executable binary etc.) when a USB-UART matching VID, 
+# PID and serial number is added to the system. This program may be runned as root user.
+
+SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", ATTRS{serial}=="A7036479", PROGRAM="/home/r/test.sh"
+
+
+### Run an external program with parameters
+
+# Run an external program which will take kernel device name as argument, does some processing and 
+# return its output via stdout. This output from stdout is then used to create a symlink.
+
+SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", ATTRS{serial}=="A7036479", PROGRAM="/home/r/test.jar %k" SYMLINK+="%c"
+
+
+### Serial over ethernet or port servers
+
+# To run server service only when the client sends a socket request use systemd TAG. This is what 
+# port server uses. This has wide possibilities and detailed documentation should be consulted.
+# For example when a virtual serial port over ethrenet is created, the daemon (TCP server) can bind
+# to client and device node created and may act as medium between driver and remote client. 
+
+KERNEL=="tty_custom_name*", PROGRAM="/usr/bin/custom_daemon %k", SYMLINK+="%c", TAG="systemd"
+
+
+### Create a device node based on usb device attributes. 
+
+# Apart from default node, create a device node in /dev directory. The created device node will be
+# /dev/custom_name and is like persistent name for this device.
+
+SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", ATTRS{serial}=="A7036479", NAME="custom_name"
+
+
