@@ -15,7 +15,6 @@
  * along with serial communication manager. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 package test25;
 
 import com.embeddedunveiled.serial.SerialComManager;

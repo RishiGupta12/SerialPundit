@@ -41,7 +41,9 @@ SUBSYSTEMS=="usb", KERNELS=="3-3:1.0", SYMLINK+="scm_location_link"
 ### Run an external program
 
 # Run an external program (.jar, shell script, executable binary etc.) when a USB-UART matching VID, 
-# PID and serial number is added to the system. This program may be runned as root user.
+# PID and serial number is added to the system. This program may be runned as root user. The PROGRAM
+# is used when the external program is used for creating device node name only. Till this time no device
+# node is created.
 
 SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", ATTRS{serial}=="A7036479", PROGRAM="/home/r/test.sh"
 
@@ -70,4 +72,13 @@ KERNEL=="tty_custom_name*", PROGRAM="/usr/bin/custom_daemon %k", SYMLINK+="%c", 
 # /dev/custom_name and is like persistent name for this device.
 
 SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", ATTRS{serial}=="A7036479", NAME="custom_name"
+
+
+### Remove default driver
+
+# By default when a USB-UART like CP2102 is inserted into system default kernel VCP drivers will be
+# loaded to driver the device. However if we want to remove these drivers and drive the device from
+# user space driver, this rule should remove kernel driver automatically.
+
+SUBSYSTEM=="usb", ATTRS{idVendor}=="10c4", ATTRS{idProduct}=="ea60", ATTRS{serial}=="0001", RUN+="/bin/sh -c 'echo 1 >/sys$DEVPATH/remove'"
 
