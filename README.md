@@ -15,6 +15,7 @@ MODERN
 - Custom baud rate setting and high baud rates (3 Mbps) settings supported.
 - Both polling based and event listener based data/event read supported.
 - IOCTL calls for GPIO control and power management.
+- USB HID class API for communicating with composite USB devices like MCP2200, CP2110 etc.
 - Find which driver is driving a particular serial port.
 - Completely port re-entrant, allowing it to be time-sliced.
 - USB power related information reporting like selective suspend or auto suspend.
@@ -25,8 +26,7 @@ LEGACY
 - Hardware and software flow-control options.
 
 OTHERS
-- USB HID class API for communicating with composite USB devices like MCP2200, CP2110 etc.
-- Vendor libraries like D2XX FROM ftdi, SimpleIO from microchip, USBXpress from silicon labs etc supported.
+- Vendor libraries like D2XX from ftdi, SimpleIO from microchip, USBXpress from silicon labs etc supported.
 - X/Y/Z file transfer protocol API with progress listener for GUI applications, text/binary mode, and abort command.
 - Extraction of shared libraries at user defined locations for security.
 - Input and Output byte stream (blocking and non-blocking) for serial port communication.
