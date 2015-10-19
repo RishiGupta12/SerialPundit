@@ -22,6 +22,7 @@
 
 
 ### Create symlink
+##################
 
 # When a USB-UART matching VID, PID and serial number is added to the system create a symlink to it.
 # This will save time to find the device node assigned to the device.
@@ -30,6 +31,7 @@ SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", ATTRS{seria
 
 
 ### Create symlink based on physical location of USB device in tree
+###################################################################
 
 # If a USB device is connected at 3rd port of 3rd embedded root hub in system, for its 1st configuration
 # and interaface 0, create a symlink to it. For example connecting a FT232 will create a symlink
@@ -39,6 +41,7 @@ SUBSYSTEMS=="usb", KERNELS=="3-3:1.0", SYMLINK+="scm_location_link"
 
 
 ### Remove default driver
+#########################
 
 # By default when a USB-UART like CP2102 is inserted into system default kernel VCP drivers will be
 # loaded to driver the device. However if we want to remove these drivers and drive the device from
@@ -48,6 +51,7 @@ SUBSYSTEMS=="usb", KERNELS=="3-3:1.0", SYMLINK+="scm_location_link"
 
 
 ## Power management of USB device
+#################################
 
 # By deafult Linux kernel does not enable auto suspend of USB devices. If the USB-UART converter 
 # supports auto suspend then the devices can be suspended automatically when no process is using it.
@@ -56,7 +60,9 @@ SUBSYSTEMS=="usb", KERNELS=="3-3:1.0", SYMLINK+="scm_location_link"
 
 ACTION=="add", SUBSYSTEM=="usb", ATTRS{idVendor}=="10c4", ATTRS{idProduct}=="ea60", ATTRS{serial}=="0001", TEST=="power/control", ATTR{power/control}="auto"
 
+
 ### Run an external program
+###########################
 
 # Run an external program (.jar, shell script, executable binary etc.) when a USB-UART matching VID, 
 # PID and serial number is added to the system. This program may be runned as root user. The PROGRAM
@@ -67,6 +73,7 @@ SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", ATTRS{seria
 
 
 ### Run an external program with parameters
+###########################################
 
 # Run an external program which will take kernel device name as argument, does some processing and 
 # return its output via stdout. This output from stdout is then used to create a symlink.
@@ -75,6 +82,7 @@ SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", ATTRS{seria
 
 
 ### Serial over ethernet or port servers
+########################################
 
 # To run server service only when the client sends a socket request use systemd TAG. This is what 
 # port server uses. This has wide possibilities and detailed documentation should be consulted.
@@ -84,7 +92,8 @@ SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", ATTRS{seria
 KERNEL=="tty_custom_name*", PROGRAM="/usr/bin/custom_daemon %k", SYMLINK+="%c", TAG="systemd"
 
 
-### Create a device node based on usb device attributes. 
+### Create a device node based on usb device attributes
+#######################################################
 
 # Apart from default node, create a device node in /dev directory. The created device node will be
 # /dev/custom_name and is like persistent name for this device.
