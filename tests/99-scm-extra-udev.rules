@@ -38,6 +38,24 @@ SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", ATTRS{seria
 SUBSYSTEMS=="usb", KERNELS=="3-3:1.0", SYMLINK+="scm_location_link"
 
 
+### Remove default driver
+
+# By default when a USB-UART like CP2102 is inserted into system default kernel VCP drivers will be
+# loaded to driver the device. However if we want to remove these drivers and drive the device from
+# user space driver, this rule should remove kernel driver automatically.
+
+#SUBSYSTEM=="usb", ATTRS{idVendor}=="10c4", ATTRS{idProduct}=="ea60", ATTRS{serial}=="0001", RUN+="/bin/sh -c 'echo 1 >/sys$DEVPATH/remove'"
+
+
+## Power management of USB device
+
+# By deafult Linux kernel does not enable auto suspend of USB devices. If the USB-UART converter 
+# supports auto suspend then the devices can be suspended automatically when no process is using it.
+# cat /sys/bus/usb/drivers/usb/3-3/power/runtime_status will show active or suspended depending
+# upon power status of USB device.
+
+ACTION=="add", SUBSYSTEM=="usb", ATTRS{idVendor}=="10c4", ATTRS{idProduct}=="ea60", ATTRS{serial}=="0001", TEST=="power/control", ATTR{power/control}="auto"
+
 ### Run an external program
 
 # Run an external program (.jar, shell script, executable binary etc.) when a USB-UART matching VID, 
@@ -72,13 +90,4 @@ KERNEL=="tty_custom_name*", PROGRAM="/usr/bin/custom_daemon %k", SYMLINK+="%c", 
 # /dev/custom_name and is like persistent name for this device.
 
 SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", ATTRS{serial}=="A7036479", NAME="custom_name"
-
-
-### Remove default driver
-
-# By default when a USB-UART like CP2102 is inserted into system default kernel VCP drivers will be
-# loaded to driver the device. However if we want to remove these drivers and drive the device from
-# user space driver, this rule should remove kernel driver automatically.
-
-SUBSYSTEM=="usb", ATTRS{idVendor}=="10c4", ATTRS{idProduct}=="ea60", ATTRS{serial}=="0001", RUN+="/bin/sh -c 'echo 1 >/sys$DEVPATH/remove'"
 
