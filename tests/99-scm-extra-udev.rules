@@ -15,7 +15,10 @@
 # along with serial communication manager. If not, see <http://www.gnu.org/licenses/>.
 #################################################################################################
 
-# These are udev rules that can be used based on system and application design requirement.
+# These are udev rules that can be used based on system and application design requirement. The
+# rules written in /lib/udev/rules.d gets overidden by rules in /etc/udev/rules.d directory. Also
+# if for the same device/node more rules are defined at more than one place or file, pay attention
+# to the order in which they are applied as they may have side effects.
 
 
 ### Create symlink
@@ -24,6 +27,15 @@
 # This will save time to find the device node assigned to the device.
 
 SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", ATTRS{serial}=="A7036479", SYMLINK+="scm_custom_link"
+
+
+### Create symlink based on physical location of USB device in tree
+
+# If a USB device is connected at 3rd port of 3rd embedded root hub in system, for its 1st configuration
+# and interaface 0, create a symlink to it. For example connecting a FT232 will create a symlink
+# scm_location_link -> ttyUSB0 in /dev directory.
+
+SUBSYSTEMS=="usb", KERNELS=="3-3:1.0", SYMLINK+="scm_location_link"
 
 
 ### Run an external program
@@ -58,5 +70,4 @@ KERNEL=="tty_custom_name*", PROGRAM="/usr/bin/custom_daemon %k", SYMLINK+="%c", 
 # /dev/custom_name and is like persistent name for this device.
 
 SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", ATTRS{serial}=="A7036479", NAME="custom_name"
-
 
