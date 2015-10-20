@@ -97,6 +97,7 @@ jobjectArray list_usb_devices(JNIEnv *env, jint vendor_to_match) {
 	struct udev_enumerate *enumerator;
 	struct udev_list_entry *devices, *dev_list_entry;
 	const char *sysattr_val;
+	const char *prop_val;
 	const char *path;
 	struct udev_device *udev_device;
 	char *endptr;
@@ -186,9 +187,9 @@ jobjectArray list_usb_devices(JNIEnv *env, jint vendor_to_match) {
 			insert_jstrarraylist(&list, usb_dev_info);
 
 			/* LOCATION (constructed) TODO*/
-			sysattr_val = udev_device_get_sysattr_value(udev_device, "busnum");
-			if(sysattr_val != NULL) {
-				usb_dev_info = (*env)->NewStringUTF(env, sysattr_val);
+			prop_val = udev_device_get_property_value(udev_device, "DEVPATH");
+			if(prop_val != NULL) {
+				usb_dev_info = (*env)->NewStringUTF(env, prop_val);
 			}else {
 				usb_dev_info = (*env)->NewStringUTF(env, "---");
 			}

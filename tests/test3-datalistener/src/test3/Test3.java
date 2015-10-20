@@ -60,9 +60,6 @@ public class Test3 {
 				PORT1 = null;
 			}else{
 			}
-			
-			PORT = "/dev/pts/1";
-			PORT1 = "/dev/pts/3";
 
 			// instantiate class which is will implement ISerialComDataListener interface
 			Data dataListener = new Data();
