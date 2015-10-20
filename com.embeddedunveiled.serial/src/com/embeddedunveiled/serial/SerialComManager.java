@@ -669,7 +669,8 @@ public final class SerialComManager {
 	 * 
 	 * @param usbVidToMatch USB vendor id of the device to match.
 	 * @param usbPidToMatch USB product id of the device to match.
-	 * @param serialNumber USB serial number (case insensitive, optional) of device to match or null if not to be matched.
+	 * @param serialNumber USB serial number (case insensitive, optional) of device to match or null if not 
+	 *         to be matched.
 	 * @return list of COM port(s) (device node) for given USB device or empty array if no COM port is assigned.
 	 * @throws SerialComException if an I/O error occurs.
 	 * @throws IllegalArgumentException if usbVidToMatch or usbPidToMatch is negative or or invalid number.
@@ -1138,6 +1139,21 @@ public final class SerialComManager {
 			throw new SerialComException("Could not write given data to serial port. Please retry !");
 		}
 		return ret;
+	}
+
+	/**
+	 * <p>Write bytes from given buffer to the given handle in blocking mode.</p>
+	 * 
+	 * <p>Writing empty buffer i.e. zero length array is not allowed.</p>
+	 * 
+	 * @param handle handle of the opened port on which to write bytes.
+	 * @param buffer byte type buffer containing bytes to be written to port.
+	 * @return true on success, false on failure or if empty buffer is passed.
+	 * @throws SerialComException if an I/O error occurs.
+	 * @throws IllegalArgumentException if buffer is null.
+	 */
+	public boolean writeBytesBlocking(long handle, byte[] buffer) throws SerialComException {
+		return writeBytes(handle, buffer, 0);
 	}
 
 	/**
