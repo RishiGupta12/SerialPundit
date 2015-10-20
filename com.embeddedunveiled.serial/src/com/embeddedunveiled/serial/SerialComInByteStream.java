@@ -19,8 +19,11 @@ package com.embeddedunveiled.serial;
 
 import java.io.IOException;
 import java.io.InputStream;
+
 import com.embeddedunveiled.serial.SerialComManager.SMODE;
+import com.embeddedunveiled.serial.internal.SerialComHIDJNIBridge;
 import com.embeddedunveiled.serial.internal.SerialComPortHandleInfo;
+import com.embeddedunveiled.serial.internal.SerialComPortJNIBridge;
 
 /**
  * <p>Represents an input stream of bytes which is received from serial port.</p>
@@ -39,6 +42,8 @@ public final class SerialComInByteStream extends InputStream {
 	private long handle;
 	private boolean isOpened;
 	private boolean isBlocking;
+	private long eventHandle;
+	private SerialComPortJNIBridge mComPortJNIBridge;
 
 	/**
 	 * <p>Construct and allocates a new SerialComInByteStream object with given details.</p>
@@ -46,22 +51,27 @@ public final class SerialComInByteStream extends InputStream {
 	 * @param scm instance of SerialComManager class with which this stream will associate itself.
 	 * @param handle handle of the serial port on which to read data bytes.
 	 * @param streamMode indicates blocking or non-blocking behavior of stream.
-	 * @throws SerialComException if serial port can not be configured for specified read behavior.
+	 * @throws SerialComException if the input stream can not be prepared for the specified read behavior.
 	 */
-	public SerialComInByteStream(SerialComManager scm, SerialComPortHandleInfo portHandleInfo, long handle, 
-			SMODE streamMode) throws SerialComException {
+	public SerialComInByteStream(SerialComManager scm, SerialComPortHandleInfo portHandleInfo, 
+			SerialComPortJNIBridge mComPortJNIBridge, long handle, SMODE streamMode) throws SerialComException {
 		this.scm = scm;
 		this.portHandleInfo = portHandleInfo;
 		this.handle = handle;
-		isOpened = true;
+		this. mComPortJNIBridge = mComPortJNIBridge;
 
+		/* For blocking read, create a operating system specific event object that will be used to 
+		 * wait for data to be available for reading. If a thread is blocked (waiting for data and 
+		 * another thread closes stream, the serial port will not be closed. To prevent this we explicitly
+		 * cause an event to happen to bring out the blocked read call so that serial port can be closed. */
 		if(streamMode.getValue() == 1) {
-			// For windows blocking read method is called while for others (unix-like) VMIN/VTIME is set.
-			if(scm.getOSType() != SerialComManager.OS_WINDOWS) {
-				scm.fineTuneRead(handle, 1, 0, 0, 0, 0);
+			long eventHandle = mComPortJNIBridge.createEventHandleForBlockingStream();
+			if(eventHandle < 0) {
+				throw new SerialComException("Could not create event handle. Please retry !");
 			}
 			isBlocking = true;
 		}
+		isOpened = true;
 	}
 
 	/**
@@ -97,6 +107,7 @@ public final class SerialComInByteStream extends InputStream {
 		if(isOpened != true) {
 			throw new IOException("The byte stream has been closed !");
 		}
+		mComPortJNIBridge.destroyEventHandleForBlockingStream(eventHandle);
 		portHandleInfo.setSerialComInByteStream(null);
 		isOpened = false;
 	}
@@ -141,13 +152,15 @@ public final class SerialComInByteStream extends InputStream {
 		byte[] data = new byte[1];
 		try {
 			if(isBlocking == true) {
-				data = scm.readBytesBlocking(handle, 1);
+				// blocking I/O
+				data = scm.readBytesBlocking(handle, 1, eventHandle);
 				if(data != null) {
 					return (int)data[0];
 				}else {
 					throw new IOException("Unknown error occured !");
 				}
 			}else {
+				// non-blocking I/O
 				data = scm.readBytes(handle, 1);
 				if(data != null) {
 					return (int)data[0];
@@ -235,7 +248,8 @@ public final class SerialComInByteStream extends InputStream {
 		int i = off;
 		try {
 			if(isBlocking == true) {
-				byte[] data = scm.readBytesBlocking(handle, len);
+				// blocking I/O
+				byte[] data = scm.readBytesBlocking(handle, len, eventHandle);
 				if(data != null) {
 					for(int x=0; x<data.length; x++) {
 						b[i] = data[x];
@@ -246,6 +260,7 @@ public final class SerialComInByteStream extends InputStream {
 					throw new IOException("Unknown error occured !");
 				}
 			}else {
+				// non-blocking I/O
 				byte[] data = scm.readBytes(handle, len);
 				if(data != null) {
 					for(int x=0; x<data.length; x++) {

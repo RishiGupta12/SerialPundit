@@ -23,15 +23,21 @@ import com.embeddedunveiled.serial.SerialComManager.BAUDRATE;
 import com.embeddedunveiled.serial.SerialComManager.DATABITS;
 import com.embeddedunveiled.serial.SerialComManager.FLOWCONTROL;
 import com.embeddedunveiled.serial.SerialComManager.PARITY;
+import com.embeddedunveiled.serial.SerialComManager.SMODE;
 import com.embeddedunveiled.serial.SerialComManager.STOPBITS;
 
 class ClosePort extends Test54 implements Runnable {
 	@Override
 	public void run() {
 		try {
-			Thread.sleep(5000); // make sure closed is called after read is blocked
-			System.out.println("closing");
+			Thread.sleep(2000); // make sure closed is called after read is blocked
+			System.out.println("closing stream");
+			in.close();
+
+			System.out.println("closing port");
 			scm.closeComPort(handle);
+
+			System.out.println("closed port");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -40,18 +46,19 @@ class ClosePort extends Test54 implements Runnable {
 
 // test if port is closed port while read was blocked 
 public class Test54 {
-	
+
 	private static Thread mThread = null;
 	public static long handle = 0;
 	public static SerialComManager scm = null;
-	
+	public static SerialComInByteStream in = null;
+
 	public static void main(String[] args) {
 		try {
 			scm = new SerialComManager();
 
 			String PORT = null;
 			String PORT1 = null;
-			int osType = SerialComManager.getOSType();
+			int osType = scm.getOSType();
 			if(osType == SerialComManager.OS_LINUX) {
 				PORT = "/dev/ttyUSB0";
 				PORT1 = "/dev/ttyUSB1";
@@ -67,19 +74,23 @@ public class Test54 {
 			}else{
 			}
 
+			PORT = "/dev/pts/1";
+			PORT1 = "/dev/pts3";
+
 			handle = scm.openComPort(PORT, true, true, true);
 			scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
 			scm.configureComPortControl(handle, FLOWCONTROL.NONE, 'x', 'x', false, false);
-			
+
 			mThread = new Thread(new ClosePort());
 			mThread.start();
-			
-			SerialComInByteStream in = scm.createInputByteStream(handle);
+
+			in = scm.createInputByteStream(handle, SMODE.BLOCKING);
+			System.out.println("1- created input stream, proccedding to call read which will block because of no data !");
+
 			byte[] b = new byte[50];
 			in.read(b);
-			System.out.println("b : " + new String(b));
+			System.out.println("main thread returned from read as expected after closing , data from stream : " + new String(b));
 			
-			System.out.println("out of read");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

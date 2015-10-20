@@ -276,11 +276,13 @@ public final class SerialComPortJNIBridge {
 	public native long openComPort(String portName, boolean enableRead, boolean enableWrite, boolean exclusiveOwner);
 	public native int closeComPort(long handle);
 	public native byte[] readBytes(long handle, int byteCount);
-	public native byte[] readBytesBlocking(long handle, int byteCount);
+	public native byte[] readBytesBlocking(long handle, int byteCount, long eventHandle);
 	public native int readBytesDirect(long handle, ByteBuffer buffer, int offset, int length);
 	public native int writeBytes(long handle, byte[] buffer, int delay);
 	public native int writeBytesDirect(long handle, ByteBuffer buffer, int offset, int length);
 	public native int writeSingleByte(long handle, byte dataByte);
+	public native long createEventHandleForBlockingStream();
+	public native void destroyEventHandleForBlockingStream(long eventHandle);
 
 	// Modem control, buffer
 	public native int setRTS(long handle, boolean enabled);

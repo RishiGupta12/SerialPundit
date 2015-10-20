@@ -47,7 +47,7 @@ SUBSYSTEMS=="usb", KERNELS=="3-3:1.0", SYMLINK+="scm_location_link"
 # loaded to driver the device. However if we want to remove these drivers and drive the device from
 # user space driver, this rule should remove kernel driver automatically.
 
-#SUBSYSTEM=="usb", ATTRS{idVendor}=="10c4", ATTRS{idProduct}=="ea60", ATTRS{serial}=="0001", RUN+="/bin/sh -c 'echo 1 >/sys$DEVPATH/remove'"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="10c4", ATTRS{idProduct}=="ea60", ATTRS{serial}=="0001", RUN+="/bin/sh -c 'echo 1 >/sys$DEVPATH/remove'"
 
 
 ## Power management of USB device
