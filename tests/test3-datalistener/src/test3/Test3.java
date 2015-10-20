@@ -60,6 +60,9 @@ public class Test3 {
 				PORT1 = null;
 			}else{
 			}
+			
+			PORT = "/dev/pts/1";
+			PORT1 = "/dev/pts/3";
 
 			// instantiate class which is will implement ISerialComDataListener interface
 			Data dataListener = new Data();
@@ -69,7 +72,9 @@ public class Test3 {
 			scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
 			scm.configureComPortControl(handle, FLOWCONTROL.NONE, 'x', 'x', false, false);
 			
+			System.out.println("dsd");
 			scm.registerDataListener(handle, dataListener);    // register data listener for this port
+			System.out.println("dsd");
 
 			// open and configure port which will send data
 			long handle1 = scm.openComPort(PORT1, true, true, true);

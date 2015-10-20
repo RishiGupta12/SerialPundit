@@ -110,6 +110,8 @@ struct com_thread_params {
 	int event_standard_err_code;
 	pthread_attr_t data_thread_attr;
 	pthread_attr_t event_thread_attr;
+	pthread_cond_t data_cond_var;
+	pthread_cond_t event_cond_var;
 };
 
 #if defined (__linux__)

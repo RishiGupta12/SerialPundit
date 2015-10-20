@@ -70,9 +70,6 @@ public class Test54 {
 			}else{
 			}
 
-			PORT = "/dev/pts/1";
-			PORT1 = "/dev/pts3";
-
 			handle = scm.openComPort(PORT, true, true, true);
 			scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
 			scm.configureComPortControl(handle, FLOWCONTROL.NONE, 'x', 'x', false, false);

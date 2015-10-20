@@ -2418,6 +2418,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
 	jobject datalooper = NULL;
 	struct com_thread_params params;
 	void *arg;
+	pthread_cond_t cond_var = PTHREAD_COND_INITIALIZER;
 
 	ptr = fd_looper_info;
 
@@ -2440,13 +2441,16 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
 	}
 
 	if((entry_found == JNI_TRUE) && (empty_entry_found == JNI_FALSE)) {
-		/* Set up pointer to location which will be passed to thread (event thread probably exist for this fd). */
+		/* Set up pointer to location which will be passed to thread (event thread probably
+		 * exist for this fd so modify only data thread related arguments). */
 		ptr->data_init_done = -1;
 		ptr->data_standard_err_code = 0;
 		ptr->data_custom_err_code = 0;
+		ptr->data_cond_var = cond_var;
 		arg = &fd_looper_info[x];
 	}else if((entry_found == JNI_FALSE) && (empty_entry_found == JNI_TRUE)) {
-		/* Set the values, create reference to it to be passed to thread (re-use empty location in array). */
+		/* Set the values, create reference to it to be passed to thread (re-use empty location
+		 * in array). */
 		datalooper = (*env)->NewGlobalRef(env, looper);
 		if((datalooper == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
 			pthread_mutex_unlock(&mutex);
@@ -2468,6 +2472,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
 		params.event_standard_err_code = 0;
 		params.data_custom_err_code = 0;
 		params.data_standard_err_code = 0;
+		params.data_cond_var = cond_var;
 		fd_looper_info[x] = params;
 		arg = &fd_looper_info[x];
 	}else {
@@ -2493,6 +2498,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
 		params.event_standard_err_code = 0;
 		params.data_custom_err_code = 0;
 		params.data_standard_err_code = 0;
+		params.data_cond_var = cond_var;
 		fd_looper_info[dtp_index] = params;
 		arg = &fd_looper_info[dtp_index];
 	}
@@ -2515,10 +2521,14 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
 		dtp_index++;
 	}
 
-	pthread_mutex_unlock(&mutex);
+	/* wait till worker thread initializes completely. */
+	if(-1 == ((struct com_thread_params*) arg)->data_init_done) {
+		/* pthread_cond_wait() automatically and atomically unlocks the associated mutex variable
+		 * so that it can be used by worker thread */
+		pthread_cond_wait(&(((struct com_thread_params*) arg)->data_cond_var), &mutex);
+	}
 
-	/* wait till thread initialize completely, then return success. */
-	while(-1 == ((struct com_thread_params*) arg)->data_init_done) { }
+	pthread_mutex_unlock(&mutex);
 
 	if(0 == ((struct com_thread_params*) arg)->data_init_done) {
 		/* Save the data thread id which will be used when listener is unregistered. */
