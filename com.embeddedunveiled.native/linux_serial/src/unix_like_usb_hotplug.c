@@ -176,6 +176,7 @@ void *usb_device_hotplug_monitor(void *arg) {
 	udev_monitor_fd = udev_monitor_get_fd(udev_monitor);
 
 	/* tell main thread thread initialization successfully completed */
+	pthread_cond_signal(&(((struct usb_dev_monitor_info*) arg)->cond_var));
 	((struct usb_dev_monitor_info*) arg)->init_done = 0;
 	pthread_mutex_unlock(((struct usb_dev_monitor_info*) arg)->mutex);
 

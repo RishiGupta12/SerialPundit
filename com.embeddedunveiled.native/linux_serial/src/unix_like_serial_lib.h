@@ -131,6 +131,7 @@ struct usb_dev_monitor_info {
 	int standard_err_code;
 	int custom_err_code;
 	int evfd;
+	pthread_cond_t cond_var;
 };
 #endif
 

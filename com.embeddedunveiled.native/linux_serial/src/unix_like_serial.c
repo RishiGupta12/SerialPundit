@@ -2867,6 +2867,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
 	struct usb_dev_monitor_info params;
 	jobject usbHotPlugListener = NULL;
 	const char* serial_number = NULL;
+	pthread_cond_t condvar = PTHREAD_COND_INITIALIZER;
 
 	ptr = &usb_hotplug_monitor_info[0];
 	pthread_mutex_lock(&mutex);
@@ -2909,6 +2910,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
 	params.init_done = -1;
 	params.custom_err_code = 0;
 	params.standard_err_code = 0;
+	params.cond_var = condvar;
 	params.mutex = &mutex;
 #if defined (__linux__)
 	params.evfd = 0;
@@ -2940,13 +2942,14 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
 		return -1;
 	}
 
-	pthread_mutex_unlock(&mutex);
-
-	/* let the worker thread initialize completely and then return success/failure. */
-	while(((struct usb_dev_monitor_info*) arg)->init_done == -1) {
-		fflush(stderr);
-		fflush(stderr);
+	/* wait till worker thread initializes completely. */
+	if(((struct usb_dev_monitor_info*) arg)->init_done == -1) {
+		/* pthread_cond_wait() automatically and atomically unlocks the associated mutex variable
+		 * so that it can be used by worker thread */
+		pthread_cond_wait(&(((struct usb_dev_monitor_info*) arg)->cond_var), &mutex);
 	}
+
+	pthread_mutex_unlock(&mutex);
 
 	if(0 == ((struct usb_dev_monitor_info*) arg)->init_done) {
 		/* Save the thread id which will be used when listener is unregistered. */
