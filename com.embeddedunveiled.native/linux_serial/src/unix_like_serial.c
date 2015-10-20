@@ -51,6 +51,7 @@
 #include <sys/types.h>   /* Primitive System Data Types         */
 #include <sys/stat.h>    /* Defines the structure of the data   */
 #include <pthread.h>     /* POSIX thread definitions            */
+#include <sys/param.h>
 #include <sys/select.h>
 
 #if defined (__linux__)
@@ -73,7 +74,6 @@
 #include <sys/ioctl.h>
 #include <paths.h>
 #include <sysexits.h>
-#include <sys/param.h>
 #include <CoreFoundation/CoreFoundation.h>
 #include <IOKit/IOKitLib.h>
 #include <IOKit/serial/IOSerialKeys.h>
@@ -671,15 +671,133 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialCom
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
  * Method:    readBytesBlocking
- * Signature: (JI)[B
+ * Signature: (JIJ)[B
  *
- * Not implemented for unix-like OS, as normal readBytes() function will act as blocking when VMIN and
- * VTIME in termios structure is configured correctly.
+ * Block on :
+ * (1) serial port file descriptor to become available for reading
+ * (2) event file descriptor that is used to come out of blocking state
  *
- * @return NULL always.
+ * @return NULL if an error occurs.
+ * @throws SerialComException if any JNI function, system call or C function fails.
  */
 JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_readBytesBlocking(JNIEnv *env,
-		jobject obj, jlong fd, jint count) {
+		jobject obj, jlong fd, jint count, jlong context) {
+
+	int result = 0;
+	fd_set fds;
+	int i = -1;
+	int index = 0;
+	int partial_data = -1;
+	int num_bytes_to_read = 0;
+	int total_read = 0;
+	ssize_t ret = -1;
+	jbyte buffer[2 * 1024];
+	jbyte final_buf[3 * 1024];
+	jbyteArray dataRead;
+
+	/* prepare to block */
+	FD_ZERO(&fds);
+	FD_SET((int)context, &fds);
+	FD_SET(fd, &fds);
+	errno = 0;
+#if defined (__linux__)
+	result = pselect((MAX(fd, (int)context) + 1), &fds, NULL, NULL, NULL, NULL);
+#endif
+#if defined (__APPLE__)
+	result = pselect((MAX(fd, ((int) context[0])) + 1), &fds, NULL, NULL, NULL, NULL);
+#endif
+	if(result < 0) {
+		throw_serialcom_exception(env, 1, errno, NULL);
+		return NULL;
+	}
+
+	/* check if we should just come out waiting state and return to caller. if yes, throw exception with
+	 * message that will be identified by application to understand that blocked I/O has been unblocked. */
+	if((result > 0) && FD_ISSET((int)context, &fds)) {
+		throw_serialcom_exception(env, 3, 0, E_UNBLOCKIO);
+		return NULL;
+	}
+
+	if((result > 0) && FD_ISSET(fd, &fds)) {
+		/* reaching here means serial port has data to read */
+		num_bytes_to_read = count; /* initial value */
+		do {
+			if(partial_data == 1) {
+				num_bytes_to_read = count - total_read;
+			}
+
+			errno = 0;
+			ret = read(fd, buffer, num_bytes_to_read);
+
+			if((ret > 0) && (errno == 0)) {
+				total_read = total_read + ret;
+				/* This indicates we got success and have read data. */
+				/* If there is partial data read previously, append this data. */
+				if(partial_data == 1) {
+					for(i = 0; i < ret; i++) {
+						final_buf[index] = buffer[i];
+						index++;
+					}
+					/* Pass the final fully successful read to java layer. */
+					dataRead = (*env)->NewByteArray(env, index);
+					if((dataRead == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+						throw_serialcom_exception(env, 3, 0, E_NEWBYTEARRAYSTR);
+						return NULL;
+					}
+					(*env)->SetByteArrayRegion(env, dataRead, 0, index, final_buf);
+					if((*env)->ExceptionOccurred(env)) {
+						throw_serialcom_exception(env, 3, 0, E_SETBYTEARRREGIONSTR);
+						return NULL;
+					}
+					return dataRead;
+				}else {
+					/* Pass the successful read to java layer straight away. */
+					dataRead = (*env)->NewByteArray(env, ret);
+					if((dataRead == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+						throw_serialcom_exception(env, 3, 0, E_NEWBYTEARRAYSTR);
+						return NULL;
+					}
+					(*env)->SetByteArrayRegion(env, dataRead, 0, ret, buffer);
+					if((*env)->ExceptionOccurred(env)) {
+						throw_serialcom_exception(env, 3, 0, E_SETBYTEARRREGIONSTR);
+						return NULL;
+					}
+					return dataRead;
+				}
+			}else if((ret > 0) && (errno == EINTR)) {
+				total_read = total_read + ret;
+				/* This indicates, there is data to read, however, we got interrupted before we finish reading
+				 * all of the available data. So we need to save this partial data and get back to read remaining. */
+				for(i = 0; i < ret; i++) {
+					final_buf[index] = buffer[i];
+					index++;
+				}
+				partial_data = 1;
+				errno = 0;
+				continue;
+			}else if(ret < 0) {
+				if(errno == EINTR) {
+					/* This indicates that we should retry as we are just interrupted by a signal. */
+					errno = 0;
+					continue;
+				}else {
+					/* This indicates, irrespective of, there was data to read or not, we got an error
+					 * during operation. */
+					throw_serialcom_exception(env, 1, errno, NULL);
+					return NULL;
+				}
+			}else if(ret == 0) {
+				/* This indicates, no data on port, EOF or port is removed from system (may be). */
+				return NULL;
+			}else {
+				/* do nothing, relax :) */
+			}
+		} while(1);
+	}
+
+	fprintf(stderr, "%d\n", 5);
+	fflush(stderr);
+	/* should not be reached */
 	return NULL;
 }
 
@@ -1206,6 +1324,115 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
 
 	free(vec);
 	return num_bytes_written;
+}
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
+ * Method:    createBlockingIOContext
+ * Signature: ()J
+ *
+ * This will create event object/file descriptor that will be used to wait upon in addition to
+ * serial port file descriptor, so as to bring blocked read call out of waiting state. This is needed
+ * if application is willing to close the serial port but unable because a blocked reader exist.
+ *
+ * @return context on success otherwise -1 if an error occurs.
+ * @throws SerialComException if any JNI function, system call or C function fails.
+ */
+JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_createBlockingIOContext(JNIEnv *env,
+		jobject obj) {
+
+#if defined (__linux__)
+	int evfd = 0;
+	errno = 0;
+	evfd  = eventfd(0, 0);
+	if(evfd < 0) {
+		throw_serialcom_exception(env, 1, errno, NULL);
+		return -1;
+	}
+	return evfd;
+#endif
+
+#if defined (__APPLE__)
+	int ret = -1;
+	jlong *pipeinfo = NULL;
+	int pipefdpair[2];
+	errno = 0;
+	ret = pipe(pipefdpair);
+	if(ret < 0) {
+		throw_serialcom_exception(env, 1, errno, NULL);
+		return -1;
+	}
+	pipeinfo = (jlong *) calloc(2, sizeof(jlong));
+	if(pipeinfo == NULL) {
+		throw_serialcom_exception(env, 3, 0, E_CALLOCSTR);
+		return -1;
+	}
+	/* pipe1[0] is reading end, and pipe1[1] is writing end. */
+	pipeinfo[0] = pipefdpair[0];
+	pipeinfo[1] = pipefdpair[1];
+	return pipeinfo;
+#endif
+
+	/* should not be reached */
+	return -1;
+}
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
+ * Method:    unblockBlockingIOOperation
+ * Signature: (J)I
+ *
+ * @return 0 on success otherwise -1 if an error occurs.
+ * @throws SerialComException if any JNI function, system call or C function fails.
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_unblockBlockingIOOperation
+  (JNIEnv *env, jobject obj, jlong context) {
+
+#if defined (__linux__)
+	int ret;
+	uint64_t value = 5;
+	errno = 0;
+	ret = write(((int) context), &value, sizeof(value));
+	if(ret <= 0) {
+		throw_serialcom_exception(env, 1, errno, NULL);
+		return -1;
+	}
+#endif
+
+#if defined (__APPLE__)
+	int ret;
+	ret = write(((int) context[1]), "EXIT", strlen("EXIT"));
+	if(ret <= 0) {
+		throw_serialcom_exception(env, 1, errno, NULL);
+		return -1;
+	}
+#endif
+
+	return 0;
+}
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
+ * Method:    destroyBlockingIOContext
+ * Signature: (J)I
+ *
+ * @return 0 on success otherwise -1 if an error occurs.
+ * @throws SerialComException if any JNI function, system call or C function fails.
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_destroyBlockingIOContext(JNIEnv *env,
+		jobject obj, jlong context) {
+
+#if defined (__linux__)
+	close(context);
+#endif
+
+#if defined (__APPLE__)
+	close((int) context[0]);
+	close((int) context[1]);
+	free(context);
+#endif
+
+	return 0;
 }
 
 /*
@@ -2922,7 +3149,7 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJ
  * Signature: (Ljava/lang/String;)[Ljava/lang/String;
  */
 JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_getCDCUSBDevPowerInfo
-  (JNIEnv *env, jobject obj, jstring comPortName) {
+(JNIEnv *env, jobject obj, jstring comPortName) {
 	return get_usbdev_powerinfo(env, comPortName);
 }
 

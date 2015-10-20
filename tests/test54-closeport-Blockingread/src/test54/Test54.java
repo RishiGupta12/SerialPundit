@@ -30,14 +30,10 @@ class ClosePort extends Test54 implements Runnable {
 	@Override
 	public void run() {
 		try {
-			Thread.sleep(2000); // make sure closed is called after read is blocked
-			System.out.println("closing stream");
+			Thread.sleep(500); // make sure closed is called after read is blocked
+			System.out.println("closing stream...");
 			in.close();
-
-			System.out.println("closing port");
-			scm.closeComPort(handle);
-
-			System.out.println("closed port");
+			System.out.println("closed stream.");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -81,16 +77,27 @@ public class Test54 {
 			scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
 			scm.configureComPortControl(handle, FLOWCONTROL.NONE, 'x', 'x', false, false);
 
+			// test 1
+			in = scm.createInputByteStream(handle, SMODE.BLOCKING);
 			mThread = new Thread(new ClosePort());
 			mThread.start();
-
-			in = scm.createInputByteStream(handle, SMODE.BLOCKING);
 			System.out.println("1- created input stream, proccedding to call read which will block because of no data !");
+			in.read();
+			System.out.println("main thread, in.read() returned from blocked read !");
 
+			Thread.sleep(1000); // let the previous stream be closed and removed from information object in SerialComManager class
+			
+			// test 2
+			in = scm.createInputByteStream(handle, SMODE.BLOCKING);
+			mThread = new Thread(new ClosePort());
+			mThread.start();
+			System.out.println("\n1- created input stream, proccedding to call read which will block because of no data !");
 			byte[] b = new byte[50];
 			in.read(b);
-			System.out.println("main thread returned from read as expected after closing , data from stream : " + new String(b));
-			
+			System.out.println("main thread, in.read(b) returned from blocked read !");
+
+			scm.closeComPort(handle);
+			System.out.println("closed serial port.");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

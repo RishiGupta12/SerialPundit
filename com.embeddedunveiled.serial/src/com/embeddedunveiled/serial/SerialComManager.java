@@ -1148,11 +1148,12 @@ public final class SerialComManager {
 	 * 
 	 * @param handle handle of the opened port on which to write bytes.
 	 * @param buffer byte type buffer containing bytes to be written to port.
+	 * @param context context value obtained form call to createBlockingIOContext method.
 	 * @return true on success, false on failure or if empty buffer is passed.
 	 * @throws SerialComException if an I/O error occurs.
 	 * @throws IllegalArgumentException if buffer is null.
 	 */
-	public boolean writeBytesBlocking(long handle, byte[] buffer) throws SerialComException {
+	public boolean writeBytesBlocking(long handle, byte[] buffer, long context) throws SerialComException {
 		return writeBytes(handle, buffer, 0);
 	}
 
@@ -1196,6 +1197,57 @@ public final class SerialComManager {
 	}
 
 	/** 
+	 * <p>Prepares a context that should be passed to readBytesBlocking, writeBytesBlocking,  
+	 * unblockBlockingIOOperation and destroyBlockingIOContext methods.</p>
+	 * 
+	 * @return context value that should be passed to destroyBlockingIOContext, readBytesBlocking and
+	 *          writeBytesBlocking methods.
+	 * @throws SerialComException if an I/O error occurs.
+	 */
+	public long createBlockingIOContext() throws SerialComException {
+		long ret = mComPortJNIBridge.createBlockingIOContext();
+		if(ret < 0) {
+			throw new SerialComException("Could not create blocking I/O context. Please retry !");
+		}
+		return ret;
+	}
+
+	/** 
+	 * <p>Unblocked any blocked operation if it exist. This causes closing of serial port possible 
+	 * gracefully and return the worker thread that called blocking read/write to return and proceed 
+	 * as per application design.</p>
+	 * 
+	 * @param context context obtained from call to createBlockingIOContext method for blocking 
+	 *         I/O operations.
+	 * @return true if blocked operation was unblocked successfully.
+	 * @throws SerialComException if an I/O error occurs.
+	 */
+	public boolean unblockBlockingIOOperation(long context) throws SerialComException {
+		int ret = mComPortJNIBridge.unblockBlockingIOOperation(context);
+		if(ret < 0) {
+			throw new SerialComException("Could not unblock the blocked I/O operation. Please retry !");
+		}
+		return true;
+	}
+
+	/** 
+	 * <p>Destroys the context that was created by a call to createBlockingIOContext method for 
+	 * blocking I/O operations uses.</p>
+	 * 
+	 * @param context context obtained from call to createBlockingIOContext method for blocking 
+	 *         I/O operations.
+	 * @return true if the context gets destroyed successfully.
+	 * @throws SerialComException if an I/O error occurs.
+	 */
+	public boolean destroyBlockingIOContext(long context) throws SerialComException {
+		int ret = mComPortJNIBridge.destroyBlockingIOContext(context);
+		if(ret < 0) {
+			throw new SerialComException("Could not destroy blocking I/O context. Please retry !");
+		}
+		return true;
+	}
+
+	/** 
 	 * <p>Read specified number of bytes from given serial port and stay blocked till bytes arrive at serial port.</p>
 	 * <p>1. If data is read from serial port, array of bytes containing data is returned.</p>
 	 * <p>2. If there was no data in serial port to read, null is returned. Note that this case is not possible however for 
@@ -1207,17 +1259,16 @@ public final class SerialComManager {
 	 * 
 	 * @param handle of the serial port from which to read bytes.
 	 * @param byteCount number of bytes to read from serial port.
-	 * @param eventHandle event object that will be signaled to bring any blocked read to come out of 
-	 *         blocked state.
+	 * @param context context obtained by a call to createBlockingIOContext method.
 	 * @return array of bytes read from port or null.
 	 * @throws SerialComException if an I/O error occurs or if byteCount is greater than 2048.
 	 */
-	public byte[] readBytesBlocking(long handle, int byteCount, long eventHandle) throws SerialComException {
+	public byte[] readBytesBlocking(long handle, int byteCount, long context) throws SerialComException {
 		if(byteCount > 2048) {
 			throw new SerialComException("Number of bytes to read can not be greater than 2048 !");
 		}
 		byte[] buffer = null;
-		buffer = mComPortJNIBridge.readBytesBlocking(handle, byteCount, eventHandle);
+		buffer = mComPortJNIBridge.readBytesBlocking(handle, byteCount, context);
 
 		if(buffer != null) {
 			// data read from serial port, pass to application
@@ -2363,7 +2414,7 @@ public final class SerialComManager {
 		}
 
 		if(scis == null) {
-			scis = new SerialComInByteStream(this, mHandleInfo, mComPortJNIBridge, handle, streamMode);
+			scis = new SerialComInByteStream(this, mHandleInfo, handle, streamMode);
 			mHandleInfo.setSerialComInByteStream(scis);
 		}else {
 			// if 2nd attempt is made to create already existing input stream, throw exception
