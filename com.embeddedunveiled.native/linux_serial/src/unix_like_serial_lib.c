@@ -507,6 +507,7 @@ void *event_looper(void *arg) {
 	}
 
 	/* indicate success to caller so it can return success to java layer */
+	pthread_cond_signal(&(((struct com_thread_params*) arg)->event_cond_var));
 	((struct com_thread_params*) arg)->event_init_done = 1;
 	pthread_mutex_unlock(((struct com_thread_params*) arg)->mutex);
 
