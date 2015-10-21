@@ -119,6 +119,17 @@ jobjectArray list_usb_devices(JNIEnv *env, jint vendor_to_match) {
 		}
 
 		if(strcmp("usb_device", udev_device_get_devtype(udev_device)) == 0) {
+
+			/* In context of this library, application is not interested in USB hub and USB
+			 * host controllers. Skip then from listing. */
+			sysattr_val = udev_device_get_sysattr_value(udev_device, "bDeviceClass");
+			if(sysattr_val != NULL) {
+				if(0x09 == strtol(sysattr_val, &endptr, 16)) {
+					udev_device_unref(udev_device);
+					continue;
+				}
+			}
+
 			/* USB-IF vendor ID */
 			sysattr_val = udev_device_get_sysattr_value(udev_device, "idVendor");
 			if(sysattr_val != NULL) {
