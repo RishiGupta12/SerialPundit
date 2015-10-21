@@ -47,7 +47,7 @@ import com.embeddedunveiled.serial.internal.SerialComSystemProperty;
  * http://www.ftdichip.com/Support/Documents/ProgramGuides/D2XX_Programmer's_Guide(FT_000071).pdf </p>
  * 
  * <p>[2] The VCP and D2XX drivers are mutually exclusive and therefore use this script to unload VCP drivers :
- * https://github.com/RishiGupta12/serial-communication-manager/blob/master/tests/unload-ftdi-vcp-driver.sh</p>
+ * https://github.com/RishiGupta12/serial-communication-manager/blob/master/tools-and-utilities/unload-ftdi-vcp-driver.sh</p>
  * 
  * <p>[3] It seems like d2xx drivers are user space usb drivers using libusb. So if you encounter any problems with 
  * permissions add following udev rules : 

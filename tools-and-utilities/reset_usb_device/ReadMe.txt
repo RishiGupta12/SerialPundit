@@ -1,7 +1,7 @@
 
-1. To build get into directory 1-reset_usb_device directory and run build_reset_usb_device.sh script.
+1. To build get into directory reset_usb_device and run build_reset_usb_device.sh script.
 
-2. Run lsubs to get the device path for example after connecting cp2102  here is the output
+2. Run lsusb to get the device path for example after connecting cp2102  here is the output
 
 Bus 001 Device 002: ID 8087:8008 Intel Corp. 
 Bus 002 Device 002: ID 8087:8000 Intel Corp. 
