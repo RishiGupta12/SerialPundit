@@ -61,6 +61,16 @@ SUBSYSTEM=="usb", ATTRS{idVendor}=="10c4", ATTRS{idProduct}=="ea60", ATTRS{seria
 ACTION=="add", SUBSYSTEM=="usb", ATTRS{idVendor}=="10c4", ATTRS{idProduct}=="ea60", ATTRS{serial}=="0001", TEST=="power/control", ATTR{power/control}="auto"
 
 
+### Set latency timer for FTDI USB-UART chips
+#############################################
+
+# For high speed I/O Low latency is required. For FTDI FT232RL this can be set via sysfs entry.
+# Note default built-in drivers does not allow to change this timer value. Driver provided by FTDI
+# at their website need to be used for changing FTDI specific parameters.
+
+SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", ATTRS{serial}=="A7036479", PROGRAM="/home/r/udev-ftdi-latency-timer.sh %p"
+
+
 ### Run an external program
 ###########################
 
