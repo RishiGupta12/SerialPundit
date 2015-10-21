@@ -186,7 +186,7 @@ jobjectArray list_usb_devices(JNIEnv *env, jint vendor_to_match) {
 			}
 			insert_jstrarraylist(&list, usb_dev_info);
 
-			/* LOCATION (constructed) TODO*/
+			/* LOCATION */
 			prop_val = udev_device_get_property_value(udev_device, "DEVPATH");
 			if(prop_val != NULL) {
 				usb_dev_info = (*env)->NewStringUTF(env, prop_val);

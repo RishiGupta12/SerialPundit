@@ -51,7 +51,7 @@ public final class SerialComXModemCRC {
 	private long handle;
 	private File fileToProcess;
 	private boolean textMode;
-	private ISerialComProgressXmodem progressListener;
+	private ISerialComXmodemProgress progressListener;
 	private SerialComXModemAbort transferState;
 	private int osType;
 
@@ -94,7 +94,7 @@ public final class SerialComXModemCRC {
 	 * @param fileToProcess File instance representing file to be communicated.
 	 * @param textMode if true file will be sent as text file (ASCII mode), if false file will be sent 
 	 *         as binary file.
-	 * @param progressListener object of class which implements ISerialComProgressXmodem interface and is 
+	 * @param progressListener object of class which implements ISerialComXmodemProgress interface and is 
 	 *         interested in knowing
 	 *         how many blocks have been sent/received till now.
 	 * @param transferState if application wish to abort sending/receiving file at instant of time due to any 
@@ -103,7 +103,7 @@ public final class SerialComXModemCRC {
 	 * @param osType operating system on which this application is running.
 	 */
 	public SerialComXModemCRC(SerialComManager scm, long handle, File fileToProcess, boolean textMode,
-			ISerialComProgressXmodem progressListener, SerialComXModemAbort transferState, int osType) {
+			ISerialComXmodemProgress progressListener, SerialComXModemAbort transferState, int osType) {
 		this.scm = scm;
 		this.handle = handle;
 		this.fileToProcess = fileToProcess;
