@@ -119,7 +119,7 @@ public class SerialComHID {
 	 * @return handle of the opened HID device.
 	 * @throws SerialComException if an IO error occurs.
 	 * @throws IllegalArgumentException if pathName is null or empty string.
-	 * @see com.embeddedunveiled.serial.SerialComManager#registerUSBHotPlugEventListener(ISerialComUSBHotPlugListener, int, int)
+	 * @see com.embeddedunveiled.serial.SerialComManager#registerUSBHotPlugEventListener(ISerialComUSBHotPlugListener, int, int, String)
 	 * @see com.embeddedunveiled.serial.SerialComHID#listHIDdevicesWithInfo()
 	 */
 	public final long openHidDevice(final String pathName) throws SerialComException {

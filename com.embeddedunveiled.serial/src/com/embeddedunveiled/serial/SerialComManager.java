@@ -2503,7 +2503,7 @@ public final class SerialComManager {
 	 * 
 	 * @param vendorID USB-IF vendor ID of the USB device to match.
 	 * @param productID product ID of the USB device to match.
-	 * @param serialNumver USB device's serial number (case insensitive, optional). If not required it can be null.
+	 * @param serialNumber USB device's serial number (case insensitive, optional). If not required it can be null.
 	 * @return true is device is connected otherwise false.
 	 * @throws SerialComException if an I/O error occurs.
 	 * @throws IllegalArgumentException if productID or vendorID is negative or invalid.
@@ -2594,7 +2594,7 @@ public final class SerialComManager {
 	 * loaded will be given name as specified by loadedLibName argument or default name will be 
 	 * used if loadedLibName is null.</p>
 	 * 
-	 * @param type one of the constants BTSTACK_XX_XX defined in SerialComBluetooth class.
+	 * @param btStack one of the constants BTSTACK_XX_XX defined in SerialComBluetooth class.
 	 * @param directoryPath absolute path of directory to be used for extraction.
 	 * @param loadedLibName library name without extension (do not append .so, .dll or .dylib etc.).
 	 * @return reference to an object of requested type SerialComUSB on which various methods can 
