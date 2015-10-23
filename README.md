@@ -27,7 +27,7 @@ LEGACY
 
 OTHERS
 - Vendor libraries like D2XX from ftdi, SimpleIO from microchip, USBXpress from silicon labs etc supported.
-- X/Y/Z file transfer protocol API with progress listener for GUI applications, text/binary mode, and abort command.
+- X/Y/Z FTP API with finite state machine, progress listener for GUI applications, text/binary mode, abort command and send/receive in parallel.
 - Extraction of shared libraries at user defined locations for security.
 - Input and Output byte stream (blocking and non-blocking) for serial port communication.
 - CRC and other utility class for common functions for quick application development.
