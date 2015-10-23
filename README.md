@@ -28,7 +28,7 @@ LEGACY
 OTHERS
 - Vendor libraries like D2XX from ftdi, SimpleIO from microchip, USBXpress from silicon labs etc supported.
 - X/Y/Z FTP API with finite state machine, progress listener for GUI applications, text/binary mode, abort command and send/receive in parallel.
-- Extraction of shared libraries at user defined locations for security.
+- Extraction of shared libraries at user defined locations for isolated environment and security.
 - Input and Output byte stream (blocking and non-blocking) for serial port communication.
 - CRC and other utility class for common functions for quick application development.
 - Optimized read and write methods for single byte, multiple byte or string sending/receiving.
@@ -37,7 +37,7 @@ PROJECT
 - Functional, stress, stability, unit tested (Junit for continuous integration).
 - Maven repository release for maven integration.
 - Extensive error detection and handling for reliable operations.
-- Application specific parameters tuning for performance for example read timeout.
+- Application specific parameters tuning for performance with and without modification of drivers.
 - Support for fault tolerant and recoverable application design.
 - Extensively documented both Java (online javadocs) and C code.
 - Scripts for quick build and testing project
