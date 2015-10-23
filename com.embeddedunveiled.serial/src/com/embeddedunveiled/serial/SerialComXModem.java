@@ -44,6 +44,7 @@ public final class SerialComXModem {
 	private SerialComManager scm;
 	private long handle;
 	private File fileToProcess;
+	private long lengthOfFileToProcess;
 	private boolean textMode;
 	private ISerialComXmodemProgress progressListener;
 	private SerialComXModemAbort transferState;
@@ -133,7 +134,9 @@ public final class SerialComXModem {
 		byte[] data = null;
 		long responseWaitTimeOut = 0;
 		long eotAckWaitTimeOutValue = 0;
+		int percentOfBlocksSent = 0;
 
+		lengthOfFileToProcess = fileToProcess.length();
 		inStream = new BufferedInputStream(new FileInputStream(fileToProcess));
 
 		state = CONNECT;
@@ -304,7 +307,14 @@ public final class SerialComXModem {
 						// for this purpose.
 						if(progressListener != null) {
 							numberOfBlocksSent++;
-							progressListener.onXmodemSentProgressUpdate(numberOfBlocksSent);
+							percentOfBlocksSent = (int) ((12800 * numberOfBlocksSent) / lengthOfFileToProcess);
+							if(percentOfBlocksSent >= 100) {
+								// if the last block is not multiple of 128, than percent will go > 100,
+								// so trim it. for example for a 1008 byte file, 1024 bytes (128*8) will
+								// be sent resulting in 102.19 %.
+								percentOfBlocksSent = 100;
+							}
+							progressListener.onXmodemSentProgressUpdate(numberOfBlocksSent, percentOfBlocksSent);
 						}
 					}else {
 						if(data[0] == ACK) {

@@ -39,8 +39,9 @@ public interface ISerialComXmodemProgress {
 	 * @param numBlock number of the block sent by this application till the time this method is 
 	 *         called. It includes both newly sent and re-sent blocks i.e. it represent total 
 	 *         number of blocks sent from sender to receiver.
+	 * @param percentOfBlocksSent update in terms of percentage.
 	 */
-	public abstract void onXmodemSentProgressUpdate(long numBlock);
+	public abstract void onXmodemSentProgressUpdate(long numBlock, int percentOfBlocksSent);
 
 	/**
 	 * <p>The class implementing this interface is expected to override onXmodemReceiveProgressUpdate() 

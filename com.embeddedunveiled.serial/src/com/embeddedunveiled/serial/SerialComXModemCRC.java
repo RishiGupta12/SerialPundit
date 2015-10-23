@@ -50,6 +50,7 @@ public final class SerialComXModemCRC {
 	private SerialComManager scm;
 	private long handle;
 	private File fileToProcess;
+	private long lengthOfFileToProcess;
 	private boolean textMode;
 	private ISerialComXmodemProgress progressListener;
 	private SerialComXModemAbort transferState;
@@ -141,6 +142,9 @@ public final class SerialComXModemCRC {
 		byte[] data = null;
 		long responseWaitTimeOut = 0;
 		long eotAckWaitTimeOutValue = 0;
+		int percentOfBlocksSent = 0;
+
+		lengthOfFileToProcess = fileToProcess.length();
 		inStream = new BufferedInputStream(new FileInputStream(fileToProcess));
 
 		state = CONNECT;
@@ -311,7 +315,11 @@ public final class SerialComXModemCRC {
 						// for this purpose.
 						if(progressListener != null) {
 							numberOfBlocksSent++;
-							progressListener.onXmodemSentProgressUpdate(numberOfBlocksSent);
+							percentOfBlocksSent = (int) ((12800 * numberOfBlocksSent) / lengthOfFileToProcess);
+							if(percentOfBlocksSent >= 100) {
+								percentOfBlocksSent = 100;
+							}
+							progressListener.onXmodemSentProgressUpdate(numberOfBlocksSent, percentOfBlocksSent);
 						}
 					}else {
 						if(data[0] == ACK) {

@@ -51,6 +51,7 @@ public final class SerialComXModem1K {
 	private SerialComManager scm;
 	private long handle;
 	private File fileToProcess;
+	private long lengthOfFileToProcess;
 	private boolean textMode;
 	private ISerialComXmodemProgress progressListener;
 	private SerialComXModemAbort transferState;
@@ -141,6 +142,9 @@ public final class SerialComXModem1K {
 		byte[] data = null;
 		long responseWaitTimeOut = 0;
 		long eotAckWaitTimeOutValue = 0;
+		int percentOfBlocksSent = 0;
+
+		lengthOfFileToProcess = fileToProcess.length();
 		inStream = new BufferedInputStream(new FileInputStream(fileToProcess));
 
 		state = CONNECT;
@@ -311,7 +315,11 @@ public final class SerialComXModem1K {
 						// for this purpose.
 						if(progressListener != null) {
 							numberOfBlocksSent++;
-							progressListener.onXmodemSentProgressUpdate(numberOfBlocksSent);
+							percentOfBlocksSent = (int) ((12800 * numberOfBlocksSent) / lengthOfFileToProcess);
+							if(percentOfBlocksSent >= 100) {
+								percentOfBlocksSent = 100;
+							}
+							progressListener.onXmodemSentProgressUpdate(numberOfBlocksSent, percentOfBlocksSent);
 						}
 					}else {
 						// successfully sent file, let's go back home happily.

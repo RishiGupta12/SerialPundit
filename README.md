@@ -35,13 +35,13 @@ OTHERS
 
 PROJECT
 - Functional, stress, stability, unit tested (Junit for continuous integration).
+- Application specific parameters tuning for performance with and without modification of drivers.
 - Maven repository release for maven integration.
 - Extensive error detection and handling for reliable operations.
-- Application specific parameters tuning for performance with and without modification of drivers.
+- Fully Optimized for power, performance and memory.
 - Support for fault tolerant and recoverable application design.
 - Extensively documented both Java (online javadocs) and C code.
-- Scripts for quick build and testing project
-- Fully Optimized for power, performance and memory.
+- Scripts for quickly building and testing project.
 
 ##Getting started
 

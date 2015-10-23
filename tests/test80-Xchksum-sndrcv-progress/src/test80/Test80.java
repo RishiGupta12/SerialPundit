@@ -15,7 +15,7 @@
  * along with serial communication manager. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package test55;
+package test80;
 
 import java.io.File;
 
@@ -30,27 +30,8 @@ import com.embeddedunveiled.serial.SerialComManager.PARITY;
 import com.embeddedunveiled.serial.SerialComManager.STOPBITS;
 import com.embeddedunveiled.serial.SerialComXModemAbort;
 
-class AbortTest implements Runnable {
+class Send extends Test80 implements Runnable, ISerialComXmodemProgress {
 
-	SerialComXModemAbort abort = null;
-
-	public AbortTest(SerialComXModemAbort bb) {
-		abort = bb;
-	}
-
-	@Override
-	public void run() {
-		try {
-			Thread.sleep(500);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		System.out.println("=======ABORTING !======");
-		abort.abortTransfer();
-	}
-}
-
-class Send extends Test55 implements Runnable, ISerialComXmodemProgress {
 	public SerialComXModemAbort transferStatea = new SerialComXModemAbort();
 
 	@Override
@@ -60,25 +41,26 @@ class Send extends Test55 implements Runnable, ISerialComXmodemProgress {
 			scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
 			scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
 
-			new Thread(new AbortTest(transferStatea)).start();
-
+			// text mode
 			boolean statusc = scm.sendFile(handle1, new File(sndtfilepath), FTPPROTO.XMODEM, FTPVAR.CHKSUM, true, this, transferStatea);
 			System.out.println("\nsent text status : " + statusc);
-			
+
 			done = true;
-			
+
+			// binary mode
 			boolean statusb = scm.sendFile(handle1, new File(sndbfilepath), FTPPROTO.XMODEM, FTPVAR.CHKSUM, false, this, transferStatea);
 			System.out.println("\nsent binary status : " + statusb);
-			
+
 			scm.closeComPort(handle1);
+			System.out.println("sender done !");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 
 	@Override
-	public void onXmodemSentProgressUpdate(long arg0) {
-		System.out.println("text block number sent : " + arg0);
+	public void onXmodemSentProgressUpdate(long arg0, int percent) {
+		System.out.println("text block number sent : " + arg0 + ", percent : " + percent);
 	}
 	@Override
 	public void onXmodemReceiveProgressUpdate(long arg0) {	
@@ -86,7 +68,7 @@ class Send extends Test55 implements Runnable, ISerialComXmodemProgress {
 }
 
 // send file from one thread and receive from other using XMODEM checksum protocol 
-public class Test55 implements ISerialComXmodemProgress {
+public class Test80 implements ISerialComXmodemProgress {
 
 	private static SerialComXModemAbort transferStatec = new SerialComXModemAbort();
 	private static Thread mThread = null;
@@ -135,10 +117,8 @@ public class Test55 implements ISerialComXmodemProgress {
 			mThread = new Thread(new Send());
 			mThread.start();
 
-//			new Thread(new AbortTest(transferStatec)).start();
-
 			// ascii text mode
-			boolean status = scm.receiveFile(handle, new File(rcvtfilepath), FTPPROTO.XMODEM, FTPVAR.CHKSUM, true, new Test55(), transferStatec);
+			boolean status = scm.receiveFile(handle, new File(rcvtfilepath), FTPPROTO.XMODEM, FTPVAR.CHKSUM, true, new Test80(), transferStatec);
 			System.out.println("\nreceived status text : " + status);
 
 			while(done == false) { 
@@ -146,10 +126,12 @@ public class Test55 implements ISerialComXmodemProgress {
 			}
 
 			// binary mode
-			boolean statusa = scm.receiveFile(handle, new File(rcvbfilepath), FTPPROTO.XMODEM, FTPVAR.CHKSUM, false, new Test55(), transferStatec);
+			boolean statusa = scm.receiveFile(handle, new File(rcvbfilepath), FTPPROTO.XMODEM, FTPVAR.CHKSUM, false, new Test80(), transferStatec);
 			System.out.println("\nreceived status binary : " + statusa);
-			
+
 			scm.closeComPort(handle);
+
+			System.out.println("receiver done !");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -157,9 +139,9 @@ public class Test55 implements ISerialComXmodemProgress {
 
 	@Override
 	public void onXmodemReceiveProgressUpdate(long arg0) {
-		System.out.println("block number received : " + arg0);
+		System.out.println("text block number received : " + arg0);
 	}
 	@Override
-	public void onXmodemSentProgressUpdate(long arg0) {
+	public void onXmodemSentProgressUpdate(long arg0, int percent) {
 	}
 }
