@@ -30,11 +30,10 @@
 # plugged in system. System supplied default rules are generally placed in /lib/udev/rules.d and gets
 # overridden by rules placed in /etc/udev/rules.d directory.
 
-SUBSYSTEM=="usb", ATTRS{idVendor}=="04d8", MODE="0666"
-SUBSYSTEM=="usb_device", ATTRS{idVendor}=="04d8", MODE="0666"
+SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTRS{idVendor}=="04d8", MODE="0666"
 
 # If we want to load these rules for a specific USB product with product ID, here is how to do it:
 # (example for MCP2221).
-#SUBSYSTEM=="usb", ATTRS{idVendor}=="04d8", ATTRS{idProduct}=="00dd", MODE="0666"
-#SUBSYSTEM=="usb_device", ATTRS{idVendor}=="04d8", ATTRS{idProduct}=="00dd", MODE="0666"
+# SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTRS{idVendor}=="04d8", ATTRS{idProduct}=="00dd", MODE="0666"
+
 
