@@ -24,10 +24,12 @@ import com.embeddedunveiled.serial.usb.SerialComUSB;
 
 // event 2 indicates port removal, 1 indicates additional of port
 class portWatcher implements ISerialComUSBHotPlugListener {
+
 	@Override
 	public void onUSBHotPlugEvent(int arg0) {
 		System.out.println("event " + arg0);
 	}
+
 }
 
 public class Test21 {
@@ -42,10 +44,11 @@ public class Test21 {
 			System.out.println("registering");
 			//			handle = scm.registerUSBHotPlugEventListener(pw, 0x0403, 0x6001, "A7036479");
 
-			handle = scm.registerUSBHotPlugEventListener(pw, 0x10C4, 0xEA60, "0001");
+//			handle = scm.registerUSBHotPlugEventListener(pw, 0x10C4, 0xEA60, "0001");
 
+			handle = scm.registerUSBHotPlugEventListener(pw, 0x04d8, 0x00df, "0000980371");
 			System.out.println("sleeping");
-			Thread.sleep(5000);
+			Thread.sleep(50444400);
 
 			System.out.println("unregsitering");
 			scm.unregisterUSBHotPlugEventListener(handle);

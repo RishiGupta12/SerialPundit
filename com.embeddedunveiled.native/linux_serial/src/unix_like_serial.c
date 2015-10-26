@@ -2529,6 +2529,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
 	}
 
 	pthread_mutex_unlock(&mutex);
+	pthread_cond_destroy(&(((struct com_thread_params*) arg)->data_cond_var));
 
 	if(0 == ((struct com_thread_params*) arg)->data_init_done) {
 		/* Save the data thread id which will be used when listener is unregistered. */
@@ -2752,6 +2753,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
 	}
 
 	pthread_mutex_unlock(&mutex);
+	pthread_cond_destroy(&(((struct com_thread_params*) arg)->event_cond_var));
 
 	if(0 == ((struct com_thread_params*) arg)->event_init_done) {
 		/* Save the data thread id which will be used when listener is unregistered. */
@@ -2950,6 +2952,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
 	}
 
 	pthread_mutex_unlock(&mutex);
+	pthread_cond_destroy(&(((struct usb_dev_monitor_info*) arg)->cond_var));
 
 	if(0 == ((struct usb_dev_monitor_info*) arg)->init_done) {
 		/* Save the thread id which will be used when listener is unregistered. */

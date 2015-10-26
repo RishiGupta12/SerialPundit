@@ -36,8 +36,8 @@ public class Test45 {
 			for (x=0; x<500000; x++) {
 				System.out.println("Iteration :" + x);
 				portWatcher pw = new portWatcher();
-				scm.registerUSBHotPlugEventListener(pw, 0x0403, 0x6001, null);
-				scm.unregisterUSBHotPlugEventListener(pw);
+				int handle = scm.registerUSBHotPlugEventListener(pw, 0x0403, 0x6001, null);
+				scm.unregisterUSBHotPlugEventListener(handle);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

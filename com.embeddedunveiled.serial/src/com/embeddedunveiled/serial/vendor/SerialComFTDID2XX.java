@@ -37,20 +37,23 @@ import com.embeddedunveiled.serial.internal.SerialComSystemProperty;
  * 
  * <p>More information about D2XX is here : http://www.ftdichip.com/Drivers/D2XX.htm </p>
  * 
- * <p>[0] The data types used in java layer may be bigger in size than the native layer. For example; if native 
- * function returns 16 bit signed integer, than java method will return 32 bit integer. This is done to make 
- * sure that no data loss occur. This library take care of sign and their applicability internally.</p>
+ * <p>[0] The data types used in java layer may be bigger in size than the native layer. For example; 
+ * if native function returns 16 bit signed integer, than java method will return 32 bit integer. This 
+ * is done to make sure that no data loss occur. This library take care of sign and their applicability 
+ * internally.</p>
  * 
- * <p>[1] Developers are requested to check with vendor library documentation if a particular function is supported
- * for desired platform or not and also how does a particular API will behave. Also consider paying attention to 
- * valid values and range when passing arguments to a method. For FTDI d2xx the API guide is here : 
+ * <p>[1] Developers are requested to check with vendor library documentation if a particular function 
+ * is supported for desired platform or not and also how does a particular API will behave. Also consider 
+ * paying attention to valid values and range when passing arguments to a method. For FTDI d2xx the API 
+ * guide is here : 
  * http://www.ftdichip.com/Support/Documents/ProgramGuides/D2XX_Programmer's_Guide(FT_000071).pdf </p>
  * 
- * <p>[2] The VCP and D2XX drivers are mutually exclusive and therefore use this script to unload VCP drivers :
+ * <p>[2] The VCP and D2XX drivers are mutually exclusive for Linux OS and therefore use this script to 
+ * unload VCP drivers :
  * https://github.com/RishiGupta12/serial-communication-manager/blob/master/tools-and-utilities/unload-ftdi-vcp-driver.sh</p>
  * 
- * <p>[3] It seems like d2xx drivers are user space usb drivers using libusb. So if you encounter any problems with 
- * permissions add following udev rules : 
+ * <p>[3] It seems like d2xx drivers are user space usb drivers using libusb. So if you encounter any 
+ * problems with permissions add following udev rules : 
  * https://github.com/RishiGupta12/serial-communication-manager/blob/master/tests/99-scm-ftdi-d2xx.rules</p>
  * 
  * <p>[4] The application notes for FTDI devices are here : http://www.ftdichip.com/Support/Documents/AppNotes.htm</p>
@@ -272,10 +275,12 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	/**<p>Bit mask to represent an event in D2XX terminology. </p>*/
 	public static final int EV_EVENT2 = 0x1000; // Provider specific event 2
 
-	/**<p>Bit mask to represent killing all current and pending transmission operations in D2XX terminology.</p>*/
+	/**<p>Bit mask to represent killing all current and pending transmission operations in 
+	 * D2XX terminology.</p>*/
 	public static final int PURGE_TXABORT = 0x0001;
 
-	/**<p>Bit mask to represent killing all current and pending receive operations in D2XX terminology.</p>*/
+	/**<p>Bit mask to represent killing all current and pending receive operations in D2XX 
+	 * terminology.</p>*/
 	public static final int PURGE_RXABORT = 0x0002;
 
 	/**<p>Bit mask to represent clearing transmit queue in D2XX terminology.</p>*/
@@ -322,7 +327,8 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	/**
 	 * <p>Allocates a new SerialComFTDID2XX object and extract and load shared libraries as required.</p>
 	 * 
-	 * @param libDirectory directory in which native library will be extracted and vendor library will be found.
+	 * @param libDirectory directory in which native library will be extracted and vendor library will 
+	 *         be found.
 	 * @param vlibName name of vendor library to load and link.
 	 * @param cpuArch architecture of CPU this library is running on.
 	 * @param osType operating system this library is running on.
