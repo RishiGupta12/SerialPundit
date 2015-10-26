@@ -225,19 +225,11 @@ JNIEXPORT jlongArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialCom
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
- * Method:    setEventNotification
- * Signature: (JI)J
+ * Method:    setEventNotificationAndWait
+ * Signature: (JI)I
  */
-JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_setEventNotification
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_setEventNotificationAndWait
   (JNIEnv *, jobject, jlong, jint);
-
-/*
- * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
- * Method:    setEventNotificationWait
- * Signature: (J)I
- */
-JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_setEventNotificationWait
-  (JNIEnv *, jobject, jlong);
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge

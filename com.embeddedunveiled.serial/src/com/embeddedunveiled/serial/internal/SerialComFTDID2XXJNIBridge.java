@@ -184,8 +184,7 @@ public final class SerialComFTDID2XXJNIBridge {
 	public native long getLibraryVersion();
 	public native long getComPortNumber(long handle);
 	public native long[] getStatus(long handle);
-	public native long setEventNotification(long handle, int eventMask);
-	public native int setEventNotificationWait(long eventHandle);
+	public native int setEventNotificationAndWait(long handle, int eventMask);
 	public native int setChars(long handle, char eventChar, char eventEnable, char errorChar, char errorEnable);
 	public native int setBreakOn(long handle);
 	public native int setBreakOff(long handle);

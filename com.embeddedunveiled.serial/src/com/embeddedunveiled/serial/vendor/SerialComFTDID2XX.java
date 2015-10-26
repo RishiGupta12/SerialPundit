@@ -945,40 +945,19 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	}
 
 	/**
-	 * <p>Executes FT_SetEventNotification function of D2XX library.</p>
+	 * <p>Executes FT_SetEventNotification function of D2XX library and blocks until one or more 
+	 * events specified in eventMask occurs. Once this method returns, application can determine 
+	 * which event has occurred using getStatus method.</p>
 	 * 
-	 * <p>Sets the event on which worker thread should block.</p>
-	 * 
-	 * @param handle handle of the device for whom event is to happen.
+	 * @param handle handle of the device for which to set event mask and wait.
 	 * @param eventMask bit mask of the constants EV_XXXXX in SerialComFTDID2XX class.
-	 * @return event handle that must be passed to setEventNotificationWait() method.
+	 * @return true if one or more event has happened.
 	 * @throws SerialComException if an I/O error occurs.
 	 */
-	public long setEventNotification(long handle, int eventMask) throws SerialComException {
-		long eventHandle = mFTDID2XXJNIBridge.setEventNotification(handle, eventMask);
-		if(eventHandle < 0) {
-			throw new SerialComException("Could not set the event notification. Please retry !");
-		}
-		return eventHandle;
-	}
-
-	/**
-	 * <p>This method blocks until event specified in setEventNotification() method happens. 
-	 * Typically this method should be called from worker thread.</p>
-	 * 
-	 * <p>This method is not in FTDI d2xx but is SCM specific and is to be used in conjunction 
-	 * with setEventNotification method. After calling setEventNotification, call this method to 
-	 * block on desired event.</p>
-	 * 
-	 * @param handle handle of the device for whom event is to happen.
-	 * @param eventMask bit mask of the constants EV_XXXXX in SerialComFTDID2XX class.
-	 * @return true when event occurs.
-	 * @throws SerialComException if an I/O error occurs.
-	 */
-	public boolean setEventNotificationWait(long eventHandle) throws SerialComException {
-		int ret = mFTDID2XXJNIBridge.setEventNotificationWait(eventHandle);
-		if(ret < 0) {
-			throw new SerialComException("Could not wait for the event to happen. Please retry !");
+	public boolean setEventNotificationAndWait(long handle, int eventMask) throws SerialComException {
+		int eventsThatOccurredMask = mFTDID2XXJNIBridge.setEventNotificationAndWait(handle, eventMask);
+		if(eventsThatOccurredMask < 0) {
+			throw new SerialComException("Could not set the event notification and block. Please retry !");
 		}
 		return true;
 	}
