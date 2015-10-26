@@ -936,7 +936,7 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 * @return array containing number of bytes in rx buffer, number of bytes in tx buffer, modem event status.
 	 * @throws SerialComException if an I/O error occurs.
 	 */
-	public long[] getStatus(long handle) throws SerialComException {
+	public long[] getStatus(final long handle) throws SerialComException {
 		long[] info = mFTDID2XXJNIBridge.getStatus(handle);
 		if(info == null) {
 			throw new SerialComException("Could not determine the required information for the requested device. Please retry !");
@@ -967,7 +967,11 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 * 
 	 * <p>Sets the special characters for the device.</p>
 	 * 
-	 * @param handle handle of the device for which characters need to be set..
+	 * @param handle handle of the device for which characters need to be set.
+	 * @param eventChar event character.
+	 * @param eventEnable 0 if event character disabled, non-zero otherwise.
+	 * @param errorChar error character.
+	 * @param errorEnable 0 if error character disabled, non-zero otherwise.
 	 * @return true if the operation executed successfully.
 	 * @throws SerialComException if an I/O error occurs.
 	 */
