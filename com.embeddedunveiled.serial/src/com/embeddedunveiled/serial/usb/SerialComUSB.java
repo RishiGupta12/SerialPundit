@@ -95,7 +95,7 @@ public final class SerialComUSB {
 	public SerialComUSB(SerialComPortJNIBridge mComPortJNIBridge) {
 		this.mComPortJNIBridge = mComPortJNIBridge;
 	}
-	
+
 	/**
 	 * <p>Read all the power management related information about a particular USB device. The returned 
 	 * instance of SerialComUSBPowerInfo class contains information about auto suspend, selective suspend,
@@ -117,7 +117,7 @@ public final class SerialComUSB {
 		if(portNameVal.length() == 0) {
 			throw new IllegalArgumentException("Argument comPort can not be empty string !");
 		}
-		
+
 		String[] usbPowerInfo = mComPortJNIBridge.getCDCUSBDevPowerInfo(portNameVal);
 		if(usbPowerInfo != null) {
 			if(usbPowerInfo.length > 2) {
@@ -126,7 +126,7 @@ public final class SerialComUSB {
 		}else {
 			throw new SerialComException("Could not find USB devices. Please retry !");
 		}
-		
+
 		return null;
 	}
 
@@ -146,5 +146,35 @@ public final class SerialComUSB {
 			throw new SerialComException("Could not cause re-scanning for hardware change. Please retry !");
 		}
 		return true;
+	}
+
+	/**
+	 * <p>Sets the latency timer value for FTDI devices. Note that drivers built in the Linux kernel image 
+	 * may not allow changing timer values as it may have been hard-coded. Drivers supplied by FTDI at their 
+	 * website should be used if changing latency timer values is required by application.</p>
+	 * 
+	 * @return true on success.
+	 * @throws SerialComException if an I/O error occurs.
+	 */
+	public boolean setLatencyTimer(String comPort, int timerValue) throws SerialComException {
+		int ret = mComPortJNIBridge.setLatencyTimer(comPort, timerValue);
+		if(ret < 0) {
+			throw new SerialComException("Could not set the latency timer value. Please retry !");
+		}
+		return true;
+	}
+
+	/**
+	 * <p>Gets the current latency timer value for FTDI devices.</p>
+	 * 
+	 * @return current latency timer value.
+	 * @throws SerialComException if an I/O error occurs.
+	 */
+	public int getLatencyTimer(String comPort) throws SerialComException {
+		int value = mComPortJNIBridge.getLatencyTimer(comPort);
+		if(value < 0) {
+			throw new SerialComException("Could not get the latency timer value. Please retry !");
+		}
+		return value;
 	}
 }

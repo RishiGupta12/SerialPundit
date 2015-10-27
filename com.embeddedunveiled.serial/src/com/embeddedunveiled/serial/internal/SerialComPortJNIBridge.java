@@ -319,8 +319,12 @@ public final class SerialComPortJNIBridge {
 	public native String[] findComPortFromUSBAttributes(int usbVidToMatch, int usbPidToMatch, String serialNumber);
 	public native int isUSBDevConnected(int vendorID, int productID, String serialNumber);
 	public native String[] getCDCUSBDevPowerInfo(String portNameVal);
+	public native int setLatencyTimer(String comPort, int timerValue);
+	public native int getLatencyTimer(String comPort);
 	public native int rescanUSBDevicesHW();
 
 	// Bluetooth
 	public native String[] listBTSPPDevNodesWithInfo();
+
+
 }

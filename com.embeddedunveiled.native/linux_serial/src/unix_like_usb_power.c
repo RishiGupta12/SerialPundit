@@ -44,6 +44,7 @@
 #if defined (__linux__)
 /* */
 jobjectArray get_usbdev_powerinfo(JNIEnv *env, jstring comPortName) {
+
 	int x = 0;
 	int fd = 0;
 	int ret = 0;

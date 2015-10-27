@@ -78,6 +78,7 @@
 #define E_CANNOTFINDDEVNODE "Failed to find device node from sysfs path !"
 #define E_WRITEZERONOTALLOWED "Write requires at least one byte data !"
 #define E_UNBLOCKIO "Byte stream unblocked !"
+#define E_NOTFTDIPORT "Given COM port may not represent FTDI device !"
 
 /* Custom error codes and messages for SCM library */
 #define ERROR_OFFSET 15000
@@ -203,6 +204,7 @@ jobjectArray list_usb_devices(JNIEnv *env, jint vendor_filter);
 jobjectArray list_bt_rfcomm_dev_nodes(JNIEnv *env);
 jobjectArray vcp_node_from_usb_attributes(JNIEnv *env, jint usbvid_to_match, jint usbpid_to_match, jstring serial_numer);
 jobjectArray get_usbdev_powerinfo(JNIEnv *env, jstring comPortName);
+jint get_latency_timer_value(JNIEnv *env, jstring comPortName);
 
 void *data_looper(void *params);
 void *event_looper(void *params);
