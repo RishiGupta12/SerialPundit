@@ -17,15 +17,19 @@
 #################################################################################################
 
 
-# Change permissions to read/write for all. Setting low value may be beneficial for frequent I/O
-# while setting high values may be beneficial for bulk transfer.
-# For high speed I/O Low latency is required. For FTDI FT232RL this can be set via sysfs entry.
-# Note default built-in drivers does not allow to change this timer value. Driver provided by FTDI
-# at their website need to be used for changing FTDI specific parameters.
-# /sys/devices/pci0000:00/0000:00:14.0/usb3/3-3/3-3:1.0/ttyUSB0/tty/ttyUSB0/device/latency_timer
+# When a FTDI device is connected to system linux kernel with udev tries to load appropriate VCP driver
+# for connected device. It is possible to just unbind default driver for a particular
+# device using udev rules (see tests/99-scm-extra-udev.rules for unbinding with the help of script).
 
-# To see what are the environment variables set by udev rdirect 'env' value and open scmudevenv.txt 
-# file in text editor to see list of variables and their values.
-# env >> /tmp/scmudevenv.txt
+id="aa"
 
-chmod 0666 "/sys$1/device/latency_timer"
+# extract the device ID
+in=$1
+IFS='/' list=($in)
+for item in "${list[@]}"; 
+do 
+	id=$item;
+done
+
+# unbind the driver from CDC interface
+echo $id > "/sys$1/driver/unbind"

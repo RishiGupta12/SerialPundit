@@ -68,7 +68,7 @@ ACTION=="add", SUBSYSTEM=="usb", ATTRS{idVendor}=="10c4", ATTRS{idProduct}=="ea6
 # Note default built-in drivers does not allow to change this timer value. Driver provided by FTDI
 # at their website need to be used for changing FTDI specific parameters.
 
-SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", ATTRS{serial}=="A7036479", PROGRAM="/home/r/udev-ftdi-latency-timer.sh %p"
+SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", ATTRS{serial}=="A7036479", PROGRAM="/home/a/udev-ftdi-latency-timer.sh %p"
 
 
 ### Run an external program
@@ -79,7 +79,24 @@ SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", ATTRS{seria
 # is used when the external program is used for creating device node name only. Till this time no device
 # node is created.
 
-SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", ATTRS{serial}=="A7036479", PROGRAM="/home/r/test.sh"
+SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", ATTRS{serial}=="A7036479", PROGRAM="/home/a/test.sh"
+
+
+### Unload default driver for USB CDC interface
+###########################
+
+# This rule will unload default ftdi_sio driver for FTDI CDC interface with the help of a shell script.
+# Note all the device which requires this driver will now need a driver to operate.
+
+ACTION=="add", SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_interface", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", PROGRAM="/home/a/udev-ftdi-unload-vcp-driver.sh"
+
+
+### Unbind default driver from USB CDC interface
+###########################
+
+# This rule will unbind default ftdi_sio driver for FTDI CDC interface with the help of a shell script.
+
+ACTION=="add", SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_interface", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", PROGRAM="/home/a/udev-ftdi-unbind-ftdi_sio.sh %p"
 
 
 ### Run an external program with parameters
@@ -88,7 +105,7 @@ SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", ATTRS{seria
 # Run an external program which will take kernel device name as argument, does some processing and 
 # return its output via stdout. This output from stdout is then used to create a symlink.
 
-SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", ATTRS{serial}=="A7036479", PROGRAM="/home/r/test.jar %k" SYMLINK+="%c"
+SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", ATTRS{serial}=="A7036479", PROGRAM="/home/a/test.jar %k" SYMLINK+="%c"
 
 
 ### Serial over ethernet or port servers

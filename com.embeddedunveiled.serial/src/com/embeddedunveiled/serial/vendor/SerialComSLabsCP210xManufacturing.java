@@ -45,6 +45,9 @@ import com.embeddedunveiled.serial.internal.SerialComSystemProperty;
  * with permissions add the following udev rules file at appropriate location in your system : 
  * https://github.com/RishiGupta12/serial-communication-manager/blob/master/tests/99-scm-cp210x.rules</p>
  *
+ * <p>[4] The udev rules to support various applications designs are here : 
+ * https://github.com/RishiGupta12/serial-communication-manager/blob/master/tests/99-scm-extra-udev.rules</p>
+ *
  * <p>Silicon labs softwares can be downloaded from here :
  * http://www.silabs.com/products/Interface/Pages/interface-application-notes.aspx </p>
  * 
