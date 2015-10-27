@@ -205,6 +205,7 @@ jobjectArray list_bt_rfcomm_dev_nodes(JNIEnv *env);
 jobjectArray vcp_node_from_usb_attributes(JNIEnv *env, jint usbvid_to_match, jint usbpid_to_match, jstring serial_numer);
 jobjectArray get_usbdev_powerinfo(JNIEnv *env, jstring comPortName);
 jint get_latency_timer_value(JNIEnv *env, jstring comPortName);
+jint set_latency_timer_value(JNIEnv *env, jstring comPortName, jbyte timerValue);
 
 void *data_looper(void *params);
 void *event_looper(void *params);

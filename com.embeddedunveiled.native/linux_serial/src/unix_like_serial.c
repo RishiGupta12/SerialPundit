@@ -3178,13 +3178,14 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
  * Method:    setLatencyTimer
+ * Signature: (Ljava/lang/String;B)I
  *
  * @return 0 on success otherwise -1 if an error occurs.
  * @throws SerialComException if any JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_setLatencyTimer
-  (JNIEnv *env, jobject obj, jstring comPort, jint timerValue) {
-	return 0;
+  (JNIEnv *env, jobject obj, jstring comPortName, jbyte timerValue) {
+	return set_latency_timer_value(env, comPortName, timerValue);
 }
 
 /*

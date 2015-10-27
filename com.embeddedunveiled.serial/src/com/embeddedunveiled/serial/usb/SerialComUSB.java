@@ -156,7 +156,7 @@ public final class SerialComUSB {
 	 * @return true on success.
 	 * @throws SerialComException if an I/O error occurs.
 	 */
-	public boolean setLatencyTimer(String comPort, int timerValue) throws SerialComException {
+	public boolean setLatencyTimer(String comPort, byte timerValue) throws SerialComException {
 		int ret = mComPortJNIBridge.setLatencyTimer(comPort, timerValue);
 		if(ret < 0) {
 			throw new SerialComException("Could not set the latency timer value. Please retry !");

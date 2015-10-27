@@ -49,7 +49,17 @@ public class Test81 {
 				System.out.println("value : " + usbsys.getLatencyTimer("/dev/fdfsf"));
 			} catch (Exception e) {
 				e.printStackTrace();
-			}		
+			}
+			try {
+				System.out.println("value : " + usbsys.setLatencyTimer(PORT, (byte) 5));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			try {
+				System.out.println("value : " + usbsys.setLatencyTimer("/dev/fdfsf", (byte) 5));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 
 		} catch (Exception e) {
 			e.printStackTrace();

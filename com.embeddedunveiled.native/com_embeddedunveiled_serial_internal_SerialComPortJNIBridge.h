@@ -370,10 +370,10 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
  * Method:    setLatencyTimer
- * Signature: (Ljava/lang/String;I)I
+ * Signature: (Ljava/lang/String;B)I
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_setLatencyTimer
-  (JNIEnv *, jobject, jstring, jint);
+  (JNIEnv *, jobject, jstring, jbyte);
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
