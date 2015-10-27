@@ -30,6 +30,9 @@
 # plugged in system. System supplied default rules are generally placed in /lib/udev/rules.d and gets
 # overridden by rules placed in /etc/udev/rules.d directory.
 
+ACTION=="remove", GOTO="ftdi_usb_uart_end"
+SUBSYSTEM!="usb", GOTO="ftdi_usb_uart_end"
+
 SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTRS{idVendor}=="0403", MODE="0666"
 
 # If we want to load these rules for a specific USB product with product ID, here is how to do it.
@@ -54,4 +57,6 @@ SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTRS{idVendor}=="0403", MODE="066
 
 # FT4232HL/Q
 # SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6011", MODE="0666"
+
+LABEL="ftdi_usb_uart_end"
 
