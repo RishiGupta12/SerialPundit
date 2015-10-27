@@ -48,11 +48,10 @@ public final class SerialComUSBHID extends SerialComHID {
 	 * object to get specific information like vendor id and product id etc.</p>
 	 * 
 	 * <p>The information about HID device returned includes, transport, vendor ID, product ID, serial 
-	 * number, product, manufacturer, USB bus number, USB device number, location ID etc. In situations 
-	 * where two or more devices with exactly same vendor ID, product ID and serial number are present 
-	 * into system, information like location ID, USB bus number and USB device number can be used to 
-	 * further categories them into unique devices. Application can also use some custom protocol to 
-	 * identify devices that are of interest to them.</p>
+	 * number, product, manufacturer, location etc. In situations where two or more devices with exactly 
+	 * same vendor ID, product ID and serial number are present into system, information like location 
+	 * can be used to further categories them into unique devices. Application can also use some custom 
+	 * protocol to identify devices that are of interest to them.</p>
 	 * 
 	 * <p>[1] Some bluetooth HID keyboard and mouse use a USB dongle which make them appear as USB HID 
 	 * device to system. The keyboard/mouse communicate with dongle over bluetooth frequency while 
@@ -85,13 +84,13 @@ public final class SerialComUSBHID extends SerialComHID {
 
 			// number of elements sent by native layer will be multiple of 7
 			// if device(s) is found to populate SerialComHIDdevice object.
-			numOfDevices = usbhidDevicesInfo.length / 10;
+			numOfDevices = usbhidDevicesInfo.length / 8;
 			usbHidDevicesFound = new SerialComHIDdevice[numOfDevices];
 			for(int x=0; x < numOfDevices; x++) {
 				usbHidDevicesFound[x] = new SerialComHIDdevice(usbhidDevicesInfo[i], usbhidDevicesInfo[i+1], usbhidDevicesInfo[i+2], 
 						usbhidDevicesInfo[i+3], usbhidDevicesInfo[i+4], usbhidDevicesInfo[i+5], usbhidDevicesInfo[i+6],
-						usbhidDevicesInfo[i+7], usbhidDevicesInfo[i+8], usbhidDevicesInfo[i+9]);
-				i = i + 10;
+						usbhidDevicesInfo[i+7]);
+				i = i + 8;
 			}
 			return usbHidDevicesFound;
 		}else {

@@ -58,9 +58,8 @@ public class SerialComHID {
 	 * <p>The information about HID device returned includes, transport, vendor ID, product ID, serial 
 	 * number, product, manufacturer, USB bus number, USB device number, location ID etc. In situations 
 	 * where two or more devices with exactly same vendor ID, product ID and serial number are present 
-	 * into system, information like location ID, USB bus number and USB device number can be used to 
-	 * further categories them into unique devices. Application can also use some custom protocol to 
-	 * identify devices that are of interest to them.</p>
+	 * into system, information like location can be used to further categories them into unique devices. 
+	 * Application can also use some custom protocol to identify devices that are of interest to them.</p>
 	 * 
 	 * @return list of the HID devices with information about them or empty array if no device 
 	 *          matching given criteria found.
@@ -77,13 +76,13 @@ public class SerialComHID {
 			if(hidDevicesInfo.length < 3) {
 				return new SerialComHIDdevice[] { };
 			}
-			numOfDevices = hidDevicesInfo.length / 10;
+			numOfDevices = hidDevicesInfo.length / 8;
 			hidDevicesFound = new SerialComHIDdevice[numOfDevices];
 			for(int x=0; x < numOfDevices; x++) {
 				hidDevicesFound[x] = new SerialComHIDdevice(hidDevicesInfo[i], hidDevicesInfo[i+1], hidDevicesInfo[i+2], 
 						hidDevicesInfo[i+3], hidDevicesInfo[i+4], hidDevicesInfo[i+5], hidDevicesInfo[i+6],
-						hidDevicesInfo[i+7], hidDevicesInfo[i+8], hidDevicesInfo[i+9]);
-				i = i + 10;
+						hidDevicesInfo[i+7]);
+				i = i + 8;
 			}
 			return hidDevicesFound;
 		}else {

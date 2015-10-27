@@ -84,6 +84,7 @@ jobjectArray linux_enumerate_usb_hid_devices(JNIEnv *env, jint vendor_to_match) 
 	struct udev_enumerate *enumerator;
 	struct udev_list_entry *devices, *dev_list_entry;
 	const char *sysattr_val;
+	const char *prop_val;
 	const char *path;
 	struct udev_device *udev_device;
 	struct udev_device *parent_udev_device;
@@ -202,32 +203,13 @@ jobjectArray linux_enumerate_usb_hid_devices(JNIEnv *env, jint vendor_to_match) 
 		}
 		insert_jstrarraylist(&list, usb_dev_info);
 
-		/* BUS NUMBER */
-		sysattr_val = udev_device_get_sysattr_value(parent_udev_device, "busnum");
-		if(sysattr_val != NULL) {
-			usb_dev_info = (*env)->NewStringUTF(env, sysattr_val);
+		/* LOCATION */
+		prop_val = udev_device_get_property_value(udev_device, "DEVPATH");
+		if(prop_val != NULL) {
+			usb_dev_info = (*env)->NewStringUTF(env, prop_val);
 		}else {
 			usb_dev_info = (*env)->NewStringUTF(env, "---");
 		}
-		if((usb_dev_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
-			return linux_clean_throw_exp_usbenumeration(env, 1, NULL, &list, udev_device, enumerator, udev_ctx);
-		}
-		insert_jstrarraylist(&list, usb_dev_info);
-
-		/* CONNECTED USB DEVICE NUMBER */
-		sysattr_val = udev_device_get_sysattr_value(parent_udev_device, "devnum");
-		if(sysattr_val != NULL) {
-			usb_dev_info = (*env)->NewStringUTF(env, sysattr_val);
-		}else {
-			usb_dev_info = (*env)->NewStringUTF(env, "---");
-		}
-		if((usb_dev_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
-			return linux_clean_throw_exp_usbenumeration(env, 1, NULL, &list, udev_device, enumerator, udev_ctx);
-		}
-		insert_jstrarraylist(&list, usb_dev_info);
-
-		/* LOCATION ID */
-		usb_dev_info = (*env)->NewStringUTF(env, "---");
 		if((usb_dev_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
 			return linux_clean_throw_exp_usbenumeration(env, 1, NULL, &list, udev_device, enumerator, udev_ctx);
 		}
@@ -477,6 +459,13 @@ jobjectArray mac_enumerate_usb_hid_devices(JNIEnv *env, jint vendor_to_match, IO
 				return mac_clean_throw_exp_usbenumeration(env, 1, NULL, &list, hiddev_cfset, hiddev_references);
 			}
 
+			/* TRANSPORT */
+			usb_dev_info = (*env)->NewStringUTF(env, "USB");
+			if((usb_dev_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+				return linux_clean_throw_exp_usbenumeration(env, 1, NULL, &list, udev_device, enumerator, udev_ctx);
+			}
+			insert_jstrarraylist(&list, usb_dev_info);
+
 			/* DEVICE NODE */
 			usb_dev_info = (*env)->NewStringUTF(env, device_node);
 			if((usb_dev_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
@@ -489,21 +478,6 @@ jobjectArray mac_enumerate_usb_hid_devices(JNIEnv *env, jint vendor_to_match, IO
 			insert_jstrarraylist(&list, serial_num_info);
 			insert_jstrarraylist(&list, product_info);
 			insert_jstrarraylist(&list, manufacturer_info);
-
-			/* BUS NUMBER */
-			usb_dev_info = (*env)->NewStringUTF(env, "");
-			if((usb_dev_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
-				return mac_clean_throw_exp_usbenumeration(env, 1, NULL, &list, hiddev_cfset, hiddev_references);
-			}
-			insert_jstrarraylist(&list, usb_dev_info);
-
-			/* CONNECTED USB DEVICE NUMBER */
-			usb_dev_info = (*env)->NewStringUTF(env, "");
-			if((usb_dev_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
-				return mac_clean_throw_exp_usbenumeration(env, 1, NULL, &list, hiddev_cfset, hiddev_references);
-			}
-			insert_jstrarraylist(&list, usb_dev_info);
-
 			insert_jstrarraylist(&list, location_id_info);
 		}
 	}
