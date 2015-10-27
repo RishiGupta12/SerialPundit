@@ -167,7 +167,9 @@ jint set_latency_timer_value(JNIEnv *env, jstring comPortName, jbyte timerValue)
 
 				device_path = udev_device_get_devpath(udev_device);
 				if(device_path != NULL) {
+
 					memset(buffer, '\0', sizeof(buffer));
+					/* /sys/devices/pci0000:00/0000:00:14.0/usb3/3-3/3-3:1.0/ttyUSB0/tty/ttyUSB0/device/latency_timer */
 					snprintf(buffer, 512, "/sys%s/device/latency_timer", device_path);
 
 					errno = 0;

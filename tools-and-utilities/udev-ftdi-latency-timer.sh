@@ -22,5 +22,6 @@
 # For high speed I/O Low latency is required. For FTDI FT232RL this can be set via sysfs entry.
 # Note default built-in drivers does not allow to change this timer value. Driver provided by FTDI
 # at their website need to be used for changing FTDI specific parameters.
+# /sys/devices/pci0000:00/0000:00:14.0/usb3/3-3/3-3:1.0/ttyUSB0/tty/ttyUSB0/device/latency_timer
 
 chmod 0666 "/sys$1/device/latency_timer"

@@ -149,9 +149,12 @@ public final class SerialComUSB {
 	}
 
 	/**
-	 * <p>Sets the latency timer value for FTDI devices. Note that drivers built in the Linux kernel image 
-	 * may not allow changing timer values as it may have been hard-coded. Drivers supplied by FTDI at their 
-	 * website should be used if changing latency timer values is required by application.</p>
+	 * <p>Sets the latency timer value for FTDI devices. When using FTDI USB-UART devices, optimal values 
+	 * of latency timer and read/write block size may be required to obtain optimal data throughput.</p>
+	 * 
+	 * <p>Note that built-in drivers in Linux kernel image may not allow changing timer values as it may have 
+	 * been hard-coded. Drivers supplied by FTDI at their website should be used if changing latency timer 
+	 * values is required by application.</p>
 	 * 
 	 * @return true on success.
 	 * @throws SerialComException if an I/O error occurs.
