@@ -73,6 +73,7 @@ jstring linux_clean_throw_exp_usbenumeration(JNIEnv *env, int task, const char *
  * product ID, serial, product, manufacturer, USB bus number, USB device number, location ID.
  */
 jobjectArray linux_enumerate_usb_hid_devices(JNIEnv *env, jint vendor_to_match) {
+
 	int x = 0;
 	struct jstrarray_list list = {0};
 	jstring vendor_id_info;

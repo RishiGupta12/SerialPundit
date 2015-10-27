@@ -121,6 +121,14 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialCom
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
+ * Method:    findDriverServingHIDDevice
+ * Signature: (Ljava/lang/String;)Ljava/lang/String;
+ */
+JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_findDriverServingHIDDevice
+  (JNIEnv *, jobject, jstring);
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
  * Method:    listUSBHIDdevicesWithInfo
  * Signature: (I)[Ljava/lang/String;
  */

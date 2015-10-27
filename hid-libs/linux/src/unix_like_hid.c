@@ -480,4 +480,23 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialCom
 #endif
 }
 
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
+ * Method:    findDriverServingHIDDevice
+ * Signature: (Ljava/lang/String;)Ljava/lang/String;
+ *
+ * Gets driver who is responsible for communication with given HID device.
+ *
+ * @return driver name for given HID device on success or NULL if an error occurs.
+ * @throws SerialComException if any JNI function, system call or C function fails.
+ */
+JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_findDriverServingHIDDevice
+(JNIEnv *env, jobject obj, jstring hidDevNode) {
+#if defined (__linux__)
+	return linux_find_driver_for_given_hiddevice(env, hidDevNode);
+#elif defined (__APPLE__)
+	return mac_find_driver_for_given_hiddevice(env, hidDevNode);
 #endif
+}
+
+#endif /* end compiling*/

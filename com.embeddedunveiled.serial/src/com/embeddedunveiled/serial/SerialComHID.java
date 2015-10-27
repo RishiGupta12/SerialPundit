@@ -389,6 +389,33 @@ public class SerialComHID {
 		}
 	}
 
+	/**
+	 * <p>Gives the name of the driver who is driving the given HID device.</p>
+	 * 
+	 * @param hidDeviceNode device node (port name) for HID device whose driver is to be found.
+	 * @return name of driver serving given HID device.
+	 * @throws SerialComException if operation can not be completed successfully.
+	 * @throws IllegalArgumentException if argument hidDeviceNode is null or is an empty string.
+	 */
+	public String findDriverServingHIDDevice(String hidDeviceNode) throws SerialComException {
+		if(hidDeviceNode == null) {
+			throw new IllegalArgumentException("Argument hidDeviceNode can not be null !");
+		}
+		if(hidDeviceNode.length() == 0) {
+			throw new IllegalArgumentException("Argument hidDeviceNode can not be empty string !");
+		}
+		if(hidDeviceNode.length() > 256) {
+			// linux have 256 as maximum length of file name.
+			throw new IllegalArgumentException("Argument hidDeviceNode string can not be greater than 256 in length !");
+		}
+
+		String driverName = mHIDJNIBridge.findDriverServingHIDDevice(hidDeviceNode);
+		if(driverName == null) {
+			throw new SerialComException("Failed to find driver serving the given HID device. Please retry !");
+		}
+		return driverName;
+	}
+
 	public byte[] getReportDescriptor(long handle) throws SerialComException {
 		byte[] reportDescriptorRead = mHIDJNIBridge.getReportDescriptor(handle);
 		if(reportDescriptorRead != null) {

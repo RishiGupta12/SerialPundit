@@ -256,7 +256,7 @@ public final class SerialComHIDJNIBridge {
 	}
 
 	public native int initNativeLib();
-	
+
 	// Open and close methods
 	public long openHidDevice(String pathNameVal, int osType) {
 		if(osType == SerialComManager.OS_MAC_OS_X) {
@@ -276,16 +276,16 @@ public final class SerialComHIDJNIBridge {
 	}
 	public native long openHidDeviceByPath(String pathNameVal);
 	public native int closeHidDevice(long handle);
-	
+
 	// Data reports
 	public native int writeOutputReport(long handle, byte reportId, byte[] report, int length);
 	public native int readInputReport(long handle, byte[] reportBuffer, int length);
 	public native int readInputReportWithTimeout(long handle, byte[] reportBuffer, int length, int timeoutValue);
-	
+
 	// Feature reports
 	public native int sendFeatureReport(long handle, byte reportId, byte[] report, int length);
 	public native int getFeatureReport(long handle, byte reportId, byte[] report, int length);
-	
+
 	// Information
 	public native String[] listHIDdevicesWithInfo();
 	public native String getManufacturerString(long handle);
@@ -293,6 +293,7 @@ public final class SerialComHIDJNIBridge {
 	public native String getSerialNumberString(long handle);
 	public native String getIndexedString(long handle, int index);
 	public native byte[] getReportDescriptor(long handle);
+	public native String findDriverServingHIDDevice(String hidDeviceNode);
 
 	// USB HID methods
 	public native String[] listUSBHIDdevicesWithInfo(int vendorFilter);
@@ -300,5 +301,4 @@ public final class SerialComHIDJNIBridge {
 			int locationID, int usbBusNumber, int usbDevNumber);
 
 	// Bluetooth HID methods
-
 }
