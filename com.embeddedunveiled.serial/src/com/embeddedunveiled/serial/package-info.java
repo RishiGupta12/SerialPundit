@@ -16,6 +16,7 @@
  */
 
 /**
- * <p>Encapsulates behavior and environment centered around serial port communication.</p>
+ * <p>Encapsulates behavior and environment centered around serial port communication. This 
+ * is the core of this library.</p>
  */
 package com.embeddedunveiled.serial;
