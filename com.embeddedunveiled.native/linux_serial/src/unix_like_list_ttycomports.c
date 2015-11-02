@@ -20,6 +20,8 @@
 #include <string.h>
 #include <unistd.h>
 #include <stdio.h>
+#include <errno.h>
+#include <dirent.h>
 
 #if defined (__linux__)
 #include <libudev.h>
@@ -39,6 +41,9 @@
 #include "unix_like_serial_lib.h"
 
 #if defined (__linux__)
+/*
+ * Find tty ports using udev enumeration and regex expressions.
+ */
 jobjectArray listAvailableComPorts(JNIEnv *env) {
 
 	int x = 0;
@@ -54,9 +59,17 @@ jobjectArray listAvailableComPorts(JNIEnv *env) {
 	const char *path;
 	struct udev_device *udev_device;
 
+	int ret = -1;
+	int num_of_dir_found = 0;
+	char namewithpath[1024];
+	char* ptspath = "/dev/pts/";
+	struct dirent **namelist;
+	struct stat statbuf = {0};
+
 	/* allocate memory for 100 jstrings */
 	init_jstrarraylist(&list, 100);
 
+	/* UDEV enumeration */
 	udev_ctx = udev_new();
 	enumerator = udev_enumerate_new(udev_ctx);
 	/* devices which claim to be tty devices will be registered with tty framework whether
@@ -92,6 +105,47 @@ jobjectArray listAvailableComPorts(JNIEnv *env) {
 	}
 	udev_enumerate_unref(enumerator);
 	udev_unref(udev_ctx);
+
+	/* PSEUDO TERMINALS (/dev/pts/XX) */
+	errno = 0;
+	num_of_dir_found = scandir(ptspath, &namelist, NULL, NULL);
+	if(num_of_dir_found > 0) {
+		while(num_of_dir_found--) {
+			memset(namewithpath, '\0', sizeof(namewithpath));
+			if(strcmp(namelist[num_of_dir_found]->d_name, "..") && strcmp(namelist[num_of_dir_found]->d_name, ".")) {
+				strncpy(namewithpath, ptspath, strlen(ptspath));
+				strncat(namewithpath, namelist[num_of_dir_found]->d_name, strlen(namelist[num_of_dir_found]->d_name));
+				errno = 0;
+				ret = lstat(namewithpath, &statbuf);
+				if(ret >= 0) {
+					if(S_ISLNK(statbuf.st_mode) || S_ISCHR(statbuf.st_mode)) {
+						serial_device = (*env)->NewStringUTF(env, namewithpath);
+						if((serial_device == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+							(*env)->ExceptionClear(env);
+							free_jstrarraylist(&list);
+							throw_serialcom_exception(env, 3, 0, E_NEWSTRUTFSTR);
+							return NULL;
+						}
+						insert_jstrarraylist(&list, serial_device);
+					}
+				}else {
+					if(errno != ENOENT) {
+						free_jstrarraylist(&list);
+						throw_serialcom_exception(env, 1, errno, NULL);
+						return NULL;
+					}
+				}
+			}
+			free(namelist[num_of_dir_found]);
+		}
+		free(namelist);
+	}else if (num_of_dir_found == 0) {
+		/* do nothing */
+	}else {
+		free_jstrarraylist(&list);
+		throw_serialcom_exception(env, 1, errno, NULL);
+		return NULL;
+	}
 
 	/* Create a JAVA/JNI style array of String object, populate it and return to java layer. */
 	strClass = (*env)->FindClass(env, JAVALSTRING);
