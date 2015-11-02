@@ -44,7 +44,7 @@ public class Test66  {
 				PORT1 = null;
 			}else{
 			}
-			
+
 			System.out.println("driver : " + scm.findDriverServingComPort(PORT));
 			System.out.println("driver : " + scm.findDriverServingComPort(PORT1));
 		} catch (Exception e) {
