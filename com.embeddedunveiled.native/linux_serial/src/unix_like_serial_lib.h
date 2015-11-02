@@ -197,6 +197,7 @@ void mac_usb_device_added(void *refCon, io_iterator_t iterator);
 void mac_usb_device_removed(void *refCon, io_iterator_t iterator);
 #endif
 
+jobjectArray listAvailableComPorts(JNIEnv *env);
 jint is_usb_dev_connected(JNIEnv *env, jint usbvid_to_match, jint usbpid_to_match, jstring serial_number);
 jstring find_driver_for_given_com_port(JNIEnv *env, jstring com_port_name);
 jstring find_address_irq_for_given_com_port(JNIEnv *env, jlong fd);

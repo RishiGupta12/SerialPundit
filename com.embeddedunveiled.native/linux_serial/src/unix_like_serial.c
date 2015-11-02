@@ -217,159 +217,16 @@ JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPor
  * Method:    listAvailableComPorts
  * Signature: ()[Ljava/lang/String;
  *
- * Use OS specific way to detect/identify serial ports known to system at the instant this function is called. Do not try to open any
- * port as for bluetooth this may result in system trying to make BT connection and failing with time out.
- *
- * FOR LINUX : (1) Check if the entry in /sys/class/tty has a driver associated with it. If it has we assume it is a valid serial port.
- * For example for a USB-SERIAL converter, we can verify this from shell by executing readlink command on path:
- * $ readlink /sys/class/tty/ttyUSB0/device/driver
- * ../../../../../../../bus/usb-serial/drivers/pl2303
- * (2) Identify serial devices using regex expression for example ttytxXXXX is usually device files made by perle port servers.
- * (3) Identify pseudo terminals using lstat.
- *
- * FOR MAC OS X : Use IOKit matching dictionary to detect all devices who claims themselves to be serial devices or modem.
- *
- * For SOLARIS : this is handled in java layer itself as of now.
+ * Use OS specific way to detect/identify serial ports known to system at the instant this
+ * function is called. Do not try to open any port as for bluetooth this may result in system
+ * trying to make BT connection and failing with time out.
  *
  * @return array of serial ports found in system on success otherwise NULL if an error occurs.
  * @throws SerialComException if any JNI function, system call or C function fails.
  */
 JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_listAvailableComPorts(JNIEnv *env,
 		jobject obj) {
-
-	int x = 0;
-	struct jstrarray_list list = {0};
-	jstring serial_device;
-	jclass strClass = NULL;
-	jobjectArray serialDevicesFound = NULL;
-
-#if defined (__linux__)
-	struct udev *udev_ctx;
-	struct udev_enumerate *enumerator;
-	struct udev_list_entry *devices, *dev_list_entry;
-	const char *device_node;
-	const char *path;
-	struct udev_device *udev_device;
-#endif
-#if defined (__APPLE__)
-	CFMutableDictionaryRef matching_dictionary = NULL;
-	io_iterator_t iterator;
-	io_service_t service = 0;
-	kern_return_t kr = 0;;
-	CFStringRef cf_callout_path;
-	char callout_path[512];
-#endif
-
-	/* allocate memory for 100 jstrings */
-	init_jstrarraylist(&list, 100);
-
-#if defined (__linux__)
-	udev_ctx = udev_new();
-	enumerator = udev_enumerate_new(udev_ctx);
-	/* devices which claim to be tty devices will be registered with tty framework whether
-	 * they are real or virtual (ttyUSB, rfcomm, pseudo terminal). */
-	udev_enumerate_add_match_subsystem(enumerator, "tty");
-	udev_enumerate_scan_devices(enumerator);
-	devices = udev_enumerate_get_list_entry(enumerator);
-
-	udev_list_entry_foreach(dev_list_entry, devices) {
-		path = udev_list_entry_get_name(dev_list_entry);
-		udev_device = udev_device_new_from_syspath(udev_enumerate_get_udev(enumerator), path);
-		if(udev_device == NULL) {
-			continue;
-		}
-
-		/* save the device node */
-		device_node = udev_device_get_devnode(udev_device);
-		if(device_node != NULL) {
-			serial_device = (*env)->NewStringUTF(env, device_node);
-			if((serial_device == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
-				(*env)->ExceptionClear(env);
-				udev_device_unref(udev_device);
-				udev_enumerate_unref(enumerator);
-				udev_unref(udev_ctx);
-				free_jstrarraylist(&list);
-				throw_serialcom_exception(env, 3, 0, E_NEWSTRUTFSTR);
-				return NULL;
-			}
-			insert_jstrarraylist(&list, serial_device);
-		}
-
-		udev_device_unref(udev_device);
-	}
-	udev_enumerate_unref(enumerator);
-	udev_unref(udev_ctx);
-#endif
-
-#if defined (__APPLE__)
-	/* Set up a dictionary that matches all devices with a provider class of IOSerialBSDClient.*/
-	matching_dictionary = IOServiceMatching(kIOSerialBSDServiceValue);
-	if(matching_dictionary == NULL) {
-		/* handle error */
-	}
-	kr = IOServiceGetMatchingServices(kIOMasterPortDefault, matching_dictionary, &iterator);
-	if(kr != KERN_SUCCESS) {
-		set_error_status(env, obj, status, kr);
-		free_jstrarraylist(&list);
-		return NULL;
-	}
-	if(!iterator) {
-		/* handle error*/
-	}
-
-	/* Iterate over all matching objects. */
-	while((service = IOIteratorNext(iterator)) != 0) {
-		memset(callout_path, 0, sizeof(callout_path));
-
-		/* Get the character device path in UTF-8 encoding. In mac os x each serial device shows up
-		 * twice in /dev, once as a tty.* and once as a cu.*. The TTY devices are for calling into UNIX
-		 * systems, whereas CU (Call-Up) devices are for calling out from them (for example, modems).
-		 * The technical difference is that /dev/tty.* devices will wait (or listen) for DCD (data-carrier-detect),
-		 * for example someone calling in, before responding. The /dev/cu.* devices on the other hand do not
-		 * assert DCD, so they will always connect (respond or succeed) immediately. */
-		cf_callout_path = IORegistryEntryCreateCFProperty(service, CFSTR(kIOCalloutDeviceKey), kCFAllocatorDefault, 0);
-		CFStringGetCString(cf_callout_path, callout_path, sizeof(callout_path), kCFStringEncodingUTF8);
-		CFRelease(cf_callout_path);
-		serial_device = (*env)->NewStringUTF(env, callout_path);
-		insert_jstrarraylist(&list, serial_device);
-
-		IOObjectRelease(service);
-	}
-
-	IOObjectRelease(iterator);   /* Release iterator. */
-#endif
-
-	/* Create a JAVA/JNI style array of String object, populate it and return to java layer. */
-	strClass = (*env)->FindClass(env, JAVALSTRING);
-	if((strClass == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
-		(*env)->ExceptionClear(env);
-		free_jstrarraylist(&list);
-		throw_serialcom_exception(env, 3, 0, E_FINDCLASSSSTRINGSTR);
-		return NULL;
-	}
-
-	serialDevicesFound = (*env)->NewObjectArray(env, (jsize) list.index, strClass, NULL);
-	if((serialDevicesFound == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
-		(*env)->ExceptionClear(env);
-		free_jstrarraylist(&list);
-		throw_serialcom_exception(env, 3, 0, E_NEWOBJECTARRAYSTR);
-		return NULL;
-	}
-
-	for (x=0; x < list.index; x++) {
-		(*env)->SetObjectArrayElement(env, serialDevicesFound, x, list.base[x]);
-		if((*env)->ExceptionOccurred(env)) {
-			(*env)->ExceptionClear(env);
-			free_jstrarraylist(&list);
-			throw_serialcom_exception(env, 3, 0, E_SETOBJECTARRAYSTR);
-			return NULL;
-		}
-	}
-
-	/* free/release memories allocated finally (Top command will show memory accumulation if it not
-	 * freed for debugging). */
-	free_jstrarraylist(&list);
-	return serialDevicesFound;
+	return listAvailableComPorts(env);
 }
 
 /*
