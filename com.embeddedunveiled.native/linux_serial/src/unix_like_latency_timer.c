@@ -118,6 +118,8 @@ jint get_latency_timer_value(JNIEnv *env, jstring comPortName) {
 	udev_enumerate_unref(enumerator);
 	udev_unref(udev_ctx);
 
+	(*env)->ReleaseStringUTFChars(env, comPortName, com_port_to_match);
+
 	/* reaching here means given com port does not represent ftdi device, throw exception */
 	throw_serialcom_exception(env, 3, 0, E_NOTFTDIPORT);
 	return -1;
@@ -202,6 +204,8 @@ jint set_latency_timer_value(JNIEnv *env, jstring comPortName, jbyte timerValue)
 	}
 	udev_enumerate_unref(enumerator);
 	udev_unref(udev_ctx);
+
+	(*env)->ReleaseStringUTFChars(env, comPortName, com_port_to_match);
 
 	/* reaching here means given com port does not represent ftdi device, throw exception */
 	throw_serialcom_exception(env, 3, 0, E_NOTFTDIPORT);
