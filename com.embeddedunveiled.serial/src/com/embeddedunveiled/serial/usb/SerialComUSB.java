@@ -121,7 +121,8 @@ public final class SerialComUSB {
 		String[] usbPowerInfo = mComPortJNIBridge.getCDCUSBDevPowerInfo(portNameVal);
 		if(usbPowerInfo != null) {
 			if(usbPowerInfo.length > 2) {
-				return new SerialComUSBPowerInfo(usbPowerInfo[0], usbPowerInfo[1], usbPowerInfo[2]);
+				return new SerialComUSBPowerInfo(usbPowerInfo[0], usbPowerInfo[1], usbPowerInfo[2], 
+						usbPowerInfo[3], usbPowerInfo[4], usbPowerInfo[5]);
 			}
 		}else {
 			throw new SerialComException("Could not find USB devices. Please retry !");

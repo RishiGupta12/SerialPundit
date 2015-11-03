@@ -42,7 +42,10 @@
 #include "unix_like_serial_lib.h"
 
 #if defined (__linux__)
-/* */
+/*
+ * try to find info like auto suspend, current state etc which may be specific to a device
+ * or a usb device in general.
+ */
 jobjectArray get_usbdev_powerinfo(JNIEnv *env, jstring comPortName) {
 
 	int x = 0;
@@ -108,6 +111,8 @@ jobjectArray get_usbdev_powerinfo(JNIEnv *env, jstring comPortName) {
 					continue;
 				}
 
+				/* AUTO SUSPEND DELAY */
+
 				/* get the sysfs path to this USB device (port) */
 				prop_val = udev_device_get_property_value(parent_device, "DEVPATH");
 				if(prop_val != NULL) {
@@ -145,6 +150,8 @@ jobjectArray get_usbdev_powerinfo(JNIEnv *env, jstring comPortName) {
 					insert_jstrarraylist(&list, info);
 					close(fd);
 
+					/* CONTROL STATE */
+
 					/* /sys/bus/usb/devices/3-3/power/control. gives whether device is kept always on or
 					 * is allowed to auto suspend */
 					memset(buffer, '\0', sizeof(buffer));
@@ -179,6 +186,8 @@ jobjectArray get_usbdev_powerinfo(JNIEnv *env, jstring comPortName) {
 					insert_jstrarraylist(&list, info);
 					close(fd);
 
+					/* CURRENT POWER STATUS */
+
 					/* /sys/bus/usb/devices/3-3/power/runtime_status. gives whether device is active
 					 * or suspended */
 					memset(buffer, '\0', sizeof(buffer));
@@ -212,6 +221,33 @@ jobjectArray get_usbdev_powerinfo(JNIEnv *env, jstring comPortName) {
 
 					insert_jstrarraylist(&list, info);
 					close(fd);
+
+					/* SELECTIVE SUSPEND SUPPORTED */
+					info = (*env)->NewStringUTF(env, "---");
+					if ((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+						(*env)->ReleaseStringUTFChars(env, comPortName, port_name_to_match);
+						throw_serialcom_exception(env, 3, 0, E_NEWSTRUTFSTR);
+						return NULL;
+					}
+					insert_jstrarraylist(&list, info);
+
+					/* SELECTIVE SUSPEND ENABLED */
+					info = (*env)->NewStringUTF(env, "---");
+					if ((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+						(*env)->ReleaseStringUTFChars(env, comPortName, port_name_to_match);
+						throw_serialcom_exception(env, 3, 0, E_NEWSTRUTFSTR);
+						return NULL;
+					}
+					insert_jstrarraylist(&list, info);
+
+					/* SELECTIVE SUSPEND TIMEOUT */
+					info = (*env)->NewStringUTF(env, "---");
+					if ((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+						(*env)->ReleaseStringUTFChars(env, comPortName, port_name_to_match);
+						throw_serialcom_exception(env, 3, 0, E_NEWSTRUTFSTR);
+						return NULL;
+					}
+					insert_jstrarraylist(&list, info);
 				}
 			}
 		}
@@ -253,4 +289,8 @@ jobjectArray get_usbdev_powerinfo(JNIEnv *env, jstring comPortName) {
 	free_jstrarraylist(&list);
 	return powerInfo;
 }
+#endif
+
+#if defined (__APPLE__)
+/* TODO */
 #endif

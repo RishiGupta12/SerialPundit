@@ -210,4 +210,5 @@ jint set_latency_timer_value(JNIEnv *env, jstring comPortName, jbyte timerValue)
 #endif
 
 #if defined (__APPLE__)
+/* TODO */
 #endif

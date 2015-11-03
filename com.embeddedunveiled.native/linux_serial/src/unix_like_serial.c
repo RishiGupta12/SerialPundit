@@ -1242,8 +1242,8 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJ
  * @return 0 on success otherwise -1 if an error occurs.
  * @throws SerialComException if any JNI function, system call or C function fails.
  */
-JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_unblockBlockingIOOperation
-  (JNIEnv *env, jobject obj, jlong context) {
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_unblockBlockingIOOperation(JNIEnv *env,
+		jobject obj, jlong context) {
 
 #if defined (__linux__)
 	int ret;
@@ -3041,7 +3041,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
  * @throws SerialComException if any JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_setLatencyTimer
-  (JNIEnv *env, jobject obj, jstring comPortName, jbyte timerValue) {
+(JNIEnv *env, jobject obj, jstring comPortName, jbyte timerValue) {
 	return set_latency_timer_value(env, comPortName, timerValue);
 }
 
@@ -3054,7 +3054,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
  * @throws SerialComException if any JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_getLatencyTimer
-  (JNIEnv *env, jobject obj, jstring comPortName) {
+(JNIEnv *env, jobject obj, jstring comPortName) {
 	return get_latency_timer_value(env, comPortName);
 }
 
