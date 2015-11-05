@@ -83,9 +83,14 @@ public class SerialComHID {
 	 * <p>The information about HID device returned includes, transport, vendor ID, product ID, serial 
 	 * number, product, manufacturer, USB bus number, USB device number, location ID etc. In situations 
 	 * where two or more devices with exactly same vendor ID, product ID and serial number are present 
+<<<<<<< HEAD
 	 * into system, information like location ID, USB bus number and USB device number can be used to 
 	 * further categories them into unique devices. Application can also use some custom protocol to 
 	 * identify devices that are of interest to them.</p>
+>>>>>>> upstream/master
+=======
+	 * into system, information like location can be used to further categories them into unique devices. 
+	 * Application can also use some custom protocol to identify devices that are of interest to them.</p>
 >>>>>>> upstream/master
 	 * 
 	 * @return list of the HID devices with information about them or empty array if no device 
@@ -108,6 +113,7 @@ public class SerialComHID {
 				return new SerialComHIDdevice[] { };
 			}
 <<<<<<< HEAD
+<<<<<<< HEAD
 			numOfDevices = hidDevicesInfo.length / 7;
 			hidDevicesFound = new SerialComHIDdevice[numOfDevices];
 			for(int x=0; x < numOfDevices; x++) {
@@ -116,12 +122,20 @@ public class SerialComHID {
 				i = i + 7;
 =======
 			numOfDevices = hidDevicesInfo.length / 10;
+=======
+			numOfDevices = hidDevicesInfo.length / 8;
+>>>>>>> upstream/master
 			hidDevicesFound = new SerialComHIDdevice[numOfDevices];
 			for(int x=0; x < numOfDevices; x++) {
 				hidDevicesFound[x] = new SerialComHIDdevice(hidDevicesInfo[i], hidDevicesInfo[i+1], hidDevicesInfo[i+2], 
 						hidDevicesInfo[i+3], hidDevicesInfo[i+4], hidDevicesInfo[i+5], hidDevicesInfo[i+6],
+<<<<<<< HEAD
 						hidDevicesInfo[i+7], hidDevicesInfo[i+8], hidDevicesInfo[i+9]);
 				i = i + 10;
+>>>>>>> upstream/master
+=======
+						hidDevicesInfo[i+7]);
+				i = i + 8;
 >>>>>>> upstream/master
 			}
 			return hidDevicesFound;
@@ -153,14 +167,18 @@ public class SerialComHID {
 	 * <p>Opens a HID device for communication using its path name.</p>
 	 * 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 	 * <P>Applications can register hotplug listener to get notified when the desired USB device is plugged 
+=======
+	 * <P>Applications can register USB hot plug listener to get notified when the desired USB device is plugged 
+>>>>>>> upstream/master
 	 * into system. Once the listener is invoked indicating device is added, application can find the device 
 	 * node representing this USB-HID device and proceed to open it.</p>
 	 * 
 	 * <p>In Linux it may be required to add correct udev rules so as to grant permission to 
 	 * access to the USB-HID device. Refer this udev rule file for MCP2200 as an example : 
-	 * https://github.com/RishiGupta12/serial-communication-manager/blob/master/tests/scm-mcp2200-hid.rules</p>
+	 * https://github.com/RishiGupta12/serial-communication-manager/blob/master/tests/99-scm-mcp2200-hid.rules</p>
 	 * 
 >>>>>>> upstream/master
 	 * @param pathName device node full path for Unix-like OS and port name for Windows.
@@ -168,8 +186,12 @@ public class SerialComHID {
 	 * @throws SerialComException if an IO error occurs.
 	 * @throws IllegalArgumentException if pathName is null or empty string.
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 	 * @see com.embeddedunveiled.serial.SerialComManager#registerHotPlugEventListener(ISerialComHotPlugListener, int, int)
+=======
+	 * @see com.embeddedunveiled.serial.SerialComManager#registerUSBHotPlugEventListener(ISerialComUSBHotPlugListener, int, int, String)
+>>>>>>> upstream/master
 	 * @see com.embeddedunveiled.serial.SerialComHID#listHIDdevicesWithInfo()
 >>>>>>> upstream/master
 	 */
@@ -550,6 +572,33 @@ public class SerialComHID {
 		}else {
 			throw new SerialComException("Not supported on this operating system !");
 		}
+	}
+
+	/**
+	 * <p>Gives the name of the driver who is driving the given HID device.</p>
+	 * 
+	 * @param hidDeviceNode device node (port name) for HID device whose driver is to be found.
+	 * @return name of driver serving given HID device.
+	 * @throws SerialComException if operation can not be completed successfully.
+	 * @throws IllegalArgumentException if argument hidDeviceNode is null or is an empty string.
+	 */
+	public String findDriverServingHIDDevice(String hidDeviceNode) throws SerialComException {
+		if(hidDeviceNode == null) {
+			throw new IllegalArgumentException("Argument hidDeviceNode can not be null !");
+		}
+		if(hidDeviceNode.length() == 0) {
+			throw new IllegalArgumentException("Argument hidDeviceNode can not be empty string !");
+		}
+		if(hidDeviceNode.length() > 256) {
+			// linux have 256 as maximum length of file name.
+			throw new IllegalArgumentException("Argument hidDeviceNode string can not be greater than 256 in length !");
+		}
+
+		String driverName = mHIDJNIBridge.findDriverServingHIDDevice(hidDeviceNode);
+		if(driverName == null) {
+			throw new SerialComException("Failed to find driver serving the given HID device. Please retry !");
+		}
+		return driverName;
 	}
 
 	public byte[] getReportDescriptor(long handle) throws SerialComException {

@@ -22,7 +22,7 @@
 #if defined (__linux__)
 #include <libudev.h>
 #endif
-#include <pthread.h>
+
 #if defined (__APPLE__)
 #include <CoreFoundation/CoreFoundation.h>
 #include <IOKit/IOKitLib.h>
@@ -32,6 +32,8 @@
 #include <IOKit/IOMessage.h>
 #include <IOKit/usb/IOUSBLib.h>
 #endif
+
+#include <pthread.h>
 #include <jni.h>
 
 /* Constant string defines */
@@ -75,6 +77,8 @@
 #define E_HCIBTADDR "Could not determine address of BT HCI device !"
 #define E_CANNOTFINDDEVNODE "Failed to find device node from sysfs path !"
 #define E_WRITEZERONOTALLOWED "Write requires at least one byte data !"
+#define E_UNBLOCKIO "Byte stream unblocked !"
+#define E_NOTFTDIPORT "Given COM port may not represent FTDI device !"
 
 /* Custom error codes and messages for SCM library */
 #define ERROR_OFFSET 15000
@@ -107,15 +111,19 @@ struct com_thread_params {
 	int event_standard_err_code;
 	pthread_attr_t data_thread_attr;
 	pthread_attr_t event_thread_attr;
+	pthread_cond_t data_cond_var;
+	pthread_cond_t event_cond_var;
 };
 
-/* The port_info structure has platform specific fields based on how thread is created, destroyed and what data need to be passed.*/
-struct port_info {
 #if defined (__linux__)
+/* The port_info structure has platform specific fields based on how thread is created,
+ * destroyed and what data need to be passed.*/
+struct usb_dev_monitor_info {
 	JavaVM *jvm;
 	jobject usbHotPlugEventListener;
-	jint filterVID;
-	jint filterPID;
+	int usb_vid_to_match;
+	int usb_pid_to_match;
+	char serial_number_to_match[64];
 	int thread_exit;
 	pthread_t thread_id;
 	pthread_attr_t thread_attr;
@@ -124,36 +132,40 @@ struct port_info {
 	int standard_err_code;
 	int custom_err_code;
 	int evfd;
-#elif defined (__APPLE__)
-	JavaVM *jvm;
-	JNIEnv* env;
-	jobject usbHotPlugEventListener;
-	jmethodID onHotPlugEventMethodID;
-	jint filterVID;
-	jint filterPID;
-	int thread_exit;
-	pthread_t thread_id;
-	pthread_attr_t thread_attr;
-	pthread_mutex_t *mutex;
-	int init_done;
-	CFRunLoopSourceRef exit_run_loop_source;
-	CFRunLoopRef run_loop;
-	struct port_info *data;
-	IONotificationPortRef notification_port;
-	int empty_iterator_added;
-	int empty_iterator_removed;
-	jmethodID mid;
-#elif defined (__SunOS)
-#else
-#endif
+	pthread_cond_t cond_var;
 };
+#endif
 
 #if defined (__APPLE__)
 /* Structure to hold reference to driver and subscribed notification. */
 struct driver_ref {
 	io_service_t service;
 	io_object_t notification;
-	struct port_info *data;
+	struct usb_dev_monitor_info *data;
+};
+
+struct usb_dev_monitor_info {
+	JavaVM *jvm;
+	JNIEnv* env;
+	jobject usbHotPlugEventListener;
+	jmethodID onUSBHotPlugEventMethodID;
+	int usb_vid_to_match;
+	int usb_pid_to_match;
+	char serial_number_to_match[64];
+	int thread_exit;
+	pthread_t thread_id;
+	pthread_attr_t thread_attr;
+	pthread_mutex_t *mutex;
+	int init_done;
+	int standard_err_code;
+	int custom_err_code;
+	CFRunLoopSourceRef exit_run_loop_source;
+	CFRunLoopRef run_loop;
+	struct usb_dev_monitor_info *data;
+	IONotificationPortRef notification_port;
+	int empty_iterator_added;
+	int empty_iterator_removed;
+	jmethodID mid;
 };
 #endif
 
@@ -171,16 +183,21 @@ void throw_serialcom_exception(JNIEnv *env, int type, int error_code, const char
 void free_jstrarraylist(struct jstrarray_list *al);
 void insert_jstrarraylist(struct jstrarray_list *al, jstring element);
 void init_jstrarraylist(struct jstrarray_list *al, int initial_size);
-
 int serial_delay(unsigned ms);
 
+#if defined (__linux__)
+jstring linux_listusb_clean_throw_exp(JNIEnv *env, int task, const char *expmsg, struct jstrarray_list *list, struct udev_device *udev_device, struct udev_enumerate *enumerator, struct udev *udev_ctx);
+jstring linux_rfcomm_cleanexp(JNIEnv *env, int task, const char *expmsg, struct jstrarray_list *list, struct udev_device *udev_device, struct udev_enumerate *enumerator, struct udev *udev_ctx);
+#endif
+
 #if defined (__APPLE__)
-jstring mac_clean_up_and_throw_exp(JNIEnv *env, struct jstrarray_list *list, io_service_t usb_dev_obj, io_iterator_t iterator)
+jstring mac_listusb_clean_throw_exp(JNIEnv *env, struct jstrarray_list *list, io_service_t usb_dev_obj, io_iterator_t iterator)
 void mac_indicate_thread_exit(void *info);
 void mac_usb_device_added(void *refCon, io_iterator_t iterator);
 void mac_usb_device_removed(void *refCon, io_iterator_t iterator);
 #endif
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 extern jstring linux_clean_up_and_throw_exp(JNIEnv *env, int task, const char *expmsg, struct jstrarray_list *list, struct udev_device *udev_device, struct udev_enumerate *enumerator, struct udev *udev_ctx);
 extern jstring linux_rfcomm_cleanexp(JNIEnv *env, int task, const char *expmsg, struct jstrarray_list *list, struct udev_device *udev_device, struct udev_enumerate *enumerator, struct udev *udev_ctx);
@@ -209,15 +226,26 @@ jstring linux_clean_up_and_throw_exp(JNIEnv *env, int task, const char *expmsg, 
 jstring linux_rfcomm_cleanexp(JNIEnv *env, int task, const char *expmsg, struct jstrarray_list *list, struct udev_device *udev_device, struct udev_enumerate *enumerator, struct udev *udev_ctx);
 jint is_usb_dev_connected(JNIEnv *env, jint vid, jint pid);
 jstring find_driver_for_given_com_port(JNIEnv *env, jstring comPortName);
+=======
+jobjectArray listAvailableComPorts(JNIEnv *env);
+jint is_usb_dev_connected(JNIEnv *env, jint usbvid_to_match, jint usbpid_to_match, jstring serial_number);
+jstring find_driver_for_given_com_port(JNIEnv *env, jstring com_port_name);
+>>>>>>> upstream/master
 jstring find_address_irq_for_given_com_port(JNIEnv *env, jlong fd);
 jobjectArray list_usb_devices(JNIEnv *env, jint vendor_filter);
 jobjectArray list_bt_rfcomm_dev_nodes(JNIEnv *env);
-jobjectArray vcp_node_from_usb_attributes(JNIEnv *env, jint usbvid_to_match, jint usbpid_to_match, jstring serial_num);
+jobjectArray vcp_node_from_usb_attributes(JNIEnv *env, jint usbvid_to_match, jint usbpid_to_match, jstring serial_numer);
+jobjectArray get_usbdev_powerinfo(JNIEnv *env, jstring comPortName);
+jint get_latency_timer_value(JNIEnv *env, jstring comPortName);
+jint set_latency_timer_value(JNIEnv *env, jstring comPortName, jbyte timerValue);
 
 void *data_looper(void *params);
 void *event_looper(void *params);
+<<<<<<< HEAD
 void *usb_hot_plug_monitor(void *params);
+>>>>>>> upstream/master
+=======
+void *usb_device_hotplug_monitor(void *params);
 >>>>>>> upstream/master
 
 #endif /* UNIX_LIKE_SERIAL_LIB_H_ */
-

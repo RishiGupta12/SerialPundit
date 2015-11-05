@@ -17,6 +17,6 @@
 
 /**
  * <p>Encapsulates behavior and environment centered around serial port communication 
- * using hardware vendor specific libraries and facilities etc.</p>
+ * using device vendor supplied libraries and drivers for their hardware devices.</p>
  */
 package com.embeddedunveiled.serial.vendor;

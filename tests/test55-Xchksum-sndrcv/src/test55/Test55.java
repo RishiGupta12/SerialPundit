@@ -19,7 +19,7 @@ package test55;
 
 import java.io.File;
 
-import com.embeddedunveiled.serial.ISerialComProgressXmodem;
+import com.embeddedunveiled.serial.ISerialComXmodemProgress;
 import com.embeddedunveiled.serial.SerialComManager;
 import com.embeddedunveiled.serial.SerialComManager.BAUDRATE;
 import com.embeddedunveiled.serial.SerialComManager.DATABITS;
@@ -50,7 +50,7 @@ class AbortTest implements Runnable {
 	}
 }
 
-class Send extends Test55 implements Runnable, ISerialComProgressXmodem {
+class Send extends Test55 implements Runnable, ISerialComXmodemProgress {
 	public SerialComXModemAbort transferStatea = new SerialComXModemAbort();
 
 	@Override
@@ -86,7 +86,7 @@ class Send extends Test55 implements Runnable, ISerialComProgressXmodem {
 }
 
 // send file from one thread and receive from other using XMODEM checksum protocol 
-public class Test55 implements ISerialComProgressXmodem {
+public class Test55 implements ISerialComXmodemProgress {
 
 	private static SerialComXModemAbort transferStatec = new SerialComXModemAbort();
 	private static Thread mThread = null;
@@ -125,8 +125,8 @@ public class Test55 implements ISerialComProgressXmodem {
 			}else{
 			}
 
-			PORT = "/dev/pts/1";
-			PORT1 = "/dev/pts/3";
+			PORT = "/dev/pts/2";
+			PORT1 = "/dev/pts/4";
 
 			long handle = scm.openComPort(PORT, true, true, true);
 			scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);

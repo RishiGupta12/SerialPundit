@@ -31,6 +31,8 @@ public final class Test53 {
 	public static void main(String[] args) {
 		try {
 			SerialComManager scm = new SerialComManager();
+			SerialComOutByteStream out = null;
+			SerialComInByteStream in = null;
 
 			String PORT = null;
 			String PORT1 = null;
@@ -50,42 +52,114 @@ public final class Test53 {
 			}else{
 			}
 
+			/* tests with non-blocking mode */
 			long handle = scm.openComPort(PORT, true, true, true);
 			scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
 			scm.configureComPortControl(handle, FLOWCONTROL.NONE, 'x', 'x', false, false);
 			long handle1 = scm.openComPort(PORT1, true, true, true);
 			scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
 			scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
-			
-			SerialComOutByteStream out = scm.createOutputByteStream(handle, SMODE.NONBLOCKING);
-			SerialComInByteStream in = scm.createInputByteStream(handle1, SMODE.NONBLOCKING);
-			
-			/* comment out and test re-creation of stream will throw exception. 
+
+			out = scm.createOutputByteStream(handle, SMODE.NONBLOCKING);
+			in = scm.createInputByteStream(handle1, SMODE.NONBLOCKING);
+
+			/* must throw exception as stream already exist for given handle */
+			try {
+				out = scm.createOutputByteStream(handle, SMODE.BLOCKING);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+			/* must throw exception as stream already exist for given handle */
+			try {
+				in = scm.createInputByteStream(handle1, SMODE.BLOCKING);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+			try {
+				out.write(65); // print ASCII value of A in GUI application
+				int x = in.read();
+				System.out.println("x : " + x);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+			try {
+				byte[] b = new byte[50];
+				out.write("HELLO WORLD".getBytes());
+				Thread.sleep(200);
+				int y = in.read(b);
+				System.out.println("y : " + y + " b : " + new String(b));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+			try {
+				byte[] bb = new byte[50];
+				out.write("ABCDEFGHIJKL".getBytes());
+				Thread.sleep(200);
+				int z = in.read(bb, 4, 3);
+				System.out.println("z : " + z);
+				System.out.println("bb6 : " + bb[4]); // print 65 ASCII value of A
+				System.out.println("bb7 : " + bb[5]); // print 66 ASCII value of B
+				System.out.println("bb8 : " + bb[6]); // print 67 ASCII value of C
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+//			in.close();
+//			out.close();
+
+			scm.closeComPort(handle);
+			scm.closeComPort(handle1);
+
+			/* tests with blocking mode */
+			handle = scm.openComPort(PORT, true, true, true);
+			scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
+			scm.configureComPortControl(handle, FLOWCONTROL.NONE, 'x', 'x', false, false);
+			handle1 = scm.openComPort(PORT1, true, true, true);
+			scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
+			scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+
 			out = scm.createOutputByteStream(handle, SMODE.BLOCKING);
-			in = scm.createInputByteStream(handle1, SMODE.BLOCKING); */
-			
-			out.write(65); // print ASCII value of A in GUI application
-			int x = in.read();
-			System.out.println("x : " + x);
-			
-			byte[] b = new byte[50];
-			out.write("HELLO WORLD".getBytes());
-			Thread.sleep(500);
-			int y = in.read(b);
-			System.out.println("y : " + y + " b : " + new String(b));
-			
-			byte[] bb = new byte[50];
-			out.write("ABCDEFGHIJKL".getBytes());
-			Thread.sleep(500);
-			int z = in.read(bb, 4, 3);
-			System.out.println("z : " + z);
-			System.out.println("bb6 : " + bb[4]); // print 65 ASCII value of A
-			System.out.println("bb7 : " + bb[5]); // print 66 ASCII value of B
-			System.out.println("bb8 : " + bb[6]); // print 67 ASCII value of C
-			
+			in = scm.createInputByteStream(handle1, SMODE.BLOCKING);
+
+			try {
+				out.write(65); // print ASCII value of A in GUI application
+				int x = in.read();
+				System.out.println("x : " + x);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+			try {
+				byte[] b = new byte[50];
+				out.write("HELLO WORLD".getBytes());
+				Thread.sleep(200);
+				int y = in.read(b);
+				System.out.println("y : " + y + " b : " + new String(b));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+			try {
+				byte[] bb = new byte[50];
+				out.write("ABCDEFGHIJKL".getBytes());
+				Thread.sleep(200);
+				int z = in.read(bb, 4, 3);
+				System.out.println("z : " + z);
+				System.out.println("bb6 : " + bb[4]); // print 65 ASCII value of A
+				System.out.println("bb7 : " + bb[5]); // print 66 ASCII value of B
+				System.out.println("bb8 : " + bb[6]); // print 67 ASCII value of C
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
 			in.close();
 			out.close();
-			
+
+			/* stress testing */
 			for(int a=0; a<5000; a++) {
 				System.out.println("itertaion :" + a);
 				SerialComOutByteStream outa = scm.createOutputByteStream(handle, SMODE.NONBLOCKING);
@@ -93,42 +167,7 @@ public final class Test53 {
 				ina.close();
 				outa.close();
 			}
-			
-			scm.closeComPort(handle);
-			scm.closeComPort(handle1);
-			
-			handle = scm.openComPort(PORT, true, true, true);
-			scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
-			scm.configureComPortControl(handle, FLOWCONTROL.NONE, 'x', 'x', false, false);
-			handle1 = scm.openComPort(PORT1, true, true, true);
-			scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
-			scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
-			
-			out = scm.createOutputByteStream(handle, SMODE.BLOCKING);
-			in = scm.createInputByteStream(handle1, SMODE.BLOCKING);
-			
-			out.write(65); // print ASCII value of A in GUI application
-			x = in.read();
-			System.out.println("x : " + x);
-			
-			b = new byte[50];
-			out.write("HELLO WORLD".getBytes());
-			Thread.sleep(500);
-			y = in.read(b);
-			System.out.println("y : " + y + " b : " + new String(b));
-			
-			bb = new byte[50];
-			out.write("KLMHFTRYUEWAQ".getBytes());
-			Thread.sleep(500);
-			z = in.read(bb, 4, 3);
-			System.out.println("z : " + z);
-			System.out.println("bb6 : " + bb[4]); // print 75 ASCII value of K
-			System.out.println("bb7 : " + bb[5]); // print 76 ASCII value of L
-			System.out.println("bb8 : " + bb[6]); // print 77 ASCII value of M
-			
-			in.close();
-			out.close();
-			
+
 			scm.closeComPort(handle);
 			scm.closeComPort(handle1);
 		} catch (Exception e) {

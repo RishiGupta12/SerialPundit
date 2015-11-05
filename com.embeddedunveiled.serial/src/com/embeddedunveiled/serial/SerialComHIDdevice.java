@@ -36,10 +36,14 @@ public final class SerialComHIDdevice {
 	private String product;
 	private String manufacturer;
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 	private String busNumber;
 	private String devNumber;
 	private String locationID;
+>>>>>>> upstream/master
+=======
+	private String location;
 >>>>>>> upstream/master
 
 	/**
@@ -52,6 +56,7 @@ public final class SerialComHIDdevice {
 	 * @param serial serial number of this device.
 	 * @param product product identifier/description of this device.
 	 * @param manufacturer company manufacturing of this device.
+<<<<<<< HEAD
 <<<<<<< HEAD
 	 * @param deviceNode 
 	 * @throws SerialComException if the object can not be constructed.
@@ -68,6 +73,13 @@ public final class SerialComHIDdevice {
 			String serial, String product, String manufacturer, String busNumber, String devNumber,
 			String locationID) {
 >>>>>>> upstream/master
+=======
+	 * @param location location in device tree created dynamically.
+	 * @throws SerialComException if the object can not be constructed.
+	 */
+	public SerialComHIDdevice(String transport, String deviceNode, String idVendor, String idProduct, 
+			String serial, String product, String manufacturer, String location) {
+>>>>>>> upstream/master
 		this.transport = transport;
 		this.deviceNode = deviceNode;
 		this.idVendor = idVendor;
@@ -76,10 +88,14 @@ public final class SerialComHIDdevice {
 		this.product = product;
 		this.manufacturer = manufacturer;
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 		this.busNumber = busNumber;
 		this.devNumber = devNumber;
 		this.locationID = locationID;
+>>>>>>> upstream/master
+=======
+		this.location = location;
 >>>>>>> upstream/master
 	}
 
@@ -184,48 +200,17 @@ public final class SerialComHIDdevice {
 
 	/** 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 	 * <p>Retrieves the USB bus number on which this USB device is connected.</p>
+=======
+	 * <p>Retrieves the location of the USB device in system.</p>
+>>>>>>> upstream/master
 	 * 
-	 * @return bus number of which this USB device is connected or -1 if location ID is not applicable for 
-	 *          this platform.
-	 * @throws NumberFormatException if the USB bus number string can not be converted into 
-	 *          numerical representation.
+	 * @return location information about this device.
 	 */
-	public int getBusNumber() {
-		if("---".equals(busNumber)) {
-			return -1;
-		}
-		return Integer.parseInt(busNumber, 10);
-	}
-
-	/** 
-	 * <p>Retrieves the USB device number as assigned by operating system.</p>
-	 * 
-	 * @return USB device number as assigned by operating system or -1 if location ID is not applicable for 
-	 *          this platform.
-	 * @throws NumberFormatException if the USB device number string can not be converted into 
-	 *          numerical representation.
-	 */
-	public int getUSBDeviceNumberInSystem() {
-		if("---".equals(devNumber)) {
-			return -1;
-		}
-		return Integer.parseInt(devNumber, 10);
-	}
-
-	/** 
-	 * <p>Retrieves the location ID of the USB device in system.</p>
-	 * 
-	 * @return location ID of the USB device or -1 if location ID is not applicable for this platform.
-	 * @throws NumberFormatException if the location ID hex string can not be converted into numerical 
-	 *          representation.
-	 */
-	public long getLocationID() {
-		if("---".equals(locationID)) {
-			return -1;
-		}
-		return SerialComUtil.hexStrToLongNumber(locationID);
+	public String getLocation() {
+		return location;
 	}
 
 	/** 
@@ -241,12 +226,17 @@ public final class SerialComHIDdevice {
 				"\nSerial number : " + serial + 
 				"\nProduct : " + product + 
 <<<<<<< HEAD
+<<<<<<< HEAD
 				"\nManufacturer : " + manufacturer + "\n");
 =======
 				"\nManufacturer : " + manufacturer + 
 				"\nUSB bus number : " + busNumber +
 				"\nUSB Device number : " + devNumber + 
 				"\nLocation ID : 0x" + locationID);
+>>>>>>> upstream/master
+=======
+				"\nManufacturer : " + manufacturer +
+				"\nLocation : " + location);
 >>>>>>> upstream/master
 	}
 }

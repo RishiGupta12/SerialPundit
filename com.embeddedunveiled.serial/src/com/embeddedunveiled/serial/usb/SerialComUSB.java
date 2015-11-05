@@ -25,7 +25,7 @@ import com.embeddedunveiled.serial.internal.SerialComPortJNIBridge;
  * 
  * <p>An end product may be based on dedicated USB-UART bridge IC for providing serial over USB or 
  * may use general purpose microcontroller like PIC18F4550 from Microchip technology Inc. and 
- * program appropriate firmware (USB CDC) into ti to provide UART communication over USB port.</p>
+ * program appropriate firmware (USB CDC) into it to provide UART communication over USB port.</p>
  * 
  * @author Rishi Gupta
  */
@@ -97,6 +97,41 @@ public final class SerialComUSB {
 	}
 
 	/**
+	 * <p>Read all the power management related information about a particular USB device. The returned 
+	 * instance of SerialComUSBPowerInfo class contains information about auto suspend, selective suspend,
+	 * current power status etc.</p>
+	 * 
+	 * 
+	 * @param comPort serial port name/path (COMxx, /dev/ttyUSBx) which is associated with a particular
+	 *         USB CDC/ACM interface in the USB device to be analyzed for power management.
+	 * @return an instance of SerialComUSBPowerInfo class containing operating system and device specific 
+	 *          information about power management or null if given COM port does not belong to a USB 
+	 *          device.
+	 * @throws SerialComException if an I/O error occurs.
+	 */
+	public SerialComUSBPowerInfo getCDCUSBDevPowerInfo(String comPort) throws SerialComException {
+		if(comPort == null) {
+			throw new IllegalArgumentException("Argument comPort can not be null !");
+		}
+		String portNameVal = comPort.trim();
+		if(portNameVal.length() == 0) {
+			throw new IllegalArgumentException("Argument comPort can not be empty string !");
+		}
+
+		String[] usbPowerInfo = mComPortJNIBridge.getCDCUSBDevPowerInfo(portNameVal);
+		if(usbPowerInfo != null) {
+			if(usbPowerInfo.length > 2) {
+				return new SerialComUSBPowerInfo(usbPowerInfo[0], usbPowerInfo[1], usbPowerInfo[2], 
+						usbPowerInfo[3], usbPowerInfo[4], usbPowerInfo[5]);
+			}
+		}else {
+			throw new SerialComException("Could not find USB devices. Please retry !");
+		}
+
+		return null;
+	}
+
+	/**
 	 * <p>Causes re-scan for USB devices. It is equivalent to clicking the "Scan for hardware changes" 
 	 * button  in the Device Manager. Only USB hardware is checked for new devices. This can be of use 
 	 * when trying to recover devices programmatically.</p>
@@ -112,5 +147,38 @@ public final class SerialComUSB {
 			throw new SerialComException("Could not cause re-scanning for hardware change. Please retry !");
 		}
 		return true;
+	}
+
+	/**
+	 * <p>Sets the latency timer value for FTDI devices. When using FTDI USB-UART devices, optimal values 
+	 * of latency timer and read/write block size may be required to obtain optimal data throughput.</p>
+	 * 
+	 * <p>Note that built-in drivers in Linux kernel image may not allow changing timer values as it may have 
+	 * been hard-coded. Drivers supplied by FTDI at their website should be used if changing latency timer 
+	 * values is required by application.</p>
+	 * 
+	 * @return true on success.
+	 * @throws SerialComException if an I/O error occurs.
+	 */
+	public boolean setLatencyTimer(String comPort, byte timerValue) throws SerialComException {
+		int ret = mComPortJNIBridge.setLatencyTimer(comPort, timerValue);
+		if(ret < 0) {
+			throw new SerialComException("Could not set the latency timer value. Please retry !");
+		}
+		return true;
+	}
+
+	/**
+	 * <p>Gets the current latency timer value for FTDI devices.</p>
+	 * 
+	 * @return current latency timer value.
+	 * @throws SerialComException if an I/O error occurs.
+	 */
+	public int getLatencyTimer(String comPort) throws SerialComException {
+		int value = mComPortJNIBridge.getLatencyTimer(comPort);
+		if(value < 0) {
+			throw new SerialComException("Could not get the latency timer value. Please retry !");
+		}
+		return value;
 	}
 }

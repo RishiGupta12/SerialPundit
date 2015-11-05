@@ -61,7 +61,6 @@ public final class SerialComMCHPSIOJNIBridge {
 			SerialComLoadException, SerialComUnexpectedException, SecurityException, FileNotFoundException {
 		String libToExtractFromJar = null;
 		File libFile = null;
-		File vlibFile = null;
 		InputStream input = null;
 		FileOutputStream output = null;
 		String fileSeparator = null;
@@ -138,14 +137,6 @@ public final class SerialComMCHPSIOJNIBridge {
 			}
 		}
 
-		// load libraries in reverse order of dependencies
-		try {
-			// vendor supplied shared library
-			vlibFile = new File(libDirectory.getAbsolutePath() + fileSeparator + vlibName);
-			System.load(vlibFile.toString());
-		} catch (Exception e) {
-			throw (UnsatisfiedLinkError) new UnsatisfiedLinkError("Could not load " + vlibFile.toString() + " native library !").initCause(e);
-		}
 		try {
 			// scm JNI glue shared library
 			System.load(libFile.toString());
@@ -153,8 +144,19 @@ public final class SerialComMCHPSIOJNIBridge {
 			throw (UnsatisfiedLinkError) new UnsatisfiedLinkError("Could not load " + libFile.toString() + " native library !").initCause(e);
 		}
 
+		try {
+			/* SimpleIO-UM.dll has to be linked explicitly as it does not have .lib file associated.
+			 * Native layer will load and resolve all symbols to external SimpleIO-UM.dll. */
+			loadAndLinkSimpleIODLL(libDirectory.getAbsolutePath() + fileSeparator + vlibName);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw (UnsatisfiedLinkError) new UnsatisfiedLinkError("Could not load/link " + vlibName + " native library !");
+		}
+
 		return true;
 	}
+
+	private native static int loadAndLinkSimpleIODLL(String vendorLibraryWithAbsolutePath);
 
 	public native int initMCP2200(int vendorID, int productID);
 	public native int isConnected();

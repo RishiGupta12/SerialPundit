@@ -41,7 +41,7 @@ import com.embeddedunveiled.serial.internal.SerialComSystemProperty;
  * <p>[2] The application note for CP210XRuntime library is here : 
  * https://www.silabs.com/Support%20Documents/TechnicalDocs/an223.pdf</p>
  * 
- * <p>SCM version 1.0.4 is linked to v3.4 version of CP210xRuntime library.</p>
+ * <p>SCM version 1.0.4 is linked to v3.4.0.0 version of CP210xRuntime library (CP210xRuntime.dll).</p>
  * 
  * @author Rishi Gupta
  */

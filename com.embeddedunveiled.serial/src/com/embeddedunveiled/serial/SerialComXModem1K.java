@@ -51,8 +51,9 @@ public final class SerialComXModem1K {
 	private SerialComManager scm;
 	private long handle;
 	private File fileToProcess;
+	private long lengthOfFileToProcess;
 	private boolean textMode;
-	private ISerialComProgressXmodem progressListener;
+	private ISerialComXmodemProgress progressListener;
 	private SerialComXModemAbort transferState;
 	private int osType;
 
@@ -106,7 +107,7 @@ public final class SerialComXModem1K {
 =======
 	 * @param textMode if true file will be sent as text file (ASCII mode), if false file will be sent 
 	 *         as binary file.
-	 * @param progressListener object of class which implements ISerialComProgressXmodem interface and 
+	 * @param progressListener object of class which implements ISerialComXmodemProgress interface and 
 	 *         is interested in knowing how many blocks have been sent/received till now.
 	 * @param transferState if application wish to abort sending/receiving file at instant of time due 
 	 *         to any reason, it can call abortTransfer method on this object. It can be null of application 
@@ -115,7 +116,7 @@ public final class SerialComXModem1K {
 	 * @param osType operating system on which this application is running.
 	 */
 	public SerialComXModem1K(SerialComManager scm, long handle, File fileToProcess, boolean textMode,
-			ISerialComProgressXmodem progressListener, SerialComXModemAbort transferState, int osType) {
+			ISerialComXmodemProgress progressListener, SerialComXModemAbort transferState, int osType) {
 		this.scm = scm;
 		this.handle = handle;
 		this.fileToProcess = fileToProcess;
@@ -153,6 +154,9 @@ public final class SerialComXModem1K {
 		byte[] data = null;
 		long responseWaitTimeOut = 0;
 		long eotAckWaitTimeOutValue = 0;
+		int percentOfBlocksSent = 0;
+
+		lengthOfFileToProcess = fileToProcess.length();
 		inStream = new BufferedInputStream(new FileInputStream(fileToProcess));
 
 		state = CONNECT;
@@ -349,7 +353,11 @@ public final class SerialComXModem1K {
 						// for this purpose.
 						if(progressListener != null) {
 							numberOfBlocksSent++;
-							progressListener.onXmodemSentProgressUpdate(numberOfBlocksSent);
+							percentOfBlocksSent = (int) ((12800 * numberOfBlocksSent) / lengthOfFileToProcess);
+							if(percentOfBlocksSent >= 100) {
+								percentOfBlocksSent = 100;
+							}
+							progressListener.onXmodemSentProgressUpdate(numberOfBlocksSent, percentOfBlocksSent);
 						}
 					}else {
 						// successfully sent file, let's go back home happily.

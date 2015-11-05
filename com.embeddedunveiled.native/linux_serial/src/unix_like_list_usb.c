@@ -20,9 +20,11 @@
 #include <string.h>
 #include <unistd.h>
 #include <stdio.h>
+
 #if defined (__linux__)
 #include <libudev.h>
 #endif
+
 #if defined (__APPLE__)
 #include <CoreFoundation/CoreFoundation.h>
 #include <IOKit/IOKitLib.h>
@@ -32,34 +34,26 @@
 #include <IOKit/IOMessage.h>
 #include <IOKit/usb/IOUSBLib.h>
 #endif
+
 #include <jni.h>
 #include "unix_like_serial_lib.h"
 
+#if defined (__linux__)
 /*
  * Cleans up resources and set exception that will get thrown upon return to java layer.
  */
-#if defined (__linux__)
-jstring linux_clean_up_and_throw_exp(JNIEnv *env, int task, const char *expmsg, struct jstrarray_list *list, struct udev_device *udev_device,
-		                                 struct udev_enumerate *enumerator, struct udev *udev_ctx) {
-#endif
-#if defined (__APPLE__)
-jstring mac_clean_up_and_throw_exp(JNIEnv *env, int task, const char *expmsg, struct jstrarray_list *list, io_service_t usb_dev_obj, io_iterator_t iterator) {
-#endif
+jstring linux_listusb_clean_throw_exp(JNIEnv *env, int task, const char *expmsg,
+		struct jstrarray_list *list, struct udev_device *udev_device,
+		struct udev_enumerate *enumerator, struct udev *udev_ctx) {
 
 	(*env)->ExceptionClear(env);
 	free_jstrarraylist(list);
 
 	/* free memory first, so even if throwing JNI exception fails, this succeeds. */
 	if(task == 1) {
-#if defined (__linux__)
 		udev_device_unref(udev_device);
 		udev_enumerate_unref(enumerator);
 		udev_unref(udev_ctx);
-#endif
-#if defined (__APPLE__)
-		IOObjectRelease(usb_dev_obj);
-		IOObjectRelease(iterator);
-#endif
 	}else {
 	}
 
@@ -85,8 +79,12 @@ jstring mac_clean_up_and_throw_exp(JNIEnv *env, int task, const char *expmsg, st
 
 /*
  * Finds information about USB devices using operating system specific facilities and API.
- * The sequence of entries in array must match with what java layer expect. If a particular USB attribute
- * is not set in descriptor or can not be obtained "---" is placed in its place.
+ * The sequence of entries in array must match with what java layer expect (6 informations
+ * per USB device). If a particular USB attribute is not set in descriptor or can not be
+ * obtained "---" is placed in its place.
+ *
+ * Return array of USB device's information found, empty array if no USB device is found,
+ * NULL if an error occurs (additionally throws exception).
  */
 jobjectArray list_usb_devices(JNIEnv *env, jint vendor_to_match) {
 	int x = 0;
@@ -95,32 +93,17 @@ jobjectArray list_usb_devices(JNIEnv *env, jint vendor_to_match) {
 	jclass strClass = NULL;
 	jobjectArray usbDevicesFound = NULL;
 
-#if defined (__linux__)
 	struct udev *udev_ctx;
 	struct udev_enumerate *enumerator;
 	struct udev_list_entry *devices, *dev_list_entry;
 	const char *sysattr_val;
+	const char *prop_val;
 	const char *path;
 	struct udev_device *udev_device;
 	char *endptr;
-#endif
-#if defined (__APPLE__)
-	kern_return_t kr;
-	CFDictionaryRef matching_dictionary = NULL;
-	io_iterator_t iterator = 0;
-	io_service_t usb_dev_obj;
-	CFNumberRef num_ref;
-	CFStringRef str_ref;
-	int result;
-	char hexcharbuffer[5];
-	/* For storing USB descriptor attributes string like manufacturer, product, serial number etc.
-	 * in any encoding 1024 is sufficient. We prevented malloc() every time for every new attribute. */
-	char charbuffer[1024];
-#endif
 
 	init_jstrarraylist(&list, 100);
 
-#if defined (__linux__)
 	/* libudev is reference counted. Memory is freed when counts reach to zero. */
 	udev_ctx = udev_new();
 	enumerator = udev_enumerate_new(udev_ctx);
@@ -136,6 +119,17 @@ jobjectArray list_usb_devices(JNIEnv *env, jint vendor_to_match) {
 		}
 
 		if(strcmp("usb_device", udev_device_get_devtype(udev_device)) == 0) {
+
+			/* In context of this library, application is not interested in USB hub and USB
+			 * host controllers. Skip then from listing. */
+			sysattr_val = udev_device_get_sysattr_value(udev_device, "bDeviceClass");
+			if(sysattr_val != NULL) {
+				if(0x09 == strtol(sysattr_val, &endptr, 16)) {
+					udev_device_unref(udev_device);
+					continue;
+				}
+			}
+
 			/* USB-IF vendor ID */
 			sysattr_val = udev_device_get_sysattr_value(udev_device, "idVendor");
 			if(sysattr_val != NULL) {
@@ -151,7 +145,7 @@ jobjectArray list_usb_devices(JNIEnv *env, jint vendor_to_match) {
 				usb_dev_info = (*env)->NewStringUTF(env, "---");
 			}
 			if((usb_dev_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
-				return linux_clean_up_and_throw_exp(env, 1, NULL, &list, udev_device, enumerator, udev_ctx);
+				return linux_listusb_clean_throw_exp(env, 1, NULL, &list, udev_device, enumerator, udev_ctx);
 			}
 			insert_jstrarraylist(&list, usb_dev_info);
 
@@ -163,7 +157,7 @@ jobjectArray list_usb_devices(JNIEnv *env, jint vendor_to_match) {
 				usb_dev_info = (*env)->NewStringUTF(env, "---");
 			}
 			if((usb_dev_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
-				return linux_clean_up_and_throw_exp(env, 1, NULL, &list, udev_device, enumerator, udev_ctx);
+				return linux_listusb_clean_throw_exp(env, 1, NULL, &list, udev_device, enumerator, udev_ctx);
 			}
 			insert_jstrarraylist(&list, usb_dev_info);
 
@@ -175,7 +169,7 @@ jobjectArray list_usb_devices(JNIEnv *env, jint vendor_to_match) {
 				usb_dev_info = (*env)->NewStringUTF(env, "---");
 			}
 			if((usb_dev_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
-				return linux_clean_up_and_throw_exp(env, 1, NULL, &list, udev_device, enumerator, udev_ctx);
+				return linux_listusb_clean_throw_exp(env, 1, NULL, &list, udev_device, enumerator, udev_ctx);
 			}
 			insert_jstrarraylist(&list, usb_dev_info);
 
@@ -187,7 +181,7 @@ jobjectArray list_usb_devices(JNIEnv *env, jint vendor_to_match) {
 				usb_dev_info = (*env)->NewStringUTF(env, "---");
 			}
 			if((usb_dev_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
-				return linux_clean_up_and_throw_exp(env, 1, NULL, &list, udev_device, enumerator, udev_ctx);
+				return linux_listusb_clean_throw_exp(env, 1, NULL, &list, udev_device, enumerator, udev_ctx);
 			}
 			insert_jstrarraylist(&list, usb_dev_info);
 
@@ -199,31 +193,19 @@ jobjectArray list_usb_devices(JNIEnv *env, jint vendor_to_match) {
 				usb_dev_info = (*env)->NewStringUTF(env, "---");
 			}
 			if((usb_dev_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
-				return linux_clean_up_and_throw_exp(env, 1, NULL, &list, udev_device, enumerator, udev_ctx);
+				return linux_listusb_clean_throw_exp(env, 1, NULL, &list, udev_device, enumerator, udev_ctx);
 			}
 			insert_jstrarraylist(&list, usb_dev_info);
 
-			/* BUS NUMBER */
-			sysattr_val = udev_device_get_sysattr_value(udev_device, "busnum");
-			if(sysattr_val != NULL) {
-				usb_dev_info = (*env)->NewStringUTF(env, sysattr_val);
+			/* LOCATION */
+			prop_val = udev_device_get_property_value(udev_device, "DEVPATH");
+			if(prop_val != NULL) {
+				usb_dev_info = (*env)->NewStringUTF(env, prop_val);
 			}else {
 				usb_dev_info = (*env)->NewStringUTF(env, "---");
 			}
 			if((usb_dev_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
-				return linux_clean_up_and_throw_exp(env, 1, NULL, &list, udev_device, enumerator, udev_ctx);
-			}
-			insert_jstrarraylist(&list, usb_dev_info);
-
-			/* CONNECTED USB DEVICE NUMBER */
-			sysattr_val = udev_device_get_sysattr_value(udev_device, "devnum");
-			if(sysattr_val != NULL) {
-				usb_dev_info = (*env)->NewStringUTF(env, sysattr_val);
-			}else {
-				usb_dev_info = (*env)->NewStringUTF(env, "---");
-			}
-			if((usb_dev_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
-				return linux_clean_up_and_throw_exp(env, 1, NULL, &list, udev_device, enumerator, udev_ctx);
+				return linux_listusb_clean_throw_exp(env, 1, NULL, &list, udev_device, enumerator, udev_ctx);
 			}
 			insert_jstrarraylist(&list, usb_dev_info);
 
@@ -233,9 +215,93 @@ jobjectArray list_usb_devices(JNIEnv *env, jint vendor_to_match) {
 	udev_enumerate_unref(enumerator);
 	udev_unref(udev_ctx);
 
+	/* Create a JAVA/JNI style array of String object, populate it and return to java layer. */
+	strClass = (*env)->FindClass(env, JAVALSTRING);
+	if((strClass == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+		return linux_listusb_clean_throw_exp(env, 2, E_FINDCLASSSSTRINGSTR, &list, NULL, NULL, NULL);
+	}
+
+	usbDevicesFound = (*env)->NewObjectArray(env, (jsize) list.index, strClass, NULL);
+	if((usbDevicesFound == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+		return linux_listusb_clean_throw_exp(env, 2, E_NEWOBJECTARRAYSTR, &list, NULL, NULL, NULL);
+	}
+
+	for (x=0; x < list.index; x++) {
+		(*env)->SetObjectArrayElement(env, usbDevicesFound, x, list.base[x]);
+		if((*env)->ExceptionOccurred(env)) {
+			return linux_listusb_clean_throw_exp(env, 2, E_SETOBJECTARRAYSTR, &list, NULL, NULL, NULL);
+		}
+	}
+
+	free_jstrarraylist(&list);
+	return usbDevicesFound;
+}
 #endif
 
 #if defined (__APPLE__)
+/*
+ * Cleans up resources and set exception that will get thrown upon return to java layer.
+ */
+jstring mac_listusb_clean_throw_exp(JNIEnv *env, int task, const char *expmsg, struct jstrarray_list *list,
+		io_service_t usb_dev_obj, io_iterator_t iterator) {
+
+	/* free memory first, so even if throwing JNI exception fails, this succeeds. */
+	if(task == 1) {
+		IOObjectRelease(usb_dev_obj);
+		IOObjectRelease(iterator);
+	}else {
+	}
+
+	jclass serialComExceptionClass = (*env)->FindClass(env, SCOMEXPCLASS);
+	if((serialComExceptionClass == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+		(*env)->ExceptionClear(env);
+		if(task == 1) {
+			LOGE(E_FINDCLASSSCOMEXPSTR, E_NEWSTRUTFSTR);
+		}else {
+			LOGE(E_FINDCLASSSCOMEXPSTR, expmsg);
+		}
+		return NULL;
+	}
+
+	if(task == 1) {
+		(*env)->ThrowNew(env, serialComExceptionClass, E_NEWSTRUTFSTR);
+	}else {
+		(*env)->ThrowNew(env, serialComExceptionClass, expmsg);
+	}
+
+	return NULL;
+}
+
+/*
+ * Finds information about USB devices using operating system specific facilities and API.
+ * The sequence of entries in array must match with what java layer expect (6 informations
+ * per USB device). If a particular USB attribute is not set in descriptor or can not be
+ * obtained "---" is placed in its place.
+ *
+ * Return array of USB device's information found, empty array if no USB device is found,
+ * NULL if an error occurs (additionally throws exception).
+ */
+jobjectArray list_usb_devices(JNIEnv *env, jint vendor_to_match) {
+	int x = 0;
+	struct jstrarray_list list = {0};
+	jstring usb_dev_info;
+	jclass strClass = NULL;
+	jobjectArray usbDevicesFound = NULL;
+
+	kern_return_t kr;
+	CFDictionaryRef matching_dictionary = NULL;
+	io_iterator_t iterator = 0;
+	io_service_t usb_dev_obj;
+	CFNumberRef num_ref;
+	CFStringRef str_ref;
+	int result;
+	char hexcharbuffer[5];
+	/* For storing USB descriptor attributes string like manufacturer, product, serial number etc.
+	 * in any encoding 1024 is sufficient. We prevented malloc() every time for every new attribute. */
+	char charbuffer[1024];
+
+	init_jstrarraylist(&list, 100);
+
 	matching_dictionary = IOServiceMatching("IOUSBDevice");
 	if(matching_dictionary == NULL) {
 		/* handle error*/
@@ -250,9 +316,26 @@ jobjectArray list_usb_devices(JNIEnv *env, jint vendor_to_match) {
 
 	while((usb_dev_obj = IOIteratorNext(iterator)) != 0) {
 
+		/* In context of this library, application is not interested in USB hub and USB
+		 * host controllers. Skip then from listing. */
+		num_ref = (CFNumberRef) IORegistryEntrySearchCFProperty(usb_dev_obj, kIOServicePlane, CFSTR(kUSBDeviceClass),
+				                                        NULL, kIORegistryIterateRecursively | kIORegistryIterateParents);
+		if(num_ref) {
+			CFNumberGetValue(num_ref, kCFNumberSInt32Type, &result);
+			CFRelease(num_ref);
+			if(0x09 == result) {
+				IOObjectRelease(usb_dev_obj);
+				continue;
+			}
+		}else {
+			CFRelease(num_ref);
+			IOObjectRelease(usb_dev_obj);
+			continue;
+		}
+
 		/* USB-IF vendor ID */
 		memset(hexcharbuffer, '\0', sizeof(hexcharbuffer));
-		num_ref = (CFNumberRef) IORegistryEntrySearchCFProperty(usb_dev_obj, kIOServicePlane, CFSTR("idVendor"),
+		num_ref = (CFNumberRef) IORegistryEntrySearchCFProperty(usb_dev_obj, kIOServicePlane, CFSTR(kUSBVendorID),
 				                                        NULL, kIORegistryIterateRecursively | kIORegistryIterateParents);
 		if(num_ref) {
 			CFNumberGetValue(num_ref, kCFNumberSInt32Type, &result);
@@ -271,13 +354,13 @@ jobjectArray list_usb_devices(JNIEnv *env, jint vendor_to_match) {
 			usb_dev_info = (*env)->NewStringUTF(env, "---");
 		}
 		if((usb_dev_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
-			return mac_clean_up_and_throw_exp(env, 1, NULL, &list, usb_dev_obj, iterator);
+			return mac_listusb_clean_throw_exp(env, 1, NULL, &list, usb_dev_obj, iterator);
 		}
 		insert_jstrarraylist(&list, usb_dev_info);
 
 		/* USB product ID */
 		memset(hexcharbuffer, '\0', sizeof(hexcharbuffer));
-		num_ref = (CFNumberRef) IORegistryEntrySearchCFProperty(usb_dev_obj, kIOServicePlane, CFSTR("idProduct"),
+		num_ref = (CFNumberRef) IORegistryEntrySearchCFProperty(usb_dev_obj, kIOServicePlane, CFSTR(kUSBProductID),
 				                                        NULL, kIORegistryIterateRecursively | kIORegistryIterateParents);
 		if(num_ref) {
 			CFNumberGetValue(num_ref, kCFNumberSInt32Type, &result);
@@ -288,12 +371,12 @@ jobjectArray list_usb_devices(JNIEnv *env, jint vendor_to_match) {
 			usb_dev_info = (*env)->NewStringUTF(env, "---");
 		}
 		if((usb_dev_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
-			return mac_clean_up_and_throw_exp(env, 1, NULL, &list, usb_dev_obj, iterator);
+			return mac_listusb_clean_throw_exp(env, 1, NULL, &list, usb_dev_obj, iterator);
 		}
 		insert_jstrarraylist(&list, usb_dev_info);
 
 		/* SERIAL NUMBER */
-		str_ref = (CFStringRef) IORegistryEntrySearchCFProperty(usb_dev_obj, kIOServicePlane, CFSTR("USB Serial Number"),
+		str_ref = (CFStringRef) IORegistryEntrySearchCFProperty(usb_dev_obj, kIOServicePlane, CFSTR(kUSBSerialNumberString),
 				                                        NULL, kIORegistryIterateRecursively | kIORegistryIterateParents);
 		if(str_ref) {
 			memset(charbuffer, '\0', sizeof(charbuffer));
@@ -304,12 +387,12 @@ jobjectArray list_usb_devices(JNIEnv *env, jint vendor_to_match) {
 			usb_dev_info = (*env)->NewStringUTF(env, "---");
 		}
 		if((usb_dev_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
-			return mac_clean_up_and_throw_exp(env, 1, NULL, &list, usb_dev_obj, iterator);
+			return mac_listusb_clean_throw_exp(env, 1, NULL, &list, usb_dev_obj, iterator);
 		}
 		insert_jstrarraylist(&list, usb_dev_info);
 
 		/* PRODUCT */
-		str_ref = (CFStringRef) IORegistryEntrySearchCFProperty(usb_dev_obj, kIOServicePlane, CFSTR("USB Product Name"),
+		str_ref = (CFStringRef) IORegistryEntrySearchCFProperty(usb_dev_obj, kIOServicePlane, CFSTR(kUSBProductString),
 				                                        NULL, kIORegistryIterateRecursively | kIORegistryIterateParents);
 		if(str_ref) {
 			memset(charbuffer, '\0', sizeof(charbuffer));
@@ -320,12 +403,12 @@ jobjectArray list_usb_devices(JNIEnv *env, jint vendor_to_match) {
 			usb_dev_info = (*env)->NewStringUTF(env, "---");
 		}
 		if((usb_dev_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
-			return mac_clean_up_and_throw_exp(env, 1, NULL, &list, usb_dev_obj, iterator);
+			return mac_listusb_clean_throw_exp(env, 1, NULL, &list, usb_dev_obj, iterator);
 		}
 		insert_jstrarraylist(&list, usb_dev_info);
 
 		/* MANUFACTURER */
-		str_ref = (CFStringRef) IORegistryEntrySearchCFProperty(usb_dev_obj, kIOServicePlane, CFSTR("USB Vendor Name"),
+		str_ref = (CFStringRef) IORegistryEntrySearchCFProperty(usb_dev_obj, kIOServicePlane, CFSTR(kUSBVendorString),
 				                                        NULL, kIORegistryIterateRecursively | kIORegistryIterateParents);
 		if(str_ref) {
 			memset(charbuffer, '\0', sizeof(charbuffer));
@@ -336,54 +419,51 @@ jobjectArray list_usb_devices(JNIEnv *env, jint vendor_to_match) {
 			usb_dev_info = (*env)->NewStringUTF(env, "---");
 		}
 		if((usb_dev_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
-			return mac_clean_up_and_throw_exp(env, 1, NULL, &list, usb_dev_obj, iterator);
+			return mac_listusb_clean_throw_exp(env, 1, NULL, &list, usb_dev_obj, iterator);
 		}
 		insert_jstrarraylist(&list, usb_dev_info);
 
-		/* BUS NUMBER */
-		/*TODO bus number, device number */
+		/* LOCATION */
+		memset(charbuffer, '\0', sizeof(charbuffer));
+		num_ref = (CFNumberRef) IORegistryEntrySearchCFProperty(usb_dev_obj, kIOServicePlane, CFSTR(kUSBDevicePropertyLocationID),
+				                                        NULL, kIORegistryIterateRecursively | kIORegistryIterateParents);
+		if(num_ref) {
+			CFNumberGetValue(num_ref, kCFNumberSInt32Type, &result);
+			CFRelease(num_ref);
+			snprintf(charbuffer, 1024, "%x", result);
+			usb_dev_info = (*env)->NewStringUTF(env, charbuffer);
+		}else {
+			usb_dev_info = (*env)->NewStringUTF(env, "---");
+		}
+		if((usb_dev_info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+			return mac_listusb_clean_throw_exp(env, 1, NULL, &list, usb_dev_obj, iterator);
+		}
+		insert_jstrarraylist(&list, usb_dev_info);
 
 		IOObjectRelease(usb_dev_obj);
 	}
 
 	IOObjectRelease(iterator);
 
-#endif
-
 	/* Create a JAVA/JNI style array of String object, populate it and return to java layer. */
 	strClass = (*env)->FindClass(env, JAVALSTRING);
 	if((strClass == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
-#if defined (__linux__)
-		return linux_clean_up_and_throw_exp(env, 2, E_FINDCLASSSSTRINGSTR, &list, NULL, NULL, NULL);
-#endif
-#if defined (__APPLE__)
-		return mac_clean_up_and_throw_exp(env, 2, E_FINDCLASSSSTRINGSTR, &list, NULL, NULL);
-#endif
+		return mac_listusb_clean_throw_exp(env, 2, E_FINDCLASSSSTRINGSTR, &list, NULL, NULL);
 	}
 
 	usbDevicesFound = (*env)->NewObjectArray(env, (jsize) list.index, strClass, NULL);
 	if((usbDevicesFound == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
-#if defined (__linux__)
-		return linux_clean_up_and_throw_exp(env, 2, E_NEWOBJECTARRAYSTR, &list, NULL, NULL, NULL);
-#endif
-#if defined (__APPLE__)
-		return mac_clean_up_and_throw_exp(env, 2, E_NEWOBJECTARRAYSTR, &list, NULL, NULL);
-#endif
+		return mac_listusb_clean_throw_exp(env, 2, E_NEWOBJECTARRAYSTR, &list, NULL, NULL);
 	}
 
 	for (x=0; x < list.index; x++) {
 		(*env)->SetObjectArrayElement(env, usbDevicesFound, x, list.base[x]);
 		if((*env)->ExceptionOccurred(env)) {
-#if defined (__linux__)
-			return linux_clean_up_and_throw_exp(env, 2, E_SETOBJECTARRAYSTR, &list, NULL, NULL, NULL);
-#endif
-#if defined (__APPLE__)
-			return mac_clean_up_and_throw_exp(env, 2, E_SETOBJECTARRAYSTR, &list, NULL, NULL);
-#endif
+			return mac_listusb_clean_throw_exp(env, 2, E_SETOBJECTARRAYSTR, &list, NULL, NULL);
 		}
 	}
 
 	free_jstrarraylist(&list);
 	return usbDevicesFound;
 }
-
+#endif

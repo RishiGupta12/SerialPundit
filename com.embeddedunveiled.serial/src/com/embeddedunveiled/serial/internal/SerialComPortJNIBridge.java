@@ -22,7 +22,7 @@ import java.nio.ByteBuffer;
 import java.io.InputStream;
 import java.io.FileOutputStream;
 
-import com.embeddedunveiled.serial.ISerialComHotPlugListener;
+import com.embeddedunveiled.serial.ISerialComUSBHotPlugListener;
 import com.embeddedunveiled.serial.SerialComLoadException;
 import com.embeddedunveiled.serial.SerialComManager;
 import com.embeddedunveiled.serial.SerialComUnexpectedException;
@@ -276,11 +276,14 @@ public final class SerialComPortJNIBridge {
 	public native long openComPort(String portName, boolean enableRead, boolean enableWrite, boolean exclusiveOwner);
 	public native int closeComPort(long handle);
 	public native byte[] readBytes(long handle, int byteCount);
-	public native byte[] readBytesBlocking(long handle, int byteCount);
+	public native byte[] readBytesBlocking(long handle, int byteCount, long context);
 	public native int readBytesDirect(long handle, ByteBuffer buffer, int offset, int length);
 	public native int writeBytes(long handle, byte[] buffer, int delay);
 	public native int writeBytesDirect(long handle, ByteBuffer buffer, int offset, int length);
 	public native int writeSingleByte(long handle, byte dataByte);
+	public native long createBlockingIOContext();
+	public native int unblockBlockingIOOperation(long context);
+	public native int destroyBlockingIOContext(long context);
 
 	// Modem control, buffer
 	public native int setRTS(long handle, boolean enabled);
@@ -294,8 +297,8 @@ public final class SerialComPortJNIBridge {
 	public native int clearPortIOBuffers(long handle, boolean rxPortbuf, boolean txPortbuf);
 
 	// Hot-plug
-	public native int registerHotPlugEventListener(ISerialComHotPlugListener hotPlugListener, int filterVID, int filterPID);
-	public native int unregisterHotPlugEventListener(int index);
+	public native int registerUSBHotPlugEventListener(ISerialComUSBHotPlugListener hotPlugListener, int filterVID, int filterPID, String serialNumber);
+	public native int unregisterUSBHotPlugEventListener(int index);
 
 	// Configuration
 	public native int configureComPortData(long handle, int dataBits, int stopBits, int parity, int baudRateTranslated, int custBaudTranslated);
@@ -313,10 +316,15 @@ public final class SerialComPortJNIBridge {
 
 	// USB
 	public native String[] listUSBdevicesWithInfo(int vendorFilter);
-	public native String[] listComPortFromUSBAttributes(int usbVidToMatch, int usbPidToMatch, String serialNumber);
-	public native int isUSBDevConnected(int vendorID, int productID);
+	public native String[] findComPortFromUSBAttributes(int usbVidToMatch, int usbPidToMatch, String serialNumber);
+	public native int isUSBDevConnected(int vendorID, int productID, String serialNumber);
+	public native String[] getCDCUSBDevPowerInfo(String portNameVal);
+	public native int setLatencyTimer(String comPort, byte timerValue);
+	public native int getLatencyTimer(String comPort);
 	public native int rescanUSBDevicesHW();
 
 	// Bluetooth
 	public native String[] listBTSPPDevNodesWithInfo();
+
+
 }

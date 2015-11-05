@@ -1595,6 +1595,78 @@ JNIEXPORT jlongArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialCom
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
+ * Method:    setEventNotificationAndWait
+ * Signature: (JI)I
+ *
+ * @return event bit mask that has occurred on success otherwise -1 if an error occurs.
+ * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_setEventNotificationAndWait(JNIEnv *env,
+		jobject obj, jlong handle, jint mask) {
+
+	FT_STATUS ftStatus = 0;
+	EVENT_HANDLE eh;
+	DWORD dwmask = 0;
+
+	pthread_mutex_init(&eh.eMutex, NULL);
+	pthread_cond_init(&eh.eCondVar, NULL);
+
+	if((mask & SCM_EV_RXCHAR) == SCM_EV_RXCHAR) {
+		dwmask = dwmask | EV_RXCHAR;
+	}
+	if((mask & SCM_EV_RXFLAG) == SCM_EV_RXFLAG) {
+		dwmask = dwmask | EV_RXFLAG;
+	}
+	if((mask & SCM_EV_TXEMPTY) == SCM_EV_TXEMPTY) {
+		dwmask = dwmask | EV_TXEMPTY;
+	}
+	if((mask & SCM_EV_CTS) == SCM_EV_CTS) {
+		dwmask = dwmask | EV_CTS;
+	}
+	if((mask & SCM_EV_DSR) == SCM_EV_DSR) {
+		dwmask = dwmask | EV_DSR;
+	}
+	if((mask & SCM_EV_RLSD) == SCM_EV_RLSD) {
+		dwmask = dwmask | EV_RLSD;
+	}
+	if((mask & SCM_EV_BREAK) == SCM_EV_BREAK) {
+		dwmask = dwmask | EV_BREAK;
+	}
+	if((mask & SCM_EV_ERR) == SCM_EV_ERR) {
+		dwmask = dwmask | EV_ERR;
+	}
+	if((mask & SCM_EV_RING) == SCM_EV_RING) {
+		dwmask = dwmask | EV_RING;
+	}
+	if((mask & SCM_EV_PERR) == SCM_EV_PERR) {
+		dwmask = dwmask | EV_PERR;
+	}
+	if((mask & SCM_EV_RX80FULL) == SCM_EV_RX80FULL) {
+		dwmask = dwmask | EV_RX80FULL;
+	}
+	if((mask & SCM_EV_EVENT1) == SCM_EV_EVENT1) {
+		dwmask = dwmask | EV_EVENT1;
+	}
+	if((mask &SCM_EV_EVENT2) == SCM_EV_EVENT2) {
+		dwmask = dwmask | EV_EVENT2;
+	}
+
+	ftStatus = FT_SetEventNotification((FT_HANDLE)handle, dwmask, (PVOID)&eh);
+	if(ftStatus != FT_OK) {
+		throw_serialcom_exception(env, 2, ftStatus, NULL);
+		return -1;
+	}
+
+	pthread_mutex_lock(&eh.eMutex);
+	pthread_cond_wait(&eh.eCondVar, &eh.eMutex);
+	pthread_mutex_unlock(&eh.eMutex);
+	pthread_cond_destroy(&eh.eCondVar);
+	pthread_mutex_destroy(&eh.eMutex);
+	return 0;
+}
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
  * Method:    setChars
  * Signature: (JCCCC)I
  *

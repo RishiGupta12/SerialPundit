@@ -22,32 +22,31 @@
 #include <stdio.h>
 #include <errno.h>
 #include <sys/ioctl.h>
+
 #if defined (__linux__)
 #include <sys/types.h>
 #include <linux/serial.h>
 #endif
+
 #if defined (__APPLE__)
 #endif
+
 #include <jni.h>
 #include "unix_like_serial_lib.h"
 
+#if defined (__linux__)
 /*
  * Find the address and IRQ number associated with the given handle of serial port.
  */
 jstring find_address_irq_for_given_com_port(JNIEnv *env, jlong fd) {
+
 	char serial_info[256];
 	jstring addressIRQInfo = NULL;
-#if defined (__linux__)
 	int ret = 0;
 	struct serial_struct port_info;
-#endif
-
-#if defined (__APPLE__)
-#endif
 
 	memset(serial_info, '\0', 256);
 
-#if defined (__linux__)
 	port_info.reserved_char[0] = 0;
 	errno = 0;
 	ret = ioctl(fd, TIOCGSERIAL, &port_info);
@@ -63,12 +62,17 @@ jstring find_address_irq_for_given_com_port(JNIEnv *env, jlong fd) {
 		throw_serialcom_exception(env, 3, 0, E_NEWSTRUTFSTR);
 		return NULL;
 	}
-#endif
-
-#if defined (__APPLE__)
-	/* TODO */
-#endif
 
 	return addressIRQInfo;
 }
+#endif
+
+#if defined (__APPLE__)
+/*
+ * Find the address and IRQ number associated with the given handle of serial port.
+ */
+jstring find_address_irq_for_given_com_port(JNIEnv *env, jlong fd) {
+	/* TODO */
+}
+#endif
 

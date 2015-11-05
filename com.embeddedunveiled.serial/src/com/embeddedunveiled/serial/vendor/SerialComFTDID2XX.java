@@ -37,23 +37,31 @@ import com.embeddedunveiled.serial.internal.SerialComSystemProperty;
  * 
  * <p>More information about D2XX is here : http://www.ftdichip.com/Drivers/D2XX.htm </p>
  * 
- * <p>[0] The data types used in java layer may be bigger in size than the native layer. For example; if native 
- * function returns 16 bit signed integer, than java method will return 32 bit integer. This is done to make 
- * sure that no data loss occur. This library take care of sign and their applicability internally.</p>
+ * <p>[0] The data types used in java layer may be bigger in size than the native layer. For example; 
+ * if native function returns 16 bit signed integer, than java method will return 32 bit integer. This 
+ * is done to make sure that no data loss occur. This library take care of sign and their applicability 
+ * internally.</p>
  * 
- * <p>[1] Developers are requested to check with vendor library documentation if a particular function is supported
- * for desired platform or not and also how does a particular API will behave. Also consider paying attention to 
- * valid values and range when passing arguments to a method. For FTDI d2xx the API guide is here : 
+ * <p>[1] Developers are requested to check with vendor library documentation if a particular function 
+ * is supported for desired platform or not and also how does a particular API will behave. Also consider 
+ * paying attention to valid values and range when passing arguments to a method. For FTDI d2xx the API 
+ * guide is here : 
  * http://www.ftdichip.com/Support/Documents/ProgramGuides/D2XX_Programmer's_Guide(FT_000071).pdf </p>
  * 
- * <p>[2] The VCP and D2XX drivers are mutually exclusive and therefore use this script to unload VCP drivers :
- * https://github.com/RishiGupta12/serial-communication-manager/blob/master/tests/unload-ftdi-vcp-driver.sh</p>
+ * <p>[2] The VCP and D2XX drivers are mutually exclusive for Linux OS and therefore either udev rule can be 
+ * used to unbind/unload default drivers or it can be done manually.
+ * https://github.com/RishiGupta12/serial-communication-manager/blob/master/tools-and-utilities/udev-ftdi-unbind-ftdi_sio.sh
+ * https://github.com/RishiGupta12/serial-communication-manager/blob/master/tools-and-utilities/udev-ftdi-unload-vcp-driver.sh
+ * </p>
+ *
+ * <p>[3] The udev rules to support various applications designs are here : 
+ * https://github.com/RishiGupta12/serial-communication-manager/blob/master/tests/99-scm-extra-udev.rules</p>
+ *
+ * <p>[4] It seems like d2xx drivers are user space usb drivers using libusb. So if you encounter any 
+ * problems with permissions add following udev rules : 
+ * https://github.com/RishiGupta12/serial-communication-manager/blob/master/tests/99-scm-ftdi-d2xx.rules</p>
  * 
- * <p>[3] It seems like d2xx drivers are user space usb drivers using libusb. So if you encounter any problems with 
- * permissions add following udev rules : 
- * https://github.com/RishiGupta12/serial-communication-manager/blob/master/tests/scm-ftdi-d2xx.rules</p>
- * 
- * <p>[4] The application notes for FTDI devices are here : http://www.ftdichip.com/Support/Documents/AppNotes.htm</p>
+ * <p>[5] The application notes for FTDI devices are here : http://www.ftdichip.com/Support/Documents/AppNotes.htm</p>
  * 
  * <p>SCM version 1.0.4 is linked to d2xx 1.1.12 version for Linux, 2.12.06 for Windows and 1.2.2 for Mac os x.</p>
  * 
@@ -272,10 +280,12 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	/**<p>Bit mask to represent an event in D2XX terminology. </p>*/
 	public static final int EV_EVENT2 = 0x1000; // Provider specific event 2
 
-	/**<p>Bit mask to represent killing all current and pending transmission operations in D2XX terminology.</p>*/
+	/**<p>Bit mask to represent killing all current and pending transmission operations in 
+	 * D2XX terminology.</p>*/
 	public static final int PURGE_TXABORT = 0x0001;
 
-	/**<p>Bit mask to represent killing all current and pending receive operations in D2XX terminology.</p>*/
+	/**<p>Bit mask to represent killing all current and pending receive operations in D2XX 
+	 * terminology.</p>*/
 	public static final int PURGE_RXABORT = 0x0002;
 
 	/**<p>Bit mask to represent clearing transmit queue in D2XX terminology.</p>*/
@@ -322,7 +332,8 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	/**
 	 * <p>Allocates a new SerialComFTDID2XX object and extract and load shared libraries as required.</p>
 	 * 
-	 * @param libDirectory directory in which native library will be extracted and vendor library will be found.
+	 * @param libDirectory directory in which native library will be extracted and vendor library will 
+	 *         be found.
 	 * @param vlibName name of vendor library to load and link.
 	 * @param cpuArch architecture of CPU this library is running on.
 	 * @param osType operating system this library is running on.
@@ -930,7 +941,7 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 * @return array containing number of bytes in rx buffer, number of bytes in tx buffer, modem event status.
 	 * @throws SerialComException if an I/O error occurs.
 	 */
-	public long[] getStatus(long handle) throws SerialComException {
+	public long[] getStatus(final long handle) throws SerialComException {
 		long[] info = mFTDID2XXJNIBridge.getStatus(handle);
 		if(info == null) {
 			throw new SerialComException("Could not determine the required information for the requested device. Please retry !");
@@ -939,40 +950,19 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	}
 
 	/**
-	 * <p>Executes FT_SetEventNotification function of D2XX library.</p>
+	 * <p>Executes FT_SetEventNotification function of D2XX library and blocks until one or more 
+	 * events specified in eventMask occurs. Once this method returns, application can determine 
+	 * which event has occurred using getStatus method.</p>
 	 * 
-	 * <p>Sets the event on which worker thread should block.</p>
-	 * 
-	 * @param handle handle of the device for whom event is to happen.
+	 * @param handle handle of the device for which to set event mask and wait.
 	 * @param eventMask bit mask of the constants EV_XXXXX in SerialComFTDID2XX class.
-	 * @return event handle that must be passed to setEventNotificationWait() method.
+	 * @return true if one or more event has happened.
 	 * @throws SerialComException if an I/O error occurs.
 	 */
-	public long setEventNotification(long handle, int eventMask) throws SerialComException {
-		long eventHandle = mFTDID2XXJNIBridge.setEventNotification(handle, eventMask);
-		if(eventHandle < 0) {
-			throw new SerialComException("Could not set the event notification. Please retry !");
-		}
-		return eventHandle;
-	}
-
-	/**
-	 * <p>This method blocks until event specified in setEventNotification() method happens. 
-	 * Typically this method should be called from worker thread.</p>
-	 * 
-	 * <p>This method is not in FTDI d2xx but is SCM specific and is to be used in conjunction 
-	 * with setEventNotification method. After calling setEventNotification, call this method to 
-	 * block on desired event.</p>
-	 * 
-	 * @param handle handle of the device for whom event is to happen.
-	 * @param eventMask bit mask of the constants EV_XXXXX in SerialComFTDID2XX class.
-	 * @return true when event occurs.
-	 * @throws SerialComException if an I/O error occurs.
-	 */
-	public boolean setEventNotificationWait(long eventHandle) throws SerialComException {
-		int ret = mFTDID2XXJNIBridge.setEventNotificationWait(eventHandle);
-		if(ret < 0) {
-			throw new SerialComException("Could not wait for the event to happen. Please retry !");
+	public boolean setEventNotificationAndWait(long handle, int eventMask) throws SerialComException {
+		int eventsThatOccurredMask = mFTDID2XXJNIBridge.setEventNotificationAndWait(handle, eventMask);
+		if(eventsThatOccurredMask < 0) {
+			throw new SerialComException("Could not set the event notification and block. Please retry !");
 		}
 		return true;
 	}
@@ -982,7 +972,11 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 * 
 	 * <p>Sets the special characters for the device.</p>
 	 * 
-	 * @param handle handle of the device for which characters need to be set..
+	 * @param handle handle of the device for which characters need to be set.
+	 * @param eventChar event character.
+	 * @param eventEnable 0 if event character disabled, non-zero otherwise.
+	 * @param errorChar error character.
+	 * @param errorEnable 0 if error character disabled, non-zero otherwise.
 	 * @return true if the operation executed successfully.
 	 * @throws SerialComException if an I/O error occurs.
 	 */

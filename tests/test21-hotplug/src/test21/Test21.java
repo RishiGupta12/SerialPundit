@@ -18,27 +18,42 @@
 
 package test21;
 
-import com.embeddedunveiled.serial.ISerialComHotPlugListener;
+import com.embeddedunveiled.serial.ISerialComUSBHotPlugListener;
 import com.embeddedunveiled.serial.SerialComManager;
+import com.embeddedunveiled.serial.usb.SerialComUSB;
 
 // event 2 indicates port removal, 1 indicates additional of port
-class portWatcher implements ISerialComHotPlugListener {
+class portWatcher implements ISerialComUSBHotPlugListener {
+
 	@Override
-	public void onHotPlugEvent(int arg0) {
+	public void onUSBHotPlugEvent(int arg0) {
 		System.out.println("event " + arg0);
 	}
+
 }
 
 public class Test21 {
 	public static void main(String[] args) {
 		try {
+			int handle = 0;
 			SerialComManager scm = new SerialComManager();
 			portWatcher pw = new portWatcher();
-			
-//			scm.registerHotPlugEventListener(pw, SerialComManager.USB_DEV_ANY, SerialComManager.USB_DEV_ANY);
-			scm.registerHotPlugEventListener(pw, 0x0403, 0x6001);
-			Thread.sleep(100000);
-			scm.unregisterHotPlugEventListener(pw);
+
+			//			handle = scm.registerUSBHotPlugEventListener(pw, SerialComUSB.DEV_ANY, SerialComUSB.DEV_ANY);
+
+			System.out.println("registering");
+			//			handle = scm.registerUSBHotPlugEventListener(pw, 0x0403, 0x6001, "A7036479");
+
+//			handle = scm.registerUSBHotPlugEventListener(pw, 0x10C4, 0xEA60, "0001");
+
+			handle = scm.registerUSBHotPlugEventListener(pw, 0x04d8, 0x00df, "0000980371");
+			System.out.println("sleeping");
+			Thread.sleep(50444400);
+
+			System.out.println("unregsitering");
+			scm.unregisterUSBHotPlugEventListener(handle);
+
+			System.out.println("unregistered");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

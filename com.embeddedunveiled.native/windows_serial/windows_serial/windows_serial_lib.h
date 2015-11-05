@@ -15,14 +15,17 @@
  * along with serial communication manager. If not, see <http://www.gnu.org/licenses/>.
  *
  ***************************************************************************************************/
- 
+
 #pragma once
+#pragma comment (lib, "Setupapi.lib")
+#pragma comment (lib, "cfgmgr32.lib")
 
 #ifndef WINDOWS_SERIAL_LIB_H_
 #define WINDOWS_SERIAL_LIB_H_
 
-#include <jni.h>
+#include "stdafx.h"
 #include <windows.h>
+#include <jni.h>
 
 /* This is the maximum number of threads and hence data listeners instance we support. */
 #define MAX_NUM_THREADS 1024
@@ -41,19 +44,22 @@
 #define E_FINDCLASSSCOMEXPSTR "Can not find class com/embeddedunveiled/serial/SerialComException. Probably out of memory !"
 #define E_FINDCLASSSSTRINGSTR "Can not find class java/lang/String. Probably out of memory !"
 #define E_NEWOBJECTARRAYSTR "JNI call NewObjectArray failed. Probably out of memory !"
-#define E_NEWBYTEARRAYSTR "JNI call NewByteArray failed !"
-#define E_NEWINTARRAYSTR "JNI call NewIntArray failed !"
+#define E_NEWBYTEARRAYSTR "JNI call NewByteArray failed. Probably out of memory !"
+#define E_NEWINTARRAYSTR "JNI call NewIntArray failed. Probably out of memory !"
 #define E_SETOBJECTARRAYSTR "JNI call SetObjectArrayElement failed. Either index violation or wrong class used !"
 #define E_SETBYTEARRREGIONSTR "JNI call SetByteArrayRegion failed !"
 #define E_SETINTARRREGIONSTR "JNI call SetIntArrayRegion failed !"
-#define E_NEWSTRUTFSTR "JNI call NewStringUTF failed !"
+#define E_NEWSTRUTFSTR "JNI call NewStringUTF failed. Probably out of memory !"
+#define E_NEWSTRSTR "JNI call NewString failed. Probably out of memory !"
 #define E_GETSTRUTFCHARSTR "JNI call GetStringUTFChars failed !"
+#define E_GETSTRCHARSTR "JNI call GetStringChars failed !"
 #define E_GETBYTEARRELEMTSTR "JNI call GetByteArrayElements failed !"
 #define E_GETBYTEARRREGIONSTR "JNI call GetByteArrayRegion failed !"
 #define E_NEWGLOBALREFSTR "JNI Call NewGlobalRef failed !"
 #define E_DELGLOBALREFSTR "JNI Call DeleteGlobalRef failed !"
 #define E_MALLOCSTR "malloc() failed to allocate requested memory !"
 #define E_CALLOCSTR "calloc() failed to allocate requested memory !"
+#define E_HEAPALLOCSTR "HeapAlloc() failed to allocate requested memory !"
 #define E_REALLOCSTR "realloc() failed to allocate requested memory !"
 #define E_ATTACHCURRENTTHREADSTR "JNI call AttachCurrentThread failed !"
 #define E_GETOBJECTCLASSSTR "JNI call GetObjectClass failed !"
@@ -102,19 +108,23 @@ struct looper_thread_params {
 	int standard_err_code;
 };
 
-struct port_info {
+struct usb_dev_monitor_info {
 	JavaVM *jvm;
-	const char *portName;
-	HANDLE hComm;
-	HANDLE wait_handle;
-	int thread_exit;
-	jobject port_listener;
-	CRITICAL_SECTION *csmutex;
-	HWND window_handle;
 	JNIEnv* env;
-	jclass port_monitor_class;
-	jmethodID port_monitor_mid;
-	struct port_info *info;
+	HANDLE thread_handle;
+	HANDLE wait_event_handle;
+	HWND window_handle;
+	int thread_exit;
+	int usb_vid_to_match;
+	int usb_pid_to_match;
+	char serial_number_to_match[64];
+	jobject usbHotPlugEventListener;
+	jmethodID onUSBHotPlugEventMethodID;
+	struct usb_dev_monitor_info *info;
+	int init_done;
+	int custom_err_code;
+	int standard_err_code;
+	CRITICAL_SECTION *csmutex;
 };
 
 /* This holds information for implementing dynamically growing array in C language. */
@@ -133,16 +143,20 @@ void insert_jstrarraylist(struct jstrarray_list *al, jstring element);
 void init_jstrarraylist(struct jstrarray_list *al, int initial_size);
 
 int serial_delay(unsigned ms);
-jint is_usb_dev_connected(JNIEnv *env, jint vid, jint pid);
+jint is_usb_dev_connected(JNIEnv *env, jint usbvid_to_match, jint usbpid_to_match, jstring serial_number);
+int get_driver_com_port_usb(JNIEnv *env, const jchar *port_name, TCHAR *driver_name);
+int get_driver_com_port_multiportadaptor(JNIEnv *env, const jchar *port_name, TCHAR *driver_name);
 jstring find_driver_for_given_com_port(JNIEnv *env, jstring comPortName);
 jstring find_address_irq_for_given_com_port(JNIEnv *env, jlong fd);
 jobjectArray list_usb_devices(JNIEnv *env, jint vendor_filter);
-jobjectArray list_bt_rfcomm_dev_nodes(JNIEnv *env);
 jobjectArray vcp_node_from_usb_attributes(JNIEnv *env, jint usbvid_to_match, jint usbpid_to_match, jstring serial_num);
+
+jobjectArray list_bt_rfcomm_dev_nodes(JNIEnv *env);
 
 int setupLooperThread(JNIEnv *env, jobject obj, jlong handle, jobject looper_obj_ref, int data_enabled, int event_enabled, int global_index, int new_dtp_index);
 unsigned WINAPI event_data_looper(LPVOID lpParam);
-unsigned WINAPI usb_hot_plug_monitor(LPVOID lpParam);
+
+LRESULT CALLBACK usb_hotplug_event_handler(HWND window_handle, UINT msg, WPARAM event, LPARAM event_data);
+unsigned WINAPI usb_device_hotplug_monitor(LPVOID lpParam);
 
 #endif /* WINDOWS_SERIAL_LIB_H_ */
-

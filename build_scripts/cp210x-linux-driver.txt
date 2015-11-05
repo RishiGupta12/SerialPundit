@@ -23,26 +23,26 @@ These steps must be executed on machine which will build and run the built drive
 tested with Ubuntu 12.04 with 3.11.0-20-generic kernel version.
 
 1. Download and unpack Linux 3.x.x version of the driver from here :
-https://www.silabs.com/products/mcu/Pages/USBtoUARTBridgeVCPDrivers.aspx
+   https://www.silabs.com/products/mcu/Pages/USBtoUARTBridgeVCPDrivers.aspx
 
 2. Install kernel headers for your machine on which this driver is supposed to be run.
-$ sudo apt-get install linux-headers-$(uname -r)
+   $ sudo apt-get install linux-headers-$(uname -r)
 
 3. Get the C source file corresponding to your kernel version. The line below is an example
    for 3.11.0-20-generic kernel version. 
-$ wget https://git.kernel.org/cgit/linux/kernel/git/stable/linux-stable.git/plain/drivers/usb/serial/cp210x.c?h=linux-3.11.y -O cp210x.c
+   $ wget https://git.kernel.org/cgit/linux/kernel/git/stable/linux-stable.git/plain/drivers/usb/serial/cp210x.c?h=linux-3.11.y -O cp210x.c
 
 4. Go to folder where you unpacked downloaded driver source files from silicon labs website.
    Rename file Makefile26 to Makefile.
 
 5. Change PWD to directory and run configure script.
-$ cd /--/--/your-path
-$ ./configure
+   $ cd /--/--/your-path
+   $ ./configure
 
 6. Issue make
-$make
+   $make
 
-This will build driver in PWD directory.
+   This will build driver in PWD directory.
 
 make -C /lib/modules/3.11.0-20-generic/build -I /home/r/ws-host-uart/development/3-SILICON-LABS/custom-driver/cp210x-3.0.0/cp210x M=/home/r/ws-host-uart/development/3-SILICON-LABS/custom-driver/cp210x-3.0.0/cp210x modules
 make[1]: Entering directory `/usr/src/linux-headers-3.11.0-20-generic'
@@ -55,8 +55,8 @@ make[1]: Leaving directory `/usr/src/linux-headers-3.11.0-20-generic'
 r@r-office:~/ws-host-uart/development/3-SILICON-LABS/custom-driver/cp210x-3.0.0/cp210x$ 
 
 7. When you insert CP210X device kernel will automatically load default drivers. So to use the driver
-we built unload the driver loaded by kernel using modprobe.
-$ modprobe -r cp210x
+   we built unload the driver loaded by kernel using modprobe.
+   $ modprobe -r cp210x
 
 This will result in following output from dmesg:
 
@@ -66,7 +66,7 @@ This will result in following output from dmesg:
 [13767.939624] cp210x 3-4:1.0: device disconnected
 
 8. Insert our driver module as root user.
-# insmod /--/path-to/cp210x.ko
+   # insmod /--/path-to/cp210x.ko
 
 This will result in following output from dmesg:
 

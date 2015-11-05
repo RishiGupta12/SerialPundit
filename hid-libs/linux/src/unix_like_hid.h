@@ -144,6 +144,7 @@ jint linux_send_feature_report(JNIEnv *env, jlong fd, jbyte reportID, jbyteArray
 jint linux_get_feature_report(JNIEnv *env, jlong fd, jbyte reportID, jbyteArray report, jint length);
 jstring linux_get_hiddev_info_string(JNIEnv *env, jlong fd, int info_required);
 jbyteArray linux_get_report_descriptor(JNIEnv *env, jlong fd);
+jstring linux_find_driver_for_given_hiddevice(JNIEnv *env, jstring hidDevNode);
 #endif
 
 #if defined (__APPLE__)
@@ -155,6 +156,7 @@ jint mac_send_output_report(JNIEnv *env, jlong fd, jbyte reportID, jbyteArray re
 jint mac_send_feature_report(JNIEnv *env, jlong fd, jbyte reportID, jbyteArray report, jint length);
 jint mac_get_feature_report(JNIEnv *env, jlong fd, jbyte reportID, jbyteArray report, jint length);
 jstring mac_get_hiddev_info_string(JNIEnv *env, jlong fd, int info_required);
+jstring mac_find_driver_for_given_hiddevice(JNIEnv *env, jstring hidDevNode);
 #endif
 
 jstring get_hiddev_indexed_string(JNIEnv *env, jlong fd, int index);
