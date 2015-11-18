@@ -166,10 +166,12 @@
     <ClCompile Include="windows_serial_driver_name.c" />
     <ClCompile Include="windows_serial_exception.c" />
     <ClCompile Include="windows_serial_find_irq.c" />
+    <ClCompile Include="windows_serial_latency_timer.c" />
     <ClCompile Include="windows_serial_lib.c" />
     <ClCompile Include="windows_serial_list_usb.c" />
     <ClCompile Include="windows_serial_usb_connected.c" />
     <ClCompile Include="windows_serial_usb_hotplug.c" />
+    <ClCompile Include="windows_serial_usb_power.c" />
     <ClCompile Include="windows_serial_util.c" />
     <ClCompile Include="windows_serial_vcp_devnode.c" />
   </ItemGroup>

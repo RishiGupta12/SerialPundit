@@ -62,5 +62,11 @@
     <ClCompile Include="windows_serial_usb_hotplug.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="windows_serial_usb_power.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="windows_serial_latency_timer.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

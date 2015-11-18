@@ -24,8 +24,6 @@
 #include <jni.h>
 #include "windows_serial_lib.h"
 
-#include <initguid.h>
-
 /* {4D36E978-E325-11CE-BFC1-08002BE10318} Ports (COM & LPT ports) */
 static const GUID GUID_DEVINTERFACE_SERENUM_BUS_ENUMERATOR = { 0x4D36E978, 0xE325, 0x11CE, 0xBF, 0xC1, 0x08, 0x00, 0x2B, 0xE1, 0x03, 0x18 };
 
@@ -101,7 +99,7 @@ int get_driver_com_port_usb(JNIEnv *env, const jchar *port_name, TCHAR *driver_n
 		}
 
 		/* for this device find its instance ID (USB\VID_04D8&PID_00DF\000098037)
-		* this is variable 'Device Instance Path' in device manager. */
+		 * this is variable 'Device Instance Path' in device manager. */
 		memset(buffer, '\0', 1024);
 		ret = SetupDiGetDeviceInstanceId(usb_dev_info_set, &usb_dev_instance, buffer, 1024, &size);
 		if (ret == FALSE) {
@@ -596,7 +594,7 @@ jstring find_driver_for_given_com_port(JNIEnv *env, jstring comPortName) {
 	jstring driverfound = NULL;
 	TCHAR driver_name[128];
 
-	/* extract serial number (as an array of Unicode characters) */
+	/* extract com port name to match (as an array of Unicode characters) */
 	port_name = (*env)->GetStringChars(env, comPortName, JNI_FALSE);
 	if ((port_name == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
 		throw_serialcom_exception(env, 3, 0, E_GETSTRUTFCHARSTR);

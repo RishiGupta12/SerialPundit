@@ -59,3 +59,4 @@ void insert_jstrarraylist(struct jstrarray_list *al, jstring element) {
 void free_jstrarraylist(struct jstrarray_list *al) {
 	free(al->base);
 }
+
