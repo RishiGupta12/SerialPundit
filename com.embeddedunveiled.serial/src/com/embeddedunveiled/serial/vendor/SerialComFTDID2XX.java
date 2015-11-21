@@ -63,7 +63,7 @@ import com.embeddedunveiled.serial.internal.SerialComSystemProperty;
  * 
  * <p>[5] The application notes for FTDI devices are here : http://www.ftdichip.com/Support/Documents/AppNotes.htm</p>
  * 
- * <p>SCM version 1.0.4 is linked to d2xx 1.1.12 version for Linux, 2.12.06 for Windows and 1.2.2 for Mac os x.</p>
+ * <p>SCM version 1.0.4 is linked to d2xx 1.3.6 version for Linux, 2.12.06 for Windows and 1.2.2 for Mac os x.</p>
  * 
  * @author Rishi Gupta
  */
