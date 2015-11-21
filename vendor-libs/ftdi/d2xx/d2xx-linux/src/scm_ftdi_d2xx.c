@@ -1349,7 +1349,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
 		throw_serialcom_exception(env, 2, ftStatus, NULL);
 		return -1;
 	}
-	return (int)status;
+	return (jint)status;
 }
 
 /*
@@ -1368,7 +1368,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
 		throw_serialcom_exception(env, 2, ftStatus, NULL);
 		return -1;
 	}
-	return (int)num_bytes_in_rx_buffer;
+	return (jint)num_bytes_in_rx_buffer;
 }
 
 /*
@@ -1503,7 +1503,7 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID
 		throw_serialcom_exception(env, 2, ftStatus, NULL);
 		return -1;
 	}
-	return (long)version;
+	return (jlong)version;
 }
 
 /*
@@ -1523,7 +1523,7 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID
 		throw_serialcom_exception(env, 2, ftStatus, NULL);
 		return -1;
 	}
-	return (long)version;
+	return (jlong)version;
 }
 
 /*
@@ -1548,7 +1548,7 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID
 	if(com_port_number == -1) {
 		return -2;
 	}
-	return (long)com_port_number;
+	return (jlong)com_port_number;
 }
 
 /*
@@ -3790,7 +3790,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
 	}
 
 	free(data_buffer);
-	return num_of_bytes_read;
+	return (jint)num_of_bytes_read;
 }
 
 /*
@@ -3903,7 +3903,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
 	if((status & MS_RLSD_ON) == MS_RLSD_ON) {
 		stat = stat | SCM_MS_RLSD_ON;
 	}
-	return stat;
+	return (jint)stat;
 }
 
 /*
