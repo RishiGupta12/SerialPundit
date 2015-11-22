@@ -1284,7 +1284,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
  * Method:    configureComPortControl
- * Signature: (JICCZZ)I
+ * Signature: (JIBBZZ)I
  *
  * Defines how the data communication through serial port will be controlled.
  *
@@ -1300,7 +1300,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
  * @throws SerialComException if any JNI function, Win API call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_configureComPortControl(JNIEnv *env,
-		jobject obj, jlong handle, jint flowctrl, jchar xon, jchar xoff, 
+		jobject obj, jlong handle, jint flowctrl, jbyte xon, jbyte xoff, 
 		jboolean ParFraError, jboolean overFlowErr) {
 		
 	int ret = 0;

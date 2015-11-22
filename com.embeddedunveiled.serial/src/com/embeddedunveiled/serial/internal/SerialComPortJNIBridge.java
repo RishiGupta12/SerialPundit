@@ -302,7 +302,7 @@ public final class SerialComPortJNIBridge {
 
 	// Configuration
 	public native int configureComPortData(long handle, int dataBits, int stopBits, int parity, int baudRateTranslated, int custBaudTranslated);
-	public native int configureComPortControl(long handle, int flowctrl, char xon, char xoff, boolean ParFraError, boolean overFlowErr);
+	public native int configureComPortControl(long handle, int flowctrl, byte xonCh, byte xoffCh, boolean ParFraError, boolean overFlowErr);
 	public native int[] getCurrentConfigurationU(long handle);
 	public native String[] getCurrentConfigurationW(long handle);
 	public native int fineTuneRead(long handle, int vmin, int vtime, int rit, int rttm, int rttc);

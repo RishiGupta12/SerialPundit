@@ -77,6 +77,8 @@
 #define E_HCIBTADDR "Could not determine address of BT HCI device !"
 #define E_CANNOTFINDDEVNODE "Failed to find device node from sysfs path !"
 #define E_WRITEZERONOTALLOWED "Write requires at least one byte data !"
+#define E_UNBLOCKIO "Byte stream unblocked !"
+#define E_NOTFTDIPORT "Given COM port may not represent FTDI device !"
 
 /* Custom error codes and messages for SCM library */
 #define ERROR_OFFSET 15000
@@ -109,6 +111,8 @@ struct com_thread_params {
 	int event_standard_err_code;
 	pthread_attr_t data_thread_attr;
 	pthread_attr_t event_thread_attr;
+	pthread_cond_t data_cond_var;
+	pthread_cond_t event_cond_var;
 };
 
 #if defined (__linux__)
@@ -128,6 +132,7 @@ struct usb_dev_monitor_info {
 	int standard_err_code;
 	int custom_err_code;
 	int evfd;
+	pthread_cond_t cond_var;
 };
 #endif
 
@@ -192,12 +197,16 @@ void mac_usb_device_added(void *refCon, io_iterator_t iterator);
 void mac_usb_device_removed(void *refCon, io_iterator_t iterator);
 #endif
 
+jobjectArray listAvailableComPorts(JNIEnv *env);
 jint is_usb_dev_connected(JNIEnv *env, jint usbvid_to_match, jint usbpid_to_match, jstring serial_number);
 jstring find_driver_for_given_com_port(JNIEnv *env, jstring com_port_name);
 jstring find_address_irq_for_given_com_port(JNIEnv *env, jlong fd);
 jobjectArray list_usb_devices(JNIEnv *env, jint vendor_filter);
 jobjectArray list_bt_rfcomm_dev_nodes(JNIEnv *env);
 jobjectArray vcp_node_from_usb_attributes(JNIEnv *env, jint usbvid_to_match, jint usbpid_to_match, jstring serial_numer);
+jobjectArray get_usbdev_powerinfo(JNIEnv *env, jstring comPortName);
+jint get_latency_timer_value(JNIEnv *env, jstring comPortName);
+jint set_latency_timer_value(JNIEnv *env, jstring comPortName, jbyte timerValue);
 
 void *data_looper(void *params);
 void *event_looper(void *params);

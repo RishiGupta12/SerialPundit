@@ -1542,7 +1542,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
  * Method:    configureComPortControl
- * Signature: (JICCZZ)I
+ * Signature: (JIBBZZ)I
  *
  * Defines how the data communication through serial port will be controlled.
  *
@@ -1558,7 +1558,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
  * @throws SerialComException if any JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_configureComPortControl(JNIEnv *env,
-		jobject obj, jlong fd, jint flowctrl, jchar xon, jchar xoff, 
+		jobject obj, jlong fd, jint flowctrl, jbyte xon, jbyte xoff,
 		jboolean ParFraError, jboolean overFlowErr) {
 
 	int ret = 0;
@@ -1645,8 +1645,8 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
 	}else if(flowctrl == 3) {                              /* SOFTWARE FLOW CONTROL on both tx and rx data. */
 		currentconfig.c_cflag &= ~CRTSCTS;                  /* hardware rts-cts disabled. */
 		currentconfig.c_iflag |= (IXON | IXOFF);            /* software xon-xoff chararcter enabled. */
-		currentconfig.c_cc[VSTART] = xon;                   /* The value of the XON character for both transmission and reception. */
-		currentconfig.c_cc[VSTOP] = xoff;                   /* The value of the XOFF character for both transmission and reception. */
+		currentconfig.c_cc[VSTART] = (unsigned char) xon; /* The value of the XON character for both transmission and reception. */
+		currentconfig.c_cc[VSTOP] = (unsigned char) xoff; /* The value of the XOFF character for both transmission and reception. */
 	}else {
 	}
 
