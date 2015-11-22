@@ -102,3 +102,4 @@ void throw_serialcom_exception(JNIEnv *env, int type, int error_code, const char
 		}
 	}
 }
+

@@ -15,27 +15,24 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="ReadMe.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="stdafx.h">
+    <ClInclude Include="ftd2xx.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="targetver.h">
+    <ClInclude Include="scm_ftdi_d2xx.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="windows_serial_lib.h">
+    <ClInclude Include="WinTypes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="stdafx.c">
+    <ClCompile Include="scm_ftdi_d2xx.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="windows_serial.c">
+    <ClCompile Include="scm_ftdi_d2xx_exception.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="windows_serial_lib.c">
+    <ClCompile Include="scm_ftdi_d2xx_lib.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

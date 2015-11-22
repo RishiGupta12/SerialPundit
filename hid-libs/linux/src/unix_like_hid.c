@@ -500,3 +500,4 @@ JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHID
 }
 
 #endif /* end compiling*/
+

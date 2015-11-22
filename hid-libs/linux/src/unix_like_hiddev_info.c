@@ -231,3 +231,4 @@ jstring mac_get_hiddev_info_string(JNIEnv *env, jlong fd, int info_required) {
 	return info_string;
 }
 #endif
+

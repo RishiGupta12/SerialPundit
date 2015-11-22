@@ -122,3 +122,4 @@ jstring mac_find_driver_for_given_hiddevice(JNIEnv *env, jstring hidDevNode);
 jstring get_hiddev_indexed_string(JNIEnv *env, jlong fd, int index);
 
 #endif /* UNIX_LIKE_HID_H_ */
+

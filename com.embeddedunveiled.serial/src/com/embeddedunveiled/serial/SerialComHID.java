@@ -416,6 +416,14 @@ public class SerialComHID {
 		return driverName;
 	}
 
+	/**
+	 * <p>Gives the report descriptor as supplied by device itself.</p>
+	 * <p>Applicable for Linux only.</p>
+	 * 
+	 * @param handle handle of the device whose report descriptor is to be obtained.
+	 * @return HID report descriptor as array of bytes otherwise empty array.
+	 * @throws SerialComException if operation can not be completed successfully.
+	 */
 	public byte[] getReportDescriptor(long handle) throws SerialComException {
 		byte[] reportDescriptorRead = mHIDJNIBridge.getReportDescriptor(handle);
 		if(reportDescriptorRead != null) {

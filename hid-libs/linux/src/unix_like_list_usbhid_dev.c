@@ -505,3 +505,4 @@ jobjectArray mac_enumerate_usb_hid_devices(JNIEnv *env, jint vendor_to_match, IO
 	return usbHidDevicesFound;
 }
 #endif
+

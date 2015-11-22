@@ -49,7 +49,7 @@ typedef struct _SECURITY_ATTRIBUTES {
 	DWORD nLength;
 	LPVOID lpSecurityDescriptor;
 	BOOL bInheritHandle;
-} SECURITY_ATTRIBUTES , *LPSECURITY_ATTRIBUTES;
+} SECURITY_ATTRIBUTES, *LPSECURITY_ATTRIBUTES;
 
 typedef struct timeval SYSTEMTIME;
 typedef struct timeval FILETIME;

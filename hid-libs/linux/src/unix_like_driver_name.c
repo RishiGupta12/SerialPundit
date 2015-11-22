@@ -253,3 +253,4 @@ jstring linux_find_driver_for_given_hiddevice(JNIEnv *env, jstring comPortName) 
 
 }
 #endif
+

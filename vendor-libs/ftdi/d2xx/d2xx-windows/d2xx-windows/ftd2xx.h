@@ -55,6 +55,8 @@ kernel & user mode
 #define FTD2XX_API __declspec(dllimport)
 #endif
 
+#include <windows.h>
+
 #ifndef _WINDOWS
 #include <pthread.h>
 #include "WinTypes.h"
@@ -187,7 +189,7 @@ enum {
 // Events
 //
 
-typedef void (*PFT_EVENT_HANDLER)(DWORD,DWORD);
+typedef void(*PFT_EVENT_HANDLER)(DWORD, DWORD);
 
 #define FT_EVENT_RXCHAR			1
 #define FT_EVENT_MODEM_STATUS	2
@@ -320,7 +322,7 @@ extern "C" {
 		FT_HANDLE *pHandle
 		);
 
-	FTD2XX_API 
+	FTD2XX_API
 		FT_STATUS WINAPI FT_ListDevices(
 		PVOID pArg1,
 		PVOID pArg2,
@@ -340,7 +342,7 @@ extern "C" {
 		LPDWORD lpBytesReturned
 		);
 
-	FTD2XX_API 
+	FTD2XX_API
 		FT_STATUS WINAPI FT_Write(
 		FT_HANDLE ftHandle,
 		LPVOID lpBuffer,
@@ -348,7 +350,7 @@ extern "C" {
 		LPDWORD lpBytesWritten
 		);
 
-	FTD2XX_API 
+	FTD2XX_API
 		FT_STATUS WINAPI FT_IoCtl(
 		FT_HANDLE ftHandle,
 		DWORD dwIoControlCode,
@@ -670,7 +672,7 @@ extern "C" {
 		UCHAR FT1248FlowControlH;	// FT1248 flow control enable
 		UCHAR IsVCPH;				// non-zero if interface is to use VCP drivers
 		UCHAR PowerSaveEnableH;		// non-zero if using ACBUS7 to save power for self-powered designs
-		
+
 	} FT_PROGRAM_DATA, *PFT_PROGRAM_DATA;
 
 	FTD2XX_API
@@ -886,7 +888,7 @@ extern "C" {
 		UCHAR IsFifo;				// non-zero if interface is 245 FIFO
 		UCHAR IsFifoTar;			// non-zero if interface is 245 FIFO CPU target
 		UCHAR IsFastSer;			// non-zero if interface is Fast serial
-		UCHAR IsFT1248	;			// non-zero if interface is FT1248
+		UCHAR IsFT1248;			// non-zero if interface is FT1248
 		UCHAR PowerSaveEnable;		// 
 		// Driver option
 		UCHAR DriverType;			// 
@@ -1005,19 +1007,19 @@ extern "C" {
 		);
 #else
 	/* Linux, Mac etc. define FT_SetDeadmanTimeout differently elsewhere. */
-	
+
 	/* Linux etc. offer extra functions to compensate for lack of .INF file
-	 * to specify VID+PID combinations.
-	 */
+	* to specify VID+PID combinations.
+	*/
 	FTD2XX_API
 		FT_STATUS FT_SetVIDPID(
-		DWORD dwVID, 
+		DWORD dwVID,
 		DWORD dwPID
 		);
-			
+
 	FTD2XX_API
 		FT_STATUS FT_GetVIDPID(
-		DWORD * pdwVID, 
+		DWORD * pdwVID,
 		DWORD * pdwPID
 		);
 
@@ -1027,7 +1029,7 @@ extern "C" {
 		LPDWORD lpdwLocId
 		);
 #endif /* _WINDOWS */		
-		
+
 	FTD2XX_API
 		FT_STATUS WINAPI FT_GetDeviceInfo(
 		FT_HANDLE ftHandle,
@@ -1141,20 +1143,20 @@ extern "C" {
 	typedef struct _FTDCB {
 		DWORD DCBlength;			/* sizeof(FTDCB)						*/
 		DWORD BaudRate;				/* Baudrate at which running			*/
-		DWORD fBinary: 1;			/* Binary Mode (skip EOF check)			*/
-		DWORD fParity: 1;			/* Enable parity checking				*/
-		DWORD fOutxCtsFlow:1;		/* CTS handshaking on output			*/
-		DWORD fOutxDsrFlow:1;		/* DSR handshaking on output			*/
-		DWORD fDtrControl:2;		/* DTR Flow control						*/
-		DWORD fDsrSensitivity:1;	/* DSR Sensitivity						*/
-		DWORD fTXContinueOnXoff: 1;	/* Continue TX when Xoff sent			*/
-		DWORD fOutX: 1;				/* Enable output X-ON/X-OFF				*/
-		DWORD fInX: 1;				/* Enable input X-ON/X-OFF				*/
-		DWORD fErrorChar: 1;		/* Enable Err Replacement				*/
-		DWORD fNull: 1;				/* Enable Null stripping				*/
-		DWORD fRtsControl:2;		/* Rts Flow control						*/
-		DWORD fAbortOnError:1;		/* Abort all reads and writes on Error	*/
-		DWORD fDummy2:17;			/* Reserved								*/
+		DWORD fBinary : 1;			/* Binary Mode (skip EOF check)			*/
+		DWORD fParity : 1;			/* Enable parity checking				*/
+		DWORD fOutxCtsFlow : 1;		/* CTS handshaking on output			*/
+		DWORD fOutxDsrFlow : 1;		/* DSR handshaking on output			*/
+		DWORD fDtrControl : 2;		/* DTR Flow control						*/
+		DWORD fDsrSensitivity : 1;	/* DSR Sensitivity						*/
+		DWORD fTXContinueOnXoff : 1;	/* Continue TX when Xoff sent			*/
+		DWORD fOutX : 1;				/* Enable output X-ON/X-OFF				*/
+		DWORD fInX : 1;				/* Enable input X-ON/X-OFF				*/
+		DWORD fErrorChar : 1;		/* Enable Err Replacement				*/
+		DWORD fNull : 1;				/* Enable Null stripping				*/
+		DWORD fRtsControl : 2;		/* Rts Flow control						*/
+		DWORD fAbortOnError : 1;		/* Abort all reads and writes on Error	*/
+		DWORD fDummy2 : 17;			/* Reserved								*/
 		WORD wReserved;				/* Not currently used					*/
 		WORD XonLim;				/* Transmit X-ON threshold				*/
 		WORD XoffLim;				/* Transmit X-OFF threshold				*/
@@ -1175,7 +1177,7 @@ extern "C" {
 		DWORD ReadTotalTimeoutConstant;		/* Constant in milliseconds.		*/
 		DWORD WriteTotalTimeoutMultiplier;	/* Multiplier of characters.		*/
 		DWORD WriteTotalTimeoutConstant;	/* Constant in milliseconds.		*/
-	} FTTIMEOUTS,*LPFTTIMEOUTS;
+	} FTTIMEOUTS, *LPFTTIMEOUTS;
 
 
 	FTD2XX_API
