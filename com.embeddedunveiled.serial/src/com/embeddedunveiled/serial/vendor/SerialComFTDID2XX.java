@@ -754,7 +754,9 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 			throw new IllegalArgumentException("Argument flctrl can not be null !");
 		}
 
-		int ret = mFTDID2XXJNIBridge.setFlowControl(handle, flctrl.getValue(), xon, xoff);
+		int xonch = (int) xon;
+		int xoffch = (int) xoff;
+		int ret = mFTDID2XXJNIBridge.setFlowControl(handle, flctrl.getValue(), (byte) xonch, (byte) xoffch);
 		if(ret < 0) {
 			throw new SerialComException("Could not set the desired flow control values for the requested device. Please retry !");
 		}
@@ -981,7 +983,11 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public boolean setChars(final long handle, char eventChar, char eventEnable, char errorChar, char errorEnable) throws SerialComException {
-		int ret = mFTDID2XXJNIBridge.setChars(handle, eventChar, eventEnable, errorChar, errorEnable);
+		int evch = (int) eventChar;
+		int even = (int) eventEnable;
+		int erch = (int) errorChar;
+		int eren = (int) errorEnable;
+		int ret = mFTDID2XXJNIBridge.setChars(handle, (byte)evch, (byte)even, (byte)erch, (byte)eren);
 		if(ret < 0) {
 			throw new SerialComException("Could not set the given characters for the requested device. Please retry !");
 		}

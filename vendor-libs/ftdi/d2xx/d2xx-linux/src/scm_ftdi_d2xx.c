@@ -123,7 +123,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
 		throw_serialcom_exception(env, 2, ftStatus, NULL);
 		return -1;
 	}
-	return numDevices;
+	return (jint)numDevices;
 }
 
 /*
@@ -161,9 +161,13 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
 
 	init_jstrarraylist(&list, 100);
 
-	for (i = 0; i < num_of_devices; i++) {
+	for (i = 0; i < (int)num_of_devices; i++) {
 		memset(hexcharbuffer, '\0', sizeof(hexcharbuffer));
+#if defined (__linux__) || defined (__APPLE__)
 		snprintf(hexcharbuffer, 256, "%lX", (long unsigned int)devInfo[i].Flags);
+#else
+		snprintf(hexcharbuffer, 256, "%lX", (long unsigned int)devInfo[i].Flags);
+#endif
 		info = (*env)->NewStringUTF(env, hexcharbuffer);
 		if((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
 			free(devInfo);
@@ -174,7 +178,11 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
 		insert_jstrarraylist(&list, info);
 
 		memset(hexcharbuffer, '\0', sizeof(hexcharbuffer));
+#if defined (__linux__) || defined (__APPLE__)
 		snprintf(hexcharbuffer, 256, "%lX", (long unsigned int)devInfo[i].Type);
+#else
+		snprintf(hexcharbuffer, 256, "%lX", (long unsigned int)devInfo[i].Type);
+#endif
 		info = (*env)->NewStringUTF(env, hexcharbuffer);
 		if((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
 			free(devInfo);
@@ -185,7 +193,11 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
 		insert_jstrarraylist(&list, info);
 
 		memset(hexcharbuffer, '\0', sizeof(hexcharbuffer));
+#if defined (__linux__) || defined (__APPLE__)
 		snprintf(hexcharbuffer, 256, "%lX", (long unsigned int)devInfo[i].ID);
+#else
+		snprintf(hexcharbuffer, 256, "%lX", (long unsigned int)devInfo[i].ID);
+#endif
 		info = (*env)->NewStringUTF(env, hexcharbuffer);
 		if((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
 			free(devInfo);
@@ -196,7 +208,11 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
 		insert_jstrarraylist(&list, info);
 
 		memset(hexcharbuffer, '\0', sizeof(hexcharbuffer));
+#if defined (__linux__) || defined (__APPLE__)
 		snprintf(hexcharbuffer, 256, "%lX", (long unsigned int)devInfo[i].LocId);
+#else
+		snprintf(hexcharbuffer, 256, "%lX", (long unsigned int)devInfo[i].LocId);
+#endif
 		info = (*env)->NewStringUTF(env, hexcharbuffer);
 		if((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
 			free(devInfo);
@@ -311,7 +327,11 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
 	init_jstrarraylist(&list, 10);
 
 	memset(hexcharbuffer, '\0', sizeof(hexcharbuffer));
+#if defined (__linux__) || defined (__APPLE__)
 	snprintf(hexcharbuffer, 256, "%lX", (long unsigned int)devInfo->Flags);
+#else
+	snprintf(hexcharbuffer, 256, "%lX", (long unsigned int)devInfo->Flags);
+#endif
 	info = (*env)->NewStringUTF(env, hexcharbuffer);
 	if((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
 		free(devInfo);
@@ -321,7 +341,11 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
 	}
 	insert_jstrarraylist(&list, info);
 	memset(hexcharbuffer, '\0', sizeof(hexcharbuffer));
+#if defined (__linux__) || defined (__APPLE__)
 	snprintf(hexcharbuffer, 256, "%lX", (long unsigned int)devInfo->Type);
+#else
+	snprintf(hexcharbuffer, 256, "%lX", (long unsigned int)devInfo->Type);
+#endif
 	info = (*env)->NewStringUTF(env, hexcharbuffer);
 	if((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
 		free(devInfo);
@@ -331,7 +355,11 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
 	}
 	insert_jstrarraylist(&list, info);
 	memset(hexcharbuffer, '\0', sizeof(hexcharbuffer));
+#if defined (__linux__) || defined (__APPLE__)
 	snprintf(hexcharbuffer, 256, "%lX", (long unsigned int)devInfo->ID);
+#else
+	snprintf(hexcharbuffer, 256, "%lX", (long unsigned int)devInfo->ID);
+#endif
 	info = (*env)->NewStringUTF(env, hexcharbuffer);
 	if((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
 		free(devInfo);
@@ -341,7 +369,11 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
 	}
 	insert_jstrarraylist(&list, info);
 	memset(hexcharbuffer, '\0', sizeof(hexcharbuffer));
+#if defined (__linux__) || defined (__APPLE__)
 	snprintf(hexcharbuffer, 256, "%lX", (long unsigned int)devInfo->LocId);
+#else
+	snprintf(hexcharbuffer, 256, "%lX", (long unsigned int)devInfo->LocId);
+#endif
 	info = (*env)->NewStringUTF(env, hexcharbuffer);
 	if((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
 		free(devInfo);
@@ -374,7 +406,6 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
 	/* windows (or visual studio) may not support c99, so use VS specific cast */
 	snprintf(hexcharbuffer, 256, "%I64X", devInfo[i].ftHandle);
 #endif
-
 	info = (*env)->NewStringUTF(env, hexcharbuffer);
 	if((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
 		free(devInfo);
@@ -484,7 +515,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
 			throw_serialcom_exception(env, 2, ftStatus, NULL);
 			return NULL;
 		}
-		for (x = 0; x < num_of_dev_connected; x++) {
+		for (x = 0; x < (int)num_of_dev_connected; x++) {
 			for (y = 0; y < 3; y++) {
 				info = (*env)->NewStringUTF(env, "---");
 				if((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
@@ -573,7 +604,11 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
 			return NULL;
 		}
 		memset(buffer, '\0', sizeof(buffer));
+#if defined (__linux__) || defined (__APPLE__)
 		snprintf(buffer, sizeof(buffer), "%lX", locid);
+#else
+		snprintf(buffer, sizeof(buffer), "%lX", locid);
+#endif
 		info = (*env)->NewStringUTF(env, buffer);
 		if((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
 			free_jstrarraylist(&list);
@@ -621,7 +656,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
 		have_str = 1;
 
 		/* put address of each string in array */
-		for (x=0; x<num_of_dev_connected; x++) {
+		for (x=0; x < (int)num_of_dev_connected; x++) {
 			base_str[x] = (char *) calloc(128, sizeof(char));
 		}
 
@@ -640,7 +675,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
 		 * are connected and just before FT_ListDevices is called again to get serial description,
 		 * so we need to handle this. */
 		if(num_dev_found >= num_of_dev_connected) {
-			for (x=0; x<num_of_dev_connected; x++) {
+			for (x=0; x < (int)num_of_dev_connected; x++) {
 				info = (*env)->NewStringUTF(env, "---");
 				if((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
 					free(base_str);
@@ -667,7 +702,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
 				insert_jstrarraylist(&list, info);
 			}
 		}else {
-			for (x=0; x<num_dev_found; x++) {
+			for (x=0; x < (int)num_dev_found; x++) {
 				info = (*env)->NewStringUTF(env, "---");
 				if((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
 					free(base_str);
@@ -720,7 +755,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
 		have_str = 1;
 
 		/* put address of each string in array */
-		for (x=0; x<num_of_dev_connected; x++) {
+		for (x=0; x < (int)num_of_dev_connected; x++) {
 			base_str[x] = (char *) calloc(128, sizeof(char));
 		}
 
@@ -739,7 +774,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
 		 * are connected and just before FT_ListDevices is called again to get serial description,
 		 * so we need to handle this. */
 		if(num_dev_found >= num_of_dev_connected) {
-			for (x=0; x<num_of_dev_connected; x++) {
+			for (x=0; x < (int)num_of_dev_connected; x++) {
 				info = (*env)->NewStringUTF(env, "---");
 				if((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
 					free(base_str);
@@ -766,7 +801,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
 				insert_jstrarraylist(&list, info);
 			}
 		}else {
-			for (x=0; x<num_dev_found; x++) {
+			for (x=0; x < (int)num_dev_found; x++) {
 				info = (*env)->NewStringUTF(env, "---");
 				if((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
 					free(base_str);
@@ -833,9 +868,13 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
 		 * are connected and just before FT_ListDevices is called again to get serial description,
 		 * so we need to handle this. */
 		if(num_dev_found >= num_of_dev_connected) {
-			for (x=0; x<num_of_dev_connected; x++) {
+			for (x=0; x < (int)num_of_dev_connected; x++) {
 				memset(buffer, '\0', sizeof(buffer));
+#if defined (__linux__) || defined (__APPLE__)
 				snprintf(buffer, sizeof(buffer), "%lX", base_long[x]);
+#else
+				snprintf(buffer, sizeof(buffer), "%lX", base_long[x]);
+#endif
 				info = (*env)->NewStringUTF(env, buffer);
 				if((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
 					free(base_long);
@@ -862,9 +901,13 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
 				insert_jstrarraylist(&list, info);
 			}
 		}else {
-			for (x=0; x<num_dev_found; x++) {
+			for (x=0; x < (int)num_dev_found; x++) {
 				memset(buffer, '\0', sizeof(buffer));
+#if defined (__linux__) || defined (__APPLE__)
 				snprintf(buffer, sizeof(buffer), "%lX", base_long[x]);
+#else
+				_snprintf(buffer, sizeof(buffer), "%lX", base_long[x]);
+#endif
 				info = (*env)->NewStringUTF(env, buffer);
 				if((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
 					free(base_long);
@@ -965,7 +1008,7 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID
 		return -1;
 	}
 
-	return (long)ftHandle;
+	return (jlong)ftHandle;
 }
 
 /*
@@ -1079,7 +1122,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
 	}
 
 	free(data_buffer);
-	return num_of_bytes_read;
+	return (jint)num_of_bytes_read;
 }
 
 /*
@@ -1117,7 +1160,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
 	}
 
 	free(data_buffer);
-	return num_of_bytes_written;
+	return (jint)num_of_bytes_written;
 }
 
 /*
@@ -1231,13 +1274,13 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
  * Method:    setFlowControl
- * Signature: (JICC)I
+ * Signature: (JIBB)I
  *
  * @return 0 on success otherwise -1 if an error occurs.
  * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_setFlowControl(JNIEnv *env, jobject obj,
-		jlong handle, jint mode, jchar xon, jchar off) {
+		jlong handle, jint mode, jbyte xon, jbyte off) {
 
 	FT_STATUS ftStatus = 0;
 	USHORT flowctrl = 0;
@@ -1433,7 +1476,12 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
 	insert_jstrarraylist(&list, info);
 
 	memset(hexcharbuffer, '\0', sizeof(hexcharbuffer));
+#if defined (__linux__) || defined (__APPLE__)
 	snprintf(hexcharbuffer, 256, "%x", device_id);
+#else
+	_snprintf(hexcharbuffer, 256, "%x", device_id);
+#endif
+
 	info = (*env)->NewStringUTF(env, hexcharbuffer);
 	if((info == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
 		free_jstrarraylist(&list);
@@ -1668,16 +1716,16 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
  * Method:    setChars
- * Signature: (JCCCC)I
+ * Signature: (JBBBB)I
  *
  * @return 0 on success otherwise -1 if an error occurs.
  * @throws SerialComException if any FTDI D2XX function, JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_setChars(JNIEnv *env, jobject obj, jlong handle,
-		jchar eventChar, jchar eventEnable, jchar errorChar, jchar errorEnable) {
+		jbyte eventChar, jbyte eventEnable, jbyte errorChar, jbyte errorEnable) {
 
 	FT_STATUS ftStatus = 0;
-	ftStatus = FT_SetChars((FT_HANDLE)handle, eventChar, eventEnable, errorChar, errorEnable);
+	ftStatus = FT_SetChars((FT_HANDLE)handle, (UCHAR)eventChar, (UCHAR)eventEnable, (UCHAR)errorChar, (UCHAR)errorEnable);
 	if(ftStatus != FT_OK) {
 		throw_serialcom_exception(env, 2, ftStatus, NULL);
 		return -1;
@@ -2702,7 +2750,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
 	}
 
 	if(num_bytes_read > 0) {
-		for(x=0; x<num_bytes_read; x++) {
+		for(x=0; x < (int)num_bytes_read; x++) {
 			data_buffer[x] = (jbyte) data_char_buffer[x];
 		}
 		(*env)->SetByteArrayRegion(env, buffer, 0, (unsigned int)num_bytes_read, data_buffer);
@@ -2821,7 +2869,6 @@ JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComF
 	memset(manufacturer_idbufj, '\0', sizeof(manufacturer_idbufj));
 	memset(description_bufj, '\0', sizeof(description_bufj));
 	memset(serialNumber_bufj, '\0', sizeof(serialNumber_bufj));
-
 
 	if(devType == SCM_DEVICE_2232C) {
 
@@ -3968,9 +4015,9 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
 	dcb.wReserved = 0;
 	dcb.XonLim = (WORD)dcbval[17];
 	dcb.XoffLim = (WORD)dcbval[18];
-	dcb.ByteSize = (WORD)dcbval[19];
-	dcb.Parity = (WORD)dcbval[20];
-	dcb.StopBits = (WORD)dcbval[21];
+	dcb.ByteSize = (BYTE)dcbval[19];
+	dcb.Parity = (BYTE)dcbval[20];
+	dcb.StopBits = (BYTE)dcbval[21];
 	dcb.XonChar = (CHAR)dcbval[22];
 	dcb.XoffChar = (CHAR)dcbval[23];
 	dcb.ErrorChar = (CHAR)dcbval[24];
