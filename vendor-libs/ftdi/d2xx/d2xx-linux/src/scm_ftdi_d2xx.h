@@ -1,27 +1,30 @@
 /***************************************************************************************************
- * Author : Rishi Gupta
- *
- * This file is part of 'serial communication manager' library.
- *
- * The 'serial communication manager' is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by the Free Software
- * Foundation, either version 3 of the License, or (at your option) any later version.
- *
- * The 'serial communication manager' is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with serial communication manager. If not, see <http://www.gnu.org/licenses/>.
- *
- ***************************************************************************************************/
+* Author : Rishi Gupta
+*
+* This file is part of 'serial communication manager' library.
+*
+* The 'serial communication manager' is free software: you can redistribute it and/or modify
+* it under the terms of the GNU Lesser General Public License as published by the Free Software
+* Foundation, either version 3 of the License, or (at your option) any later version.
+*
+* The 'serial communication manager' is distributed in the hope that it will be useful, but
+* WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+* PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
+*
+* You should have received a copy of the GNU Lesser General Public License
+* along with serial communication manager. If not, see <http://www.gnu.org/licenses/>.
+*
+***************************************************************************************************/
 
 #ifndef SCM_FTDI_D2XX_LIB_H_
 #define SCM_FTDI_D2XX_LIB_H_
 
 #include <jni.h>
-#include "WinTypes.h"    /* FTDI D2XX header file from vendor   */
 #include "ftd2xx.h"      /* FTDI D2XX header file from vendor   */
+
+#if defined (__linux__) || defined (__APPLE__)
+#include "WinTypes.h"    /* FTDI D2XX header file from vendor   */
+#endif
 
 /* these constants (SCM_) values must match their values in java layer */
 
