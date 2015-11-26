@@ -96,11 +96,13 @@ public class SerialComHID {
 	 * feed into external HID report parser tool.</p>
 	 * 
 	 * @param report report to be converted into hex string.
+	 * @param separator separator string to be placed between two consecutive bytes (useful 
+	 *         when printing values on console).
 	 * @return constructed hex string if report.length > 0 otherwise empty string.
 	 * @throws IllegalArgumentException if report is null.
 	 */
-	public final String formatReportToHex(byte[] report) throws SerialComException {
-		return SerialComUtil.byteArrayToHexString(report, " ");
+	public final String formatReportToHex(byte[] report, String separator) throws SerialComException {
+		return SerialComUtil.byteArrayToHexString(report, separator);
 	}
 
 	/**
