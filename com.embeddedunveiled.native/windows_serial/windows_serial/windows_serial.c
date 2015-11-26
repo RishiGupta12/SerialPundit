@@ -539,7 +539,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialCom
 	DWORD wait_status = 0;
 	DWORD num_of_bytes_read = 0;
 
-	/* Only hEvent member need to be initialled and others can be left 0. */
+	/* Only hEvent member need to be initialized and others can be left 0. */
 	memset(&overlapped, 0, sizeof(overlapped));
 	overlapped.hEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
 	if(overlapped.hEvent == NULL) {
