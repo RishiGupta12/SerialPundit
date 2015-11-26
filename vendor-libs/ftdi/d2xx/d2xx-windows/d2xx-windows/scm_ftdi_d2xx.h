@@ -22,6 +22,10 @@
 #include <jni.h>
 #include "ftd2xx.h"      /* FTDI D2XX header file from vendor   */
 
+#if defined (__linux__) || defined (__APPLE__)
+#include "WinTypes.h"    /* FTDI D2XX header file from vendor   */
+#endif
+
 /* these constants (SCM_) values must match their values in java layer */
 
 #define SCM_DEVICE_UNKNOWN  0X01
