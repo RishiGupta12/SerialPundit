@@ -25,14 +25,14 @@ package com.embeddedunveiled.serial;
  */
 public final class SerialComHIDdevice {
 
-	private String transport;
-	private String deviceNode;
-	private String idVendor;
-	private String idProduct;
-	private String serial;
-	private String product;
-	private String manufacturer;
-	private String location;
+	private final String transport;
+	private final String deviceNode;
+	private final String idVendor;
+	private final String idProduct;
+	private final String serial;
+	private final String product;
+	private final String manufacturer;
+	private final String location;
 
 	/**
 	 * <p>Construct and allocates a new SerialComHIDdevice object with given details.</p>
