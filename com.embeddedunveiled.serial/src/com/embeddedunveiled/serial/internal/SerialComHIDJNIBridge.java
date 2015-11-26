@@ -258,8 +258,9 @@ public final class SerialComHIDJNIBridge {
 	public native int initNativeLib();
 
 	// Open and close methods
-	public long openHidDevice(String pathNameVal, int osType) {
+	public long openHidDevice(String pathNameVal, boolean shared, int osType) {
 		if(osType == SerialComManager.OS_MAC_OS_X) {
+			// TODO FOR MAC OS X FOR BT AND USB ETC DEVICE PATH ???????????
 			// for MAC os x path need to be converted into usb attributes, as there seem to be no device 
 			// file for HID devices that can be used with open() system call.
 			if("usb_".equals(pathNameVal.substring(0,4))) {
@@ -272,9 +273,9 @@ public final class SerialComHIDJNIBridge {
 			}
 		}
 
-		return openHidDeviceByPath(pathNameVal);
+		return openHidDeviceByPath(pathNameVal, shared);
 	}
-	public native long openHidDeviceByPath(String pathNameVal);
+	public native long openHidDeviceByPath(String pathNameVal, boolean shared);
 	public native int closeHidDevice(long handle);
 
 	// Data reports

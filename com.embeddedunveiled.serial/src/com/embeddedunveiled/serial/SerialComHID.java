@@ -108,22 +108,33 @@ public class SerialComHID {
 	/**
 	 * <p>Opens a HID device for communication using its path name.</p>
 	 * 
-	 * <P>Applications can register USB hot plug listener to get notified when the desired USB device is plugged 
-	 * into system. Once the listener is invoked indicating device is added, application can find the device 
-	 * node representing this USB-HID device and proceed to open it.</p>
+	 * <P>Applications can register USB hot plug listener to get notified when the desired USB device 
+	 * is plugged into system. Once the listener is invoked indicating device is added, application 
+	 * can find the device node representing this USB-HID device and proceed to open it.</p>
 	 * 
 	 * <p>In Linux it may be required to add correct udev rules so as to grant permission to 
 	 * access to the USB-HID device. Refer this udev rule file for MCP2200 as an example : 
 	 * https://github.com/RishiGupta12/serial-communication-manager/blob/master/tests/99-scm-mcp2200-hid.rules</p>
 	 * 
-	 * @param pathName device node full path for Unix-like OS and port name for Windows.
+	 * <p>In Windows, a unique physical device object (PDO) is created for each Top Level Collection 
+	 * described by the Report Descriptor and there will be device instance for each Top Level 
+	 * Collection. This means same USB HID interface may have many HID device instances associated 
+	 * with it.</p>
+	 * 
+	 * <p>Windows supports many top level collection and some of them might be opened in shared mode while 
+	 * may be available for exclusive access only.</p>
+	 * 
+	 * @param pathName device node full path for Unix-like OS and device instance for Windows 
+	 *         (as obtained by listing HID devices).
+	 * @param shared set to true if the device is to be opened in shared mode otherwise false 
+	 *         for exclusive access.
 	 * @return handle of the opened HID device.
 	 * @throws SerialComException if an IO error occurs.
 	 * @throws IllegalArgumentException if pathName is null or empty string.
 	 * @see com.embeddedunveiled.serial.SerialComManager#registerUSBHotPlugEventListener(ISerialComUSBHotPlugListener, int, int, String)
 	 * @see com.embeddedunveiled.serial.SerialComHID#listHIDdevicesWithInfo()
 	 */
-	public final long openHidDevice(final String pathName) throws SerialComException {
+	public final long openHidDevice(final String pathName, boolean shared) throws SerialComException {
 		if(pathName == null) {
 			throw new IllegalArgumentException("Argument pathName can not be null !");
 		}
@@ -132,7 +143,7 @@ public class SerialComHID {
 			throw new IllegalArgumentException("Argument pathName can not be empty string !");
 		}
 
-		long handle = mHIDJNIBridge.openHidDevice(pathNameVal, osType);
+		long handle = mHIDJNIBridge.openHidDevice(pathNameVal, shared, osType);
 		if(handle < 0) {
 			/* JNI should have already thrown exception, this is an extra check to increase reliability of program. */
 			throw new SerialComException("Could not open the HID device " + pathNameVal + ". Please retry !");
@@ -163,8 +174,9 @@ public class SerialComHID {
 	 * the state of a device. It can represent a command sent from application running on host to USB HID 
 	 * device for example to toggle a GPIO pin or vibrate the motor mounted on gamepad.</p>
 	 * 
-	 * <p>Only Input reports are sent via the Interrupt In pipe. Feature and Output reports must be initiated 
-	 * by the host via the Control pipe or an optional Interrupt Out pipe.</p>
+	 * <p>If the HID device uses numbered report, reportID should be set to report number. If the HID 
+	 * device does not uses numbered reports reportID must be set to -1. The report (report array) should 
+	 * should contain only report bytes (it should not contain report ID).</p>
 	 * 
 	 * @param handle handle of the HID device to which this report will be sent.
 	 * @param reportId unique identifier for the report type or -1 if device does not use report IDs.
@@ -196,7 +208,9 @@ public class SerialComHID {
 	 * report ID if device uses numbered reports otherwise the report data will begin at the first byte.</p>
 	 * 
 	 * <p>If input report is read from device, it returns number of bytes read and places data bytes in 
-	 * given buffer.</p>
+	 * given buffer. If the device uses numbered reports, first byte in reportBuffer array will be report 
+	 * number. If the device does not uses numbered reports, first byte in reportBuffer will be beginning 
+	 * of data itself.</p>
 	 * 
 	 * <p>HID devices with custom firmware provide valid HID report descriptor to comply with USB 
 	 * standards and to make sure that class driver of operating system recognizes device and serve it. 
@@ -208,23 +222,20 @@ public class SerialComHID {
 	 * 
 	 * @param handle handle of the HID device from whom input report is to be read.
 	 * @param reportBuffer byte buffer in which input report will be saved.
-	 * @param length number of bytes to read from HID device as report bytes.
 	 * @return number of bytes read from HID device.
 	 * @throws SerialComException if an I/O error occurs.
 	 * @throws IllegalArgumentException if reportBuffer is null or if length is negative.
 	 */
-	public final int readInputReport(long handle, byte[] reportBuffer, int length) throws SerialComException {
+	public final int readInputReport(long handle, byte[] reportBuffer) throws SerialComException {
 		if(reportBuffer == null) {
 			throw new IllegalArgumentException("Argumenet dataBuffer can not be null !");
 		}
-		if(length < 0) {
-			throw new IllegalArgumentException("Argumenet length can not be negative !");
-		}
 
-		int ret = mHIDJNIBridge.readInputReport(handle, reportBuffer, length);
+		int ret = mHIDJNIBridge.readInputReport(handle, reportBuffer, reportBuffer.length);
 		if(ret < 0) {
 			throw new SerialComException("Could not read input report from HID device. Please retry !");
 		}
+
 		return ret;
 	}
 
@@ -235,7 +246,7 @@ public class SerialComHID {
 	 * in input report and one more extra byte if the HID device uses numbered reports. The 1st byte will be 
 	 * report ID if device uses numbered reports otherwise the report data will begin at the first byte.</p>
 	 * 
-	 * <p>If input report is read from device, it returns number of bytes read and places data bytes in 
+	 * <p>If input report is read from HID device, it returns number of bytes read and places data bytes in 
 	 * given buffer. If there was no data to read it returns 0.</p>
 	 * 
 	 * <p>Input report (controls) are sources of data for application running on host processor (USB Host side) 
@@ -244,32 +255,31 @@ public class SerialComHID {
 	 * 
 	 * @param handle handle of the HID device from whom input report is to be read.
 	 * @param reportBuffer byte buffer in which input report will be saved.
-	 * @param length number of bytes to read from HID device as report bytes.
 	 * @param timeoutValue time in milliseconds after which read must return with whatever data is read 
 	 *         till that time or no data read at all.
 	 * @return number of bytes read from HID device.
 	 * @throws SerialComException if an I/O error occurs.
 	 * @throws IllegalArgumentException if reportBuffer is null or if length is negative.
 	 */
-	public final int readInputReportWithTimeout(long handle, byte[] reportBuffer, int length, int timeoutValue) 
+	public final int readInputReportWithTimeout(long handle, byte[] reportBuffer, int timeoutValue) 
 			throws SerialComException {
+
 		if(reportBuffer == null) {
 			throw new IllegalArgumentException("Argumenet reportBuffer can not be null !");
 		}
-		if(length < 0) {
-			throw new IllegalArgumentException("Argumenet length can not be negative !");
-		}
 
-		int ret = mHIDJNIBridge.readInputReportWithTimeout(handle, reportBuffer, length, timeoutValue);
+		int ret = mHIDJNIBridge.readInputReportWithTimeout(handle, reportBuffer, reportBuffer.length, timeoutValue);
 		if(ret < 0) {
 			throw new SerialComException("Could not read input report from HID device. Please retry !");
 		}
+
 		return ret;
 	}
 
 	/**
-	 * <p>Send a feature report to the HID device. For devices which support only single report, report ID 
-	 * value must be -1.</p>
+	 * <p>Send a feature report to the HID device. If the HID device uses numbered reports, set reportID 
+	 * to report number. If the HID device does not uses numbered reports set reportID to -1. The report 
+	 * byte array should contain only report data bytes.</p>
 	 * 
 	 * <p>Typically, feature reports are sent/received for configuring USB device or USB host at application 
 	 * start-up, or for sending/receiving special event or state information, or for saving any data item that 
@@ -298,8 +308,10 @@ public class SerialComHID {
 	}
 
 	/**
-	 * <p>Receive a feature report from the HID device. For devices which support only single report, report ID 
-	 * value must be -1.</p>
+	 * <p>Read a feature report to the HID device. If the HID device uses numbered reports, set reportID 
+	 * to report number. If the HID device does not uses numbered reports set reportID to -1. If the 
+	 * featured report is read from HID device, data read will be placed in report byte array. This 
+	 * array will contain feature report (excluding report ID).</p>
 	 * 
 	 * <p>Typically, feature reports are sent/received for configuring USB device or USB host at application 
 	 * start-up, or for sending/receiving special event or state information, or for saving any data item that 
@@ -328,7 +340,7 @@ public class SerialComHID {
 	 * <p>Gives the manufacturer of the HID device.</p>
 	 * 
 	 * @param handle handle of the HID device whose manufacturer is to be found.
-	 * @return manufacturer name.
+	 * @return manufacturer name string.
 	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public final String getManufacturerString(long handle) throws SerialComException {
@@ -343,7 +355,7 @@ public class SerialComHID {
 	 * <p>Gives the product name of the HID device.</p>
 	 * 
 	 * @param handle handle of the HID device whose product name is to be found.
-	 * @return product name of the HID device.
+	 * @return product name string of the HID device.
 	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public final String getProductString(long handle) throws SerialComException {
@@ -358,7 +370,7 @@ public class SerialComHID {
 	 * <p>Gives the serial number of the HID device.</p>
 	 * 
 	 * @param handle handle of the HID device whose serial number is to be found.
-	 * @return serial number of the HID device.
+	 * @return serial number string of the HID device.
 	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public final String getSerialNumberString(long handle) throws SerialComException {
@@ -376,7 +388,7 @@ public class SerialComHID {
 	 * user space drivers.</p>
 	 * 
 	 * @param handle handle of the HID device from whom indexed string is to be read.
-	 * @return string read from the HID device.
+	 * @return string at given index read from the HID device.
 	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public final String getIndexedString(long handle, int index) throws SerialComException {
