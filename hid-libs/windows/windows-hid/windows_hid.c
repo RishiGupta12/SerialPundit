@@ -75,7 +75,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
  * Method:    openHidDeviceByPath
- * Signature: (Ljava/lang/String;)J
+ * Signature: (Ljava/lang/String;Z)J
  *
  * Opens given HID device using its node (path). For windows, this function returns pointer to 
  * structure that contains information about this device including opened handle.
@@ -90,11 +90,12 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
  * @throws SerialComException if any JNI function, system call or C function fails.
  */
 JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_openHidDeviceByPath(JNIEnv *env, 
-	jobject obj, jstring pathName) {
+	jobject obj, jstring pathName, jboolean shared) {
 
 	int x = 0;
 	BOOLEAN ret = FALSE;
 	NTSTATUS result;
+	DWORD shared_mode = 0; /* 0 means exclusive excess */
 	const jchar* device_node = NULL;
 	wchar_t dev_instance[1024];
 	wchar_t dev_full_path[1024];
@@ -128,9 +129,14 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJN
 		throw_serialcom_exception(env, 3, 0, E_CALLOCSTR);
 		return -1;
 	}
+	
+	/* if the device is to be shared with others, set sharing flags */
+	if(shared == JNI_TRUE) {
+		shared_mode = FILE_SHARE_READ | FILE_SHARE_WRITE;
+	}
 
 	/* open the device using the cooked device path (dev_full_path) */
-	info->handle = CreateFile(dev_full_path, (GENERIC_READ | GENERIC_WRITE), (FILE_SHARE_READ | FILE_SHARE_WRITE), 
+	info->handle = CreateFile(dev_full_path, (GENERIC_READ | GENERIC_WRITE), shared_mode, 
 		                      NULL, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, NULL);
 	if (info->handle == INVALID_HANDLE_VALUE) {
 		free(info);

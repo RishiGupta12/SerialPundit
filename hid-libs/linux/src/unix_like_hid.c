@@ -128,19 +128,20 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
 	/*TODO*/
 }
 
-/*
+/* 
  * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
  * Method:    openHidDeviceByPath
- * Signature: (Ljava/lang/String;)J
+ * Signature: (Ljava/lang/String;Z)J
  *
  * @return file descriptor number if function succeeds otherwise -1 if an error occurs.
  * @throws SerialComException if any JNI function, system call or C function fails.
  */
 JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_openHidDeviceByPath
-(JNIEnv *env, jobject obj, jstring pathName) {
+(JNIEnv *env, jobject obj, jstring pathName, jboolean shared) {
 
 #if defined (__linux__)
 	long fd;
+	int OPEN_MODE = O_RDWR;
 	const char* deviceNode = NULL;
 
 	deviceNode = (*env)->GetStringUTFChars(env, pathName, NULL);
@@ -148,9 +149,14 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJN
 		throw_serialcom_exception(env, 3, 0, E_GETSTRUTFCHARSTR);
 		return -1;
 	}
+	
+	/* TODO ioctl(fevdev, EVIOCGRAB, 0); */
+	if(shared == JNI_TRUE) {
+		OPEN_MODE = O_RDWR;
+	}
 
 	errno = 0;
-	fd = open(deviceNode, O_RDWR);
+	fd = open(deviceNode, OPEN_MODE);
 	if(fd < 0) {
 		(*env)->ReleaseStringUTFChars(env, pathName, deviceNode);
 		throw_serialcom_exception(env, 1, errno, NULL);
