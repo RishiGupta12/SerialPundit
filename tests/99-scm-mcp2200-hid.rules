@@ -30,8 +30,8 @@
 # plugged in system. System supplied default rules are generally placed in /lib/udev/rules.d and gets
 # overridden by rules placed in /etc/udev/rules.d directory.
 
-ACTION=="remove", GOTO="mcp2200_end"
-SUBSYSTEM!="usb", GOTO="mcp2200_end"
+ACTION=="remove", GOTO="mcp2200_hid_end"
+SUBSYSTEM!="hidraw", GOTO="mcp2200_hid_end"
 
 KERNEL=="hidraw*", ATTRS{idVendor}=="04d8", MODE="0666"
 
@@ -39,5 +39,4 @@ KERNEL=="hidraw*", ATTRS{idVendor}=="04d8", MODE="0666"
 # (example for MCP2200).
 # KERNEL=="hidraw*", ATTRS{idVendor}=="04d8", ATTRS{idProduct}=="00df", MODE="0666"
 
-LABEL="mcp2200_end"
-
+LABEL="mcp2200_hid_end"
