@@ -30,7 +30,7 @@ public class Test68  {
 	public static String PORT = null;
 	public static long handle = 0;
 	public static int ret = 0;
-	public static byte[] inputReportBuffer = new byte[64];
+	public static byte[] inputReportBuffer = new byte[32];
 	public static byte[] outputReportBuffer = new byte[16];
 
 	public static void main(String[] args) {
@@ -66,7 +66,7 @@ public class Test68  {
 		}
 
 		try {
-			handle = scuh.openHidDevice(PORT);
+			handle = scuh.openHidDevice(PORT, true);
 			System.out.println("\nopened handle : " + handle);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -82,12 +82,9 @@ public class Test68  {
 
 		try {
 			Thread.sleep(1000);
-			ret = scuh.readInputReportWithTimeout(handle, inputReportBuffer, inputReportBuffer.length, 100);
+			ret = scuh.readInputReportWithTimeout(handle, inputReportBuffer, 100);
 			System.out.println("\nreadInputReportWithTimeout : " + ret);
-			for(int q=0; q<ret; q++) {
-				System.out.println(inputReportBuffer[q]);
-			}
-
+			System.out.println(scuh.formatReportToHex(inputReportBuffer, " "));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -98,15 +95,15 @@ public class Test68  {
 			e.printStackTrace();
 		}
 
-		//		try {
-		//			scm = new SerialComManager();
-		//			SerialComHID sch = scm.getSerialComHIDInstance(SerialComHID.HID_GENERIC, null, null);
-		//			SerialComHIDdevice[] hidDevices = sch.listHIDdevicesWithInfo();
-		//			for(int x=0; x< hidDevices.length; x++) {
-		//				hidDevices[x].dumpDeviceInfo();
-		//			}
-		//		} catch (Exception e) {
-		//			e.printStackTrace();
-		//		}
+		try {
+			scm = new SerialComManager();
+			SerialComHID sch = scm.getSerialComHIDInstance(SerialComHID.HID_GENERIC, null, null);
+			SerialComHIDdevice[] hidDevices = sch.listHIDdevicesWithInfo();
+			for(int x=0; x< hidDevices.length; x++) {
+				hidDevices[x].dumpDeviceInfo();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 }

@@ -17,6 +17,8 @@
 
 package test72;
 
+import com.embeddedunveiled.serial.SerialComException;
+import com.embeddedunveiled.serial.SerialComHIDdevice;
 import com.embeddedunveiled.serial.SerialComManager;
 import com.embeddedunveiled.serial.SerialComManager.BAUDRATE;
 import com.embeddedunveiled.serial.SerialComManager.DATABITS;
@@ -24,78 +26,98 @@ import com.embeddedunveiled.serial.SerialComManager.FLOWCONTROL;
 import com.embeddedunveiled.serial.SerialComManager.PARITY;
 import com.embeddedunveiled.serial.SerialComManager.STOPBITS;
 import com.embeddedunveiled.serial.SerialComHID;
+import com.embeddedunveiled.serial.usb.SerialComUSB;
 import com.embeddedunveiled.serial.usb.SerialComUSBHID;
 
 // tested with MCP2200
 public class Test72  {
 
+	public static SerialComManager scm = null;
+	public static SerialComUSBHID scuh = null;
+	public static String PORT = null;
+	public static long handle = 0;
+	public static int ret = 0;
+	public static byte[] inputReportBuffer = new byte[32];
+	public static byte[] outputReportBuffer = new byte[16];
+
 	public static void main(String[] args) {
+
 		try {
-			SerialComManager scm = new SerialComManager();
+			scm = new SerialComManager();
+			scuh = (SerialComUSBHID) scm.getSerialComHIDInstance(SerialComHID.HID_USB, null, null);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
-			String PORT = null;
-			String PORT1 = null;
-			int osType = scm.getOSType();
-			if(osType == SerialComManager.OS_LINUX) {
-				PORT = "/dev/ttyACM0";
-				PORT1 = "/dev/ttyUSB1";
-			}else if(osType == SerialComManager.OS_WINDOWS) {
-				PORT = "COM51";
-				PORT1 = "COM52";
-			}else if(osType == SerialComManager.OS_MAC_OS_X) {
-				PORT = "/dev/cu.usbserial-A70362A3";
-				PORT1 = "/dev/cu.usbserial-A602RDCH";
-			}else if(osType == SerialComManager.OS_SOLARIS) {
-				PORT = null;
-				PORT1 = null;
-			}else{
+		int osType = scm.getOSType();
+		if(osType == SerialComManager.OS_LINUX) {
+			PORT = "/dev/hidraw1";
+		}else if(osType == SerialComManager.OS_WINDOWS) {
+			PORT = "HID\\VID_04D8&PID_00DF&MI_02\\7&33842c3f&0&0000";
+		}else if(osType == SerialComManager.OS_MAC_OS_X) {
+			PORT = null;
+		}else if(osType == SerialComManager.OS_SOLARIS) {
+			PORT = null;
+		}else{
+		}
+
+		try {
+			scm = new SerialComManager();
+			scuh = (SerialComUSBHID) scm.getSerialComHIDInstance(SerialComHID.HID_USB, null, null);
+			SerialComHIDdevice[] usbHidDevices = scuh.listUSBHIDdevicesWithInfo(SerialComUSB.V_ALL);
+			for(int x=0; x < usbHidDevices.length; x++) {
+				usbHidDevices[x].dumpDeviceInfo();
 			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
-			byte[] inputReportBuffer = new byte[16];
-			byte[] outputReportBuffer = new byte[256];
-			int ret;
+		try {
+			handle = scuh.openHidDevice(PORT, true);
+			System.out.println("\nopened handle : " + handle);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
-			SerialComUSBHID scuh = (SerialComUSBHID) scm.getSerialComHIDInstance(SerialComHID.HID_USB, null, null);
+		try {
+			outputReportBuffer[0] = (byte) 0x80;
+			ret = scuh.writeOutputReport(handle, (byte) -1, outputReportBuffer);
+			System.out.println("\nwriteOutputReport : " + ret);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
-			// handle : 5
-			long handle = scuh.openHidDevice("/dev/hidraw1");
-			//			long handle = scuh.openHidDeviceByUSBAttributes(0x04D8, 0X00DF, "0000980371", -1, -1, -1);
-			System.out.println("handle : " + handle);
+		try {
+			Thread.sleep(500); // let device prepare response to output report we sent previously
+			// MCP2200
+			// 80 00 6A 00 FF 00 FF 00 04 E1 00 88 CB 08 05 46 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+			ret = scuh.readInputReportWithTimeout(handle, inputReportBuffer, 100);
+			System.out.println("\nreadInputReportWithTimeout : " + ret);
+			System.out.println(scuh.formatReportToHex(inputReportBuffer, " "));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
-			//			// should block indefinitely
-			//			ret = scuh.readInputReport(handle, inputReportBuffer, 16);
-			//			System.out.println("number of bytes in input report : " + ret);
+		try {
+			System.out.println("\nManufacturer string: " + scuh.getManufacturerString(handle));
 
-			//			// number of bytes sent : 16
-			//			outputReportBuffer[0] = (byte) 0x80;
-			//			ret = scuh.writeOutputReport(handle, (byte) -1, outputReportBuffer);
-			//			System.out.println("number of bytes sent : " + ret);
-			//			
-			//			Thread.sleep(1000);
-			//			
-			//			// factory default device configuration
-			//			// number of bytes in input report : 16
-			//			// 80 00 68 00 FF 00 FF 00 04 E1 00 89 CA 00 01 42
-			//			// 80 00 68 00 FF 00 FF 00 04 E1 00 89 CA 00 09 46
-			//			// 80 00 68 00 FF 00 FF 00 04 E1 00 88 CB 00 09 46
-			//			ret = scuh.readInputReportWithTimeout(handle, inputReportBuffer, 16, 200);
-			//			System.out.println("number of bytes in input report : " + ret);
-			//			System.out.println("input report : " + scuh.formatReportToHex(inputReportBuffer));
+			System.out.println("\nProduct string: " + scuh.getProductString(handle));
 
-			//			outputReportBuffer[0] = (byte) 0x01;
-			//			ret = scuh.sendFeatureReport(handle, (byte) 0x01, outputReportBuffer);
-			//			System.out.println("number of bytes sent : " + ret);
+			System.out.println("\nSerial string: " + scuh.getSerialNumberString(handle));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
-			//			System.out.println("Manufacturer string: " + scuh.getManufacturerString(handle));
-			//			System.out.println("Product string: " + scuh.getProductString(handle));
-			//			System.out.println("Serial string: " + scuh.getSerialNumberString(handle));
-			//			
-			//			System.out.println("String at index : 0 is :" + scuh.getIndexedString(handle, 0));
+		try {
+			System.out.println("\nString at index : 0 is :" + scuh.getIndexedString(handle, 0));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
-			/* For dragonrise Joystick [USB Gamepad ] from frontech with idVendor=0079, idProduct=0011 
-			 * report descriptor is :- 
-			 * in hex : 05 01 09 04 A1 01 A1 02 14 75 08 95 03 81 01 26 FF 00 95 02 09 30 09 31 81 02 75 01 95 04 81 01 25 01 95 0A 05 09 19 01 29 0A 81 02 95 0A 81 01 C0 C0
-			 * parsed : 
+		/* For dragonrise Joystick [USB Gamepad ] from frontech with idVendor=0079, idProduct=0011 
+		 * report descriptor is :- 
+		 * in hex : 05 01 09 04 A1 01 A1 02 14 75 08 95 03 81 01 26 FF 00 95 02 09 30 09 31 81 02 75 01 95 04 81 01 25 01 95 0A 05 09 19 01 29 0A 81 02 95 0A 81 01 C0 C0
+		 * parsed : 
 			    0x05, 0x01,        // Usage Page (Generic Desktop Ctrls)
 				0x09, 0x04,        // Usage (Joystick)
 				0xA1, 0x01,        // Collection (Application)
@@ -123,12 +145,12 @@ public class Test72  {
 				0xC0,              //   End Collection
 				0xC0,              // End Collection
 				// 50 bytes
-			 */
+		 */
 
-			/* For MCP2200 report descriptor is :- 
-			 * in hex : 06 00 FF 09 01 A1 01 19 01 29 10 15 00 26 FF 00 75 08 95 10 81 00 19 01 29 10 91 00 C0
-			 * parsed :
-			 * 	0x06, 0x00, 0xFF,  // Usage Page (Vendor Defined 0xFF00)
+		/* For MCP2200 report descriptor is :- 
+		 * in hex : 06 00 FF 09 01 A1 01 19 01 29 10 15 00 26 FF 00 75 08 95 10 81 00 19 01 29 10 91 00 C0
+		 * parsed :
+		 * 	0x06, 0x00, 0xFF,  // Usage Page (Vendor Defined 0xFF00)
 				0x09, 0x01,        // Usage (0x01)
 				0xA1, 0x01,        // Collection (Application)
 				0x19, 0x01,        //   Usage Minimum (0x01)
@@ -143,14 +165,17 @@ public class Test72  {
 				0x91, 0x00,        //   Output (Data,Array,Abs,No Wrap,Linear,Preferred State,No Null Position,Non-volatile)
 				0xC0,              // End Collection
 				// 29 bytes
-			 */
-
+		 */
+		try {
 			byte[] desc = scuh.getReportDescriptor(handle);
-			System.out.println("number of bytes in descriptor : " + desc.length);
-			System.out.println("descriptor in hex read from device: " + scuh.formatReportToHex(desc));
+			System.out.println("\nnumber of bytes in descriptor : " + desc.length);
+			System.out.println("descriptor in hex read from device: " + scuh.formatReportToHex(desc, " "));
+		} catch (SerialComException e1) {
+			e1.printStackTrace();
+		}
 
-			scuh.closeHidDevice(handle);
-			System.out.println("\ndone !");
+		try {
+			System.out.println("\ncloseHidDevice : " + scuh.closeHidDevice(handle));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
