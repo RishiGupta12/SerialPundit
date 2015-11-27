@@ -421,9 +421,17 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
 			/* if the device does not uses numbered reports, strip 1st byte.
 			   other operating systems like Linux also does so internally. */
 			(*env)->SetByteArrayRegion(env, reportBuffer, 0, (num_of_bytes_read -1), &data_buf[1]);
+			if ((*env)->ExceptionOccurred(env) != NULL) {
+				throw_serialcom_exception(env, 3, 0, E_SETBYTEARRAYREGION);
+				return -1;
+			}
 			return (num_of_bytes_read - 1);
 		}else {
 			(*env)->SetByteArrayRegion(env, reportBuffer, 0, num_of_bytes_read, data_buf);
+			if ((*env)->ExceptionOccurred(env) != NULL) {
+				throw_serialcom_exception(env, 3, 0, E_SETBYTEARRAYREGION);
+				return -1;
+			}
 			return num_of_bytes_read;
 		}
 	}
@@ -530,9 +538,17 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
 		/* if the device does not uses numbered reports, strip 1st byte.
 		   other operating systems like Linux also does so internally. */
 		(*env)->SetByteArrayRegion(env, reportBuffer, 0, (info->collection_capabilities.FeatureReportByteLength - 1), &data_buf[1]);
+		if ((*env)->ExceptionOccurred(env) != NULL) {
+			throw_serialcom_exception(env, 3, 0, E_SETBYTEARRAYREGION);
+			return -1;
+		}		
 		return (info->collection_capabilities.FeatureReportByteLength - 1);
 	}else {
 		(*env)->SetByteArrayRegion(env, reportBuffer, 0, info->collection_capabilities.FeatureReportByteLength, data_buf);
+		if ((*env)->ExceptionOccurred(env) != NULL) {
+			throw_serialcom_exception(env, 3, 0, E_SETBYTEARRAYREGION);
+			return -1;
+		}	
 		return info->collection_capabilities.FeatureReportByteLength;
 	}
 

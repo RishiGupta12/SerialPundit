@@ -565,12 +565,17 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialCom
 					if(num_of_bytes_read > 0) {
 						data_read = (*env)->NewByteArray(env, num_of_bytes_read);
 						(*env)->SetByteArrayRegion(env, data_read, 0, num_of_bytes_read, data_buf);
+						if ((*env)->ExceptionOccurred(env) != NULL) {
+							throw_serialcom_exception(env, 3, 0, E_SETBYTEARRAYREGION);
+							return NULL;
+						}
 						return data_read;
 					}
 					return NULL;
 				}else if(ret == 0) {
 					errorVal = GetLastError();
 					if((errorVal == ERROR_HANDLE_EOF) || (errorVal == ERROR_IO_INCOMPLETE)) {
+						CancelIo((HANDLE)handle);
 						return NULL;
 					}else {
 						/* This case indicates error. */
@@ -581,6 +586,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialCom
 				}
 			}else if(wait_status == WAIT_FAILED) {
 				/* This case indicates error. */
+				CancelIo((HANDLE)handle);
 				throw_serialcom_exception(env, 4, GetLastError(), NULL);
 				CloseHandle(overlapped.hEvent);
 				return NULL;
@@ -603,6 +609,10 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialCom
 			/* This indicates we got success and have read data in first go itself. */
 			data_read = (*env)->NewByteArray(env, num_of_bytes_read);
 			(*env)->SetByteArrayRegion(env, data_read, 0, num_of_bytes_read, data_buf);
+			if ((*env)->ExceptionOccurred(env) != NULL) {
+				throw_serialcom_exception(env, 3, 0, E_SETBYTEARRAYREGION);
+				return NULL;
+			}
 			return data_read;
 		}else {
 			return NULL;
@@ -740,11 +750,16 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialCom
 					/* return data read from serial port */
 					data_read = (*env)->NewByteArray(env, num_of_bytes_read);
 					(*env)->SetByteArrayRegion(env, data_read, 0, num_of_bytes_read, data_buf);
+					if ((*env)->ExceptionOccurred(env) != NULL) {
+						throw_serialcom_exception(env, 3, 0, E_SETBYTEARRAYREGION);
+						return NULL;
+					}
 					CloseHandle(ovRead.hEvent);
 					return data_read;
 				}else if(ret == 0) {
 					errorVal = GetLastError();
 					if((errorVal == ERROR_HANDLE_EOF) || (errorVal == ERROR_IO_INCOMPLETE)) {
+					CancelIo((HANDLE)handle);
 						return NULL;
 					}else {
 						/* This case indicates error. */
@@ -778,6 +793,10 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialCom
 		/* This indicates we got success and have read data in first go itself. */
 		data_read = (*env)->NewByteArray(env, num_of_bytes_read);
 		(*env)->SetByteArrayRegion(env, data_read, 0, num_of_bytes_read, data_buf);
+		if ((*env)->ExceptionOccurred(env) != NULL) {
+			throw_serialcom_exception(env, 3, 0, E_SETBYTEARRAYREGION);
+			return NULL;
+		}
 		CloseHandle(ovRead.hEvent);
 		return data_read;
 	}else {
@@ -835,6 +854,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
 			if(WaitForSingleObject(ovWrite.hEvent, 1000) == WAIT_OBJECT_0) {
 				ret = GetOverlappedResult((HANDLE)handle, &ovWrite, &num_of_bytes_written, TRUE);
 				if(ret == 0) {
+					CancelIo((HANDLE)handle);
 					CloseHandle(ovWrite.hEvent);
 					throw_serialcom_exception(env, 4, GetLastError(), NULL);
 					return -1;
@@ -844,6 +864,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
 				}
 			}
 		}else {
+			CancelIo((HANDLE)handle);
 			CloseHandle(ovWrite.hEvent);
 			throw_serialcom_exception(env, 4, errorVal, NULL);
 			return -1;
@@ -936,6 +957,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
 					if(WaitForSingleObject(ovWrite.hEvent, 1000) == WAIT_OBJECT_0) {
 						ret = GetOverlappedResult((HANDLE)handle, &ovWrite, &num_of_bytes_written, TRUE);
 						if(ret == 0) {
+							CancelIo((HANDLE)handle);
 							(*env)->ReleaseByteArrayElements(env, buffer, data_buf, 0);
 							CloseHandle(ovWrite.hEvent);
 							throw_serialcom_exception(env, 4, GetLastError(), NULL);
@@ -943,6 +965,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
 						}
 					}
 				}else {
+					CancelIo((HANDLE)handle);
 					(*env)->ReleaseByteArrayElements(env, buffer, data_buf, 0);
 					CloseHandle(ovWrite.hEvent);
 					throw_serialcom_exception(env, 4, errorVal, NULL);
@@ -1024,6 +1047,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
 				if (WaitForSingleObject(ovWrite.hEvent, 1000) == WAIT_OBJECT_0) {
 					ret = GetOverlappedResult((HANDLE)handle, &ovWrite, &num_of_bytes_written, TRUE);
 					if (ret == 0) {
+						CancelIo((HANDLE)handle);
 						(*env)->ReleaseByteArrayElements(env, buffer, data_buf, 0);
 						CloseHandle(ovWrite.hEvent);
 						throw_serialcom_exception(env, 4, GetLastError(), NULL);
@@ -1033,6 +1057,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
 					FlushFileBuffers((HANDLE)handle);
 				}
 			}else {
+				CancelIo((HANDLE)handle);
 				(*env)->ReleaseByteArrayElements(env, buffer, data_buf, 0);
 				CloseHandle(ovWrite.hEvent);
 				throw_serialcom_exception(env, 4, errorVal, NULL);
