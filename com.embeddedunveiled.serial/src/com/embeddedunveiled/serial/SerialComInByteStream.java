@@ -159,7 +159,7 @@ public final class SerialComInByteStream extends InputStream {
 					try {
 						data = scm.readBytesBlocking(handle, 1, context);
 					}catch (SerialComException e) {
-						if("Byte stream unblocked !".equals(e.getExceptionMsg())) {
+						if(SerialComManager.EXP_UNBLOCKIO.equals(e.getExceptionMsg())) {
 							// this exception message occurs when application has closed stream.
 							// release lock so that blocking context can be destroyed.
 							return -1;
@@ -268,7 +268,7 @@ public final class SerialComInByteStream extends InputStream {
 					try {
 						data = scm.readBytesBlocking(handle, len, context);
 					}catch (SerialComException e) {
-						if("Byte stream unblocked !".equals(e.getExceptionMsg())) {
+						if(SerialComManager.EXP_UNBLOCKIO.equals(e.getExceptionMsg())) {
 							// this exception message occurs when application has closed stream.
 							// release lock so that blocking context can be destroyed.
 							return -1;
@@ -322,3 +322,4 @@ public final class SerialComInByteStream extends InputStream {
 		return 0;
 	}
 }
+
