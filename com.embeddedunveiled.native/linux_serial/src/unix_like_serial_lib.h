@@ -77,8 +77,9 @@
 #define E_HCIBTADDR "Could not determine address of BT HCI device !"
 #define E_CANNOTFINDDEVNODE "Failed to find device node from sysfs path !"
 #define E_WRITEZERONOTALLOWED "Write requires at least one byte data !"
-#define E_UNBLOCKIO "Byte stream unblocked !"
 #define E_NOTFTDIPORT "Given COM port may not represent FTDI device !"
+
+#define E_UNBLOCKIO "I/O operation unblocked !"
 
 /* Custom error codes and messages for SCM library */
 #define ERROR_OFFSET 15000

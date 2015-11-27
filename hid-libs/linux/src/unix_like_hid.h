@@ -75,6 +75,8 @@
 #define E_COULDNOTPRODUCT "IOHIDDeviceGetProperty for finding usb product for given HID device returned null !"
 #define E_COULDNOTSERIAL "IOHIDDeviceGetProperty for finding serial number for given HID device returned null !"
 
+#define EXP_UNBLOCKHIDIO "I/O operation unblocked !"
+
 /* This holds information for implementing dynamically growing array in C language. */
 struct jstrarray_list {
 	jstring *base;      /* pointer to an array of pointers to string */
@@ -122,4 +124,3 @@ jstring mac_find_driver_for_given_hiddevice(JNIEnv *env, jstring hidDevNode);
 jstring get_hiddev_indexed_string(JNIEnv *env, jlong fd, int index);
 
 #endif /* UNIX_LIKE_HID_H_ */
-

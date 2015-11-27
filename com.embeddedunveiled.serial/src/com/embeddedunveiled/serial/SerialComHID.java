@@ -35,6 +35,10 @@ public class SerialComHID {
 	/**<p>The value indicating instance of class SerialComBluetoothHID. Integer constant with value 0x03.</p>*/
 	public static final int HID_BLUETOOTH = 0x03;
 
+	/** <p>The exception message indicating that a blocked read method has been unblocked 
+	 * and made to return to caller explicitly (irrespective there was data to read or not). </p>*/
+	public static final String EXP_UNBLOCKHIDIO  = "I/O operation unblocked !";
+
 	// sub-classes also uses this reference to invoke native functions.
 	protected SerialComHIDJNIBridge mHIDJNIBridge;
 	protected int osType;
@@ -168,6 +172,45 @@ public class SerialComHID {
 		return true;
 	}
 
+	/** 
+	 * <p>Prepares a context that should be passed to readInputReport and unblockBlockingHIDIOOperation 
+	 * methods.</p>
+	 * 
+	 * <p>Application must catch exception thrown by this method. When this method returns and 
+	 * exception with message SerialComHID.EXP_UNBLOCKHIDIO is thrown, it indicates that the 
+	 * blocked read method was explicitly unblocked by another thread (possibly because it is 
+	 * going to close the device).</p>
+	 * 
+	 * @return context that should be passed to readInputReport and unblockBlockingHIDIOOperation 
+	 *          methods.
+	 * @throws SerialComException if an I/O error occurs.
+	 */
+	public long createBlockingHIDIOContext() throws SerialComException {
+		long ret = mHIDJNIBridge.createBlockingHIDIOContext();
+		if(ret < 0) {
+			throw new SerialComException("Could not create blocking HID I/O context. Please retry !");
+		}
+		return ret;
+	}
+
+	/** 
+	 * <p>Unblocks any blocked operation if it exist. This causes closing of HID device possible 
+	 * gracefully and return the worker thread that called blocking read/write to return and proceed 
+	 * as per application design.</p>
+	 * 
+	 * @param context context obtained from call to createBlockingIOContext method for blocking 
+	 *         I/O operations.
+	 * @return true if blocked operation was unblocked successfully.
+	 * @throws SerialComException if an I/O error occurs.
+	 */
+	public boolean unblockBlockingHIDIOOperation(long context) throws SerialComException {
+		int ret = mHIDJNIBridge.unblockBlockingHIDIOOperation(context);
+		if(ret < 0) {
+			throw new SerialComException("Could not unblock the blocked HID I/O operation. Please retry !");
+		}
+		return true;
+	}
+
 	/**
 	 * <p>Sends the given output report to the HID device. Report ID is used to uniquely identify the  
 	 * report.</p>
@@ -224,16 +267,17 @@ public class SerialComHID {
 	 * 
 	 * @param handle handle of the HID device from whom input report is to be read.
 	 * @param reportBuffer byte buffer in which input report will be saved.
+	 * @param context context obtained by a call to createBlockingIOContext method.
 	 * @return number of bytes read from HID device.
 	 * @throws SerialComException if an I/O error occurs.
 	 * @throws IllegalArgumentException if reportBuffer is null or if length is negative.
 	 */
-	public final int readInputReport(long handle, byte[] reportBuffer) throws SerialComException {
+	public final int readInputReport(long handle, byte[] reportBuffer, long context) throws SerialComException {
 		if(reportBuffer == null) {
 			throw new IllegalArgumentException("Argumenet dataBuffer can not be null !");
 		}
 
-		int ret = mHIDJNIBridge.readInputReport(handle, reportBuffer, reportBuffer.length);
+		int ret = mHIDJNIBridge.readInputReport(handle, reportBuffer, reportBuffer.length, context);
 		if(ret < 0) {
 			throw new SerialComException("Could not read input report from HID device. Please retry !");
 		}

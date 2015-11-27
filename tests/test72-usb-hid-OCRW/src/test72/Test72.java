@@ -18,15 +18,8 @@
 package test72;
 
 import com.embeddedunveiled.serial.SerialComException;
-import com.embeddedunveiled.serial.SerialComHIDdevice;
 import com.embeddedunveiled.serial.SerialComManager;
-import com.embeddedunveiled.serial.SerialComManager.BAUDRATE;
-import com.embeddedunveiled.serial.SerialComManager.DATABITS;
-import com.embeddedunveiled.serial.SerialComManager.FLOWCONTROL;
-import com.embeddedunveiled.serial.SerialComManager.PARITY;
-import com.embeddedunveiled.serial.SerialComManager.STOPBITS;
 import com.embeddedunveiled.serial.SerialComHID;
-import com.embeddedunveiled.serial.usb.SerialComUSB;
 import com.embeddedunveiled.serial.usb.SerialComUSBHID;
 
 // tested with MCP2200
@@ -64,10 +57,6 @@ public class Test72  {
 		try {
 			scm = new SerialComManager();
 			scuh = (SerialComUSBHID) scm.getSerialComHIDInstance(SerialComHID.HID_USB, null, null);
-			SerialComHIDdevice[] usbHidDevices = scuh.listUSBHIDdevicesWithInfo(SerialComUSB.V_ALL);
-			for(int x=0; x < usbHidDevices.length; x++) {
-				usbHidDevices[x].dumpDeviceInfo();
-			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

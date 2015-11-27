@@ -77,7 +77,7 @@
 #define E_HCIBTADDR "Could not determine address of BT HCI device !"
 #define E_CANNOTFINDDEVNODE "Failed to find device node from sysfs path !"
 
-#define E_UNBLOCKIO "Byte stream unblocked !"
+#define E_UNBLOCKIO "I/O operation unblocked !"
 #define E_NOTFTDIPORT "Given COM port does not exist or may not be a FTDI com port !"
 
 /* Custom error codes and messages for SCM library */
@@ -166,3 +166,4 @@ LRESULT CALLBACK usb_hotplug_event_handler(HWND window_handle, UINT msg, WPARAM 
 unsigned WINAPI usb_device_hotplug_monitor(LPVOID lpParam);
 
 #endif /* WINDOWS_SERIAL_LIB_H_ */
+

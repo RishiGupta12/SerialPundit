@@ -393,7 +393,7 @@ public final class SerialComManager {
 
 	/** <p>The exception message indicating that a blocked read method has been unblocked 
 	 * and made to return to caller explicitly (irrespective there was data to read or not). </p>*/
-	public static final String EXP_UNBLOCKIO  = "Byte stream unblocked !";
+	public static final String EXP_UNBLOCKIO  = "I/O operation unblocked !";
 
 	/** <p>Maintain integrity and consistency among all operations, synchronize them for
 	 *  making structural changes. This array can be sorted array if scaled to large scale.</p>*/
@@ -1231,7 +1231,7 @@ public final class SerialComManager {
 	}
 
 	/** 
-	 * <p>Unblocked any blocked operation if it exist. This causes closing of serial port possible 
+	 * <p>Unblocks any blocked operation if it exist. This causes closing of serial port possible 
 	 * gracefully and return the worker thread that called blocking read/write to return and proceed 
 	 * as per application design.</p>
 	 * 
