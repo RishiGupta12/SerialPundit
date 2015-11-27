@@ -18,10 +18,10 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
  * Method:    openHidDeviceByPath
- * Signature: (Ljava/lang/String;)J
+ * Signature: (Ljava/lang/String;Z)J
  */
 JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_openHidDeviceByPath
-  (JNIEnv *, jobject, jstring);
+  (JNIEnv *, jobject, jstring, jboolean);
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge

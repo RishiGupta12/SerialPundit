@@ -122,7 +122,9 @@ public class SerialComHID {
 	 * with it.</p>
 	 * 
 	 * <p>Windows supports many top level collection and some of them might be opened in shared mode while 
-	 * may be available for exclusive access only.</p>
+	 * may be available for exclusive access only. Some of the HID devices may be reserved for system use 
+	 * only and operating system may provide a dedicated framework/driver and API for it. Some devices 
+	 * need to be switched from keyboard emulation mode to HID mode to make them accessible by application.</p>
 	 * 
 	 * @param pathName device node full path for Unix-like OS and device instance for Windows 
 	 *         (as obtained by listing HID devices).
