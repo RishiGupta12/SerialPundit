@@ -391,6 +391,10 @@ public final class SerialComManager {
 	/** <p>Data terminal ready mask bit constant for UART control line. </p>*/
 	public static final int DTR  = 0x40;  // 1000000
 
+	/** <p>The exception message indicating that a blocked read method has been unblocked 
+	 * and made to return to caller explicitly (irrespective there was data to read or not). </p>*/
+	public static final String EXP_UNBLOCKIO  = "Byte stream unblocked !";
+
 	/** <p>Maintain integrity and consistency among all operations, synchronize them for
 	 *  making structural changes. This array can be sorted array if scaled to large scale.</p>*/
 	private ArrayList<SerialComPortHandleInfo> handleInfo = new ArrayList<SerialComPortHandleInfo>();
@@ -1209,8 +1213,13 @@ public final class SerialComManager {
 	 * <p>Prepares a context that should be passed to readBytesBlocking, writeBytesBlocking,  
 	 * unblockBlockingIOOperation and destroyBlockingIOContext methods.</p>
 	 * 
-	 * @return context value that should be passed to destroyBlockingIOContext, readBytesBlocking and
-	 *          writeBytesBlocking methods.
+	 * <p>Application must catch exception thrown by this method. When this method returns and 
+	 * exception with message SerialComManager.EXP_UNBLOCKIO is thrown, it indicates that the 
+	 * blocked read method was explicitly unblocked by another thread (possibly because serial 
+	 * port is going to be closed).</p>
+	 * 
+	 * @return context value that should be passed to destroyBlockingIOContext, readBytesBlocking 
+	 *          and writeBytesBlocking methods.
 	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public long createBlockingIOContext() throws SerialComException {
