@@ -321,8 +321,12 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
  * Method:    readInputReport
  * Signature: (J[BI)I
  *
+ *
  * TODO MAC RETURN 1ST BYTE AS REPORT ID OR NOT.
  *
+ * 
+ * It reads a raw HID report (i.e. no report parsing is done).
+ * 
  * @return number of bytes read if function succeeds otherwise -1 if an error occurs.
  * @throws SerialComException if any JNI function, system call or C function fails.
  */
@@ -339,6 +343,8 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
  *
  * Read input report blocking for the time less than or equal to given timeout value. First byte will represent
  * report ID if device uses numbered reports otherwise 1st byte will be report byte itself.
+ * 
+ * It reads a raw HID report (i.e. no report parsing is done).
  *
  * @return number of bytes read if function succeeds otherwise -1 if an error occurs.
  * @throws SerialComException if any JNI function, WINAPI or C function fails.
@@ -362,6 +368,11 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
 		throw_serialcom_exception(env, 4, GetLastError(), NULL);
 		return -1;
 	}
+	
+	/* An application should only use the HidD_GetXxx routines to obtain the current state of a device. 
+	   If an application attempts to use HidD_GetInputReport to continuously obtain input reports, the 
+	   reports can be lost. In addition, some devices might not support HidD_GetInputReport, and will 
+	   become unresponsive if this routine is used. */
 
 	/* ReadFile resets the event to a nonsignaled state when it begins the I/O operation. */
 	ret = ReadFile(info->handle, (PVOID)data_buf, info->collection_capabilities.InputReportByteLength, &num_of_bytes_read, &overlapped);

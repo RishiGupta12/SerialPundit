@@ -236,6 +236,8 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
  *
  * TODO MAC RETURN 1ST BYTE AS REPORT ID OR NOT.
  *
+ * It reads a raw HID report (i.e. no report parsing is done).
+ *
  * @return number of bytes read if function succeeds otherwise -1 if an error occurs.
  * @throws SerialComException if any JNI function, system call or C function fails.
  */
@@ -278,6 +280,10 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
  * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
  * Method:    readInputReportWithTimeout
  * Signature: (J[BII)I
+ * 
+ * Read input report blocking for the time less than or equal to given timeout value.
+ *
+ * It reads a raw HID report (i.e. no report parsing is done).
  *
  * @return number of bytes read if function succeeds otherwise -1 if an error occurs.
  * @throws SerialComException if any JNI function, system call or C function fails.

@@ -45,6 +45,7 @@ public class Test72  {
 		int osType = scm.getOSType();
 		if(osType == SerialComManager.OS_LINUX) {
 			PORT = "/dev/hidraw1";
+			//PORT = "/dev/usb/hiddev0";
 		}else if(osType == SerialComManager.OS_WINDOWS) {
 			PORT = "HID\\VID_04D8&PID_00DF&MI_02\\7&33842c3f&0&0000";
 		}else if(osType == SerialComManager.OS_MAC_OS_X) {
@@ -62,6 +63,7 @@ public class Test72  {
 		}
 
 		try {
+			// opened handle : 5
 			handle = scuh.openHidDevice(PORT, true);
 			System.out.println("\nopened handle : " + handle);
 		} catch (Exception e) {
@@ -69,6 +71,7 @@ public class Test72  {
 		}
 
 		try {
+			// writeOutputReport : 17
 			outputReportBuffer[0] = (byte) 0x80;
 			ret = scuh.writeOutputReport(handle, (byte) -1, outputReportBuffer);
 			System.out.println("\nwriteOutputReport : " + ret);
@@ -79,6 +82,7 @@ public class Test72  {
 		try {
 			Thread.sleep(500); // let device prepare response to output report we sent previously
 			// MCP2200
+			// readInputReportWithTimeout : 16
 			// 80 00 6A 00 FF 00 FF 00 04 E1 00 88 CB 08 05 46 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
 			ret = scuh.readInputReportWithTimeout(handle, inputReportBuffer, 100);
 			System.out.println("\nreadInputReportWithTimeout : " + ret);

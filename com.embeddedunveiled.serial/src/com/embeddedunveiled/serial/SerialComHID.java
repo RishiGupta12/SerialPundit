@@ -20,7 +20,10 @@ package com.embeddedunveiled.serial;
 import com.embeddedunveiled.serial.internal.SerialComHIDJNIBridge;
 
 /**
- * <p></p>
+ * <p>In Windows, system supplied HID minidriver and HID class drivers provide most of the functionality 
+ * and required support for HID-compliant devices. However we may have to write our own HID minidriver
+ * if it is difficult to make desired changes to HID-compliant device firmware or if we need to make a 
+ * non-HID compliant device into a HID device without updating the firmware.</p>
  * 
  * @author Rishi Gupta
  */
