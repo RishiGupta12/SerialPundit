@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.embeddedunveiled.serial.hid.SerialComHID;
 import com.embeddedunveiled.serial.internal.SerialComBluetoothJNIBridge;
 import com.embeddedunveiled.serial.internal.SerialComCompletionDispatcher;
 import com.embeddedunveiled.serial.internal.SerialComErrorMapper;

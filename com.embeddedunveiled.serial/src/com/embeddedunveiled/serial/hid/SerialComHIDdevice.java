@@ -15,7 +15,10 @@
  * along with serial communication manager. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.embeddedunveiled.serial;
+package com.embeddedunveiled.serial.hid;
+
+import com.embeddedunveiled.serial.SerialComException;
+import com.embeddedunveiled.serial.SerialComUtil;
 
 
 /**

@@ -15,8 +15,12 @@
  * along with serial communication manager. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.embeddedunveiled.serial;
+package com.embeddedunveiled.serial.hid;
 
+import com.embeddedunveiled.serial.ISerialComUSBHotPlugListener;
+import com.embeddedunveiled.serial.SerialComException;
+import com.embeddedunveiled.serial.SerialComManager;
+import com.embeddedunveiled.serial.SerialComUtil;
 import com.embeddedunveiled.serial.internal.SerialComHIDJNIBridge;
 
 /**
@@ -141,7 +145,7 @@ public class SerialComHID {
 	 * @throws SerialComException if an IO error occurs.
 	 * @throws IllegalArgumentException if pathName is null or empty string.
 	 * @see com.embeddedunveiled.serial.SerialComManager#registerUSBHotPlugEventListener(ISerialComUSBHotPlugListener, int, int, String)
-	 * @see com.embeddedunveiled.serial.SerialComHID#listHIDdevicesWithInfo()
+	 * @see com.embeddedunveiled.serial.hid.SerialComHID#listHIDdevicesWithInfo()
 	 */
 	public final long openHidDevice(final String pathName, boolean shared) throws SerialComException {
 		if(pathName == null) {

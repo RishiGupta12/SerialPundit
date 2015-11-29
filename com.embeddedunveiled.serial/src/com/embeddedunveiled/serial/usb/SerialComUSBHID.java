@@ -18,8 +18,8 @@
 package com.embeddedunveiled.serial.usb;
 
 import com.embeddedunveiled.serial.SerialComException;
-import com.embeddedunveiled.serial.SerialComHID;
-import com.embeddedunveiled.serial.SerialComHIDdevice;
+import com.embeddedunveiled.serial.hid.SerialComHID;
+import com.embeddedunveiled.serial.hid.SerialComHIDdevice;
 import com.embeddedunveiled.serial.internal.SerialComHIDJNIBridge;
 
 /**
