@@ -133,7 +133,6 @@ public final class SerialComRawHID extends SerialComHID {
 	 * @throws SerialComException if an IO error occurs.
 	 * @throws IllegalArgumentException if pathName is null or empty string.
 	 * @see com.embeddedunveiled.serial.SerialComManager#registerUSBHotPlugEventListener(ISerialComUSBHotPlugListener, int, int, String)
-	 * @see com.embeddedunveiled.serial.hid.SerialComHID#listHIDdevicesWithInfo()
 	 */
 	public final long openHidDeviceR(final String pathName, boolean shared) throws SerialComException {
 		if(pathName == null) {

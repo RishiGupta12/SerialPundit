@@ -3,6 +3,7 @@ com.embeddedunveiled.serial.bluetooth
 com.embeddedunveiled.serial.ethernet
 com.embeddedunveiled.serial.gps
 com.embeddedunveiled.serial.gsm
+com.embeddedunveiled.serial.hid
 com.embeddedunveiled.serial.internal
 com.embeddedunveiled.serial.usb
 com.embeddedunveiled.serial.vendor
