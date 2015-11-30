@@ -29,20 +29,31 @@ import com.embeddedunveiled.serial.internal.SerialComHIDJNIBridge;
  */
 public class SerialComHID {
 
-	/**<p>The value indicating instance of SerialComHID class. Integer constant with value 0x01.</p>*/
-	public static final int HID_GENERIC = 0x01;
+	/**<p>The value indicating instance of SerialComRawHID class. Integer constant with value 0x01.</p>*/
+	public static final int MODE_RAW = 0x01;
 
-	/**<p>The value indicating instance of SerialComUSBHID class. Integer constant with value 0x02.</p>*/
-	public static final int HID_USB = 0x02;
+	/**<p>The value indicating instance of SerialComParsedHID class. Integer constant with value 0x02.</p>*/
+	public static final int MODE_PARSED = 0x02;
 
-	/**<p>The value indicating instance of class SerialComBluetoothHID. Integer constant with value 0x03.</p>*/
-	public static final int HID_BLUETOOTH = 0x03;
+	/**<p>The value indicating instance of SerialComHID class (HID transport neutral). Integer constant with 
+	 * value 0x03.</p>*/
+	public static final int HID_GENERIC = 0x03;
+
+	/**<p>The value indicating instance of SerialComUSBHID class (HID over USB). Integer constant 
+	 * with value 0x04.</p>*/
+	public static final int HID_USB = 0x04;
+
+	/**<p>The value indicating instance of SerialComBluetoothHID class (HID over Bluetooth). Integer 
+	 * constant with value 0x05.</p>*/
+	public static final int HID_BLUETOOTH = 0x05;
+
+	/**<p>The value indicating instance of SerialComI2CHID class (HID over I2C). Integer constant with 
+	 * value 0x06.</p>*/
+	public static final int HID_I2C = 0x06;
 
 	/** <p>The exception message indicating that a blocked read method has been unblocked 
 	 * and made to return to caller explicitly (irrespective there was data to read or not). </p>*/
-	public static final String EXP_UNBLOCKHIDIO  = "I/O operation unblocked !";
-
-	public SerialComRawHID rawHIDAPI = null;
+	public static final String EXP_UNBLOCK_HIDIO  = "I/O operation unblocked !";
 
 	// sub-classes also uses this reference to invoke native functions.
 	protected SerialComHIDJNIBridge mHIDJNIBridge;
@@ -57,17 +68,4 @@ public class SerialComHID {
 		this.mHIDJNIBridge = mHIDJNIBridge;
 		this.osType = osType;
 	}
-
-	/**
-	 * <p>Allocates a new object of type SerialComRawHID class and return it to caller.</p>
-	 * 
-	 * @return object of type SerialComRawHID class.
-	 */
-	public SerialComRawHID getRawHIDAPIInstance() {
-		if(rawHIDAPI == null) {
-			rawHIDAPI = new SerialComRawHID(mHIDJNIBridge, osType);
-		}
-		return rawHIDAPI;
-	}
-
 }

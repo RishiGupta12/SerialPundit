@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.embeddedunveiled.serial.hid.SerialComHID;
+import com.embeddedunveiled.serial.hid.SerialComRawHID;
 import com.embeddedunveiled.serial.internal.SerialComBluetoothJNIBridge;
 import com.embeddedunveiled.serial.internal.SerialComCompletionDispatcher;
 import com.embeddedunveiled.serial.internal.SerialComErrorMapper;
@@ -39,7 +40,6 @@ import com.embeddedunveiled.serial.internal.SerialComPortJNIBridge;
 import com.embeddedunveiled.serial.internal.SerialComPortsList;
 import com.embeddedunveiled.serial.internal.SerialComSystemProperty;
 import com.embeddedunveiled.serial.usb.SerialComUSB;
-import com.embeddedunveiled.serial.usb.SerialComUSBHID;
 import com.embeddedunveiled.serial.usb.SerialComUSBdevice;
 import com.embeddedunveiled.serial.vendor.SerialComVendorLib;
 import com.embeddedunveiled.serial.bluetooth.SerialComBluetooth;
@@ -2659,6 +2659,12 @@ public final class SerialComManager {
 	}
 
 	/**
+	 * <p>Allocate, initialize and return an instance of requested mode for communication with 
+	 * HID device. If the value of variable type is MODE_RAW, instance of class SerialComRawHID 
+	 * is returned. In this mode raw reports are sent and received with device (no report parsing 
+	 * is done). If the type is MODE_PARSED, reports are parsed by operating system as described 
+	 * by report descriptor of HID device.</p>
+	 * 
 	 * <p>Initialize and return an instance of requested type for serial communication based on 
 	 * HID specification. The type argument should be HID_GENERIC for most of the applications. 
 	 * However for some very specific need type may be HID_USB, or for Bluetooth HID applicxation
@@ -2670,7 +2676,7 @@ public final class SerialComManager {
 	 * loaded will be given name as specified by loadedLibName argument or default name will be 
 	 * used if loadedLibName is null.</p>
 	 * 
-	 * @param type one of the constants HID_XXXX defined in SerialComHID class.
+	 * @param type one of the constants MODE_XXXX defined in SerialComHID class.
 	 * @param directoryPath absolute path of directory to be used for extraction.
 	 * @param loadedLibName library name without extension (do not append .so, .dll or .dylib etc.).
 	 * @return reference to an object of requested type SerialComUSB on which various methods can 
@@ -2686,8 +2692,8 @@ public final class SerialComManager {
 	 * @throws IllegalArgumentException if type is an invalid constant.
 	 */
 	public SerialComHID getSerialComHIDInstance(int type, String directoryPath, String loadedLibName) throws SecurityException, 
-	SerialComUnexpectedException, SerialComLoadException, UnsatisfiedLinkError, SerialComException, 
-	FileNotFoundException, IOException {
+		SerialComUnexpectedException, SerialComLoadException, UnsatisfiedLinkError, SerialComException, 
+		FileNotFoundException, IOException {
 		int ret = 0;
 		if(mSerialComHIDJNIBridge == null) {
 			mSerialComHIDJNIBridge = new SerialComHIDJNIBridge();
@@ -2698,14 +2704,12 @@ public final class SerialComManager {
 			}
 		}
 
-		if(type == SerialComHID.HID_GENERIC) {
-			return new SerialComHID(mSerialComHIDJNIBridge, osType);
+		if(type == SerialComHID.MODE_RAW) {
+			return new SerialComRawHID(mSerialComHIDJNIBridge, osType);
 		}else if(type == SerialComHID.HID_USB) {
-			return new SerialComUSBHID(mSerialComHIDJNIBridge, osType);
-		}else if(type == SerialComHID.HID_BLUETOOTH) {
 			//TODO
 		}else {
-			throw new IllegalArgumentException("Argument type given is not valid constant !");
+			throw new IllegalArgumentException("Argument type must be one of the constants SerialComHID.MODE_XXXXX !");
 		}
 
 		return null;

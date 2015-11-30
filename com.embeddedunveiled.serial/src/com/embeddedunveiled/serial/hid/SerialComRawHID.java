@@ -22,6 +22,7 @@ import com.embeddedunveiled.serial.SerialComException;
 import com.embeddedunveiled.serial.SerialComManager;
 import com.embeddedunveiled.serial.SerialComUtil;
 import com.embeddedunveiled.serial.internal.SerialComHIDJNIBridge;
+import com.embeddedunveiled.serial.usb.SerialComUSBHID;
 
 /**
  * <p>Contains APIs to communicate with a HID class device in raw mode. The reports sent/received 
@@ -32,10 +33,7 @@ import com.embeddedunveiled.serial.internal.SerialComHIDJNIBridge;
  * 
  * @author Rishi Gupta
  */
-public final class SerialComRawHID {
-
-	private final SerialComHIDJNIBridge mHIDJNIBridge;
-	private final int osType;
+public final class SerialComRawHID extends SerialComHID {
 
 	/**
 	 * <p>Construct and allocates a new SerialComRawHID object with given details.</p>
@@ -45,8 +43,7 @@ public final class SerialComRawHID {
 	 * @throws SerialComException if the object can not be constructed.
 	 */
 	public SerialComRawHID(SerialComHIDJNIBridge mHIDJNIBridge, int osType) {
-		this.mHIDJNIBridge = mHIDJNIBridge;
-		this.osType = osType;
+		super(mHIDJNIBridge, osType);
 	}
 
 	/**
@@ -175,7 +172,7 @@ public final class SerialComRawHID {
 	 * methods.</p>
 	 * 
 	 * <p>Application must catch exception thrown by this method. When this method returns and 
-	 * exception with message SerialComHID.EXP_UNBLOCKHIDIO is thrown, it indicates that the 
+	 * exception with message SerialComHID.EXP_UNBLOCK_HIDIO is thrown, it indicates that the 
 	 * blocked read method was explicitly unblocked by another thread (possibly because it is 
 	 * going to close the device).</p>
 	 * 
@@ -476,7 +473,6 @@ public final class SerialComRawHID {
 
 	/**
 	 * <p>Gives the report descriptor as supplied by device itself.</p>
-	 * <p>Applicable for Linux only.</p>
 	 * 
 	 * @param handle handle of the device whose report descriptor is to be obtained.
 	 * @return HID report descriptor as array of bytes otherwise empty array.
@@ -488,5 +484,25 @@ public final class SerialComRawHID {
 			return reportDescriptorRead;
 		}
 		return new byte[0];
+	}
+
+	/**
+	 * <p>Returns an instance of class SerialComUSBHID for HID over USB operations.</p>
+	 * 
+	 * @param transport one of the HID_XXX constants.
+	 * @return object of one of the subclasses of SerialComHIDTransport class.
+	 * @throws SerialComException if operation can not be completed successfully.
+	 */
+	public SerialComHIDTransport getHIDTransportInstance(int transport) throws SerialComException {
+
+		if(transport == SerialComHID.HID_USB) {
+			return new SerialComUSBHID(mHIDJNIBridge, osType);
+		}else if(transport == SerialComHID.HID_BLUETOOTH) {
+			//TODO
+		}else {
+			throw new IllegalArgumentException("Argument transport must be one of the HID_XXX constants !");
+		}
+
+		return null;
 	}
 }
