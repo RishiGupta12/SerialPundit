@@ -143,7 +143,7 @@ __attribute__((constructor)) static void init_scmlib() {
  */
 
 /* Release mutex when library is un-loaded. */
-__attribute__((destructor)) static void exit_scmlib() {
+__attribute__((destructor)) static void exit_scmcomlib() {
 	pthread_mutex_destroy(&mutex);
 }
 
@@ -652,8 +652,6 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialCom
 		} while(1);
 	}
 
-	fprintf(stderr, "%d\n", 5);
-	fflush(stderr);
 	/* should not be reached */
 	return NULL;
 }

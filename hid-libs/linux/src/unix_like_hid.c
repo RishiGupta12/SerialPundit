@@ -51,6 +51,7 @@
 #include <libudev.h>
 #include <linux/hidraw.h>
 #include <sys/eventfd.h>    /* Linux eventfd for event notification. */
+#include <sys/param.h>
 #endif
 
 #if defined (__APPLE__)
@@ -328,7 +329,10 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_readInputReportR(JNIEnv *env,
 		jobject obj, jlong fd, jbyteArray reportBuffer, jint length, jlong context) {
+
 	int ret = -1;
+	int result = 0;
+	fd_set fds;
 
 	jbyte* buffer = (jbyte *) malloc(length);
 	if(!buffer) {
@@ -336,28 +340,56 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
 		return -1;
 	}
 
-	do {
-		errno = 0;
-		ret = read(fd, buffer, length);
-		if(ret > 0) {
-			/* copy data from native buffer to Java buffer. */
-			(*env)->SetByteArrayRegion(env, reportBuffer, 0, ret, buffer);
-			if((*env)->ExceptionOccurred(env) != NULL) {
-				throw_serialcom_exception(env, 3, 0, E_SETBYTEARRAYREGION);
-				return -1;
-			}
-			free(buffer);
-			return ret;
-		}else if(ret < 0) {
-			free(buffer);
-			throw_serialcom_exception(env, 1, errno, NULL);
-			return -1;
-		}else {
-			free(buffer);
-			return 0;
-		}
-	}while (1);
+	/* prepare to block */
+	FD_ZERO(&fds);
+	FD_SET((int)context, &fds);
+	FD_SET(fd, &fds);
 
+	errno = 0;
+#if defined (__linux__)
+	result = pselect((MAX(fd, (int)context) + 1), &fds, NULL, NULL, NULL, NULL);
+#elif defined (__APPLE__)
+	result = pselect((MAX(fd, ((int) context[0])) + 1), &fds, NULL, NULL, NULL, NULL);
+#endif
+	if(result < 0) {
+		free(buffer);
+		throw_serialcom_exception(env, 1, errno, NULL);
+		return -1;
+	}
+
+	/* check if we should just come out waiting state and return to caller. if yes, throw
+	 * exception with message that will be identified by application to understand that blocked
+	 * I/O has been unblocked. */
+	if((result > 0) && FD_ISSET((int)context, &fds)) {
+		throw_serialcom_exception(env, 3, 0, EXP_UNBLOCKHIDIO);
+		return -1;
+	}
+
+	if((result > 0) && FD_ISSET(fd, &fds)) {
+		do {
+			errno = 0;
+			ret = read(fd, buffer, length);
+			if(ret > 0) {
+				/* copy data from native buffer to Java buffer. */
+				(*env)->SetByteArrayRegion(env, reportBuffer, 0, ret, buffer);
+				if((*env)->ExceptionOccurred(env) != NULL) {
+					throw_serialcom_exception(env, 3, 0, E_SETBYTEARRAYREGION);
+					return -1;
+				}
+				free(buffer);
+				return ret;
+			}else if(ret < 0) {
+				free(buffer);
+				throw_serialcom_exception(env, 1, errno, NULL);
+				return -1;
+			}else {
+				free(buffer);
+				return 0;
+			}
+		}while (1);
+	}
+
+	/* should not be reached */
 	return -1;
 }
 
@@ -375,6 +407,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_readInputReportWithTimeoutR(JNIEnv *env,
 		jobject obj, jlong fd, jbyteArray reportBuffer, jint length, jint timeoutVal) {
+
 	int ret = -1;
 	fd_set readset;
 	struct timespec ts;
@@ -396,7 +429,10 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
 	} while ((ret < 0) && (errno == EINTR));
 
 	if(ret > 0) {
-		/* data can be read with out blocking. */
+		/* Data read from device. On a device which uses numbered reports, the first
+		 * byte of the returned data will be the report number; the report data follows,
+		 * beginning in the second byte. For devices which do not use numbered reports,
+		 * the report data will begin at the first byte.*/
 		do {
 			errno = 0;
 			ret = read(fd, buffer, length);
