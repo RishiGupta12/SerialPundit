@@ -42,15 +42,15 @@
 /* Unix */
 #include <unistd.h>      /* UNIX standard function definitions  */
 #include <fcntl.h>       /* File control definitions            */
-#include <dirent.h>      /* Format of directory entries         */
 #include <sys/types.h>   /* Primitive System Data Types         */
-#include <sys/stat.h>    /* Defines the structure of the data   */
 #include <sys/select.h>
 #include <sys/ioctl.h>
 
 #if defined (__linux__)
+#include <stdint.h>
 #include <libudev.h>
 #include <linux/hidraw.h>
+#include <sys/eventfd.h>    /* Linux eventfd for event notification. */
 #endif
 
 #if defined (__APPLE__)
@@ -216,19 +216,84 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
  * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
  * Method:    createBlockingHIDIOContextR
  * Signature: ()J
+ *
+ * This will create event object/file descriptor that will be used to wait upon in addition to
+ * HID file descriptor, so as to bring blocked read call out of waiting state. This is needed
+ * if application is willing to close the HID device but unable because a blocked reader exist.
+ *
+ * @return context on success otherwise -1 if an error occurs.
+ * @throws SerialComException if any JNI function, system call or C function fails.
  */
 JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_createBlockingHIDIOContextR(JNIEnv *env,
 		jobject obj) {
-	return 0;
+
+#if defined (__linux__)
+	int evfd = 0;
+	errno = 0;
+	evfd  = eventfd(0, 0);
+	if(evfd < 0) {
+		throw_serialcom_exception(env, 1, errno, NULL);
+		return -1;
+	}
+	return evfd;
+#endif
+
+#if defined (__APPLE__)
+	int ret = -1;
+	jlong *pipeinfo = NULL;
+	int pipefdpair[2];
+	errno = 0;
+	ret = pipe(pipefdpair);
+	if(ret < 0) {
+		throw_serialcom_exception(env, 1, errno, NULL);
+		return -1;
+	}
+	pipeinfo = (jlong *) calloc(2, sizeof(jlong));
+	if(pipeinfo == NULL) {
+		throw_serialcom_exception(env, 3, 0, E_CALLOCSTR);
+		return -1;
+	}
+	/* pipe1[0] is reading end, and pipe1[1] is writing end. */
+	pipeinfo[0] = pipefdpair[0];
+	pipeinfo[1] = pipefdpair[1];
+	return pipeinfo;
+#endif
+
+	/* should not be reached */
+	return -1;
 }
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
  * Method:    unblockBlockingHIDIOOperationR
  * Signature: (J)I
+ *
+ * @return 0 on success otherwise -1 if an error occurs.
+ * @throws SerialComException if any JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_unblockBlockingHIDIOOperationR(JNIEnv *env,
 		jobject obj, jlong context) {
+
+#if defined (__linux__)
+	int ret;
+	uint64_t value = 5;
+	errno = 0;
+	ret = write(((int) context), &value, sizeof(value));
+	if(ret <= 0) {
+		throw_serialcom_exception(env, 1, errno, NULL);
+		return -1;
+	}
+#endif
+
+#if defined (__APPLE__)
+	int ret;
+	ret = write(((int) context[1]), "EXIT", strlen("EXIT"));
+	if(ret <= 0) {
+		throw_serialcom_exception(env, 1, errno, NULL);
+		return -1;
+	}
+#endif
+
 	return 0;
 }
 
@@ -262,7 +327,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
  * @throws SerialComException if any JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_readInputReportR(JNIEnv *env,
-		jobject obj, jlong fd, jbyteArray reportBuffer, jint length) {
+		jobject obj, jlong fd, jbyteArray reportBuffer, jint length, jlong context) {
 	int ret = -1;
 
 	jbyte* buffer = (jbyte *) malloc(length);
