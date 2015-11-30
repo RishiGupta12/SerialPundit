@@ -18,7 +18,7 @@
 package com.embeddedunveiled.serial.usb;
 
 import com.embeddedunveiled.serial.SerialComException;
-import com.embeddedunveiled.serial.hid.SerialComHID;
+import com.embeddedunveiled.serial.hid.SerialComHIDTransport;
 import com.embeddedunveiled.serial.hid.SerialComHIDdevice;
 import com.embeddedunveiled.serial.internal.SerialComHIDJNIBridge;
 
@@ -31,7 +31,7 @@ import com.embeddedunveiled.serial.internal.SerialComHIDJNIBridge;
  * 
  * @author Rishi Gupta
  */
-public final class SerialComUSBHID extends SerialComHID {
+public final class SerialComUSBHID extends SerialComHIDTransport {
 
 	/**
 	 * <p>Construct and allocates a new SerialComUSBHID object with given details.</p>
