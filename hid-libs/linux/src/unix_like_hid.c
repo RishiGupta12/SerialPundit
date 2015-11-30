@@ -269,6 +269,8 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJN
  * Method:    unblockBlockingHIDIOOperationR
  * Signature: (J)I
  *
+ * Causes data event or event as required to emulate an event.
+ *
  * @return 0 on success otherwise -1 if an error occurs.
  * @throws SerialComException if any JNI function, system call or C function fails.
  */
@@ -293,6 +295,32 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
 		throw_serialcom_exception(env, 1, errno, NULL);
 		return -1;
 	}
+#endif
+
+	return 0;
+}
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
+ * Method:    destroyBlockingIOContext
+ * Signature: (J)I
+ *
+ * Releases the event object or closes handles as required.
+ *
+ * @return 0 on success otherwise -1 if an error occurs.
+ * @throws SerialComException if any JNI function, system call or C function fails.
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_destroyBlockingIOContext(JNIEnv *env,
+		jobject obj, jlong context) {
+
+#if defined (__linux__)
+	close(context);
+#endif
+
+#if defined (__APPLE__)
+	close((int) context[0]);
+	close((int) context[1]);
+	free(context);
 #endif
 
 	return 0;

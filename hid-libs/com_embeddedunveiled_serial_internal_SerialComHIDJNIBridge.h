@@ -65,6 +65,14 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
+ * Method:    destroyBlockingIOContext
+ * Signature: (J)I
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_destroyBlockingIOContext
+  (JNIEnv *, jobject, jlong);
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
  * Method:    writeOutputReportR
  * Signature: (JB[BI)I
  */

@@ -1237,6 +1237,8 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJ
  * Method:    unblockBlockingIOOperation
  * Signature: (J)I
  *
+ * Causes data event or event as required to emulate an event.
+ *
  * @return 0 on success otherwise -1 if an error occurs.
  * @throws SerialComException if any JNI function, system call or C function fails.
  */

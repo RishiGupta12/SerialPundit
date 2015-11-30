@@ -168,16 +168,16 @@ public final class SerialComRawHID extends SerialComHID {
 	}
 
 	/** 
-	 * <p>Prepares a context that should be passed to readInputReport and unblockBlockingHIDIOOperation 
-	 * methods.</p>
+	 * <p>Prepares a context that should be passed to readInputReportR, unblockBlockingHIDIOOperationR 
+	 * and destroyBlockingIOContextR methods.</p>
 	 * 
 	 * <p>Application must catch exception thrown by this method. When this method returns and 
 	 * exception with message SerialComHID.EXP_UNBLOCK_HIDIO is thrown, it indicates that the 
 	 * blocked read method was explicitly unblocked by another thread (possibly because it is 
 	 * going to close the device).</p>
 	 * 
-	 * @return context that should be passed to readInputReport and unblockBlockingHIDIOOperation 
-	 *          methods.
+	 * @return context that should be passed to readInputReportR, unblockBlockingHIDIOOperationR and 
+	 *          destroyBlockingIOContextR methods.
 	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public long createBlockingHIDIOContextR() throws SerialComException {
@@ -193,8 +193,8 @@ public final class SerialComRawHID extends SerialComHID {
 	 * gracefully and return the worker thread that called blocking read/write to return and proceed 
 	 * as per application design.</p>
 	 * 
-	 * @param context context obtained from call to createBlockingIOContext method for blocking 
-	 *         I/O operations.
+	 * @param context context obtained from call to createBlockingHIDIOContextR method for blocking 
+	 *         HID I/O operations.
 	 * @return true if blocked operation was unblocked successfully.
 	 * @throws SerialComException if an I/O error occurs.
 	 */
@@ -202,6 +202,23 @@ public final class SerialComRawHID extends SerialComHID {
 		int ret = mHIDJNIBridge.unblockBlockingHIDIOOperationR(context);
 		if(ret < 0) {
 			throw new SerialComException("Could not unblock the blocked HID I/O operation. Please retry !");
+		}
+		return true;
+	}
+
+	/** 
+	 * <p>Destroys the context that was created by a call to createBlockingHIDIOContextR method for 
+	 * blocking I/O operations uses.</p>
+	 * 
+	 * @param context context obtained from call to createBlockingIOContext method for blocking 
+	 *         HID I/O operations.
+	 * @return true if the context gets destroyed successfully.
+	 * @throws SerialComException if an I/O error occurs.
+	 */
+	public boolean destroyBlockingIOContextR(long context) throws SerialComException {
+		int ret = mHIDJNIBridge.destroyBlockingIOContext(context);
+		if(ret < 0) {
+			throw new SerialComException("Could not destroy blocking HID I/O context. Please retry !");
 		}
 		return true;
 	}
