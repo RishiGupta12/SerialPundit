@@ -115,29 +115,29 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
- * Method:    listHIDdevicesWithInfo
+ * Method:    listHIDdevicesWithInfoR
  * Signature: ()[Ljava/lang/String;
  *
  * @return array of Strings containing HID devices if found, zero length array if no HID device is found,
  *         NULL if an error occurs.
  * @throws SerialComException if any JNI function, system call or C function fails.
  */
-JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_listHIDdevicesWithInfo
-(JNIEnv *env, jobject obj) {
+JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_listHIDdevicesWithInfoR(JNIEnv *env,
+		jobject obj) {
 	return NULL;
 	/*TODO*/
 }
 
 /* 
  * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
- * Method:    openHidDeviceByPath
+ * Method:    openHidDeviceByPathR
  * Signature: (Ljava/lang/String;Z)J
  *
  * @return file descriptor number if function succeeds otherwise -1 if an error occurs.
  * @throws SerialComException if any JNI function, system call or C function fails.
  */
-JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_openHidDeviceByPath
-(JNIEnv *env, jobject obj, jstring pathName, jboolean shared) {
+JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_openHidDeviceByPathR(JNIEnv *env,
+		jobject obj, jstring pathName, jboolean shared) {
 
 #if defined (__linux__)
 	long fd;
@@ -149,7 +149,7 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJN
 		throw_serialcom_exception(env, 3, 0, E_GETSTRUTFCHARSTR);
 		return -1;
 	}
-	
+
 	/* TODO ioctl(fevdev, EVIOCGRAB, 0); */
 	if(shared == JNI_TRUE) {
 		OPEN_MODE = O_RDWR;
@@ -174,13 +174,13 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJN
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
- * Method:    closeHidDevice
+ * Method:    closeHidDeviceR
  * Signature: (J)I
  *
  * @return 0 if function succeeds otherwise -1 if an error occurs.
  * @throws SerialComException if any JNI function, system call or C function fails.
  */
-JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_closeHidDevice(JNIEnv *env,
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_closeHidDeviceR(JNIEnv *env,
 		jobject obj, jlong fd) {
 
 #if defined (__linux__)
@@ -214,13 +214,33 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
- * Method:    writeOutputReport
+ * Method:    createBlockingHIDIOContextR
+ * Signature: ()J
+ */
+JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_createBlockingHIDIOContextR(JNIEnv *env,
+		jobject obj) {
+	return 0;
+}
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
+ * Method:    unblockBlockingHIDIOOperationR
+ * Signature: (J)I
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_unblockBlockingHIDIOOperationR(JNIEnv *env,
+		jobject obj, jlong context) {
+	return 0;
+}
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
+ * Method:    writeOutputReportR
  * Signature: (JB[BI)I
  *
  * @return number of bytes sent to device if function succeeds otherwise -1 if an error occurs.
  * @throws SerialComException if any JNI function, system call or C function fails.
  */
-JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_writeOutputReport(JNIEnv *env,
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_writeOutputReportR(JNIEnv *env,
 		jobject obj, jlong fd, jbyte reportID, jbyteArray report, jint length) {
 #if defined (__linux__)
 	return linux_send_output_report(env, fd, reportID, report, length);
@@ -231,8 +251,8 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
- * Method:    readInputReport
- * Signature: (J[BI)I
+ * Method:    readInputReportR
+ * Signature: (J[BIJ)I
  *
  * TODO MAC RETURN 1ST BYTE AS REPORT ID OR NOT.
  *
@@ -241,7 +261,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
  * @return number of bytes read if function succeeds otherwise -1 if an error occurs.
  * @throws SerialComException if any JNI function, system call or C function fails.
  */
-JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_readInputReport(JNIEnv *env,
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_readInputReportR(JNIEnv *env,
 		jobject obj, jlong fd, jbyteArray reportBuffer, jint length) {
 	int ret = -1;
 
@@ -278,7 +298,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
- * Method:    readInputReportWithTimeout
+ * Method:    readInputReportWithTimeoutR
  * Signature: (J[BII)I
  * 
  * Read input report blocking for the time less than or equal to given timeout value.
@@ -288,7 +308,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
  * @return number of bytes read if function succeeds otherwise -1 if an error occurs.
  * @throws SerialComException if any JNI function, system call or C function fails.
  */
-JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_readInputReportWithTimeout(JNIEnv *env,
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_readInputReportWithTimeoutR(JNIEnv *env,
 		jobject obj, jlong fd, jbyteArray reportBuffer, jint length, jint timeoutVal) {
 	int ret = -1;
 	fd_set readset;
@@ -349,13 +369,13 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
- * Method:    sendFeatureReport
+ * Method:    sendFeatureReportR
  * Signature: (JB[BI)I
  *
  * @return number of bytes sent to HID device if function succeeds otherwise -1 if an error occurs.
  * @throws SerialComException if any JNI function, system call or C function fails.
  */
-JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_sendFeatureReport(JNIEnv *env,
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_sendFeatureReportR(JNIEnv *env,
 		jobject obj, jlong fd, jbyte reportID, jbyteArray report, jint length) {
 #if defined (__linux__)
 	return linux_send_feature_report(env, fd, reportID, report, length);
@@ -366,14 +386,14 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
- * Method:    getFeatureReport
+ * Method:    getFeatureReportR
  * Signature: (JB[BI)I
  *
  * @return number of bytes received from HID device if function succeeds otherwise -1 if an error occurs.
  * @throws SerialComException if any JNI function, system call or C function fails.
  */
-JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_getFeatureReport
-(JNIEnv *env, jobject obj, jlong fd, jbyte reportID, jbyteArray report, jint length) {
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_getFeatureReportR(JNIEnv *env,
+		jobject obj, jlong fd, jbyte reportID, jbyteArray report, jint length) {
 #if defined (__linux__)
 	return linux_get_feature_report(env, fd, reportID, report, length);
 #elif defined (__APPLE__)
@@ -383,10 +403,10 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
- * Method:    getManufacturerString
+ * Method:    getManufacturerStringR
  * Signature: (J)Ljava/lang/String;
  */
-JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_getManufacturerString(JNIEnv *env,
+JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_getManufacturerStringR(JNIEnv *env,
 		jobject obj, jlong fd) {
 #if defined (__linux__)
 	return linux_get_hiddev_info_string(env, fd, 1);
@@ -397,10 +417,10 @@ JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHID
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
- * Method:    getProductString
+ * Method:    getProductStringR
  * Signature: (J)Ljava/lang/String;
  */
-JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_getProductString(JNIEnv *env,
+JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_getProductStringR(JNIEnv *env,
 		jobject obj, jlong fd) {
 #if defined (__linux__)
 	return linux_get_hiddev_info_string(env, fd, 2);
@@ -411,10 +431,10 @@ JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHID
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
- * Method:    getSerialNumberString
+ * Method:    getSerialNumberStringR
  * Signature: (J)Ljava/lang/String;
  */
-JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_getSerialNumberString(JNIEnv *env,
+JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_getSerialNumberStringR(JNIEnv *env,
 		jobject obj, jlong fd) {
 #if defined (__linux__)
 	return linux_get_hiddev_info_string(env, fd, 3);
@@ -425,13 +445,13 @@ JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHID
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
- * Method:    getIndexedString
+ * Method:    getIndexedStringR
  * Signature: (JI)Ljava/lang/String;
  *
  * @return string at the given index or NULL if error occurs.
  * @throws SerialComException if any JNI function, system call or C function fails.
  */
-JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_getIndexedString(JNIEnv *env,
+JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_getIndexedStringR(JNIEnv *env,
 		jobject obj, jlong fd, jint index) {
 #if defined (__linux__)
 	return NULL;
@@ -475,7 +495,7 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJN
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
- * Method:    getReportDescriptor
+ * Method:    getReportDescriptorR
  * Signature: (J)[B
  *
  * Try to read report descriptor from the given HID device.
@@ -484,8 +504,8 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJN
  *         any error occurs.
  * @throws SerialComException if any JNI function, system call or C function fails.
  */
-JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_getReportDescriptor
-(JNIEnv *env, jobject obj, jlong fd) {
+JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_getReportDescriptorR(JNIEnv *env,
+		jobject obj, jlong fd) {
 #if defined (__linux__)
 	return linux_get_report_descriptor(env, fd);
 #elif defined (__APPLE__)
@@ -494,7 +514,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialCom
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
- * Method:    findDriverServingHIDDevice
+ * Method:    findDriverServingHIDDeviceR
  * Signature: (Ljava/lang/String;)Ljava/lang/String;
  *
  * Gets driver who is responsible for communication with given HID device.
@@ -502,8 +522,8 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialCom
  * @return driver name for given HID device on success or NULL if an error occurs.
  * @throws SerialComException if any JNI function, system call or C function fails.
  */
-JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_findDriverServingHIDDevice
-(JNIEnv *env, jobject obj, jstring hidDevNode) {
+JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_findDriverServingHIDDevice(JNIEnv *env,
+		jobject obj, jstring hidDevNode) {
 #if defined (__linux__)
 	return linux_find_driver_for_given_hiddevice(env, hidDevNode);
 #elif defined (__APPLE__)
@@ -511,5 +531,4 @@ JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHID
 #endif
 }
 
-#endif /* end compiling*/
-
+#endif /* end compiling for unix-like os */
