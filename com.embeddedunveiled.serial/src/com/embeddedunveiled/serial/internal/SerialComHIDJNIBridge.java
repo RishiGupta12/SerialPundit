@@ -310,5 +310,8 @@ public final class SerialComHIDJNIBridge {
 	public native byte[] getReportDescriptorR(long handle);
 	public native String findDriverServingHIDDeviceR(String hidDeviceNode);
 
+	// Others
+	public native int flushInputReportQueueR(long handle);
+
 	/* ******************* HID API - Parsed mode only *********************** */
 }

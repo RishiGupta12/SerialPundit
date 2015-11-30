@@ -534,6 +534,11 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
  * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
  * Method:    getManufacturerStringR
  * Signature: (J)Ljava/lang/String;
+ *
+ * Get the name of manufacturer and return to caller.
+ *
+ * @return 0 on success otherwise -1 if an error occurs.
+ * @throws SerialComException if any JNI function, system call or C function fails.
  */
 JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_getManufacturerStringR(JNIEnv *env,
 		jobject obj, jlong fd) {
@@ -548,6 +553,11 @@ JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHID
  * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
  * Method:    getProductStringR
  * Signature: (J)Ljava/lang/String;
+ *
+ * Get product information string and return to caller.
+ *
+ * @return 0 on success otherwise -1 if an error occurs.
+ * @throws SerialComException if any JNI function, system call or C function fails.
  */
 JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_getProductStringR(JNIEnv *env,
 		jobject obj, jlong fd) {
@@ -562,6 +572,11 @@ JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHID
  * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
  * Method:    getSerialNumberStringR
  * Signature: (J)Ljava/lang/String;
+ *
+ * Read the serial number string and return to caller.
+ *
+ * @return 0 on success otherwise -1 if an error occurs.
+ * @throws SerialComException if any JNI function, system call or C function fails.
  */
 JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_getSerialNumberStringR(JNIEnv *env,
 		jobject obj, jlong fd) {
@@ -638,6 +653,62 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialCom
 #if defined (__linux__)
 	return linux_get_report_descriptor(env, fd);
 #elif defined (__APPLE__)
+#endif
+}
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
+ * Method:    flushInputReportQueueR
+ * Signature: (J)I
+ *
+ * Empty the input report buffer maintained by operating system.
+ *
+ * @return 0 on success otherwise -1 if an error occurs.
+ * @throws SerialComException if any JNI function, system call or C function fails.
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_flushInputReportQueueR(JNIEnv *env,
+		jobject obj, jlong fd) {
+
+#if defined (__linux__)
+	int ret = 0;
+	struct timespec ts;
+	ts.tv_sec  = 2/1000;
+	ts.tv_nsec = 0;
+	fd_set fds;
+	char buffer[1024];
+
+	/* Linux hidraw interface does not provide any API for flushing ring buffer.
+	 * So we keep on reading until buffer is empty. The pselect call will timeout
+	 * when input report buffer will be empty. */
+	while(1) {
+		FD_ZERO(&fds);
+		FD_SET(fd, &fds);
+
+		errno = 0;
+		ret = pselect((fd + 1), &fds, 0, 0, &ts, 0);
+		if(ret > 0) {
+			/* there is data in buffer, read it and loop back */
+			ret = read(fd, buffer, 1000);
+			continue;
+		}else if(ret == 0) {
+			/* buffer is now empty, return success */
+			return 0;
+		}else {
+			/* some error occurred */
+			if(errno == EINTR) {
+				continue;
+			}
+			throw_serialcom_exception(env, 1, errno, NULL);
+			return -1;
+		}
+	}
+
+	/* should not be reached */
+	return -1;
+#endif
+
+#if defined (__APPLE__)
+	//TODO
 #endif
 }
 

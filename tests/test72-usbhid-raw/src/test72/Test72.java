@@ -163,6 +163,26 @@ public class Test72  {
 			e1.printStackTrace();
 		}
 
+		// send cmd to mcp2200, in response it will send result which will be stored in ring buffer
+		// reading input report after flush will result in everything as 0
+		try {
+			outputReportBuffer[0] = (byte) 0x80;
+			ret = scrh.writeOutputReportR(handle, (byte) -1, outputReportBuffer);
+			System.out.println("\nwriteOutputReport : " + ret);
+
+			Thread.sleep(500); // let the response come and saved in buffer of operating system
+			System.out.println("\nflushInputReportQueueR : " + scrh.flushInputReportQueueR(handle));
+
+			for(int q=0; q<inputReportBuffer.length; q++) {
+				inputReportBuffer[q] = 0x00;
+			}
+			ret = scrh.readInputReportWithTimeoutR(handle, inputReportBuffer, 100);
+			System.out.println("\nreadInputReportWithTimeout : " + ret);
+			System.out.println(scrh.formatReportToHexR(inputReportBuffer, " "));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
 		try {
 			System.out.println("\ncloseHidDevice : " + scrh.closeHidDeviceR(handle));
 		} catch (Exception e) {

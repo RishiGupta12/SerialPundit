@@ -503,9 +503,24 @@ public final class SerialComRawHID extends SerialComHID {
 	}
 
 	/**
+	 * <p>Deletes all the input reports from input report buffer maintained by operating system.</p>
+	 * 
+	 * @param handle handle of the device whose input report queue is to be flushed.
+	 * @return true on success.
+	 * @throws SerialComException if operation can not be completed successfully.
+	 */
+	public boolean flushInputReportQueueR(long handle) throws SerialComException {
+		int ret = mHIDJNIBridge.flushInputReportQueueR(handle);
+		if (ret < 0) {
+			throw new SerialComException("Could not flush the input report queue. Please retry !");
+		}
+		return true;
+	}
+
+	/**
 	 * <p>Returns an instance of class SerialComUSBHID for HID over USB operations.</p>
 	 * 
-	 * @param transport one of the HID_XXX constants.
+	 * @param transport one of the HID_USB or HID_BLUETOOTH constants.
 	 * @return object of one of the subclasses of SerialComHIDTransport class.
 	 * @throws SerialComException if operation can not be completed successfully.
 	 */

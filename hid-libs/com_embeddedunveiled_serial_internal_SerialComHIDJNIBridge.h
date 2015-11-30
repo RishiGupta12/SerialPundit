@@ -167,6 +167,14 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialCom
 JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_findDriverServingHIDDeviceR
   (JNIEnv *, jobject, jstring);
 
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
+ * Method:    flushInputReportQueueR
+ * Signature: (J)I
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_flushInputReportQueueR
+  (JNIEnv *, jobject, jlong);
+
 #ifdef __cplusplus
 }
 #endif
