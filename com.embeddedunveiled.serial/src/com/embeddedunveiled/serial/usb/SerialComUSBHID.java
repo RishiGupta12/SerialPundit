@@ -34,9 +34,10 @@ import com.embeddedunveiled.serial.internal.SerialComHIDJNIBridge;
 public final class SerialComUSBHID extends SerialComHID {
 
 	/**
-	 * <p>Allocates a new SerialComUSBHID object with the given details.</p>
+	 * <p>Construct and allocates a new SerialComUSBHID object with given details.</p>
 	 * 
 	 * @param mHIDJNIBridge interface class to native library for calling platform specific routines.
+	 * @param osType operating system this library is running on.
 	 */
 	public SerialComUSBHID(SerialComHIDJNIBridge mHIDJNIBridge, int osType) {
 		super(mHIDJNIBridge, osType);
