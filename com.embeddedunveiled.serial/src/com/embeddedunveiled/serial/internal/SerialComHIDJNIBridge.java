@@ -289,7 +289,7 @@ public final class SerialComHIDJNIBridge {
 	public native long openHidDeviceByPathR(String pathNameVal, boolean shared);
 	public native int closeHidDeviceR(long handle);
 
-	// Data reports
+	// Data reports (data movement)
 	public native long createBlockingHIDIOContextR();
 	public native int unblockBlockingHIDIOOperationR(long context);
 	public native int destroyBlockingIOContextR(long context);
@@ -297,11 +297,11 @@ public final class SerialComHIDJNIBridge {
 	public native int readInputReportR(long handle, byte[] reportBuffer, int length, long context);
 	public native int readInputReportWithTimeoutR(long handle, byte[] reportBuffer, int length, int timeoutValue);
 
-	// Feature reports
+	// Feature reports (control movement)
 	public native int sendFeatureReportR(long handle, byte reportId, byte[] report, int length);
 	public native int getFeatureReportR(long handle, byte reportId, byte[] report, int length);
 
-	// Information
+	// Information (discovery and setup)
 	public native String[] listHIDdevicesWithInfoR();
 	public native String getManufacturerStringR(long handle);
 	public native String getProductStringR(long handle);

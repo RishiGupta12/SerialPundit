@@ -184,6 +184,19 @@ public class Test72  {
 		}
 
 		try {
+			System.out.println("\ndriver : "+ scrh.findDriverServingHIDDeviceR(PORT));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		try {
+			// windows mouse
+			System.out.println("\ndriver : "+ scrh.findDriverServingHIDDeviceR("HID\\VID_04CA&PID_0061\\6&35F47D18&0&0000"));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		try {
 			System.out.println("\ncloseHidDevice : " + scrh.closeHidDeviceR(handle));
 		} catch (Exception e) {
 			e.printStackTrace();

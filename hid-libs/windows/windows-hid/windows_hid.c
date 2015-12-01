@@ -809,7 +809,11 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
 JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_getReportDescriptorR(JNIEnv *env,
 		jobject obj, jlong handle) {
 		
-		TODO
+		unsigned char buf[2*1024];
+		HidD_GetPhysicalDescriptor((HANDLE)handle, (PVOID)buf, (ULONG)(2*1024));
+		fprintf(stderr, "1: %s\n", buf);
+		fflush(stderr);
+		return NULL;
 }
 
 /*
