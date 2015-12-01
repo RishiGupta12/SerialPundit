@@ -814,6 +814,30 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialCom
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
+ * Method:    flushInputReportQueueR
+ * Signature: (J)I
+ *
+ * Empty the input report buffer maintained by operating system.
+ *
+ * @return 0 on success otherwise -1 if an error occurs.
+ * @throws SerialComException if any JNI function, WINAPI or C function fails.
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_flushInputReportQueueR(JNIEnv *env,
+		jobject obj, jlong handle) {
+		
+		BOOLEAN ret = FALSE;
+		
+		ret = HidD_FlushQueue((HANDLE)handle);
+		if(ret == FALSE) {
+			throw_serialcom_exception(env, 3, 0, E_FLUSHIN);
+			return -1;
+		}
+		
+		return 0;
+}
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
  * Method:    findDriverServingHIDDevice
  * Signature: (Ljava/lang/String;)Ljava/lang/String;
  *

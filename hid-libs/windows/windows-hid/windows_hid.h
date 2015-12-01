@@ -65,6 +65,7 @@
 #define E_DEVCAPABILITIES "Could not get capabilities of this device !"
 #define E_INVALIDOUTLEN "Length of given report is greater than the maximum output report length for this device !"
 #define E_INVALIDFETLEN "Length of given report is greater than the maximum feature report length for this device !"
+#define E_FLUSHIN "Could not flush the input report buffer. Please retry !"
 
 /* Holds information about a HID device */
 struct hid_dev_info {
