@@ -292,7 +292,7 @@ public final class SerialComHIDJNIBridge {
 	// Data reports
 	public native long createBlockingHIDIOContextR();
 	public native int unblockBlockingHIDIOOperationR(long context);
-	public native int destroyBlockingIOContext(long context);
+	public native int destroyBlockingIOContextR(long context);
 	public native int writeOutputReportR(long handle, byte reportId, byte[] report, int length);
 	public native int readInputReportR(long handle, byte[] reportBuffer, int length, long context);
 	public native int readInputReportWithTimeoutR(long handle, byte[] reportBuffer, int length, int timeoutValue);

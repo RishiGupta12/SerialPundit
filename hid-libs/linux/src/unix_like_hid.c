@@ -178,6 +178,8 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJN
  * Method:    closeHidDeviceR
  * Signature: (J)I
  *
+ * Closes handle to HID device and free up resources.
+ *
  * @return 0 if function succeeds otherwise -1 if an error occurs.
  * @throws SerialComException if any JNI function, system call or C function fails.
  */
@@ -302,7 +304,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
- * Method:    destroyBlockingIOContext
+ * Method:    destroyBlockingIOContextR
  * Signature: (J)I
  *
  * Releases the event object or closes handles as required.
@@ -330,6 +332,8 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
  * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
  * Method:    writeOutputReportR
  * Signature: (JB[BI)I
+ * 
+ * Sends an output report to given HID device after properly formating the given report.
  *
  * @return number of bytes sent to device if function succeeds otherwise -1 if an error occurs.
  * @throws SerialComException if any JNI function, system call or C function fails.
@@ -425,9 +429,11 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
  * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
  * Method:    readInputReportWithTimeoutR
  * Signature: (J[BII)I
- * 
- * Read input report blocking for the time less than or equal to given timeout value.
  *
+ * Read input report blocking for the time less than or equal to given timeout value. 
+ * First byte will represent report ID if device uses numbered reports otherwise 1st 
+ * byte will be report byte itself.
+ * 
  * It reads a raw HID report (i.e. no report parsing is done).
  *
  * @return number of bytes read if function succeeds otherwise -1 if an error occurs.
@@ -518,6 +524,8 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
  * Method:    getFeatureReportR
  * Signature: (JB[BI)I
  *
+ * Get feature report from given HID device.
+ *
  * @return number of bytes received from HID device if function succeeds otherwise -1 if an error occurs.
  * @throws SerialComException if any JNI function, system call or C function fails.
  */
@@ -591,6 +599,8 @@ JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHID
  * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
  * Method:    getIndexedStringR
  * Signature: (JI)Ljava/lang/String;
+ *
+ * Get string as returned by descriptor for given index.
  *
  * @return string at the given index or NULL if error occurs.
  * @throws SerialComException if any JNI function, system call or C function fails.
@@ -722,7 +732,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
  * @return driver name for given HID device on success or NULL if an error occurs.
  * @throws SerialComException if any JNI function, system call or C function fails.
  */
-JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_findDriverServingHIDDevice(JNIEnv *env,
+JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_findDriverServingHIDDeviceR(JNIEnv *env,
 		jobject obj, jstring hidDevNode) {
 #if defined (__linux__)
 	return linux_find_driver_for_given_hiddevice(env, hidDevNode);

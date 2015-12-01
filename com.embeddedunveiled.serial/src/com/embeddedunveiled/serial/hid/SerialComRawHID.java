@@ -215,7 +215,7 @@ public final class SerialComRawHID extends SerialComHID {
 	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public boolean destroyBlockingIOContextR(long context) throws SerialComException {
-		int ret = mHIDJNIBridge.destroyBlockingIOContext(context);
+		int ret = mHIDJNIBridge.destroyBlockingIOContextR(context);
 		if(ret < 0) {
 			throw new SerialComException("Could not destroy blocking HID I/O context. Please retry !");
 		}

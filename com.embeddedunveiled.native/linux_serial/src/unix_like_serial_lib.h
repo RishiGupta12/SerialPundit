@@ -182,8 +182,8 @@ int LOGE(const char *msga, const char *msgb);
 int LOGEN(const char *msga, const char *msgb, unsigned int error_num);
 void throw_serialcom_exception(JNIEnv *env, int type, int error_code, const char *);
 void free_jstrarraylist(struct jstrarray_list *al);
-void insert_jstrarraylist(struct jstrarray_list *al, jstring element);
-void init_jstrarraylist(struct jstrarray_list *al, int initial_size);
+int insert_jstrarraylist(struct jstrarray_list *al, jstring element);
+int init_jstrarraylist(struct jstrarray_list *al, int initial_size);
 int serial_delay(unsigned ms);
 
 #if defined (__linux__)
