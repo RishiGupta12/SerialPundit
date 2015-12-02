@@ -31,6 +31,31 @@ import com.embeddedunveiled.serial.usb.SerialComUSBHID;
  * 
  * <p>Applications may develop user space drivers using raw HID methods in this class.</p>
  * 
+ * <p><strong>Device discovery</strong></p>
+ * listHIDdevicesWithInfoR
+ * 
+ * <p><strong>Data/Configuration exchange</strong></p>
+ * writeOutputReportR<br/>
+ * readInputReportR<br/>
+ * readInputReportWithTimeoutR<br/>
+ * sendFeatureReportR<br/>
+ * getFeatureReportR<br/>
+ * createBlockingHIDIOContextR<br/>
+ * unblockBlockingHIDIOOperationR<br/>
+ * destroyBlockingIOContextR<br/>
+ * 
+ * <p><strong>Information</strong></p>
+ * getManufacturerStringR<br/>
+ * getProductStringR<br/>
+ * getSerialNumberStringR<br/>
+ * getIndexedStringR<br/>
+ * findDriverServingHIDDeviceR<br/>
+ * 
+ * <p><strong>Miscellaneous</strong></p>
+ * flushInputReportQueueR<br/>
+ * getReportDescriptorR<br/>
+ * getPhysicalDescriptorR<br/>
+ * 
  * @author Rishi Gupta
  */
 public final class SerialComRawHID extends SerialComHID {
@@ -59,6 +84,9 @@ public final class SerialComRawHID extends SerialComHID {
 	 * where two or more devices with exactly same vendor ID, product ID and serial number are present 
 	 * into system, information like location can be used to further categories them into unique devices. 
 	 * Application can also use some custom protocol to identify devices that are of interest to them.</p>
+	 * 
+	 * <p>If you know that the HID device is USB device than consider using listUSBHIDdevicesWithInfo 
+	 * method in SerialComUSBHID class.</p>
 	 * 
 	 * @return list of the HID devices with information about them or empty array if no device 
 	 *          matching given criteria found.

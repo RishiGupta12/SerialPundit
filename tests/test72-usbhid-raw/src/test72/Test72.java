@@ -66,6 +66,7 @@ public class Test72  {
 			e.printStackTrace();
 		}
 
+
 		try {
 			// writeOutputReport : 17
 			outputReportBuffer[0] = (byte) 0x80;
@@ -89,16 +90,49 @@ public class Test72  {
 
 		try {
 			System.out.println("\nManufacturer string: " + scrh.getManufacturerStringR(handle));
-
-			System.out.println("\nProduct string: " + scrh.getProductStringR(handle));
-
-			System.out.println("\nSerial string: " + scrh.getSerialNumberStringR(handle));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
 		try {
-			System.out.println("\nString at index : 0 is :" + scrh.getIndexedStringR(handle, 0));
+			System.out.println("\nProduct string: " + scrh.getProductStringR(handle));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		try {
+			System.out.println("\nSerial string: " + scrh.getSerialNumberStringR(handle));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		// supply invalid index, we use just for testing index 0. As per standard; String Index 0 should return a list of supported languages.
+		try {
+			System.out.println("\nString at index 0 is : " + scrh.getIndexedStringR(handle, 0));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		try {
+			System.out.println("\nString at index 1 is : " + scrh.getIndexedStringR(handle, 1));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		try {
+			System.out.println("\nString at index 2 is : " + scrh.getIndexedStringR(handle, 2));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		try {
+			System.out.println("\nString at index 3 is : " + scrh.getIndexedStringR(handle, 3));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		try {
+			System.out.println("\nString at index 4 is : " + scrh.getIndexedStringR(handle, 4));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -163,6 +197,14 @@ public class Test72  {
 			e1.printStackTrace();
 		}
 
+		try {
+			byte[] phydesc = scrh.getPhysicalDescriptorR(handle);
+			System.out.println("\nnumber of bytes in physical descriptor : " + phydesc.length);
+			System.out.println("physical descriptor in hex read from device: " + scrh.formatReportToHexR(phydesc, " "));
+		} catch (SerialComException e1) {
+			e1.printStackTrace();
+		}
+
 		// send cmd to mcp2200, in response it will send result which will be stored in ring buffer
 		// reading input report after flush will result in everything as 0
 		try {
@@ -170,7 +212,7 @@ public class Test72  {
 			ret = scrh.writeOutputReportR(handle, (byte) -1, outputReportBuffer);
 			System.out.println("\nwriteOutputReport : " + ret);
 
-			Thread.sleep(500); // let the response come and saved in buffer of operating system
+			Thread.sleep(1000); // let the response come and saved in buffer of operating system
 			System.out.println("\nflushInputReportQueueR : " + scrh.flushInputReportQueueR(handle));
 
 			for(int q=0; q<inputReportBuffer.length; q++) {

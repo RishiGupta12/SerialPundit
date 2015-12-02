@@ -20,6 +20,10 @@ package com.embeddedunveiled.serial.hid;
 import com.embeddedunveiled.serial.internal.SerialComHIDJNIBridge;
 
 /**
+ * <p>The SCM library provides two set of APIs for communicating with a HID device. First is raw HID 
+ * communication using methods in SerialComRawHID class. In raw mode, input reports received and sent 
+ * output reports are not parsed. Second is SerialComParsedHID class in which reports are parsed.</p>
+ * 
  * <p>In Windows, system supplied HID minidriver and HID class drivers provide most of the functionality 
  * and required support for HID-compliant devices. However we may have to write our own HID minidriver
  * if it is difficult to make desired changes to HID-compliant device firmware or if we need to make a 
