@@ -668,6 +668,20 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialCom
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
+ * Method:    getPhysicalDescriptorR
+ * Signature: (J)[B
+ *
+ * Unix like OS does not provide any API for this.
+ *
+ * @return NULL always as of now.
+ */
+JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_getPhysicalDescriptorR
+  (JNIEnv *env, jobject obj, jlong fd) {
+	return NULL;
+}
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
  * Method:    flushInputReportQueueR
  * Signature: (J)I
  *
