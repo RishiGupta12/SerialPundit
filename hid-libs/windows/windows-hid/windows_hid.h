@@ -23,7 +23,6 @@
 #pragma comment (lib, "Setupapi.lib")
 #pragma comment (lib, "cfgmgr32.lib")
 #pragma comment (lib, "Hid.lib")
-//#pragma comment (lib, "Hidparse.lib")
 
 #include "stdafx.h"
 #include <tchar.h>
@@ -31,6 +30,10 @@
 #include <Hidsdi.h>
 #include <Hidpi.h>
 #include <jni.h>
+
+#define MANUFACTURER_STRING   0X01
+#define PRODUCT_STRING        0X02
+#define SERIAL_STRING         0x03
 
 /* Constant string defines */
 #define SCOMEXPCLASS "com/embeddedunveiled/serial/SerialComException"
@@ -65,17 +68,22 @@
 #define E_DEVCAPABILITIES "Could not get capabilities of this device !"
 #define E_INVALIDOUTLEN "Length of given report is greater than the maximum output report length for this device !"
 #define E_INVALIDFETLEN "Length of given report is greater than the maximum feature report length for this device !"
+#define E_INVALIDINLEN "Length of given report buffer is smaller than the size required for this input report !"
 #define E_FLUSHIN "Could not flush the input report buffer. Please retry !"
+#define E_PHYSICALDESC "Could not get physical descriptor. Please retry !"
+
+#define EXP_UNBLOCKHIDIO "I/O operation unblocked !"
 
 /* Holds information about a HID device */
 struct hid_dev_info {
-	HANDLE handle;                      /* Specifies an open handle to a top-level collection. */
+	HANDLE handle;                      /* specifies an open handle to a top-level collection. */
+	TCHAR instance[1024];                /* device instance of this HID device */
 	OVERLAPPED *overlapped;             /* used for blocking I/O context only */
 	PHIDP_PREPARSED_DATA parsed_data;
 	HIDP_CAPS collection_capabilities;
 };
 
-/* Associate a hid device instance with its container ID */
+/* Associate a hid device instance with its hardware ID */
 struct hiddev_inst_cont_id {
 	TCHAR instance[512];
 	TCHAR hwid[512];
@@ -110,7 +118,9 @@ int init_hiddev_instance_list(struct hiddev_instance_list *al, int initial_size)
 
 jstring clean_throw_exp_usbenumeration(JNIEnv *env, int task, int subtask, DWORD error_code, const char *expmsg, struct jstrarray_list *list, struct hiddev_instance_list *hiddevinst_list, HDEVINFO *usb_dev_info_set, HDEVINFO *hid_dev_info_set);
 jobjectArray enumerate_usb_hid_devices(JNIEnv *env, jint vendor_filter);
+
 jstring find_driver_for_given_hiddevice(JNIEnv *env, jstring hidDevNode);
+jstring get_hiddev_info_string(JNIEnv *env, jlong handle, int info_required);
 
 #endif /* WINDOWS_HID_H_ */
 

@@ -49,9 +49,9 @@ static const DEVPROPKEY DEVPKEY_Device_LocationInfo = { 0xa45c254e, 0xdf1c, 0x4e
 static const DEVPROPKEY DEVPKEY_Device_LocationPaths = { 0xa45c254e, 0xdf1c, 0x4efd, 0x80, 0x20, 0x67, 0xd1, 0x46, 0xa8, 0x50, 0xe0, 37 };
 
 /*
-* Cleans up resources and set exception that will get thrown upon return to java layer.
-*/
-jstring clean_throw_exp_usbenumeration(JNIEnv *env, int task, int subtask, DWORD error_code,
+ * Cleans up resources and set exception that will get thrown upon return to java layer.
+ */
+static jstring clean_throw_exp_usbenumeration(JNIEnv *env, int task, int subtask, DWORD error_code,
 	const char *expmsg, struct jstrarray_list *list, struct hiddev_instance_list *hiddevinst_list,
 	HDEVINFO *usb_dev_info_set, HDEVINFO *hid_dev_info_set) {
 
@@ -154,9 +154,10 @@ jobjectArray enumerate_usb_hid_devices(JNIEnv *env, jint vendor_to_match) {
 		return clean_throw_exp_usbenumeration(env, 0, 1, 0, E_CALLOCSTR, NULL, NULL, NULL, NULL);
 	}
 
-	/* get information set for all usb devices matching the GUID. It an array of 
-	   structures containing information about all attached and enumerated HID
-       devices.	*/
+	/* ~~~~~~~~~~~~~ ENUMERATE ALL HID DEVICES ~~~~~~~~~~~~~ */
+
+	/* get information set for all HID devices matching the GUID. It an array of 
+	   structures containing information about all attached and enumerated HID devices.	*/
 	hid_dev_info_set = SetupDiGetClassDevs(&GUID_DEVINTERFACE_HID, NULL, NULL, DIGCF_DEVICEINTERFACE);
 	if (hid_dev_info_set == INVALID_HANDLE_VALUE) {
 		return clean_throw_exp_usbenumeration(env, 1, 2, HRESULT_FROM_SETUPAPI(GetLastError()), NULL, NULL, &hiddevinst_list, NULL, &hid_dev_info_set);
@@ -226,6 +227,8 @@ jobjectArray enumerate_usb_hid_devices(JNIEnv *env, jint vendor_to_match) {
 	/* From here onwards, enumerate over all USB interfaces looking for HID interface and try to
 	   associate with its device instance and then create information that will be passed to
 	   application. */
+
+	/* ~~~~~~~~~~~~~ ENUMERATE ALL USB DEVICES ~~~~~~~~~~~~~ */
 
 	/* get information set for all usb devices matching the GUID */
 	usb_dev_info_set = SetupDiGetClassDevs(&GUID_DEVINTERFACE_USB_DEVICE, NULL, NULL, DIGCF_PRESENT | DIGCF_DEVICEINTERFACE);
@@ -445,7 +448,8 @@ jobjectArray enumerate_usb_hid_devices(JNIEnv *env, jint vendor_to_match) {
 				continue;
 			}else {
 				/* error happend when getting child of USB device */
-				return clean_throw_exp_usbenumeration(env, 3, 2, HRESULT_FROM_SETUPAPI(GetLastError()), NULL, &list, &hiddevinst_list, &usb_dev_info_set, NULL);
+				_snprintf_s(cmerror, 256, 256, "CM_Get_Child failed with CR_xxxx error code : 0x%X\0", cmret);
+				return clean_throw_exp_usbenumeration(env, 3, 1, 0, cmerror, &list, &hiddevinst_list, &usb_dev_info_set, NULL);
 			}
 		}
 

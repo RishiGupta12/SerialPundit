@@ -148,7 +148,7 @@ jstring find_driver_for_given_hiddevice(JNIEnv *env, jstring hidDevNode) {
 			}
 		}
 
-		/* return the driver name found as indcated by Service registry entry */
+		/* return the driver name found as indicated by Service registry entry */
 		driver_name = (*env)->NewString(env, charbuffer, (jsize)_tcslen(charbuffer));
 		if ((driver_name == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
 			(*env)->ExceptionClear(env);

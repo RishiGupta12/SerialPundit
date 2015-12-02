@@ -101,16 +101,30 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJN
 	wchar_t dev_full_path[1024];
 	struct hid_dev_info* info = NULL;
 
-	/* extract com port name to match (as an array of Unicode characters) */
+	/* allocate structure that will hold all the information related to this handle */
+	info = (struct hid_dev_info *) calloc(1, sizeof(struct hid_dev_info));
+	if (info == NULL) {
+		throw_serialcom_exception(env, 3, 0, E_CALLOCSTR);
+		return -1;
+	}
+
+	/* extract device path to match (as an array of Unicode characters) */
 	device_node = (*env)->GetStringChars(env, pathName, JNI_FALSE);
 	if ((device_node == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
 		throw_serialcom_exception(env, 3, 0, E_GETSTRCHARSTR);
 		return -1;
 	}
 
-	/* HID\VID_04D8&PID_00DF&MI_02\7&33842c3f&0&0000 (replace \ with #) */
+	/* save extracted java string locally */
 	memset(dev_instance, '\0', 1024);
 	swprintf_s(dev_instance, 1024, TEXT("%s"), device_node);
+
+	/* save device instance for later use if required associating this handle and device instance */
+	for (x = 0; x < 1024; x++) {
+		info->instance[x] = dev_instance[x];
+	}
+
+	/* HID\VID_04D8&PID_00DF&MI_02\7&33842c3f&0&0000 (replace \ with #) */
 	x = 0;
 	while (dev_instance[x] != '\0') {
 		if (dev_instance[x] == '\\') {
@@ -122,13 +136,6 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJN
 	/* \\?\hid#vid_04d8&pid_00df&mi_02#7&33842c3f&0&0000#{4d1e55b2-f16f-11cf-88cb-001111000030} */
 	memset(dev_full_path, '\0', 1024);
 	swprintf_s(dev_full_path, 1024, TEXT("\\\\?\\%s#{4d1e55b2-f16f-11cf-88cb-001111000030}"), dev_instance);
-
-	info = (struct hid_dev_info *) calloc(1, sizeof(struct hid_dev_info));
-	if (info == NULL) {
-		(*env)->ReleaseStringChars(env, pathName, device_node);
-		throw_serialcom_exception(env, 3, 0, E_CALLOCSTR);
-		return -1;
-	}
 	
 	/* if the device is to be shared with others, set sharing flags */
 	if(shared == JNI_TRUE) {
@@ -307,7 +314,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
  * @return number of bytes sent to device if function succeeds otherwise -1 if an error occurs.
  * @throws SerialComException if any JNI function, system call or C function fails.
  */
-JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_writeOutputReport(JNIEnv *env,
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_writeOutputReportR(JNIEnv *env,
 	jobject obj, jlong handle, jbyte reportID, jbyteArray report, jint length) {
 
 	int ret = 0;
@@ -405,6 +412,140 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_readInputReportR(JNIEnv *env,
 		jobject obj, jlong handle, jbyteArray reportBuffer, jint length, jlong context) {
+
+	int ret = 0;
+	DWORD errorVal = 0;
+	jbyte data_buf[1024];
+	OVERLAPPED overlapped;
+	DWORD wait_status = 0;
+	HANDLE wait_event_handles[2];
+	DWORD num_of_bytes_read = 0;
+	int have_data = 0;
+	struct hid_dev_info* info = (struct hid_dev_info*) handle;
+
+	/* Only hEvent member need to be initialized and others can be left 0. */
+	memset(&overlapped, 0, sizeof(overlapped));
+	overlapped.hEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
+	if (overlapped.hEvent == NULL) {
+		throw_serialcom_exception(env, 4, GetLastError(), NULL);
+		return -1;
+	}
+
+	wait_event_handles[0] = ((OVERLAPPED *)context)->hEvent;
+	wait_event_handles[1] = overlapped.hEvent;
+
+	/* An application should only use the HidD_GetXxx routines to obtain the current state of a device.
+	If an application attempts to use HidD_GetInputReport to continuously obtain input reports, the
+	reports can be lost. In addition, some devices might not support HidD_GetInputReport, and will
+	become unresponsive if this routine is used. */
+
+	/* ReadFile resets the event to a nonsignaled state when it begins the I/O operation. */
+	ret = ReadFile(info->handle, (PVOID)data_buf, info->collection_capabilities.InputReportByteLength, &num_of_bytes_read, &overlapped);
+
+	if (ret == 0) {
+		errorVal = GetLastError();
+
+		if (errorVal == ERROR_IO_PENDING) {
+
+			wait_status = WaitForMultipleObjects(2, wait_event_handles, FALSE, INFINITE);
+
+			/* check if read operation is un-blocked through another thread */
+			switch (wait_status) {
+				case WAIT_OBJECT_0 + 0:
+					/* come out of blocking state */
+					CancelIo((HANDLE)handle);
+					GetOverlappedResult((HANDLE)handle, &overlapped, &num_of_bytes_read, FALSE);
+					CloseHandle(overlapped.hEvent);
+					throw_serialcom_exception(env, 3, 0, EXP_UNBLOCKHIDIO);
+					return -1;
+			}
+
+			if (wait_status == (WAIT_OBJECT_0 + 1)) {
+				ret = GetOverlappedResult(info->handle, &overlapped, &num_of_bytes_read, TRUE);
+				CloseHandle(overlapped.hEvent);
+
+				if (ret > 0) {
+					/* return data read from HID device if read from it */
+					if (num_of_bytes_read > 0) {
+						have_data = 1;
+					}
+				}else if (ret == 0) {
+					errorVal = GetLastError();
+					if ((errorVal == ERROR_HANDLE_EOF) || (errorVal == ERROR_IO_INCOMPLETE)) {
+						CancelIo(info->handle);
+						return 0;
+					}else {
+						/* This case indicates error. */
+						throw_serialcom_exception(env, 4, errorVal, NULL);
+						return -1;
+					}
+				}else {
+				}
+			}else if (wait_status == WAIT_FAILED) {
+				/* This case indicates error. */
+				CloseHandle(overlapped.hEvent);
+				throw_serialcom_exception(env, 4, GetLastError(), NULL);
+				return -1;
+			}else if (wait_status == WAIT_TIMEOUT) {
+				CloseHandle(overlapped.hEvent);
+				return 0;
+			}else {
+				CloseHandle(overlapped.hEvent);
+				return 0;
+			}
+		}else {
+			/* This case indicates error. */
+			CloseHandle(overlapped.hEvent);
+			throw_serialcom_exception(env, 4, errorVal, NULL);
+			return -1;
+		}
+	}else if (ret > 0) {
+		CloseHandle(overlapped.hEvent);
+		if (num_of_bytes_read > 0) {
+			/* This indicates we got success and have read data in first go itself. */
+			have_data = 1;
+		}
+	}else {
+		CloseHandle(overlapped.hEvent);
+	}
+
+	/* if report was read from device pass that to java layer application. */
+	if (have_data > 0) {
+		if (data_buf[0] == (jbyte)0x00) {
+
+			/* if user supplied report buffer wass smaller than required to accomodate read report, throw exception */
+			if (length < (jint)(num_of_bytes_read - 1)) {
+				throw_serialcom_exception(env, 3, 0, E_INVALIDINLEN);
+				return -1;
+			}
+
+			/* if the device does not uses numbered reports, strip 1st byte.
+			other operating systems like Linux also does so internally. */
+			(*env)->SetByteArrayRegion(env, reportBuffer, 0, (num_of_bytes_read - 1), &data_buf[1]);
+			if ((*env)->ExceptionOccurred(env) != NULL) {
+				throw_serialcom_exception(env, 3, 0, E_SETBYTEARRAYREGION);
+				return -1;
+			}
+			return (num_of_bytes_read - 1);
+		}else {
+
+			/* if user supplied report buffer wass smaller than required to accomodate read report, throw exception */
+			if (length < (jint)num_of_bytes_read) {
+				throw_serialcom_exception(env, 3, 0, E_INVALIDINLEN);
+				return -1;
+			}
+
+			(*env)->SetByteArrayRegion(env, reportBuffer, 0, num_of_bytes_read, data_buf);
+			if ((*env)->ExceptionOccurred(env) != NULL) {
+				throw_serialcom_exception(env, 3, 0, E_SETBYTEARRAYREGION);
+				return -1;
+			}
+			return num_of_bytes_read;
+		}
+	}
+
+	/* must not be reached */
+	return -1;
 }
 
 /*
@@ -507,6 +648,13 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
 	/* if report was read from device pass that to java layer application. */
 	if (have_data > 0) {
 		if (data_buf[0] == (jbyte)0x00) {
+
+			/* if user supplied report buffer wass smaller than required to accomodate read report, throw exception */
+			if (length < (jint)(num_of_bytes_read - 1)) {
+				throw_serialcom_exception(env, 3, 0, E_INVALIDINLEN);
+				return -1;
+			}
+
 			/* if the device does not uses numbered reports, strip 1st byte.
 			   other operating systems like Linux also does so internally. */
 			(*env)->SetByteArrayRegion(env, reportBuffer, 0, (num_of_bytes_read -1), &data_buf[1]);
@@ -516,6 +664,13 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
 			}
 			return (num_of_bytes_read - 1);
 		}else {
+
+			/* if user supplied report buffer wass smaller than required to accomodate read report, throw exception */
+			if (length < (jint)num_of_bytes_read) {
+				throw_serialcom_exception(env, 3, 0, E_INVALIDINLEN);
+				return -1;
+			}
+
 			(*env)->SetByteArrayRegion(env, reportBuffer, 0, num_of_bytes_read, data_buf);
 			if ((*env)->ExceptionOccurred(env) != NULL) {
 				throw_serialcom_exception(env, 3, 0, E_SETBYTEARRAYREGION);
@@ -575,7 +730,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
 		return -1;
 	}
 
-	ret = HidD_SetFeature((HANDLE)handle, (PVOID)buffer, (ULONG)info->collection_capabilities.FeatureReportByteLength);
+	ret = HidD_SetFeature(info->handle, (PVOID)buffer, (ULONG)info->collection_capabilities.FeatureReportByteLength);
 	if (ret != TRUE) {
 		free(buffer);
 		throw_serialcom_exception(env, 3, 0, E_SETFEATUREREPORT);
@@ -616,7 +771,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
 		return -1;
 	}
 
-	ret = HidD_GetFeature((HANDLE)handle, (PVOID)data_buf, (ULONG)info->collection_capabilities.FeatureReportByteLength);
+	ret = HidD_GetFeature(info->handle, (PVOID)data_buf, (ULONG)info->collection_capabilities.FeatureReportByteLength);
 	if (ret != TRUE) {
 		throw_serialcom_exception(env, 3, 0, E_GETFEATUREREPORT);
 		return -1;
@@ -657,26 +812,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
  */
 JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_getManufacturerStringR(JNIEnv *env,
 	jobject obj, jlong handle) {
-
-	BOOL ret;
-	wchar_t buffer[256];
-	jstring manufacturer = NULL;
-
-	memset(buffer, '\0', 256);
-	ret = HidD_GetManufacturerString((HANDLE)handle, buffer, sizeof(wchar_t));
-	if (ret != TRUE) {
-		throw_serialcom_exception(env, 3, 0, E_MANUFACTURER);
-		return NULL;
-	}
-
-	manufacturer = (*env)->NewString(env, buffer, (jsize)_tcslen(buffer));
-	if ((manufacturer == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
-		(*env)->ExceptionClear(env);
-		throw_serialcom_exception(env, 3, 0, E_NEWSTR);
-		return NULL;
-	}
-
-	return manufacturer;
+	return get_hiddev_info_string(env, handle, MANUFACTURER_STRING);
 }
 
 /*
@@ -691,26 +827,7 @@ JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHID
  */
 JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_getProductStringR(JNIEnv *env,
 	jobject obj, jlong handle) {
-
-	BOOL ret;
-	wchar_t buffer[256];
-	jstring product = NULL;
-
-	memset(buffer, '\0', 256);
-	ret = HidD_GetProductString((HANDLE)handle, buffer, sizeof(wchar_t));
-	if (ret != TRUE) {
-		throw_serialcom_exception(env, 3, 0, E_PRODUCT);
-		return NULL;
-	}
-
-	product = (*env)->NewString(env, buffer, (jsize)_tcslen(buffer));
-	if ((product == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
-		(*env)->ExceptionClear(env);
-		throw_serialcom_exception(env, 3, 0, E_NEWSTR);
-		return NULL;
-	}
-
-	return product;
+	return get_hiddev_info_string(env, handle, PRODUCT_STRING);
 }
 
 /*
@@ -725,26 +842,7 @@ JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHID
  */
 JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_getSerialNumberStringR(JNIEnv *env,
 	jobject obj, jlong handle) {
-
-	BOOL ret;
-	wchar_t buffer[256];
-	jstring serial = NULL;
-
-	memset(buffer, '\0', 256);
-	ret = HidD_GetSerialNumberString((HANDLE)handle, buffer, sizeof(wchar_t));
-	if (ret != TRUE) {
-		throw_serialcom_exception(env, 3, 0, E_SERIALNUMBER);
-		return NULL;
-	}
-
-	serial = (*env)->NewString(env, buffer, (jsize)_tcslen(buffer));
-	if ((serial == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
-		(*env)->ExceptionClear(env);
-		throw_serialcom_exception(env, 3, 0, E_NEWSTR);
-		return NULL;
-	}
-
-	return serial;
+	return get_hiddev_info_string(env, handle, SERIAL_STRING);
 }
 
 /*
@@ -760,12 +858,13 @@ JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHID
 JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_getIndexedStringR(JNIEnv *env,
 	jobject obj, jlong handle, jint index) {
 
-	BOOL ret;
-	wchar_t buffer[256];
+	BOOLEAN ret;
+	wchar_t buffer[512];
 	jstring indexedstr = NULL;
+	struct hid_dev_info* info = (struct hid_dev_info*) handle;
 
-	memset(buffer, '\0', 256);
-	ret = HidD_GetIndexedString((HANDLE)handle, (ULONG)index, buffer, sizeof(wchar_t));
+	memset(buffer, '\0', 512);
+	ret = HidD_GetIndexedString(info->handle, (ULONG)index, (PVOID)buffer, (ULONG)sizeof(buffer));
 	if (ret != TRUE) {
 		throw_serialcom_exception(env, 3, 0, E_INDEXSTR);
 		return NULL;
@@ -800,20 +899,48 @@ JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialC
  * Method:    getReportDescriptorR
  * Signature: (J)[B
  *
- * Try to read report descriptor from the given HID device.
+ * Try to read HID report descriptor from the given HID device.
  *
- * @return byte array containing report descriptor values read from given HID device, NULL if
- *         any error occurs.
- * @throws SerialComException if any JNI function, WINAPI or C function fails.
+ * @return always return NULL as of now.
  */
 JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_getReportDescriptorR(JNIEnv *env,
 		jobject obj, jlong handle) {
-		
-		unsigned char buf[2*1024];
-		HidD_GetPhysicalDescriptor((HANDLE)handle, (PVOID)buf, (ULONG)(2*1024));
-		fprintf(stderr, "1: %s\n", buf);
-		fflush(stderr);
 		return NULL;
+}
+
+/*
+* Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
+* Method:    getPhysicalDescriptorR
+* Signature: (J)[B
+*
+* Try to read physical descriptor from the given HID device.
+*
+* @return byte array containing physical descriptor values read from given HID device, NULL if
+*         any error occurs.
+* @throws SerialComException if any JNI function, WINAPI or C function fails.
+*/
+JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_getPhysicalDescriptorR(JNIEnv *env,
+	jobject obj, jlong handle) {
+
+	BOOLEAN ret = FALSE;
+	unsigned char buffer[1024];
+	struct hid_dev_info* info = (struct hid_dev_info*) handle;
+	jbyteArray physicalDescriptor = NULL;
+
+	memset(buffer, '\0', 1024);
+	ret = HidD_GetPhysicalDescriptor(info->handle, (PVOID)buffer, 1024);
+	if (ret == FALSE) {
+		throw_serialcom_exception(env, 3, 0, E_PHYSICALDESC);
+		return NULL;
+	}
+
+	(*env)->SetByteArrayRegion(env, physicalDescriptor, 0, (jsize)strlen(buffer), (const jbyte *)buffer);
+	if ((*env)->ExceptionOccurred(env) != NULL) {
+		throw_serialcom_exception(env, 3, 0, E_SETBYTEARRAYREGION);
+		return NULL;
+	}
+
+	return physicalDescriptor;
 }
 
 /*
@@ -821,7 +948,8 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialCom
  * Method:    flushInputReportQueueR
  * Signature: (J)I
  *
- * Empty the input report buffer maintained by operating system.
+ * Empty the input report buffer maintained by operating system. For windows, it deletes all pending input 
+ * reports in a top-level collection's input queue.
  *
  * @return 0 on success otherwise -1 if an error occurs.
  * @throws SerialComException if any JNI function, WINAPI or C function fails.
@@ -830,8 +958,9 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
 		jobject obj, jlong handle) {
 		
 		BOOLEAN ret = FALSE;
-		
-		ret = HidD_FlushQueue((HANDLE)handle);
+		struct hid_dev_info* info = (struct hid_dev_info*) handle;
+
+		ret = HidD_FlushQueue(info->handle);
 		if(ret == FALSE) {
 			throw_serialcom_exception(env, 3, 0, E_FLUSHIN);
 			return -1;

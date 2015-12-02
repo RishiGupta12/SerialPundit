@@ -47,5 +47,8 @@
     <ClCompile Include="windows_hidlib.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="windows_hiddev_info.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
