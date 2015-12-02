@@ -51,6 +51,7 @@ public class Test83  {
 	public static long handle = 0;
 	public static long context = 0;
 	public static byte[] inputReportBuffer = new byte[32];
+	public static byte[] outputReportBuffer = new byte[16];
 	private static Thread mThread = null;
 
 	public static void main(String[] args) {
@@ -74,10 +75,12 @@ public class Test83  {
 		}else{
 		}
 
+		System.out.println("\n~~~~~~~~~~~~~~~~~~~~~~~~~ TEST 1 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ \n");
+
 		try {
 			// opened handle : 5
 			handle = scrh.openHidDeviceR(PORT, true);
-			System.out.println("\nopened handle : " + handle);
+			System.out.println("opened handle : " + handle);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -101,7 +104,11 @@ public class Test83  {
 
 		System.out.println("main thread, in.read() returned from blocked read !");
 
-		//Test again ---------------------------------------------------------------------
+
+
+		System.out.println("\n~~~~~~~~~~~~~~~~~~~~~~~~~ TEST 2 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ \n");
+
+
 		try {
 			Thread.sleep(1000);
 		} catch (InterruptedException e) {
@@ -134,5 +141,62 @@ public class Test83  {
 		}
 
 		System.out.println("main thread, in.read() returned from blocked read !");
+
+
+		System.out.println("\n~~~~~~~~~~~~~~~~~~~~~~~~~ TEST 3 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ \n");
+
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e1) {
+			e1.printStackTrace();
+		}
+
+		try {
+			// opened handle : 5
+			handle = scrh.openHidDeviceR(PORT, true);
+			System.out.println("opened handle : " + handle);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		try {
+			context = scrh.createBlockingHIDIOContextR();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		try {
+			// writeOutputReport : 17
+			outputReportBuffer[0] = (byte) 0x80;
+			ret = scrh.writeOutputReportR(handle, (byte) -1, outputReportBuffer);
+			System.out.println("\nwriteOutputReport : " + ret);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		try {
+			Thread.sleep(500); // let device prepare response to output report we sent previously
+			// MCP2200
+			// readInputReportWithTimeout : 16
+			// 80 00 6A 00 FF 00 FF 00 04 E1 00 88 CB 08 05 46 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+			ret = scrh.readInputReportR(handle, inputReportBuffer, context);
+			System.out.println("\nreadInputReportWithTimeout : " + ret);
+			System.out.println(scrh.formatReportToHexR(inputReportBuffer, " "));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		try {
+			System.out.println("\ndestroyBlockingIOContextR : " + scrh.destroyBlockingIOContextR(context));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		try {
+			System.out.println("\ncloseHidDevice : " + scrh.closeHidDeviceR(handle));
+			System.out.println("closed HID handle !");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 }
