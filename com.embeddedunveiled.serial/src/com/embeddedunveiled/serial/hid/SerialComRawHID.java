@@ -503,6 +503,26 @@ public final class SerialComRawHID extends SerialComHID {
 	}
 
 	/**
+	 * <p>Gives the physical descriptor for the given HID device.</p>
+	 * 
+	 * <p>Physical Descriptors are entirely optional. They add complexity and offer very little in 
+	 * return for most devices. However, some devices, particularly those with a large number of 
+	 * identical controls (for example, buttons) will find that Physical Descriptors help different 
+	 * applications assign functionality to these controls in a more consistent manner.</p>
+	 * 
+	 * @param handle handle of the device whose physical descriptor is to be obtained.
+	 * @return HID physical descriptor as array of bytes otherwise empty array.
+	 * @throws SerialComException if operation can not be completed successfully.
+	 */
+	public byte[] getPhysicalDescriptorR(long handle) throws SerialComException {
+		byte[] physicalDescriptorRead = mHIDJNIBridge.getPhysicalDescriptorR(handle);
+		if(physicalDescriptorRead != null) {
+			return physicalDescriptorRead;
+		}
+		return new byte[0];
+	}
+
+	/**
 	 * <p>Deletes all the input reports from input report buffer maintained by operating system.</p>
 	 * 
 	 * @param handle handle of the device whose input report queue is to be flushed.
