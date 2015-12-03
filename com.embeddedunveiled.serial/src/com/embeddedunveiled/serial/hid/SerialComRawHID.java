@@ -136,7 +136,8 @@ public final class SerialComRawHID extends SerialComHID {
 	}
 
 	/**
-	 * <p>Opens a HID device for communication using its path name.</p>
+	 * <p>Opens a HID device for communication using its path name. Applications should first list HID devices 
+	 * to get the path of the desired device using methods like listUSBHIDdevicesWithInfo etc.</p>
 	 * 
 	 * <P>Applications can register USB hot plug listener to get notified when the desired USB device 
 	 * is plugged into system. Once the listener is invoked indicating device is added, application 
