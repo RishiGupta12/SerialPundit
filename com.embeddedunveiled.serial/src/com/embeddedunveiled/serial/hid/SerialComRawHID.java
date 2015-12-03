@@ -52,9 +52,12 @@ import com.embeddedunveiled.serial.usb.SerialComUSBHID;
  * findDriverServingHIDDeviceR<br/>
  * 
  * <p><strong>Miscellaneous</strong></p>
+ * openHidDeviceR<br/>
+ * closeHidDeviceR<br/>
  * flushInputReportQueueR<br/>
  * getReportDescriptorR<br/>
  * getPhysicalDescriptorR<br/>
+ * formatReportToHexR<br/>
  * 
  * @author Rishi Gupta
  */
