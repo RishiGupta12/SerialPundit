@@ -17,7 +17,9 @@
 
 /**
  * <p>Encapsulates behavior and environment centered around serial port communication 
- * involving use of TCP/IP stack, serial over ethernet, com port redirector, port 
- servers, null modem emulator and virtual com ports etc.</p>
+ * involving use of TCP/IP stack, serial over ethernet, com port redirector, port servers, 
+ * null modem emulator and virtual com ports etc.</p>
+ * 
+ * @author Rishi Gupta
  */
 package com.embeddedunveiled.serial.ethernet;

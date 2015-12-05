@@ -18,5 +18,7 @@
 /**
  * <p>Encapsulates behavior and environment centered around communication with human 
  * interface devices (HID class devices).</p>
+ * 
+ * @author Rishi Gupta
  */
 package com.embeddedunveiled.serial.hid;

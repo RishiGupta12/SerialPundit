@@ -18,5 +18,7 @@
 /**
  * <p>Encapsulates behavior and environment centered around serial port communication 
  * involving use of GSM/GPRS services directly or indirectly.</p>
+ * 
+ * @author Rishi Gupta
  */
 package com.embeddedunveiled.serial.gsm;

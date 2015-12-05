@@ -18,5 +18,7 @@
 /**
  * <p>Encapsulates behavior and environment centered around serial port communication 
  * involving use of Bluetooth radio and bluetooth stack.</p>
+ * 
+ * @author Rishi Gupta
  */
 package com.embeddedunveiled.serial.bluetooth;

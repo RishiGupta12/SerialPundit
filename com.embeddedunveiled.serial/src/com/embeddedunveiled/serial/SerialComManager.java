@@ -17,6 +17,7 @@
 
 package com.embeddedunveiled.serial;
 
+import java.awt.AWTException;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -44,6 +45,7 @@ import com.embeddedunveiled.serial.usb.SerialComUSBdevice;
 import com.embeddedunveiled.serial.vendor.SerialComVendorLib;
 import com.embeddedunveiled.serial.bluetooth.SerialComBluetooth;
 import com.embeddedunveiled.serial.bluetooth.SerialComBluetoothSPPDevNode;
+import com.embeddedunveiled.serial.datalogger.SerialComToKeyStrokeToApp;
 
 /**
  * <p>Root of this library.</p>
@@ -2692,8 +2694,8 @@ public final class SerialComManager {
 	 * @throws IllegalArgumentException if type is an invalid constant.
 	 */
 	public SerialComHID getSerialComHIDInstance(int type, String directoryPath, String loadedLibName) throws SecurityException, 
-		SerialComUnexpectedException, SerialComLoadException, UnsatisfiedLinkError, SerialComException, 
-		FileNotFoundException, IOException {
+	SerialComUnexpectedException, SerialComLoadException, UnsatisfiedLinkError, SerialComException, 
+	FileNotFoundException, IOException {
 		int ret = 0;
 		if(mSerialComHIDJNIBridge == null) {
 			mSerialComHIDJNIBridge = new SerialComHIDJNIBridge();
@@ -2713,5 +2715,12 @@ public final class SerialComManager {
 		}
 
 		return null;
+	}
+
+	/**
+	 * @throws AWTException 
+	 */
+	public SerialComToKeyStrokeToApp getSerialComKeyStrokeAppInstance(long handle) throws AWTException {
+		return new SerialComToKeyStrokeToApp(this, handle);
 	}
 }

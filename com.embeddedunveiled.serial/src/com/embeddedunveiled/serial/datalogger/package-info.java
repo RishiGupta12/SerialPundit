@@ -17,8 +17,8 @@
 
 /**
  * <p>Encapsulates behavior and environment centered around serial port communication 
- * involving use of GPS and location hardware or software services directly or indirectly.</p>
+ * used for data logging purposes.</p>
  * 
  * @author Rishi Gupta
  */
-package com.embeddedunveiled.serial.gps;
+package com.embeddedunveiled.serial.datalogger;
