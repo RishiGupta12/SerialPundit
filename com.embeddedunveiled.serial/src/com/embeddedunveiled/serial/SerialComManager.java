@@ -559,10 +559,10 @@ public final class SerialComManager {
 	}
 
 	/**
-	 * <p>Gives operating system type as identified by this library. To interpret return integer see 
-	 * constants defined SerialComManager class.</p>
+	 * <p>Gives operating system type as identified by this library. To interpret returned integer value see 
+	 * the OS_xxxxx defined in SerialComManager class.</p>
 	 * 
-	 * @return Operating system type as identified by the scm library.
+	 * @return one of the constants OS_xxxxx defined in SerialComManager class.
 	 */
 	public int getOSType() {
 		return osType;
@@ -1404,12 +1404,19 @@ public final class SerialComManager {
 	 * blocked read method was explicitly unblocked by another thread (possibly because serial 
 	 * port is going to be closed).</p>
 	 * 
+	 * <p>The blocking/non-blocking behavior of readBytes method can be defined through blockingRead 
+	 * argument of this method based on application requirements. If blockingRead is set to true, readBytes 
+	 * method will block until there is data to read from serial port. If the blockingRead is set to 
+	 * false, readBytes method will not block.</p>
+	 * 
+	 * @param blockingRead set to true if readBytes method should block if there is no data to 
+	 *         read at serial port otherwise false for non-blocking operation.
 	 * @return context value that should be passed to unblockPortPollingBlockedIOoperation, 
 	 *          destroyPortPollingIOContext and readBytes method.
 	 * @throws SerialComException if an I/O error occurs.
 	 */
-	public long createPortPollingIOContext() throws SerialComException {
-		long ret = mComPortJNIBridge.createPortPollingIOContext();
+	public long createPortPollingIOContext(boolean blockingRead) throws SerialComException {
+		long ret = mComPortJNIBridge.createPortPollingIOContext(blockingRead);
 		if(ret < 0) {
 			throw new SerialComException("Could not create polling I/O context. Please retry !");
 		}

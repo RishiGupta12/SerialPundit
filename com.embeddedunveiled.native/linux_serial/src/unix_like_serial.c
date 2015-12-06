@@ -527,10 +527,56 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialCom
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
+ * Method:    createPortPollingIOContext
+ * Signature: ()J
+ *
+ * This will create event object/file descriptor that will be used to wait upon in addition to
+ * serial port file descriptor, so as to bring blocked read call out of waiting state. This is needed
+ * if application is willing to close the serial port but unable because a blocked reader exist.
+ *
+ * @return context on success otherwise -1 if an error occurs.
+ * @throws SerialComException if any JNI function, system call or C function fails.
+ */
+JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_createPortPollingIOContext
+  (JNIEnv *env, jobject obj) {
+
+}
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
+ * Method:    unblockPortPollingBlockedIOoperation
+ * Signature: (J)I
+ *
+ * Causes data event or event as required to emulate an event.
+ *
+ * @return 0 on success otherwise -1 if an error occurs.
+ * @throws SerialComException if any JNI function, system call or C function fails.
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_unblockPortPollingBlockedIOoperation
+  (JNIEnv *env, jobject obj, jlong fd) {
+
+}
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
+ * Method:    destroyPortPollingIOContext
+ * Signature: (J)I
+ *
+ * Closes the event file descriptors and releases memory if it was allocated.
+ *
+ * @return 0 on success otherwise -1 if an error occurs.
+ * @throws SerialComException if any JNI function, system call or C function fails.
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_destroyPortPollingIOContext
+  (JNIEnv *env, jobject obj, jlong fd) {
+
+}
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
  * Method:    readBytes
  * Signature: (J[BII)I
  *
-
  *
  * @return number of data bytes read from serial port or -1 if an error occurs.
  * @throws SerialComException if any JNI function, system call or C function fails.
@@ -1289,6 +1335,8 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
  * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
  * Method:    destroyBlockingIOContext
  * Signature: (J)I
+ *
+ * Closes the event file descriptors and releases memory if it was allocated.
  *
  * @return 0 on success otherwise -1 if an error occurs.
  * @throws SerialComException if any JNI function, system call or C function fails.

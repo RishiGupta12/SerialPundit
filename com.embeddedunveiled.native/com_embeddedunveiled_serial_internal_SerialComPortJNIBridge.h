@@ -106,10 +106,10 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialCom
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
  * Method:    readBytes
- * Signature: (J[BII)I
+ * Signature: (J[BIIJ)I
  */
-JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_readBytes__J_3BII
-  (JNIEnv *, jobject, jlong, jbyteArray, jint, jint);
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_readBytes__J_3BIIJ
+  (JNIEnv *, jobject, jlong, jbyteArray, jint, jint, jlong);
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
@@ -173,6 +173,30 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
  * Signature: (J)I
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_destroyBlockingIOContext
+  (JNIEnv *, jobject, jlong);
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
+ * Method:    createPortPollingIOContext
+ * Signature: (Z)J
+ */
+JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_createPortPollingIOContext
+  (JNIEnv *, jobject, jboolean);
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
+ * Method:    unblockPortPollingBlockedIOoperation
+ * Signature: (J)I
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_unblockPortPollingBlockedIOoperation
+  (JNIEnv *, jobject, jlong);
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
+ * Method:    destroyPortPollingIOContext
+ * Signature: (J)I
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_destroyPortPollingIOContext
   (JNIEnv *, jobject, jlong);
 
 /*
