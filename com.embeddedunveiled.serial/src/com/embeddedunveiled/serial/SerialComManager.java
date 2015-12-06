@@ -51,7 +51,84 @@ import com.embeddedunveiled.serial.datalogger.SerialComToKeyStrokeToApp;
  * <p>Root of this library.</p>
  * <p>The WIKI page for this project is here : http://www.embeddedunveiled.com/ </p>
  * 
- * <p>To get an instance of {@link SerialComIOCTLExecutor} call the {@link #getIOCTLExecutor} method.</p>
+ * <p><strong>1: System information</strong></p>
+ * getOSType()<br/>
+ * getCPUArchitecture()<br/>
+ * 
+ * <p><strong>2: Serial ports and device discovery</strong></p>
+ * listAvailableComPorts()<br/>
+ * listUSBdevicesWithInfo<br/>
+ * findComPortFromUSBAttributes<br/>
+ * isUSBDevConnected<br/>
+ * 
+ * <p><strong>3 : Miscellaneous</strong></p>
+ * openComPort<br/>
+ * closeComPort<br/>
+ * createBlockingIOContext<br/>
+ * unblockBlockingIOOperation<br/>
+ * destroyBlockingIOContext<br/>
+ * createPortPollingIOContext<br/>
+ * unblockPortPollingBlockedIOoperation<br/>
+ * destroyPortPollingIOContext<br/>
+ * fineTuneReadBehaviour<br/>
+ * clearPortIOBuffers<br/>
+ * getInterruptCount<br/>
+ * findDriverServingComPort<br/>
+ * findIRQnumberForComPort<br/>
+ * getByteCountInPortIOBuffer<br/>
+ * getPortName<br/>
+ * 
+ * <p><strong>4 : Data exchange</strong></p>
+ * writeBytes<br/>
+ * writeSingleByte<br/>
+ * writeString<br/>
+ * writeSingleInt<br/>
+ * writeIntArray<br/>
+ * writeBytesDirect<br/>
+ * writeBytesBlocking<br/>
+ * readBytes<br/>
+ * readSingleByte<br/>
+ * readString<br/>
+ * readBytesDirect<br/>
+ * readBytesBlocking<br/>
+ * createInputByteStream<br/>
+ * createOutputByteStream<br/>
+ * 
+ * <p><strong>5 : Serial port configuration and control</strong></p>
+ * configureComPortData<br/>
+ * configureComPortControl<br/>
+ * getCurrentConfiguration<br/>
+ * getLinesStatus<br/>
+ * setRTS<br/>
+ * setDTR<br/>
+ * sendBreak<br/>
+ * 
+ * <p><strong>6 : Data, control and hot plug events</strong></p>
+ * registerDataListener<br/>
+ * unregisterDataListener<br/>
+ * registerLineEventListener<br/>
+ * unregisterLineEventListener<br/>
+ * registerUSBHotPlugEventListener<br/>
+ * unregisterUSBHotPlugEventListener<br/>
+ * 
+ * <p><strong>7 : File transfer protocol</strong></p>
+ * sendFile<br/>
+ * receiveFile<br/>
+ * 
+ * <p><strong>8 : IOCTL operations</strong></p>
+ * getIOCTLExecutor<br/>
+ * 
+ * <p><strong>9 : Vendor library interfaces</strong></p>
+ * getVendorLibInstance
+ * 
+ * <p><strong>10 : Serial over USB</strong></p>
+ * getSerialComUSBInstance<br/>
+ * 
+ * <p><strong>11 : Human interface device (HID)</strong></p>
+ * getSerialComHIDInstance<br/>
+ * 
+ * <p><strong>12 : Serial data to application as keystroke</strong></p>
+ * getSerialComKeyStrokeAppInstance<br/>
  * 
  * [x] Native layer if fails to throw exception when an error occurs would log error message to STDERR file. 
  *     It is assumed that Java application running on production systems will deploy a Java logger which will 
@@ -1929,7 +2006,7 @@ public final class SerialComManager {
 	 * @throws SerialComException if wrong handle is passed or operation can not be done successfully.
 	 * @throws IllegalArgumentException if invalid combination of arguments is passed.
 	 */
-	public boolean fineTuneRead(long handle, int vmin, int vtime, int rit, int rttm, int rttc) throws SerialComException {
+	public boolean fineTuneReadBehaviour(long handle, int vmin, int vtime, int rit, int rttm, int rttc) throws SerialComException {
 		int ret = 0;
 		boolean handlefound = false;		
 		if(osType == SerialComManager.OS_WINDOWS) {

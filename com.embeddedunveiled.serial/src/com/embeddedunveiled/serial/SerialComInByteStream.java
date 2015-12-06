@@ -29,7 +29,8 @@ import com.embeddedunveiled.serial.internal.SerialComPortHandleInfo;
  * <p>Application design should make sure that the port is not closed if there exist a read method
  * which is blocked (waiting for data byte) on the same port.</p>
  * 
- * <p>Advance applications may fine tune the timing behavior using fineTuneRead() API.</p>
+ * <p>Advance applications may fine tune the timing behavior using fineTuneReadBehaviour() API defined 
+ * in SerialComManager class.</p>
  * 
  * @author Rishi Gupta
  */

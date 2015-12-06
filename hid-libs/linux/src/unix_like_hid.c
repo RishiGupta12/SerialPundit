@@ -356,6 +356,8 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
  *
  * It reads a raw HID report (i.e. no report parsing is done).
  *
+ * If the blocked I/O read operation is unblocked, it throws SerialComHID.EXP_UNBLOCK_HIDIO exception.
+ *
  * @return number of bytes read if function succeeds otherwise -1 if an error occurs.
  * @throws SerialComException if any JNI function, system call or C function fails.
  */
