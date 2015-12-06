@@ -1,5 +1,6 @@
 com.embeddedunveiled.serial
 com.embeddedunveiled.serial.bluetooth
+com.embeddedunveiled.serial.datalogger
 com.embeddedunveiled.serial.ethernet
 com.embeddedunveiled.serial.gps
 com.embeddedunveiled.serial.gsm
