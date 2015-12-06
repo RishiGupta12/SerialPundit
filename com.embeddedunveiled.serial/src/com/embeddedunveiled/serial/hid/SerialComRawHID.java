@@ -31,10 +31,10 @@ import com.embeddedunveiled.serial.usb.SerialComUSBHID;
  * 
  * <p>Applications may develop user space drivers using raw HID methods in this class.</p>
  * 
- * <p><strong>Device discovery</strong></p>
- * listHIDdevicesWithInfoR
+ * <p><strong>1: Device discovery</strong></p>
+ * listHIDdevicesWithInfoR<br/>
  * 
- * <p><strong>Data/Configuration exchange</strong></p>
+ * <p><strong>2 : Data/Configuration exchange</strong></p>
  * writeOutputReportR<br/>
  * readInputReportR<br/>
  * readInputReportWithTimeoutR<br/>
@@ -44,14 +44,14 @@ import com.embeddedunveiled.serial.usb.SerialComUSBHID;
  * unblockBlockingHIDIOOperationR<br/>
  * destroyBlockingIOContextR<br/>
  * 
- * <p><strong>Information</strong></p>
+ * <p><strong>3 : Information</strong></p>
  * getManufacturerStringR<br/>
  * getProductStringR<br/>
  * getSerialNumberStringR<br/>
  * getIndexedStringR<br/>
  * findDriverServingHIDDeviceR<br/>
  * 
- * <p><strong>Miscellaneous</strong></p>
+ * <p><strong>4 : Miscellaneous</strong></p>
  * openHidDeviceR<br/>
  * closeHidDeviceR<br/>
  * flushInputReportQueueR<br/>

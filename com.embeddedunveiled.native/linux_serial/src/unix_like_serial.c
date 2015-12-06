@@ -432,7 +432,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
  * 2. Partial read followed by complete read.
  * 3. Partial read followed by partial read then complete read.
  *
- * @return data read or NULL.
+ * @return data byte buffer containing data bytes read from serial port or NULL if an error occurs.
  * @throws SerialComException if any JNI function, system call or C function fails.
  */
 JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_readBytes(JNIEnv *env,
@@ -527,14 +527,29 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialCom
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
+ * Method:    readBytes
+ * Signature: (J[BII)I
+ *
+
+ *
+ * @return number of data bytes read from serial port or -1 if an error occurs.
+ * @throws SerialComException if any JNI function, system call or C function fails.
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_readBytes__J_3BII
+  (JNIEnv *env, jobject obj, jlong fd, jbyteArray buffer, jint offset, jint length) {
+
+}
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
  * Method:    readBytesBlocking
  * Signature: (JIJ)[B
  *
- * Block on :
- * (1) serial port file descriptor to become available for reading
- * (2) event file descriptor that is used to come out of blocking state
+ * Blocks on :
+ * (1) serial port file descriptor to become available for reading.
+ * (2) event file descriptor that is used to come out of blocking state.
  *
- * @return NULL if an error occurs.
+ * @return data byte buffer containing data bytes read from serial port or NULL if an error occurs.
  * @throws SerialComException if any JNI function, system call or C function fails.
  */
 JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_readBytesBlocking(JNIEnv *env,
@@ -845,6 +860,8 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
  * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
  * Method:    writeSingleByte
  * Signature: (JB)I
+ *
+ * Writes single data byte to serial port to be sent to target end.
  *
  * @return 0 on success otherwise -1 if an error occurs.
  * @throws SerialComException if any JNI function, system call or C function fails.
