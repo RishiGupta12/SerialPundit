@@ -1464,7 +1464,7 @@ public final class SerialComManager {
 	 * @param handle of the port from which to read data bytes.
 	 * @param buffer data byte buffer in which bytes from serial port will be saved.
 	 * @param offset index in given byte array at which first data byte will be placed.
-	 * @param length number of bytes to read into given buffer.
+	 * @param length number of bytes to read into given buffer (0 <= length <= 2048).
 	 * @param context context obtained from call to createPortPollingIOContext method.
 	 * @return number of bytes read from serial port.
 	 * @throws SerialComException if an I/O error occurs.
@@ -1478,6 +1478,9 @@ public final class SerialComManager {
 		}
 		if((offset < 0) || (length < 0) || (length > (buffer.length - offset))) {
 			throw new IndexOutOfBoundsException("Index violation detected in given byte array !");
+		}
+		if(length > 2048) {
+			throw new IllegalArgumentException("Argument length can not be greater than 2048 !");
 		}
 		if(length == 0) {
 			return 0;

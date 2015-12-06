@@ -411,9 +411,17 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
 				free(buffer);
 				return ret;
 			}else if(ret < 0) {
-				free(buffer);
-				throw_serialcom_exception(env, 1, errno, NULL);
-				return -1;
+				if(errno == EINTR) {
+					/* This indicates that we should retry as we are just interrupted by a signal. */
+					errno = 0;
+					continue;
+				}else {
+					/* This indicates, irrespective of, there was data to read or not, we got an error
+					 * during operation. */
+					free(buffer);
+					throw_serialcom_exception(env, 1, errno, NULL);
+					return -1;
+				}
 			}else {
 				free(buffer);
 				return 0;
@@ -676,7 +684,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialCom
  * @return NULL always as of now.
  */
 JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_getPhysicalDescriptorR
-  (JNIEnv *env, jobject obj, jlong fd) {
+(JNIEnv *env, jobject obj, jlong fd) {
 	return NULL;
 }
 
