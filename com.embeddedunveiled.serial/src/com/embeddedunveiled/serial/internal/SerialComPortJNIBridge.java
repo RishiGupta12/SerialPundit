@@ -272,6 +272,7 @@ public final class SerialComPortJNIBridge {
 	public native long openComPort(String portName, boolean enableRead, boolean enableWrite, boolean exclusiveOwner);
 	public native int closeComPort(long handle);
 	public native byte[] readBytes(long handle, int byteCount);
+	public native int readBytes(long handle, byte[] buffer, int offset, int length);
 	public native byte[] readBytesBlocking(long handle, int byteCount, long context);
 	public native int readBytesDirect(long handle, ByteBuffer buffer, int offset, int length);
 	public native int writeBytes(long handle, byte[] buffer, int delay);
@@ -321,6 +322,4 @@ public final class SerialComPortJNIBridge {
 
 	// Bluetooth
 	public native String[] listBTSPPDevNodesWithInfo();
-
-
 }

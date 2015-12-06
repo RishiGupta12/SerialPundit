@@ -1303,6 +1303,39 @@ public final class SerialComManager {
 	}
 
 	/** 
+	 * <p>This is a utility method to read a single byte from serial port.</p>
+	 * 
+	 * <p>Its effect is same as readBytes(handle, 1)</p>
+	 * 
+	 * @param handle of the port from which to read data bytes.
+	 * @param buffer data byte buffer in which bytes from serial port will be saved.
+	 * @param offset index in given byte array at which first data byte will be placed.
+	 * @param length number of bytes to read into given buffer.
+	 * @return number of bytes read from serial port.
+	 * @throws SerialComException if an I/O error occurs.
+	 * @throws NullPointerException if <code>buffer</code> is <code>null</code>.
+	 * @throws IndexOutOfBoundsException if offset is negative, length is negative, or length is 
+	 *          greater than buffer.length - offset.
+	 */
+	public int readBytes(long handle, byte[] buffer, int offset, int length) throws SerialComException {
+		if(buffer == null) {
+			throw new NullPointerException("Null data buffer passed to read operation !");
+		}
+		if((offset < 0) || (length < 0) || (length > (buffer.length - offset))) {
+			throw new IndexOutOfBoundsException("Index violation detected in given byte array !");
+		}
+		if(length == 0) {
+			return 0;
+		}
+
+		int numberOfBytesRead = mComPortJNIBridge.readBytes(handle, buffer, offset, length);
+		if(numberOfBytesRead < 0) {
+			throw new SerialComException("Could not read data from serial port. Please retry !");
+		}
+		return numberOfBytesRead;
+	}
+
+	/** 
 	 * <p>Read specified number of bytes from given serial port.</p>
 	 * <p>1. If data is read from serial port, array of bytes containing data is returned.</p>
 	 * <p>2. If there was no data in serial port to read, null is returned.</p>
