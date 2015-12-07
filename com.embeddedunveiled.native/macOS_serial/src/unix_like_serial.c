@@ -143,7 +143,7 @@ __attribute__((constructor)) static void init_scmlib() {
  */
 
 /* Release mutex when library is un-loaded. */
-__attribute__((destructor)) static void exit_scmlib() {
+__attribute__((destructor)) static void exit_scmcomlib() {
 	pthread_mutex_destroy(&mutex);
 }
 
@@ -432,7 +432,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
  * 2. Partial read followed by complete read.
  * 3. Partial read followed by partial read then complete read.
  *
- * @return data read or NULL.
+ * @return data byte buffer containing data bytes read from serial port or NULL if an error occurs.
  * @throws SerialComException if any JNI function, system call or C function fails.
  */
 JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_readBytes(JNIEnv *env,
@@ -527,14 +527,121 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialCom
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
+ * Method:    readBytes
+ * Signature: (J[BIIJ)I
+ *
+ * Read data bytes from serial port and places into given buffer. The number of bytes to read i.e.
+ * length must not be greater than 2048 bytes.
+ *
+ * If the context specifies blocking I/O, it will block until data is available at serial port or
+ * will not block if context specifies non-blocking I/O.
+ *
+ * If the blocked I/O read operation is unblocked, it throws SerialComManager.EXP_UNBLOCKIO exception.
+ *
+ * @return number of data bytes read from serial port or -1 if an error occurs.
+ * @throws SerialComException if any JNI function, system call or C function fails.
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_readBytes__J_3BII(JNIEnv *env,
+		jobject obj, jlong fd, jbyteArray buffer, jint offset, jint length, jlong context) {
+
+	ssize_t ret = -1;
+	int result = 0;
+	fd_set fds;
+	int try_reading_data = 0;
+	jbyte buf[2 * 1024];
+
+	if(context == -1) {
+		/* non-blocking read operation needed */
+		try_reading_data = 1;
+
+	}else {
+		/* blocking read operation needed */
+
+#if defined (__linux__)
+		FD_ZERO(&fds);
+		FD_SET((int)context, &fds);
+		FD_SET(fd, &fds);
+		errno = 0;
+		result = pselect((MAX(fd, (int)context) + 1), &fds, NULL, NULL, NULL, NULL);
+#endif
+#if defined (__APPLE__)
+		FD_ZERO(&fds);
+		FD_SET((int) context[0], &fds);
+		FD_SET(fd, &fds);
+		errno = 0;
+		result = pselect((MAX(fd, ((int) context[0])) + 1), &fds, NULL, NULL, NULL, NULL);
+#endif
+		if(result < 0) {
+			throw_serialcom_exception(env, 1, errno, NULL);
+			return -1;
+		}
+
+		/* check if we should just come out waiting state and return to caller. if yes, throw
+		 * exception with message that will be identified by application to understand that blocked
+		 * I/O has been unblocked. */
+#if defined (__linux__)
+		if((result > 0) && FD_ISSET((int)context, &fds)) {
+			throw_serialcom_exception(env, 3, 0, E_UNBLOCKIO);
+			return -1;
+		}
+#endif
+#if defined (__APPLE__)
+		if((result > 0) && FD_ISSET((int)context[0], &fds)) {
+			throw_serialcom_exception(env, 3, 0, E_UNBLOCKIO);
+			return -1;
+		}
+#endif
+
+		if((result > 0) && FD_ISSET(fd, &fds)) {
+			try_reading_data = 1;
+		}
+	}
+
+	if(try_reading_data == 1) {
+		do {
+			errno = 0;
+			ret = read(fd, buf, length);
+			if(ret > 0) {
+				/* copy data from native buffer to Java buffer. */
+				(*env)->SetByteArrayRegion(env, buffer, (jsize)offset, (jsize)ret, buf);
+				if((*env)->ExceptionOccurred(env) != NULL) {
+					throw_serialcom_exception(env, 3, 0, E_SETBYTEARRREGIONSTR);
+					return -1;
+				}
+				return (jint)ret;
+			}else if(ret < 0) {
+				if(errno == EINTR) {
+					/* This indicates that we should retry as we are just interrupted by a signal. */
+					errno = 0;
+					continue;
+				}else {
+					/* This indicates, irrespective of, there was data to read or not, we got an error
+					 * during operation. */
+					throw_serialcom_exception(env, 1, errno, NULL);
+					return -1;
+				}
+			}else {
+				return 0;
+			}
+		}while (1);
+	}
+
+	/* should not be reached */
+	return -1;
+}
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
  * Method:    readBytesBlocking
  * Signature: (JIJ)[B
  *
- * Block on :
- * (1) serial port file descriptor to become available for reading
- * (2) event file descriptor that is used to come out of blocking state
+ * Blocks on :
+ * (1) serial port file descriptor to become available for reading.
+ * (2) event file descriptor that is used to come out of blocking state.
  *
- * @return NULL if an error occurs.
+ * If the blocked I/O read operation is unblocked, it throws SerialComManager.EXP_UNBLOCKIO exception.
+ *
+ * @return data byte buffer containing data bytes read from serial port or NULL if an error occurs.
  * @throws SerialComException if any JNI function, system call or C function fails.
  */
 JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_readBytesBlocking(JNIEnv *env,
@@ -553,14 +660,18 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialCom
 	jbyteArray dataRead;
 
 	/* prepare to block */
+#if defined (__linux__)
 	FD_ZERO(&fds);
 	FD_SET((int)context, &fds);
 	FD_SET(fd, &fds);
 	errno = 0;
-#if defined (__linux__)
 	result = pselect((MAX(fd, (int)context) + 1), &fds, NULL, NULL, NULL, NULL);
 #endif
 #if defined (__APPLE__)
+	FD_ZERO(&fds);
+	FD_SET((int) context[0], &fds);
+	FD_SET(fd, &fds);
+	errno = 0;
 	result = pselect((MAX(fd, ((int) context[0])) + 1), &fds, NULL, NULL, NULL, NULL);
 #endif
 	if(result < 0) {
@@ -570,10 +681,18 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialCom
 
 	/* check if we should just come out waiting state and return to caller. if yes, throw exception with
 	 * message that will be identified by application to understand that blocked I/O has been unblocked. */
-	if((result > 0) && FD_ISSET((int)context, &fds)) {
-		throw_serialcom_exception(env, 3, 0, E_UNBLOCKIO);
-		return NULL;
-	}
+#if defined (__linux__)
+		if((result > 0) && FD_ISSET((int)context, &fds)) {
+			throw_serialcom_exception(env, 3, 0, E_UNBLOCKIO);
+			return NULL;
+		}
+#endif
+#if defined (__APPLE__)
+		if((result > 0) && FD_ISSET((int)context[0], &fds)) {
+			throw_serialcom_exception(env, 3, 0, E_UNBLOCKIO);
+			return NULL;
+		}
+#endif
 
 	if((result > 0) && FD_ISSET(fd, &fds)) {
 		/* reaching here means serial port has data to read */
@@ -652,8 +771,6 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialCom
 		} while(1);
 	}
 
-	fprintf(stderr, "%d\n", 5);
-	fflush(stderr);
 	/* should not be reached */
 	return NULL;
 }
@@ -666,7 +783,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialCom
  * It does not modify the direct byte buffer attributes position, capacity, limit and mark. The
  * application design is expected to take care of this as and when required in appropriate manner.
  *
- * @return number of bytes read from serial port, 0 if there was no data in serial port buffer, -1 
+ * @return number of bytes read from serial port, 0 if there was no data in serial port buffer, -1
  *        if an error occurs.
  * @throws SerialComException if any JNI function, system call or C function fails.
  */
@@ -847,6 +964,8 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
  * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
  * Method:    writeSingleByte
  * Signature: (JB)I
+ *
+ * Writes single data byte to serial port to be sent to target end.
  *
  * @return 0 on success otherwise -1 if an error occurs.
  * @throws SerialComException if any JNI function, system call or C function fails.
@@ -1239,6 +1358,8 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJ
  * Method:    unblockBlockingIOOperation
  * Signature: (J)I
  *
+ * Causes data event or event as required to emulate an event.
+ *
  * @return 0 on success otherwise -1 if an error occurs.
  * @throws SerialComException if any JNI function, system call or C function fails.
  */
@@ -1272,6 +1393,8 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
  * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
  * Method:    destroyBlockingIOContext
  * Signature: (J)I
+ *
+ * Closes the event file descriptors and releases memory if it was allocated.
  *
  * @return 0 on success otherwise -1 if an error occurs.
  * @throws SerialComException if any JNI function, system call or C function fails.
@@ -1440,15 +1563,15 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
 		break;
 		}
 #if defined (__linux__)
-		currentconfig.c_ispeed = baud;
-		currentconfig.c_ospeed = baud;
+					currentconfig.c_ispeed = baud;
+currentconfig.c_ospeed = baud;
 #elif defined (__APPLE__) || defined (__SunOS)
-		errno = 0;
-		ret = cfsetspeed(&currentconfig, baud);
-		if(ret < 0) {
-			throw_serialcom_exception(env, 1, errno, NULL);
-			return -1;
-		}
+errno = 0;
+ret = cfsetspeed(&currentconfig, baud);
+if(ret < 0) {
+	throw_serialcom_exception(env, 1, errno, NULL);
+	return -1;
+}
 #else
 #endif
 	}
@@ -1546,12 +1669,12 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
  *
  * Defines how the data communication through serial port will be controlled.
  *
- * For software flow control; IXON, IXOFF, and IXANY are used . If IXOFF is set, then software 
- * flow control is enabled on the TTY's input queue. The TTY transmits a STOP character when the 
- * program cannot keep up with its input queue and transmits a START character when its input queue 
- * in nearly empty again. If IXON is set, software flow control is enabled on the TTY's output queue. 
- * The TTY blocks writes by the program when the device to which it is connected cannot keep up with 
- * it. If IXANY is set, then any character received by the TTY from the device restarts the output 
+ * For software flow control; IXON, IXOFF, and IXANY are used . If IXOFF is set, then software
+ * flow control is enabled on the TTY's input queue. The TTY transmits a STOP character when the
+ * program cannot keep up with its input queue and transmits a START character when its input queue
+ * in nearly empty again. If IXON is set, software flow control is enabled on the TTY's output queue.
+ * The TTY blocks writes by the program when the device to which it is connected cannot keep up with
+ * it. If IXANY is set, then any character received by the TTY from the device restarts the output
  * that has been suspended.
  *
  * @return 0 on success otherwise -1 if an error occurs.
@@ -1723,7 +1846,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
  *         NULL if an error occurs.
  * @throws SerialComException if any JNI function, system call or C function fails.
  */
-JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_getCurrentConfigurationU(JNIEnv *env, 
+JNIEXPORT jintArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_getCurrentConfigurationU(JNIEnv *env,
 		jobject obj, jlong fd) {
 
 	int ret = -1;
@@ -1911,7 +2034,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
 		PORTIOBUFFER = TCOFLUSH;
 	}else {
 		/* this case is handled in java layer itself */
-	}	
+	}
 
 	errno = 0;
 	ret = tcflush(fd, PORTIOBUFFER);
@@ -2012,7 +2135,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
  *
  * The status of modem/control lines is returned as array of integers where '1' means line is asserted
  * and '0' means de-asserted. The sequence of lines matches in both java layer and native layer.
- * 
+ *
  * Return sequence is CTS, DSR, DCD, RI, LOOP, RTS, DTR respectively.
  *
  * @return array containing status of modem control lines 0 on success otherwise NULL if
@@ -3062,7 +3185,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
  * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
  * Method:    rescanUSBDevicesHW
  * Signature: ()I
- * 
+ *
  * Applicable to Windows operating system only.
  *
  * @return -1 always.

@@ -51,25 +51,27 @@ import com.embeddedunveiled.serial.datalogger.SerialComToKeyStrokeToApp;
  * <p>Root of this library.</p>
  * <p>The WIKI page for this project is here : http://www.embeddedunveiled.com/ </p>
  * 
- * <p><strong>1: System information</strong></p>
- * getOSType()<br/>
- * getCPUArchitecture()<br/>
+ * <table summary="">
  * 
+ * <tr><td>
+ * <p><strong>1: System information</strong></p>
+ * getOSType<br/>
+ * getCPUArchitecture<br/>
+ * </td><td>
  * <p><strong>2: Serial ports and device discovery</strong></p>
- * listAvailableComPorts()<br/>
+ * listAvailableComPorts<br/>
  * listUSBdevicesWithInfo<br/>
  * findComPortFromUSBAttributes<br/>
  * isUSBDevConnected<br/>
+ * </td></tr>
  * 
+ * <tr><td>
  * <p><strong>3 : Miscellaneous</strong></p>
  * openComPort<br/>
  * closeComPort<br/>
  * createBlockingIOContext<br/>
  * unblockBlockingIOOperation<br/>
  * destroyBlockingIOContext<br/>
- * createPortPollingIOContext<br/>
- * unblockPortPollingBlockedIOoperation<br/>
- * destroyPortPollingIOContext<br/>
  * fineTuneReadBehaviour<br/>
  * clearPortIOBuffers<br/>
  * getInterruptCount<br/>
@@ -77,23 +79,25 @@ import com.embeddedunveiled.serial.datalogger.SerialComToKeyStrokeToApp;
  * findIRQnumberForComPort<br/>
  * getByteCountInPortIOBuffer<br/>
  * getPortName<br/>
- * 
+ * </td><td>
  * <p><strong>4 : Data exchange</strong></p>
- * writeBytes<br/>
- * writeSingleByte<br/>
- * writeString<br/>
- * writeSingleInt<br/>
- * writeIntArray<br/>
- * writeBytesDirect<br/>
- * writeBytesBlocking<br/>
- * readBytes<br/>
- * readSingleByte<br/>
- * readString<br/>
- * readBytesDirect<br/>
- * readBytesBlocking<br/>
- * createInputByteStream<br/>
- * createOutputByteStream<br/>
+ * writeBytes (non-blocking)<br/>
+ * writeSingleByte (non-blocking)<br/>
+ * writeString (non-blocking)<br/>
+ * writeSingleInt (non-blocking)<br/>
+ * writeIntArray (non-blocking)<br/>
+ * writeBytesDirect (non-blocking)<br/>
+ * writeBytesBlocking (blocking)<br/>
+ * readBytes (blocking, non-blocking)<br/>
+ * readSingleByte (non-blocking)<br/>
+ * readString (non-blocking)<br/>
+ * readBytesDirect (non-blocking)<br/>
+ * readBytesBlocking (blocking)<br/>
+ * createInputByteStream (blocking, non-blocking)<br/>
+ * createOutputByteStream (blocking, non-blocking)<br/>
+ * </td></tr>
  * 
+ * <tr><td>
  * <p><strong>5 : Serial port configuration and control</strong></p>
  * configureComPortData<br/>
  * configureComPortControl<br/>
@@ -102,7 +106,7 @@ import com.embeddedunveiled.serial.datalogger.SerialComToKeyStrokeToApp;
  * setRTS<br/>
  * setDTR<br/>
  * sendBreak<br/>
- * 
+ * </td><td>
  * <p><strong>6 : Data, control and hot plug events</strong></p>
  * registerDataListener<br/>
  * unregisterDataListener<br/>
@@ -110,25 +114,33 @@ import com.embeddedunveiled.serial.datalogger.SerialComToKeyStrokeToApp;
  * unregisterLineEventListener<br/>
  * registerUSBHotPlugEventListener<br/>
  * unregisterUSBHotPlugEventListener<br/>
+ * </td></tr>
  * 
+ * <tr><td>
  * <p><strong>7 : File transfer protocol</strong></p>
  * sendFile<br/>
  * receiveFile<br/>
- * 
+ * </td><td>
  * <p><strong>8 : IOCTL operations</strong></p>
  * getIOCTLExecutor<br/>
+ * </td></tr>
  * 
+ * <tr><td>
  * <p><strong>9 : Vendor library interfaces</strong></p>
- * getVendorLibInstance
- * 
+ * getVendorLibInstance<br/>
+ * </td><td>
  * <p><strong>10 : Serial over USB</strong></p>
  * getSerialComUSBInstance<br/>
+ * </td></tr>
  * 
+ * <tr><td>
  * <p><strong>11 : Human interface device (HID)</strong></p>
  * getSerialComHIDInstance<br/>
- * 
+ * </td><td>
  * <p><strong>12 : Serial data to application as keystroke</strong></p>
  * getSerialComKeyStrokeAppInstance<br/>
+ * </td></tr>
+ * </table>
  * 
  * [x] Native layer if fails to throw exception when an error occurs would log error message to STDERR file. 
  *     It is assumed that Java application running on production systems will deploy a Java logger which will 
@@ -1291,12 +1303,7 @@ public final class SerialComManager {
 
 	/** 
 	 * <p>Prepares a context that should be passed to readBytesBlocking, writeBytesBlocking,  
-	 * unblockBlockingIOOperation and destroyBlockingIOContext methods.</p>
-	 * 
-	 * <p>Application must catch exception thrown by this method. When this method returns and 
-	 * exception with message SerialComManager.EXP_UNBLOCKIO is thrown, it indicates that the 
-	 * blocked read method was explicitly unblocked by another thread (possibly because serial 
-	 * port is going to be closed).</p>
+	 * readBytes, unblockBlockingIOOperation and destroyBlockingIOContext methods.</p>
 	 * 
 	 * @return context value that should be passed to destroyBlockingIOContext, readBytesBlocking 
 	 *          and writeBytesBlocking methods.
@@ -1356,6 +1363,11 @@ public final class SerialComManager {
 	 * 2048 (1 <= byteCount <= 2048). This method may return less than the requested number of bytes 
 	 * due to reasons like, there is less data in operating system buffer (serial port) or operating 
 	 * system returned less data which is also legal.</p>
+	 * 
+	 * <p>Application must catch exception thrown by this method. When this method returns and 
+	 * exception with message SerialComManager.EXP_UNBLOCKIO is thrown, it indicates that the 
+	 * blocked read method was explicitly unblocked by another thread (possibly because serial 
+	 * port is going to be closed).</p>
 	 * 
 	 * @param handle of the serial port from which to read bytes.
 	 * @param byteCount number of bytes to read from serial port.
@@ -1471,78 +1483,24 @@ public final class SerialComManager {
 		return readBytes(handle, 1);
 	}
 
-
 	/** 
-	 * <p>Prepares a context that should be passed to unblockPortPollingBlockedIOoperation, 
-	 * destroyPortPollingIOContext and readBytes method.</p>
+	 * <p>Reads data bytes from serial port into given buffer. This method is mainly intended for use in 
+	 * application design which needs to poll serial port continuously for presence of data.</p>
 	 * 
-	 * <p>Application must catch exception thrown by this method. When this method returns and 
-	 * exception with message SerialComManager.EXP_UNBLOCKIO is thrown, it indicates that the 
-	 * blocked read method was explicitly unblocked by another thread (possibly because serial 
-	 * port is going to be closed).</p>
+	 * <p>This method can be used in blocking mode or non-blocking mode. If context is -1, this method will 
+	 * not block. For blocking behavior pass context value obtained by call to createBlockingIOContext method. 
+	 * If a valid context is passed, this method will block until there is data to read from serial port.</p>
 	 * 
-	 * <p>The blocking/non-blocking behavior of readBytes method can be defined through blockingRead 
-	 * argument of this method based on application requirements. If blockingRead is set to true, readBytes 
-	 * method will block until there is data to read from serial port. If the blockingRead is set to 
-	 * false, readBytes method will not block.</p>
-	 * 
-	 * @param blockingRead set to true if readBytes method should block if there is no data to 
-	 *         read at serial port otherwise false for non-blocking operation.
-	 * @return context value that should be passed to unblockPortPollingBlockedIOoperation, 
-	 *          destroyPortPollingIOContext and readBytes method.
-	 * @throws SerialComException if an I/O error occurs.
-	 */
-	public long createPortPollingIOContext(boolean blockingRead) throws SerialComException {
-		long ret = mComPortJNIBridge.createPortPollingIOContext(blockingRead);
-		if(ret < 0) {
-			throw new SerialComException("Could not create polling I/O context. Please retry !");
-		}
-		return ret;
-	}
-
-	/** 
-	 * <p>Unblocks a blocked I/O operation if it exist. This causes closing of serial port possible 
-	 * gracefully and return the worker thread that called blocking read method to return and proceed 
-	 * as per application design.</p>
-	 * 
-	 * @param context context obtained from call to createPortPollingIOContext method.
-	 * @return true if blocked operation was unblocked successfully.
-	 * @throws SerialComException if an I/O error occurs.
-	 */
-	public boolean unblockPortPollingBlockedIOoperation(long context) throws SerialComException {
-		int ret = mComPortJNIBridge.unblockPortPollingBlockedIOoperation(context);
-		if(ret < 0) {
-			throw new SerialComException("Could not unblock the blocked I/O operation. Please retry !");
-		}
-		return true;
-	}
-
-	/** 
-	 * <p>Destroys the context that was created by a call to createPortPollingIOContext method for 
-	 * blocking I/O operations uses.</p>
-	 * 
-	 * @param context context obtained from call to createPortPollingIOContext method.
-	 * @return true if the context gets destroyed successfully.
-	 * @throws SerialComException if an I/O error occurs.
-	 */
-	public boolean destroyPortPollingIOContext(long context) throws SerialComException {
-		int ret = mComPortJNIBridge.destroyPortPollingIOContext(context);
-		if(ret < 0) {
-			throw new SerialComException("Could not destroy blocking I/O context. Please retry !");
-		}
-		return true;
-	}
-
-	/** 
-	 * <p>This is a utility method to read a single byte from serial port.</p>
-	 * 
-	 * <p>Its effect is same as readBytes(handle, 1)</p>
+	 * <p>Application must catch exception thrown by this method if using blocking mode. When this method returns 
+	 * and exception with message SerialComManager.EXP_UNBLOCKIO is thrown, it indicates that the blocked 
+	 * read method was explicitly unblocked by another thread (possibly because serial port is going to be closed).</p>
 	 * 
 	 * @param handle of the port from which to read data bytes.
 	 * @param buffer data byte buffer in which bytes from serial port will be saved.
 	 * @param offset index in given byte array at which first data byte will be placed.
 	 * @param length number of bytes to read into given buffer (0 <= length <= 2048).
-	 * @param context context obtained from call to createPortPollingIOContext method.
+	 * @param context context obtained by call to createBlockingIOContext method for blocking behavior 
+	 *         or -1 for non-blocking behavior.
 	 * @return number of bytes read from serial port.
 	 * @throws SerialComException if an I/O error occurs.
 	 * @throws NullPointerException if <code>buffer</code> is <code>null</code>.

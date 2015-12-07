@@ -285,10 +285,6 @@ public final class SerialComPortJNIBridge {
 	public native int unblockBlockingIOOperation(long context);
 	public native int destroyBlockingIOContext(long context);
 
-	public native long createPortPollingIOContext(boolean blockingRead);
-	public native int unblockPortPollingBlockedIOoperation(long context);
-	public native int destroyPortPollingIOContext(long context);
-
 	// Modem control, buffer
 	public native int setRTS(long handle, boolean enabled);
 	public native int setDTR(long handle, boolean enabled);

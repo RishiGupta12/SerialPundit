@@ -93,8 +93,6 @@
 #define E_UDEVNETLINK         (ERROR_OFFSET + 8)
 #define E_IOSRVMATUSBDEV      (ERROR_OFFSET + 9)
 
-#define NUM_BYTES_POLL 2048
-
 /* Structure representing data that is passed to each data looper thread with info corresponding to that file descriptor. */
 struct com_thread_params {
 	JavaVM *jvm;
@@ -116,15 +114,6 @@ struct com_thread_params {
 	pthread_attr_t event_thread_attr;
 	pthread_cond_t data_cond_var;
 	pthread_cond_t event_cond_var;
-};
-
-/* Information that will be passed to operations related to serial port polling based application design. */
-struct polling_context {
-	jbyte buffer[NUM_BYTES_POLL];
-	int blocking;           /* 1 for blocking, -1 for non-blocking */
-	int evfd;
-	int pipefd_readend;
-	int pipefd_writeend;
 };
 
 #if defined (__linux__)

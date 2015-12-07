@@ -177,30 +177,6 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
- * Method:    createPortPollingIOContext
- * Signature: (Z)J
- */
-JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_createPortPollingIOContext
-  (JNIEnv *, jobject, jboolean);
-
-/*
- * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
- * Method:    unblockPortPollingBlockedIOoperation
- * Signature: (J)I
- */
-JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_unblockPortPollingBlockedIOoperation
-  (JNIEnv *, jobject, jlong);
-
-/*
- * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
- * Method:    destroyPortPollingIOContext
- * Signature: (J)I
- */
-JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_destroyPortPollingIOContext
-  (JNIEnv *, jobject, jlong);
-
-/*
- * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
  * Method:    setRTS
  * Signature: (JZ)I
  */
