@@ -112,8 +112,9 @@ final class HIDDataReader extends HIDApplication1 implements Runnable {
 					return;
 				}
 
-				// print data if read from HID device actually, readInputReportR method may return pre-maturally 
-				// if user removed device from system while readInputReportR was blocked to read it.
+				// print data if read from HID device actually, readInputReportR method may return 
+				// pre-maturally if user removed device from system while readInputReportR was 
+				// blocked to read it.
 				if(ret > 0) {
 					System.out.println(scrh.formatReportToHexR(inputReportBuffer, " "));
 				}
@@ -166,7 +167,8 @@ class HIDApplication1 {
 				// loop over the list and match our VID and PID.
 				for(int a=0; a < usbHidDevicesPresent.length; a++) {
 					if((usbHidDevicesPresent[a].getVendorID() == MY_VID) && (usbHidDevicesPresent[a].getProductID() == MY_PID)) {
-						// get the device node/path assigned by operating system to this HID device
+						// get the device node/path assigned by operating system to 
+						// this HID device
 						hidDevNode = usbHidDevicesPresent[a].getDeviceNode();
 					}
 				}
@@ -184,8 +186,8 @@ class HIDApplication1 {
 				dataReaderThread = new Thread(new HIDDataReader());
 				dataReaderThread.start();
 			}else {
-				// Create listener object and register it. Whenever our HID device will be connected, listener will 
-				// be called. HID device is then opened from listener.
+				// Create listener object and register it. Whenever our HID device will be connected, 
+				// listener will be called. HID device is then opened from listener.
 				hidAlreadyOpened = false;
 				hpdw = new HotPlugDeviceWatcher();
 				hothandle = scm.registerUSBHotPlugEventListener(hpdw, MY_VID, MY_PID, null);
