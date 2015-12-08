@@ -45,7 +45,7 @@ PROJECT
 
 ##Getting started
 
-The folder prebuilt contains ready-to-use jar file (scm-1.0.3.jar) that can be imported in any project and referenced right away.
+The folder prebuilt-release contains ready-to-use jar file (scm-1.0.3.jar) that can be imported in any project and referenced right away.
 
 ```java
 package example;
@@ -58,7 +58,6 @@ import com.embeddedunveiled.serial.SerialComManager.STOPBITS;
 
 public class Example {
 	public static void main(String[] args) {
-	
 		try {
 			SerialComManager scm = new SerialComManager();
 			long handle = scm.openComPort("/dev/ttyUSB1", true, true, false);
