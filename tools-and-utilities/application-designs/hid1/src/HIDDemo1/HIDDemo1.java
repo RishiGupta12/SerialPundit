@@ -99,7 +99,7 @@ final class HIDDataReader extends HIDApplication1 implements Runnable {
 					ret = 0;
 					ret = scrh.readInputReportR(hidDevHandle, inputReportBuffer, context);
 				} catch (Exception e) {
-					if(SerialComManager.EXP_UNBLOCKIO.equals(((SerialComException) e).getExceptionMsg())) {
+					if(SerialComHID.EXP_UNBLOCK_HIDIO.equals(((SerialComException) e).getExceptionMsg())) {
 						// this thread should exit as other thread told it to return
 						return;
 					}

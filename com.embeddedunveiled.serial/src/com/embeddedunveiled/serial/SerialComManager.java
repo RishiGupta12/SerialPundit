@@ -1521,7 +1521,7 @@ public final class SerialComManager {
 			return 0;
 		}
 
-		int numberOfBytesRead = mComPortJNIBridge.readBytes(handle, buffer, offset, length, context);
+		int numberOfBytesRead = mComPortJNIBridge.readBytesP(handle, buffer, offset, length, context);
 		if(numberOfBytesRead < 0) {
 			throw new SerialComException("Could not read data from serial port. Please retry !");
 		}

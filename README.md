@@ -7,6 +7,8 @@ The 'serial communication manager (abbreviated as scm)' is an easy to use java l
 
 It is powerfully configurable for both poll and event driven application designs be it low volume low frequency data or high volume high frequency data.
 
+It eliminates the complexities of serial port programming for different operating systems, allowing engineers to concentrate on their application logic.
+
 ##Features
 MODERN
 - Notification on USB Hotplug, calls listener whenever a USB-UART IC is added/removed.

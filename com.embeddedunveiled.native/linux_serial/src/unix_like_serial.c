@@ -527,7 +527,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialCom
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
- * Method:    readBytes
+ * Method:    readBytesP
  * Signature: (J[BIIJ)I
  *
  * Read data bytes from serial port and places into given buffer. The number of bytes to read i.e.
@@ -541,25 +541,18 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialCom
  * @return number of data bytes read from serial port or -1 if an error occurs.
  * @throws SerialComException if any JNI function, system call or C function fails.
  */
-JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_readBytes__J_3BII(JNIEnv *env,
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_readBytesP(JNIEnv *env,
 		jobject obj, jlong fd, jbyteArray buffer, jint offset, jint length, jlong context) {
 
-	fprintf(stderr, "1: %d, %d, %d\n", offset, length, context);
-	fprintf(stderr, "1: %s\n", "fjhjhgff");
-	fflush(stderr);
-	return 0;
-
+	fd_set fds;
 	ssize_t ret = -1;
 	int result = 0;
-	fd_set fds;
 	int try_reading_data = 0;
 	jbyte buf[2 * 1024];
 
 	if(context == -1) {
 		/* non-blocking read operation needed */
 		try_reading_data = 1;
-		fprintf(stderr, "2: %d, %d, %d\n", offset, length, context);
-		fflush(stderr);
 	}else {
 		/* blocking read operation needed */
 
@@ -604,15 +597,10 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
 	}
 
 	if(try_reading_data == 1) {
-		fprintf(stderr, "3: %d, %d, %d\n", offset, length, context);
-		fflush(stderr);
 		do {
 			errno = 0;
 			ret = read(fd, buf, length);
 			if(ret > 0) {
-				fprintf(stderr, "4: %d, %d, %d, %d\n", offset, length, context, ret);
-				return 0;
-				fflush(stderr);
 				/* copy data from native buffer to Java buffer. */
 				(*env)->SetByteArrayRegion(env, buffer, (jsize)offset, (jsize)ret, buf);
 				if((*env)->ExceptionOccurred(env) != NULL) {
@@ -693,16 +681,16 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialCom
 	/* check if we should just come out waiting state and return to caller. if yes, throw exception with
 	 * message that will be identified by application to understand that blocked I/O has been unblocked. */
 #if defined (__linux__)
-		if((result > 0) && FD_ISSET((int)context, &fds)) {
-			throw_serialcom_exception(env, 3, 0, E_UNBLOCKIO);
-			return NULL;
-		}
+	if((result > 0) && FD_ISSET((int)context, &fds)) {
+		throw_serialcom_exception(env, 3, 0, E_UNBLOCKIO);
+		return NULL;
+	}
 #endif
 #if defined (__APPLE__)
-		if((result > 0) && FD_ISSET((int)context[0], &fds)) {
-			throw_serialcom_exception(env, 3, 0, E_UNBLOCKIO);
-			return NULL;
-		}
+	if((result > 0) && FD_ISSET((int)context[0], &fds)) {
+		throw_serialcom_exception(env, 3, 0, E_UNBLOCKIO);
+		return NULL;
+	}
 #endif
 
 	if((result > 0) && FD_ISSET(fd, &fds)) {
@@ -1574,15 +1562,15 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
 		break;
 		}
 #if defined (__linux__)
-					currentconfig.c_ispeed = baud;
-currentconfig.c_ospeed = baud;
+		currentconfig.c_ispeed = baud;
+		currentconfig.c_ospeed = baud;
 #elif defined (__APPLE__) || defined (__SunOS)
-errno = 0;
-ret = cfsetspeed(&currentconfig, baud);
-if(ret < 0) {
-	throw_serialcom_exception(env, 1, errno, NULL);
-	return -1;
-}
+		errno = 0;
+		ret = cfsetspeed(&currentconfig, baud);
+		if(ret < 0) {
+			throw_serialcom_exception(env, 1, errno, NULL);
+			return -1;
+		}
 #else
 #endif
 	}
