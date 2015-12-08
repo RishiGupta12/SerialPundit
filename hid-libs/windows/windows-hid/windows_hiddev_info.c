@@ -369,7 +369,7 @@ jstring get_hiddev_info_string(JNIEnv *env, jlong handle, int info_required) {
 			/* reaching here means that this is a USB HID interface, get its device instance path.
 			   ID : USB\VID_04D8&PID_00DF&REV_0101&MI_02 */
 			memset(devprop_buffer, '\0', 1024);
-			cmret = CM_Get_Device_ID(next_sibling, devprop_buffer, 1024, 0);
+			cmret = CM_Get_Device_ID(firstchild, devprop_buffer, 1024, 0);
 			if (cmret != CR_SUCCESS) {
 				_snprintf_s(cmerror, 256, 256, "CM_Get_Device_ID failed with CR_xxxx error code : 0x%X\0", cmret);
 				SetupDiDestroyDeviceInfoList(usb_dev_info_set);

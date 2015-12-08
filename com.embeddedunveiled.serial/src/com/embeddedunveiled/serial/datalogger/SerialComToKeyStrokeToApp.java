@@ -59,6 +59,13 @@ public final class SerialComToKeyStrokeToApp {
 	private SerialComManager scm;
 	private long comPortHandle;
 	private long context;
+	private int startOfPacketIndex;
+	private int endOfPacketIndex;
+	private int sizeOfPacketInBytes;
+	private int totalNumOfBytesRead;
+	private int numOfBytesRead;
+	private int numOfBytesToRead;
+	private boolean packetReceptionSynchronized;
 	private Thread mDataCollectorThread;
 	private Thread mKeyStrokeSenderThread;
 	private AtomicBoolean exitDataCollectorThread = new AtomicBoolean(false);
@@ -67,13 +74,12 @@ public final class SerialComToKeyStrokeToApp {
 	private final TreeMap<Integer, Integer> preReplaceCharTree;
 	private final TreeMap<Integer, Integer> preStripOutCharTree;
 	private final TreeMap<Integer, Integer> preDropPacketTree;
+	private byte[] packetBuffer;
 
 	/**
 	 * 
 	 */
-	class RawDataCollectorAndPreProcessor implements Runnable {
-
-		byte[] rawData;
+	private class RawDataCollectorAndPreProcessor implements Runnable {
 
 		@Override
 		public void run() {
@@ -87,12 +93,16 @@ public final class SerialComToKeyStrokeToApp {
 
 			while(true) {
 				// get raw data bytes from given serial port
-				try {
-					rawData = scm.readBytesBlocking(comPortHandle, 1024, context);
-				} catch (SerialComException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+//				try {
+//					if(packetReceptionSynchronized == true) {
+////						numOfBytesRead = scm.readBytes(comPortHandle, packetBuffer, offset, length, context);
+//					}else {
+//						
+//					}
+//				} catch (SerialComException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				}
 
 				// pre-process translation
 

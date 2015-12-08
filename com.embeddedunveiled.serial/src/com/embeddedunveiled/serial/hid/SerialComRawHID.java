@@ -29,11 +29,22 @@ import com.embeddedunveiled.serial.usb.SerialComUSBHID;
  * will not be parsed. The application must understand meaning and format of each field in report 
  * exchanged.</p>
  * 
+ * <p>This API for human interface device communication uses kernel mode drivers provided by operating system.</p>
+ * 
  * <p>Applications may develop user space drivers using raw HID methods in this class.</p>
  * 
+ * <table summary="">
+ * <tr><td>
  * <p><strong>1: Device discovery</strong></p>
  * listHIDdevicesWithInfoR<br/>
  * 
+ * <p><strong>3 : Information</strong></p>
+ * getManufacturerStringR<br/>
+ * getProductStringR<br/>
+ * getSerialNumberStringR<br/>
+ * getIndexedStringR<br/>
+ * findDriverServingHIDDeviceR<br/>
+ * </td><td>
  * <p><strong>2 : Data/Configuration exchange</strong></p>
  * writeOutputReportR<br/>
  * readInputReportR<br/>
@@ -43,14 +54,7 @@ import com.embeddedunveiled.serial.usb.SerialComUSBHID;
  * createBlockingHIDIOContextR<br/>
  * unblockBlockingHIDIOOperationR<br/>
  * destroyBlockingIOContextR<br/>
- * 
- * <p><strong>3 : Information</strong></p>
- * getManufacturerStringR<br/>
- * getProductStringR<br/>
- * getSerialNumberStringR<br/>
- * getIndexedStringR<br/>
- * findDriverServingHIDDeviceR<br/>
- * 
+ * </td><td>
  * <p><strong>4 : Miscellaneous</strong></p>
  * openHidDeviceR<br/>
  * closeHidDeviceR<br/>
@@ -58,6 +62,8 @@ import com.embeddedunveiled.serial.usb.SerialComUSBHID;
  * getReportDescriptorR<br/>
  * getPhysicalDescriptorR<br/>
  * formatReportToHexR<br/>
+ * </td></tr>
+ * </table>
  * 
  * @author Rishi Gupta
  */
