@@ -55,11 +55,11 @@ import com.embeddedunveiled.serial.internal.SerialComSystemProperty;
  * </p>
  *
  * <p>[3] The udev rules to support various applications designs are here : 
- * https://github.com/RishiGupta12/serial-communication-manager/blob/master/tests/99-scm-extra-udev.rules</p>
+ * https://github.com/RishiGupta12/serial-communication-manager/blob/master/tools-and-utilities/99-scm-extra-udev.rules</p>
  *
  * <p>[4] It seems like d2xx drivers are user space usb drivers using libusb. So if you encounter any 
  * problems with permissions add following udev rules : 
- * https://github.com/RishiGupta12/serial-communication-manager/blob/master/tests/99-scm-ftdi-d2xx.rules</p>
+ * https://github.com/RishiGupta12/serial-communication-manager/blob/master/tools-and-utilities/99-scm-ftdi-d2xx.rules</p>
  * 
  * <p>[5] The application notes for FTDI devices are here : http://www.ftdichip.com/Support/Documents/AppNotes.htm</p>
  * 

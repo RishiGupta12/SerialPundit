@@ -151,7 +151,7 @@ public final class SerialComRawHID extends SerialComHID {
 	 * 
 	 * <p>In Linux it may be required to add correct udev rules so as to grant permission to 
 	 * access to the USB-HID device. Refer this udev rule file for MCP2200 as an example : 
-	 * https://github.com/RishiGupta12/serial-communication-manager/blob/master/tests/99-scm-mcp2200-hid.rules</p>
+	 * https://github.com/RishiGupta12/serial-communication-manager/blob/master/tools-and-utilities/99-scm-mcp2200-hid.rules</p>
 	 * 
 	 * <p>In Windows, a unique physical device object (PDO) is created for each Top Level Collection 
 	 * described by the Report Descriptor and there will be device instance for each Top Level 
