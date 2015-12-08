@@ -544,6 +544,11 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialCom
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_readBytes__J_3BII(JNIEnv *env,
 		jobject obj, jlong fd, jbyteArray buffer, jint offset, jint length, jlong context) {
 
+	fprintf(stderr, "1: %d, %d, %d\n", offset, length, context);
+	fprintf(stderr, "1: %s\n", "fjhjhgff");
+	fflush(stderr);
+	return 0;
+
 	ssize_t ret = -1;
 	int result = 0;
 	fd_set fds;
@@ -553,7 +558,8 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
 	if(context == -1) {
 		/* non-blocking read operation needed */
 		try_reading_data = 1;
-
+		fprintf(stderr, "2: %d, %d, %d\n", offset, length, context);
+		fflush(stderr);
 	}else {
 		/* blocking read operation needed */
 
@@ -598,10 +604,15 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
 	}
 
 	if(try_reading_data == 1) {
+		fprintf(stderr, "3: %d, %d, %d\n", offset, length, context);
+		fflush(stderr);
 		do {
 			errno = 0;
 			ret = read(fd, buf, length);
 			if(ret > 0) {
+				fprintf(stderr, "4: %d, %d, %d, %d\n", offset, length, context, ret);
+				return 0;
+				fflush(stderr);
 				/* copy data from native buffer to Java buffer. */
 				(*env)->SetByteArrayRegion(env, buffer, (jsize)offset, (jsize)ret, buf);
 				if((*env)->ExceptionOccurred(env) != NULL) {
