@@ -73,6 +73,7 @@ final class HotPlugDeviceWatcher extends HIDApplication1 implements ISerialComUS
 			try {
 				scrh.closeHidDeviceR(hidDevHandle);
 				hidAlreadyOpened = false;
+				deviceRemoved = true;
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -95,6 +96,7 @@ final class HIDDataReader extends HIDApplication1 implements Runnable {
 			while(true) {
 				try {
 					// read data from HID device, it will block if there  is no data
+					ret = 0;
 					ret = scrh.readInputReportR(hidDevHandle, inputReportBuffer, context);
 				} catch (Exception e) {
 					if(SerialComManager.EXP_UNBLOCKIO.equals(((SerialComException) e).getExceptionMsg())) {
@@ -103,8 +105,18 @@ final class HIDDataReader extends HIDApplication1 implements Runnable {
 					}
 				}
 
-				//print data read on screen
-				System.out.println(scrh.formatReportToHexR(inputReportBuffer, " "));
+				// user removed HID device from system, eit this thread.
+				// it will get created automatically when user insert device
+				// in system again.
+				if(deviceRemoved == true) {
+					return;
+				}
+
+				// print data if read from HID device actually, readInputReportR method may return pre-maturally 
+				// if user removed device from system while readInputReportR was blocked to read it.
+				if(ret > 0) {
+					System.out.println(scrh.formatReportToHexR(inputReportBuffer, " "));
+				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -131,6 +143,7 @@ class HIDApplication1 {
 	protected static long context = 0;
 	protected static int ret = 0;
 	protected static Thread dataReaderThread = null;
+	protected static boolean deviceRemoved = false;
 
 	/* ************ */
 	// Set buffer size as per your HID device, this example id for MCP2200.
