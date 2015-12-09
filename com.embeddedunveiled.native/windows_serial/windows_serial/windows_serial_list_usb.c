@@ -191,18 +191,27 @@ jobjectArray list_usb_devices(JNIEnv *env, jint vendor_to_match) {
 			return NULL;
 		}
 		insert_jstrarraylist(&list, usb_dev_info);
-
-		/* PRODUCT (idProduct field of USB device descriptor) */
+		
+		/* PRODUCT
+			(idProduct field of USB device descriptor) */
 		memset(buffer, '\0', sizeof(buffer));
 		ret = SetupDiGetDeviceProperty(usb_dev_info_set, &usb_dev_instance, &DEVPKEY_Device_BusReportedDeviceDesc, &proptype, (BYTE *)buffer, sizeof(buffer), &size, 0);
 		if (ret == FALSE) {
-			SetupDiDestroyDeviceInfoList(usb_dev_info_set);
-			free_jstrarraylist(&list);
-			throw_serialcom_exception(env, 4, HRESULT_FROM_SETUPAPI(GetLastError()), NULL);
-			return NULL;
+			/* fallback to SPDRP_DEVICEDESC if DEVPKEY_Device_BusReportedDeviceDesc fails */
+			ret = SetupDiGetDeviceRegistryProperty(usb_dev_info_set, &usb_dev_instance, SPDRP_DEVICEDESC, &regproptype, (BYTE *)buffer, sizeof(buffer), &size);
+			if (ret == FALSE) {
+				/* if second attempt fails, throw error, we need to investigate drivers/firmware etc */
+				SetupDiDestroyDeviceInfoList(usb_dev_info_set);
+				free_jstrarraylist(&list);
+				throw_serialcom_exception(env, 4, HRESULT_FROM_SETUPAPI(GetLastError()), NULL);
+				return NULL;
+			}
+			usb_dev_info = (*env)->NewString(env, buffer, (jsize)_tcslen(buffer));
+			insert_jstrarraylist(&list, usb_dev_info);
+		}else {
+			usb_dev_info = (*env)->NewString(env, buffer, (jsize)_tcslen(buffer));
+			insert_jstrarraylist(&list, usb_dev_info);
 		}
-		usb_dev_info = (*env)->NewString(env, buffer, (jsize) _tcslen(buffer));
-		insert_jstrarraylist(&list, usb_dev_info);
 
 		/* MANUFACTURER */
 		memset(buffer, '\0', sizeof(buffer));

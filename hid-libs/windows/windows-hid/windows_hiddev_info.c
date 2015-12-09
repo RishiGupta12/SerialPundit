@@ -289,13 +289,18 @@ jstring get_hiddev_info_string(JNIEnv *env, jlong handle, int info_required) {
 						return requiredInfo;
 
 					}else if (info_required == PRODUCT_STRING) {
-
+						
 						memset(devprop_buffer, '\0', sizeof(devprop_buffer));
 						ret = SetupDiGetDeviceProperty(usb_dev_info_set, &usb_dev_instance, &DEVPKEY_Device_BusReportedDeviceDesc, &proptype, (BYTE *)devprop_buffer, sizeof(devprop_buffer), &size, 0);
 						if (ret == FALSE) {
-							SetupDiDestroyDeviceInfoList(usb_dev_info_set);
-							throw_serialcom_exception(env, 4, HRESULT_FROM_SETUPAPI(GetLastError()), NULL);
-							return NULL;
+							/* fallback to SPDRP_DEVICEDESC if DEVPKEY_Device_BusReportedDeviceDesc fails */
+							ret = SetupDiGetDeviceRegistryProperty(usb_dev_info_set, &usb_dev_instance, SPDRP_DEVICEDESC, &regproptype, (BYTE *)devprop_buffer, sizeof(devprop_buffer), &size);
+							if (ret == FALSE) {
+								/* if second attempt fails, throw error, we need to investigate drivers/firmware etc */
+								SetupDiDestroyDeviceInfoList(usb_dev_info_set);
+								throw_serialcom_exception(env, 4, HRESULT_FROM_SETUPAPI(GetLastError()), NULL);
+								return NULL;
+							}
 						}
 
 						/* return product string (idProduct field of USB device descriptor) to java application */
@@ -434,13 +439,18 @@ jstring get_hiddev_info_string(JNIEnv *env, jlong handle, int info_required) {
 
 				}else if (info_required == PRODUCT_STRING) {
 
-					memset(devprop_buffer, '\0', sizeof(devprop_buffer));
-					ret = SetupDiGetDeviceProperty(usb_dev_info_set, &usb_dev_instance, &DEVPKEY_Device_BusReportedDeviceDesc, &proptype, (BYTE *)devprop_buffer, sizeof(devprop_buffer), &size, 0);
-					if (ret == FALSE) {
-						SetupDiDestroyDeviceInfoList(usb_dev_info_set);
-						throw_serialcom_exception(env, 4, HRESULT_FROM_SETUPAPI(GetLastError()), NULL);
-						return NULL;
-					}
+						memset(devprop_buffer, '\0', sizeof(devprop_buffer));
+						ret = SetupDiGetDeviceProperty(usb_dev_info_set, &usb_dev_instance, &DEVPKEY_Device_BusReportedDeviceDesc, &proptype, (BYTE *)devprop_buffer, sizeof(devprop_buffer), &size, 0);
+						if (ret == FALSE) {
+							/* fallback to SPDRP_DEVICEDESC if DEVPKEY_Device_BusReportedDeviceDesc fails */
+							ret = SetupDiGetDeviceRegistryProperty(usb_dev_info_set, &usb_dev_instance, SPDRP_DEVICEDESC, &regproptype, (BYTE *)devprop_buffer, sizeof(devprop_buffer), &size);
+							if (ret == FALSE) {
+								/* if second attempt fails, throw error, we need to investigate drivers/firmware etc */
+								SetupDiDestroyDeviceInfoList(usb_dev_info_set);
+								throw_serialcom_exception(env, 4, HRESULT_FROM_SETUPAPI(GetLastError()), NULL);
+								return NULL;
+							}
+						}
 
 					/* return product string (idProduct field of USB device descriptor) to java application */
 					requiredInfo = (*env)->NewString(env, devprop_buffer, (jsize)_tcslen(devprop_buffer));
@@ -596,13 +606,18 @@ jstring get_hiddev_info_string(JNIEnv *env, jlong handle, int info_required) {
 
 				}else if (info_required == PRODUCT_STRING) {
 
-					memset(devprop_buffer, '\0', sizeof(devprop_buffer));
-					ret = SetupDiGetDeviceProperty(usb_dev_info_set, &usb_dev_instance, &DEVPKEY_Device_BusReportedDeviceDesc, &proptype, (BYTE *)devprop_buffer, sizeof(devprop_buffer), &size, 0);
-					if (ret == FALSE) {
-						SetupDiDestroyDeviceInfoList(usb_dev_info_set);
-						throw_serialcom_exception(env, 4, HRESULT_FROM_SETUPAPI(GetLastError()), NULL);
-						return NULL;
-					}
+						memset(devprop_buffer, '\0', sizeof(devprop_buffer));
+						ret = SetupDiGetDeviceProperty(usb_dev_info_set, &usb_dev_instance, &DEVPKEY_Device_BusReportedDeviceDesc, &proptype, (BYTE *)devprop_buffer, sizeof(devprop_buffer), &size, 0);
+						if (ret == FALSE) {
+							/* fallback to SPDRP_DEVICEDESC if DEVPKEY_Device_BusReportedDeviceDesc fails */
+							ret = SetupDiGetDeviceRegistryProperty(usb_dev_info_set, &usb_dev_instance, SPDRP_DEVICEDESC, &regproptype, (BYTE *)devprop_buffer, sizeof(devprop_buffer), &size);
+							if (ret == FALSE) {
+								/* if second attempt fails, throw error, we need to investigate drivers/firmware etc */
+								SetupDiDestroyDeviceInfoList(usb_dev_info_set);
+								throw_serialcom_exception(env, 4, HRESULT_FROM_SETUPAPI(GetLastError()), NULL);
+								return NULL;
+							}
+						}
 
 					/* return product string (idProduct field of USB device descriptor) to java application */
 					requiredInfo = (*env)->NewString(env, devprop_buffer, (jsize)_tcslen(devprop_buffer));
