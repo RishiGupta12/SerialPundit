@@ -98,6 +98,11 @@
 #define E_COULDNOTPRODUCT "IOHIDDeviceGetProperty for finding usb product for given HID device returned null !"
 #define E_COULDNOTSERIAL "IOHIDDeviceGetProperty for finding serial number for given HID device returned null !"
 
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
+#define EXP_UNBLOCKHIDIO "I/O operation unblocked !"
+
 >>>>>>> upstream/master
 /* This holds information for implementing dynamically growing array in C language. */
 struct jstrarray_list {

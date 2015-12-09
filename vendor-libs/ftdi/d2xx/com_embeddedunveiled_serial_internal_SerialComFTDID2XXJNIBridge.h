@@ -130,10 +130,10 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
  * Method:    setFlowControl
- * Signature: (JICC)I
+ * Signature: (JIBB)I
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_setFlowControl
-  (JNIEnv *, jobject, jlong, jint, jchar, jchar);
+  (JNIEnv *, jobject, jlong, jint, jbyte, jbyte);
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
@@ -234,10 +234,10 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge
  * Method:    setChars
- * Signature: (JCCCC)I
+ * Signature: (JBBBB)I
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge_setChars
-  (JNIEnv *, jobject, jlong, jchar, jchar, jchar, jchar);
+  (JNIEnv *, jobject, jlong, jbyte, jbyte, jbyte, jbyte);
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComFTDID2XXJNIBridge

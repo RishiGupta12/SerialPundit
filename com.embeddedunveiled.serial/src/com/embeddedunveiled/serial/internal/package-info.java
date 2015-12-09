@@ -18,5 +18,7 @@
 /**
  * <p>Encapsulates behavior and environment required for internal use of this library 
  * in a consolidated way.</p>
+ * 
+ * @author Rishi Gupta
  */
 package com.embeddedunveiled.serial.internal;

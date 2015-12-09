@@ -37,3 +37,4 @@
 jstring get_hiddev_indexed_string(JNIEnv *env, jlong fd, int index) {
 	return NULL;
 }
+

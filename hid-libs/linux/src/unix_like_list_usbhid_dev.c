@@ -204,7 +204,7 @@ jstring linux_clean_throw_exp_usbenumeration(JNIEnv *env, int task, const char *
  * attribute is not set in descriptor or can not be obtained "---" is placed in its place.
  *
  * The array returned will be in following sequence; transport, device node, vendor ID,
- * product ID, serial, product, manufacturer, USB bus number, USB device number, location ID.
+ * product ID, serial, product, manufacturer, USB bus number, USB device number, location.
  */
 jobjectArray linux_enumerate_usb_hid_devices(JNIEnv *env, jint vendor_to_match) {
 
@@ -750,4 +750,8 @@ jobjectArray mac_enumerate_usb_hid_devices(JNIEnv *env, jint vendor_to_match, IO
 	return usbHidDevicesFound;
 }
 #endif
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
+
 >>>>>>> upstream/master

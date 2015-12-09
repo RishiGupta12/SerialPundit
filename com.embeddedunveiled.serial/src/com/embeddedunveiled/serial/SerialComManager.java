@@ -17,6 +17,7 @@
 
 package com.embeddedunveiled.serial;
 
+import java.awt.AWTException;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -27,6 +28,8 @@ import java.util.Collections;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.embeddedunveiled.serial.hid.SerialComHID;
+import com.embeddedunveiled.serial.hid.SerialComRawHID;
 import com.embeddedunveiled.serial.internal.SerialComBluetoothJNIBridge;
 import com.embeddedunveiled.serial.internal.SerialComCompletionDispatcher;
 import com.embeddedunveiled.serial.internal.SerialComErrorMapper;
@@ -38,17 +41,106 @@ import com.embeddedunveiled.serial.internal.SerialComPortJNIBridge;
 import com.embeddedunveiled.serial.internal.SerialComPortsList;
 import com.embeddedunveiled.serial.internal.SerialComSystemProperty;
 import com.embeddedunveiled.serial.usb.SerialComUSB;
-import com.embeddedunveiled.serial.usb.SerialComUSBHID;
 import com.embeddedunveiled.serial.usb.SerialComUSBdevice;
 import com.embeddedunveiled.serial.vendor.SerialComVendorLib;
 import com.embeddedunveiled.serial.bluetooth.SerialComBluetooth;
 import com.embeddedunveiled.serial.bluetooth.SerialComBluetoothSPPDevNode;
+import com.embeddedunveiled.serial.datalogger.SerialComToKeyStrokeToApp;
 
 /**
  * <p>Root of this library.</p>
  * <p>The WIKI page for this project is here : http://www.embeddedunveiled.com/ </p>
  * 
- * <p>To get an instance of {@link SerialComIOCTLExecutor} call the {@link #getIOCTLExecutor} method.</p>
+ * <table summary="">
+ * 
+ * <tr><td>
+ * <p><strong>1: System information</strong></p>
+ * getOSType<br/>
+ * getCPUArchitecture<br/>
+ * </td><td>
+ * <p><strong>2: Serial ports and device discovery</strong></p>
+ * listAvailableComPorts<br/>
+ * listUSBdevicesWithInfo<br/>
+ * findComPortFromUSBAttributes<br/>
+ * isUSBDevConnected<br/>
+ * </td></tr>
+ * 
+ * <tr><td>
+ * <p><strong>3 : Miscellaneous</strong></p>
+ * openComPort<br/>
+ * closeComPort<br/>
+ * createBlockingIOContext<br/>
+ * unblockBlockingIOOperation<br/>
+ * destroyBlockingIOContext<br/>
+ * fineTuneReadBehaviour<br/>
+ * clearPortIOBuffers<br/>
+ * getInterruptCount<br/>
+ * findDriverServingComPort<br/>
+ * findIRQnumberForComPort<br/>
+ * getByteCountInPortIOBuffer<br/>
+ * getPortName<br/>
+ * </td><td>
+ * <p><strong>4 : Data exchange</strong></p>
+ * writeBytes (non-blocking)<br/>
+ * writeSingleByte (non-blocking)<br/>
+ * writeString (non-blocking)<br/>
+ * writeSingleInt (non-blocking)<br/>
+ * writeIntArray (non-blocking)<br/>
+ * writeBytesDirect (non-blocking)<br/>
+ * writeBytesBlocking (blocking)<br/>
+ * readBytes (blocking, non-blocking)<br/>
+ * readSingleByte (non-blocking)<br/>
+ * readString (non-blocking)<br/>
+ * readBytesDirect (non-blocking)<br/>
+ * readBytesBlocking (blocking)<br/>
+ * createInputByteStream (blocking, non-blocking)<br/>
+ * createOutputByteStream (blocking, non-blocking)<br/>
+ * </td></tr>
+ * 
+ * <tr><td>
+ * <p><strong>5 : Serial port configuration and control</strong></p>
+ * configureComPortData<br/>
+ * configureComPortControl<br/>
+ * getCurrentConfiguration<br/>
+ * getLinesStatus<br/>
+ * setRTS<br/>
+ * setDTR<br/>
+ * sendBreak<br/>
+ * </td><td>
+ * <p><strong>6 : Data, control and hot plug events</strong></p>
+ * registerDataListener<br/>
+ * unregisterDataListener<br/>
+ * registerLineEventListener<br/>
+ * unregisterLineEventListener<br/>
+ * registerUSBHotPlugEventListener<br/>
+ * unregisterUSBHotPlugEventListener<br/>
+ * </td></tr>
+ * 
+ * <tr><td>
+ * <p><strong>7 : File transfer protocol</strong></p>
+ * sendFile<br/>
+ * receiveFile<br/>
+ * </td><td>
+ * <p><strong>8 : IOCTL operations</strong></p>
+ * getIOCTLExecutor<br/>
+ * </td></tr>
+ * 
+ * <tr><td>
+ * <p><strong>9 : Vendor library interfaces</strong></p>
+ * getVendorLibInstance<br/>
+ * </td><td>
+ * <p><strong>10 : Serial over USB</strong></p>
+ * getSerialComUSBInstance<br/>
+ * </td></tr>
+ * 
+ * <tr><td>
+ * <p><strong>11 : Human interface device (HID)</strong></p>
+ * getSerialComHIDInstance<br/>
+ * </td><td>
+ * <p><strong>12 : Serial data to application as keystroke</strong></p>
+ * getSerialComKeyStrokeAppInstance<br/>
+ * </td></tr>
+ * </table>
  * 
  * [x] Native layer if fails to throw exception when an error occurs would log error message to STDERR file. 
  *     It is assumed that Java application running on production systems will deploy a Java logger which will 
@@ -395,6 +487,10 @@ public final class SerialComManager {
 	/** <p>Data terminal ready mask bit constant for UART control line. </p>*/
 	public static final int DTR  = 0x40;  // 1000000
 
+	/** <p>The exception message indicating that a blocked read method has been unblocked 
+	 * and made to return to caller explicitly (irrespective there was data to read or not). </p>*/
+	public static final String EXP_UNBLOCKIO  = "I/O operation unblocked !";
+
 	/** <p>Maintain integrity and consistency among all operations, synchronize them for
 	 *  making structural changes. This array can be sorted array if scaled to large scale.</p>*/
 	private ArrayList<SerialComPortHandleInfo> handleInfo = new ArrayList<SerialComPortHandleInfo>();
@@ -559,10 +655,10 @@ public final class SerialComManager {
 	}
 
 	/**
-	 * <p>Gives operating system type as identified by this library. To interpret return integer see 
-	 * constants defined SerialComManager class.</p>
+	 * <p>Gives operating system type as identified by this library. To interpret returned integer value see 
+	 * the OS_xxxxx defined in SerialComManager class.</p>
 	 * 
-	 * @return Operating system type as identified by the scm library.
+	 * @return one of the constants OS_xxxxx defined in SerialComManager class.
 	 */
 	public int getOSType() {
 		return osType;
@@ -761,20 +857,23 @@ public final class SerialComManager {
 	}	
 
 	/** 
-	 * <p>Opens a serial port for communication. If an attempt is made to open a port which is already opened exception in throw.</p>
+	 * <p>Opens a serial port for communication. If an attempt is made to open a port which is already 
+	 * opened exception in throw.</p>
 	 * 
-	 * <p>For Linux and Mac OS X, if exclusiveOwnerShip is true, before this method return, the caller will either be exclusive owner
-	 * or not. If the caller is successful in becoming exclusive owner than all the attempt to open the same port again will cause
-	 * native code to return error. Note that a root owned process (root user) will still be able to open the port.</p>
+	 * <p>For Linux and Mac OS X, if exclusiveOwnerShip is true, before this method return, the caller 
+	 * will either be exclusive owner or not. If the caller is successful in becoming exclusive owner than 
+	 * all the attempt to open the same port again will cause native code to return error. Note that a root 
+	 * owned process (root user) will still be able to open the port.</p>
 	 * 
-	 * <p>The exclusiveOwnerShip must be true for Windows as it does not allow sharing COM ports. An exception is thrown if 
-	 * exclusiveOwnerShip is set to false.</p>
+	 * <p>The exclusiveOwnerShip must be true for Windows as it does not allow sharing COM ports. An 
+	 * exception is thrown if exclusiveOwnerShip is set to false.</p>
 	 * 
 	 * <p>For Solaris, exclusiveOwnerShip should be set to false as of now.</p>
 	 * 
-	 * <p>Sometimes, DTR acts as a modem on-hook/off-hook control for other end. By default when the SCM opens a port, it sets both
-	 *  DTR and RTS signals. So just in case other end was waiting for its DTS line to be asserted can see this end as online.
-	 *  Modern modems are highly flexible in their dependency, working and configurations. It is best to consult modem manual.</p>
+	 * <p>Sometimes, DTR acts as a modem on-hook/off-hook control for other end. By default when the SCM 
+	 * opens a port, it sets both DTR and RTS signals. So just in case other end was waiting for its DTS 
+	 * line to be asserted can see this end as online. Modern modems are highly flexible in their dependency, 
+	 * working and configurations. It is best to consult modem manual.</p>
 	 * 
 	 * <p>This method is thread safe.</p>
 	 * 
@@ -784,8 +883,8 @@ public final class SerialComManager {
 	 * @param exclusiveOwnerShip application wants to become exclusive owner of this port or not.
 	 * @return handle of the port successfully opened.
 	 * @throws SerialComException if trying to become exclusive owner when port is already opened.
-	 * @throws IllegalArgumentException if portName is null or invalid length, or if both enableRead and enableWrite are set to false,
-	 *                                   if trying to open port in Windows without being exclusive owner.
+	 * @throws IllegalArgumentException if portName is null or invalid length, or if both enableRead and 
+	 *          enableWrite are set to false, if trying to open port in Windows without being exclusive owner.
 	 */
 	public long openComPort(final String portName, boolean enableRead, boolean enableWrite, boolean exclusiveOwnerShip) throws SerialComException {
 		long handle = 0;
@@ -890,17 +989,18 @@ public final class SerialComManager {
 	}
 
 	/**
-	 * <p>This method writes bytes from the specified byte type buffer. If the method returns false, the application
-	 * should try to re-send bytes. The data has been transmitted out of serial port when this method returns.</p>
+	 * <p>This method writes bytes from the specified byte type buffer. If the method returns false, the 
+	 * application should try to re-send bytes. The data has been transmitted out of serial port when this 
+	 * method returns.</p>
 	 * 
 	 * <p>If large amount of data need to be written, consider breaking it into chunks of data of size for example
 	 * 2KB each.</p>
 	 * 
 	 * <p>Writing empty buffer i.e. zero length array is not allowed.</p>
 	 * 
-	 * <p>It should be noted that on Linux system reading from the terminal after a disconnect causes an end-of-file
-	 * condition, and writing causes an EIO error to be returned. The terminal device must be closed and reopened to
-	 * clear the condition.</p>
+	 * <p>It should be noted that on Linux system reading from the terminal after a disconnect causes 
+	 * an end-of-file condition, and writing causes an EIO error to be returned. The terminal device must 
+	 * be closed and reopened to clear the condition.</p>
 	 * 
 	 * @param handle handle of the opened port on which to write bytes.
 	 * @param buffer byte type buffer containing bytes to be written to port.
@@ -962,8 +1062,8 @@ public final class SerialComManager {
 	}
 
 	/**
-	 * <p>This method writes a string to the specified port. The library internally converts string to byte buffer. 
-	 * The data has been transmitted out of serial port when this method returns.</p>
+	 * <p>This method writes a string to the specified port. The library internally converts string 
+	 * to byte buffer. The data has been transmitted out of serial port when this method returns.</p>
 	 * 
 	 * @param handle handle of the opened port on which to write byte.
 	 * @param data the string to be send to port.
@@ -999,22 +1099,25 @@ public final class SerialComManager {
 	}
 
 	/** 
-	 * <p>Different CPU and OS will have different endianness. It is therefore we handle the endianness conversion 
-	 * as per the requirement. If the given integer is in range −32,768 to 32,767, only two bytes will be needed.
-	 * In such case we might like to send only 2 bytes to serial port. On the other hand application might be implementing
-	 * some custom protocol so that the data must be 4 bytes (irrespective of its range) in order to be interpreted 
-	 * correctly by the receiver terminal. This method assumes that integer value can be represented by 32 or less
-	 * number of bits. On x86_64 architecture, loss of precision will occur if the integer value is of more than 32 bit.</p>
+	 * <p>Different CPU and OS will have different endianness. It is therefore we handle the endianness 
+	 * conversion as per the requirement. If the given integer is in range −32,768 to 32,767, only two 
+	 * bytes will be needed. In such case we might like to send only 2 bytes to serial port. On the other 
+	 * hand application might be implementing some custom protocol so that the data must be 4 bytes 
+	 * (irrespective of its range) in order to be interpreted correctly by the receiver terminal. This method 
+	 * assumes that integer value can be represented by 32 or less number of bits. On x86_64 architecture, 
+	 * loss of precision will occur if the integer value is of more than 32 bit.</p>
 	 * 
 	 * <p>The data has been transmitted physically out of serial port when this method returns.</p>
 	 * 
-	 * <p>In java numbers are represented in 2's complement, so number 650 whose binary representation is 0000001010001010
-	 * is printed byte by byte, then will be printed as 1 and -118, because 10001010 in 2's complement is negative number.</p>
+	 * <p>In java numbers are represented in 2's complement, so number 650 whose binary representation is 
+	 * 0000001010001010 is printed byte by byte, then will be printed as 1 and -118, because 10001010 in 2's 
+	 * complement is negative number.</p>
 	 * 
 	 * @param handle handle of the opened port on which to write byte.
 	 * @param data an integer number to be sent to port.
 	 * @param delay interval between two successive bytes .
-	 * @param endianness big or little endian sequence to be followed while sending bytes representing this integer.
+	 * @param endianness big or little endian sequence to be followed while sending bytes representing 
+	 *         this integer.
 	 * @param numOfBytes number of bytes this integer can be represented in.
 	 * @return true on success false otherwise.
 	 * @throws SerialComException if an I/O error occurs.
@@ -1058,13 +1161,14 @@ public final class SerialComManager {
 	}
 
 	/** 
-	 * <p>This method send an array of integers on the specified port. The data has been transmitted out of serial 
-	 * port when this method returns.</p>
+	 * <p>This method send an array of integers on the specified port. The data has been transmitted 
+	 * out of serial port when this method returns.</p>
 	 * 
 	 * @param handle handle of the opened port on which to write byte.
 	 * @param buffer an array of integers to be sent to port.
 	 * @param delay interval between two successive bytes .
-	 * @param endianness big or little endian sequence to be followed while sending bytes representing this integer.
+	 * @param endianness big or little endian sequence to be followed while sending bytes representing 
+	 *         this integer.
 	 * @param numOfBytes number of bytes this integer can be represented in.
 	 * @return true on success false otherwise.
 	 * @throws SerialComException if an I/O error occurs.
@@ -1132,15 +1236,15 @@ public final class SerialComManager {
 	}
 
 	/**
-	 * <p>Writes the bytes from the given direct byte buffer using facilities of the underlying JVM and operating system. 
-	 * When this method returns data would have sent out of serial port physically.</p>
+	 * <p>Writes the bytes from the given direct byte buffer using facilities of the underlying JVM 
+	 * and operating system. When this method returns data would have sent out of serial port physically.</p>
 	 * 
-	 * <p>Consider using this method when developing applications based on Bluetooth serial port profile or applications 
-	 * like printing document using printer.</p>
+	 * <p>Consider using this method when developing applications based on Bluetooth serial port profile 
+	 * or applications like printing document using printer.</p>
 	 * 
-	 * <p>This method does not modify the direct byte buffer attributes position, capacity, limit and mark. The application 
-	 * design is expected to take care of this as and when required in appropriate manner. Further, this method does not 
-	 * consume or modify the data in the given buffer.</p>
+	 * <p>This method does not modify the direct byte buffer attributes position, capacity, limit and mark. 
+	 * The application design is expected to take care of this as and when required in appropriate manner. 
+	 * Further, this method does not consume or modify the data in the given buffer.</p>
 	 * 
 	 * @param handle handle of the serial port on which to write bytes.
 	 * @param buffer direct byte buffer containing bytes to be written to port.
@@ -1192,11 +1296,11 @@ public final class SerialComManager {
 	}
 
 	/**
-	 * <p>Reads the bytes from the serial port into the given direct byte buffer using facilities of the underlying 
-	 * JVM and operating system.</p>
+	 * <p>Reads the bytes from the serial port into the given direct byte buffer using facilities of 
+	 * the underlying JVM and operating system.</p>
 	 * 
-	 * <p>This method does not modify the direct byte buffer attributes position, capacity, limit and mark. The application 
-	 * design is expected to take care of this as and when required in appropriate manner.</p>
+	 * <p>This method does not modify the direct byte buffer attributes position, capacity, limit and mark. 
+	 * The application design is expected to take care of this as and when required in appropriate manner.</p>
 	 * 
 	 * @param handle handle of the serial port from which to read data bytes.
 	 * @param buffer direct byte buffer into which data bytes will be placed.
@@ -1204,7 +1308,8 @@ public final class SerialComManager {
 	 * @param length number of bytes from offset to read in buffer.
 	 * @return number of bytes read from serial port, 0 if length is 0.
 	 * @throws SerialComException if an I/O error occurs.
-	 * @throws IllegalArgumentException if buffer is null, or if position or limit is negative, or if given buffer is not direct byte buffer.
+	 * @throws IllegalArgumentException if buffer is null, or if position or limit is negative, or if 
+	 *          given buffer is not direct byte buffer.
 	 */
 	public int readBytesDirect(long handle, ByteBuffer buffer, int offset, int length) throws SerialComException {
 		if(buffer == null) {
@@ -1232,10 +1337,10 @@ public final class SerialComManager {
 
 	/** 
 	 * <p>Prepares a context that should be passed to readBytesBlocking, writeBytesBlocking,  
-	 * unblockBlockingIOOperation and destroyBlockingIOContext methods.</p>
+	 * readBytes, unblockBlockingIOOperation and destroyBlockingIOContext methods.</p>
 	 * 
-	 * @return context value that should be passed to destroyBlockingIOContext, readBytesBlocking and
-	 *          writeBytesBlocking methods.
+	 * @return context value that should be passed to destroyBlockingIOContext, readBytesBlocking 
+	 *          and writeBytesBlocking methods.
 	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public long createBlockingIOContext() throws SerialComException {
@@ -1247,7 +1352,7 @@ public final class SerialComManager {
 	}
 
 	/** 
-	 * <p>Unblocked any blocked operation if it exist. This causes closing of serial port possible 
+	 * <p>Unblocks any blocked operation if it exist. This causes closing of serial port possible 
 	 * gracefully and return the worker thread that called blocking read/write to return and proceed 
 	 * as per application design.</p>
 	 * 
@@ -1282,14 +1387,21 @@ public final class SerialComManager {
 	}
 
 	/** 
-	 * <p>Read specified number of bytes from given serial port and stay blocked till bytes arrive at serial port.</p>
+	 * <p>Read specified number of bytes from given serial port and stay blocked till bytes arrive 
+	 * at serial port.</p>
 	 * <p>1. If data is read from serial port, array of bytes containing data is returned.</p>
-	 * <p>2. If there was no data in serial port to read, null is returned. Note that this case is not possible however for 
-	 * blocking read call.</p>
+	 * <p>2. If there was no data in serial port to read, null is returned. Note that this case is 
+	 * not possible however for blocking read call.</p>
 	 * 
-	 * <p>The number of bytes to read must be greater than or equal to 1 and less than or equal to 2048 (1 <= byteCount <= 2048).
-	 * This method may return less than the requested number of bytes due to reasons like, there is less data in operating system
-	 * buffer (serial port) or operating system returned less data which is also legal.</p>
+	 * <p>The number of bytes to read must be greater than or equal to 1 and less than or equal to 
+	 * 2048 (1 <= byteCount <= 2048). This method may return less than the requested number of bytes 
+	 * due to reasons like, there is less data in operating system buffer (serial port) or operating 
+	 * system returned less data which is also legal.</p>
+	 * 
+	 * <p>Application must catch exception thrown by this method. When this method returns and 
+	 * exception with message SerialComManager.EXP_UNBLOCKIO is thrown, it indicates that the 
+	 * blocked read method was explicitly unblocked by another thread (possibly because serial 
+	 * port is going to be closed).</p>
 	 * 
 	 * @param handle of the serial port from which to read bytes.
 	 * @param byteCount number of bytes to read from serial port.
@@ -1318,9 +1430,10 @@ public final class SerialComManager {
 	 * <p>1. If data is read from serial port, array of bytes containing data is returned.</p>
 	 * <p>2. If there was no data in serial port to read, null is returned.</p>
 	 * 
-	 * <p>The number of bytes to read must be greater than or equal to 1 and less than or equal to 2048 (1 <= byteCount <= 2048).
-	 * This method may return less than the requested number of bytes due to reasons like, there is less data in operating system
-	 * buffer (serial port) or operating system returned less data which is also legal.</p>
+	 * <p>The number of bytes to read must be greater than or equal to 1 and less than or equal to 
+	 * 2048 (1 <= byteCount <= 2048). This method may return less than the requested number of bytes 
+	 * due to reasons like, there is less data in operating system buffer (serial port) or operating 
+	 * system returned less data which is also legal.</p>
 	 * 
 	 * @param handle of the serial port from which to read bytes.
 	 * @param byteCount number of bytes to read from serial port.
@@ -1340,7 +1453,8 @@ public final class SerialComManager {
 	}
 
 	/** 
-	 * <p>If user does not specify any count, library try to read DEFAULT_READBYTECOUNT (1024 bytes) bytes as default value.</p>
+	 * <p>If user does not specify any count, library try to read DEFAULT_READBYTECOUNT (1024 bytes) 
+	 * bytes as default value.</p>
 	 * 
 	 * <p>It has same effect as readBytes(handle, 1024)</p>
 	 * 
@@ -1353,10 +1467,11 @@ public final class SerialComManager {
 	}
 
 	/**
-	 * <p>This method reads data from serial port and converts it into string. Caller has more finer control over the byte operation.</p>
+	 * <p>This method reads data from serial port and converts it into string.</p>
 	 * 
-	 * <p> It Constructs a new string by decoding the specified array of bytes using the platform's default charset. The length of the new
-	 * string is a function of the charset, and hence may not be equal to the length of the byte array read from serial port.</p>
+	 * <p> It Constructs a new string by decoding the specified array of bytes using the platform's 
+	 * default charset. The length of the new string is a function of the charset, and hence may not be 
+	 * equal to the length of the byte array read from serial port.</p>
 	 * 
 	 * @param handle of port from which to read bytes.
 	 * @param byteCount number of bytes to read from this port.
@@ -1372,12 +1487,14 @@ public final class SerialComManager {
 	}
 
 	/**
-	 * <p>This method reads data from serial port and converts it into string. Caller has more finer control over the byte operation.</p>
+	 * <p>This method reads data from serial port and converts it into string.</p>
 	 * 
-	 * <p> It Constructs a new string by decoding the specified array of bytes using the platform's default charset. The length of the new
-	 * string is a function of the charset, and hence may not be equal to the length of the byte array read from serial port.</p>
+	 * <p> It Constructs a new string by decoding the specified array of bytes using the platform's 
+	 * default charset. The length of the new string is a function of the charset, and hence may not be 
+	 * equal to the length of the byte array read from serial port.</p>
 	 * 
-	 * <p>Note that the length of data bytes read using this method can not be greater than DEFAULT_READBYTECOUNT i.e. 1024.</p>
+	 * <p>Note that the length of data bytes read using this method can not be greater than 
+	 * DEFAULT_READBYTECOUNT i.e. 1024.</p>
 	 * 
 	 * @param handle of the port from which to read bytes.
 	 * @return string constructed from data read from serial port or null.
@@ -1398,6 +1515,51 @@ public final class SerialComManager {
 	 */
 	public byte[] readSingleByte(long handle) throws SerialComException {
 		return readBytes(handle, 1);
+	}
+
+	/** 
+	 * <p>Reads data bytes from serial port into given buffer. This method is mainly intended for use in 
+	 * application design which needs to poll serial port continuously for presence of data.</p>
+	 * 
+	 * <p>This method can be used in blocking mode or non-blocking mode. If context is -1, this method will 
+	 * not block. For blocking behavior pass context value obtained by call to createBlockingIOContext method. 
+	 * If a valid context is passed, this method will block until there is data to read from serial port.</p>
+	 * 
+	 * <p>Application must catch exception thrown by this method if using blocking mode. When this method returns 
+	 * and exception with message SerialComManager.EXP_UNBLOCKIO is thrown, it indicates that the blocked 
+	 * read method was explicitly unblocked by another thread (possibly because serial port is going to be closed).</p>
+	 * 
+	 * @param handle of the port from which to read data bytes.
+	 * @param buffer data byte buffer in which bytes from serial port will be saved.
+	 * @param offset index in given byte array at which first data byte will be placed.
+	 * @param length number of bytes to read into given buffer (0 <= length <= 2048).
+	 * @param context context obtained by call to createBlockingIOContext method for blocking behavior 
+	 *         or -1 for non-blocking behavior.
+	 * @return number of bytes read from serial port.
+	 * @throws SerialComException if an I/O error occurs.
+	 * @throws NullPointerException if <code>buffer</code> is <code>null</code>.
+	 * @throws IndexOutOfBoundsException if offset is negative, length is negative, or length is 
+	 *          greater than buffer.length - offset.
+	 */
+	public int readBytes(long handle, byte[] buffer, int offset, int length, long context) throws SerialComException {
+		if(buffer == null) {
+			throw new NullPointerException("Null data buffer passed to read operation !");
+		}
+		if((offset < 0) || (length < 0) || (length > (buffer.length - offset))) {
+			throw new IndexOutOfBoundsException("Index violation detected in given byte array !");
+		}
+		if(length > 2048) {
+			throw new IllegalArgumentException("Argument length can not be greater than 2048 !");
+		}
+		if(length == 0) {
+			return 0;
+		}
+
+		int numberOfBytesRead = mComPortJNIBridge.readBytesP(handle, buffer, offset, length, context);
+		if(numberOfBytesRead < 0) {
+			throw new SerialComException("Could not read data from serial port. Please retry !");
+		}
+		return numberOfBytesRead;
 	}
 
 	/**
@@ -1479,8 +1641,9 @@ public final class SerialComManager {
 	}
 
 	/**
-	 * <p>This method configures the way data communication will be controlled between DTE and DCE. This specifies flow control and actions that will
-	 * be taken when an error is encountered in communication.</p>
+	 * <p>This method configures the way data communication will be controlled between DTE and DCE. 
+	 * This specifies flow control and actions that will be taken when an error is encountered in 
+	 * communication.</p>
 	 * 
 	 * @param handle of opened port to which need to be coonfigured.
 	 * @param flowctrl flow control, how data flow will be controlled (refer FLOWCONTROL enum for this).
@@ -1509,7 +1672,10 @@ public final class SerialComManager {
 			throw new SerialComException("Invalid handle passed for the requested operation !");
 		}
 
-		int ret = mComPortJNIBridge.configureComPortControl(handle, flowctrl.getValue(), xon, xoff, ParFraError, overFlowErr);
+		int xonCh = (int) xon;
+		int xoffCh = (int) xoff;
+
+		int ret = mComPortJNIBridge.configureComPortControl(handle, flowctrl.getValue(), ((byte) xonCh), ((byte) xoffCh), ParFraError, overFlowErr);
 		if(ret < 0) {
 			/* extra check */
 			throw new SerialComException("Could not configure serial port. Please retry !");
@@ -1832,7 +1998,7 @@ public final class SerialComManager {
 	 * @throws SerialComException if wrong handle is passed or operation can not be done successfully.
 	 * @throws IllegalArgumentException if invalid combination of arguments is passed.
 	 */
-	public boolean fineTuneRead(long handle, int vmin, int vtime, int rit, int rttm, int rttc) throws SerialComException {
+	public boolean fineTuneReadBehaviour(long handle, int vmin, int vtime, int rit, int rttm, int rttc) throws SerialComException {
 		int ret = 0;
 		boolean handlefound = false;		
 		if(osType == SerialComManager.OS_WINDOWS) {
@@ -2687,6 +2853,15 @@ public final class SerialComManager {
 	}
 
 	/**
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
+	 * <p>Allocate, initialize and return an instance of requested mode for communication with 
+	 * HID device. If the value of variable type is MODE_RAW, instance of class SerialComRawHID 
+	 * is returned. In this mode raw reports are sent and received with device (no report parsing 
+	 * is done). If the type is MODE_PARSED, reports are parsed by operating system as described 
+	 * by report descriptor of HID device.</p>
+	 * 
 >>>>>>> upstream/master
 	 * <p>Initialize and return an instance of requested type for serial communication based on 
 	 * HID specification. The type argument should be HID_GENERIC for most of the applications. 
@@ -2700,9 +2875,13 @@ public final class SerialComManager {
 	 * used if loadedLibName is null.</p>
 	 * 
 <<<<<<< HEAD
+<<<<<<< HEAD
 	 * @param type one of the constants HID_XXXX defined in SerialComHID.
 =======
 	 * @param type one of the constants HID_XXXX defined in SerialComHID class.
+>>>>>>> upstream/master
+=======
+	 * @param type one of the constants MODE_XXXX defined in SerialComHID class.
 >>>>>>> upstream/master
 	 * @param directoryPath absolute path of directory to be used for extraction.
 	 * @param loadedLibName library name without extension (do not append .so, .dll or .dylib etc.).
@@ -2742,17 +2921,27 @@ public final class SerialComManager {
 			}
 		}
 
-		if(type == SerialComHID.HID_GENERIC) {
-			return new SerialComHID(mSerialComHIDJNIBridge, osType);
+		if(type == SerialComHID.MODE_RAW) {
+			return new SerialComRawHID(mSerialComHIDJNIBridge, osType);
 		}else if(type == SerialComHID.HID_USB) {
+<<<<<<< HEAD
 			return new SerialComUSBHID(mSerialComHIDJNIBridge, osType);
 >>>>>>> upstream/master
 		}else if(type == SerialComHID.HID_BLUETOOTH) {
+=======
+>>>>>>> upstream/master
 			//TODO
 		}else {
-			throw new IllegalArgumentException("Argument type given is not valid constant !");
+			throw new IllegalArgumentException("Argument type must be one of the constants SerialComHID.MODE_XXXXX !");
 		}
 
 		return null;
+	}
+
+	/**
+	 * @throws AWTException 
+	 */
+	public SerialComToKeyStrokeToApp getSerialComKeyStrokeAppInstance(long handle) throws AWTException {
+		return new SerialComToKeyStrokeToApp(this, handle);
 	}
 }

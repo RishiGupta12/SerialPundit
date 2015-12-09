@@ -209,10 +209,6 @@ public final class SerialComPortJNIBridge {
 			}
 
 			input = SerialComPortJNIBridge.class.getResourceAsStream("/tty-libs/" + libToExtractFromJar);
-			if(input == null) {
-				//TODO
-				System.out.println("ji");
-			}
 			output = new FileOutputStream(libFile);
 			if(input != null) {
 				int read;
@@ -275,12 +271,16 @@ public final class SerialComPortJNIBridge {
 	// Open-close-read-write
 	public native long openComPort(String portName, boolean enableRead, boolean enableWrite, boolean exclusiveOwner);
 	public native int closeComPort(long handle);
+
 	public native byte[] readBytes(long handle, int byteCount);
+	public native int readBytesP(long handle, byte[] buffer, int offset, int length, long context);
 	public native byte[] readBytesBlocking(long handle, int byteCount, long context);
 	public native int readBytesDirect(long handle, ByteBuffer buffer, int offset, int length);
+
 	public native int writeBytes(long handle, byte[] buffer, int delay);
 	public native int writeBytesDirect(long handle, ByteBuffer buffer, int offset, int length);
 	public native int writeSingleByte(long handle, byte dataByte);
+
 	public native long createBlockingIOContext();
 	public native int unblockBlockingIOOperation(long context);
 	public native int destroyBlockingIOContext(long context);
@@ -302,7 +302,7 @@ public final class SerialComPortJNIBridge {
 
 	// Configuration
 	public native int configureComPortData(long handle, int dataBits, int stopBits, int parity, int baudRateTranslated, int custBaudTranslated);
-	public native int configureComPortControl(long handle, int flowctrl, char xon, char xoff, boolean ParFraError, boolean overFlowErr);
+	public native int configureComPortControl(long handle, int flowctrl, byte xonCh, byte xoffCh, boolean ParFraError, boolean overFlowErr);
 	public native int[] getCurrentConfigurationU(long handle);
 	public native String[] getCurrentConfigurationW(long handle);
 	public native int fineTuneRead(long handle, int vmin, int vtime, int rit, int rttm, int rttc);
@@ -325,6 +325,4 @@ public final class SerialComPortJNIBridge {
 
 	// Bluetooth
 	public native String[] listBTSPPDevNodesWithInfo();
-
-
 }

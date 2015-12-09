@@ -105,6 +105,14 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialCom
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
+ * Method:    readBytesP
+ * Signature: (J[BIIJ)I
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_readBytesP
+  (JNIEnv *, jobject, jlong, jbyteArray, jint, jint, jlong);
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
  * Method:    readBytesBlocking
  * Signature: (JIJ)[B
  */
@@ -266,10 +274,10 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
  * Method:    configureComPortControl
- * Signature: (JICCZZ)I
+ * Signature: (JIBBZZ)I
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_configureComPortControl
-  (JNIEnv *, jobject, jlong, jint, jchar, jchar, jboolean, jboolean);
+  (JNIEnv *, jobject, jlong, jint, jbyte, jbyte, jboolean, jboolean);
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge

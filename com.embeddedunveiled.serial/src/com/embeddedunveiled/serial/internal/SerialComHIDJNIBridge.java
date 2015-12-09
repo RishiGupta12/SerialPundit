@@ -255,11 +255,23 @@ public final class SerialComHIDJNIBridge {
 		return true;
 	}
 
+	/* ******************* HID API - Common to both raw and parsed mode ***** */
+
 	public native int initNativeLib();
 
+	// USB HID methods
+	public native String[] listUSBHIDdevicesWithInfo(int vendorFilter);
+	public native long openHidDeviceByUSBAttributes(int usbVidToMatch, int usbPidToMatch, String serialNum, 
+			int locationID, int usbBusNumber, int usbDevNumber);
+
+	// Bluetooth HID methods
+
+	/* ******************* HID API - Raw mode only ************************** */
+
 	// Open and close methods
-	public long openHidDevice(String pathNameVal, int osType) {
+	public long openHidDeviceR(String pathNameVal, boolean shared, int osType) {
 		if(osType == SerialComManager.OS_MAC_OS_X) {
+			// TODO FOR MAC OS X FOR BT AND USB ETC DEVICE PATH ???????????
 			// for MAC os x path need to be converted into usb attributes, as there seem to be no device 
 			// file for HID devices that can be used with open() system call.
 			if("usb_".equals(pathNameVal.substring(0,4))) {
@@ -272,33 +284,35 @@ public final class SerialComHIDJNIBridge {
 			}
 		}
 
-		return openHidDeviceByPath(pathNameVal);
+		return openHidDeviceByPathR(pathNameVal, shared);
 	}
-	public native long openHidDeviceByPath(String pathNameVal);
-	public native int closeHidDevice(long handle);
+	public native long openHidDeviceByPathR(String pathNameVal, boolean shared);
+	public native int closeHidDeviceR(long handle);
 
-	// Data reports
-	public native int writeOutputReport(long handle, byte reportId, byte[] report, int length);
-	public native int readInputReport(long handle, byte[] reportBuffer, int length);
-	public native int readInputReportWithTimeout(long handle, byte[] reportBuffer, int length, int timeoutValue);
+	// Data reports (data movement)
+	public native long createBlockingHIDIOContextR();
+	public native int unblockBlockingHIDIOOperationR(long context);
+	public native int destroyBlockingIOContextR(long context);
+	public native int writeOutputReportR(long handle, byte reportId, byte[] report, int length);
+	public native int readInputReportR(long handle, byte[] reportBuffer, int length, long context);
+	public native int readInputReportWithTimeoutR(long handle, byte[] reportBuffer, int length, int timeoutValue);
 
-	// Feature reports
-	public native int sendFeatureReport(long handle, byte reportId, byte[] report, int length);
-	public native int getFeatureReport(long handle, byte reportId, byte[] report, int length);
+	// Feature reports (control movement)
+	public native int sendFeatureReportR(long handle, byte reportId, byte[] report, int length);
+	public native int getFeatureReportR(long handle, byte reportId, byte[] report, int length);
 
-	// Information
-	public native String[] listHIDdevicesWithInfo();
-	public native String getManufacturerString(long handle);
-	public native String getProductString(long handle);
-	public native String getSerialNumberString(long handle);
-	public native String getIndexedString(long handle, int index);
-	public native byte[] getReportDescriptor(long handle);
-	public native String findDriverServingHIDDevice(String hidDeviceNode);
+	// Information (discovery and setup)
+	public native String[] listHIDdevicesWithInfoR();
+	public native String getManufacturerStringR(long handle);
+	public native String getProductStringR(long handle);
+	public native String getSerialNumberStringR(long handle);
+	public native String getIndexedStringR(long handle, int index);
+	public native String findDriverServingHIDDeviceR(String hidDeviceNode);
 
-	// USB HID methods
-	public native String[] listUSBHIDdevicesWithInfo(int vendorFilter);
-	public native long openHidDeviceByUSBAttributes(int usbVidToMatch, int usbPidToMatch, String serialNum, 
-			int locationID, int usbBusNumber, int usbDevNumber);
+	// Miscellaneous
+	public native int flushInputReportQueueR(long handle);
+	public native byte[] getReportDescriptorR(long handle);
+	public native byte[] getPhysicalDescriptorR(long handle);
 
-	// Bluetooth HID methods
+	/* ******************* HID API - Parsed mode only *********************** */
 }

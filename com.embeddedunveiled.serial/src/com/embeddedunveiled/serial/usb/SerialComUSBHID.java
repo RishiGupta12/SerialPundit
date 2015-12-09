@@ -18,8 +18,8 @@
 package com.embeddedunveiled.serial.usb;
 
 import com.embeddedunveiled.serial.SerialComException;
-import com.embeddedunveiled.serial.SerialComHID;
-import com.embeddedunveiled.serial.SerialComHIDdevice;
+import com.embeddedunveiled.serial.hid.SerialComHIDTransport;
+import com.embeddedunveiled.serial.hid.SerialComHIDdevice;
 import com.embeddedunveiled.serial.internal.SerialComHIDJNIBridge;
 
 /**
@@ -31,12 +31,13 @@ import com.embeddedunveiled.serial.internal.SerialComHIDJNIBridge;
  * 
  * @author Rishi Gupta
  */
-public final class SerialComUSBHID extends SerialComHID {
+public final class SerialComUSBHID extends SerialComHIDTransport {
 
 	/**
-	 * <p>Allocates a new SerialComUSBHID object with the given details.</p>
+	 * <p>Construct and allocates a new SerialComUSBHID object with given details.</p>
 	 * 
 	 * @param mHIDJNIBridge interface class to native library for calling platform specific routines.
+	 * @param osType operating system this library is running on.
 	 */
 	public SerialComUSBHID(SerialComHIDJNIBridge mHIDJNIBridge, int osType) {
 		super(mHIDJNIBridge, osType);

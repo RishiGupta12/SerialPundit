@@ -90,7 +90,7 @@ public final class SerialComUSB {
 
 	/**
 	 * <p>Allocates a new SerialComUSB object.</p>
-	 * @param mComPortJNIBridge 
+	 * @param mComPortJNIBridge interface to native library for serial port communication.
 	 */
 	public SerialComUSB(SerialComPortJNIBridge mComPortJNIBridge) {
 		this.mComPortJNIBridge = mComPortJNIBridge;

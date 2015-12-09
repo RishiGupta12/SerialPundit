@@ -17,36 +17,25 @@
 
 package test68;
 
-import com.embeddedunveiled.serial.SerialComHID;
-import com.embeddedunveiled.serial.SerialComHIDdevice;
 import com.embeddedunveiled.serial.SerialComManager;
+import com.embeddedunveiled.serial.hid.SerialComHID;
+import com.embeddedunveiled.serial.hid.SerialComHIDdevice;
+import com.embeddedunveiled.serial.hid.SerialComRawHID;
 import com.embeddedunveiled.serial.usb.SerialComUSB;
 import com.embeddedunveiled.serial.usb.SerialComUSBHID;
 
 public class Test68  {
 
-	public static SerialComManager scm = null;
-	public static String PORT = null;
-	public static String PORT1 = null;
-
 	public static void main(String[] args) {
-		try {
-			scm = new SerialComManager();
-			SerialComUSBHID scuh = (SerialComUSBHID) scm.getSerialComHIDInstance(SerialComHID.HID_USB, null, null);
-			SerialComHIDdevice[] usbHidDevices = scuh.listUSBHIDdevicesWithInfo(SerialComUSB.V_ALL);
-			for(int x=0; x< usbHidDevices.length; x++) {
-				usbHidDevices[x].dumpDeviceInfo();
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 
 		try {
-			scm = new SerialComManager();
-			SerialComHID sch = scm.getSerialComHIDInstance(SerialComHID.HID_GENERIC, null, null);
-			SerialComHIDdevice[] hidDevices = sch.listHIDdevicesWithInfo();
-			for(int x=0; x< hidDevices.length; x++) {
-				hidDevices[x].dumpDeviceInfo();
+			SerialComManager scm = new SerialComManager();
+			SerialComRawHID scrh = (SerialComRawHID) scm.getSerialComHIDInstance(SerialComHID.MODE_RAW, null, null);
+			SerialComUSBHID scuh = (SerialComUSBHID) scrh.getHIDTransportInstance(SerialComHID.HID_USB);
+
+			SerialComHIDdevice[] usbHidDevices = scuh.listUSBHIDdevicesWithInfo(SerialComUSB.V_ALL);
+			for(int x=0; x < usbHidDevices.length; x++) {
+				usbHidDevices[x].dumpDeviceInfo();
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

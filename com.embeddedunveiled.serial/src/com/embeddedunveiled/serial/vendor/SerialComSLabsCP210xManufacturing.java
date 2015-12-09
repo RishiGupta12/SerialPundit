@@ -43,10 +43,10 @@ import com.embeddedunveiled.serial.internal.SerialComSystemProperty;
  * 
  * <p>[3] It seems like CP210xManufacturing library uses user space drivers. So if you encounter any problems 
  * with permissions add the following udev rules file at appropriate location in your system : 
- * https://github.com/RishiGupta12/serial-communication-manager/blob/master/tests/99-scm-cp210x.rules</p>
+ * https://github.com/RishiGupta12/serial-communication-manager/blob/master/tools-and-utilities/99-scm-cp210x.rules</p>
  *
  * <p>[4] The udev rules to support various applications designs are here : 
- * https://github.com/RishiGupta12/serial-communication-manager/blob/master/tests/99-scm-extra-udev.rules</p>
+ * https://github.com/RishiGupta12/serial-communication-manager/blob/master/tools-and-utilities/99-scm-extra-udev.rules</p>
  *
  * <p>Silicon labs softwares can be downloaded from here :
  * http://www.silabs.com/products/Interface/Pages/interface-application-notes.aspx </p>

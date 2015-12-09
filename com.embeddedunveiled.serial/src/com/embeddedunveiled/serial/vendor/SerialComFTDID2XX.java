@@ -55,15 +55,15 @@ import com.embeddedunveiled.serial.internal.SerialComSystemProperty;
  * </p>
  *
  * <p>[3] The udev rules to support various applications designs are here : 
- * https://github.com/RishiGupta12/serial-communication-manager/blob/master/tests/99-scm-extra-udev.rules</p>
+ * https://github.com/RishiGupta12/serial-communication-manager/blob/master/tools-and-utilities/99-scm-extra-udev.rules</p>
  *
  * <p>[4] It seems like d2xx drivers are user space usb drivers using libusb. So if you encounter any 
  * problems with permissions add following udev rules : 
- * https://github.com/RishiGupta12/serial-communication-manager/blob/master/tests/99-scm-ftdi-d2xx.rules</p>
+ * https://github.com/RishiGupta12/serial-communication-manager/blob/master/tools-and-utilities/99-scm-ftdi-d2xx.rules</p>
  * 
  * <p>[5] The application notes for FTDI devices are here : http://www.ftdichip.com/Support/Documents/AppNotes.htm</p>
  * 
- * <p>SCM version 1.0.4 is linked to d2xx 1.1.12 version for Linux, 2.12.06 for Windows and 1.2.2 for Mac os x.</p>
+ * <p>SCM version 1.0.4 is linked to d2xx 1.3.6 version for Linux, 2.12.06 for Windows and 1.2.2 for Mac os x.</p>
  * 
  * @author Rishi Gupta
  */
@@ -754,7 +754,9 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 			throw new IllegalArgumentException("Argument flctrl can not be null !");
 		}
 
-		int ret = mFTDID2XXJNIBridge.setFlowControl(handle, flctrl.getValue(), xon, xoff);
+		int xonch = (int) xon;
+		int xoffch = (int) xoff;
+		int ret = mFTDID2XXJNIBridge.setFlowControl(handle, flctrl.getValue(), (byte) xonch, (byte) xoffch);
 		if(ret < 0) {
 			throw new SerialComException("Could not set the desired flow control values for the requested device. Please retry !");
 		}
@@ -981,7 +983,11 @@ public final class SerialComFTDID2XX extends SerialComVendorLib {
 	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public boolean setChars(final long handle, char eventChar, char eventEnable, char errorChar, char errorEnable) throws SerialComException {
-		int ret = mFTDID2XXJNIBridge.setChars(handle, eventChar, eventEnable, errorChar, errorEnable);
+		int evch = (int) eventChar;
+		int even = (int) eventEnable;
+		int erch = (int) errorChar;
+		int eren = (int) errorEnable;
+		int ret = mFTDID2XXJNIBridge.setChars(handle, (byte)evch, (byte)even, (byte)erch, (byte)eren);
 		if(ret < 0) {
 			throw new SerialComException("Could not set the given characters for the requested device. Please retry !");
 		}

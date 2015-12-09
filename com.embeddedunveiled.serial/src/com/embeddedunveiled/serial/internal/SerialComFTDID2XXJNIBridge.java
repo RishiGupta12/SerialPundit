@@ -172,7 +172,7 @@ public final class SerialComFTDID2XXJNIBridge {
 	public native int setDivisor(long handle, int divisor);
 	public native int setDataCharacteristics(long handle, int dataBits, int stopBits, int parity);
 	public native int setTimeouts(long handle, long readTimeOut, long writeTimeOut);
-	public native int setFlowControl(long handle, int flctrl, char xon, char xoff);
+	public native int setFlowControl(long handle, int flctrl, byte xonch, byte xoffch);
 	public native int setDTR(long handle);
 	public native int clearDTR(long handle);
 	public native int setRTS(long handle);
@@ -185,7 +185,7 @@ public final class SerialComFTDID2XXJNIBridge {
 	public native long getComPortNumber(long handle);
 	public native long[] getStatus(long handle);
 	public native int setEventNotificationAndWait(long handle, int eventMask);
-	public native int setChars(long handle, char eventChar, char eventEnable, char errorChar, char errorEnable);
+	public native int setChars(long handle, byte evch, byte even, byte erch, byte eren);
 	public native int setBreakOn(long handle);
 	public native int setBreakOff(long handle);
 	public native int purge(long handle, boolean purgeTxBuffer, boolean purgeRxBuffer);

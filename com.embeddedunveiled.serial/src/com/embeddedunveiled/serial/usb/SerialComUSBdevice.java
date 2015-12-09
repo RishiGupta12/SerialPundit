@@ -27,12 +27,12 @@ import com.embeddedunveiled.serial.SerialComUtil;
  */
 public final class SerialComUSBdevice {
 
-	private String idVendor;
-	private String idProduct;
-	private String serial;
-	private String product;
-	private String manufacturer;
-	private String location;
+	private final String idVendor;
+	private final String idProduct;
+	private final String serial;
+	private final String product;
+	private final String manufacturer;
+	private final String location;
 
 	/**
 	 * <p>Construct and allocates a new SerialComUSBdevice object with the given details.</p>
