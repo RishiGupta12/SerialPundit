@@ -98,11 +98,13 @@ final class HIDDataReader extends HIDApplication1 implements Runnable {
 					// read data from HID device, it will block if there  is no data
 					ret = 0;
 					ret = scrh.readInputReportR(hidDevHandle, inputReportBuffer, context);
-				} catch (Exception e) {
-					if(SerialComHID.EXP_UNBLOCK_HIDIO.equals(((SerialComException) e).getExceptionMsg())) {
+				} catch (SerialComException e1) {
+					if(SerialComHID.EXP_UNBLOCK_HIDIO.equals(e1.getExceptionMsg())) {
 						// this thread should exit as other thread told it to return
 						return;
 					}
+				} catch (Exception e2) {
+					e2.printStackTrace();
 				}
 
 				// user removed HID device from system, eit this thread.
@@ -113,7 +115,7 @@ final class HIDDataReader extends HIDApplication1 implements Runnable {
 				}
 
 				// print data if read from HID device actually, readInputReportR method may return 
-				// pre-maturally if user removed device from system while readInputReportR was 
+				// prematurally if user removed device from system while readInputReportR was 
 				// blocked to read it.
 				if(ret > 0) {
 					System.out.println(scrh.formatReportToHexR(inputReportBuffer, " "));

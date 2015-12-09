@@ -31,7 +31,7 @@ class UnblockBlocked extends Test85 implements Runnable {
 		try {
 			Thread.sleep(1000); // make sure closed is called after read is blocked
 			// if this is commented out read will be kept blocked forever
-//			scm.unblockBlockingIOOperation(context);
+			scm.unblockBlockingIOOperation(context);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -75,9 +75,6 @@ public class Test85  {
 			PORT1 = null;
 		}else{
 		}
-
-		PORT = "/dev/pts/1";
-		PORT1 = "/dev/pts/3";
 
 		System.out.println("\n~~~~~~~~~~~~~~~~~~~~~~~~~ TEST 1 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ \n");
 

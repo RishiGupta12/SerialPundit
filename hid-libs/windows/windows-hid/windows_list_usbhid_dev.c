@@ -208,6 +208,7 @@ jobjectArray enumerate_usb_hid_devices(JNIEnv *env, jint vendor_to_match) {
 		}
 		_tcscpy_s(instidinfo->instance, 512, buffer);
 		_tcscpy_s(instidinfo->hwid, 512, charbuffer);
+
 		insert_hiddev_instance_list(&hiddevinst_list, instidinfo);
 
 		/* increment to get the next HID device instance */
@@ -793,10 +794,18 @@ jobjectArray enumerate_usb_hid_devices(JNIEnv *env, jint vendor_to_match) {
 				memset(devprop_buffer, '\0', sizeof(devprop_buffer));
 				ret = SetupDiGetDeviceProperty(usb_dev_info_set, &usb_dev_instance, &DEVPKEY_Device_BusReportedDeviceDesc, &proptype, (BYTE *)devprop_buffer, sizeof(devprop_buffer), &size, 0);
 				if (ret == FALSE) {
-					return clean_throw_exp_usbenumeration(env, 3, 2, HRESULT_FROM_SETUPAPI(GetLastError()), NULL, &list, &hiddevinst_list, &usb_dev_info_set, NULL);
+					/* fallback to SPDRP_DEVICEDESC if DEVPKEY_Device_BusReportedDeviceDesc fails */
+					ret = SetupDiGetDeviceRegistryProperty(usb_dev_info_set, &usb_dev_instance, SPDRP_DEVICEDESC, &regproptype, (BYTE *)devprop_buffer, sizeof(devprop_buffer), &size);
+					if (ret == FALSE) {
+						/* if second attempt fails, throw error, we need to investigate drivers/firmware etc */
+						return clean_throw_exp_usbenumeration(env, 3, 2, HRESULT_FROM_SETUPAPI(GetLastError()), NULL, &list, &hiddevinst_list, &usb_dev_info_set, NULL);
+					}
+					usb_dev_info = (*env)->NewString(env, devprop_buffer, (jsize)_tcslen(devprop_buffer));
+					insert_jstrarraylist(&list, usb_dev_info);
+				}else {
+					usb_dev_info = (*env)->NewString(env, devprop_buffer, (jsize)_tcslen(devprop_buffer));
+					insert_jstrarraylist(&list, usb_dev_info);
 				}
-				usb_dev_info = (*env)->NewString(env, devprop_buffer, (jsize)_tcslen(devprop_buffer));
-				insert_jstrarraylist(&list, usb_dev_info);
 
 				/* MANUFACTURER */
 				memset(devprop_buffer, '\0', sizeof(devprop_buffer));
