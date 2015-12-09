@@ -209,3 +209,4 @@ jlong linux_usbattrhid_open(JNIEnv *env, jint usbvid, jint usbpid, jstring usbse
 	return fd;
 }
 #endif
+

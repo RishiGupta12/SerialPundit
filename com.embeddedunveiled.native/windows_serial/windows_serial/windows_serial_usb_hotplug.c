@@ -263,7 +263,7 @@ LRESULT CALLBACK usb_hotplug_event_handler(HWND window_handle, UINT msg, WPARAM 
 /* This thread keep polling for the physical existence of a port/file/device. When port removal is detected, this
 * informs java listener and exit. Associate the handler with a class, that class with a window and register that
 * window with notification system. */
-unsigned __stdcall usb_device_hotplug_monitor(void *arg) {
+unsigned WINAPI usb_device_hotplug_monitor(void *arg) {
 
 	int i = 0;
 	int ret = 0;
@@ -378,6 +378,13 @@ unsigned __stdcall usb_device_hotplug_monitor(void *arg) {
 
 	/* indicate success to the caller so it can return success to java layer */
 	((struct usb_dev_monitor_info*) arg)->init_done = 0;
+	ret = SetEvent(((struct usb_dev_monitor_info*) arg)->init_done_event_handle);
+	if (ret == 0) {
+		((struct usb_dev_monitor_info*) arg)->standard_err_code = GetLastError();
+		((struct usb_dev_monitor_info*) arg)->init_done = 2;
+		(*jvm)->DetachCurrentThread(jvm);
+		return 0;
+	}
 	LeaveCriticalSection(((struct usb_dev_monitor_info*) arg)->csmutex);
 
 	/* message loop */

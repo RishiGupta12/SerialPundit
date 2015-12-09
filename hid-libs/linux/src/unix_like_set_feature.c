@@ -123,3 +123,4 @@ jint mac_send_feature_report(JNIEnv *env, jlong fd, jbyte reportID, jbyteArray r
 	return num_bytes_to_write;
 }
 #endif
+

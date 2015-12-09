@@ -97,6 +97,7 @@ jobjectArray list_usb_devices(JNIEnv *env, jint vendor_to_match) {
 	struct udev_enumerate *enumerator;
 	struct udev_list_entry *devices, *dev_list_entry;
 	const char *sysattr_val;
+	const char *prop_val;
 	const char *path;
 	struct udev_device *udev_device;
 	char *endptr;
@@ -118,6 +119,17 @@ jobjectArray list_usb_devices(JNIEnv *env, jint vendor_to_match) {
 		}
 
 		if(strcmp("usb_device", udev_device_get_devtype(udev_device)) == 0) {
+
+			/* In context of this library, application is not interested in USB hub and USB
+			 * host controllers. Skip then from listing. */
+			sysattr_val = udev_device_get_sysattr_value(udev_device, "bDeviceClass");
+			if(sysattr_val != NULL) {
+				if(0x09 == strtol(sysattr_val, &endptr, 16)) {
+					udev_device_unref(udev_device);
+					continue;
+				}
+			}
+
 			/* USB-IF vendor ID */
 			sysattr_val = udev_device_get_sysattr_value(udev_device, "idVendor");
 			if(sysattr_val != NULL) {
@@ -185,10 +197,10 @@ jobjectArray list_usb_devices(JNIEnv *env, jint vendor_to_match) {
 			}
 			insert_jstrarraylist(&list, usb_dev_info);
 
-			/* LOCATION (constructed) TODO*/
-			sysattr_val = udev_device_get_sysattr_value(udev_device, "busnum");
-			if(sysattr_val != NULL) {
-				usb_dev_info = (*env)->NewStringUTF(env, sysattr_val);
+			/* LOCATION */
+			prop_val = udev_device_get_property_value(udev_device, "DEVPATH");
+			if(prop_val != NULL) {
+				usb_dev_info = (*env)->NewStringUTF(env, prop_val);
 			}else {
 				usb_dev_info = (*env)->NewStringUTF(env, "---");
 			}
@@ -304,9 +316,26 @@ jobjectArray list_usb_devices(JNIEnv *env, jint vendor_to_match) {
 
 	while((usb_dev_obj = IOIteratorNext(iterator)) != 0) {
 
+		/* In context of this library, application is not interested in USB hub and USB
+		 * host controllers. Skip then from listing. */
+		num_ref = (CFNumberRef) IORegistryEntrySearchCFProperty(usb_dev_obj, kIOServicePlane, CFSTR(kUSBDeviceClass),
+				                                        NULL, kIORegistryIterateRecursively | kIORegistryIterateParents);
+		if(num_ref) {
+			CFNumberGetValue(num_ref, kCFNumberSInt32Type, &result);
+			CFRelease(num_ref);
+			if(0x09 == result) {
+				IOObjectRelease(usb_dev_obj);
+				continue;
+			}
+		}else {
+			CFRelease(num_ref);
+			IOObjectRelease(usb_dev_obj);
+			continue;
+		}
+
 		/* USB-IF vendor ID */
 		memset(hexcharbuffer, '\0', sizeof(hexcharbuffer));
-		num_ref = (CFNumberRef) IORegistryEntrySearchCFProperty(usb_dev_obj, kIOServicePlane, CFSTR("idVendor"),
+		num_ref = (CFNumberRef) IORegistryEntrySearchCFProperty(usb_dev_obj, kIOServicePlane, CFSTR(kUSBVendorID),
 				                                        NULL, kIORegistryIterateRecursively | kIORegistryIterateParents);
 		if(num_ref) {
 			CFNumberGetValue(num_ref, kCFNumberSInt32Type, &result);
@@ -331,7 +360,7 @@ jobjectArray list_usb_devices(JNIEnv *env, jint vendor_to_match) {
 
 		/* USB product ID */
 		memset(hexcharbuffer, '\0', sizeof(hexcharbuffer));
-		num_ref = (CFNumberRef) IORegistryEntrySearchCFProperty(usb_dev_obj, kIOServicePlane, CFSTR("idProduct"),
+		num_ref = (CFNumberRef) IORegistryEntrySearchCFProperty(usb_dev_obj, kIOServicePlane, CFSTR(kUSBProductID),
 				                                        NULL, kIORegistryIterateRecursively | kIORegistryIterateParents);
 		if(num_ref) {
 			CFNumberGetValue(num_ref, kCFNumberSInt32Type, &result);
@@ -347,7 +376,7 @@ jobjectArray list_usb_devices(JNIEnv *env, jint vendor_to_match) {
 		insert_jstrarraylist(&list, usb_dev_info);
 
 		/* SERIAL NUMBER */
-		str_ref = (CFStringRef) IORegistryEntrySearchCFProperty(usb_dev_obj, kIOServicePlane, CFSTR("USB Serial Number"),
+		str_ref = (CFStringRef) IORegistryEntrySearchCFProperty(usb_dev_obj, kIOServicePlane, CFSTR(kUSBSerialNumberString),
 				                                        NULL, kIORegistryIterateRecursively | kIORegistryIterateParents);
 		if(str_ref) {
 			memset(charbuffer, '\0', sizeof(charbuffer));
@@ -363,7 +392,7 @@ jobjectArray list_usb_devices(JNIEnv *env, jint vendor_to_match) {
 		insert_jstrarraylist(&list, usb_dev_info);
 
 		/* PRODUCT */
-		str_ref = (CFStringRef) IORegistryEntrySearchCFProperty(usb_dev_obj, kIOServicePlane, CFSTR("USB Product Name"),
+		str_ref = (CFStringRef) IORegistryEntrySearchCFProperty(usb_dev_obj, kIOServicePlane, CFSTR(kUSBProductString),
 				                                        NULL, kIORegistryIterateRecursively | kIORegistryIterateParents);
 		if(str_ref) {
 			memset(charbuffer, '\0', sizeof(charbuffer));
@@ -379,7 +408,7 @@ jobjectArray list_usb_devices(JNIEnv *env, jint vendor_to_match) {
 		insert_jstrarraylist(&list, usb_dev_info);
 
 		/* MANUFACTURER */
-		str_ref = (CFStringRef) IORegistryEntrySearchCFProperty(usb_dev_obj, kIOServicePlane, CFSTR("USB Vendor Name"),
+		str_ref = (CFStringRef) IORegistryEntrySearchCFProperty(usb_dev_obj, kIOServicePlane, CFSTR(kUSBVendorString),
 				                                        NULL, kIORegistryIterateRecursively | kIORegistryIterateParents);
 		if(str_ref) {
 			memset(charbuffer, '\0', sizeof(charbuffer));
@@ -394,13 +423,14 @@ jobjectArray list_usb_devices(JNIEnv *env, jint vendor_to_match) {
 		}
 		insert_jstrarraylist(&list, usb_dev_info);
 
-		/* LOCATION TODO */
-		str_ref = (CFStringRef) IORegistryEntrySearchCFProperty(usb_dev_obj, kIOServicePlane, CFSTR("USB Vendor Name"),
+		/* LOCATION */
+		memset(charbuffer, '\0', sizeof(charbuffer));
+		num_ref = (CFNumberRef) IORegistryEntrySearchCFProperty(usb_dev_obj, kIOServicePlane, CFSTR(kUSBDevicePropertyLocationID),
 				                                        NULL, kIORegistryIterateRecursively | kIORegistryIterateParents);
-		if(str_ref) {
-			memset(charbuffer, '\0', sizeof(charbuffer));
-			CFStringGetCString(str_ref, charbuffer, sizeof(charbuffer), kCFStringEncodingUTF8);
-			CFRelease(str_ref);
+		if(num_ref) {
+			CFNumberGetValue(num_ref, kCFNumberSInt32Type, &result);
+			CFRelease(num_ref);
+			snprintf(charbuffer, 1024, "%x", result);
 			usb_dev_info = (*env)->NewStringUTF(env, charbuffer);
 		}else {
 			usb_dev_info = (*env)->NewStringUTF(env, "---");

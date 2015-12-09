@@ -127,3 +127,4 @@ jint mac_get_feature_report(JNIEnv *env, jlong fd, jbyte reportID, jbyteArray re
 	return num_bytes_to_read;
 }
 #endif
+

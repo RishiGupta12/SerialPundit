@@ -66,7 +66,7 @@ int serial_delay(unsigned milli_seconds) {
 
 /* This thread wait for both data and control event both to occur on the specified port. When data is received on port or a control event has
  * occurred, it enqueue this to data or event to corresponding queue. Separate blocking queue for data and events are managed by java layer. */
-unsigned __stdcall event_data_looper(void* arg) {
+unsigned WINAPI event_data_looper(void* arg) {
 
 	int ret = 0;
 	int error_count = 0;
@@ -126,7 +126,7 @@ unsigned __stdcall event_data_looper(void* arg) {
 	}
 	
 	event_mid = (*env)->GetMethodID(env, SerialComLooper, "insertInEventQueue", "(I)V");
-	if((data_mid == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+	if ((event_mid == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
 		((struct looper_thread_params*) arg)->custom_err_code = E_GETMETHODID;
 		((struct looper_thread_params*) arg)->init_done = 2;
 		(*jvm)->DetachCurrentThread(jvm);
@@ -134,7 +134,7 @@ unsigned __stdcall event_data_looper(void* arg) {
 	}
 	
 	data_mid = (*env)->GetMethodID(env, SerialComLooper, "insertInDataQueue", "([B)V");
-	if((data_mid == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+	if ((data_mid == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
 		((struct looper_thread_params*) arg)->custom_err_code = E_GETMETHODID;
 		((struct looper_thread_params*) arg)->init_done = 2;
 		(*jvm)->DetachCurrentThread(jvm);
@@ -176,6 +176,13 @@ unsigned __stdcall event_data_looper(void* arg) {
 
 	/* indicate success to the caller so it can return success to java layer */
 	((struct looper_thread_params*) arg)->init_done = 0;
+	ret = SetEvent(((struct looper_thread_params*) arg)->init_done_event_handle);
+	if (ret == 0) {
+		((struct looper_thread_params*) arg)->standard_err_code = GetLastError();
+		((struct looper_thread_params*) arg)->init_done = 2;
+		(*jvm)->DetachCurrentThread(jvm);
+		return 0;
+	}
 
 	/* This keep looping forever until listener is unregistered, waiting for data or 
 	 * event and passing it to java layer which put it in the queue. */

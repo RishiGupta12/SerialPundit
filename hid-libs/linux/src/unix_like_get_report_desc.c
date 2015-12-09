@@ -79,7 +79,7 @@ jbyteArray linux_get_report_descriptor(JNIEnv *env, jlong fd) {
 	}
 
 	/* values saved are 8 bit, sign does not create difference */
-	(*env)->SetByteArrayRegion(env, reportDescriptorRead, 0, rpt_desc.size, rpt_desc.value);
+	(*env)->SetByteArrayRegion(env, reportDescriptorRead, (jsize)0, (jsize)rpt_desc.size, (jbyte *)rpt_desc.value);
 	if((*env)->ExceptionOccurred(env)) {
 		throw_serialcom_exception(env, 3, 0, E_SETBYTEARRREGIONSTR);
 		return NULL;
@@ -92,3 +92,4 @@ jbyteArray linux_get_report_descriptor(JNIEnv *env, jlong fd) {
 
 #if defined (__APPLE__)
 #endif
+

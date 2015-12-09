@@ -25,14 +25,15 @@
 #include <string.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <sys/param.h>
 
 #if defined (__linux__)
 #include <sys/eventfd.h>
+#include <sys/select.h>
 #endif
 
 #if defined (__APPLE__)
 #include <sysexits.h>
-#include <sys/param.h>
 #include <sys/event.h>
 #include <CoreFoundation/CoreFoundation.h>
 #include <IOKit/IOKitLib.h>
@@ -67,9 +68,8 @@ void *usb_device_hotplug_monitor(void *arg) {
 
 	int ret = 0;
 	int evfd = 0;
-	int udev_monitor_fd;
 	fd_set fds;
-	int maxfd = 0;
+	int udev_monitor_fd;
 	struct udev *udev_ctx = NULL;
 	struct udev_device *udev_device;
 	struct udev_monitor *udev_monitor;
@@ -80,9 +80,9 @@ void *usb_device_hotplug_monitor(void *arg) {
 	const char* serial_str;
 
 	/* these 3 must match their value in SerialComManager class. */
-	int USB_DEV_ANY = 0x00;
-	int USB_DEV_ADDED = 0x01;
-	int USB_DEV_REMOVED = 0x02;
+	const int USB_DEV_ANY     = 0x00;
+	const int USB_DEV_ADDED   = 0x01;
+	const int USB_DEV_REMOVED = 0x02;
 
 	pthread_mutex_lock(((struct usb_dev_monitor_info*) arg)->mutex);
 
@@ -113,7 +113,7 @@ void *usb_device_hotplug_monitor(void *arg) {
 	}
 
 	errno = 0;
-	evfd  = eventfd(0, 0);
+	evfd = eventfd(0, 0);
 	if(evfd < 0) {
 		(*jvm)->DetachCurrentThread(jvm);
 		((struct usb_dev_monitor_info*) arg)->standard_err_code = errno;
@@ -174,21 +174,22 @@ void *usb_device_hotplug_monitor(void *arg) {
 
 	/* Retrieve the socket file descriptor associated with the monitor. This fd will get passed to select(). */
 	udev_monitor_fd = udev_monitor_get_fd(udev_monitor);
-	FD_ZERO(&fds);
-	FD_SET(evfd, &fds);
-	FD_SET(udev_monitor_fd, &fds);
-	if(evfd > udev_monitor_fd) {
-		maxfd = evfd;
-	}else {
-		maxfd = udev_monitor_fd;
-	}
 
 	/* tell main thread thread initialization successfully completed */
+	pthread_cond_signal(&(((struct usb_dev_monitor_info*) arg)->cond_var));
 	((struct usb_dev_monitor_info*) arg)->init_done = 0;
 	pthread_mutex_unlock(((struct usb_dev_monitor_info*) arg)->mutex);
 
 	while(1) {
-		ret = select(maxfd + 1, &fds, NULL, NULL, NULL);
+		FD_ZERO(&fds);
+		FD_SET(evfd, &fds);
+		FD_SET(udev_monitor_fd, &fds);
+
+		errno = 0;
+		ret = pselect((MAX(evfd, udev_monitor_fd) + 1), &fds, NULL, NULL, NULL, NULL);
+		if(ret < 0) {
+			LOGEN("pselect() ", "usb_device_hotplug_monitor() failed with error code : %d\n", errno);
+		}
 
 		/* Check if thread should exit. If yes, do clean up and exit. */
 		if((ret > 0) && FD_ISSET(evfd, &fds)) {

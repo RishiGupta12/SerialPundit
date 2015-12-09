@@ -28,18 +28,19 @@
  * The elements in this array list will be java.lang.String object constructed
  * from an array of characters in modified UTF-8 encoding by calling JNI
  * NewStringUTF(..) function. */
-void init_jstrarraylist(struct jstrarray_list *al, int initial_size) {
+int init_jstrarraylist(struct jstrarray_list *al, int initial_size) {
 	al->base = (jstring *) calloc(initial_size, sizeof(jstring));
 	if(al->base == NULL) {
 		LOGE(E_CALLOCSTR, "init_jstrarraylist() !");
 	}
 	al->index = 0;
 	al->current_size = initial_size;
+	return 0;
 }
 
 /* Insert given jstring object reference at next position expanding memory size
  * allocated if required. */
-void insert_jstrarraylist(struct jstrarray_list *al, jstring element) {
+int insert_jstrarraylist(struct jstrarray_list *al, jstring element) {
 	if(al->index >= al->current_size) {
 		al->current_size = al->current_size * 2;
 		al->base = (jstring *) realloc(al->base, al->current_size * sizeof(jstring));
@@ -49,6 +50,7 @@ void insert_jstrarraylist(struct jstrarray_list *al, jstring element) {
 	}
 	al->base[al->index] = element;
 	al->index++;
+	return 0;
 }
 
 /* Java garbage collector is responsible for releasing memory occupied by jstring objects.
@@ -56,4 +58,3 @@ void insert_jstrarraylist(struct jstrarray_list *al, jstring element) {
 void free_jstrarraylist(struct jstrarray_list *al) {
 	free(al->base);
 }
-

@@ -24,7 +24,7 @@
     <ClInclude Include="targetver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="windows_serial_lib.h">
+    <ClInclude Include="windows_hid.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -32,40 +32,22 @@
     <ClCompile Include="stdafx.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="windows_serial.c">
+    <ClCompile Include="windows_exception.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="windows_serial_lib.c">
+    <ClCompile Include="windows_driver_name.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="windows_serial_util.c">
+    <ClCompile Include="windows_hid.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="windows_serial_vcp_devnode.c">
+    <ClCompile Include="windows_list_usbhid_dev.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="windows_serial_usb_connected.c">
+    <ClCompile Include="windows_hidlib.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="windows_serial_list_usb.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="windows_serial_find_irq.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="windows_serial_exception.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="windows_serial_driver_name.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="windows_serial_usb_hotplug.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="windows_serial_usb_power.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="windows_serial_latency_timer.c">
+    <ClCompile Include="windows_hiddev_info.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -16,9 +16,9 @@
  */
 
 /**
- * <p>Encapsulates behavior and environment centered around serial port communication 
- * involving use of GPS and location hardware or software services directly or indirectly.</p>
+ * <p>Encapsulates behavior and environment centered around communication with human 
+ * interface devices (HID class devices).</p>
  * 
  * @author Rishi Gupta
  */
-package com.embeddedunveiled.serial.gps;
+package com.embeddedunveiled.serial.hid;

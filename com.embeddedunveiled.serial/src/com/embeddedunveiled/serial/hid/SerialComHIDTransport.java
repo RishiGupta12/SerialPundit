@@ -15,10 +15,28 @@
  * along with serial communication manager. If not, see <http://www.gnu.org/licenses/>.
  */
 
+package com.embeddedunveiled.serial.hid;
+
+import com.embeddedunveiled.serial.internal.SerialComHIDJNIBridge;
+
 /**
- * <p>Encapsulates behavior and environment centered around serial port communication 
- * involving use of GPS and location hardware or software services directly or indirectly.</p>
+ * <p>Super class for all HID transport mediums.</p>
  * 
  * @author Rishi Gupta
  */
-package com.embeddedunveiled.serial.gps;
+public class SerialComHIDTransport {
+
+	// sub-classes also uses this reference to invoke native functions.
+	protected SerialComHIDJNIBridge mHIDJNIBridge;
+	protected int osType;
+
+	/**
+	 * <p>Allocates a new SerialComHID object.</p>
+	 * 
+	 * @param mHIDJNIBridge interface class to native library for calling platform specific routines.
+	 */
+	public SerialComHIDTransport(SerialComHIDJNIBridge mHIDJNIBridge, int osType) {
+		this.mHIDJNIBridge = mHIDJNIBridge;
+		this.osType = osType;
+	}
+}

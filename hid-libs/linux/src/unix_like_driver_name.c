@@ -44,7 +44,6 @@ jstring linux_find_driver_for_given_hiddevice(JNIEnv *env, jstring hidDevNode) {
 	struct udev *udev_ctx;
 	struct udev_enumerate *enumerator;
 	struct udev_list_entry *devices, *dev_list_entry;
-	const char *prop_val_port_name;
 	const char *prop_val_driver_name;
 	const char *device_node;
 	const char *path;
@@ -253,3 +252,4 @@ jstring linux_find_driver_for_given_hiddevice(JNIEnv *env, jstring comPortName) 
 
 }
 #endif
+

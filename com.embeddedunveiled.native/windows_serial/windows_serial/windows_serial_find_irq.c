@@ -21,8 +21,8 @@
 #include "windows_serial_lib.h"
 
 /*
-* Find the address and IRQ number associated with the given handle of serial port.
-*/
+ * Find the address and IRQ number associated with the given handle of serial port.
+ */
 jstring find_address_irq_for_given_com_port(JNIEnv *env, jlong handle) {
 	return NULL;
 }

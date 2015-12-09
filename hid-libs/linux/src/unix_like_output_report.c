@@ -84,7 +84,7 @@ jint mac_send_output_report(JNIEnv *env, jlong fd, jbyte reportID, jbyteArray re
 	int report_id = -1;
 	jbyte* buffer = NULL;
 
-	/* If the HID device does not use rreport ID, send buffer should include only data bytes
+	/* If the HID device does not use report ID, send buffer should include only data bytes
 	 * to send, otherwise 1st byte should be report ID. */
 	if(reportID < 0) {
 		buffer = (jbyte *) calloc(length, sizeof(unsigned char));
@@ -120,3 +120,4 @@ jint mac_send_output_report(JNIEnv *env, jlong fd, jbyte reportID, jbyteArray re
 	return num_bytes_to_write;
 }
 #endif
+

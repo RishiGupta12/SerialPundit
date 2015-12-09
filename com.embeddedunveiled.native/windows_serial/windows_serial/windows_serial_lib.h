@@ -16,12 +16,12 @@
  *
  ***************************************************************************************************/
 
+#ifndef WINDOWS_SERIAL_LIB_H_
+#define WINDOWS_SERIAL_LIB_H_
+
 #pragma once
 #pragma comment (lib, "Setupapi.lib")
 #pragma comment (lib, "cfgmgr32.lib")
-
-#ifndef WINDOWS_SERIAL_LIB_H_
-#define WINDOWS_SERIAL_LIB_H_
 
 #include "stdafx.h"
 #include <windows.h>
@@ -77,7 +77,8 @@
 #define E_HCIBTADDR "Could not determine address of BT HCI device !"
 #define E_CANNOTFINDDEVNODE "Failed to find device node from sysfs path !"
 
-#define E_CANNOTCREATEEVENT "CreateEvent() failed to create overlapped event handle !"
+#define E_UNBLOCKIO "I/O operation unblocked !"
+#define E_NOTFTDIPORT "Given COM port does not exist or may not be a FTDI com port !"
 
 /* Custom error codes and messages for SCM library */
 #define ERROR_OFFSET 15000
@@ -104,6 +105,7 @@ struct looper_thread_params {
 	int data_enabled;
 	int event_enabled;
 	int init_done;
+	HANDLE init_done_event_handle;
 	int custom_err_code;
 	int standard_err_code;
 };
@@ -122,6 +124,7 @@ struct usb_dev_monitor_info {
 	jmethodID onUSBHotPlugEventMethodID;
 	struct usb_dev_monitor_info *info;
 	int init_done;
+	HANDLE init_done_event_handle;
 	int custom_err_code;
 	int standard_err_code;
 	CRITICAL_SECTION *csmutex;
@@ -150,6 +153,9 @@ jstring find_driver_for_given_com_port(JNIEnv *env, jstring comPortName);
 jstring find_address_irq_for_given_com_port(JNIEnv *env, jlong fd);
 jobjectArray list_usb_devices(JNIEnv *env, jint vendor_filter);
 jobjectArray vcp_node_from_usb_attributes(JNIEnv *env, jint usbvid_to_match, jint usbpid_to_match, jstring serial_num);
+jobjectArray get_usbdev_powerinfo(JNIEnv *env, jstring comPortName);
+jint get_latency_timer_value(JNIEnv *env, jstring comPortName);
+jint set_latency_timer_value(JNIEnv *env, jstring comPortName, jbyte timerValue);
 
 jobjectArray list_bt_rfcomm_dev_nodes(JNIEnv *env);
 
@@ -160,3 +166,4 @@ LRESULT CALLBACK usb_hotplug_event_handler(HWND window_handle, UINT msg, WPARAM 
 unsigned WINAPI usb_device_hotplug_monitor(LPVOID lpParam);
 
 #endif /* WINDOWS_SERIAL_LIB_H_ */
+
