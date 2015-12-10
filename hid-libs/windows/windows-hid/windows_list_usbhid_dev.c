@@ -158,7 +158,7 @@ jobjectArray enumerate_usb_hid_devices(JNIEnv *env, jint vendor_to_match) {
 
 	/* get information set for all HID devices matching the GUID. It an array of 
 	   structures containing information about all attached and enumerated HID devices.	*/
-	hid_dev_info_set = SetupDiGetClassDevs(&GUID_DEVINTERFACE_HID, NULL, NULL, DIGCF_DEVICEINTERFACE);
+	hid_dev_info_set = SetupDiGetClassDevs(&GUID_DEVINTERFACE_HID, NULL, NULL, DIGCF_PRESENT | DIGCF_DEVICEINTERFACE);
 	if (hid_dev_info_set == INVALID_HANDLE_VALUE) {
 		return clean_throw_exp_usbenumeration(env, 1, 2, HRESULT_FROM_SETUPAPI(GetLastError()), NULL, NULL, &hiddevinst_list, NULL, &hid_dev_info_set);
 	}
@@ -192,8 +192,10 @@ jobjectArray enumerate_usb_hid_devices(JNIEnv *env, jint vendor_to_match) {
 		   HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Enum\HID\VID_04D8&PID_00DF&MI_02\7&33842C3F&0&0000\HardwareID */
 		memset(keybuf, '\0', 1024);
 		_stprintf_s(keybuf, 1024, TEXT("SYSTEM\\CurrentControlSet\\Enum\\%s"), buffer);
+
 		charbuffer_size = sizeof(charbuffer);
 		memset(charbuffer, '\0', 512);
+
 		status = RegGetValue(HKEY_LOCAL_MACHINE, keybuf, TEXT("HardwareID"), RRF_RT_REG_MULTI_SZ, NULL, (PVOID)charbuffer, &charbuffer_size);
 		if (status != ERROR_SUCCESS) {
 			return clean_throw_exp_usbenumeration(env, 1, 2, GetLastError(), NULL, NULL, &hiddevinst_list, NULL, &hid_dev_info_set);
@@ -273,7 +275,7 @@ jobjectArray enumerate_usb_hid_devices(JNIEnv *env, jint vendor_to_match) {
 					return clean_throw_exp_usbenumeration(env, 3, 2, HRESULT_FROM_SETUPAPI(GetLastError()), NULL, &list, &hiddevinst_list, &usb_dev_info_set, NULL);
 				}
 
-				/* check if this is a HID device interface */
+				/* check if this is a HID device interface, if it is not than loop back to examine next USB device */
 				ret = _tcsicmp(devprop_buffer, TEXT("{745A17A0-74D3-11D0-B6FE-00A0C90F57DA}"));
 				if (ret != 0) {
 					usb_member_index++;
@@ -285,7 +287,8 @@ jobjectArray enumerate_usb_hid_devices(JNIEnv *env, jint vendor_to_match) {
 
 				/* get the HardwareID of this USB HID interface. HardwareID is multi-sz, however
 				   we use only 1st string from multi-string HardwareID for our matching.
-				   HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Enum\USB\VID_04D8&PID_00DF&MI_02\7&33842C3F&0&0000\HardwareID */
+				   HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Enum\USB\VID_04D8&PID_00DF&MI_02\7&33842C3F&0&0000\HardwareID 
+				   The buffer contains device instance path of USB device */
 				memset(keybuf, '\0', 1024);
 				_stprintf_s(keybuf, 1024, TEXT("SYSTEM\\CurrentControlSet\\Enum\\%s"), buffer);
 
@@ -299,26 +302,22 @@ jobjectArray enumerate_usb_hid_devices(JNIEnv *env, jint vendor_to_match) {
 				}
 
 				/* charbuffer now contains hardwareID, cook it a little bit to enable suitable matching */
-				if (charbuffer[0] == 'U') {
+				if ((charbuffer[0] == 'U') && (charbuffer[1] == 'S') && (charbuffer[2] == 'B')) {
 					charbuffer[0] = 'H';
-				}
-				if (charbuffer[1] == 'S') {
 					charbuffer[1] = 'I';
-				}
-				if (charbuffer[2] == 'B') {
 					charbuffer[2] = 'D';
 				}
 
 				for (q = 0; q < hiddevinst_list.index; q++) {
 
-					/* check association between HID collection device instance and USB interface device instance */
+					/* check association between HID collection device instance and USB device instance */
 					ret = _tcsicmp(charbuffer, hiddevinst_list.base[q]->hwid);
 					if (ret != 0) {
 						continue;
 					}
 
-					/* reaching here means this HID collection belongs to this USB HID interface, so glean information
-					to be passed to java layer. */
+					/* reaching here means this HID collection belongs to this USB HID device, so glean information
+					   to be passed to java layer. */
 
 					/* TRANSPORT */
 					usb_dev_info = (*env)->NewStringUTF(env, "USB");
@@ -394,9 +393,9 @@ jobjectArray enumerate_usb_hid_devices(JNIEnv *env, jint vendor_to_match) {
 						return clean_throw_exp_usbenumeration(env, 3, 1, 0, E_NEWSTRUTFSTR, &list, &hiddevinst_list, &usb_dev_info_set, NULL);
 					}
 					insert_jstrarraylist(&list, usb_dev_info);
-					
+
 					/* PRODUCT
-					   (idProduct field of USB device descriptor) */
+					   (iProduct field of USB device descriptor) */
 					memset(devprop_buffer, '\0', sizeof(devprop_buffer));
 					ret = SetupDiGetDeviceProperty(usb_dev_info_set, &usb_dev_instance, &DEVPKEY_Device_BusReportedDeviceDesc, &proptype, (BYTE *)devprop_buffer, sizeof(devprop_buffer), &size, 0);
 					if (ret == FALSE) {
@@ -406,12 +405,9 @@ jobjectArray enumerate_usb_hid_devices(JNIEnv *env, jint vendor_to_match) {
 							/* if second attempt fails, throw error, we need to investigate drivers/firmware etc */
 							return clean_throw_exp_usbenumeration(env, 3, 2, HRESULT_FROM_SETUPAPI(GetLastError()), NULL, &list, &hiddevinst_list, &usb_dev_info_set, NULL);
 						}
-						usb_dev_info = (*env)->NewString(env, devprop_buffer, (jsize)_tcslen(devprop_buffer));
-						insert_jstrarraylist(&list, usb_dev_info);
-					}else {
-						usb_dev_info = (*env)->NewString(env, devprop_buffer, (jsize)_tcslen(devprop_buffer));
-						insert_jstrarraylist(&list, usb_dev_info);
-					}					
+					}
+					usb_dev_info = (*env)->NewString(env, devprop_buffer, (jsize)_tcslen(devprop_buffer));
+					insert_jstrarraylist(&list, usb_dev_info);
 
 					/* MANUFACTURER */
 					memset(devprop_buffer, '\0', sizeof(devprop_buffer));
@@ -465,6 +461,7 @@ jobjectArray enumerate_usb_hid_devices(JNIEnv *env, jint vendor_to_match) {
 		/* reaching here means that this USB device has at-least one child device node, examine first child now */
 		devprop_buffer_size = sizeof(devprop_buffer);
 		memset(devprop_buffer, '\0', 1024);
+
 		cmret = CM_Get_DevNode_Registry_Property(firstchild, CM_DRP_CLASSGUID, &proptype, (PVOID)devprop_buffer, &devprop_buffer_size, 0);
 		if (cmret != CR_SUCCESS) {
 			_snprintf_s(cmerror, 256, 256, "CM_Get_DevNode_Registry_Property failed with CR_xxxx error code : 0x%X\0", cmret);
@@ -485,26 +482,17 @@ jobjectArray enumerate_usb_hid_devices(JNIEnv *env, jint vendor_to_match) {
 			/* get the HardwareID of this USB HID interface. HardwareID is multi-sz, however
 			   we use only 1st string from multi-string HardwareID for our matching.
 			   HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Enum\USB\VID_04D8&PID_00DF&MI_02\7&33842C3F&0&0000\HardwareID */
-			memset(keybuf, '\0', 1024);
-			_stprintf_s(keybuf, 1024, TEXT("SYSTEM\\CurrentControlSet\\Enum\\%s"), devprop_buffer);
-
-			charbuffer_size = sizeof(charbuffer);
 			memset(charbuffer, '\0', 512);
-
-			/* USB\VID_04D8&PID_00DF&REV_0101 and USB\VID_04D8&PID_00DF and so on */
-			status = RegGetValue(HKEY_LOCAL_MACHINE, keybuf, TEXT("HardwareID"), RRF_RT_REG_MULTI_SZ, NULL, (PVOID)charbuffer, &charbuffer_size);
-			if (status != ERROR_SUCCESS) {
-				return clean_throw_exp_usbenumeration(env, 3, 2, GetLastError(), NULL, &list, &hiddevinst_list, &usb_dev_info_set, NULL);
+			buffer_size = sizeof(charbuffer);
+			cmret = CM_Get_DevNode_Registry_Property(firstchild, CM_DRP_HARDWAREID, NULL, (PVOID)charbuffer, &buffer_size, 0);
+			if (cmret != CR_SUCCESS) {
+				_snprintf_s(cmerror, 256, 256, "CM_Get_Device_ID failed with CR_xxxx error code : 0x%X\0", cmret);
+				return clean_throw_exp_usbenumeration(env, 3, 1, 0, cmerror, &list, &hiddevinst_list, &usb_dev_info_set, NULL);
 			}
 
-			/* charbuffer now contains hardwareID, cook it a little bit to enable suitable matching */
-			if (charbuffer[0] == 'U') {
+			if ((charbuffer[0] == 'U') && (charbuffer[1] == 'S') && (charbuffer[2] == 'B')) {
 				charbuffer[0] = 'H';
-			}
-			if (charbuffer[1] == 'S') {
 				charbuffer[1] = 'I';
-			}
-			if (charbuffer[2] == 'B') {
 				charbuffer[2] = 'D';
 			}
 
@@ -593,9 +581,9 @@ jobjectArray enumerate_usb_hid_devices(JNIEnv *env, jint vendor_to_match) {
 					return clean_throw_exp_usbenumeration(env, 3, 1, 0, E_NEWSTRUTFSTR, &list, &hiddevinst_list, &usb_dev_info_set, NULL);
 				}
 				insert_jstrarraylist(&list, usb_dev_info);
-				
+
 				/* PRODUCT
-				   (idProduct field of USB device descriptor) */
+				   (iProduct field of USB device descriptor) */
 				memset(devprop_buffer, '\0', sizeof(devprop_buffer));
 				ret = SetupDiGetDeviceProperty(usb_dev_info_set, &usb_dev_instance, &DEVPKEY_Device_BusReportedDeviceDesc, &proptype, (BYTE *)devprop_buffer, sizeof(devprop_buffer), &size, 0);
 				if (ret == FALSE) {
@@ -605,12 +593,9 @@ jobjectArray enumerate_usb_hid_devices(JNIEnv *env, jint vendor_to_match) {
 						/* if second attempt fails, throw error, we need to investigate drivers/firmware etc */
 						return clean_throw_exp_usbenumeration(env, 3, 2, HRESULT_FROM_SETUPAPI(GetLastError()), NULL, &list, &hiddevinst_list, &usb_dev_info_set, NULL);
 					}
-					usb_dev_info = (*env)->NewString(env, devprop_buffer, (jsize)_tcslen(devprop_buffer));
-					insert_jstrarraylist(&list, usb_dev_info);
-				}else {
-					usb_dev_info = (*env)->NewString(env, devprop_buffer, (jsize)_tcslen(devprop_buffer));
-					insert_jstrarraylist(&list, usb_dev_info);
-				}				
+				}
+				usb_dev_info = (*env)->NewString(env, devprop_buffer, (jsize)_tcslen(devprop_buffer));
+				insert_jstrarraylist(&list, usb_dev_info);
 
 				/* MANUFACTURER */
 				memset(devprop_buffer, '\0', sizeof(devprop_buffer));
@@ -696,26 +681,18 @@ jobjectArray enumerate_usb_hid_devices(JNIEnv *env, jint vendor_to_match) {
 			/* get the HardwareID of this USB HID interface. HardwareID is multi-sz, however
 			   we use only 1st string from multi-string HardwareID for our matching.
 			   HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Enum\USB\VID_04D8&PID_00DF&MI_02\7&33842C3F&0&0000\HardwareID */
-			memset(keybuf, '\0', 1024);
-			_stprintf_s(keybuf, 1024, TEXT("SYSTEM\\CurrentControlSet\\Enum\\%s"), devprop_buffer);
-
-			charbuffer_size = sizeof(charbuffer);
 			memset(charbuffer, '\0', 512);
+			buffer_size = sizeof(charbuffer);
 
-			/* USB\VID_04D8&PID_00DF&REV_0101 and USB\VID_04D8&PID_00DF and so on */
-			status = RegGetValue(HKEY_LOCAL_MACHINE, keybuf, TEXT("HardwareID"), RRF_RT_REG_MULTI_SZ, NULL, (PVOID)charbuffer, &charbuffer_size);
-			if (status != ERROR_SUCCESS) {
-				return clean_throw_exp_usbenumeration(env, 3, 2, GetLastError(), NULL, &list, &hiddevinst_list, &usb_dev_info_set, NULL);
+			cmret = CM_Get_DevNode_Registry_Property(next_sibling, CM_DRP_HARDWAREID, NULL, (PVOID)charbuffer, &buffer_size, 0);
+			if (cmret != CR_SUCCESS) {
+				_snprintf_s(cmerror, 256, 256, "CM_Get_Device_ID failed with CR_xxxx error code : 0x%X\0", cmret);
+				return clean_throw_exp_usbenumeration(env, 3, 1, 0, cmerror, &list, &hiddevinst_list, &usb_dev_info_set, NULL);
 			}
 
-			/* charbuffer now contains hardwareID, cook it a little bit to enable suitable matching */
-			if (charbuffer[0] == 'U') {
+			if ((charbuffer[0] == 'U') && (charbuffer[1] == 'S') && (charbuffer[2] == 'B')) {
 				charbuffer[0] = 'H';
-			}
-			if (charbuffer[1] == 'S') {
 				charbuffer[1] = 'I';
-			}
-			if (charbuffer[2] == 'B') {
 				charbuffer[2] = 'D';
 			}
 
@@ -806,7 +783,7 @@ jobjectArray enumerate_usb_hid_devices(JNIEnv *env, jint vendor_to_match) {
 				insert_jstrarraylist(&list, usb_dev_info);
 
 				/* PRODUCT
-				   (idProduct field of USB device descriptor) */
+				   (iProduct field of USB device descriptor) */
 				memset(devprop_buffer, '\0', sizeof(devprop_buffer));
 				ret = SetupDiGetDeviceProperty(usb_dev_info_set, &usb_dev_instance, &DEVPKEY_Device_BusReportedDeviceDesc, &proptype, (BYTE *)devprop_buffer, sizeof(devprop_buffer), &size, 0);
 				if (ret == FALSE) {

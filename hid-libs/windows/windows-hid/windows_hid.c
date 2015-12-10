@@ -339,7 +339,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
 		buffer[0] = reportID;
 	}
 
-	/* if user supplied more data than this device can accept, throw error. */
+	/* if user suplied more data than this device can accept, throw error. */
 	if (length > (info->collection_capabilities.OutputReportByteLength -1)) {
 		free(buffer);
 		throw_serialcom_exception(env, 3, 0, E_INVALIDOUTLEN);
@@ -396,7 +396,11 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
 
 	CloseHandle(ovWrite.hEvent);
 	free(buffer);
-	return (jint)num_of_bytes_written;
+
+	/* if driver has a bug, sometimes it will not report correct number of bytes sent even if they 
+	   have been sent correctly, therefore return info->collection_capabilities.OutputReportByteLength 
+	   as we know reaching here means success in writing */
+	return (jint)info->collection_capabilities.OutputReportByteLength;
 }
 
 
@@ -435,9 +439,9 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
 	wait_event_handles[1] = overlapped.hEvent;
 
 	/* An application should only use the HidD_GetXxx routines to obtain the current state of a device.
-	   If an application attempts to use HidD_GetInputReport to continuously obtain input reports, the
-	   reports can be lost. In addition, some devices might not support HidD_GetInputReport, and will
-	   become unresponsive if this routine is used. */
+	If an application attempts to use HidD_GetInputReport to continuously obtain input reports, the
+	reports can be lost. In addition, some devices might not support HidD_GetInputReport, and will
+	become unresponsive if this routine is used. */
 
 	/* ReadFile resets the event to a nonsignaled state when it begins the I/O operation. */
 	ret = ReadFile(info->handle, (PVOID)data_buf, info->collection_capabilities.InputReportByteLength, &num_of_bytes_read, &overlapped);
@@ -520,7 +524,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
 			}
 
 			/* if the device does not uses numbered reports, strip 1st byte.
-			   other operating systems like Linux also does so internally. */
+			other operating systems like Linux also does so internally. */
 			(*env)->SetByteArrayRegion(env, reportBuffer, 0, (num_of_bytes_read - 1), &data_buf[1]);
 			if ((*env)->ExceptionOccurred(env) != NULL) {
 				throw_serialcom_exception(env, 3, 0, E_SETBYTEARRAYREGION);
@@ -649,7 +653,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
 	if (have_data > 0) {
 		if (data_buf[0] == (jbyte)0x00) {
 
-			/* if user supplied report buffer was smaller than required to accomodate read report, throw exception */
+			/* if user supplied report buffer wass smaller than required to accomodate read report, throw exception */
 			if (length < (jint)(num_of_bytes_read - 1)) {
 				throw_serialcom_exception(env, 3, 0, E_INVALIDINLEN);
 				return -1;
@@ -665,7 +669,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
 			return (num_of_bytes_read - 1);
 		}else {
 
-			/* if user supplied report buffer was smaller than required to accomodate read report, throw exception */
+			/* if user supplied report buffer wass smaller than required to accomodate read report, throw exception */
 			if (length < (jint)num_of_bytes_read) {
 				throw_serialcom_exception(env, 3, 0, E_INVALIDINLEN);
 				return -1;

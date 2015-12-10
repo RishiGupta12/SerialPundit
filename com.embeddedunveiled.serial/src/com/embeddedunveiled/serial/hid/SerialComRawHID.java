@@ -68,6 +68,8 @@ import com.embeddedunveiled.serial.usb.SerialComUSBHID;
  * @author Rishi Gupta
  */
 public final class SerialComRawHID extends SerialComHID {
+	
+	private final Object lockA = new Object();
 
 	/**
 	 * <p>Construct and allocates a new SerialComRawHID object with given details.</p>
@@ -593,5 +595,52 @@ public final class SerialComRawHID extends SerialComHID {
 		}
 
 		return null;
+	}
+	
+	/**
+	 * <p>This method associate a data looper with the given listener. This looper will keep delivering new data whenever
+	 * it is made available from native data collection and dispatching subsystem.
+	 * Note that listener will start receiving new data, even before this method returns.</p>
+	 * 
+	 * <p>Application (listener) should implement ISerialComDataListener and override onNewSerialDataAvailable method.</p>
+	 * 
+	 * <p>The scm library can manage upto 1024 listeners corresponding to 1024 port handles. Application should not register 
+	 * data listener more than once for the same port otherwise it will lead to inconsistent state.</p>
+	 * <p>This method is thread safe.</p>
+	 * 
+	 * @param handle of the port opened.
+	 * @param dataListener instance of class which implements ISerialComDataListener interface.
+	 * @return true on success false otherwise.
+	 * @throws SerialComException if invalid handle passed, handle is null or data listener already exist for this handle.
+	 * @throws IllegalArgumentException if dataListener is null.
+	 */
+	public boolean registerInputReportListener(long handle, final IHIDInputReportListener listener) throws SerialComException {
+
+		boolean handlefound = false;
+		SerialComPortHandleInfo mHandleInfo = null;
+
+		if(dataListener == null) {
+			throw new IllegalArgumentException("Argument dataListener can not be null !");
+		}
+
+		synchronized(lockA) {
+			for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
+				if(mInfo.containsHandle(handle)) {
+					handlefound = true;
+					if(mInfo.getDataListener() != null) {
+						throw new SerialComException("Data listener already exist. Only one listener allowed !");
+					}else {
+						mHandleInfo = mInfo;
+					}
+					break;
+				}
+			}
+
+			if(handlefound == false) {
+				throw new SerialComException("Invalid handle passed for the requested operation !");
+			}
+
+			return mEventCompletionDispatcher.setUpDataLooper(handle, mHandleInfo, dataListener);
+		}
 	}
 }
