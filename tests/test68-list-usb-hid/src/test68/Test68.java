@@ -24,6 +24,17 @@ import com.embeddedunveiled.serial.hid.SerialComRawHID;
 import com.embeddedunveiled.serial.usb.SerialComUSB;
 import com.embeddedunveiled.serial.usb.SerialComUSBHID;
 
+/*  Windows output for MCP2000
+	Transport : USB
+	Device node : HID\VID_04D8&PID_00DF&MI_02\7&33842C3F&0&0000
+	Vendor id : 0x04D8
+	Product id : 0x00DF
+	Serial number : 0000980371
+	Product : MCP2200 USB Serial Port Emulator
+	Manufacturer : (Standard USB Host Controller)
+	Location : PCIROOT(0)#PCI(1400)#USBROOT(0)#USB(3)-Port_#0003.Hub_#0001
+*/
+
 public class Test68  {
 
 	public static void main(String[] args) {
