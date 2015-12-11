@@ -17,12 +17,58 @@
 
 package com.embeddedunveiled.serial.hid;
 
+import java.util.HashMap;
+import java.util.TreeMap;
+
 import com.embeddedunveiled.serial.ISerialComUSBHotPlugListener;
 import com.embeddedunveiled.serial.SerialComException;
 import com.embeddedunveiled.serial.SerialComManager;
 import com.embeddedunveiled.serial.SerialComUtil;
+import com.embeddedunveiled.serial.internal.HIDdevHandleInfo;
 import com.embeddedunveiled.serial.internal.SerialComHIDJNIBridge;
 import com.embeddedunveiled.serial.usb.SerialComUSBHID;
+
+/* Executes as a worker thread waiting for input reports, reading whenever available and delivering 
+ * them to the registered listener. */
+final class HIDInputReportReader implements Runnable {
+
+	private int ret;
+	private long handle;
+	private long context;
+	private IHIDInputReportListener listener;
+	private byte[] inputReportBuffer;
+	private SerialComRawHID scrh;
+
+	public HIDInputReportReader(long handle, final IHIDInputReportListener listener, byte[] inputReportBuffer, long context, SerialComRawHID scrh) {
+		this.handle = handle;
+		this.listener = listener;
+		this.inputReportBuffer = inputReportBuffer;
+		this.context = context;
+		this.scrh = scrh;
+	}
+
+	@Override
+	public void run() {
+		while(true) {
+			try {
+				ret = 0;
+				ret = scrh.readInputReportR(handle, inputReportBuffer, context);
+
+				// deliver input report
+				if(ret > 0) {
+					listener.onNewInputReportAvailable(ret, inputReportBuffer);
+				}
+			} catch (SerialComException e) {
+				if(SerialComHID.EXP_UNBLOCK_HIDIO.equals(e.getExceptionMsg())) {
+					// this thread should exit as other thread told it to return
+					return;
+				}
+			} catch (Exception e1) {
+				// do nothing
+			}
+		}
+	}
+}
 
 /**
  * <p>Contains APIs to communicate with a HID class device in raw mode. The reports sent/received 
@@ -68,8 +114,17 @@ import com.embeddedunveiled.serial.usb.SerialComUSBHID;
  * @author Rishi Gupta
  */
 public final class SerialComRawHID extends SerialComHID {
-	
-	private final Object lockA = new Object();
+
+	// used to synchronize access to treemap if caller can modify treemap.
+	private final Object lock = new Object();
+
+	// This provides guaranteed log(n) time cost for the containsKey, get, put and remove operations.
+	// It maps opened handle of HID device to its information object.
+	private final TreeMap<Long, HIDdevHandleInfo> devInfo;
+
+	// Instead of linearly traversing tree to find context corresponding to listener, we maintain 
+	// a hashmap to decrease look up time.
+	private final HashMap<IHIDInputReportListener, Long> listenerToHandleMap;
 
 	/**
 	 * <p>Construct and allocates a new SerialComRawHID object with given details.</p>
@@ -80,6 +135,8 @@ public final class SerialComRawHID extends SerialComHID {
 	 */
 	public SerialComRawHID(SerialComHIDJNIBridge mHIDJNIBridge, int osType) {
 		super(mHIDJNIBridge, osType);
+		devInfo = new TreeMap<Long, HIDdevHandleInfo>();
+		listenerToHandleMap = new HashMap<IHIDInputReportListener, Long>();
 	}
 
 	/**
@@ -188,6 +245,11 @@ public final class SerialComRawHID extends SerialComHID {
 			/* JNI should have already thrown exception, this is an extra check to increase reliability of program. */
 			throw new SerialComException("Could not open the HID device " + pathNameVal + ". Please retry !");
 		}
+
+		// save data info internally for later use
+		synchronized(lock) {
+			devInfo.put(handle, new HIDdevHandleInfo(null));
+		}
 		return handle;
 	}
 
@@ -195,13 +257,26 @@ public final class SerialComRawHID extends SerialComHID {
 	 * <p>Closes a HID device.</p>
 	 * 
 	 * @param handle handle of the device to be closed.
-	 * @return true if device closed successfully.
+	 * @return true if device's handle closed successfully.
 	 * @throws SerialComException if fails to close the device or an IO error occurs.
+	 * @throws IllegalStateException if application tries to close handle when input report listener still exist.
 	 */
-	public final boolean closeHidDeviceR(long handle) throws SerialComException {
+	public final boolean closeHidDeviceR(long handle) throws SerialComException {		
+		HIDdevHandleInfo info = devInfo.get(handle);
+		if(info != null) {
+			if(info.getInputReportListener() != null) {
+				throw new IllegalStateException("Closing device handle without unregistering input report listener is not allowed to prevent inconsistency !");
+			}
+		}
+
 		int ret = mHIDJNIBridge.closeHidDeviceR(handle);
 		if(ret < 0) {
 			throw new SerialComException("Could not close the given HID device. Please retry !");
+		}
+
+		// remove local data info
+		synchronized(lock) {
+			devInfo.remove(handle);
 		}
 		return true;
 	}
@@ -578,6 +653,79 @@ public final class SerialComRawHID extends SerialComHID {
 	}
 
 	/**
+	 * <p>Registers a listener which will be invoked whenever an input report is available to read.</p>
+	 * 
+	 * @param handle of the HID device for which input reports are to be listened.
+	 * @param listener instance of class which implements IHIDInputReportListener interface.
+	 * @param inputReportBuffer byte buffer that will contain report read from HID device.
+	 * @return true on success.
+	 * @throws SerialComException if the registration fails due to some reason.
+	 * @throws IllegalArgumentException if input report listener is null.
+	 * @throws IllegalStateException if input report listener already exist for given handle.
+	 */
+	public boolean registerInputReportListener(long handle, final IHIDInputReportListener listener, byte[] inputReportBuffer) throws SerialComException {
+
+		HIDdevHandleInfo info = devInfo.get(handle);
+		if(info != null) {
+			if(info.getInputReportListener() != null) {
+				throw new IllegalStateException("Input report listener already exist for given handle !");
+			}
+		}
+
+		if(listener == null) {
+			throw new IllegalArgumentException("Argument listener can not be null !");
+		}
+
+		long context = createBlockingHIDIOContextR();
+		Thread dataReaderThread = new Thread(new HIDInputReportReader(handle, listener, inputReportBuffer, context, this));
+
+		synchronized(lock) {
+			info.setInputReportListener(listener);
+			info.setListenerContext(context);
+			listenerToHandleMap.put(listener, handle);
+			dataReaderThread.start();
+		}
+
+		return true;
+	}
+
+	/**
+	 * <p>This unregisters listener and terminates worker thread which was delivering input reports.</p>
+	 * 
+	 * @param listener reference to class which implemented IHIDInputReportListener interface to get input reports.
+	 * @return true on success.
+	 * @throws SerialComException if un-registration fails due to some reason.
+	 * @throws IllegalArgumentException if listener is null or given listener is not registered.
+	 */
+	public boolean unregisterInputReportListener(final IHIDInputReportListener listener) throws SerialComException {
+		if(listener == null) {
+			throw new IllegalArgumentException("Argument listener can not be null !");
+		}
+
+		long handle = listenerToHandleMap.get(listener);
+
+		HIDdevHandleInfo info = devInfo.get(handle);
+		if(info == null) {
+			throw new IllegalArgumentException("Invalid listener passed for unregistration !");
+		}
+
+		long context = info.getListenerContext();
+		synchronized(lock) {
+			unblockBlockingHIDIOOperationR(context);
+			try {
+				Thread.sleep(2); // let worker thread's read method get unblocked and thread to exit itself.
+			} catch (InterruptedException e) {
+			}
+			destroyBlockingIOContextR(context);
+			info.setInputReportListener(null);
+			listenerToHandleMap.remove(listener);
+		}
+
+		return true;
+	}
+
+
+	/**
 	 * <p>Returns an instance of class SerialComUSBHID for HID over USB operations.</p>
 	 * 
 	 * @param transport one of the HID_USB or HID_BLUETOOTH constants.
@@ -595,52 +743,5 @@ public final class SerialComRawHID extends SerialComHID {
 		}
 
 		return null;
-	}
-	
-	/**
-	 * <p>This method associate a data looper with the given listener. This looper will keep delivering new data whenever
-	 * it is made available from native data collection and dispatching subsystem.
-	 * Note that listener will start receiving new data, even before this method returns.</p>
-	 * 
-	 * <p>Application (listener) should implement ISerialComDataListener and override onNewSerialDataAvailable method.</p>
-	 * 
-	 * <p>The scm library can manage upto 1024 listeners corresponding to 1024 port handles. Application should not register 
-	 * data listener more than once for the same port otherwise it will lead to inconsistent state.</p>
-	 * <p>This method is thread safe.</p>
-	 * 
-	 * @param handle of the port opened.
-	 * @param dataListener instance of class which implements ISerialComDataListener interface.
-	 * @return true on success false otherwise.
-	 * @throws SerialComException if invalid handle passed, handle is null or data listener already exist for this handle.
-	 * @throws IllegalArgumentException if dataListener is null.
-	 */
-	public boolean registerInputReportListener(long handle, final IHIDInputReportListener listener) throws SerialComException {
-
-		boolean handlefound = false;
-		SerialComPortHandleInfo mHandleInfo = null;
-
-		if(dataListener == null) {
-			throw new IllegalArgumentException("Argument dataListener can not be null !");
-		}
-
-		synchronized(lockA) {
-			for(SerialComPortHandleInfo mInfo: mPortHandleInfo){
-				if(mInfo.containsHandle(handle)) {
-					handlefound = true;
-					if(mInfo.getDataListener() != null) {
-						throw new SerialComException("Data listener already exist. Only one listener allowed !");
-					}else {
-						mHandleInfo = mInfo;
-					}
-					break;
-				}
-			}
-
-			if(handlefound == false) {
-				throw new SerialComException("Invalid handle passed for the requested operation !");
-			}
-
-			return mEventCompletionDispatcher.setUpDataLooper(handle, mHandleInfo, dataListener);
-		}
 	}
 }
