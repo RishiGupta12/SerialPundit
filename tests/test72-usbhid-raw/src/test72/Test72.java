@@ -19,12 +19,13 @@ package test72;
 
 import com.embeddedunveiled.serial.SerialComException;
 import com.embeddedunveiled.serial.SerialComManager;
+import com.embeddedunveiled.serial.hid.IHIDInputReportListener;
 import com.embeddedunveiled.serial.hid.SerialComHID;
 import com.embeddedunveiled.serial.hid.SerialComRawHID;
 import com.embeddedunveiled.serial.usb.SerialComUSBHID;
 
 // tested with MCP2200 for HID raw mode communication
-public class Test72  {
+public class Test72 implements IHIDInputReportListener {
 
 	public static SerialComManager scm = null;
 	public static SerialComUSBHID scuh = null;
@@ -35,6 +36,16 @@ public class Test72  {
 	public static int ret = 0;
 	public static byte[] inputReportBuffer = new byte[32];
 	public static byte[] outputReportBuffer = new byte[16];
+
+	// callback invoked whenever report is available
+	@Override
+	public void onNewInputReportAvailable(int numBytes, byte[] report) {
+		try {
+			System.out.println("Number of bytes read : " + numBytes + ", Report : " + scrh.formatReportToHexR(report, " "));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 
 	public static void main(String[] args) {
 
@@ -226,17 +237,34 @@ public class Test72  {
 		}
 
 		try {
-			System.out.println("\ndriver : "+ scrh.findDriverServingHIDDeviceR(PORT));
+			System.out.println("\ndriver : " + scrh.findDriverServingHIDDeviceR(PORT));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
 		try {
 			// windows mouse
-			System.out.println("\ndriver : "+ scrh.findDriverServingHIDDeviceR("HID\\VID_04CA&PID_0061\\6&35F47D18&0&0000"));
+			System.out.println("\ndriver : " + scrh.findDriverServingHIDDeviceR("HID\\VID_04CA&PID_0061\\6&35F47D18&0&0000"));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+
+		try {
+			Test72 tt = new Test72();
+			System.out.println("\nregister listener : " + scrh.registerInputReportListener(handle, tt, inputReportBuffer));
+
+			for(int p=0; p<10; p++) {
+				outputReportBuffer[0] = (byte) 0x80;
+				ret = scrh.writeOutputReportR(handle, (byte) -1, outputReportBuffer);
+				System.out.println("writeOutputReport 2: " + p + " : " + ret);
+				Thread.sleep(10);
+			}
+
+			System.out.println("\nunregister listener : " + scrh.unregisterInputReportListener(tt));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
 
 		try {
 			System.out.println("\ncloseHidDevice : " + scrh.closeHidDeviceR(handle));
