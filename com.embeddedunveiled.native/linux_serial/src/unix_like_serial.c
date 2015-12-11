@@ -3202,9 +3202,19 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
  * @return array of Strings containing info about rfcomm device nodes found, NULL if error occurs.
  * @throws SerialComException if any JNI function, system call or C function fails.
  */
+<<<<<<< HEAD
+JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_listBTSPPDevNodesWithInfo
+<<<<<<< HEAD
+  (JNIEnv *env, jobject obj) {
+	return list_bt_rfcomm_dev_nodes(env, obj);
+=======
+(JNIEnv *env, jobject obj) {
+=======
 JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_listBTSPPDevNodesWithInfo(JNIEnv *env,
 		jobject obj) {
+>>>>>>> upstream/master
 	return list_bt_rfcomm_dev_nodes(env);
+>>>>>>> upstream/master
 }
 
 #endif /* End compiling for Unix-like OS. */

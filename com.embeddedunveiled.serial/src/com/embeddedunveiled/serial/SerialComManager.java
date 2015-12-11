@@ -152,7 +152,11 @@ import com.embeddedunveiled.serial.datalogger.SerialComToKeyStrokeToApp;
  */
 public final class SerialComManager {
 
+<<<<<<< HEAD
+	/**<p>Release version of the serial communication manager library. </p>*/
+=======
 	/**<p>Production release version of the serial communication manager library. </p>*/
+>>>>>>> upstream/master
 	public static final String JAVA_LIB_VERSION = "1.0.4";
 
 	/** <p>Pre-defined enum constants for baud rate values. </p>*/
@@ -509,7 +513,10 @@ public final class SerialComManager {
 	private static boolean nativeLibLoadAndInitAlready = false;
 	private static SerialComVendorLib mSerialComVendorLib;
 	private static SerialComHIDJNIBridge mSerialComHIDJNIBridge;
+<<<<<<< HEAD
+=======
 	private static SerialComBluetoothJNIBridge mSerialComBluetoothJNIBridge;
+>>>>>>> upstream/master
 
 	// Whenever an exception/error occurs in native function, it throws that exception.
 	// When java method return from native call, extra check is added to make error
@@ -695,6 +702,24 @@ public final class SerialComManager {
 	}
 
 	/**
+<<<<<<< HEAD
+	 * <p>Returns an array of SerialComUSBdevice class objects containing information about all the USB devices found by this 
+	 * library. Application can call various methods on SerialComUSBdevice object to get specific information like vendor id 
+	 * and product id etc. The GUI applications may display a dialogue box asking user to connect the end product if the desired 
+	 * product is still not connected to system.</p>
+	 * 
+	 * <p>The USB vendor id, USB product id, serial number, product name and manufacturer information is encapsulated in the 
+	 * object of class SerialComUSBdevice returned.</p>
+	 * 
+	 * <p>Some USB-UART chip manufactures may give some unique USB PID(s) to end product manufactures at minimal or no cost. 
+	 * Applications written for these end products may be interested in finding devices only from the USB-UART chip manufacturer.
+	 * For example, an application built for finger print scanner based on FT232 IC will like to list only those devices whose 
+	 * VID matches VID of FTDI. Then further application may verify PID by calling methods on the USBDevice object. For this 
+	 * purpose argument vendorFilter may be used.</p>
+	 * 
+	 * @param vendorFilter vendor whose devices should be listed (one of the constants SerialComUSB.V_xxxxx or any valid USB VID).
+	 * @return list of the USB devices with information about them or empty array if no device matching given criteria found.
+=======
 	 * <p>Returns an array of SerialComUSBdevice class objects containing information about all the USB devices 
 	 * found by this library. Application can call various methods on SerialComUSBdevice object to get specific 
 	 * information like vendor id and product id etc. The GUI applications may display a dialogue box asking 
@@ -713,6 +738,7 @@ public final class SerialComManager {
 	 *         any valid USB VID).
 	 * @return list of the USB devices with information about them or empty array if no device matching given 
 	 *          criteria found.
+>>>>>>> upstream/master
 	 * @throws SerialComException if an I/O error occurs.
 	 * @throws IllegalArgumentException if vendorFilter is negative or invalid number.
 	 */
@@ -729,7 +755,15 @@ public final class SerialComManager {
 			if(usbDevicesInfo.length < 4) {
 				return new SerialComUSBdevice[] { };
 			}
+<<<<<<< HEAD
+<<<<<<< HEAD
+			numOfDevices = usbDevicesInfo.length / 5;
+=======
+			numOfDevices = usbDevicesInfo.length / 7;
+>>>>>>> upstream/master
+=======
 			numOfDevices = usbDevicesInfo.length / 6;
+>>>>>>> upstream/master
 			usbDevicesFound = new SerialComUSBdevice[numOfDevices];
 			for(int x=0; x<numOfDevices; x++) {
 				usbDevicesFound[x] = new SerialComUSBdevice(usbDevicesInfo[i], usbDevicesInfo[i+1], usbDevicesInfo[i+2], 
@@ -2247,7 +2281,11 @@ public final class SerialComManager {
 	 * <p>Gives the address and IRQ number associated with the given serial port.</p>
 	 * 
 	 * @param handle handle of the opened serial port.
+<<<<<<< HEAD
+	 * @return string containing address and irq number.
+=======
 	 * @return string containing address and irq number in hexadecimal represenation.
+>>>>>>> upstream/master
 	 * @throws SerialComException if operation can not be completed successfully.
 	 */
 	public String findIRQnumberForComPort(long handle) throws SerialComException {
@@ -2737,6 +2775,24 @@ public final class SerialComManager {
 	}
 
 	/**
+<<<<<<< HEAD
+	 * <p>Prepares context for serial port communication over Bluetooth using 'serial port profile' (SPP)
+	 * specification of bluetooth standard.</p>
+	 * 
+	 * @return reference to an object of type SerialComBluetooth on which various methods can be invoked.
+	 * @throws SerialComException if could not instantiate class due to some reason.
+	 */
+	public SerialComBluetooth getSerialComBluetoothInstance() throws SerialComException {
+		if(mSerialComBluetooth != null) {
+			return mSerialComBluetooth;
+		}
+		mSerialComBluetooth = new SerialComBluetooth(mComPortJNIBridge);
+		return mSerialComBluetooth;
+	}
+
+	/**
+=======
+>>>>>>> upstream/master
 	 * <p>Get an instance of SerialComUSB class for USB related operations.</p>
 	 * 
 	 * @return reference to an object of type SerialComUSB on which various methods can be invoked.
@@ -2751,6 +2807,8 @@ public final class SerialComManager {
 	}
 
 	/**
+<<<<<<< HEAD
+=======
 	 * <p>Initialize and return an instance of SerialComBluetooth for the given bluetooth stack. It prepares 
 	 * context for serial port communication over Bluetooth using 'serial port profile' (SPP) specification 
 	 * of bluetooth standard.</p></p>
@@ -2795,12 +2853,16 @@ public final class SerialComManager {
 	}
 
 	/**
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
 	 * <p>Allocate, initialize and return an instance of requested mode for communication with 
 	 * HID device. If the value of variable type is MODE_RAW, instance of class SerialComRawHID 
 	 * is returned. In this mode raw reports are sent and received with device (no report parsing 
 	 * is done). If the type is MODE_PARSED, reports are parsed by operating system as described 
 	 * by report descriptor of HID device.</p>
 	 * 
+>>>>>>> upstream/master
 	 * <p>Initialize and return an instance of requested type for serial communication based on 
 	 * HID specification. The type argument should be HID_GENERIC for most of the applications. 
 	 * However for some very specific need type may be HID_USB, or for Bluetooth HID applicxation
@@ -2812,7 +2874,15 @@ public final class SerialComManager {
 	 * loaded will be given name as specified by loadedLibName argument or default name will be 
 	 * used if loadedLibName is null.</p>
 	 * 
+<<<<<<< HEAD
+<<<<<<< HEAD
+	 * @param type one of the constants HID_XXXX defined in SerialComHID.
+=======
+	 * @param type one of the constants HID_XXXX defined in SerialComHID class.
+>>>>>>> upstream/master
+=======
 	 * @param type one of the constants MODE_XXXX defined in SerialComHID class.
+>>>>>>> upstream/master
 	 * @param directoryPath absolute path of directory to be used for extraction.
 	 * @param loadedLibName library name without extension (do not append .so, .dll or .dylib etc.).
 	 * @return reference to an object of requested type SerialComUSB on which various methods can 
@@ -2830,6 +2900,17 @@ public final class SerialComManager {
 	public SerialComHID getSerialComHIDInstance(int type, String directoryPath, String loadedLibName) throws SecurityException, 
 	SerialComUnexpectedException, SerialComLoadException, UnsatisfiedLinkError, SerialComException, 
 	FileNotFoundException, IOException {
+<<<<<<< HEAD
+		if(mSerialComHIDJNIBridge == null) {
+			mSerialComHIDJNIBridge = new SerialComHIDJNIBridge();
+			SerialComHIDJNIBridge.loadNativeLibrary(directoryPath, loadedLibName, mSerialComSystemProperty, osType, cpuArch, javaABIType);
+		}
+
+		if(type == SerialComHID.HID_GENERIC) {
+			return new SerialComHID(mSerialComHIDJNIBridge);
+		}else if(type == SerialComHID.HID_USB) {
+			return new SerialComUSBHID(mSerialComHIDJNIBridge);
+=======
 		int ret = 0;
 		if(mSerialComHIDJNIBridge == null) {
 			mSerialComHIDJNIBridge = new SerialComHIDJNIBridge();
@@ -2843,6 +2924,12 @@ public final class SerialComManager {
 		if(type == SerialComHID.MODE_RAW) {
 			return new SerialComRawHID(mSerialComHIDJNIBridge, osType);
 		}else if(type == SerialComHID.HID_USB) {
+<<<<<<< HEAD
+			return new SerialComUSBHID(mSerialComHIDJNIBridge, osType);
+>>>>>>> upstream/master
+		}else if(type == SerialComHID.HID_BLUETOOTH) {
+=======
+>>>>>>> upstream/master
 			//TODO
 		}else {
 			throw new IllegalArgumentException("Argument type must be one of the constants SerialComHID.MODE_XXXXX !");

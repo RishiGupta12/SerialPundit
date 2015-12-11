@@ -16,8 +16,11 @@
  *
  ***************************************************************************************************/
 
+<<<<<<< HEAD
+=======
 /* In Linux, USB HID raw devices are those devices which are not strictly human interface device. */
 
+>>>>>>> upstream/master
 #if defined (__linux__) || defined (__APPLE__) || defined (__SunOS) || defined(__sun) || defined(__FreeBSD__) \
 		|| defined(__OpenBSD__) || defined(__NetBSD__) || defined(__hpux__) || defined(_AIX)
 
@@ -46,6 +49,8 @@
 #include <sys/select.h>
 #include <sys/ioctl.h>
 
+<<<<<<< HEAD
+=======
 #if defined (__linux__)
 #include <stdint.h>
 #include <libudev.h>
@@ -60,6 +65,7 @@
 #include <IOKit/hid/IOHIDManager.h>
 #endif
 
+>>>>>>> upstream/master
 /* jni_md.h contains the machine-dependent typedefs for data types. Instruct compiler to include it. */
 #include <jni.h>
 #include "unix_like_hid.h"
@@ -67,6 +73,8 @@
 /* Common interface with java layer for supported OS types. */
 #include "../../com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge.h"
 
+<<<<<<< HEAD
+=======
 #if defined (__APPLE__)
 static	IOHIDManagerRef mac_hid_mgr = -1;
 #endif
@@ -114,25 +122,52 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
 	return 0;
 }
 
+>>>>>>> upstream/master
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
  * Method:    listHIDdevicesWithInfoR
  * Signature: ()[Ljava/lang/String;
+<<<<<<< HEAD
+=======
  *
  * @return array of Strings containing HID devices if found, zero length array if no HID device is found,
  *         NULL if an error occurs.
  * @throws SerialComException if any JNI function, system call or C function fails.
+>>>>>>> upstream/master
  */
 JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_listHIDdevicesWithInfoR(JNIEnv *env,
 		jobject obj) {
 	return NULL;
+<<<<<<< HEAD
+=======
 	/*TODO*/
+>>>>>>> upstream/master
 }
 
 /* 
  * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
+<<<<<<< HEAD
+<<<<<<< HEAD
+ * Method:    openHidDevice
+ * Signature: (Ljava/lang/String;)J
+ *
+ * @return file descriptor number if function succeeds otherwise -1 if error occurs.
+ * @throws SerialComException if any JNI function, system call or C function fails.
+ */
+JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_openHidDevice(JNIEnv *env,
+		jobject obj, jstring pathName) {
+	long fd;
+	const char* node = NULL;
+
+	node = (*env)->GetStringUTFChars(env, pathName, NULL);
+	if((node == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+=======
+ * Method:    openHidDeviceByPath
+ * Signature: (Ljava/lang/String;)J
+=======
  * Method:    openHidDeviceByPathR
  * Signature: (Ljava/lang/String;Z)J
+>>>>>>> upstream/master
  *
  * @return file descriptor number if function succeeds otherwise -1 if an error occurs.
  * @throws SerialComException if any JNI function, system call or C function fails.
@@ -147,6 +182,7 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJN
 
 	deviceNode = (*env)->GetStringUTFChars(env, pathName, NULL);
 	if((deviceNode == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
+>>>>>>> upstream/master
 		throw_serialcom_exception(env, 3, 0, E_GETSTRUTFCHARSTR);
 		return -1;
 	}
@@ -157,7 +193,22 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJN
 	}
 
 	errno = 0;
+<<<<<<< HEAD
+<<<<<<< HEAD
+	fd = open(node, O_RDWR);
+	if(fd < 0) {
+		(*env)->ReleaseStringUTFChars(env, pathName, node);
+		throw_serialcom_exception(env, 1, errno, NULL);
+		return -1;
+	}
+	(*env)->ReleaseStringUTFChars(env, pathName, node);
+
+	return fd;
+=======
+	fd = open(deviceNode, O_RDWR);
+=======
 	fd = open(deviceNode, OPEN_MODE);
+>>>>>>> upstream/master
 	if(fd < 0) {
 		(*env)->ReleaseStringUTFChars(env, pathName, deviceNode);
 		throw_serialcom_exception(env, 1, errno, NULL);
@@ -171,6 +222,7 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJN
 #if defined (__APPLE__)
 	return -1;
 #endif
+>>>>>>> upstream/master
 }
 
 /*
@@ -178,15 +230,25 @@ JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJN
  * Method:    closeHidDeviceR
  * Signature: (J)I
  *
+<<<<<<< HEAD
+<<<<<<< HEAD
+ * @return 0 if function succeeds otherwise -1 if error occurs.
+=======
+=======
  * Closes handle to HID device and free up resources.
  *
+>>>>>>> upstream/master
  * @return 0 if function succeeds otherwise -1 if an error occurs.
+>>>>>>> upstream/master
  * @throws SerialComException if any JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_closeHidDeviceR(JNIEnv *env,
 		jobject obj, jlong fd) {
+<<<<<<< HEAD
+=======
 
 #if defined (__linux__)
+>>>>>>> upstream/master
 	int ret = -1;
 	do {
 		errno = 0;
@@ -204,6 +266,21 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
 	}while (1);
 
 	return 0;
+<<<<<<< HEAD
+}
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
+ * Method:    getReportDescriptorSize
+ * Signature: (J)I
+ *
+ * @return report descriptor size in bytes if function succeeds otherwise -1 if error occurs.
+ * @throws SerialComException if any JNI function, system call or C function fails.
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_getReportDescriptorSize(JNIEnv *env,
+		jobject obj, jlong fd) {
+	return get_report_descriptor_size(env, fd);
+=======
 #endif
 
 #if defined (__APPLE__)
@@ -213,10 +290,47 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
 		/*TODO handle error */
 	}
 #endif
+>>>>>>> upstream/master
 }
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
+<<<<<<< HEAD
+ * Method:    writeOutputReport
+<<<<<<< HEAD
+ * Signature: (JB[B)I
+ *
+ * @return number of bytes sent to device if function succeeds otherwise -1 if error occurs.
+ * @throws SerialComException if any JNI function, system call or C function fails.
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_writeOutputReport(JNIEnv *env,
+		jobject obj, jlong fd, jbyte reportID, jbyteArray report) {
+	int ret = -1;
+	int count = 0;
+	jbyte* buffer = NULL;
+
+	count = (int) (*env)->GetArrayLength(env, report);
+	buffer = (jbyte *) malloc(count + 1);
+
+	/* The first byte of SFEATURE and GFEATURE is the report number */
+	buffer[0] = reportID;
+
+	(*env)->GetByteArrayRegion(env, report, 0, count, &buffer[1]);
+	if((*env)->ExceptionOccurred(env) != NULL) {
+		throw_serialcom_exception(env, 3, 0, E_GETBYTEARRREGIONSTR);
+		return -1;
+	}
+
+	errno = 0;
+	ret = write(fd, buffer, count+1);
+	if(ret < 0) {
+		throw_serialcom_exception(env, 1, errno, NULL);
+		return -1;
+	}
+
+	return ret;
+=======
+=======
  * Method:    createBlockingHIDIOContextR
  * Signature: ()J
  *
@@ -331,6 +445,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
  * Method:    writeOutputReportR
+>>>>>>> upstream/master
  * Signature: (JB[BI)I
  * 
  * Sends an output report to given HID device after properly formating the given report.
@@ -345,6 +460,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
 #elif defined (__APPLE__)
 	return mac_send_output_report(env, fd, reportID, report, length);
 #endif
+>>>>>>> upstream/master
 }
 
 /*
@@ -352,6 +468,9 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
  * Method:    readInputReportR
  * Signature: (J[BIJ)I
  *
+<<<<<<< HEAD
+ * @return number of bytes read if function succeeds otherwise -1 if error occurs.
+=======
  * TODO MAC RETURN 1ST BYTE AS REPORT ID OR NOT.
  *
  * It reads a raw HID report (i.e. no report parsing is done).
@@ -359,6 +478,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
  * If the blocked I/O read operation is unblocked, it throws SerialComHID.EXP_UNBLOCK_HIDIO exception.
  *
  * @return number of bytes read if function succeeds otherwise -1 if an error occurs.
+>>>>>>> upstream/master
  * @throws SerialComException if any JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_readInputReportR(JNIEnv *env,
@@ -440,13 +560,20 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
  * Method:    readInputReportWithTimeoutR
  * Signature: (J[BII)I
  *
+<<<<<<< HEAD
+<<<<<<< HEAD
+ * @return number of bytes read if function succeeds otherwise -1 if error occurs.
+=======
+=======
  * Read input report blocking for the time less than or equal to given timeout value. 
  * First byte will represent report ID if device uses numbered reports otherwise 1st 
  * byte will be report byte itself.
  * 
  * It reads a raw HID report (i.e. no report parsing is done).
  *
+>>>>>>> upstream/master
  * @return number of bytes read if function succeeds otherwise -1 if an error occurs.
+>>>>>>> upstream/master
  * @throws SerialComException if any JNI function, system call or C function fails.
  */
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_readInputReportWithTimeoutR(JNIEnv *env,
@@ -514,7 +641,44 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
+<<<<<<< HEAD
+ * Method:    sendFeatureReport
+<<<<<<< HEAD
+ * Signature: (JB[B)I
+ *
+ * @return number of bytes sent to HID device if function succeeds otherwise -1 if error occurs.
+ * @throws SerialComException if any JNI function, system call or C function fails.
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_sendFeatureReport(JNIEnv *env,
+		jobject obj, jlong fd, jbyte reportID, jbyteArray report) {
+	int ret = -1;
+	int count = 0;
+
+	count = (int) (*env)->GetArrayLength(env, report);
+	jbyte* buffer = (jbyte *) malloc(count + 1);
+
+	/* The first byte of SFEATURE and GFEATURE is the report number */
+	buffer[0] = reportID;
+
+	(*env)->GetByteArrayRegion(env, report, 0, count, &buffer[1]);
+	if((*env)->ExceptionOccurred(env) != NULL) {
+		throw_serialcom_exception(env, 3, 0, E_GETBYTEARRREGIONSTR);
+		return -1;
+	}
+
+	errno = 0;
+	/* this ioctl returns number of bytes written to the device */
+	ret = ioctl(fd, HIDIOCSFEATURE(count+1), buffer);
+	if(ret < 0) {
+		throw_serialcom_exception(env, 1, errno, NULL);
+		return -1;
+	}
+
+	return ret;
+=======
+=======
  * Method:    sendFeatureReportR
+>>>>>>> upstream/master
  * Signature: (JB[BI)I
  *
  * @return number of bytes sent to HID device if function succeeds otherwise -1 if an error occurs.
@@ -527,11 +691,53 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
 #elif defined (__APPLE__)
 	return mac_send_feature_report(env, fd, reportID, report, length);
 #endif
+>>>>>>> upstream/master
 }
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
+<<<<<<< HEAD
+ * Method:    getFeatureReport
+<<<<<<< HEAD
+ * Signature: (J[B)I
+ *
+ * @return number of bytes received from HID device if function succeeds otherwise -1 if error occurs.
+ * @throws SerialComException if any JNI function, system call or C function fails.
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_getFeatureReport(JNIEnv *env,
+		jobject obj, jlong fd, jbyteArray reportBuffer) {
+	int ret = -1;
+	int length = 0;
+
+	length = (int) (*env)->GetArrayLength(env, reportBuffer);
+	jbyte* buffer = (jbyte *) malloc(length);
+
+	errno = 0;
+	/* this ioctl returns number of bytes read from device */
+	ret = ioctl(fd, HIDIOCGFEATURE(length), buffer);
+	if(ret > 0) {
+		/* copy data from native buffer to Java buffer. */
+		(*env)->SetByteArrayRegion(env, reportBuffer, 0, ret, buffer);
+		if((*env)->ExceptionOccurred(env) != NULL) {
+			throw_serialcom_exception(env, 3, 0, E_SETBYTEARRAYREGION);
+			return -1;
+		}
+		free(buffer);
+		return ret;
+	}else if(ret < 0) {
+		free(buffer);
+		throw_serialcom_exception(env, 1, errno, NULL);
+		return -1;
+	}else {
+	}
+
+	/* no bytes read, ret will be zero */
+	free(buffer);
+	return ret;
+=======
+=======
  * Method:    getFeatureReportR
+>>>>>>> upstream/master
  * Signature: (JB[BI)I
  *
  * Get feature report from given HID device.
@@ -546,6 +752,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
 #elif defined (__APPLE__)
 	return mac_get_feature_report(env, fd, reportID, report, length);
 #endif
+>>>>>>> upstream/master
 }
 
 /*
@@ -560,11 +767,15 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
  */
 JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_getManufacturerStringR(JNIEnv *env,
 		jobject obj, jlong fd) {
+<<<<<<< HEAD
+	return get_hiddev_info_string(env, fd, 1);
+=======
 #if defined (__linux__)
 	return linux_get_hiddev_info_string(env, fd, 1);
 #elif defined (__APPLE__)
 	return mac_get_hiddev_info_string(env, fd, 1);
 #endif
+>>>>>>> upstream/master
 }
 
 /*
@@ -579,11 +790,15 @@ JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHID
  */
 JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_getProductStringR(JNIEnv *env,
 		jobject obj, jlong fd) {
+<<<<<<< HEAD
+	return get_hiddev_info_string(env, fd, 2);
+=======
 #if defined (__linux__)
 	return linux_get_hiddev_info_string(env, fd, 2);
 #elif defined (__APPLE__)
 	return mac_get_hiddev_info_string(env, fd, 2);
 #endif
+>>>>>>> upstream/master
 }
 
 /*
@@ -598,17 +813,26 @@ JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHID
  */
 JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_getSerialNumberStringR(JNIEnv *env,
 		jobject obj, jlong fd) {
+<<<<<<< HEAD
+	return get_hiddev_info_string(env, fd, 3);
+=======
 #if defined (__linux__)
 	return linux_get_hiddev_info_string(env, fd, 3);
 #elif defined (__APPLE__)
 	return mac_get_hiddev_info_string(env, fd, 3);
 #endif
+>>>>>>> upstream/master
 }
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
  * Method:    getIndexedStringR
  * Signature: (JI)Ljava/lang/String;
+<<<<<<< HEAD
+ */
+JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_getIndexedString
+(JNIEnv *env, jobject obj, jlong fd, jint index) {
+=======
  *
  * Get string as returned by descriptor for given index.
  *
@@ -622,6 +846,7 @@ JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHID
 #elif defined (__APPLE__)
 	return NULL;
 #endif
+>>>>>>> upstream/master
 	return get_hiddev_indexed_string(env, fd, index);
 }
 
@@ -636,16 +861,27 @@ JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHID
  */
 JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_listUSBHIDdevicesWithInfo(JNIEnv *env,
 		jobject obj, jint vendorFilter) {
+<<<<<<< HEAD
+	return list_usb_hid_devices(env, vendorFilter);
+=======
 #if defined (__linux__)
 	return linux_enumerate_usb_hid_devices(env, vendorFilter);
 #elif defined (__APPLE__)
 	return mac_enumerate_usb_hid_devics(env, vendorFilter, mac_hid_mgr);
 #endif
+>>>>>>> upstream/master
 }
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
  * Method:    openHidDeviceByUSBAttributes
+<<<<<<< HEAD
+ * Signature: (IILjava/lang/String;)J
+ */
+JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_openHidDeviceByUSBAttributes(JNIEnv *env,
+		jobject obj, jint usbvid, jint usbpid, jstring usbserialnumber) {
+	return 0;
+=======
  * Signature: (IILjava/lang/String;III)J
  */
 JNIEXPORT jlong JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_openHidDeviceByUSBAttributes(JNIEnv *env,
@@ -674,6 +910,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialCom
 	return linux_get_report_descriptor(env, fd);
 #elif defined (__APPLE__)
 #endif
+>>>>>>> upstream/master
 }
 
 /*

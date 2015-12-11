@@ -24,8 +24,11 @@ package com.embeddedunveiled.serial;
  * <p>The graphical user interface applications may want to show progress for example 
  * using a progress bar to inform user about how much data have been sent to receiver 
  * end. Such applications can use this interface for this purpose.</p>
+<<<<<<< HEAD
+=======
  * 
  * @author Rishi Gupta
+>>>>>>> upstream/master
  */
 public interface ISerialComXmodemProgress {
 

@@ -198,9 +198,40 @@ void mac_usb_device_added(void *refCon, io_iterator_t iterator);
 void mac_usb_device_removed(void *refCon, io_iterator_t iterator);
 #endif
 
+<<<<<<< HEAD
+<<<<<<< HEAD
+extern jstring linux_clean_up_and_throw_exp(JNIEnv *env, int task, const char *expmsg, struct jstrarray_list *list, struct udev_device *udev_device, struct udev_enumerate *enumerator, struct udev *udev_ctx);
+extern jstring linux_rfcomm_cleanexp(JNIEnv *env, int task, const char *expmsg, struct jstrarray_list *list, struct udev_device *udev_device, struct udev_enumerate *enumerator, struct udev *udev_ctx);
+<<<<<<< HEAD
+extern jint is_usb_dev_connected(JNIEnv *env, jobject obj, jint vid, jint pid);
+extern jstring find_driver_for_given_com_port(JNIEnv *env, jstring comPortName);
+extern jstring find_address_irq_for_given_com_port(JNIEnv *env, jlong handle);
+extern jobjectArray list_usb_devices(JNIEnv *env, jobject obj, jint vendor_filter);
+extern jobjectArray list_local_bt_adaptors(JNIEnv *env, jobject obj);
+extern jobjectArray list_bt_rfcomm_dev_nodes(JNIEnv *env, jobject obj);
+extern jobjectArray vcp_node_from_usb_attributes(JNIEnv *env, jobject obj, jint usbvid_to_match, jint usbpid_to_match, jstring serial_num);
+=======
+extern jint is_usb_dev_connected(JNIEnv *env, jint vid, jint pid);
+extern jstring find_driver_for_given_com_port(JNIEnv *env, jstring comPortName);
+extern jstring find_address_irq_for_given_com_port(JNIEnv *env, jlong handle);
+extern jobjectArray list_usb_devices(JNIEnv *env, jint vendor_filter);
+extern jobjectArray list_bt_rfcomm_dev_nodes(JNIEnv *env);
+extern jobjectArray vcp_node_from_usb_attributes(JNIEnv *env, jint usbvid_to_match, jint usbpid_to_match, jstring serial_num);
+>>>>>>> upstream/master
+extern int serial_delay(unsigned usecs);
+extern void *data_looper(void *params);
+extern void *event_looper(void *params);
+extern void *usb_hot_plug_monitor(void *params);
+=======
+jstring linux_clean_up_and_throw_exp(JNIEnv *env, int task, const char *expmsg, struct jstrarray_list *list, struct udev_device *udev_device, struct udev_enumerate *enumerator, struct udev *udev_ctx);
+jstring linux_rfcomm_cleanexp(JNIEnv *env, int task, const char *expmsg, struct jstrarray_list *list, struct udev_device *udev_device, struct udev_enumerate *enumerator, struct udev *udev_ctx);
+jint is_usb_dev_connected(JNIEnv *env, jint vid, jint pid);
+jstring find_driver_for_given_com_port(JNIEnv *env, jstring comPortName);
+=======
 jobjectArray listAvailableComPorts(JNIEnv *env);
 jint is_usb_dev_connected(JNIEnv *env, jint usbvid_to_match, jint usbpid_to_match, jstring serial_number);
 jstring find_driver_for_given_com_port(JNIEnv *env, jstring com_port_name);
+>>>>>>> upstream/master
 jstring find_address_irq_for_given_com_port(JNIEnv *env, jlong fd);
 jobjectArray list_usb_devices(JNIEnv *env, jint vendor_filter);
 jobjectArray list_bt_rfcomm_dev_nodes(JNIEnv *env);
@@ -211,6 +242,11 @@ jint set_latency_timer_value(JNIEnv *env, jstring comPortName, jbyte timerValue)
 
 void *data_looper(void *params);
 void *event_looper(void *params);
+<<<<<<< HEAD
+void *usb_hot_plug_monitor(void *params);
+>>>>>>> upstream/master
+=======
 void *usb_device_hotplug_monitor(void *params);
+>>>>>>> upstream/master
 
 #endif /* UNIX_LIKE_SERIAL_LIB_H_ */

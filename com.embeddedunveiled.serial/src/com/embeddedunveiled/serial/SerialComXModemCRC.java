@@ -29,10 +29,15 @@ import com.embeddedunveiled.serial.SerialComManager.FTPVAR;
 import com.embeddedunveiled.serial.SerialComCRCUtil;
 
 /**
+<<<<<<< HEAD
+ * <p>Implements state machine for XMODEM-CRC file transfer protocol in Java.</p>
+ * <p>Addition of CRC increases data integrity.</p>
+=======
  * <p>Implements state machine for XMODEM-CRC file transfer protocol in Java. 
  * Addition of CRC increases data integrity.</p>
  * 
  * @author Rishi Gupta
+>>>>>>> upstream/master
  */
 public final class SerialComXModemCRC {
 
@@ -84,7 +89,10 @@ public final class SerialComXModemCRC {
 	private long numberOfBlocksReceived = 0; // track how many blocks have been received till now.
 	private boolean lastCharacterReceivedWasCAN = false;
 	private byte abortSequence[] = new byte[] { CAN, CAN, CAN, CAN, CAN, BS, BS, BS, BS, BS };
+<<<<<<< HEAD
+=======
 	SerialComCRCUtil crcCalculator = new SerialComCRCUtil();
+>>>>>>> upstream/master
 
 	/**
 	 * <p>Allocates a new SerialComXModemCRC object with given details and associate it with the given 
@@ -93,6 +101,14 @@ public final class SerialComXModemCRC {
 	 * @param scm SerialComManager instance associated with this handle.
 	 * @param handle of the port on which file is to be communicated.
 	 * @param fileToProcess File instance representing file to be communicated.
+<<<<<<< HEAD
+	 * @param textMode if true file will be sent as text file (ASCII mode), if false file will be sent as binary file.
+	 * @param progressListener object of class which implements ISerialComProgressXmodem interface and is interested in knowing
+	 *         how many blocks have been sent/received till now.
+	 * @param transferState if application wish to abort sending/receiving file at instant of time due to any reason, it can call 
+	 *         abortTransfer method on this object. It can be null of application does not wish to abort sending/receiving file 
+	 *         explicitly.
+=======
 	 * @param textMode if true file will be sent as text file (ASCII mode), if false file will be sent 
 	 *         as binary file.
 	 * @param progressListener object of class which implements ISerialComXmodemProgress interface and is 
@@ -101,6 +117,7 @@ public final class SerialComXModemCRC {
 	 * @param transferState if application wish to abort sending/receiving file at instant of time due to any 
 	 *         reason, it can call abortTransfer method on this object. It can be null of application does not 
 	 *         wish to abort sending/receiving file explicitly.
+>>>>>>> upstream/master
 	 * @param osType operating system on which this application is running.
 	 */
 	public SerialComXModemCRC(SerialComManager scm, long handle, File fileToProcess, boolean textMode,
@@ -193,14 +210,23 @@ public final class SerialComXModemCRC {
 				break;
 			case BEGINSEND:
 				blockNumber = 1; // Block numbering starts from 1 for the first block sent, not 0.
+<<<<<<< HEAD
+				assembleBlock(crcCalculator);
+				
+=======
 				assembleBlock();
 
+>>>>>>> upstream/master
 				// if the file is empty goto ENDTX state.
 				if(noMoreData == true) {
 					state = ENDTX;
 					break;
 				}
+<<<<<<< HEAD
+				
+=======
 
+>>>>>>> upstream/master
 				try {
 					scm.writeBytes(handle, block, 0);
 				} catch (SerialComException exp) {
@@ -232,6 +258,7 @@ public final class SerialComXModemCRC {
 						inStream.close();
 						scm.writeBytes(handle, abortSequence, 0);
 						return false;
+<<<<<<< HEAD
 					}
 
 					// delay before next attempt to read from serial port
@@ -244,6 +271,20 @@ public final class SerialComXModemCRC {
 					} catch (InterruptedException e) {
 					}
 
+=======
+					}
+
+					// delay before next attempt to read from serial port
+					try {
+						if(noMoreData != true) {
+							Thread.sleep(120);
+						}else {
+							Thread.sleep(1500);
+						}
+					} catch (InterruptedException e) {
+					}
+
+>>>>>>> upstream/master
 					// try to read data from serial port
 					try {
 						data = scm.readBytes(handle, 1);
@@ -340,14 +381,23 @@ public final class SerialComXModemCRC {
 			case SENDNEXT:
 				retryCount = 0; // reset
 				blockNumber++;
+<<<<<<< HEAD
+				assembleBlock(crcCalculator);
+				
+=======
 				assembleBlock();
 
+>>>>>>> upstream/master
 				// indicates there is no more data to be sent.
 				if(noMoreData == true) {
 					state = ENDTX;
 					break;
 				}
+<<<<<<< HEAD
+				
+=======
 
+>>>>>>> upstream/master
 				// reaching here means there is data to be sent to receiver.
 				try {
 					scm.writeBytes(handle, block, 0);
@@ -355,7 +405,11 @@ public final class SerialComXModemCRC {
 					inStream.close();
 					throw exp;
 				}
+<<<<<<< HEAD
+				
+=======
 
+>>>>>>> upstream/master
 				state = WAITACK;
 				break;
 			case ENDTX:
@@ -419,7 +473,11 @@ public final class SerialComXModemCRC {
 	 * 
 	 * @throws IOException if any I/O error occurs.
 	 */
+<<<<<<< HEAD
+	private void assembleBlock(SerialComCRC scCRC) throws IOException {
+=======
 	private void assembleBlock() throws IOException {
+>>>>>>> upstream/master
 		int x = 0;
 		int numBytesRead = 0;
 		int blockCRCval = 0;
@@ -738,7 +796,11 @@ public final class SerialComXModemCRC {
 		}
 
 		// append 2 byte CRC value.
+<<<<<<< HEAD
+		blockCRCval = scCRC.getCRCval(block, 3, 130);
+=======
 		blockCRCval = crcCalculator.getCRC16CCITTValue(block, 3, 130);
+>>>>>>> upstream/master
 		block[131] = (byte) (blockCRCval >>> 8); // CRC high byte
 		block[132] = (byte) blockCRCval;         // CRC low byte
 	}
@@ -777,6 +839,10 @@ public final class SerialComXModemCRC {
 		boolean partialReadInProgress = false;
 		byte[] data = null;
 		String errMsg = null;
+<<<<<<< HEAD
+		SerialComCRC crcCalculator = new SerialComCRC();
+=======
+>>>>>>> upstream/master
 
 		/* The data bytes get flushed automatically to file system physically whenever BufferedOutputStream's
 		   internal buffer gets full and request to write more bytes have arrived. */
@@ -1000,7 +1066,11 @@ public final class SerialComXModemCRC {
 					break;
 				}
 				// verify CRC value.
+<<<<<<< HEAD
+				blockCRCval = crcCalculator.getCRCval(block, 3, 130);
+=======
 				blockCRCval = crcCalculator.getCRC16CCITTValue(block, 3, 130);
+>>>>>>> upstream/master
 				if((block[131] != (byte)(blockCRCval >>> 8)) || (block[132] != (byte)blockCRCval)){
 					isCorrupted = true;
 				}

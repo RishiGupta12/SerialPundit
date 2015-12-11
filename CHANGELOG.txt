@@ -1,4 +1,9 @@
 
+<<<<<<< HEAD
+<<<<<<< HEAD
+v1.0.3 (27 May 2015)
+=======
+=======
 v1.0.4 (TODO RELEASE DATE)
 	- added API for fast read/write using Java NIO direct buffers
 	- added API to list rfcomm bluetooth serial ports in system
@@ -33,7 +38,9 @@ v1.0.4 (TODO RELEASE DATE)
 	- javadocs and source code comments updated
 
 
+>>>>>>> upstream/master
 v1.0.3 (29 May 2015)
+>>>>>>> upstream/master
 	- added byteArrayToHexStr() utility method
 	- replace setMinDataLength() with fineTuneRead() with more features
 	- added input-output byte stream support in scm

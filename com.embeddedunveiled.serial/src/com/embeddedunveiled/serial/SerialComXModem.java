@@ -78,7 +78,10 @@ public final class SerialComXModem {
 	private long numberOfBlocksReceived = 0; // track how many blocks have been received till now.
 	private boolean lastCharacterReceivedWasCAN = false;
 	private byte abortSequence[] = new byte[] { CAN, CAN, CAN, CAN, CAN, BS, BS, BS, BS, BS };
+<<<<<<< HEAD
+=======
 	SerialComCRCUtil checksumCalculator = new SerialComCRCUtil();
+>>>>>>> upstream/master
 
 	/**
 	 * <p>Allocates a new SerialComXModem object with given details and associate it with the given 
@@ -87,6 +90,14 @@ public final class SerialComXModem {
 	 * @param scm SerialComManager instance associated with this handle.
 	 * @param handle of the port on which file is to be communicated.
 	 * @param fileToProcess File instance representing file to be communicated.
+<<<<<<< HEAD
+	 * @param textMode if true file will be sent as text file (ASCII mode), if false file will be sent as binary file.
+	 * @param progressListener object of class which implements ISerialComProgressXmodem interface and is interested in knowing
+	 *         how many blocks have been sent/received till now.
+	 * @param transferState if application wish to abort sending/receiving file at instant of time due to any reason, it can call 
+	 *         abortTransfer method on this object. It can be null of application does not wish to abort sending/receiving file
+	 *         explicitly.
+=======
 	 * @param textMode if true file will be sent as text file (ASCII mode), if false file will be sent 
 	 *         as binary file.
 	 * @param progressListener object of class which implements ISerialComXmodemProgress interface and is 
@@ -94,6 +105,7 @@ public final class SerialComXModem {
 	 * @param transferState if application wish to abort sending/receiving file at instant of time due to 
 	 *         any reason, it can call abortTransfer method on this object. It can be null of application 
 	 *         does not wish to abort sending/receiving file explicitly.
+>>>>>>> upstream/master
 	 * @param osType operating system on which this application is running.
 	 */
 	public SerialComXModem(SerialComManager scm, long handle, File fileToProcess, boolean textMode,
@@ -716,6 +728,7 @@ public final class SerialComXModem {
 			} // end while loop
 		}else {
 			/* file is to be send as a binary file. */
+<<<<<<< HEAD
 
 			// read data from file to be sent.
 			numBytesRead = inStream.read(block, 3, 128);
@@ -731,6 +744,28 @@ public final class SerialComXModem {
 				return;
 			}else {
 			}
+		}
+
+		// append checksum of this block.
+		for(x=3; x<131; x++) {
+			blockChecksum = (byte)blockChecksum + block[x];
+=======
+
+			// read data from file to be sent.
+			numBytesRead = inStream.read(block, 3, 128);
+			if((numBytesRead > 0) && (numBytesRead < 128)) {
+				// assembling last block with padding.
+				x = numBytesRead;
+				for(x = x + 0; x < 131; x++) {
+					block[x] = SUB;
+				}
+			}else if(numBytesRead < 0){
+				// EOF encountered.
+				noMoreData = true;
+				return;
+			}else {
+			}
+>>>>>>> upstream/master
 		}
 
 		// append checksum of this block.
@@ -865,6 +900,7 @@ public final class SerialComXModem {
 							}else {
 								// this is 1st CAN character, wait to check next character; whether it is CAN or not.
 								lastCharacterReceivedWasCAN = true;
+<<<<<<< HEAD
 							}
 						}else if(data[0] == EOT) {
 							if(lastCharacterReceivedWasCAN == true) {
@@ -873,6 +909,16 @@ public final class SerialComXModem {
 								state = ABORT;
 								break;
 							}
+=======
+							}
+						}else if(data[0] == EOT) {
+							if(lastCharacterReceivedWasCAN == true) {
+								// EOT after CAN was not expected, probably line has noise; abort transfer.
+								errMsg = "Unexpected data sequence (<CAN> <EOT>) received from file sender !";
+								state = ABORT;
+								break;
+							}
+>>>>>>> upstream/master
 							// indicates that sender has sent the complete file.
 							isCorrupted = false;
 							rxDone = true;
@@ -970,6 +1016,10 @@ public final class SerialComXModem {
 				}
 				break;
 			case VERIFY:
+<<<<<<< HEAD
+				blockChecksum = 0;
+=======
+>>>>>>> upstream/master
 				isCorrupted = false;      // reset.
 				isDuplicateBlock = false; // reset.
 				state = REPLY;
@@ -994,7 +1044,15 @@ public final class SerialComXModem {
 					break;
 				}
 				// verify checksum.
+<<<<<<< HEAD
+				for(int x=3; x < 131; x++) {
+					blockChecksum = (byte)blockChecksum + block[x];
+				}
+				blockChecksum = (byte) (blockChecksum % 256);
+				if(blockChecksum != block[131]){
+=======
 				if(block[131] != checksumCalculator.getChecksumValue(block, 3, 130)){
+>>>>>>> upstream/master
 					isCorrupted = true;
 				}
 				break;

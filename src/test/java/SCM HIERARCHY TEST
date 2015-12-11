@@ -1,0 +1,72 @@
+* Author: Rishi Gupta *
+
+SCM HIERARCHY TEST
+
+BaseSerialTest:
+	- SerialData1StartTest					
+		- listPortsTest() 					Virtual Ports																	-- Test1 --  
+		- readWriteWithoutOwnership()		Virtual Ports																	-- Test2 --
+		- osTypeLinux()						Virtual Ports																	-- Test3 --
+		- openConfigurePorts()				Virtual Ports 																	-- Test4 --
+		- getLineStatus()					DIGI																			-- Test5 --
+		- eventListener()					DIGI																			-- Test6 --
+		- cleanPortIO()						Virtual Ports																	-- Test7 --
+		- sendBreak()						Virtual Ports	 																-- Test9 --
+
+	- SerialData2Test 						Virtual Ports
+		- exclusiveOwnershipTest()			
+		- readStringTest() 																									-- Test11 --
+		- endianTest() 																										-- Test12 --
+		- bufferTest()																										-- Test13 --
+
+	- SerialData3ListenerTest				Virtual Ports
+		- registerData()																									-- Test14 --
+		- bufferTest()																										-- Test17 --
+		- dataLoop()																										-- Test19 --
+					 
+	- SerialData6CheckWR					Virtual Ports 
+		- lengthWRData()					 																				-- Test30 -- 
+		- writeAndPortRemoved()																								-- Test32 --
+		- readAndPortRemoved()																								-- Test33 --
+		- twoInstancesOfSCM()				 																				-- Test34 --
+		- fastWriteAndRead() 																								-- Test35 --
+		- JVMWithLotOfUsageMemory() 																						-- Test36 --
+		- requestAmountOfBytes()			 																				-- Test39 --
+
+	- SerialData7PortHandler				Virtual Ports
+		- portName() 																										-- Test40 --
+		- sendEspecialCharacters() 																							-- Test41 --
+		- bytesShouldBeSame() 																								-- Test46 --
+		- reOpeningPort() 																									-- Test47 --
+		- writeDelay() 																										-- Test49 --
+
+	- SerialData8Status						
+		- lineStatus() 						DIGI																			-- Test52 --
+		- iOPutStream() 					Virtual Ports																	-- Test53 --
+		- closePort()						Virtual Ports																	-- Test54 -- Last.
+
+
+BaseSerialEventListenerTest				
+	- SerialData4EventListenerTest 			
+		- eventListener()																									-- Test15 --
+		- eventMask() 																										-- Test16 --			
+
+BaseSerial2Test:
+	- SerialData5EventTest  				
+		- softwareControl() 				DIGI										  									-- Test20 -- 
+		- setDTEEvent						*									   											-- Test22 --  
+		- setDTE()							DIGI			 		  														-- Test23 --
+		- doubleEventLink()					*								   												-- Test24 --  
+		- baudRate()						Virtual Ports																	-- Test25 --
+		- readWriteLoop()			 		Virtual Ports																	-- Test26 --
+		- setDTRRTSLoop()					*								   												-- Test27 -- 
+		- ¡Esta comentado! 																							   		-- Test28 -- 
+		- setDTRRTSInfiniteLoop()			*								   												-- Test29 --
+		- rmPortInExecListener()			*																				-- Test31 --
+
+Independent Test:
+	- SerialIndep1PortLoopTest	()			Virtual Ports
+		- loopPort()																									   	-- Test19 --																		
+		- checkOS()																							  		 		-- Test42 -- -- Test43 -- 
+		
+* This tests do not pass for any kind of Port

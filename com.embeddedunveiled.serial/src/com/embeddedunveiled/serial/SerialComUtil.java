@@ -111,7 +111,11 @@ public final class SerialComUtil {
 		hexStr = hexStr.replaceAll("\\s+","");
 		byte[] data = new byte[hexStr.length()/2];
 
+<<<<<<< HEAD
+		while(i <= hexStr.length()-1) {
+=======
 		while(i <= (hexStr.length() - 1)) {
+>>>>>>> upstream/master
 			byte character = (byte) Integer.parseInt(hexStr.substring(i, i+2), 16);
 			data[j] = character;
 			j++;
@@ -128,8 +132,28 @@ public final class SerialComUtil {
 	 * @param bcd binary-coded decimal to decode.
 	 * @return decoded binary-coded decimal.
 	 */
+<<<<<<< HEAD
+	public static byte calculateLRCCheckSum(final byte[] data, int offset, int length) {
+		byte checkSum = 0;
+
+		if(data == null) {
+			throw new NullPointerException("Argument data can not be null !");
+		}
+		if((offset < 0) || (length < 0) || (length > (data.length - offset))) {
+			throw new IndexOutOfBoundsException("Index violation detected !");
+		}
+		if(!(data instanceof byte[])) {
+			throw new IllegalArgumentException("Argument data is not byte type array !");
+		}
+
+		for (int i = offset; i < offset + length; i++) {
+			checkSum ^= data[i];
+		}
+		return checkSum;
+=======
 	public static String decodeBCD(final short bcd) {
 		return String.format("%x.%02x", (bcd & 0xFF00) >> 8, bcd & 0x00FF);
+>>>>>>> upstream/master
 	}
 
 	/**
@@ -293,6 +317,8 @@ public final class SerialComUtil {
 		return toHexString(byteToUnsignedLong(num), '0', 2, 2);
 	}
 
+<<<<<<< HEAD
+=======
 	/**
 	 * <p>Appends given byte array to another given byte array and return newly constructed 
 	 * byte array.</p>
@@ -307,4 +333,5 @@ public final class SerialComUtil {
 		System.arraycopy(dataB, 0, result, dataA.length, dataB.length);
 		return result;
 	}
+>>>>>>> upstream/master
 }

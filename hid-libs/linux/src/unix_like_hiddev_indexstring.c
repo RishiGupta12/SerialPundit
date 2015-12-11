@@ -21,7 +21,15 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <errno.h>
+<<<<<<< HEAD
+#if defined (__linux__)
+#include <libudev.h>
+#endif
+#if defined (__APPLE__)
+#endif
+=======
 
+>>>>>>> upstream/master
 #include <jni.h>
 #include "unix_like_hid.h"
 

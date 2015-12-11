@@ -20,8 +20,11 @@ package com.embeddedunveiled.serial;
 /**
  * <p>The interface ISerialComDataListener should be implemented by class who wish to 
  * receive data from serial port.</p>
+<<<<<<< HEAD
+=======
  * 
  * @author Rishi Gupta
+>>>>>>> upstream/master
  */
 public interface ISerialComDataListener {
 
