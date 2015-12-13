@@ -3196,6 +3196,19 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
+ * Method:    getFirmwareRevisionNumber
+ * Signature: (IILjava/lang/String;)[Ljava/lang/String;
+ *
+ * @return currently set latency timer value on success otherwise -1 if an error occurs.
+ * @throws SerialComException if any JNI function, system call or C function fails.
+ */
+JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_getFirmwareRevisionNumber
+  (JNIEnv *env, jobject obj, jint vid, jint pid, jstring serial) {
+	return getusb_firmware_version(env, vid, pid, serial);
+}
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
  * Method:    listBTSPPDevNodesWithInfo
  * Signature: ()[Ljava/lang/String;
  *

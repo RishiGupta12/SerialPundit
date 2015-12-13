@@ -42,7 +42,11 @@ static const DEVPROPKEY DEVPKEY_Device_BusReportedDeviceDesc = { 0x540b947e, 0x8
 static const DEVPROPKEY DEVPKEY_Device_Manufacturer = { 0xa45c254e, 0xdf1c, 0x4efd, 0x80, 0x20, 0x67, 0xd1, 0x46, 0xa8, 0x50, 0xe0, 13 };
 
 /*
- * Find the required information about given HID device.
+ * Find the required information about the given HID device.
+ * 
+ * Note that the bcdDevice value in descriptor indicates the vendor defined revision number. 
+ * The USB driver stack uses bcdDevice, along with idVendor and idProduct, to generate hardware 
+ * and compatible IDs for the device.
  *
  * @return required information string if found, empty string if required information is not
  *         provided by underlying system, NULL if any error occurs.

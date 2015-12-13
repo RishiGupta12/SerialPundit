@@ -87,6 +87,7 @@ jstring linux_listusb_clean_throw_exp(JNIEnv *env, int task, const char *expmsg,
  * NULL if an error occurs (additionally throws exception).
  */
 jobjectArray list_usb_devices(JNIEnv *env, jint vendor_to_match) {
+
 	int x = 0;
 	struct jstrarray_list list = {0};
 	jstring usb_dev_info;
