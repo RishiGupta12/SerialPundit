@@ -322,6 +322,7 @@ public final class SerialComPortJNIBridge {
 	public native int setLatencyTimer(String comPort, byte timerValue);
 	public native int getLatencyTimer(String comPort);
 	public native int rescanUSBDevicesHW();
+	public native String[] getFirmwareRevisionNumber(int vid, int pid, String serialNumber);
 
 	// Bluetooth
 	public native String[] listBTSPPDevNodesWithInfo();

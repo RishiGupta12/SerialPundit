@@ -97,6 +97,50 @@ public final class SerialComUSB {
 	}
 
 	/**
+	 * <p>Gets the USB device firmware revision number as reported by USB device descriptor in its 
+	 * device descriptor using bcdDevice field.</p>
+	 * 
+	 * <p>Application can get this firmware revision number and can self adopt to a particular hardware 
+	 * device. For example if a particular feature is present in firmware version 1.00 than application 
+	 * create a button in GUI, however for revision 1.11 it creates a different button in GUI window.</p>
+	 * 
+	 * @param usbvid USB vendor ID to match.
+	 * @param usbpid USB product ID to match.
+	 * @param serialNumber serial number of USB device (case insensitive, optional) to match.
+	 * @return firmware number revision string on success.
+	 * @throws SerialComException if an I/O error occurs.
+	 */
+	public String[] getFirmwareRevisionNumber(int usbvid, int usbpid, String serialNumber) throws SerialComException {
+
+		if((usbvid < 0) || (usbvid > 0XFFFF)) {
+			throw new IllegalArgumentException("Argument usbvid can not be negative or greater than 0xFFFF !");
+		}
+		if((usbpid < 0) || (usbpid > 0XFFFF)) {
+			throw new IllegalArgumentException("Argument usbpid can not be negative or greater than 0xFFFF !");
+		}
+
+		String serial = null;
+		if(serialNumber != null) {
+			serial = serialNumber.trim().toLowerCase();
+		}
+
+		String[] bcdCodedRevNumber = mComPortJNIBridge.getFirmwareRevisionNumber(usbvid, usbpid, serial);
+		if(bcdCodedRevNumber == null) {
+			throw new SerialComException("Could not get the bcdDevice field of USB device descriptor. Please retry !");
+		}
+
+		String[] fwver = new String[bcdCodedRevNumber.length];
+		int firmwareRevisionNum;
+
+		for(int x=0; x < bcdCodedRevNumber.length; x++) {
+			firmwareRevisionNum = Integer.parseInt(bcdCodedRevNumber[x]);
+			fwver[x] = String.format("%x.%02x", (firmwareRevisionNum & 0xFF00) >> 8, firmwareRevisionNum & 0x00FF);
+		}
+
+		return fwver;
+	}
+
+	/**
 	 * <p>Read all the power management related information about a particular USB device. The returned 
 	 * instance of SerialComUSBPowerInfo class contains information about auto suspend, selective suspend,
 	 * current power status etc.</p>
