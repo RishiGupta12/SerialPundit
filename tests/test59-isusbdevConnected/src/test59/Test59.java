@@ -18,6 +18,7 @@
 package test59;
 
 import com.embeddedunveiled.serial.SerialComManager;
+import com.embeddedunveiled.serial.usb.SerialComUSB;
 
 /* Connect many USB-UART through USB HUB together and check if device is connetced or not */
 
@@ -82,6 +83,89 @@ public class Test59 {
 			SerialComManager scm = new SerialComManager();
 			// Silicon labs CP2102
 			System.out.println("CP2102 status (with serial): " + scm.isUSBDevConnected(0x10C4, 0xEA60, "0001"));
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		/* ~~~~~~~~~~~~~~~~~~ firmware version ~~~~~~~~~~~~~~~~~` */
+		System.out.println("\n _______________ \n");
+
+		SerialComManager scm = null;
+		SerialComUSB scu = null;
+
+		try {
+			scm = new SerialComManager();
+			scu = scm.getSerialComUSBInstance();
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		try {
+			// FTDI FT232RL
+			String[] aa = scu.getFirmwareRevisionNumber(0x0403, 0x6001, null);
+			for(int x=0; x<aa.length; x++) {
+				System.out.println("FT232 firmware version : " + aa[x]);
+			}
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		try {
+			// MCP2200
+			String[] aa = scu.getFirmwareRevisionNumber(0x04D8, 0x00DF, null);
+			for(int x=0; x<aa.length; x++) {
+				System.out.println("mcp2200 firmware version : " + aa[x]);
+			}
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		try {
+			// MCP2200
+			String[] aa = scu.getFirmwareRevisionNumber(0x04D8, 0x00DF, "0000980371");
+			for(int x=0; x<aa.length; x++) {
+				System.out.println("mcp2200 firmware version : " + aa[x]);
+			}
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		try {
+			// cp2102
+			String[] aa = scu.getFirmwareRevisionNumber(0x10C4, 0xEA60, null);
+			for(int x=0; x<aa.length; x++) {
+				System.out.println("cp2102 firmware version : " + aa[x]);
+			}
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		try {
+			// cp2102
+			String[] aa = scu.getFirmwareRevisionNumber(0x10C4, 0xEA60, "0001");
+			for(int x=0; x<aa.length; x++) {
+				System.out.println("cp2102 firmware version : " + aa[x]);
+			}
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		try {
+			// pl2303
+			String[] aa = scu.getFirmwareRevisionNumber(0x067B, 0x2303, null);
+			for(int x=0; x<aa.length; x++) {
+				System.out.println("mcp2200 firmware version : " + aa[x]);
+			}
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		try {
+			// ch340
+			String[] aa = scu.getFirmwareRevisionNumber(0x4348, 0x5523, null);
+			for(int x=0; x<aa.length; x++) {
+				System.out.println("ch340 firmware version : " + aa[x]);
+			}
 		}catch (Exception e) {
 			e.printStackTrace();
 		}

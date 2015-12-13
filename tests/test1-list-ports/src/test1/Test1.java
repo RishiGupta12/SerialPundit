@@ -29,7 +29,7 @@ import com.embeddedunveiled.serial.SerialComManager;
  * - ports connected through USB hub/expander
  */
 public class Test1 {
-	public static void main(String[] args) {
+	public static void main(String[] args) {		
 		try {
 			SerialComManager scm = new SerialComManager();
 			String[] ports = scm.listAvailableComPorts();
