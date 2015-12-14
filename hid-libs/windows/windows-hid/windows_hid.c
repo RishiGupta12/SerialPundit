@@ -988,3 +988,117 @@ JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHID
 	return find_driver_for_given_hiddevice(env, hidDevNode);
 }
 
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
+ * Method:    readPlatformSpecificInputReportR
+ * Signature: (JB[BI)I
+ *
+ * It reads a raw HID report (i.e. no report parsing is done) into the given buffer. If the device uses
+ * numbered report, 1st byte will be report ID otherwise 1st byte will be report data itself.
+ * This function is mainly used when exchanged reports are inconsistent with their HID report 
+ * descriptor.
+ *
+ * @return 1 if operation completed successfully, -1 if an error occurs.
+ * @throws SerialComException if any JNI function, WINAPI or C function fails.
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_readPlatformSpecificInputReportR(JNIEnv *env,
+		jobject obj, jlong handle, jbyte reportID, jbyteArray report, jint length) {
+		
+	BOOLEAN ret = FALSE;
+	jbyte* buffer = NULL;
+	int final_length = 0;
+
+	/* If the device uses numbered report set very first byte to report number otherwise set it to 0x00 */
+	if (reportID < 0) {
+		buffer = (jbyte *) calloc(length, sizeof(unsigned char));
+		if (buffer == NULL) {
+			throw_serialcom_exception(env, 3, 0, E_CALLOCSTR);
+			return -1;
+		}
+		buffer[0] = 0x00;
+		final_length = length;
+		ret = HidD_GetInputReport(handle, (PVOID)buffer, (ULONG)length);
+	}else {
+		buffer = (jbyte *) calloc((length + 1), sizeof(unsigned char));
+		if (buffer == NULL) {
+			throw_serialcom_exception(env, 3, 0, E_CALLOCSTR);
+			return -1;
+		}
+		buffer[0] = reportID;
+		final_length = length + 1;
+		ret = HidD_GetInputReport(handle, (PVOID)buffer, (ULONG)(length + 1));
+	}
+		
+	if(ret == FALSE) {
+		free(buffer);
+		throw_serialcom_exception(env, 3, 0, E_HidDGetInputReport);
+		return -1;
+	}
+		
+	/* copy data from native buffer to Java buffer. */
+	(*env)->SetByteArrayRegion(env, report, 0, final_length, buffer);
+	if((*env)->ExceptionOccurred(env) != NULL) {
+		free(buffer);
+		throw_serialcom_exception(env, 3, 0, E_SETBYTEARRAYREGION);
+		return -1;
+	}
+	
+	free(buffer);
+	return 1;
+}
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
+ * Method:    writePlatformSpecificOutputReportR
+ * Signature: (JB[BI)I
+ * 
+ * Sends output report to HID device. This function is mainly used when exchanged reports are inconsistent 
+ * with their HID report descriptor.
+ * 
+ * @return 1 if function succeeds otherwise -1 if error occurs.
+ * @throws SerialComException if any JNI function, system call or C function fails.
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_writePlatformSpecificOutputReportR(JNIEnv *env,
+		jobject obj, jlong handle, jbyte reportID, jbyteArray report, jint length) {
+		
+	BOOLEAN ret = FALSE;
+	jbyte* buffer = NULL;
+	int final_length = 0;
+		
+	if(reportID < 0) {
+		/* send 0x00 as 1st byte if device does not support report ID */
+		buffer = (jbyte *) calloc(length, sizeof(unsigned char));
+		if (buffer == NULL) {
+			throw_serialcom_exception(env, 3, 0, E_CALLOCSTR);
+			return -1;
+		}
+		buffer[0] = 0x00;
+		final_length = length;
+	}else {
+		buffer = (jbyte *) calloc((length + 1), sizeof(unsigned char));
+		if (buffer == NULL) {
+			throw_serialcom_exception(env, 3, 0, E_CALLOCSTR);
+			return -1;
+		}
+		buffer[0] = reportID;
+		final_length = length + 1;
+	}
+	
+	(*env)->GetByteArrayRegion(env, report, 0, length, &buffer[1]);
+	if((*env)->ExceptionOccurred(env) != NULL) {
+		free(buffer);
+		throw_serialcom_exception(env, 3, 0, E_GETBYTEARRREGIONSTR);
+		return -1;
+	}
+	
+	ret = HidD_SetOutputReport(handle, (PVOID)buffer, final_length);
+	if(ret == FALSE) {
+		free(buffer);
+		throw_serialcom_exception(env, 3, 0, E_HidDSetOutputReport);
+		return -1;
+	}
+	
+	free(buffer);
+	return 1;
+}
+
