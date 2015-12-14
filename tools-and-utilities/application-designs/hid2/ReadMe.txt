@@ -26,6 +26,11 @@ On application entry :
 	  input reports are received fromHID device listener will be invoked.
 	- Whenever device is removed from system, close its handle and unregister input report
 	  listener.
+	  
+On device removal :
+
+	- Unregister input report listener.
+	- Close HID device.
   
 On application exit :
 
