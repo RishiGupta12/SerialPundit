@@ -265,6 +265,16 @@ public class Test72 implements IHIDInputReportListener {
 			e.printStackTrace();
 		}
 
+		try {
+			byte[] qq = new byte[10];
+			qq[0] = (byte)0x80;
+			System.out.println("\nwritePlatformSpecificOutputReportR : " + scrh.writePlatformSpecificOutputReportR(handle, (byte)-1, qq));
+			Thread.sleep(500);
+			System.out.println("\nreadPlatformSpecificInputReportR : " + scrh.readPlatformSpecificInputReportR(handle, (byte)-1, qq));
+			System.out.println(scrh.formatReportToHexR(qq, " "));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
 		try {
 			System.out.println("\ncloseHidDevice : " + scrh.closeHidDeviceR(handle));
