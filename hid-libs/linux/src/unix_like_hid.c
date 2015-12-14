@@ -765,4 +765,76 @@ JNIEXPORT jstring JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHID
 #endif
 }
 
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
+ * Method:    readPlatformSpecificInputReportR
+ * Signature: (JB[BI)I
+ *
+ * It reads a raw HID report (i.e. no report parsing is done) into the given buffer. If the device uses
+ * numbered report, 1st byte will be report ID otherwise 1st byte will be report data itself.
+ *
+ * @return 1 if operation completed successfully, -1 if an error occurs.
+ * @throws SerialComException if any JNI function, WINAPI or C function fails.
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_readPlatformSpecificInputReportR(JNIEnv *env,
+		jobject obj, jlong fd, jbyte reportID, jbyteArray report, jint length) {
+
+	int ret = -1;
+	jbyte* buffer = (jbyte *) calloc(length, sizeof(unsigned char));
+	if(!buffer) {
+		throw_serialcom_exception(env, 3, 0, E_MALLOCSTR);
+		return -1;
+	}
+
+	do {
+		errno = 0;
+		ret = read(fd, buffer, length);
+		if(ret > 0) {
+			/* copy data from native buffer to Java buffer. */
+			(*env)->SetByteArrayRegion(env, report, 0, ret, buffer);
+			if((*env)->ExceptionOccurred(env) != NULL) {
+				throw_serialcom_exception(env, 3, 0, E_SETBYTEARRAYREGION);
+				return -1;
+			}
+			free(buffer);
+			return 1;
+		}else if(ret < 0) {
+			if(errno == EINTR) {
+				/* This indicates that we should retry as we are just interrupted by a signal. */
+				errno = 0;
+				continue;
+			}else {
+				/* This indicates, irrespective of, there was data to read or not, we got an error
+				 * during operation. */
+				free(buffer);
+				throw_serialcom_exception(env, 1, errno, NULL);
+				return -1;
+			}
+		}else {
+			free(buffer);
+			return 1;
+		}
+	}while (1);
+
+	/* should not be reached */
+	return -1;
+}
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
+ * Method:    writePlatformSpecificOutputReportR
+ * Signature: (JB[BI)I
+ *
+ * @return 1 if function succeeds otherwise -1 if error occurs.
+ * @throws SerialComException if any JNI function, system call or C function fails.
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_writePlatformSpecificOutputReportR(JNIEnv *env,
+		jobject obj, jlong fd, jbyte reportID, jbyteArray report, jint length) {
+#if defined (__linux__)
+	return linux_platform_output_report(env, fd, reportID, report, length);
+#elif defined (__APPLE__)
+	return mac_platform_output_report(env, fd, reportID, report, length);
+#endif
+}
+
 #endif /* end compiling for unix-like os */
