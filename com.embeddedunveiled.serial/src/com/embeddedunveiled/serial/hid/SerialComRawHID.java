@@ -160,7 +160,7 @@ public final class SerialComRawHID extends SerialComHID {
 	 *          matching given criteria found.
 	 * @throws SerialComException if an I/O error occurs.
 	 */
-	public final SerialComHIDdevice[] listHIDdevicesWithInfoR() throws SerialComException {
+	public SerialComHIDdevice[] listHIDdevicesWithInfoR() throws SerialComException {
 		int i = 0;
 		int numOfDevices = 0;
 		SerialComHIDdevice[] hidDevicesFound = null;
@@ -196,7 +196,7 @@ public final class SerialComRawHID extends SerialComHID {
 	 * @return constructed hex string if report.length > 0 otherwise empty string.
 	 * @throws IllegalArgumentException if report is null.
 	 */
-	public final String formatReportToHexR(byte[] report, String separator) throws SerialComException {
+	public String formatReportToHexR(byte[] report, String separator) throws SerialComException {
 		return SerialComUtil.byteArrayToHexString(report, separator);
 	}
 
@@ -231,7 +231,7 @@ public final class SerialComRawHID extends SerialComHID {
 	 * @throws IllegalArgumentException if pathName is null or empty string.
 	 * @see com.embeddedunveiled.serial.SerialComManager#registerUSBHotPlugEventListener(ISerialComUSBHotPlugListener, int, int, String)
 	 */
-	public final long openHidDeviceR(final String pathName, boolean shared) throws SerialComException {
+	public long openHidDeviceR(final String pathName, boolean shared) throws SerialComException {
 		if(pathName == null) {
 			throw new IllegalArgumentException("Argument pathName can not be null !");
 		}
@@ -261,7 +261,7 @@ public final class SerialComRawHID extends SerialComHID {
 	 * @throws SerialComException if fails to close the device or an IO error occurs.
 	 * @throws IllegalStateException if application tries to close handle when input report listener still exist.
 	 */
-	public final boolean closeHidDeviceR(long handle) throws SerialComException {		
+	public boolean closeHidDeviceR(long handle) throws SerialComException {		
 		HIDdevHandleInfo info = devInfo.get(handle);
 		if(info != null) {
 			if(info.getInputReportListener() != null) {
@@ -356,7 +356,7 @@ public final class SerialComRawHID extends SerialComHID {
 	 * @throws SerialComException if an I/O error occurs.
 	 * @throws IllegalArgumentException if report is null or empty array. 
 	 */
-	public final int writeOutputReportR(long handle, byte reportId, final byte[] report) throws SerialComException {
+	public int writeOutputReportR(long handle, byte reportId, final byte[] report) throws SerialComException {
 		if(report == null) {
 			throw new IllegalArgumentException("Argumenet report can not be null !");
 		}
@@ -398,9 +398,9 @@ public final class SerialComRawHID extends SerialComHID {
 	 * @throws SerialComException if an I/O error occurs.
 	 * @throws IllegalArgumentException if reportBuffer is null or if length is negative.
 	 */
-	public final int readInputReportR(long handle, byte[] reportBuffer, long context) throws SerialComException {
+	public int readInputReportR(long handle, byte[] reportBuffer, long context) throws SerialComException {
 		if(reportBuffer == null) {
-			throw new IllegalArgumentException("Argumenet dataBuffer can not be null !");
+			throw new IllegalArgumentException("Argumenet reportBuffer can not be null !");
 		}
 
 		int ret = mHIDJNIBridge.readInputReportR(handle, reportBuffer, reportBuffer.length, context);
@@ -433,7 +433,7 @@ public final class SerialComRawHID extends SerialComHID {
 	 * @throws SerialComException if an I/O error occurs.
 	 * @throws IllegalArgumentException if reportBuffer is null or if length is negative.
 	 */
-	public final int readInputReportWithTimeoutR(long handle, byte[] reportBuffer, int timeoutValue) 
+	public int readInputReportWithTimeoutR(long handle, byte[] reportBuffer, int timeoutValue) 
 			throws SerialComException {
 
 		if(reportBuffer == null) {
@@ -464,7 +464,7 @@ public final class SerialComRawHID extends SerialComHID {
 	 * @throws SerialComException if an I/O error occurs.
 	 * @throws IllegalArgumentException if report is null or empty array. 
 	 */
-	public final int sendFeatureReportR(long handle, byte reportId, final byte[] report) throws SerialComException {
+	public int sendFeatureReportR(long handle, byte reportId, final byte[] report) throws SerialComException {
 		if(report == null) {
 			throw new IllegalArgumentException("Argumenet report can not be null !");
 		}
@@ -496,9 +496,9 @@ public final class SerialComRawHID extends SerialComHID {
 	 * @throws SerialComException if an I/O error occurs.
 	 * @throws IllegalArgumentException if reportBuffer is null or its length is zero.
 	 */
-	public final int getFeatureReportR(long handle, byte reportId, final byte[] report) throws SerialComException {
+	public int getFeatureReportR(long handle, byte reportId, final byte[] report) throws SerialComException {
 		if(report == null) {
-			throw new IllegalArgumentException("Argumenet reportBuffer can not be null !");
+			throw new IllegalArgumentException("Argumenet report can not be null !");
 		}
 
 		int ret = mHIDJNIBridge.getFeatureReportR(handle, reportId, report, report.length);
@@ -515,7 +515,7 @@ public final class SerialComRawHID extends SerialComHID {
 	 * @return manufacturer name string.
 	 * @throws SerialComException if an I/O error occurs.
 	 */
-	public final String getManufacturerStringR(long handle) throws SerialComException {
+	public String getManufacturerStringR(long handle) throws SerialComException {
 		String ret = mHIDJNIBridge.getManufacturerStringR(handle);
 		if(ret == null) {
 			throw new SerialComException("Could not get the manufacturer string from the HID device. Please retry !");
@@ -530,7 +530,7 @@ public final class SerialComRawHID extends SerialComHID {
 	 * @return product name string of the HID device.
 	 * @throws SerialComException if an I/O error occurs.
 	 */
-	public final String getProductStringR(long handle) throws SerialComException {
+	public String getProductStringR(long handle) throws SerialComException {
 		String ret = mHIDJNIBridge.getProductStringR(handle);
 		if(ret == null) {
 			throw new SerialComException("Could not get the product string from the HID device. Please retry !");
@@ -545,7 +545,7 @@ public final class SerialComRawHID extends SerialComHID {
 	 * @return serial number string of the HID device.
 	 * @throws SerialComException if an I/O error occurs.
 	 */
-	public final String getSerialNumberStringR(long handle) throws SerialComException {
+	public String getSerialNumberStringR(long handle) throws SerialComException {
 		String ret = mHIDJNIBridge.getSerialNumberStringR(handle);
 		if(ret == null) {
 			throw new SerialComException("Could not get the serial number string from the HID device. Please retry !");
@@ -563,7 +563,7 @@ public final class SerialComRawHID extends SerialComHID {
 	 * @return string at given index read from the HID device.
 	 * @throws SerialComException if an I/O error occurs.
 	 */
-	public final String getIndexedStringR(long handle, int index) throws SerialComException {
+	public String getIndexedStringR(long handle, int index) throws SerialComException {
 		if(osType == SerialComManager.OS_WINDOWS) {
 			String ret = mHIDJNIBridge.getIndexedStringR(handle, index);
 			if(ret == null) {
@@ -591,7 +591,7 @@ public final class SerialComRawHID extends SerialComHID {
 			throw new IllegalArgumentException("Argument hidDeviceNode can not be empty string !");
 		}
 		if(hidDeviceNode.length() > 256) {
-			// linux have 256 as maximum length of file name.
+			// Linux may have 256 as maximum length of file name.
 			throw new IllegalArgumentException("Argument hidDeviceNode string can not be greater than 256 in length !");
 		}
 
@@ -743,5 +743,64 @@ public final class SerialComRawHID extends SerialComHID {
 		}
 
 		return null;
+	}
+
+	/**
+	 * <p>Read input report from given HID device and handles inconsistencies in reports internally using 
+	 * facilities provided by operating system. For example some device send/receive reports which are inconsistent 
+	 * with what was described in their HID report descriptor. For some devices their firmware can not be modified 
+	 * and this is where this method can be used.</p>
+	 * 
+	 * <p>For Windows operating system the methods readInputReportWithTimeoutR and readInputReportR uses ReadFile 
+	 * function, whereas readPlatformSpecificInputReportR uses HidD_GetInputReport function.</p>
+	 * 
+	 * <p>The size of reportBuffer passed must be equal to the number of bytes(fields) in input report (excluding 
+	 * report ID whether devices uses numbered reports or not).</p>
+	 *  
+	 * @param handle handle of the HID device from whom input report is to be read.
+	 * @param reportId unique identifier for the report type or -1 if device does not use report IDs.
+	 * @param reportBuffer byte buffer in which input report will be saved.
+	 * @return true on success.
+	 * @throws SerialComException if an I/O error occurs.
+	 */
+	public boolean readPlatformSpecificInputReportR(long handle, byte reportId, byte[] reportBuffer) throws SerialComException {
+		if(reportBuffer == null) {
+			throw new IllegalArgumentException("Argumenet reportBuffer can not be null !");
+		}
+
+		int ret = mHIDJNIBridge.readPlatformSpecificInputReportR(handle, reportId, reportBuffer, reportBuffer.length);
+		if(ret < 0) {
+			throw new SerialComException("Could not read input report from HID device. Please retry !");
+		}
+
+		return true;
+	}
+
+	/**
+	 * <p>Sends an output report to given HID device and handles inconsistencies in reports internally using 
+	 * facilities provided by operating system. For example some device send/receive reports which are inconsistent 
+	 * with what was described in their HID report descriptor. For some devices their firmware can not be modified 
+	 * and this is where this method can be used.</p>
+	 * 
+	 * <p>For Windows operating system the method writeOutputReportR uses WriteFile function, whereas 
+	 * writePlatformSpecificOutputReportR uses HidD_SetOutputReport function.</p>
+	 * 
+	 * @param handle handle of the HID device to whom this output report is to be sent.
+	 * @param reportId unique identifier for the report type or -1 if device does not use report IDs.
+	 * @param reportBuffer buffer containing output report to be sent to device.
+	 * @return true on success.
+	 * @throws SerialComException
+	 */
+	public boolean writePlatformSpecificOutputReportR(long handle, byte reportId, byte[] reportBuffer) throws SerialComException {
+		if(reportBuffer == null) {
+			throw new IllegalArgumentException("Argumenet reportBuffer can not be null !");
+		}
+
+		int ret = mHIDJNIBridge.writePlatformSpecificOutputReportR(handle, reportId, reportBuffer, reportBuffer.length);
+		if(ret < 0) {
+			throw new SerialComException("Could not read input report from HID device. Please retry !");
+		}
+
+		return true;
 	}
 }

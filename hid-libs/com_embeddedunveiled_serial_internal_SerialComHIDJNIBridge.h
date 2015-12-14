@@ -97,6 +97,22 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
 
 /*
  * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
+ * Method:    readPlatformSpecificInputReportR
+ * Signature: (JB[BI)I
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_readPlatformSpecificInputReportR
+  (JNIEnv *, jobject, jlong, jbyte, jbyteArray, jint);
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
+ * Method:    writePlatformSpecificOutputReportR
+ * Signature: (JB[BI)I
+ */
+JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge_writePlatformSpecificOutputReportR
+  (JNIEnv *, jobject, jlong, jbyte, jbyteArray, jint);
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComHIDJNIBridge
  * Method:    sendFeatureReportR
  * Signature: (JB[BI)I
  */

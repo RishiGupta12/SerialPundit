@@ -296,6 +296,8 @@ public final class SerialComHIDJNIBridge {
 	public native int writeOutputReportR(long handle, byte reportId, byte[] report, int length);
 	public native int readInputReportR(long handle, byte[] reportBuffer, int length, long context);
 	public native int readInputReportWithTimeoutR(long handle, byte[] reportBuffer, int length, int timeoutValue);
+	public native int readPlatformSpecificInputReportR(long handle, byte reportId, byte[] reportBuffer, int length);
+	public native int writePlatformSpecificOutputReportR(long handle, byte reportId, byte[] reportBuffer, int length);
 
 	// Feature reports (control movement)
 	public native int sendFeatureReportR(long handle, byte reportId, byte[] report, int length);
