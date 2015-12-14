@@ -36,11 +36,10 @@ final class USBhotplugConcreteEventHandler extends HIDApplication1 implements Ru
 	public void run() {
 		while (true) {
 			try {
-				// until next event comes this will block
+				// until next hot plug event comes this will block
 				event = mUSBhotplugEventQueue.take();
 
 				if (event == SerialComUSB.DEV_ADDED) {
-
 					/* USB HID device is added to system */
 
 					/* Give some time to operating system so that device nodes
@@ -158,6 +157,8 @@ class HIDApplication1 implements ISerialComUSBHotPlugListener {
 	// this VID/PID is for MCP2200.
 	protected static int MY_VID = 0x04d8;
 	protected static int MY_PID = 0x00df;
+	protected static byte[] inputReportBuffer = new byte[16];
+	protected static byte[] outputReportBuffer = new byte[16];
 	/* ********************************************************* */
 
 	protected static SerialComManager scm;
@@ -172,16 +173,7 @@ class HIDApplication1 implements ISerialComUSBHotPlugListener {
 	protected static Thread dataReaderThread = null;
 	protected static Thread hotPlugHandlerThread = null;
 	protected static boolean deviceRemoved = false;
-	protected static Object lock = new Object();
-	protected static BlockingQueue<Integer> mUSBhotplugEventQueue = new ArrayBlockingQueue<Integer>(
-			1024);
-
-	/* ************ */
-	// Set buffer size as per your HID device, this example id for MCP2200.
-	protected static byte[] inputReportBuffer = new byte[16];
-	protected static byte[] outputReportBuffer = new byte[16];
-
-	/* ************ */
+	protected static BlockingQueue<Integer> mUSBhotplugEventQueue = new ArrayBlockingQueue<Integer>(1024);
 
 	public void begin() {
 		try {
@@ -265,7 +257,7 @@ class HIDApplication1 implements ISerialComUSBHotPlugListener {
 	/*
 	 * This method must return as soon as possible. All the steps that must be
 	 * executed should be executed in another thread. Here we notify other
-	 * thread that a USB hot plug event has occured and pass that thread event
+	 * thread that a USB hot plug event has occurred and pass that thread event
 	 * value in-directly.
 	 */
 	@Override
