@@ -68,5 +68,8 @@
     <ClCompile Include="windows_serial_latency_timer.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="windows_usb_firmrevision.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

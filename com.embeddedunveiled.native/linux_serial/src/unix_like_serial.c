@@ -3199,7 +3199,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
  * Method:    getFirmwareRevisionNumber
  * Signature: (IILjava/lang/String;)[Ljava/lang/String;
  *
- * @return currently set latency timer value on success otherwise -1 if an error occurs.
+ * @return usb firmware revision value on success otherwise NULL if an error occurs.
  * @throws SerialComException if any JNI function, system call or C function fails.
  */
 JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_getFirmwareRevisionNumber

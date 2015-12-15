@@ -1007,6 +1007,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
 	BOOLEAN ret = FALSE;
 	jbyte* buffer = NULL;
 	int final_length = 0;
+	struct hid_dev_info* info = (struct hid_dev_info*) handle;
 
 	/* If the device uses numbered report set very first byte to report number otherwise set it to 0x00 */
 	if (reportID < 0) {
@@ -1017,7 +1018,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
 		}
 		buffer[0] = 0x00;
 		final_length = length;
-		ret = HidD_GetInputReport(handle, (PVOID)buffer, (ULONG)length);
+		ret = HidD_GetInputReport(info->handle, (PVOID)buffer, (ULONG)length);
 	}else {
 		buffer = (jbyte *) calloc((length + 1), sizeof(unsigned char));
 		if (buffer == NULL) {
@@ -1026,7 +1027,7 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
 		}
 		buffer[0] = reportID;
 		final_length = length + 1;
-		ret = HidD_GetInputReport(handle, (PVOID)buffer, (ULONG)(length + 1));
+		ret = HidD_GetInputReport(info->handle, (PVOID)buffer, (ULONG)(length + 1));
 	}
 		
 	if(ret == FALSE) {
@@ -1063,25 +1064,19 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
 		
 	BOOLEAN ret = FALSE;
 	jbyte* buffer = NULL;
-	int final_length = 0;
+	struct hid_dev_info* info = (struct hid_dev_info*) handle;
+
+	buffer = (jbyte *) calloc((length + 1), sizeof(unsigned char));
+	if (buffer == NULL) {
+		throw_serialcom_exception(env, 3, 0, E_CALLOCSTR);
+		return -1;
+	}
 		
 	if(reportID < 0) {
 		/* send 0x00 as 1st byte if device does not support report ID */
-		buffer = (jbyte *) calloc(length, sizeof(unsigned char));
-		if (buffer == NULL) {
-			throw_serialcom_exception(env, 3, 0, E_CALLOCSTR);
-			return -1;
-		}
 		buffer[0] = 0x00;
-		final_length = length;
 	}else {
-		buffer = (jbyte *) calloc((length + 1), sizeof(unsigned char));
-		if (buffer == NULL) {
-			throw_serialcom_exception(env, 3, 0, E_CALLOCSTR);
-			return -1;
-		}
 		buffer[0] = reportID;
-		final_length = length + 1;
 	}
 	
 	(*env)->GetByteArrayRegion(env, report, 0, length, &buffer[1]);
@@ -1091,7 +1086,9 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComHIDJNI
 		return -1;
 	}
 	
-	ret = HidD_SetOutputReport(handle, (PVOID)buffer, final_length);
+	/* an application should only use these routines to set the current state of a collection. Some devices might not support 
+	   HidD_SetOutputReport and will become unresponsive if this routine is used. */
+	ret = HidD_SetOutputReport(info->handle, (PVOID)buffer, (ULONG)(length + 1));
 	if(ret == FALSE) {
 		free(buffer);
 		throw_serialcom_exception(env, 3, 0, E_HidDSetOutputReport);

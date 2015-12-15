@@ -141,13 +141,14 @@ jobjectArray getusb_firmware_version(JNIEnv *env, jint usbvid_to_match, jint usb
 		}
 		udev_device_unref(udev_device);
 	}
+	
+	udev_enumerate_unref(enumerator);
+	udev_unref(udev_ctx);
 
 	/* Create a JAVA/JNI style array of String object, populate it and return to java layer. */
 	strClass = (*env)->FindClass(env, JAVALSTRING);
 	if((strClass == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
 		free_jstrarraylist(&list);
-		udev_enumerate_unref(enumerator);
-		udev_unref(udev_ctx);
 		throw_serialcom_exception(env, 3, 0, E_FINDCLASSSSTRINGSTR);
 		return NULL;
 	}
@@ -155,27 +156,20 @@ jobjectArray getusb_firmware_version(JNIEnv *env, jint usbvid_to_match, jint usb
 	usbDevicesFwVerFound = (*env)->NewObjectArray(env, (jsize) list.index, strClass, NULL);
 	if((usbDevicesFwVerFound == NULL) || ((*env)->ExceptionOccurred(env) != NULL)) {
 		free_jstrarraylist(&list);
-		udev_enumerate_unref(enumerator);
-		udev_unref(udev_ctx);
 		throw_serialcom_exception(env, 3, 0, E_NEWOBJECTARRAYSTR);
 		return NULL;
-		return linux_listusb_clean_throw_exp(env, 2, E_NEWOBJECTARRAYSTR, &list, NULL, NULL, NULL);
 	}
 
 	for (x=0; x < list.index; x++) {
 		(*env)->SetObjectArrayElement(env, usbDevicesFwVerFound, x, list.base[x]);
 		if((*env)->ExceptionOccurred(env)) {
 			free_jstrarraylist(&list);
-			udev_enumerate_unref(enumerator);
-			udev_unref(udev_ctx);
 			throw_serialcom_exception(env, 3, 0, E_SETOBJECTARRAYSTR);
 			return NULL;
 		}
 	}
 
 	free_jstrarraylist(&list);
-	udev_enumerate_unref(enumerator);
-	udev_unref(udev_ctx);
 	return usbDevicesFwVerFound;
 }
 #endif

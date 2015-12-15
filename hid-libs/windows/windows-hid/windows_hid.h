@@ -71,8 +71,8 @@
 #define E_INVALIDINLEN "Length of given report buffer is smaller than the size required for this input report !"
 #define E_FLUSHIN "Could not flush the input report buffer. Please retry !"
 #define E_PHYSICALDESC "Could not get physical descriptor. Please retry !"
-#define E_HidDGetInputReport "Could not get input report. Please retry !"
-#define E_HidDSetOutputReport "Could not set output report. Please retry !"
+#define E_HidDGetInputReport "Could not fetch input report. Please retry !"
+#define E_HidDSetOutputReport "Could not send output report. Please retry !"
 
 #define EXP_UNBLOCKHIDIO "I/O operation unblocked !"
 

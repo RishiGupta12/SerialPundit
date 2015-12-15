@@ -566,7 +566,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialCom
 						data_read = (*env)->NewByteArray(env, num_of_bytes_read);
 						(*env)->SetByteArrayRegion(env, data_read, 0, num_of_bytes_read, data_buf);
 						if ((*env)->ExceptionOccurred(env) != NULL) {
-							throw_serialcom_exception(env, 3, 0, E_SETBYTEARRAYREGION);
+							throw_serialcom_exception(env, 3, 0, E_SETBYTEARRREGIONSTR);
 							return NULL;
 						}
 						return data_read;
@@ -610,7 +610,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialCom
 			data_read = (*env)->NewByteArray(env, num_of_bytes_read);
 			(*env)->SetByteArrayRegion(env, data_read, 0, num_of_bytes_read, data_buf);
 			if ((*env)->ExceptionOccurred(env) != NULL) {
-				throw_serialcom_exception(env, 3, 0, E_SETBYTEARRAYREGION);
+				throw_serialcom_exception(env, 3, 0, E_SETBYTEARRREGIONSTR);
 				return NULL;
 			}
 			return data_read;
@@ -751,7 +751,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialCom
 					data_read = (*env)->NewByteArray(env, num_of_bytes_read);
 					(*env)->SetByteArrayRegion(env, data_read, 0, num_of_bytes_read, data_buf);
 					if ((*env)->ExceptionOccurred(env) != NULL) {
-						throw_serialcom_exception(env, 3, 0, E_SETBYTEARRAYREGION);
+						throw_serialcom_exception(env, 3, 0, E_SETBYTEARRREGIONSTR);
 						return NULL;
 					}
 					CloseHandle(ovRead.hEvent);
@@ -794,7 +794,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialCom
 		data_read = (*env)->NewByteArray(env, num_of_bytes_read);
 		(*env)->SetByteArrayRegion(env, data_read, 0, num_of_bytes_read, data_buf);
 		if ((*env)->ExceptionOccurred(env) != NULL) {
-			throw_serialcom_exception(env, 3, 0, E_SETBYTEARRAYREGION);
+			throw_serialcom_exception(env, 3, 0, E_SETBYTEARRREGIONSTR);
 			return NULL;
 		}
 		CloseHandle(ovRead.hEvent);
@@ -2806,6 +2806,19 @@ JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJN
 JNIEXPORT jint JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_rescanUSBDevicesHW(JNIEnv *env,
 	jobject obj) {
 	return -1;
+}
+
+/*
+ * Class:     com_embeddedunveiled_serial_internal_SerialComPortJNIBridge
+ * Method:    getFirmwareRevisionNumber
+ * Signature: (IILjava/lang/String;)[Ljava/lang/String;
+ *
+ * @return firmware revision number of USB device on success otherwise NULL if an error occurs.
+ * @throws SerialComException if any JNI function, WINAPI or C function fails.
+ */
+JNIEXPORT jobjectArray JNICALL Java_com_embeddedunveiled_serial_internal_SerialComPortJNIBridge_getFirmwareRevisionNumber(JNIEnv *env, 
+	jobject obj, jint vid, jint pid, jstring serial) {
+	return getusb_firmware_version(env, vid, pid, serial);
 }
 
 /*
