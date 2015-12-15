@@ -26,6 +26,10 @@ import com.embeddedunveiled.serial.internal.SerialComPortJNIBridge;
  * <p>An end product may be based on dedicated USB-UART bridge IC for providing serial over USB or 
  * may use general purpose microcontroller like PIC18F4550 from Microchip technology Inc. and 
  * program appropriate firmware (USB CDC) into it to provide UART communication over USB port.</p>
+ *
+ * <p>[1] If your USB-UART converter based design is not working, consider not connecting USB connector 
+ * shield directly to ground. Further, double check if termination resistors in D+/D- lines are 
+ * really required or not.</p>
  * 
  * @author Rishi Gupta
  */
