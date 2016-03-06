@@ -29,6 +29,8 @@ import com.embeddedunveiled.serial.internal.SerialComHIDJNIBridge;
  * and required support for HID-compliant devices. However we may have to write our own HID minidriver
  * if it is difficult to make desired changes to HID-compliant device firmware or if we need to make a 
  * non-HID compliant device into a HID device without updating the firmware.</p>
+ *
+ * <p>Note that a driver can override the descriptors and reports from a HID device.</p>
  * 
  * @author Rishi Gupta
  */
