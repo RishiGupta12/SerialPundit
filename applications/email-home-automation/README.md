@@ -86,8 +86,8 @@ an application that uses the API need not be hardwired into using any particular
 to use based on desired security features. The API supports both client and server applications. The javax.security.sasl.Sasl class 
 is used to create SaslClient and SaslServer objects.
 
- SASL mechanism implementations are supplied in provider packages. Each provider may support one or more SASL mechanisms and is 
- registered and invoked via the standard provider architecture.
+SASL mechanism implementations are supplied in provider packages. Each provider may support one or more SASL mechanisms and is 
+registered and invoked via the standard provider architecture.
 
 #####4. OAuth 2.0
 OAuth is an open standard for authorization, commonly used as a way for Internet users to log into third party websites 
