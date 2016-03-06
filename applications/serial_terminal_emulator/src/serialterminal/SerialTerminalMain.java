@@ -19,12 +19,16 @@
 package serialterminal;
 
 import java.awt.BorderLayout;
+import java.awt.Checkbox;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
@@ -50,15 +54,17 @@ import com.embeddedunveiled.serial.SerialComManager.DATABITS;
 import com.embeddedunveiled.serial.SerialComManager.FLOWCONTROL;
 import com.embeddedunveiled.serial.SerialComManager.PARITY;
 import com.embeddedunveiled.serial.SerialComManager.STOPBITS;
+import com.embeddedunveiled.serial.SerialComUtil;
 
 class DataPoller extends SerialTerminalMain implements Runnable {
 
 	private static final long serialVersionUID = 2918070168250391055L;
-	String dataRead;
+	byte[] dataRead;
 	SerialComManager scm;
 	JTextField text;
 	long handle;
 	JTextField status;
+	String dataStr;
 
 	public DataPoller(SerialComManager scm, JTextField text, long handle, JTextField status, Thread mDataReceiverThread) {
 		this.scm = scm;
@@ -76,10 +82,16 @@ class DataPoller extends SerialTerminalMain implements Runnable {
 			} catch (InterruptedException e1) {
 			}
 			try {
-				dataRead = scm.readString(handle);
+				dataRead = scm.readBytes(handle, 10);
+				System.out.println("" + dataRead);
 				if(dataRead != null) {
 					text.setText("");
-					text.setText(dataRead);
+					if(displayInHex == true) {
+						dataStr = SerialComUtil.byteArrayToHexString(dataRead, " ");
+					}else {
+						dataStr = new String(dataRead);
+					}
+					text.setText(dataStr);
 				}
 				if(mDataReceiverThread.isInterrupted()) {
 					return;
@@ -118,6 +130,8 @@ public class SerialTerminalMain extends JFrame {
 	private JPanel centerPanel;
 	// receive
 	protected JTextField datarcvtextfield;
+	protected Checkbox hexDisplay;
+	protected boolean displayInHex;
 	// send data stuff
 	private JPanel sendDataPanel;
 	private JTextField sendDataTextField;
@@ -126,9 +140,9 @@ public class SerialTerminalMain extends JFrame {
 	// serial port tab
 	private JPanel comTopPanel;
 	private JPanel comportPanel;
-	private JComboBox<String> comportComboBox;
+	private JComboBox comportComboBox;
 	private JButton comportRefreshButton;
-	private JComboBox<String> baudrateComboBox;
+	private JComboBox baudrateComboBox;
 	private JPanel parityPanel;
 	private JRadioButton parnoneRbutton;
 	private JRadioButton paroddRbutton;
@@ -172,7 +186,6 @@ public class SerialTerminalMain extends JFrame {
 
 	public SerialTerminalMain() { }
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private void createAndShowGUI() {
 
 		JFrame.setDefaultLookAndFeelDecorated(true);
@@ -186,7 +199,7 @@ public class SerialTerminalMain extends JFrame {
 		}
 		frame = new JFrame();
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setSize(670, 485);
+		frame.setSize(670, 520);
 		frame.setResizable(false);
 		frame.setTitle("Serial terminal emulator");
 		frame.getContentPane().setLayout(new BorderLayout(0,0));
@@ -212,6 +225,18 @@ public class SerialTerminalMain extends JFrame {
 		datarcvtextfield.setForeground(Color.BLACK);
 		datarcvtextfield.setEditable(false);
 		centerPanel.add(datarcvtextfield);
+
+		hexDisplay = new Checkbox("Display in Hex");
+		hexDisplay.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent e) {
+				if(e.getStateChange() == 1) {
+					displayInHex = true;
+				}else {
+					displayInHex = false;
+				}
+			}
+		});
+		centerPanel.add(hexDisplay);
 
 		/* ~~~ SEND DATA BLOCK ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 		sendDataPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 15));
@@ -246,7 +271,7 @@ public class SerialTerminalMain extends JFrame {
 
 		comportPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 5));
 		comportPanel.add(new JLabel("Com port : "));
-		comportComboBox = new JComboBox<String>(comPortsFound);
+		comportComboBox = new JComboBox(comPortsFound);
 		comportComboBox.setPreferredSize(new Dimension(150, 25));
 		comportPanel.add(comportComboBox);
 		comportRefreshButton = new JButton("Refresh list");
@@ -476,6 +501,11 @@ public class SerialTerminalMain extends JFrame {
 		programStatusText.setBorder(BorderFactory.createEmptyBorder(0,0,1,0));
 		programStatusPanel.add(programStatusText);
 		centerPanel.add(programStatusPanel);
+		
+		Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
+        int x = (int) ((dimension.getWidth() - frame.getWidth()) / 2);
+        int y = (int) ((dimension.getHeight() - frame.getHeight()) / 2);
+        frame.setLocation(x, y);
 
 		// finally show UI On screen
 		frame.setVisible(true);
