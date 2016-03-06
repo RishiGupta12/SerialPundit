@@ -73,7 +73,8 @@ public class Example {
 			e.printStackTrace();
 		}
 	}
-}```
+}
+```
 
 ##Wiki, Java docs, Example usage, Build guide, Discussion, Trouble shooting
 
