@@ -2,17 +2,18 @@
  * Author : Rishi Gupta
  * 
  * This file is part of 'serial communication manager' library.
+ * Copyright (C) <2014-2016>  <Rishi Gupta>
  *
- * The 'serial communication manager' is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by the Free Software 
+ * This 'serial communication manager' is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by the Free Software 
  * Foundation, either version 3 of the License, or (at your option) any later version.
  *
- * The 'serial communication manager' is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
- * PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
+ * The 'serial communication manager' is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR 
+ * A PARTICULAR PURPOSE.  See the GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU Lesser General Public License
- * along with serial communication manager. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with 'serial communication manager'.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 package com.embeddedunveiled.serial.internal;
@@ -28,7 +29,7 @@ import com.embeddedunveiled.serial.SerialComUnexpectedException;
 
 /**
  * <p>This class is an interface between java and native shared library. The native library is found 
- * in 'vendor-libs' folder in 'scm-x.x.x.jar' file.</p>
+ * in 'lib-vendor' folder in 'scm-x.x.x.jar' file.</p>
  * 
  * @author Rishi Gupta
  */
@@ -41,7 +42,7 @@ public final class SerialComFTDID2XXJNIBridge {
 	}
 
 	/**
-	 * <p>Extract native library from jar in a working directory, load and link it. The 'vendor-libs' folder in 
+	 * <p>Extract native library from jar in a working directory, load and link it. The 'lib-vendor' folder in 
 	 * 'scm-x.x.x.jar' file is searched for the required native library for vendor specific communication. It 
 	 * also load vendor's native shared library.</p>
 	 *  
@@ -57,8 +58,7 @@ public final class SerialComFTDID2XXJNIBridge {
 	 * @throws UnsatisfiedLinkError if loading/linking shared library fails
 	 */
 	public static boolean loadNativeLibrary(File libDirectory, String vlibName, int cpuArch, int osType, 
-			SerialComSystemProperty serialComSystemProperty) throws UnsatisfiedLinkError, 
-			SerialComLoadException, SerialComUnexpectedException, SecurityException, FileNotFoundException {
+			SerialComSystemProperty serialComSystemProperty) throws SerialComUnexpectedException, SerialComLoadException {
 		String libToExtractFromJar = null;
 		File libFile = null;
 		File vlibFile = null;
@@ -102,7 +102,7 @@ public final class SerialComFTDID2XXJNIBridge {
 		/* Extract shared library from jar into working directory */
 		try {
 			libFile = new File(libDirectory.getAbsolutePath() + fileSeparator + libToExtractFromJar);
-			input = SerialComPortJNIBridge.class.getResourceAsStream("/vendor-libs/" + libToExtractFromJar);
+			input = SerialComPortJNIBridge.class.getResourceAsStream("/lib-vendor/" + libToExtractFromJar);
 			output = new FileOutputStream(libFile);
 			if(input != null) {
 				int read;

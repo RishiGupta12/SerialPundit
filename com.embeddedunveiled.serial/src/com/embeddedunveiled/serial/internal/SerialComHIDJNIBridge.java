@@ -2,17 +2,18 @@
  * Author : Rishi Gupta
  * 
  * This file is part of 'serial communication manager' library.
+ * Copyright (C) <2014-2016>  <Rishi Gupta>
  *
- * The 'serial communication manager' is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by the Free Software 
+ * This 'serial communication manager' is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by the Free Software 
  * Foundation, either version 3 of the License, or (at your option) any later version.
  *
- * The 'serial communication manager' is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
- * PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
+ * The 'serial communication manager' is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR 
+ * A PARTICULAR PURPOSE.  See the GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU Lesser General Public License
- * along with serial communication manager. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with 'serial communication manager'.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 package com.embeddedunveiled.serial.internal;
@@ -29,7 +30,7 @@ import com.embeddedunveiled.serial.internal.SerialComSystemProperty;
 
 /**
  * <p>This class is an interface between java and native shared library. The native library is found 
- * in 'hid-libs' folder in 'scm-x.x.x.jar' file.</p>
+ * in 'lib-hid' folder in 'scm-x.x.x.jar' file.</p>
  * 
  * @author Rishi Gupta
  */
@@ -42,7 +43,7 @@ public final class SerialComHIDJNIBridge {
 	}
 
 	/**
-	 * <p>Extract native library from jar in a working directory, load and link it. The 'hid-libs' folder in 
+	 * <p>Extract native library from jar in a working directory, load and link it. The 'lib-hid' folder in 
 	 * 'scm-x.x.x.jar' file is searched for the required native library for communication with HID device.</p> 
 	 * 
 	 * @param directoryPath null for default directory or user supplied directory path.
@@ -57,8 +58,7 @@ public final class SerialComHIDJNIBridge {
 	 * @throws UnsatisfiedLinkError if loading/linking shared library fails.
 	 */
 	public static boolean loadNativeLibrary(String directoryPath, String loadedLibName, SerialComSystemProperty serialComSystemProperty,
-			int osType, int cpuArch, int javaABIType) throws SecurityException, SerialComUnexpectedException, 
-			SerialComLoadException, UnsatisfiedLinkError {
+			int osType, int cpuArch, int javaABIType) throws SerialComUnexpectedException, SerialComLoadException {
 		String javaTmpDir = null;
 		String userHomeDir = null;
 		String fileSeparator = null;
@@ -206,7 +206,7 @@ public final class SerialComHIDJNIBridge {
 				libFile = new File(workingDir.getAbsolutePath() + fileSeparator + loadedLibName.trim() + libExtension);
 			}
 
-			input = SerialComHIDJNIBridge.class.getResourceAsStream("/hid-libs/" + libToExtractFromJar);
+			input = SerialComHIDJNIBridge.class.getResourceAsStream("/lib-hid/" + libToExtractFromJar);
 			output = new FileOutputStream(libFile);
 			if(input != null) {
 				int read;

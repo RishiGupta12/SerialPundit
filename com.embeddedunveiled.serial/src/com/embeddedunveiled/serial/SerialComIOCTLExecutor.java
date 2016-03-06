@@ -2,22 +2,22 @@
  * Author : Rishi Gupta
  * 
  * This file is part of 'serial communication manager' library.
+ * Copyright (C) <2014-2016>  <Rishi Gupta>
  *
- * The 'serial communication manager' is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by the Free Software 
+ * This 'serial communication manager' is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by the Free Software 
  * Foundation, either version 3 of the License, or (at your option) any later version.
  *
- * The 'serial communication manager' is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
- * PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
+ * The 'serial communication manager' is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR 
+ * A PARTICULAR PURPOSE.  See the GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU Lesser General Public License
- * along with serial communication manager. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with 'serial communication manager'.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 package com.embeddedunveiled.serial;
 
-import com.embeddedunveiled.serial.internal.SerialComErrorMapper;
 import com.embeddedunveiled.serial.internal.SerialComPortJNIBridge;
 
 /**
@@ -41,16 +41,14 @@ import com.embeddedunveiled.serial.internal.SerialComPortJNIBridge;
 public final class SerialComIOCTLExecutor {
 
 	private SerialComPortJNIBridge mComPortJNIBridge;
-	private SerialComErrorMapper mErrMapper;
+	
 	/**
 	 * <p>Allocates a new SerialComIOCTLExecutor object.</p>
 	 * 
 	 * @param mComPortJNIBridge interface used to invoke appropriate native function.
-	 * @param mErrMapper mapper to map error code into meaningful info.
 	 */
-	public SerialComIOCTLExecutor(SerialComPortJNIBridge mComPortJNIBridge, SerialComErrorMapper mErrMapper) {
+	public SerialComIOCTLExecutor(SerialComPortJNIBridge mComPortJNIBridge) {
 		this.mComPortJNIBridge = mComPortJNIBridge;
-		this.mErrMapper = mErrMapper;
 	}
 
 	/**
@@ -122,7 +120,7 @@ public final class SerialComIOCTLExecutor {
 		long ret = 0;
 		ret = mComPortJNIBridge.ioctlGetValue(handle, operationCode);
 		if(ret < 0) {
-			throw new SerialComException(mErrMapper.getMappedError(ret));
+			throw new SerialComException("Could not execute the given IOCTL operation. Please retry !");
 		}
 		return ret;
 	}
@@ -140,7 +138,7 @@ public final class SerialComIOCTLExecutor {
 		long ret = 0;
 		ret = mComPortJNIBridge.ioctlSetValueIntArray(handle, operationCode, values);
 		if(ret < 0) {
-			throw new SerialComException(mErrMapper.getMappedError(ret));
+			throw new SerialComException("Could not execute the given IOCTL operation. Please retry !");
 		}
 		return true;
 	}
@@ -161,7 +159,7 @@ public final class SerialComIOCTLExecutor {
 		long ret = 0;
 		ret = mComPortJNIBridge.ioctlSetValueCharArray(handle, operationCode, values);
 		if(ret < 0) {
-			throw new SerialComException(mErrMapper.getMappedError(ret));
+			throw new SerialComException("Could not execute the given IOCTL operation. Please retry !");
 		}
 		return true;
 	}

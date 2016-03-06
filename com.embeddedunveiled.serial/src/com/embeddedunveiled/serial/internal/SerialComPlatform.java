@@ -2,18 +2,20 @@
  * Author : Rishi Gupta
  * 
  * This file is part of 'serial communication manager' library.
+ * Copyright (C) <2014-2016>  <Rishi Gupta>
  *
- * The 'serial communication manager' is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by the Free Software 
+ * This 'serial communication manager' is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by the Free Software 
  * Foundation, either version 3 of the License, or (at your option) any later version.
  *
- * The 'serial communication manager' is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
- * PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
+ * The 'serial communication manager' is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR 
+ * A PARTICULAR PURPOSE.  See the GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU Lesser General Public License
- * along with serial communication manager. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with 'serial communication manager'.  If not, see <http://www.gnu.org/licenses/>.
  */
+ 
 package com.embeddedunveiled.serial.internal;
 
 import java.io.BufferedReader;
@@ -87,12 +89,14 @@ public final class SerialComPlatform {
 		return osType;
 	}
 
-	/** <p>Identifies CPU architecture scm library is running on.</p>
+	/** 
+	 * <p>Identifies CPU architecture scm library is running on.</p>
+	 * 
 	 * <p>Packages that are compiled for i386 architecture are compatible with i486, i586, i686, i786, 
 	 * i886 and i986 architectures. Packages that are compiled for x86_64 architecture are compatible 
 	 * with amd64 architecture.</p>
 	 * 
-	 * @return SerialComManager.ARCH_UNKNOWN if platform is unknown to scm otherwise one of the 
+	 * @return SerialComManager.ARCH_UNKNOWN if platform is unknown to SCM otherwise one of the 
 	 *          SerialComManager.ARCH_XXXX constant.
 	 * @throws SecurityException if java system properties can not be  accessed.
 	 * @throws SerialComUnexpectedException if the "os.arch" java system property is null.
@@ -134,7 +138,7 @@ public final class SerialComPlatform {
 				|| osArch.equals("i786") || osArch.equals("i886") || osArch.equals("i986") || osArch.equals("pentium") || osArch.equals("i86pc")) {
 			cpuArch = SerialComManager.ARCH_X86;
 		}else if(osArch.equals("amd64") || osArch.equals("x86_64") || osArch.equals("em64t") || osArch.equals("x86-64") || osArch.equals("universal")) {
-			cpuArch = SerialComManager.ARCH_AMD64; // universal may be needed for openjdk7 in Mac
+			cpuArch = SerialComManager.ARCH_AMD64; // universal may be needed for openjdk7 in Mac.
 		}else if(osArch.equals("ia64") || osArch.equals("ia64w")) {
 			cpuArch = SerialComManager.ARCH_IA64;
 		}else if(osArch.equals("ia64_32") || osArch.equals("ia64n")) {

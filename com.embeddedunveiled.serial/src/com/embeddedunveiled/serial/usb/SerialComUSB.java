@@ -2,17 +2,18 @@
  * Author : Rishi Gupta
  * 
  * This file is part of 'serial communication manager' library.
+ * Copyright (C) <2014-2016>  <Rishi Gupta>
  *
- * The 'serial communication manager' is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by the Free Software 
+ * This 'serial communication manager' is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by the Free Software 
  * Foundation, either version 3 of the License, or (at your option) any later version.
  *
- * The 'serial communication manager' is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
- * PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
+ * The 'serial communication manager' is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR 
+ * A PARTICULAR PURPOSE.  See the GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU Lesser General Public License
- * along with serial communication manager. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with 'serial communication manager'.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 package com.embeddedunveiled.serial.usb;
@@ -107,6 +108,16 @@ public final class SerialComUSB {
 	 * <p>Application can get this firmware revision number and can self adopt to a particular hardware 
 	 * device. For example if a particular feature is present in firmware version 1.00 than application 
 	 * create a button in GUI, however for revision 1.11 it creates a different button in GUI window.</p>
+	 *
+	 * <p>Embedded system device vendors sometimes use bcdDevice value to indicate the 'embedded bootloader'
+	 * version so that the firmware image flash loader program can identify the bootloader in use and use the 
+	 * appropriate protocol to flash firmware in flash memory. Typically, USB Device Firmware Upgrade (DFU) 
+	 * which is an official USB device class specification of the USB Implementers Forum is used.</p>
+	 *
+	 * <p>On custom hardware the RTS and DTR pins of USB-UART device can be used to control GPIO or boot mode
+	 * pins to enter a particular boot mode. For example, open the host serial port, make DTR low and RTS high 
+	 * and then reset microcontroller board. The microcontroller will see levels at its boot pins and will
+	 * enter into a particular boot mode.</p>
 	 * 
 	 * @param usbvid USB vendor ID to match.
 	 * @param usbpid USB product ID to match.

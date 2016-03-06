@@ -3,11 +3,11 @@ Serial communication manager (SCM)
 
 !["serial communication in java"](images/scm.jpg?raw=true "serial communication in java")
 
-The 'serial communication manager (abbreviated as scm)' is an easy to use java library for communication over serial port. It supports RS-232 control signals handshaking, monitoring and has been ported to Linux, MAC, and Windows operating system for both 32 bit and 64 bit. It is consistent, portable, efficient, reliable, testable, extensible, modifiable, scalable and feature rich library. It has been also ported to ARM platform (Embedded SE Java).
+The 'serial communication manager (abbreviated as SCM)' is an easy to use java library for communication over serial port. It supports RS-232 control signals handshaking, monitoring and has been ported to Linux, MAC, and Windows operating system for both 32 bit and 64 bit. It is consistent, portable, efficient, reliable, testable, extensible, modifiable, scalable and feature rich library. It has been also ported to ARM platform (Embedded SE Java).
 
 It is powerfully configurable for both poll and event driven application designs be it low volume low frequency data or high volume high frequency data.
 
-It eliminates the complexities of serial port programming for different operating systems, allowing engineers to concentrate on their application logic.
+It eliminates the complexities of serial port programming for different operating systems, allowing engineers to concentrate on their application logic, facilitating faster engineering and development, reducing development cost and time to market.
 
 ##Features
 MODERN
@@ -21,7 +21,7 @@ MODERN
 - Find which driver is driving a particular serial port.
 - Completely port re-entrant, allowing it to be time-sliced.
 - USB power related information reporting like selective suspend or auto suspend.
-- Direct byte buffer API for transferring large data fastly.
+- Java NIO direct byte buffer API for faster data transfer.
 
 LEGACY
 - Access to EIA232 standard DTR, CD, CTS, RTS and DSR signals.
@@ -47,7 +47,7 @@ PROJECT
 
 ##Getting started
 
-The folder prebuilt-release contains ready-to-use jar file (scm-1.0.3.jar) that can be imported in any project and referenced right away.
+The folder prebuilt-release in this repository contains ready-to-use jar file (scm-1.0.4.jar) that can be imported in any project and referenced right away. Simply add scm-1.0.4.jar in your project as external library. You can add a jar in Eclipse by right-clicking on the Project → Build Path → Configure Build Path. Under Libraries tab, click Add Jars or Add External JARs and give the scm-1.0.4.jar.
 
 ```java
 package example;
@@ -80,16 +80,19 @@ public class Example {
 
 http://www.embeddedunveiled.com/
 
-##Help the project grow !
+##Help the project grow !["Donate"](images/help.jpg?raw=true "Donate")
 
 - Suggest features and enhancements
 - Report bugs and fixes
 - Help with missing documentation
 - Suggest more test cases
 - Publish an article on your blog to educate others about this project
+- Provide peer support on mailing lists, forums or newsgroups
 
 ##Author, License, and Copyright
-The 'serial communication manager (scm)' is designed, developed and maintained by Rishi gupta. The Linkdin profile of the author can be found here : http://in.linkedin.com/pub/rishi-gupta/20/9b8/a10
+The 'serial communication manager (SCM)' is designed, developed and maintained by Rishi gupta. The Linkdin profile of the author can be found here : http://in.linkedin.com/pub/rishi-gupta/20/9b8/a10
 
-This library is licensed under the LGPL, See LICENSE AND COPYING for full license text.
+The SCM is dual licensed. It is made available under the terms of the GNU Affero General Public License (AGPL) v3.0 for non-commercial use and under the terms of a commercial license for commercial use of SCM. 
+
+See LICENSE file in repository for full license text for AGPL v3.0.
 

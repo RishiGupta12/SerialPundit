@@ -2,17 +2,18 @@
  * Author : Rishi Gupta
  * 
  * This file is part of 'serial communication manager' library.
+ * Copyright (C) <2014-2016>  <Rishi Gupta>
  *
- * The 'serial communication manager' is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by the Free Software 
+ * This 'serial communication manager' is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by the Free Software 
  * Foundation, either version 3 of the License, or (at your option) any later version.
  *
- * The 'serial communication manager' is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
- * PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
+ * The 'serial communication manager' is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR 
+ * A PARTICULAR PURPOSE.  See the GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU Lesser General Public License
- * along with serial communication manager. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with 'serial communication manager'.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 package com.embeddedunveiled.serial.internal;
@@ -30,7 +31,7 @@ import com.embeddedunveiled.serial.internal.SerialComSystemProperty;
 /**
  * <p>
  * This class is an interface between java and native shared library. The native
- * library is found in 'bt-libs' folder in 'scm-x.x.x.jar' file.
+ * library is found in 'lib-bluetooth' folder in 'scm-x.x.x.jar' file.
  * </p>
  * 
  * @author Rishi Gupta
@@ -48,7 +49,7 @@ public final class SerialComBluetoothJNIBridge {
 	/**
 	 * <p>
 	 * Extract native library from jar in a working directory, load and link it.
-	 * The 'bt-libs' folder in 'scm-x.x.x.jar' file is searched for the required
+	 * The 'lib-bluetooth' folder in 'scm-x.x.x.jar' file is searched for the required
 	 * native library for bluetooth communication.
 	 * </p>
 	 * 
@@ -74,12 +75,10 @@ public final class SerialComBluetoothJNIBridge {
 	 * @throws UnsatisfiedLinkError
 	 *             if loading/linking shared library fails.
 	 */
-	public static boolean loadNativeLibrary(String directoryPath,
-			String loadedLibName,
-			SerialComSystemProperty serialComSystemProperty, int osType,
-			int cpuArch, int javaABIType, int btStack)
-			throws SecurityException, SerialComUnexpectedException,
-			SerialComLoadException, UnsatisfiedLinkError {
+	public static boolean loadNativeLibrary(String directoryPath, String loadedLibName,
+			SerialComSystemProperty serialComSystemProperty, int osType, int cpuArch, int javaABIType, 
+			int btStack) throws SerialComUnexpectedException, SerialComLoadException {
+
 		String javaTmpDir = null;
 		String userHomeDir = null;
 		String fileSeparator = null;
@@ -100,8 +99,7 @@ public final class SerialComBluetoothJNIBridge {
 
 		fileSeparator = serialComSystemProperty.getfileSeparator();
 		if (fileSeparator == null) {
-			throw new SerialComUnexpectedException(
-					"The file.separator java system property is null in the system !");
+			throw new SerialComUnexpectedException("The file.separator java system property is null in the system !");
 		}
 
 		/*
@@ -112,8 +110,7 @@ public final class SerialComBluetoothJNIBridge {
 			// user did not supplied any directory path so try tmp and user home
 			javaTmpDir = serialComSystemProperty.getJavaIOTmpDir();
 			if (javaTmpDir == null) {
-				throw new SerialComUnexpectedException(
-						"The java.io.tmpdir java system property is null in the system !");
+				throw new SerialComUnexpectedException("The java.io.tmpdir java system property is null in the system !");
 			}
 
 			baseDir = new File(javaTmpDir);
@@ -266,7 +263,7 @@ public final class SerialComBluetoothJNIBridge {
 						+ loadedLibName.trim() + libExtension);
 			}
 
-			input = SerialComHIDJNIBridge.class.getResourceAsStream("/bt-libs/"
+			input = SerialComHIDJNIBridge.class.getResourceAsStream("/lib-bluetooth/"
 					+ libToExtractFromJar);
 			output = new FileOutputStream(libFile);
 			if (input != null) {

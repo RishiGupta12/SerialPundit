@@ -2,17 +2,18 @@
  * Author : Rishi Gupta
  * 
  * This file is part of 'serial communication manager' library.
+ * Copyright (C) <2014-2016>  <Rishi Gupta>
  *
- * The 'serial communication manager' is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by the Free Software 
+ * This 'serial communication manager' is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by the Free Software 
  * Foundation, either version 3 of the License, or (at your option) any later version.
  *
- * The 'serial communication manager' is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
- * PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
+ * The 'serial communication manager' is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR 
+ * A PARTICULAR PURPOSE.  See the GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU Lesser General Public License
- * along with serial communication manager. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with 'serial communication manager'.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 package com.embeddedunveiled.serial.hid;
@@ -60,7 +61,7 @@ final class HIDInputReportReader implements Runnable {
 				}
 			} catch (SerialComException e) {
 				if(SerialComHID.EXP_UNBLOCK_HIDIO.equals(e.getExceptionMsg())) {
-					// this thread should exit as other thread told it to return
+					// this thread should exit as other thread indicated it to return.
 					return;
 				}
 			} catch (Exception e1) {
@@ -118,7 +119,7 @@ public final class SerialComRawHID extends SerialComHID {
 	// used to synchronize access to treemap if caller can modify treemap.
 	private final Object lock = new Object();
 
-	// This provides guaranteed log(n) time cost for the containsKey, get, put and remove operations.
+	// This provides guaranteed log(n) time complexity for the containsKey, get, put and remove operations.
 	// It maps opened handle of HID device to its information object.
 	private final TreeMap<Long, HIDdevHandleInfo> devInfo;
 
@@ -235,6 +236,7 @@ public final class SerialComRawHID extends SerialComHID {
 		if(pathName == null) {
 			throw new IllegalArgumentException("Argument pathName can not be null !");
 		}
+
 		String pathNameVal = pathName.trim();
 		if(pathNameVal.length() == 0) {
 			throw new IllegalArgumentException("Argument pathName can not be empty string !");
@@ -262,11 +264,14 @@ public final class SerialComRawHID extends SerialComHID {
 	 * @throws IllegalStateException if application tries to close handle when input report listener still exist.
 	 */
 	public boolean closeHidDeviceR(long handle) throws SerialComException {		
+
 		HIDdevHandleInfo info = devInfo.get(handle);
-		if(info != null) {
-			if(info.getInputReportListener() != null) {
-				throw new IllegalStateException("Closing device handle without unregistering input report listener is not allowed to prevent inconsistency !");
-			}
+		if(info == null) {
+			throw new SerialComException("Given handle does not represent a HID device opened through SCM !");
+		}
+
+		if(info.getInputReportListener() != null) {
+			throw new IllegalStateException("Closing device handle without unregistering input report listener is not allowed to prevent inconsistency !");
 		}
 
 		int ret = mHIDJNIBridge.closeHidDeviceR(handle);

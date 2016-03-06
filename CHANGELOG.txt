@@ -1,82 +1,105 @@
-
 v1.0.4 (TODO RELEASE DATE)
-	- added API for fast read/write using Java NIO direct buffers
-	- added API to list rfcomm bluetooth serial ports in system
-	- added support for USB HID and Bluetooth HID communication
-	- added API to find IRQ Number and address of seria port
-	- added API to find driver serving the given serial port
-	- added support for Silicon labs CP210XManufacturing library
-	- added support for Bluetooth serial port profile
-	- added support for FTDI D2XX propriety software interface
-	- added support for Silicon labs CP210XRuntime library
-	- added support for MCP2200 SimpleIO-UM.dll library from microchip
-	- added API to find virtual com port assigned to a particular USB-UART bridge IC
-	- added API to find USB-UART devices with detailed information about them
-	- added support for raspberry pi and beagle bone embedded linux boards
-	- added support for platform specific IOCTL calls
-	- added Junit test cases for continuos integration
-	- added utility class SerialComUtil for common operations
-	- added new exceptions to deal with java security manager if exist
-	- added full XMODEM(checksum, CRC, 1K) support for both GUI and non-GUI applications
-	- added method getCPUArchitecture()
-	- added check for incorrect arguments passing to methods
-	- implemented new powerful hot plug mechanism for USB port hot plug detection
-	- more CPU architecture and operating system detection in robust manner
-	- optimized memory allocation and de-allocation 
-	- extensive error detection and reporting (POSIX, JNI, C standard, Java, custom)
-	- byte steam now can be operated in 2 modes blocking or non-blocking
-	- fix issue for not returning null in windows in read function
-	- fixed memory release for epoll implementations
-	- implemented partial read scenario for unix-like OS
-	- worker threads in Windows OS now exit gracefully
-	- various code improvements, optimizations, restructuring
-	- javadocs and source code comments updated
 
+Additions :
+    - Added API for data logging applications
+    - Added API for read calls for polling read based design applications
+    - Added API for fast read/write using Java NIO direct buffers
+    - Added API to list rfcomm bluetooth serial ports in system
+    - Added support for USB HID and Bluetooth HID communication
+    - Added API to find IRQ Number and address of serial port
+    - Added API to find driver serving the given serial port
+    - Added support for Silicon labs CP210XManufacturing library
+    - Added support for Bluetooth serial port profile
+    - Added support for FTDI D2XX propriety software interface
+    - Added support for Silicon labs CP210XRuntime library
+    - Added support for MCP2200 SimpleIO-UM.dll library from microchip
+    - Added API to find virtual com port assigned to a particular USB-UART bridge IC
+    - Added API to find USB-UART devices with detailed information about them
+    - Added support for raspberry pi and beagle bone embedded linux boards
+    - Added support for platform specific IOCTL calls
+    - Added Junit test cases for continuous integration
+    - Added utility class SerialComUtil for common operations
+    - Added new exceptions to deal with java security manager if exist
+    - Added full XMODEM(checksum, CRC, 1K) support for both GUI and non-GUI applications
+    - Added method getCPUArchitecture()
+    - Added check for incorrect arguments passing to methods
+    - Added API to free COM ports from ComDB database in Windows for factory testing
+	
+Bug Fixes :
+    - Windows: fixed issue for not returning null in windows in read function
+    - Windows: worker threads now exit gracefully
+    - Windows: handle false positive events due to driver
+    - Windows/Linux: close all ports if application fails to close at library unloading time
+    - Windows/Linux: fixed data/event registration/unregistration sequence issue
+    - Linux: baudrate settings made more robust
+    - Linux/Mac: handle INTR signal when calling tcdrain()
+    - Linux: fixed memory release for epoll implementations
+	
+Drivers & Services :
+    - Added cp210x Linux kernel driver
+    - Added user space virtual HID driver and corresponding Java API
+    - Added serial port mapper service and corresponding Java API
+
+Miscellaneous : 
+    - Implemented new powerful hot plug mechanism for USB port hot plug detection
+    - More CPU architecture and operating system detection in robust manner
+    - Optimized memory allocation and de-allocation 
+    - Extensive error detection and reporting (POSIX, JNI, C standard, Java, custom)
+    - Byte steam now can be operated in 2 modes blocking or non-blocking
+    - Implemented partial read scenario for unix-like OS
+    - Various code improvements, optimizations, restructuring
+    - Javadocs and source code comments updated for 1.0.4 release
+    - Added script to sniff USB-UART device traffic
+    - Added B307200 baudrate support for unix like OS
+    - Made finding COM ports in Windows more robust
+    - Added many demo applications for quickly getting started
+    - Made this software dual licensed
 
 v1.0.3 (29 May 2015)
-	- added byteArrayToHexStr() utility method
-	- replace setMinDataLength() with fineTuneRead() with more features
-	- added input-output byte stream support in scm
-	- added readBytesBlocking() method to support blocking read application design
-	- listAvailableComPorts() now throws SerialComException
-	- listeners optimized for less memory consumption
-	- read/write method are now more easy to use
-	- enabled 3rd parameter delay in writeBytes method
-	- drop DTR when port closed in linux
-	- enable DTR/RTS at port opening in windows
-	- flush data after each write to serial port in windows
-	- report actual windows error codes in exceptions thrown in java layer
-	- added getDataBytesLength() method in SerialComDataEvent
-	- delete critical section when un-loading library in windows os
-	- attempting to open an alreadyed opened port will throw exception (if trying to become exclusive owner)
-	- pass valid thread id to pthread_join() for data listener in linux
-	- destroy pthread_attr_t object upon thread termination
-	- various code improvements
-	- javadocs and source code comments updated
+    - added byteArrayToHexStr() utility method
+    - replace setMinDataLength() with fineTuneRead() with more features
+    - added input-output byte stream support in scm
+    - added readBytesBlocking() method to support blocking read application design
+    - listAvailableComPorts() now throws SerialComException
+    - listeners optimized for less memory consumption
+    - read/write method are now more easy to use
+    - enabled 3rd parameter delay in writeBytes method
+    - drop DTR when port closed in linux
+    - enable DTR/RTS at port opening in windows
+    - flush data after each write to serial port in windows
+    - report actual windows error codes in exceptions thrown in java layer
+    - added getDataBytesLength() method in SerialComDataEvent
+    - delete critical section when un-loading library in windows os
+    - attempting to open an already opened port will throw exception (if trying to become exclusive owner)
+    - pass valid thread id to pthread_join() for data listener in linux
+    - destroy pthread_attr_t object upon thread termination
+    - various code improvements
+    - javadocs and source code comments updated
 	
 v1.0.2 (12 May 2015)
-	- new API getPortName() to find port name added
-	- added checking for invalid argument in receiveFile() and sendFile()
-	- getOsType() now throws IllegalStateException
-	- new tests added/updated
-	- replaced NullPointerException with IllegalArgumentException where required
-	- replaced SerialComException IllegalStateException in closeComPort() where required
+    - new API getPortName() to find port name added
+    - added checking for invalid argument in receiveFile() and sendFile()
+    - getOsType() now throws IllegalStateException
+    - new tests added/updated
+    - replaced NullPointerException with IllegalArgumentException where required
+    - replaced SerialComException IllegalStateException in closeComPort() where required
 
 v1.0.1 (05 May 2015)
-	- update version number from 1.0.0 to 1.0.1
-	- added more functional tests, stress and stability tests
-	- scm can now find upto 1024 serial ports present in system
-	- native write function returns error if port is removed from system
-	- read/write methods now detect and report more types of error
-	- new utility method writeBytes(long handle, byte[] buffer) added
-	- new method onDataListenerError(int errorNum) added in interface ISerialComDataListener
-	- more comprehensive debug error reporting added
-	- SerialComException now extends IOException instead of Exception
-	- javadocs and source code comments updated
-	- write method now throws SerialComException when any error occurs
-	- removed limitation on how many times data/event listeners can be registered/unregistered for same port
-	- delete info about port/handle from global arraylist in java layer when port is closed
-	- build script for Linux updated for correct execution sequence
+    - update version number from 1.0.0 to 1.0.1
+    - added more functional tests, stress and stability tests
+    - scm can now find upto 1024 serial ports present in system
+    - native write function returns error if port is removed from system
+    - read/write methods now detect and report more types of error
+    - new utility method writeBytes(long handle, byte[] buffer) added
+    - new method onDataListenerError(int errorNum) added in interface ISerialComDataListener
+    - more comprehensive debug error reporting added
+    - SerialComException now extends IOException instead of Exception
+    - javadocs and source code comments updated
+    - write method now throws SerialComException when any error occurs
+    - removed limitation on how many times data/event listeners can be registered/unregistered for same port
+    - delete info about port/handle from global arraylist in java layer when port is closed
+    - build script for Linux updated for correct execution sequence
 
 v1.0.0 (25 Mar 2015)
-	- Initial stable release.
+    - Initial stable release.
+

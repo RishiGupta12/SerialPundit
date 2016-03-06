@@ -404,7 +404,7 @@ ul.blockList ul.blockList li.blockList table {
 }
 .overviewSummary td, .packageSummary td, .contentContainer ul.blockList li.blockList td, .summary td, .classUseContainer td, .constantValuesContainer td {
     text-align:left;
-    padding:6px 3px 6px 7px;
+    padding:3px 3px 3px 7px;
 }
 th.colFirst, th.colLast, th.colOne, .constantValuesContainer th {
     background:#dee3e9;

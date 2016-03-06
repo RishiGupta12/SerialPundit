@@ -2,23 +2,32 @@
 # Author : Rishi Gupta
 # 
 # This file is part of 'serial communication manager' library.
+# Copyright (C) <2014-2016>  <Rishi Gupta>
 #
-# The 'serial communication manager' is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Lesser General Public License as published by the Free Software 
+# This 'serial communication manager' is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by the Free Software 
 # Foundation, either version 3 of the License, or (at your option) any later version.
 #
-# The 'serial communication manager' is distributed in the hope that it will be useful, but
-# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
-# PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
+# The 'serial communication manager' is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR 
+# A PARTICULAR PURPOSE.  See the GNU Affero General Public License for more details.
 #
-# You should have received a copy of the GNU Lesser General Public License
-# along with serial communication manager. If not, see <http://www.gnu.org/licenses/>.
+# You should have received a copy of the GNU Affero General Public License
+# along with 'serial communication manager'.  If not, see <http://www.gnu.org/licenses/>.
 #################################################################################################
 
 # These are udev rules that can be used based on system and application design requirement. The
 # rules written in /lib/udev/rules.d gets overidden by rules in /etc/udev/rules.d directory. Also
 # if for the same device/node more rules are defined at more than one place or file, pay attention
 # to the order in which they are applied as they may have side effects.
+
+# In order to restrict access to device if required for example in server or internet connected
+# system, consider replacing MODE:="0666" with OWNER:="yourusername" to create a device owned by a
+# particular user or GROUP:="somegroupname" to mange access using standard unix groups.
+
+# Default udev rules :                       /lib/udev/rules.d/*
+# System specific or overridden udev rules : /etc/udev/rules.d/*
+# $ udevadm control --reload-rules
 
 
 ### Create symlink
@@ -68,7 +77,7 @@ ACTION=="add", SUBSYSTEM=="usb", ATTRS{idVendor}=="10c4", ATTRS{idProduct}=="ea6
 # Note default built-in drivers does not allow to change this timer value. Driver provided by FTDI
 # at their website need to be used for changing FTDI specific parameters.
 
-SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", ATTRS{serial}=="A7036479", PROGRAM="/home/a/udev-ftdi-latency-timer.sh %p"
+SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", ATTRS{serial}=="A7036479", PROGRAM="/usr/bin/udev-ftdi-latency-timer.sh %p"
 
 
 ### Run an external program
@@ -79,24 +88,24 @@ SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", ATTRS{seria
 # is used when the external program is used for creating device node name only. Till this time no device
 # node is created.
 
-SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", ATTRS{serial}=="A7036479", PROGRAM="/home/a/test.sh"
+SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", ATTRS{serial}=="A7036479", PROGRAM="/usr/bin/test.sh"
 
 
-### Unload default driver for USB CDC interface
+### Unload default driver for USB-UART interface
 ###########################
 
-# This rule will unload default ftdi_sio driver for FTDI CDC interface with the help of a shell script.
+# This rule will unload default ftdi_sio driver for FTDI USB-UART interface with the help of a shell script.
 # Note all the device which requires this driver will now need a driver to operate.
 
-ACTION=="add", SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_interface", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", PROGRAM="/home/a/udev-ftdi-unload-vcp-driver.sh"
+ACTION=="add", SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_interface", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", PROGRAM="/usr/bin/udev-ftdi-unload-vcp-driver.sh"
 
 
-### Unbind default driver from USB CDC interface
+### Unbind default driver from USB interface
 ###########################
 
-# This rule will unbind default ftdi_sio driver for FTDI CDC interface with the help of a shell script.
+# This rule will unbind default ftdi_sio driver for FTDI USB-UART interface with the help of a shell script.
 
-ACTION=="add", SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_interface", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", PROGRAM="/home/a/udev-ftdi-unbind-ftdi_sio.sh %p"
+ACTION=="add", SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_interface", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", PROGRAM="/usr/bin/udev-ftdi-unbind-ftdi_sio.sh %p"
 
 
 ### Run an external program with parameters

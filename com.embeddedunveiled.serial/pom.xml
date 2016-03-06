@@ -28,10 +28,15 @@
   </licenses>
   <developers>
     <developer>
+      <id>rishigupta</id>
       <name>Rishi Gupta</name>
       <email>gupt21@gmail.com</email>
-      <organization>Embedded system engineer</organization>
+      <organization>Embedded unveiled</organization>
       <organizationUrl>http://www.embeddedunveiled.com</organizationUrl>
+      <roles>
+        <role>architect</role>
+        <role>developer</role>
+      </roles>
     </developer>
   </developers>
   <scm>
@@ -54,12 +59,14 @@
       <resource>
        <directory>.</directory>
        <includes>
-         <include>tty-libs/*.*</include>
-         <include>hid-libs/*.*</include>
-         <include>vendor-libs/*.*</include>
+         <include>lib-tty/*.*</include>
+         <include>lib-hid/*.*</include>
+         <include>lib-vendor/*.*</include>
+         <include>lib-nullmodem/*.*</include>
+         <include>lib-comredirector/*.*</include>
        </includes>
       </resource>
-    </resources>    
+    </resources>
     <plugins>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>

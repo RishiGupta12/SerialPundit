@@ -2,23 +2,27 @@
  * Author : Rishi Gupta
  * 
  * This file is part of 'serial communication manager' library.
+ * Copyright (C) <2014-2016>  <Rishi Gupta>
  *
- * The 'serial communication manager' is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by the Free Software 
+ * This 'serial communication manager' is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by the Free Software 
  * Foundation, either version 3 of the License, or (at your option) any later version.
  *
- * The 'serial communication manager' is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
- * PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
+ * The 'serial communication manager' is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR 
+ * A PARTICULAR PURPOSE.  See the GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU Lesser General Public License
- * along with serial communication manager. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with 'serial communication manager'.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 package com.embeddedunveiled.serial.internal;
 
 import java.io.File;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.io.InputStream;
 import java.io.FileOutputStream;
 
@@ -31,11 +35,90 @@ import com.embeddedunveiled.serial.internal.SerialComSystemProperty;
 
 /**
  * <p>This class is an interface between java and native shared library. The native library is found 
- * in 'tty-libs' folder in 'scm-x.x.x.jar' file.</p>
+ * in 'lib-tty' folder in 'scm-x.x.x.jar' file.</p>
  * 
  * @author Rishi Gupta
  */
 public final class SerialComPortJNIBridge {
+
+	private static final Comparator<String> comparator = new Comparator<String>() {
+
+		@Override
+		public int compare(final String valueA, final String valueB) {
+
+			if(valueA.equalsIgnoreCase(valueB)){
+				return valueA.compareTo(valueB);
+			}
+
+			int al = valueA.length();
+			int bl = valueB.length();
+			int minLength = (al <= bl) ? al : bl;
+
+			int shiftA = 0;
+			int shiftB = 0;
+
+			for(int i = 0; i < minLength; i++){
+
+				char charA = valueA.charAt(i - shiftA);
+				char charB = valueB.charAt(i - shiftB);
+
+				if(charA != charB){
+					if(Character.isDigit(charA) && Character.isDigit(charB)){
+
+						int[] resultsA = {-1, (i - shiftA)};
+						String numVal = "";
+						for(int x = (i - shiftA); x < al; x++){
+							resultsA[1] = x;
+							char c = valueA.charAt(x);
+							if(Character.isDigit(c)){
+								numVal += c;
+							}else {
+								break;
+							}
+						}
+						try {
+							resultsA[0] = Integer.valueOf(numVal);
+						} catch (Exception e) {
+							//Do nothing
+						}
+
+						int[] resultsB = {-1, (i - shiftB)};
+						numVal = "";
+						for(int x = (i - shiftB); x < bl; x++){
+							resultsB[1] = x;
+							char c = valueB.charAt(x);
+							if(Character.isDigit(c)){
+								numVal += c;
+							}else {
+								break;
+							}
+						}
+						try {
+							resultsB[0] = Integer.valueOf(numVal);
+						} catch (Exception e) {
+							//Do nothing
+						}
+
+						if(resultsA[0] != resultsB[0]){
+							return resultsA[0] - resultsB[0];
+						}
+						if(al < bl){
+							i = resultsA[1];
+							shiftB = resultsA[1] - resultsB[1];
+						}else {
+							i = resultsB[1];
+							shiftA = resultsB[1] - resultsA[1];
+						}
+					}else {
+						if(Character.toLowerCase(charA) - Character.toLowerCase(charB) != 0){
+							return Character.toLowerCase(charA) - Character.toLowerCase(charB);
+						}
+					}
+				}
+			}
+			return valueA.compareToIgnoreCase(valueB);
+		}
+	};
 
 	/**
 	 * <p>Allocates a new SerialComPortJNIBridge object.</p>
@@ -44,7 +127,7 @@ public final class SerialComPortJNIBridge {
 	}
 
 	/**
-	 * <p>Extract native library from jar in a working directory, load and link it. The 'tty-libs' folder in 
+	 * <p>Extract native library from jar in a working directory, load and link it. The 'lib-tty' folder in 
 	 * 'scm-x.x.x.jar' file is searched for the required native library for serial port communication.</p> 
 	 * 
 	 * @param directoryPath null for default directory or user supplied directory path
@@ -59,8 +142,7 @@ public final class SerialComPortJNIBridge {
 	 * @throws UnsatisfiedLinkError if loading/linking shared library fails
 	 */
 	public static boolean loadNativeLibrary(String directoryPath, String loadedLibName, SerialComSystemProperty serialComSystemProperty,
-			int osType, int cpuArch, int javaABIType) throws SecurityException, SerialComUnexpectedException, 
-			SerialComLoadException, UnsatisfiedLinkError {
+			int osType, int cpuArch, int javaABIType) throws SerialComUnexpectedException, SerialComLoadException {
 		String javaTmpDir = null;
 		String userHomeDir = null;
 		String fileSeparator = null;
@@ -208,7 +290,7 @@ public final class SerialComPortJNIBridge {
 				libFile = new File(workingDir.getAbsolutePath() + fileSeparator + loadedLibName.trim() + libExtension);
 			}
 
-			input = SerialComPortJNIBridge.class.getResourceAsStream("/tty-libs/" + libToExtractFromJar);
+			input = SerialComPortJNIBridge.class.getResourceAsStream("/lib-tty/" + libToExtractFromJar);
 			output = new FileOutputStream(libFile);
 			if(input != null) {
 				int read;
@@ -316,13 +398,30 @@ public final class SerialComPortJNIBridge {
 
 	// USB
 	public native String[] listUSBdevicesWithInfo(int vendorFilter);
-	public native String[] findComPortFromUSBAttributes(int usbVidToMatch, int usbPidToMatch, String serialNumber);
 	public native int isUSBDevConnected(int vendorID, int productID, String serialNumber);
 	public native String[] getCDCUSBDevPowerInfo(String portNameVal);
 	public native int setLatencyTimer(String comPort, byte timerValue);
 	public native int getLatencyTimer(String comPort);
 	public native int rescanUSBDevicesHW();
 	public native String[] getFirmwareRevisionNumber(int vid, int pid, String serialNumber);
+	public native String[] findComPortFromUSBAttributes(int usbVidToMatch, int usbPidToMatch, String serialNumber);
+
+	public String[] findComPortFromUSBAttribute(int usbVidToMatch, int usbPidToMatch, String serialNumber) {
+		String[] ports = findComPortFromUSBAttributes(usbVidToMatch, usbPidToMatch, serialNumber);
+		if(ports != null) {
+			if(ports.length < 2) {
+				return ports;
+			}else {
+				ArrayList<String> portsFound = new ArrayList<String>();
+				for(String portName : ports){
+					portsFound.add(portName);
+				}
+				Collections.sort(portsFound, comparator);
+				return portsFound.toArray(new String[portsFound.size()]);
+			}
+		}
+		return null;
+	}
 
 	// Bluetooth
 	public native String[] listBTSPPDevNodesWithInfo();

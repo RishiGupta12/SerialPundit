@@ -2,17 +2,18 @@
  * Author : Rishi Gupta
  * 
  * This file is part of 'serial communication manager' library.
+ * Copyright (C) <2014-2016>  <Rishi Gupta>
  *
- * The 'serial communication manager' is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by the Free Software 
+ * This 'serial communication manager' is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by the Free Software 
  * Foundation, either version 3 of the License, or (at your option) any later version.
  *
- * The 'serial communication manager' is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
- * PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
+ * The 'serial communication manager' is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR 
+ * A PARTICULAR PURPOSE.  See the GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU Lesser General Public License
- * along with serial communication manager. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with 'serial communication manager'.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 package com.embeddedunveiled.serial;
@@ -24,6 +25,11 @@ package com.embeddedunveiled.serial;
  * <p>Application should call registerUSBHotPlugEventListener method in SerialComManager class to register 
  * listener. Whenever an event occurs callback method onUSBHotPlugEvent() gets called containing event that 
  * occurred.</p>
+ *
+ * <p>It is possible for this library to pass VID/PID/SERIAL of USB devices added even if application does 
+ * not mentioned USB-IF VID/PID etc at the time of registering hot plug listener. However this is not done 
+ * due to the fact of increasing overall performance of hot plug system. Application should devise its own 
+ * method of handling such a scenario.</p>
  * 
  * @author Rishi Gupta
  */
@@ -36,8 +42,16 @@ public interface ISerialComUSBHotPlugListener {
 	 * <p>The event value SerialComUSB.DEV_ADDED indicates USB device has been added to the system. 
 	 * The event value SerialComUSB.DEV_REMOVED indicates USB device has been removed from system.</p>
 	 * 
+	 * <p>USBVID will be 0, if SerialComUSB.DEV_ANY was passed to registerUSBHotPlugEventListener for
+	 * filterVID argument. USBPID will be 0, if SerialComUSB.DEV_ANY was passed to registerUSBHotPlugEventListener 
+	 * for filterPID and serialNumber will be empty string if null was passed to registerUSBHotPlugEventListener
+	 * for serialNumber argument.</p>
+	 * 
 	 * @param event integer value indicating whether a USB device was plugged or un-plugged from 
 	 *         system.
+	 * @param USBVID USB-IF vendor id of USB device for which this method is invoked.
+	 * @param USBVID Product id of USB device for which this method is invoked.
+	 * @param serialNumber serial number of USB device for which this method is invoked.
 	 */
-	public abstract void onUSBHotPlugEvent(int event);
+	public abstract void onUSBHotPlugEvent(int event, int USBVID, int USBPID, String serialNumber);
 }

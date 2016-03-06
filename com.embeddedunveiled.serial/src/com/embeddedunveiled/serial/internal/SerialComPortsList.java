@@ -2,17 +2,18 @@
  * Author : Rishi Gupta
  * 
  * This file is part of 'serial communication manager' library.
+ * Copyright (C) <2014-2016>  <Rishi Gupta>
  *
- * The 'serial communication manager' is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by the Free Software 
+ * This 'serial communication manager' is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by the Free Software 
  * Foundation, either version 3 of the License, or (at your option) any later version.
  *
- * The 'serial communication manager' is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
- * PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
+ * The 'serial communication manager' is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR 
+ * A PARTICULAR PURPOSE.  See the GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU Lesser General Public License
- * along with serial communication manager. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with 'serial communication manager'.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 package com.embeddedunveiled.serial.internal;
@@ -23,6 +24,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.TreeSet;
 import java.util.regex.Pattern;
+
 import com.embeddedunveiled.serial.SerialComManager;
 
 /**
@@ -40,28 +42,65 @@ public final class SerialComPortsList {
 	private static final Comparator<String> comparator = new Comparator<String>() {
 
 		@Override
-		public int compare(String valueA, String valueB) {
+		public int compare(final String valueA, final String valueB) {
 
 			if(valueA.equalsIgnoreCase(valueB)){
 				return valueA.compareTo(valueB);
 			}
 
-			int minLength = Math.min(valueA.length(), valueB.length());
+			int al = valueA.length();
+			int bl = valueB.length();
+			int minLength = (al <= bl) ? al : bl;
+
 			int shiftA = 0;
 			int shiftB = 0;
 
 			for(int i = 0; i < minLength; i++){
+
 				char charA = valueA.charAt(i - shiftA);
 				char charB = valueB.charAt(i - shiftB);
+
 				if(charA != charB){
 					if(Character.isDigit(charA) && Character.isDigit(charB)){
-						int[] resultsA = getNumberAndLastIndex(valueA, i - shiftA);
-						int[] resultsB = getNumberAndLastIndex(valueB, i - shiftB);
+
+						int[] resultsA = {-1, (i - shiftA)};
+						String numVal = "";
+						for(int x = (i - shiftA); x < al; x++){
+							resultsA[1] = x;
+							char c = valueA.charAt(x);
+							if(Character.isDigit(c)){
+								numVal += c;
+							}else {
+								break;
+							}
+						}
+						try {
+							resultsA[0] = Integer.valueOf(numVal);
+						} catch (Exception e) {
+							//Do nothing
+						}
+
+						int[] resultsB = {-1, (i - shiftB)};
+						numVal = "";
+						for(int x = (i - shiftB); x < bl; x++){
+							resultsB[1] = x;
+							char c = valueB.charAt(x);
+							if(Character.isDigit(c)){
+								numVal += c;
+							}else {
+								break;
+							}
+						}
+						try {
+							resultsB[0] = Integer.valueOf(numVal);
+						} catch (Exception e) {
+							//Do nothing
+						}
 
 						if(resultsA[0] != resultsB[0]){
 							return resultsA[0] - resultsB[0];
 						}
-						if(valueA.length() < valueB.length()){
+						if(al < bl){
 							i = resultsA[1];
 							shiftB = resultsA[1] - resultsB[1];
 						}else {
@@ -76,28 +115,6 @@ public final class SerialComPortsList {
 				}
 			}
 			return valueA.compareToIgnoreCase(valueB);
-		}
-
-		private int[] getNumberAndLastIndex(String str, int startIndex) {
-			String numVal = "";
-			int[] val = {-1, startIndex};
-
-			for(int i = startIndex; i < str.length(); i++){
-				val[1] = i;
-				char c = str.charAt(i);
-				if(Character.isDigit(c)){
-					numVal += c;
-				}else {
-					break;
-				}
-			}
-
-			try {
-				val[0] = Integer.valueOf(numVal);
-			} catch (Exception e) {
-				//Do nothing
-			}
-			return val;
 		}
 	};
 

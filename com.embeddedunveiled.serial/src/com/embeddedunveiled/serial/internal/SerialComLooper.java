@@ -2,17 +2,18 @@
  * Author : Rishi Gupta
  * 
  * This file is part of 'serial communication manager' library.
+ * Copyright (C) <2014-2016>  <Rishi Gupta>
  *
- * The 'serial communication manager' is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by the Free Software 
+ * This 'serial communication manager' is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by the Free Software 
  * Foundation, either version 3 of the License, or (at your option) any later version.
  *
- * The 'serial communication manager' is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
- * PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
+ * The 'serial communication manager' is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR 
+ * A PARTICULAR PURPOSE.  See the GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU Lesser General Public License
- * along with serial communication manager. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with 'serial communication manager'.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 package com.embeddedunveiled.serial.internal;
@@ -20,10 +21,8 @@ package com.embeddedunveiled.serial.internal;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
-
 import com.embeddedunveiled.serial.ISerialComDataListener;
 import com.embeddedunveiled.serial.ISerialComEventListener;
-import com.embeddedunveiled.serial.SerialComDataEvent;
 import com.embeddedunveiled.serial.SerialComException;
 import com.embeddedunveiled.serial.SerialComLineEvent;
 import com.embeddedunveiled.serial.SerialComManager;
@@ -41,10 +40,9 @@ import com.embeddedunveiled.serial.SerialComManager;
 public final class SerialComLooper {
 
 	private final int MAX_NUM_EVENTS = 5000;
-	private SerialComPortJNIBridge mComPortJNIBridge = null;
-	private SerialComErrorMapper mErrMapper = null;
+	private SerialComPortJNIBridge mComPortJNIBridge;
 
-	private BlockingQueue<SerialComDataEvent> mDataQueue = null;
+	private BlockingQueue<byte[]> mDataQueue = null;
 	private ISerialComDataListener mDataListener = null;
 	private Object mDataLock = new Object();
 	private Thread mDataLooperThread = null;
@@ -132,13 +130,13 @@ public final class SerialComLooper {
 		@Override
 		public void run() {
 			while(true) {
-					try {
-						mEventListener.onNewSerialEvent(mEventQueue.take());
-					} catch (InterruptedException e) {
-						if(exitEventThread.get() == true) {
-							break;
-						}
+				try {
+					mEventListener.onNewSerialEvent(mEventQueue.take());
+				} catch (InterruptedException e) {
+					if(exitEventThread.get() == true) {
+						break;
 					}
+				}
 			}
 			exitEventThread.set(false); // Reset exit flag
 			mEventQueue = null;
@@ -147,12 +145,11 @@ public final class SerialComLooper {
 
 	/**
 	 * <p>Allocates a new SerialComLooper object.</p>
-	 * @param mComPortJNIBridge interface used to invoke appropriate native function
-	 * @param errMapper reference to errMapper object to get and map error information
+	 * 
+	 * @param mComPortJNIBridge interface used to invoke appropriate native function.
 	 */
-	public SerialComLooper(SerialComPortJNIBridge mComPortJNIBridge, SerialComErrorMapper errMapper) { 
+	public SerialComLooper(SerialComPortJNIBridge mComPortJNIBridge) { 
 		this.mComPortJNIBridge = mComPortJNIBridge;
-		mErrMapper = errMapper;
 	}
 
 	/**
@@ -160,18 +157,19 @@ public final class SerialComLooper {
 	 * @param newData byte array containing data read from serial port
 	 */
 	public void insertInDataQueue(byte[] newData) {
-		if(mDataQueue.remainingCapacity() == 0) {
-			mDataQueue.poll();
-		}
 		try {
-			mDataQueue.offer(new SerialComDataEvent(newData));
+			if(mDataQueue.remainingCapacity() == 0) {
+				mDataQueue.poll();
+			}
+			mDataQueue.offer(newData);
 		} catch (Exception e) {
 		}
 	}
-	
+
 	/**
 	 * <p>This method insert error info in error queue which will be later delivered to application.</p>
-	 * @param errorNum operating system specific error number to be sent to application
+	 * 
+	 * @param errorNum operating system specific error number to be sent to application.
 	 */
 	public void insertInDataErrorQueue(int errorNum) {
 		if(mDataErrorQueue.remainingCapacity() == 0) {
@@ -184,9 +182,10 @@ public final class SerialComLooper {
 	}
 
 	/**
-	 * <p>Native side detects the change in status of lines, get the new line status and call this method. Based on the
-	 * mask this method determines whether this event should be sent to application or not.</p>
-	 * @param newEvent bit mask representing event on serial port control lines
+	 * <p>Native side detects the change in status of lines, get the new line status and call this method. 
+	 * Based on the mask this method determines whether this event should be sent to application or not.</p>
+	 * 
+	 * @param newEvent bit mask representing event on serial port control lines.
 	 */
 	public void insertInEventQueue(int newEvent) {
 		newLineState = newEvent & appliedMask;
@@ -202,76 +201,72 @@ public final class SerialComLooper {
 
 	/**
 	 * <p>Start the thread to loop over data queue. </p>
-	 * @param handle handle of the opened port for which data looper need to be started
-	 * @param dataListener listener to which data will be delivered
-	 * @param portName name of port represented by this handle
+	 * 
+	 * @param handle handle of the opened port for which data looper need to be started.
+	 * @param dataListener listener to which data will be delivered.
+	 * @param portName name of port represented by this handle.
 	 */
 	public void startDataLooper(long handle, ISerialComDataListener dataListener, String portName) {
-		try {
-			mDataListener = dataListener;
-			mDataQueue = new ArrayBlockingQueue<SerialComDataEvent>(MAX_NUM_EVENTS);
-			mDataErrorQueue = new ArrayBlockingQueue<Integer>(MAX_NUM_EVENTS);
-			mDataLooperThread = new Thread(new DataLooper(), "SCM DataLooper for handle " + handle + " and port " + portName);
-			mDataErrorLooperThread = new Thread(new DataErrorLooper(), "SCM DataErrorLooper for handle " + handle + " and port " + portName);
-			mDataLooperThread.start();
-			mDataErrorLooperThread.start();
-		} catch (Exception e) {
-		}
+		mDataListener = dataListener;
+		mDataQueue = new ArrayBlockingQueue<byte[]>(MAX_NUM_EVENTS);
+		mDataErrorQueue = new ArrayBlockingQueue<Integer>(MAX_NUM_EVENTS);
+		mDataLooperThread = new Thread(new DataLooper(), "SCM DataLooper for handle " + handle + " and port " + portName);
+		mDataErrorLooperThread = new Thread(new DataErrorLooper(), "SCM DataErrorLooper for handle " + handle + " and port " + portName);
+		mDataLooperThread.start();
+		mDataErrorLooperThread.start();
 	}
-	
+
 	/**
 	 * <p>Set the flag to indicate that the thread is supposed to run to completion and exit.
 	 * Interrupt the thread so that take() method can come out of blocked sleep state.</p>
 	 */
 	public void stopDataLooper() {
-		try {
-			exitDataThread.set(true);
-			exitDataErrorThread.set(true);
-			mDataLooperThread.interrupt();
-			mDataErrorLooperThread.interrupt();
-		} catch (Exception e) {
-		}
+		exitDataThread.set(true);
+		exitDataErrorThread.set(true);
+		mDataLooperThread.interrupt();
+		mDataErrorLooperThread.interrupt();
 	}
 
 	/**
-	 * <p>Get initial status of control lines and start thread.</p>
-	 * @param handle handle of the opened port for which event looper need to be started
-	 * @param eventListener listener to which event will be delivered
-	 * @param portName name of port represented by this handle
+	 * <p>Get initial status of control lines and start Java worker thread.</p>
+	 * 
+	 * @param handle handle of the opened port for which event looper need to be started.
+	 * @param eventListener listener to which event will be delivered.
+	 * @param portName name of port represented by this handle.
+	 * 
+	 * @throws SerialComException if an error occurs.
 	 */
 	public void startEventLooper(long handle, ISerialComEventListener eventListener, String portName) throws SerialComException {
 		int state = 0;
-		int[] linestate = new int[8];
+		int[] linestate = null;
 
-		try {
-			linestate = mComPortJNIBridge.getLinesStatus(handle);
-			if (linestate[0] < 0) {
-				throw new SerialComException(mErrMapper.getMappedError(linestate[0]));
-			}
-			// Bit mask CTS | DSR | DCD | RI
-			state = linestate[1] | linestate[2] | linestate[3] | linestate[4];
-			oldLineState = state & appliedMask;
-
-			mEventQueue = new ArrayBlockingQueue<SerialComLineEvent>(MAX_NUM_EVENTS);
-			exitEventThread = new AtomicBoolean(false);
-			mEventListener = eventListener;
-			
-			mEventLooperThread = new Thread(new EventLooper(), "SCM EventLooper for handle " + handle + " and port " + portName);
-			mEventLooperThread.start();
-		} catch (Exception e) {
+		// Return sequence is CTS, DSR, DCD, RI, LOOP, RTS, DTR respectively from native layer.
+		linestate = mComPortJNIBridge.getLinesStatus(handle);
+		if (linestate == null) {
+			throw new SerialComException("Could not read current state of lines. Please retry !");
 		}
+
+		// Bit mask CTS | DSR | DCD | RI
+		state = linestate[0] | linestate[1] | linestate[2] | linestate[3];
+		oldLineState = state & appliedMask;
+
+		mEventQueue = new ArrayBlockingQueue<SerialComLineEvent>(MAX_NUM_EVENTS);
+		exitEventThread = new AtomicBoolean(false);
+		mEventListener = eventListener;
+
+		mEventLooperThread = new Thread(new EventLooper(), "SCM EventLooper for handle " + handle + " and port " + portName);
+		mEventLooperThread.start();
 	}
 
 	/**
 	 * <p>Set the flag to indicate that the thread is supposed to run to completion and exit.
 	 * Interrupt the thread so that take() method can come out of blocked sleep state.</p>
+	 * 
+	 * @throws SerialComException if an error occurs.
 	 */
 	public void stopEventLooper() throws SerialComException {
-		try {
-			exitEventThread.set(true);
-			mEventLooperThread.interrupt();
-		} catch (Exception e) {
-		}
+		exitEventThread.set(true);
+		mEventLooperThread.interrupt();
 	}
 
 	/**
@@ -294,7 +289,8 @@ public final class SerialComLooper {
 	 * <p>In future we may shift modifying mask in the native code itself, so as to prevent JNI transitions.
 	 * This filters what events should be sent to application. Note that, although we sent only those event
 	 * for which user has set mask, however native code send all the events to java layer as of now.</p>
-	 * @param newMask new bit mask for events that will be delivered to application
+	 * 
+	 * @param newMask new bit mask for events that will be delivered to application.
 	 */
 	public void setEventsMask(int newMask) {
 		appliedMask = newMask;
@@ -302,7 +298,8 @@ public final class SerialComLooper {
 
 	/**
 	 * <p>Gives the event mask currently active.</p>
-	 * @return bit mask of events currently active
+	 * 
+	 * @return bit mask of events currently active.
 	 */
 	public int getEventsMask() {
 		return appliedMask;

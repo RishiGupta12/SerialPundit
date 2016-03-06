@@ -1,7 +1,7 @@
 
-1. To build get into directory reset_usb_device and run build_reset_usb_device.sh script.
+1. To build, run build_reset_usb_device.sh script.
 
-2. Run lsusb to get the device path for example after connecting cp2102  here is the output
+2. Run lsusb to get the device path for example after connecting cp2102, here is the output.
 
 Bus 001 Device 002: ID 8087:8008 Intel Corp. 
 Bus 002 Device 002: ID 8087:8000 Intel Corp. 
@@ -24,4 +24,7 @@ This will reset CP2102 prgrammatically as can be verified from dmesg log :
 [25576.242608] xhci_hcd 0000:00:14.0: xHCI xhci_drop_endpoint called with disabled ep ffff88022ee9eb40
 [25576.242611] xhci_hcd 0000:00:14.0: xHCI xhci_drop_endpoint called with disabled ep ffff88022ee9eb00
 [25576.243191] usb 3-3: cp210x converter now attached to ttyUSB0
+
+4. Some of the manual steps can be further automated by using technique used in symlink-usb-serial.sh
+   shell script.
 

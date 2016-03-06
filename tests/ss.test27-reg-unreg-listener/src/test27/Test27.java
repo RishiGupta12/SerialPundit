@@ -2,17 +2,18 @@
  * Author : Rishi Gupta
  * 
  * This file is part of 'serial communication manager' library.
+ * Copyright (C) <2014-2016>  <Rishi Gupta>
  *
- * The 'serial communication manager' is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by the Free Software 
+ * This 'serial communication manager' is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by the Free Software 
  * Foundation, either version 3 of the License, or (at your option) any later version.
  *
- * The 'serial communication manager' is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
- * PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
+ * The 'serial communication manager' is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR 
+ * A PARTICULAR PURPOSE.  See the GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU Lesser General Public License
- * along with serial communication manager. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with 'serial communication manager'.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 package test27;
@@ -57,7 +58,7 @@ public class Test27 {
 
 			String PORT = null;
 			String PORT1 = null;
-			int osType = SerialComManager.getOSType();
+			int osType = scm.getOSType();
 			if(osType == SerialComManager.OS_LINUX) {
 				PORT = "/dev/ttyUSB0";
 				PORT1 = "/dev/ttyUSB1";
@@ -89,7 +90,7 @@ public class Test27 {
 				scm.setRTS(handle1, false);
 				scm.setDTR(handle1, false);
 				Thread.sleep(10);
-				System.out.println("unregister : " + scm.unregisterLineEventListener(eventListener));
+				System.out.println("unregister : " + scm.unregisterLineEventListener(handle, eventListener));
 			}
 			System.out.println("test event pass \n");
 
@@ -97,7 +98,7 @@ public class Test27 {
 				System.out.println("register  : " + scm.registerDataListener(handle, dataListener));
 				scm.writeString(handle1, "T", 0);
 				Thread.sleep(50);
-				System.out.println("unregister : " + scm.unregisterDataListener(dataListener));
+				System.out.println("unregister : " + scm.unregisterDataListener(handle, dataListener));
 			}
 			System.out.println("test data pass \n");
 
