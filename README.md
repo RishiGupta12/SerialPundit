@@ -80,7 +80,7 @@ public class Example {
 
 http://www.embeddedunveiled.com/
 
-##Help the project grow !["Donate"](images/help.jpg?raw=true "Donate")(https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=gupt21%40gmail%2ecom&lc=IN&item_name=Serial%20Project&button_subtype=services&currency_code=USD&bn=PP%2dBuyNowBF%3abtn_buynowCC_LG%2egif%3aNonHosted)
+##Help the project grow [<img src="https://github.com/RishiGupta12/serial-communication-manager/blob/master/images/help.jpg">](https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=gupt21%40gmail%2ecom&lc=IN&item_name=Serial%20Project&button_subtype=services&currency_code=USD&bn=PP%2dBuyNowBF%3abtn_buynowCC_LG%2egif%3aNonHosted)
 
 - Suggest features and enhancements
 - Report bugs and fixes
