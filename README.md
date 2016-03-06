@@ -73,14 +73,13 @@ public class Example {
 			e.printStackTrace();
 		}
 	}
-}
-```
+}```
 
 ##Wiki, Java docs, Example usage, Build guide, Discussion, Trouble shooting
 
 http://www.embeddedunveiled.com/
 
-##Help the project grow !["Donate"](images/help.jpg?raw=true "Donate")
+##Help the project grow !["Donate"](images/help.jpg?raw=true "Donate")(https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=gupt21%40gmail%2ecom&lc=IN&item_name=Serial%20Project&button_subtype=services&currency_code=USD&bn=PP%2dBuyNowBF%3abtn_buynowCC_LG%2egif%3aNonHosted)
 
 - Suggest features and enhancements
 - Report bugs and fixes
