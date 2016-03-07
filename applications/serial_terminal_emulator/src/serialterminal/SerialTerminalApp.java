@@ -83,14 +83,18 @@ public class SerialTerminalApp extends JFrame {
 	private JPanel centerPanel;
 
 	// receive
+	private JPanel rcvDataPanel;
 	private JTextField datarcvtextfield;
 	private Checkbox hexDisplay;
 	private boolean displayInHex;
+	private JButton clrDataButton;
+
 	// send data stuff
 	private JPanel sendDataPanel;
 	private JTextField sendDataTextField;
 	private JButton sendDataButton;
 	private JTabbedPane tabbedPane;
+
 	// serial port tab
 	private JPanel comTopPanel;
 	private JPanel comportPanel;
@@ -183,12 +187,23 @@ public class SerialTerminalApp extends JFrame {
 		frame.getContentPane().add(new JLabel("   "), BorderLayout.SOUTH);
 
 		/* ~~~ DATA RECEIVE BLOCK ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+		rcvDataPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 15));
 		datarcvtextfield = new JTextField();
-		datarcvtextfield.setPreferredSize(new Dimension(625, 40));
+		datarcvtextfield.setPreferredSize(new Dimension(520, 40));
 		datarcvtextfield.setBackground(Color.WHITE);
 		datarcvtextfield.setForeground(Color.BLACK);
 		datarcvtextfield.setEditable(false);
-		centerPanel.add(datarcvtextfield);
+		rcvDataPanel.add(datarcvtextfield);
+		rcvDataPanel.add(new JLabel("  "));
+
+		clrDataButton = new JButton("Clear data");
+		clrDataButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				datarcvtextfield.setText("");
+			}          
+		});
+		rcvDataPanel.add(clrDataButton);
+		centerPanel.add(rcvDataPanel);
 
 		hexDisplay = new Checkbox("Display in Hex");
 		hexDisplay.addItemListener(new ItemListener() {
@@ -210,13 +225,15 @@ public class SerialTerminalApp extends JFrame {
 
 		/* ~~~ SEND DATA BLOCK ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 		sendDataPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 15));
-		sendDataTextField = new JTextField("");
+		sendDataTextField = new JTextField();
 		sendDataTextField.setBackground(Color.WHITE);
 		sendDataTextField.setForeground(Color.BLACK);
 		sendDataTextField.setEditable(true);
 		sendDataTextField.setPreferredSize(new Dimension(520, 40));
 		sendDataPanel.add(sendDataTextField);
+
 		sendDataPanel.add(new JLabel("  "));
+
 		sendDataButton = new JButton("Send data");
 		sendDataButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
