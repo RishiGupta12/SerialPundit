@@ -54,6 +54,7 @@ Miscellaneous :
     - Made finding COM ports in Windows more robust
     - Added many demo applications for quickly getting started
     - Made this software dual licensed
+    - Added time stamp in native logs
 
 v1.0.3 (29 May 2015)
     - added byteArrayToHexStr() utility method
