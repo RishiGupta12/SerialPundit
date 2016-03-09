@@ -59,6 +59,7 @@ public class Test85  {
 			scm = new SerialComManager();
 		} catch (Exception e) {
 			e.printStackTrace();
+			return;
 		}
 
 		osType = scm.getOSType();
