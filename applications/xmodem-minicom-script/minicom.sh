@@ -17,8 +17,11 @@
 # along with 'serial communication manager'.  If not, see <http://www.gnu.org/licenses/>.
 #################################################################################################
 
-# Run this script as ./screen.sh RECEIVE_PORT RECEIVE_FILE SEND_PORT SEND_FILE
-# For ex; ./screen.sh /dev/pts/1 /home/xyz/pic.txt /dev/pts/3 /home/xyz/pic1.txt
+# If xdotool is not installed, install it using below command.
+# sudo apt-get install xdotool
+
+# Run this script as ./minicom.sh RECEIVE_PORT RECEIVE_FILE SEND_PORT SEND_FILE
+# For ex; ./minicom.sh /dev/pts/1 /home/xyz/pic.txt /dev/pts/3 /home/xyz/pic1.txt
 # *_PORT and *_FILE must be absolute names (with path).
 
 set -e
@@ -52,16 +55,18 @@ jar -cfe ../app.jar com.xmodemftp.XmodemFTPFileReceiver com/xmodemftp/XmodemFTPF
 
 # launch receiver
 cd ..
-(sleep 3; java -cp .:scm-1.0.4.jar:app.jar com.xmodemftp.XmodemFTPFileReceiver $1 $2; exit 0)&
+(sleep 13; java -cp .:scm-1.0.4.jar:app.jar com.xmodemftp.XmodemFTPFileReceiver $1 $2; exit 0)&
 
 ###### Setup and start file sender SHELL SCRIPT(S)
 
-# create detached screen session
-screen -d -m $3 9600
+# get directory where file to be sent is kept
+DIR=$(dirname $4)
 
-# the p0 is session reference, transfer file
-(screen -p0 -X exec \!\! sz -X $4)&
+# simulate keyevents and typing file name
+(sleep 4; xdotool key ctrl+a s; sleep 1; xdotool key Down Down; sleep 1; xdotool key Return; sleep 1; xdotool key Right; xdotool key Return; sleep 1; xdotool type $DIR; xdotool key Return; sleep 1; xdotool key Down; sleep 1; xdotool key space; sleep 1; xdotool key Return; sleep 20; xdotool key Return; sleep 2; xdotool key ctrl+a x; sleep 2; xdotool key Return; sleep 3; exit 0)&
 
-sleep 10;
-exit 0;
+# both send and receive command must be set
+minicom -D $3 -b 9600
+
+exit 0
 
