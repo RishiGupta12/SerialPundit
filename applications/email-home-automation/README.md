@@ -22,6 +22,12 @@ The application will automatically read this unread email from given account and
 - If there is an unread email, check if it's subject line is CMD1/2. If yes, send this line to serial port.
 - When user presses close button of UI window, close serial port, close connection to server and exit application.
 
+####Prerequisites
+- The javamail jar is needed to build this application. Get it from here :
+  http://www.oracle.com/technetwork/java/javamail/index-138643.html
+- python script from terminal to generate authentication token using these ID and secret.
+  https://raw.githubusercontent.com/google/gmail-oauth2-tools/master/python/oauth2.py
+
 ####How to generate OAuth 2.0 token for gmail
 - Create project from google developer console.
   https://console.developers.google.com/project
@@ -35,8 +41,7 @@ The application will automatically read this unread email from given account and
   This step will give OAuth 2.0 client ID and client secret from google developer console.
 
 - Run python script from terminal to generate authentication token using these ID and secret.
-  https://raw.githubusercontent.com/google/gmail-oauth2-tools/master/python/oauth2.py
-
+  
   ./oauth2.py --user=XXX@gmail.com --client_id=YYY --client_secret=ZZZ --generate_oauth2_token
   
 - Terminal will generate a URL and ask to verify this token. Copy this link and paste in web browser to verify. 
@@ -104,3 +109,4 @@ program. The Java platform provides API support and provider implementations for
 - Full home automation can be done by connecting wireless modules at serial port.
 - Commands can be sent from a particular email id only to further enhance control on serial device.
 - Refresh tokens can be used to persist connection to server.
+
