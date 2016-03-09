@@ -20,8 +20,8 @@
 # If xdotool is not installed, install it using below command.
 # sudo apt-get install xdotool
 
-# Run this script as ./picocom.sh RECEIVE_PORT RECEIVE_FILE SEND_PORT SEND_FILE
-# For ex; ./picocom.sh /dev/pts/1 /home/xyz/pic.txt /dev/pts/3 /home/xyz/pic1.txt
+# Run this script as ./screen.sh RECEIVE_PORT RECEIVE_FILE SEND_PORT SEND_FILE
+# For ex; ./screen.sh /dev/pts/1 /home/xyz/pic.txt /dev/pts/3 /home/xyz/pic1.txt
 # *_PORT and *_FILE must be absolute names (with path).
 
 set -e
@@ -55,16 +55,16 @@ jar -cfe ../app.jar com.xmodemftp.XmodemFTPFileReceiver com/xmodemftp/XmodemFTPF
 
 # launch receiver
 cd ..
-(sleep 4; java -cp .:scm-1.0.4.jar:app.jar com.xmodemftp.XmodemFTPFileReceiver $1 $2; exit 0)&
+(sleep 3; java -cp .:scm-1.0.4.jar:app.jar com.xmodemftp.XmodemFTPFileReceiver $1 $2; exit 0)&
 
 ###### Setup and start file sender SHELL SCRIPT(S)
 
-# simulate keyevents and typing file name
-(sleep 1; xdotool key ctrl+a ctrl+s; xdotool type $4; xdotool key KP_Enter; sleep 12; xdotool key ctrl+a ctrl+q)&
+# create detached screen session
+screen -d -m $3 9600
 
-# both send and receive command must be set
-picocom -b 9600 $3 --send-cmd "/usr/bin/sx -vv" --receive-cmd "/usr/bin/rx -vv"
+# the p0 is session reference, transfer file
+(screen -p0 -X exec \!\! sz -X $4)&
 
-exit 0
-
+sleep 10;
+exit 0;
 

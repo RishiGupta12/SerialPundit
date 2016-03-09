@@ -2,10 +2,12 @@ This application demonstrates how to establish communication between a shell scr
 Java application to send/receive a file using Xmodem file transfer protocol.
 
 #####Running this application
-   
-Run the script as picocom.sh giving ports and file names as shown below.
-
-./picocom.sh RECEIVE_PORT RECEIVE_FILE SEND_PORT SEND_FILE
+- Copy scm-1.0.4.jar in xmodem-picocom-script folder. Do not change the directory structure.
+- Run the script as picocom.sh giving ports and file names as shown below. Transfer will occur 
+at 9600 baudrate 8N1 settings.
+  ./picocom.sh RECEIVE_PORT RECEIVE_FILE SEND_PORT SEND_FILE
+  
+  See the output.jpg to see output of this program.
    
 #####What this application does and how it does
 - Extract and validate parameters supplied to picocom.sh script.
@@ -13,7 +15,7 @@ Run the script as picocom.sh giving ports and file names as shown below.
 receive the file.
 - Schedule this java application to be runned after 4 seconds.
 - Schedule simulating keypress and typing file name with the help of xdotool.
-- Launch picocom which will receive keyevents and file name and launch sx utility to 
+- Launch picocom which will receive keyevents and file name and launch 'sx' utility to 
 actually do the file transfer.
 - Exit after 12 seconds.
      
