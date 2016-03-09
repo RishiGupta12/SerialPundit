@@ -20,8 +20,8 @@
 # If xdotool is not installed, install it using below command.
 # sudo apt-get install xdotool
 
-# Run this script as ./picocom-send.sh RECEIVE_PORT RECEIVE_FILE SEND_PORT SEND_FILE
-# For ex; ./picocom-send.sh /dev/pts/1 /home/xyz/pic.txt /dev/pts/3 /home/xyz/pic1.txt
+# Run this script as ./picocom.sh RECEIVE_PORT RECEIVE_FILE SEND_PORT SEND_FILE
+# For ex; ./picocom.sh /dev/pts/1 /home/xyz/pic.txt /dev/pts/3 /home/xyz/pic1.txt
 # *_PORT and *_FILE must be absolute names (with path).
 
 set -e
