@@ -1,20 +1,23 @@
-This example demonstrates how to read data from serial port and buffer it locally until a 
-particular number of data bytes has been received from serial port.
+This example demonstrates how to read data from serial port and block until data bytes are available 
+at serial port. 
 
 #####Running this application
    
 Open and configure minicom/teraterm for 9600 8N1 settings and start it. Launch this application. 
-Minicom/tertarem will show "test" as data received from this java program. Now type 10 or more 
-characters in minicom/teraterm and they will appear in this Java program's console.
+Minicom/tertarem will show "test" as data received from this java program. Now type anything on 
+minicom/teraterm screen. This application will print whatever data you type on minicom/teraterm 
+screen only after you have typed.
    
 See the output.jpg to see output of this program.
    
 #####What this application does and how it does
 
-It sends 4 bytes ("test") to serial device (host => device) and then read data from serial port, 
-buffering until serial device has sent 10 or more bytes (host <= device). When 10 or more bytes 
-have been received it will print on console.
-     
+- Open and configure given serial port at 9600 8N1 settings.
+- Create blocking context scm.createBlockingIOContext().
+- Call read method scm.readBytesBlocking(handle, 100, context) (blocks until data is received).
+- After getting data read 5 times, unblock any blocked operations (scm.unblockBlockingIOOperation(context)), 
+destroy the blocking context (scm.destroyBlockingIOContext(context)) and close serial port.
+
 #####Going further
    
 - There are many different versions of read methods provided by this library and an application 

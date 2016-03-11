@@ -43,8 +43,8 @@ import com.embeddedunveiled.serial.SerialComManager.STOPBITS;
  * 
  * This design may be used for "send command and read response" type applications.
  */
-
 public final class ComPollDataRead {
+
 	public static void main(String[] args) {
 		try {
 			// get serial communication manager instance
