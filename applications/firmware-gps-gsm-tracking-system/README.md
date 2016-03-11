@@ -27,6 +27,25 @@ data loss.
 - Loop back to wait for next SMS message after configuring PIC18F4550 to communicate with 
 GSM Modem.
 
+#####Interfacing GSM MODEM with PIC 18F4550 microcontroller 
+- The PIC microcontroller was interfaced to GSM MODEM using hardware EUASRT builtin in 18F4550. 
+The EUSART was configured to operate in 115200 8N1 configuration using interrupts. An ISR was 
+written at high interrupt vector and the EUSART receive interrupt was set as a high  priority 
+interrupts. 
+
+- The AT commands were sent  in a specified sequence that basically configured the 
+MODEM to opearate in SMS text mode,new message receive  Acknowledge, english characters, 
+message sending,receiving & deleting from SIM. 
+
+- A considerable delay was introduced between two commands so that MODEM & SIM can finish their 
+internal processing. A locking mechanism was adopted to ensure that proper response is received 
+from MODEM for every command sent to it. 
+
+- At hardware level a voltage level converter IC MAX232 was used from MAXIM.Finally a 2x1 multiplexer 
+helped in switching between GPS and GSM modem.A virtual handshaknig was also implmented.For this 
+pin 4 & 7 of DB9 Connecter was tied to +5 volt supply.These pins represent RTS and DTE in RS232 
+interface. A +5 volt supply represent valid RS232 logic level (voltage level).
+
 #####Hardware
 
 GSM modem    &#8594; BENQ MOD 9001 GSM/GPRS MODEM
