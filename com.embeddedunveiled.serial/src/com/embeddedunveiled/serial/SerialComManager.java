@@ -1966,6 +1966,9 @@ public final class SerialComManager {
 	 * read methid not to return. It is therefore either timeout should be kept short or two threads must be 
 	 * synchronized etc.</p>
 	 * 
+	 * <p>[1] Time out for read call for unix like OS can be set using vtime. Use formula vtime = time out in 
+	 * milliseconds / 100. For example to wait for 100 milliseconds, vtime = 1 and vmin = 0.</p>
+	 * 
 	 * @param handle of the opened port.
 	 * @param vmin c_cc[VMIN] field of termios structure (applicable for unix like OS only).
 	 * @param vtime c_cc[VTIME] field of termios structure (10th of a second, applicable for unix like OS only).
