@@ -125,6 +125,33 @@ $GPGSA,A,3,13,20,11,29,01,25,07,04,,,,,1.63,0.94,1.33*04<CR><LF>
 $GPGSV,2,1,8,13,15,208,36,20,80,358,39,11,52,139,43,29,13,044,36*42<CR><LF>
 $GPGSV,2,2,8,01,52,187,43,25,25,074,39,07,37,286,40,04,09,306,33*44<CR><LF>
 
+#####GPGGA String
+For this project, we are mainly concerned with the geographical location, that is, latitude, longitude 
+and altitude. Therefore, we only need to look out for sentences beginning with $GPGGA. The GPGGA data set 
+(GPS Fix Data) contain information on time, longitude and latitude, the quality of the system, the number 
+of satellites used and the height. 
+
+An example of a GPGGA data set is:
+$GPGGA,130305.0,4717.115,N,00833.912,E,1,08,0.94,00499,M,047,M,,*58<CR><LF>
+
+| Name                   | Example        | Units      | Description                       |
+| :------------:         |:-------------: | :--------: | :--------:                        |
+| Message ID             | $GPGGA         |            | GGA protocol header               |
+| UTC Time               | 161229.487     |            | hhmmss.sss                        |
+| Latitude               | 3723.2475      |            | ddmm.mmmm                         |
+| N/S Indicator          | N              |            | N=north or S=south                |
+| Longitude              | 12158.3416     |            | ddmm.mmmm                         |
+| E/W Indicator          | E              |            | E=east or W=west                  |
+| Position Fix Indicator | 1              |            |                                   |
+| Satellites Used        | 7              |            | Range 0 to 12                     |
+| HDOP                   | 1              |            | Horizontal Dilution of Precision  |
+| MSL Altitude           | 9              | meters     |                                   |
+| Units                  | M              | meters     |                                   |
+| Age of Diff. Corr.     |                | seconds    | Null fields when DGPS is not used |
+| Checksum               | *18            |            |                                   |
+| <CR> <LF>              |                |            |                                   |
+
+
 #####Going further
 - This example demonstrates communication with a mobile phone to send and receive location 
 information. A dedicated GSM modem can be interfaced to computer at central server location 
