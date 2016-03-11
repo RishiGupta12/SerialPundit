@@ -7,17 +7,18 @@ find its device node and start communication with it witjhout using input report
 read input report from MCP2200.
      
 - Start this application first and then connect MCP2200. It will detect the MCP2200 automatically
-and send command 0x80 to MCP2200. MCP2200 will send input report to host PC, which is 
-read by this application. 
-   
-See the output.jpg to see output of this program.
+and send command 0x80 to MCP2200. MCP2200 will send input report to host PC, which is read by this 
+application. 
+
+  See the output.jpg to see output of this program.
    
 #####What this application does and how it does
 
 On application entry :
 
-If HID device is already connected;
-- Create and start USB hot plug event handler thread. This thread will insert an 'add' 
+  *If HID device is already connected :*
+	
+- Create and start USB hot plug event handler thread. This thread will insert an 'add'
 event manually in queue. Due to this event data handler thread will be notified and 
 that thread will proceed to serve his purpose.
 - Create and start data handler thread which will send output report to HID device and 
@@ -35,11 +36,13 @@ Once the device is opened, send command (output report) to HID device periodical
 and then wait until response (input report) is received from device. Once the report
 is received, print it on console. 
 	  
-If HID device is not connected;
-- The operation is same as for HID device already connected into system except that the 
+  *If HID device is not connected :*
+	
+- The operation is same as for HID device already connected into system except that the
 USB hot plug thread does not insert 'add' event in queue manually when it starts.
-     
+	  
 #####Going further
+   
 - Consider where operations need to be atomic or requires different levels of granularity.
 For example consider if thread need to be synchronized explicitly or implicitly.
      
@@ -48,8 +51,10 @@ where user can unexpectedly plug or unplug device. Appropriate checks and corres
 handling strategy should be deployed to handle this. For example; if the device is unplugged
 sending output report is likely to throw exception. Now because we never know when user 
 can unplug we should add a check like as shown below.
-```Java
-if(hidDevHandle != -1) {
-   scrh.writeOutputReportR(hidDevHandle, (byte) -1, outputReportBuffer);
-}
-```
+
+  ```Java
+  if(hidDevHandle != -1) {
+      scrh.writeOutputReportR(hidDevHandle, (byte) -1, outputReportBuffer);
+  }
+  ```
+  

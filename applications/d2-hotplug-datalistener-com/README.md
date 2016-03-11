@@ -20,7 +20,7 @@ actions.
 It uses two threads; one for listening USB hot plug events and another for data exchange
 with serial port. It addresses following cases.
 
-Serial device already connected to system :
+*Serial device already connected to system :*
 - Create and start USB hot plug event handler thread. This thread will insert an 'add' 
 event manually in queue. Due to this event data handler thread will be notified and that 
 thread will proceed to serve his purpose.
@@ -33,7 +33,7 @@ data listener is unregistered and serial device's handle is closed.
 - Whenever a USB CDC device is added into system, USB hot plug listener inserts 'add' event in queue, 
 find device node of this device, open it and register data listener for it.
    
-Serial device not connected to system :
+*Serial device not connected to system :*
 - The operation is same as for serial device already connected into system except that the USB hot plug 
 thread does not insert 'add' event in queue manually when it starts.
      
@@ -53,9 +53,9 @@ can unexpectedly plug or unplug device. Appropriate checks and corresponding han
 be deployed to handle scenarios that may occur. For example; if the device is unplugged writing to 
 serial port is likely to throw exception. Now because we never know when user can unplug we should add 
 a check like as shown below.
-```java
-if(isDevConnected.get() == true) {
-    scm.writeBytes(comPortHandle, CMD);
-}
-```
+  ```java
+  if(isDevConnected.get() == true) {
+     scm.writeBytes(comPortHandle, CMD);
+  }
+  ```
      

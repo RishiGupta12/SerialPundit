@@ -10,13 +10,13 @@ read input report from MCP2200.
 and send command 0x80 to MCP2200. MCP2200 will send input report to host PC, which is 
 read by this application. 
    
-See the output.jpg to see output of this program.
+  See the output.jpg to see output of this program.
    
 #####What this application does and how it does
 
 On application entry :
 
-If HID device is already connected;
+*If HID device is already connected :*
 	
 - Create and start USB hot plug event handler thread. This thread will insert an 'add' 
 event manually in queue. Due to this event data handler thread will be notified and 
@@ -31,7 +31,7 @@ in queue, input report listener is unregistered and HID device handle is closed.
 in queue, find device node of this device, open it and register input report listener
 for it.
 	  
-If HID device is not connected;
+*If HID device is not connected :*
 
 - The operation is same as for HID device already connected into system except that the
 USB hot plug thread does not insert 'add' event in queue manually when it starts.
@@ -48,9 +48,9 @@ handling strategy should be deployed to handle this. For example; if the device 
 sending output report is likely to throw exception. Now because we never know when user 
 can unplug we should add a check like as shown below.
 
-```Java
-if(hidDevHandle != -1) {
-   scrh.writeOutputReportR(hidDevHandle, (byte) -1, outputReportBuffer);
-}
-```
+  ```Java
+  if(hidDevHandle != -1) {
+     scrh.writeOutputReportR(hidDevHandle, (byte) -1, outputReportBuffer);
+  }
+  ```
 

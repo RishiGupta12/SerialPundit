@@ -19,7 +19,7 @@ easily parse this 15 bytes considering it as a frame and then take appropriate a
 It uses two threads; one for listening USB hot plug events and another for data exchange 
 with serial port. It addresses following cases.
 
-Serial device already connected to system :
+*Serial device already connected to system :*
 
 - Create, start thread and register for USB hot plug events so that whenever serial device 
 is removed, it will close the port and terminate another thread which was communicating with 
@@ -28,7 +28,7 @@ serial port.
   When the device is plugged into system again, this thread will dynamically find its device 
   node, open the port and start data communicator thread again.
    
-Serial device not connected to system :
+*Serial device not connected to system :*
 
 - Create, start thread and register for USB hot plug events so that whenever serial device 
 is plugged into system, application dynamically find its device node and opens it for communication.
@@ -41,7 +41,7 @@ is plugged into system, application dynamically find its device node and opens i
 application can use the method that is best fit for application requirement. Other variant 
 of read/write are given below.
 
-```java
+     ```java
      Non-blocking:
      
      readBytes(long handle)
@@ -70,7 +70,7 @@ of read/write are given below.
      Non-blocking/ Blocking :
      
      readBytes(long handle, byte[] buffer, int offset, int length, long context)
-```
+     ```
  	
   This design may be used for "send command and read response" type applications for example when 
   developing custom protocols etc.

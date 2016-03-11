@@ -19,7 +19,7 @@ have been received it will print on console.
    
 - There are many different versions of read methods provided by this library and an application 
 can use the method that is best fit for application requirement. Other variant of read are :
-```java
+     ```java
      Non-blocking
      readBytes(long handle)
      readBytes(long handle, int byteCount)
@@ -33,7 +33,7 @@ can use the method that is best fit for application requirement. Other variant o
      
      Non-blocking/ Blocking
      readBytes(long handle, byte[] buffer, int offset, int length, long context)
-``` 
+     ``` 
 - The purpose of this program is to give a simple example of getting started and do some basic 
 communication with serial device. See other examples for developing full fledged applications.
      

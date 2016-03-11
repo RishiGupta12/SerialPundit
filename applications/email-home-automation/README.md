@@ -41,9 +41,9 @@ The application will automatically read this unread email from given account and
   This step will give OAuth 2.0 client ID and client secret from google developer console.
 
 - Run python script from terminal to generate authentication token using these ID and secret.
-  
+  ```
   ./oauth2.py --user=XXX@gmail.com --client_id=YYY --client_secret=ZZZ --generate_oauth2_token
-  
+  ```
 - Terminal will generate a URL and ask to verify this token. Copy this link and paste in web browser to verify. 
   Once verified it will generate OAuth 2.0 token.
 
