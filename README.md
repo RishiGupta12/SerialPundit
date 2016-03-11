@@ -91,7 +91,7 @@ http://www.embeddedunveiled.com/
 - Publish an article on your blog to educate others about this project
 - Provide peer support on mailing lists, forums or newsgroups
 
-##Author, License, and Copyright
+##Author, License and Copyright
 The 'serial communication manager (SCM)' is designed, developed and maintained by Rishi gupta. The Linkdin profile of the author can be found here : http://in.linkedin.com/pub/rishi-gupta/20/9b8/a10
 
 The SCM is dual licensed. It is made available under the terms of the GNU Affero General Public License (AGPL) v3.0 for non-commercial use and under the terms of a commercial license for commercial use of SCM. 

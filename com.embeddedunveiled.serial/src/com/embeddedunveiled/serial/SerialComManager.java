@@ -1958,17 +1958,20 @@ public final class SerialComManager {
 	 * receiving for example high volume data speedily or low volume data but received in burst mode.</p>
 	 * 
 	 * <p>If more than one client has opened the same port, then all the clients will be affected by new 
-	 * settings.</p>
+	 * settings. When this method is called application should make sure that previous read or write operation 
+	 * is not in progress.</p>
 	 * 
-	 * <p>When this method is called application should make sure that previous read or write operation is not 
-	 * in progress.</p>
+	 * <p>Under multithreading scenarios, if thread is blocked on read method due to timeout configured using 
+	 * this method and other thread tries to close port, the read method may cause the the thread which called 
+	 * read methid not to return. It is therefore either timeout should be kept short or two threads must be 
+	 * synchronized etc.</p>
 	 * 
 	 * @param handle of the opened port.
-	 * @param vmin c_cc[VMIN] field of termios structure.
-	 * @param vtime c_cc[VTIME] field of termios structure (10th of a second).
-	 * @param rit ReadIntervalTimeout field of COMMTIMEOUTS structure.
-	 * @param rttm ReadTotalTimeoutMultiplier field of COMMTIMEOUTS structure.
-	 * @param rttc ReadTotalTimeoutConstant field of COMMTIMEOUTS structure.
+	 * @param vmin c_cc[VMIN] field of termios structure (applicable for unix like OS only).
+	 * @param vtime c_cc[VTIME] field of termios structure (10th of a second, applicable for unix like OS only).
+	 * @param rit ReadIntervalTimeout field of COMMTIMEOUTS structure (applicable for windows OS only).
+	 * @param rttm ReadTotalTimeoutMultiplier field of COMMTIMEOUTS structure (applicable for windows OS only).
+	 * @param rttc ReadTotalTimeoutConstant field of COMMTIMEOUTS structure (applicable for windows OS only).
 	 * @return true on success false otherwise.
 	 * @throws SerialComException if wrong handle is passed or operation can not be done successfully.
 	 * @throws IllegalArgumentException if invalid combination of arguments is passed.

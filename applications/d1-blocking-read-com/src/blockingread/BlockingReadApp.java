@@ -47,7 +47,6 @@ public final class BlockingReadApp {
 		int osType = scm.getOSType();
 		if(osType == SerialComManager.OS_LINUX) {
 			PORT = "/dev/ttyUSB0";
-			PORT="/dev/pts/2";
 		}else if(osType == SerialComManager.OS_WINDOWS) {
 			PORT = "COM51";
 		}else if(osType == SerialComManager.OS_MAC_OS_X) {
