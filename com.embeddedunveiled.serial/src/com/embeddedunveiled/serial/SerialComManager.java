@@ -525,16 +525,17 @@ public final class SerialComManager {
 	 * <p>The native shared library will be extracted in folder named 'scm_tuartx1' inside system/user 'temp' 
 	 * folder or user home folder if access to 'temp' folder is denied.</p>
 	 * 
-	 * @throws SecurityException if java system properties can not be  accessed.
+	 * @throws SecurityException if java system properties can not be accessed.
 	 * @throws SerialComUnexpectedException if java system property is null.
 	 * @throws SerialComLoadException if any file system related issue occurs.
 	 * @throws UnsatisfiedLinkError if loading/linking shared library fails.
 	 * @throws FileNotFoundException if file "/proc/cpuinfo" can not be found for Linux on ARM platform.
 	 * @throws IOException if file operations on "/proc/cpuinfo" fails for Linux on ARM platform.
-	 * @throws SerialComException if initializing native library fails.
+	 * @throws SerialComException if initialising native library fails.
+	 * @throws IllegalArgumentException if directoryPath is null, directoryPath is empty, 
+	 *          loadedLibName is null or empty.
 	 */
-	public SerialComManager() throws SecurityException, SerialComUnexpectedException, SerialComLoadException,
-	UnsatisfiedLinkError, SerialComException, FileNotFoundException, IOException {
+	public SerialComManager() throws SecurityException, IOException {
 		mSerialComSystemProperty = new SerialComSystemProperty();
 		synchronized(lockA) {
 			if(osType <= 0) {
@@ -587,18 +588,17 @@ public final class SerialComManager {
 	 * 
 	 * @param directoryPath absolute path of directory for extraction.
 	 * @param loadedLibName library name without extension (do not append .so, .dll or .dylib etc.).
-	 * @throws SecurityException if java system properties can not be  accessed.
+	 * @throws SecurityException if java system properties can not be accessed.
 	 * @throws SerialComUnexpectedException if java system property is null.
 	 * @throws SerialComLoadException if any file system related issue occurs.
 	 * @throws UnsatisfiedLinkError if loading/linking shared library fails.
 	 * @throws FileNotFoundException if file "/proc/cpuinfo" can not be found for Linux on ARM platform.
 	 * @throws IOException if file operations on "/proc/cpuinfo" fails for Linux on ARM platform.
-	 * @throws SerialComException if initializing native library fails.
+	 * @throws SerialComException if initialising native library fails.
 	 * @throws IllegalArgumentException if directoryPath is null, directoryPath is empty, 
 	 *          loadedLibName is null or empty.
 	 */
-	public SerialComManager(String directoryPath, String loadedLibName) throws SecurityException, SerialComUnexpectedException, 
-	SerialComLoadException, UnsatisfiedLinkError, SerialComException, FileNotFoundException, IOException {
+	public SerialComManager(String directoryPath, String loadedLibName) throws SecurityException, IOException {
 		if(directoryPath == null) {
 			throw new IllegalArgumentException("Argument directoryPath can not be null !");
 		}
@@ -850,26 +850,27 @@ public final class SerialComManager {
 
 	/** 
 	 * <p>Opens a serial port for communication. If an attempt is made to open a port which is already 
-	 * opened exception in throw.</p>
+	 * opened, an exception will be thrown.</p>
 	 * 
 	 * <ul>
-	 * <li>For Linux and Mac OS X, if exclusiveOwnerShip is true, before this method return, the caller 
+	 * <li>For Linux and Mac OS X, if exclusiveOwnerShip is true, before this method returns, the caller 
 	 * will either be exclusive owner or not. If the caller is successful in becoming exclusive owner than 
 	 * all the attempt to open the same port again will cause native code to return error. Note that a root 
 	 * owned process (root user) will still be able to open the port.
 	 * 
 	 * <p>For Windows the exclusiveOwnerShip must be true as it does not allow sharing COM ports. An 
-	 * exception is thrown if exclusiveOwnerShip is set to false.</p>
+	 * exception is thrown if exclusiveOwnerShip is set to false. For Solaris, exclusiveOwnerShip should be 
+	 * set to false as of now.</p></li>
+	 *
+	 * <li>This method will clear both input and output buffers of drivers (or operating system).</li>
 	 * 
-	 * <p>For Solaris, exclusiveOwnerShip should be set to false as of now.</p></li>
-	 * 
-	 * <li>When the serial port is opened DTR and RTS lines will be raised by default. Sometimes, DTR acts as 
+	 * <li><p>When the serial port is opened DTR and RTS lines will be raised by default. Sometimes, DTR acts as 
 	 * a modem on-hook/off-hook control for other end. Modern modems are highly flexible in their dependency, 
 	 * working and configurations. It is best to consult modem manual. If the application design need DTR/RTS 
 	 * not to be asserted when port is opened custom drivers can be used or hardware can be modified for this 
 	 * purpose. Alternatively, if the application is to be run on Windows operating system only, then modifying 
 	 * INF file or registry key may help in not raising DTR/RTS when port is opened. Typically in Windows DTR/RTS 
-	 * is raised due to enumeration sequence (serenum).</li>
+	 * is raised due to enumeration sequence (serenum).</p></li>
 	 * </ul>
 	 * 
 	 * <p>This method is thread safe.</p>
@@ -879,9 +880,10 @@ public final class SerialComManager {
 	 * @param enableWrite allows application to write bytes to this port.
 	 * @param exclusiveOwnerShip application wants to become exclusive owner of this port or not.
 	 * @return handle of the port successfully opened.
-	 * @throws SerialComException if trying to become exclusive owner when port is already opened.
+	 * @throws IllegalStateException if trying to become exclusive owner when port is already opened.
 	 * @throws IllegalArgumentException if portName is null or invalid length, or if both enableRead and 
 	 *          enableWrite are set to false, if trying to open port in Windows without being exclusive owner.
+	 * @throws SerialComException if the port can be opened for some reason.
 	 */
 	public long openComPort(final String portName, boolean enableRead, boolean enableWrite, boolean exclusiveOwnerShip) throws SerialComException {
 
@@ -913,7 +915,7 @@ public final class SerialComManager {
 					handleInfo = entry.getValue();
 					if(handleInfo != null) {
 						if(handleInfo.containsPort(portNameVal)) {
-							throw new SerialComException("The port " + portNameVal + " is already opened. Exclusive ownership can not be claimed !");
+							throw new IllegalStateException("The port " + portNameVal + " is already opened. Exclusive ownership can not be claimed !");
 						}
 					}
 				}
