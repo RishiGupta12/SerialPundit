@@ -536,6 +536,7 @@ public final class SerialComManager {
 	 *          loadedLibName is null or empty.
 	 */
 	public SerialComManager() throws SecurityException, IOException {
+
 		mSerialComSystemProperty = new SerialComSystemProperty();
 		synchronized(lockA) {
 			if(osType <= 0) {
@@ -555,12 +556,14 @@ public final class SerialComManager {
 				}
 			}
 		}
+
 		mComPortJNIBridge = new SerialComPortJNIBridge();
 		if(nativeLibLoadAndInitAlready == false) {
 			SerialComPortJNIBridge.loadNativeLibrary(null, null, mSerialComSystemProperty, osType, cpuArch, javaABIType);
 			mComPortJNIBridge.initNativeLib();
 			nativeLibLoadAndInitAlready = true;
 		}
+
 		mEventCompletionDispatcher = new SerialComCompletionDispatcher(mComPortJNIBridge, mPortHandleInfo);
 		mSerialComPortsList = new SerialComPortsList(mComPortJNIBridge, osType);
 	}
@@ -571,24 +574,28 @@ public final class SerialComManager {
 	 *
 	 * <p>By default native shared library will be extracted in temp folder. If this constructor is used then,
 	 * It extracts native shared library in the folder specified by argument directoryPath and gives library name 
-	 * specified by loadedLibName.</p>
+	 * specified by loadedLibName. If the argument createDirectory is true, it will create directory (including 
+	 * parent if it does not exist) as specified by directoryPath, otherwise user should make sure that this directory 
+	 * exist before calling this constructor.</p>
 	 *
-	 * <p>[1] Sometimes system administrator may have put some restriction on tmp/temp folder or the there may some 
+	 * <ul>
+	 * <li><p>Sometimes system administrator may have put some restriction on tmp/temp folder or the there may some 
 	 * other inevitable situations like anti-virus program causing trouble when using temp folder. This constructor
-	 * will help in handling such situations.</p>
-	 *
-	 * <p>[2] Two or more absolutely independent vendors may package this library into their product's jar file. Now 
+	 * will help in handling such situations.</p></li>
+	 * 
+	 * <li><p>[2] Two or more absolutely independent vendors may package this library into their product's jar file. Now 
 	 * when using default constructor both will extract and use the same folder and library name resulting in inconsistent
-	 * software. This constructor handle this situation by providing vendor specific isolated environment.</p>
+	 * software. This constructor handle this situation by providing vendor specific isolated environment.</p></li>
 	 * 
-	 * <p>This may also increase security as the folder may be given specific user permissions. To extract library in 
-	 * user's home directory and name it lib2, an example is given below.</p>
-	 *
-	 * SerialComManager scm = new SerialComManager(System.getProperty("user.home"), "lib2");
+	 * <li><p>This may also increase security as the folder may be given specific user permissions. To extract library in 
+	 * directory "/home/ab/myapp" and name it lib2, an example is given below.</p>
+	 * SerialComManager scm = new SerialComManager("lib2", "/home/ab/myapp", true);</li>
+	 * </ul>
 	 * 
-	 * @param directoryPath absolute path of directory for extraction.
+	 * @param directoryPath absolute path of directory to be used for purpose of extraction.
 	 * @param loadedLibName library name without extension (do not append .so, .dll or .dylib etc.).
-	 * @throws SecurityException if java system properties can not be accessed.
+	 * @throws SecurityException if java system properties can not be accessed or if creating directories is not allowed
+	 *          when createDirectory is set to true.
 	 * @throws SerialComUnexpectedException if java system property is null.
 	 * @throws SerialComLoadException if any file system related issue occurs.
 	 * @throws UnsatisfiedLinkError if loading/linking shared library fails.
@@ -598,19 +605,26 @@ public final class SerialComManager {
 	 * @throws IllegalArgumentException if directoryPath is null, directoryPath is empty, 
 	 *          loadedLibName is null or empty.
 	 */
-	public SerialComManager(String directoryPath, String loadedLibName) throws SecurityException, IOException {
+	public SerialComManager(String loadedLibName, String directoryPath, final boolean createDirectory) throws SecurityException, IOException {
+
 		if(directoryPath == null) {
 			throw new IllegalArgumentException("Argument directoryPath can not be null !");
 		}
 		if(directoryPath.length() == 0) {
-			throw new IllegalArgumentException("The directory path can not be empty !");
+			throw new IllegalArgumentException("Argument directoryPath can not be empty string !");
 		}
+		if(createDirectory == true) {
+			File extractionDirectory = new File(directoryPath);
+			extractionDirectory.mkdirs();
+		}
+
 		if(loadedLibName == null) {
 			throw new IllegalArgumentException("Argument loadedLibName can not be null !");
 		}
 		if(loadedLibName.length() == 0) {
-			throw new IllegalArgumentException("The library name can not be empty !");
+			throw new IllegalArgumentException("Argument loadedLibName can not be empty string !");
 		}
+
 		mSerialComSystemProperty = new SerialComSystemProperty();
 		synchronized(lockA) {
 			if(osType <= 0) {
@@ -630,6 +644,7 @@ public final class SerialComManager {
 				}
 			}
 		}
+
 		mComPortJNIBridge = new SerialComPortJNIBridge();
 		if(nativeLibLoadAndInitAlready == false) {
 			SerialComPortJNIBridge.loadNativeLibrary(directoryPath, loadedLibName, mSerialComSystemProperty, osType, cpuArch, javaABIType);
