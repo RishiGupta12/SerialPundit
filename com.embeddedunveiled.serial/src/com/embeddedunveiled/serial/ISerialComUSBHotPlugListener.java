@@ -50,7 +50,7 @@ public interface ISerialComUSBHotPlugListener {
 	 * @param event integer value indicating whether a USB device was plugged or un-plugged from 
 	 *         system.
 	 * @param USBVID USB-IF vendor id of USB device for which this method is invoked.
-	 * @param USBVID Product id of USB device for which this method is invoked.
+	 * @param USBPID Product id of USB device for which this method is invoked.
 	 * @param serialNumber serial number of USB device for which this method is invoked.
 	 */
 	public abstract void onUSBHotPlugEvent(int event, int USBVID, int USBPID, String serialNumber);
