@@ -193,7 +193,6 @@ final class ConcreteUSBHotPlugEventHandler implements Runnable, ISerialComUSBHot
 	private DataCommunicationHandler dch;
 	private Thread dataCommunicatorThread;
 	private long comPortHandle = -1;
-	private volatile PortHandle phandle;
 	private int hotplugEvent;
 	private int eventSerialize = 1; // begin with add event.
 	private AtomicBoolean isDevConnected = new AtomicBoolean(false);
@@ -202,6 +201,9 @@ final class ConcreteUSBHotPlugEventHandler implements Runnable, ISerialComUSBHot
 	private final Object lockApp;
 	private Object dataLock = new Object();
 	private static BlockingQueue<Integer> mUSBhotplugEventQueue = new ArrayBlockingQueue<Integer>(1024);
+	
+	// Declare volatile to ensure visibility of shared references to immutable objects among threads.
+	private volatile PortHandle phandle;
 
 	public ConcreteUSBHotPlugEventHandler(AtomicBoolean exitHotThread, Object lockApp) throws Exception {
 		this.exitHotThread = exitHotThread;

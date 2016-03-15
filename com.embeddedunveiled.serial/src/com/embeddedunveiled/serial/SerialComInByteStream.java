@@ -153,7 +153,7 @@ public final class SerialComInByteStream extends InputStream {
 			throw new IOException("The byte stream has been closed !");
 		}
 
-		byte[] data = new byte[1];
+		byte[] data;
 		try {
 			if(isBlocking == true) {
 				// blocking I/O

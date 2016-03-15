@@ -2688,8 +2688,9 @@ public final class SerialComManager {
 	 *                                 operating system and cpu architecture combination.
 	 * @throws IllegalArgumentException if argument vlibName is null or is an empty string.
 	 */
-	public SerialComVendorLib getVendorLibInstance(int vendorLibIdentifier, String libDirectory, String vlibName) throws UnsatisfiedLinkError,
-	SerialComLoadException, SerialComUnexpectedException, SecurityException, FileNotFoundException {
+	public SerialComVendorLib getVendorLibInstance(int vendorLibIdentifier, String libDirectory, String vlibName) 
+			throws SerialComLoadException, UnsatisfiedLinkError, SerialComUnexpectedException, SecurityException, 
+			FileNotFoundException {
 		File baseDir = new File(libDirectory.trim());
 		if(!baseDir.exists()) {
 			throw new SerialComLoadException("The directory " + libDirectory + " does not exist !");
@@ -2710,6 +2711,7 @@ public final class SerialComManager {
 		if(mSerialComVendorLib != null) {
 			return mSerialComVendorLib.getVendorLibInstance(vendorLibIdentifier, baseDir, vlibName, cpuArch, osType, mSerialComSystemProperty);
 		}
+		
 		mSerialComVendorLib = new SerialComVendorLib();
 		return mSerialComVendorLib.getVendorLibInstance(vendorLibIdentifier, baseDir, vlibName, cpuArch, osType, mSerialComSystemProperty);
 	}

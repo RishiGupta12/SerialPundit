@@ -202,7 +202,7 @@ final class ConcreteUSBHotPlugEventHandler implements Runnable, ISerialComUSBHot
 	private DataCommunicationHandler dch;
 	private Thread dataCommunicatorThread;
 	private long comPortHandle = -1; // initial value.
-	private volatile PortHandle phandle;
+	private volatile PortHandle phandle; // declare volatile to make changes to this variable available immediately to other threads.
 	private int hotplugEvent;
 	private int eventSerialize = 1; // begin with add event.
 	private AtomicBoolean isDevConnected = new AtomicBoolean(false);
