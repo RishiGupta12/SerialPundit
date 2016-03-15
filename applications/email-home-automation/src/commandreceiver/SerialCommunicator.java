@@ -41,20 +41,19 @@ public final class SerialCommunicator {
 			return;
 		}
 
-		switch(command) {
-		case "CMD1":
+		if(command.equals("CMD1")) {
 			try {
 				scmi.writeString(comPortHandle, "CMD1", 0);
 			} catch (SerialComException e) {
 				progStatusPaneli.setExtraInfo(e.getMessage());
 			}
-		case "CMD2":
+		}else if(command.equals("CMD2")) {
 			try {
 				scmi.writeString(comPortHandle, "CMD2", 0);
 			} catch (SerialComException e) {
 				progStatusPaneli.setExtraInfo(e.getMessage());
 			}
-		default :
+		}else {
 		}
 	}
 }

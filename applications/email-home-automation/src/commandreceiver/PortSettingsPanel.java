@@ -82,12 +82,12 @@ public final class PortSettingsPanel extends JPanel {
 
 	// UI variables
 	private JPanel innerJPanel;
-	private JComboBox<String> portSelection;
-	private JComboBox<String> baudrateSelection;
-	private JComboBox<String> stopbitsSelection;
-	private JComboBox<String> databitsSelection;
-	private JComboBox<String> paritySelection;
-	private JComboBox<String> flowctrlSelection;
+	private JComboBox portSelection;
+	private JComboBox baudrateSelection;
+	private JComboBox stopbitsSelection;
+	private JComboBox databitsSelection;
+	private JComboBox paritySelection;
+	private JComboBox flowctrlSelection;
 	private JButton saveButton;
 	private JButton refreshButton;
 
@@ -109,11 +109,10 @@ public final class PortSettingsPanel extends JPanel {
 		// Com Ports available
 		innerJPanel.add(new JLabel("Com port :"));
 
-		portSelection = new JComboBox<String>(comports);
+		portSelection = new JComboBox(comports);
 		portSelection.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				@SuppressWarnings("unchecked")
-				JComboBox<String> combo = (JComboBox<String>) e.getSource();
+				JComboBox combo = (JComboBox) e.getSource();
 				comPortToUse = (String) combo.getSelectedItem();
 			}
 		});
@@ -121,12 +120,11 @@ public final class PortSettingsPanel extends JPanel {
 
 		// Baud rate
 		innerJPanel.add(new JLabel("Baud rate :"));
-		baudrateSelection = new JComboBox<String>(baudrates);
+		baudrateSelection = new JComboBox(baudrates);
 		baudrateSelection.setSelectedIndex(1);
 		baudrateSelection.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				@SuppressWarnings("unchecked")
-				JComboBox<String> combo = (JComboBox<String>) e.getSource();
+				JComboBox combo = (JComboBox) e.getSource();
 				String baudRate = (String) combo.getSelectedItem();
 				if(baudRate.equals("4800")) {
 					baudRateToUse = BAUDRATE.B4800;
@@ -153,12 +151,11 @@ public final class PortSettingsPanel extends JPanel {
 
 		// Data bits
 		innerJPanel.add(new JLabel("Data bits :"));
-		databitsSelection = new JComboBox<String>(databits);
+		databitsSelection = new JComboBox(databits);
 		databitsSelection.setSelectedIndex(3);
 		databitsSelection.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				@SuppressWarnings("unchecked")
-				JComboBox<String> combo = (JComboBox<String>) e.getSource();
+				JComboBox combo = (JComboBox) e.getSource();
 				String databit = (String) combo.getSelectedItem();
 				if(databit.equals("5")) {
 					dataBitsToUse = DATABITS.DB_5;
@@ -177,12 +174,11 @@ public final class PortSettingsPanel extends JPanel {
 
 		// Stop bits
 		innerJPanel.add(new JLabel("Stop bits :"));
-		stopbitsSelection = new JComboBox<String>(stopbits);
+		stopbitsSelection = new JComboBox(stopbits);
 		stopbitsSelection.setSelectedIndex(0);
 		stopbitsSelection.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				@SuppressWarnings("unchecked")
-				JComboBox<String> combo = (JComboBox<String>) e.getSource();
+				JComboBox combo = (JComboBox) e.getSource();
 				String stopbit = (String) combo.getSelectedItem();
 				if(stopbit.equals("1")) {
 					stopBitsToUse = STOPBITS.SB_1;
@@ -199,11 +195,11 @@ public final class PortSettingsPanel extends JPanel {
 
 		// Parity
 		innerJPanel.add(new JLabel("Parity :"));
-		paritySelection = new JComboBox<String>(parityop);
+		paritySelection = new JComboBox(parityop);
 		paritySelection.setSelectedIndex(0);
 		paritySelection.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				JComboBox<?> combo = (JComboBox<?>) e.getSource();
+				JComboBox combo = (JComboBox) e.getSource();
 				String parityops = (String) combo.getSelectedItem();
 				if(parityops.equals("None")) {
 					parityToUse = PARITY.P_NONE;
@@ -222,12 +218,11 @@ public final class PortSettingsPanel extends JPanel {
 
 		// Flow control
 		innerJPanel.add(new JLabel("Flow control :"));
-		flowctrlSelection = new JComboBox<String>(flowctrlop);
+		flowctrlSelection = new JComboBox(flowctrlop);
 		flowctrlSelection.setSelectedIndex(0);
 		flowctrlSelection.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				@SuppressWarnings("unchecked")
-				JComboBox<String> combo = (JComboBox<String>) e.getSource();
+				JComboBox combo = (JComboBox) e.getSource();
 				String flow = (String) combo.getSelectedItem();
 				if(flow.equals("None")) {
 					flowctrlToUse = FLOWCONTROL.NONE;

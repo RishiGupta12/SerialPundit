@@ -69,7 +69,8 @@ public final class EmailUIPanel extends JPanel {
 		oauthtokenText = new JTextField();
 		oauthtokenText.setPreferredSize(new Dimension(250, 20));
 
-		// SINGLE USER LOGIN handling
+		// SINGLE USER LOGIN handling, until previously loggedin mail is not logged out, 
+		// new mail can not be logged in.
 		loginButton = new JButton();
 		loginButton.setPreferredSize(new Dimension(100, 20));
 		loginButton.setText("Login");
@@ -115,6 +116,7 @@ public final class EmailUIPanel extends JPanel {
 		this.add(innerJPanel);
 	}
 
+	// After login update various STATES 
 	public void setLoginStatus(boolean state, Exception e) {
 		if(state == true) {
 			loginButton.setText("Log out");
