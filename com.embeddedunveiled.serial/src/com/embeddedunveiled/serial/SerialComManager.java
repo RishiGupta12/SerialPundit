@@ -2687,7 +2687,7 @@ public final class SerialComManager {
 	 * @throws SerialComLoadException if the library can not be found, extracted or loaded
 	 *                                 if the mentioned library is not supported by vendor for 
 	 *                                 operating system and cpu architecture combination.
-	 * @throws IllegalArgumentException if argument vlibName is null or is an empty string. If inavlid vendorLibIdentifier 
+	 * @throws IllegalArgumentException if argument vlibName is null or is an empty string. If invalid vendorLibIdentifier 
 	 *                                   is passed.
 	 */
 	public SerialComVendorLib getVendorLibFromFactory(int vendorLibIdentifier, String libDirectory, 

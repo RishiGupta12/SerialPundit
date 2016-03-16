@@ -75,13 +75,19 @@ public class SerialComVendorLib {
 	 * @throws SerialComException if an I/O error occurs.
 	 * @throws SerialComLoadException if the library can not be found, extracted or loaded 
 	 *                                 if the mentioned library is not supported by vendor for operating 
-	 *                                 system and cpu architecture combination.
+	 *                                 system and cpu architecture combination. If invalid vendorLibIdentifier 
+	 *                                 is passed.
 	 */
 	public SerialComVendorLib getVendorLibInstance(int vendorLibIdentifier, File libDirectory, String vlibName, 
 			int cpuArch, int osType, SerialComSystemProperty serialComSystemProperty) throws UnsatisfiedLinkError, 
 			SerialComLoadException, SerialComUnexpectedException, SecurityException, FileNotFoundException {
+
 		SerialComVendorLib vendorLib = null;
-		if(vendorLibIdentifier == VLIB_FTDI_D2XX) {
+
+		switch(vendorLibIdentifier) {
+
+		case SerialComVendorLib.VLIB_FTDI_D2XX :
+
 			if(!((cpuArch == SerialComManager.ARCH_AMD64) || (cpuArch == SerialComManager.ARCH_X86))) {
 				throw new SerialComLoadException("FTDI D2XX library is not supported for this CPU architecture !");
 			}
@@ -89,8 +95,10 @@ public class SerialComVendorLib {
 				throw new SerialComLoadException("FTDI D2XX library is not supported for this operating system !");
 			}
 			vendorLib = new SerialComFTDID2XX(libDirectory, vlibName, cpuArch, osType, serialComSystemProperty);
-			return vendorLib;
-		}else if(vendorLibIdentifier == VLIB_MCHP_SIMPLEIO) {
+			break;
+
+		case SerialComVendorLib.VLIB_MCHP_SIMPLEIO :
+
 			if(!((cpuArch == SerialComManager.ARCH_AMD64) || (cpuArch == SerialComManager.ARCH_X86))) {
 				throw new SerialComLoadException("Microchip SimpleIO library is not supported for this CPU architecture !");
 			}
@@ -98,8 +106,10 @@ public class SerialComVendorLib {
 				throw new SerialComLoadException("Microchip SimpleIO library is not supported for this operating system !");
 			}
 			vendorLib = new SerialComMCHPSimpleIO(libDirectory, vlibName, cpuArch, osType, serialComSystemProperty);
-			return vendorLib;
-		}else if(vendorLibIdentifier == VLIB_SLABS_CP210XRUNTIME) {
+			break;
+
+		case SerialComVendorLib.VLIB_SLABS_CP210XRUNTIME :
+
 			if(!((cpuArch == SerialComManager.ARCH_AMD64) || (cpuArch == SerialComManager.ARCH_X86))) {
 				throw new SerialComLoadException("Silicon labs cp210x runtime dll library is not supported for this CPU architecture !");
 			}
@@ -107,8 +117,10 @@ public class SerialComVendorLib {
 				throw new SerialComLoadException("Silicon labs cp210x runtime dll library is not supported for this operating system !");
 			}
 			vendorLib = new SerialComSLabsCP210xRuntime(libDirectory, vlibName, cpuArch, osType, serialComSystemProperty);
-			return vendorLib;
-		}else if(vendorLibIdentifier == VLIB_SLABS_CP210XMANUFACTURING) {
+			break;
+
+		case SerialComVendorLib.VLIB_SLABS_CP210XMANUFACTURING :
+
 			if(!((cpuArch == SerialComManager.ARCH_AMD64) || (cpuArch == SerialComManager.ARCH_X86))) {
 				throw new SerialComLoadException("Silicon labs cp210x manufacturing dll library is not supported for this CPU architecture !");
 			}
@@ -116,8 +128,10 @@ public class SerialComVendorLib {
 				throw new SerialComLoadException("Silicon labs cp210x manufacturing dll library is not supported for this operating system !");
 			}
 			vendorLib = new SerialComSLabsCP210xManufacturing(libDirectory, vlibName, cpuArch, osType, serialComSystemProperty);
-			return vendorLib;
-		}else if(vendorLibIdentifier == VLIB_SLABS_USBXPRESS) {
+			break;
+
+		case SerialComVendorLib.VLIB_SLABS_USBXPRESS :
+
 			if(!((cpuArch == SerialComManager.ARCH_AMD64) || (cpuArch == SerialComManager.ARCH_X86))) {
 				throw new SerialComLoadException("Silicon labs usbxpress library is not supported for this CPU architecture !");
 			}
@@ -125,10 +139,12 @@ public class SerialComVendorLib {
 				throw new SerialComLoadException("Silicon labs usbxpress library is not supported for this operating system !");
 			}
 			vendorLib = new SerialComSLabsCP210xManufacturing(libDirectory, vlibName, cpuArch, osType, serialComSystemProperty);
-			return vendorLib;
-		}else {
+			break;
+
+		default :
+			throw new IllegalArgumentException("Given argument vendorLibIdentifier is invalid !");
 		}
 
-		return null;
+		return vendorLib;
 	}
 }
