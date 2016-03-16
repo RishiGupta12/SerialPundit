@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import com.embeddedunveiled.serial.SerialComManager.SMODE;
+import com.embeddedunveiled.serial.internal.ISerialIOStream;
 import com.embeddedunveiled.serial.internal.SerialComPortHandleInfo;
 
 /**
@@ -35,7 +36,7 @@ import com.embeddedunveiled.serial.internal.SerialComPortHandleInfo;
  * 
  * @author Rishi Gupta
  */
-public final class SerialComInByteStream extends InputStream {
+public final class SerialComInByteStream extends InputStream implements ISerialIOStream {
 
 	private final SerialComManager scm;
 	private final SerialComPortHandleInfo portHandleInfo;

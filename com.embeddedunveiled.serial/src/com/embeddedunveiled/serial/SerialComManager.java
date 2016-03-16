@@ -29,6 +29,7 @@ import java.util.TreeMap;
 
 import com.embeddedunveiled.serial.hid.SerialComHID;
 import com.embeddedunveiled.serial.hid.SerialComRawHID;
+import com.embeddedunveiled.serial.internal.ISerialIOStream;
 import com.embeddedunveiled.serial.internal.SerialComBluetoothJNIBridge;
 import com.embeddedunveiled.serial.internal.SerialComCompletionDispatcher;
 import com.embeddedunveiled.serial.internal.SerialComDBReleaseJNIBridge;
@@ -454,35 +455,42 @@ public final class SerialComManager {
 	 * constant with value 0x10. </p>*/
 	public static final int ARCH_ARMV7 = 0x0F;
 
-	/** <p>The value indicating hard float ABI. </p>*/
+	/** <p>The value indicating hard float ABI. Integer constant with value 0x01. </p>*/
 	public static final int ABI_ARMHF =  0x01;
 
-	/** <p>The value indicating soft float ABI. </p>*/
+	/** <p>The value indicating soft float ABI. Integer constant with value 0x02. </p>*/
 	public static final int ABI_ARMEL  = 0x02;
 
 	/** <p>Default number of bytes (1024) to read from serial port. </p>*/
 	public static final int DEFAULT_READBYTECOUNT = 1024;
 
-	/** <p>Clear to send mask bit constant for UART control line. </p>*/
+	/** <p>Clear to send mask bit constant for UART control line. Integer constant with value 0x01. </p>*/
 	public static final int CTS =  0x01;  // 0000001
 
-	/** <p>Data set ready mask bit constant for UART control line. </p>*/
+	/** <p>Data set ready mask bit constant for UART control line. Integer constant with value 0x02. </p>*/
 	public static final int DSR =  0x02;  // 0000010
 
-	/** <p>Data carrier detect mask bit constant for UART control line. </p>*/
+	/** <p>Data carrier detect mask bit constant for UART control line. Integer constant with value 0x04. </p>*/
 	public static final int DCD =  0x04;  // 0000100
 
-	/** <p>Ring indicator mask bit constant for UART control line. </p>*/
+	/** <p>Ring indicator mask bit constant for UART control line. Integer constant with value 0x08. </p>*/
 	public static final int RI  =  0x08;  // 0001000
 
-	/** <p>Loop indicator mask bit constant for UART control line. </p>*/
+	/** <p>Loop indicator mask bit constant for UART control line. Integer constant with value 0x10. </p>*/
 	public static final int LOOP = 0x10;  // 0010000
 
-	/** <p>Request to send mask bit constant for UART control line. </p>*/
+	/** <p>Request to send mask bit constant for UART control line. Integer constant with value 0x20. </p>*/
 	public static final int RTS =  0x20;  // 0100000
 
-	/** <p>Data terminal ready mask bit constant for UART control line. </p>*/
+	/** <p>Data terminal ready mask bit constant for UART control line. Integer constant with value 0x40. </p>*/
 	public static final int DTR  = 0x40;  // 1000000
+
+	/** <p>The value indicating instance of SerialComInByteStream class is desired. Integer constant with value 0x32. </p>*/
+	public static final int InputStream = 0X32;
+
+	/** <p>The value indicating instance of SerialComOutByteStream class is desired. Integer constant with value 0x33. </p>*/
+	public static final int OutputStream = 0X33;
+
 
 	/** <p>The exception message indicating that a blocked read method has been unblocked 
 	 * and made to return to caller explicitly (irrespective there was data to read or not). </p>*/
@@ -2544,82 +2552,65 @@ public final class SerialComManager {
 	}
 
 	/**
-	 * <p>Prepares context and returns an input streams of bytes for receiving data bytes from the 
-	 * serial port.</p>
+	 * <p>Factory method to create stream of type specified by streamType in blocking or non-blocking mode.</p>
 	 * 
-	 * <p>A serial port handle can have only one input stream associated with it. Application should close 
-	 * the created stream after it is no longer required.</p>
+	 * <p>If streamType is SerialComManager.OutputStream, an instance of class SerialComOutByteStream is returned. 
+	 * If streamType is SerialComManager.InputStream, an instance of class SerialComInByteStream is returned.</p>
 	 * 
-	 * @param handle handle of the opened port from which to read data bytes.
-	 * @return reference to an object of type SerialComInByteStream.
+	 * <p>If streamMode is SMODE.NONBLOCKING, read/write to serial port is non-blocking. If streamMode is SMODE.BLOCKING, 
+	 * read/write to serial port is blocking.</p>
+	 * 
+	 * @param streamType one of the values; SerialComManager.OutputStream or SerialComManager.InputStream.
+	 * @param handle handle of the opened serial port which this stream will wrap internally.
+	 * @param streamMode enum value SMODE.BLOCKING or SMODE.NONBLOCKING.
+	 * @return instance of stream (SerialComInByteStream/SerialComOutByteStream) as per given streamType.
 	 * @throws SerialComException if input stream already exist for this handle or invalid handle is passed.
-	 * @throws IllegalArgumentException if streamMode is null.
+	 * @throws IllegalArgumentException if streamMode is null or invalid streamType is passed.
 	 */
-	public SerialComInByteStream createInputByteStream(long handle, SMODE streamMode) throws SerialComException {
-
-		SerialComInByteStream scis = null;
-		SerialComPortHandleInfo handleInfo = null;
+	public ISerialIOStream getIOStreamInstance(int streamType, long handle, SMODE streamMode) throws SerialComException {
 
 		if(streamMode == null) {
 			throw new IllegalArgumentException("Argument streamMode can not be null !");
 		}
 
-		handleInfo = mPortHandleInfo.get(handle);
-		if(handleInfo == null) {
-			throw new SerialComException("Given handle does not represent a serial port opened through SCM !");
-		}
-
-		scis = handleInfo.getSerialComInByteStream();
-		if(scis == null) {
-			scis = new SerialComInByteStream(this, handleInfo, handle, streamMode);
-			handleInfo.setSerialComInByteStream(scis);
-		}else {
-			// if 2nd attempt is made to create already existing input stream, throw exception
-			throw new SerialComException("Input byte stream already exist for this handle !");
-		}
-
-		return scis;
-	}
-
-	/**
-	 * <p>Prepares context and returns an output streams of bytes for transferring data bytes out of 
-	 * serial port.</p>
-	 * 
-	 * <p>A serial port handle can have only one output stream associated with it. Application should 
-	 * close the created stream after it is no longer required.</p>
-	 * 
-	 * <p>Using SerialComOutByteStream for writing data while not using SerialComInByteStream for
-	 * reading is a valid use case.</p>
-	 * 
-	 * @param handle handle of the opened port on which to write data bytes.
-	 * @return reference to an object of type SerialComOutByteStream.
-	 * @throws SerialComException if output stream already exist for this handle or invalid handle is passed.
-	 * @throws IllegalArgumentException if streamMode is null.
-	 */
-	public SerialComOutByteStream createOutputByteStream(long handle, SMODE streamMode) throws SerialComException {
-
-		SerialComOutByteStream scos = null;
 		SerialComPortHandleInfo handleInfo = null;
-
-		if(streamMode == null) {
-			throw new IllegalArgumentException("Argument streamMode can not be null !");
-		}
-
 		handleInfo = mPortHandleInfo.get(handle);
 		if(handleInfo == null) {
 			throw new SerialComException("Given handle does not represent a serial port opened through SCM !");
 		}
 
-		scos = handleInfo.getSerialComOutByteStream();
-		if(scos == null) {
-			scos = new SerialComOutByteStream(this, handleInfo, handle, streamMode);
-			handleInfo.setSerialComOutByteStream(scos);
-		}else {
-			// if 2nd attempt is made to create already existing output stream, throw exception
-			throw new SerialComException("Output byte stream already exist for this handle !");
-		}
+		switch(streamType) {
 
-		return scos;
+		case SerialComManager.InputStream :
+
+			SerialComInByteStream scis = null;
+			scis = handleInfo.getSerialComInByteStream();
+			if(scis == null) {
+				scis = new SerialComInByteStream(this, handleInfo, handle, streamMode);
+				handleInfo.setSerialComInByteStream(scis);
+			}else {
+				// if 2nd attempt is made to create already existing input stream, throw exception
+				throw new SerialComException("Input byte stream already exist for this handle !");
+			}
+
+			return scis;
+
+		case SerialComManager.OutputStream :
+
+			SerialComOutByteStream scos = handleInfo.getSerialComOutByteStream();
+			if(scos == null) {
+				scos = new SerialComOutByteStream(this, handleInfo, handle, streamMode);
+				handleInfo.setSerialComOutByteStream(scos);
+			}else {
+				// if 2nd attempt is made to create already existing output stream, throw exception
+				throw new SerialComException("Output byte stream already exist for this handle !");
+			}
+
+			return scos;
+
+		default :
+			throw new IllegalArgumentException("Argument streamType is invalid !");
+		}
 	}
 
 	/**

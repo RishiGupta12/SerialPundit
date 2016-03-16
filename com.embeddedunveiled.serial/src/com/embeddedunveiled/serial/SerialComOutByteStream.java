@@ -20,7 +20,9 @@ package com.embeddedunveiled.serial;
 
 import java.io.IOException;
 import java.io.OutputStream;
+
 import com.embeddedunveiled.serial.SerialComManager.SMODE;
+import com.embeddedunveiled.serial.internal.ISerialIOStream;
 import com.embeddedunveiled.serial.internal.SerialComPortHandleInfo;
 
 /**
@@ -28,7 +30,7 @@ import com.embeddedunveiled.serial.internal.SerialComPortHandleInfo;
  * 
  * @author Rishi Gupta
  */
-public final class SerialComOutByteStream extends OutputStream {
+public final class SerialComOutByteStream extends OutputStream implements ISerialIOStream {
 
 	private SerialComManager scm;
 	private SerialComPortHandleInfo portHandleInfo;
