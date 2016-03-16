@@ -344,3 +344,4 @@ public final class HotPlugRecoveryApplication {
 		}
 	}
 }
+

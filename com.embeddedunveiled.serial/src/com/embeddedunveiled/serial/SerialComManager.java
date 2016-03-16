@@ -583,7 +583,7 @@ public final class SerialComManager {
 	 * other inevitable situations like anti-virus program causing trouble when using temp folder. This constructor
 	 * will help in handling such situations.</p></li>
 	 * 
-	 * <li><p>[2] Two or more absolutely independent vendors may package this library into their product's jar file. Now 
+	 * <li><p>Two or more absolutely independent vendors may package this library into their product's jar file. Now 
 	 * when using default constructor both will extract and use the same folder and library name resulting in inconsistent
 	 * software. This constructor handle this situation by providing vendor specific isolated environment.</p></li>
 	 * 
@@ -2672,7 +2672,8 @@ public final class SerialComManager {
 	/**
 	 * <p>Gives an instance of the class which implements API defined by vendor in their propriety library.</p>
 	 * 
-	 * <p>For FTDI d2xx, instance of SerialComFTDID2XX class is returned.</p>
+	 * <p>For example; if vendorLibIdentifier is SerialComVendorLib.VLIB_FTDI_D2XX, an instance of SerialComFTDID2XX 
+	 * class is returned.</p>
 	 * 
 	 * @param vendorLibIdentifier one of the constant VLIB_XXXX_XXXX in SerialComVendorLib class.
 	 * @param libDirectory absolute directory path where vendor library is placed.
@@ -2686,11 +2687,12 @@ public final class SerialComManager {
 	 * @throws SerialComLoadException if the library can not be found, extracted or loaded
 	 *                                 if the mentioned library is not supported by vendor for 
 	 *                                 operating system and cpu architecture combination.
-	 * @throws IllegalArgumentException if argument vlibName is null or is an empty string.
+	 * @throws IllegalArgumentException if argument vlibName is null or is an empty string. If inavlid vendorLibIdentifier 
+	 *                                   is passed.
 	 */
-	public SerialComVendorLib getVendorLibInstance(int vendorLibIdentifier, String libDirectory, String vlibName) 
-			throws SerialComLoadException, UnsatisfiedLinkError, SerialComUnexpectedException, SecurityException, 
-			FileNotFoundException {
+	public SerialComVendorLib getVendorLibFromFactory(int vendorLibIdentifier, String libDirectory, 
+			String vlibName) throws SerialComLoadException, UnsatisfiedLinkError, SerialComUnexpectedException, 
+			SecurityException, FileNotFoundException {
 		File baseDir = new File(libDirectory.trim());
 		if(!baseDir.exists()) {
 			throw new SerialComLoadException("The directory " + libDirectory + " does not exist !");
@@ -2711,7 +2713,7 @@ public final class SerialComManager {
 		if(mSerialComVendorLib != null) {
 			return mSerialComVendorLib.getVendorLibInstance(vendorLibIdentifier, baseDir, vlibName, cpuArch, osType, mSerialComSystemProperty);
 		}
-		
+
 		mSerialComVendorLib = new SerialComVendorLib();
 		return mSerialComVendorLib.getVendorLibInstance(vendorLibIdentifier, baseDir, vlibName, cpuArch, osType, mSerialComSystemProperty);
 	}
