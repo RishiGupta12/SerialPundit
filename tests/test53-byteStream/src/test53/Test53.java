@@ -29,6 +29,7 @@ import com.embeddedunveiled.serial.SerialComManager.PARITY;
 import com.embeddedunveiled.serial.SerialComManager.STOPBITS;
 
 public final class Test53 {
+
 	public static void main(String[] args) {
 		try {
 			SerialComManager scm = new SerialComManager();
@@ -61,19 +62,19 @@ public final class Test53 {
 			scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
 			scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
 
-			out = scm.createOutputByteStream(handle, SMODE.NONBLOCKING);
-			in = scm.createInputByteStream(handle1, SMODE.NONBLOCKING);
+			out = (SerialComOutByteStream) scm.createIOStream(SerialComManager.OutputStream, handle, SMODE.NONBLOCKING);
+			in = (SerialComInByteStream) scm.createIOStream(SerialComManager.InputStream, handle1, SMODE.NONBLOCKING);
 
 			/* must throw exception as stream already exist for given handle */
 			try {
-				out = scm.createOutputByteStream(handle, SMODE.BLOCKING);
+				out = (SerialComOutByteStream) scm.createIOStream(SerialComManager.OutputStream, handle, SMODE.NONBLOCKING);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 
 			/* must throw exception as stream already exist for given handle */
 			try {
-				in = scm.createInputByteStream(handle1, SMODE.BLOCKING);
+				in = (SerialComInByteStream) scm.createIOStream(SerialComManager.InputStream, handle1, SMODE.NONBLOCKING);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -123,8 +124,8 @@ public final class Test53 {
 			scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
 			scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
 
-			out = scm.createOutputByteStream(handle, SMODE.BLOCKING);
-			in = scm.createInputByteStream(handle1, SMODE.BLOCKING);
+			out = (SerialComOutByteStream) scm.createIOStream(SerialComManager.OutputStream, handle, SMODE.BLOCKING);
+			in = (SerialComInByteStream) scm.createIOStream(SerialComManager.InputStream, handle1, SMODE.NONBLOCKING);
 
 			try {
 				out.write(65); // print ASCII value of A in GUI application
@@ -162,9 +163,9 @@ public final class Test53 {
 
 			/* stress testing */
 			for(int a=0; a<5000; a++) {
-				System.out.println("itertaion :" + a);
-				SerialComOutByteStream outa = scm.createOutputByteStream(handle, SMODE.NONBLOCKING);
-				SerialComInByteStream ina = scm.createInputByteStream(handle, SMODE.NONBLOCKING);
+				System.out.println("itertaion :" + a);				
+				SerialComOutByteStream outa = (SerialComOutByteStream) scm.createIOStream(SerialComManager.OutputStream, handle, SMODE.NONBLOCKING);
+				SerialComInByteStream ina = (SerialComInByteStream) scm.createIOStream(SerialComManager.InputStream, handle1, SMODE.NONBLOCKING);
 				ina.close();
 				outa.close();
 			}
