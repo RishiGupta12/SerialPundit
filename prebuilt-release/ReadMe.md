@@ -4,14 +4,16 @@
 
 ##Platforms supported
 
-| Operating System   | Architecture  | Versions  | Comments(requirements) |
-| :------------:     |:-------------:| :--------:| :--------:|
-| Linux      | amd64 | 2.6 kernel or later | eglibc 2.15, libpthread.so.0, libudev.so.0 |
-| Linux      | x86   | 2.6 kernel or later | eglibc 2.15, libpthread.so.0, libudev.so.0 |
-| Windows    | amd86 | Windows 7 or later | |
-| Windows    | x86   | Windows 7 or later | |
-| Mac OS X   | amd64 | 10.4 or later | |
-| Mac OS X   | x86   | 10.4 kernel or later | |
+| Operating System   | Architecture  |  Versions    | Comments |
+| :------------:     |:-------------:| :--------:   | :--------:|
+| Linux              | amd64 | 3.0 kernel or later  | eglibc 2.15 or later, libpthread.so.0, libudev.so.0 |
+| Linux              | x86   | 3.0 kernel or later  | Intel Edision, eglibc 2.15, libpthread.so.0, libudev.so.0 |
+| Windows            | amd86 | Windows 7 or later   |         |
+| Windows            | x86   | Windows 7 or later   |         |
+| Mac OS X           | amd64 | 10.4 or later        |         |
+| Mac OS X           | x86   | 10.4 kernel or later |         |
+| Embedded Linux     | ARMv7 | 3.0 kernel or later  | libudev.so.1, libpthread.so.0, libc.so.6, hard/soft float ABI, Raspberry Pi, BeagleBone, Wandboard, Cubieboard etc. |
+| Embedded Linux     | ARMv6 | 3.0 kernel or later  | libudev.so.1, libpthread.so.0, libc.so.6, hard/soft float ABI, Raspberry Pi, BeagleBone etc. |
 
 ##Integration information
 

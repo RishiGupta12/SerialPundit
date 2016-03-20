@@ -117,9 +117,12 @@ public final class SerialComPlatform {
 
 		if(osArch.startsWith("arm")) {
 			if(osType == SerialComManager.OS_LINUX) {
+			
 				cpuProperties = new BufferedReader(new FileReader("/proc/cpuinfo"));
+				
 				while((line = cpuProperties.readLine()) != null) {
 					property = line.toLowerCase(Locale.ENGLISH);
+					
 					if(property.contains("armv7")) {
 						cpuArch = SerialComManager.ARCH_ARMV7;
 						break;
@@ -132,36 +135,51 @@ public final class SerialComPlatform {
 					}else {
 					}
 				}
+				
 				cpuProperties.close();
 			}
-		}else if(osArch.equals("x86") || osArch.equals("i386") || osArch.equals("i486") || osArch.equals("i586") || osArch.equals("i686") 
+		}
+		else if(osArch.equals("x86") || osArch.equals("i386") || osArch.equals("i486") || osArch.equals("i586") || osArch.equals("i686") 
 				|| osArch.equals("i786") || osArch.equals("i886") || osArch.equals("i986") || osArch.equals("pentium") || osArch.equals("i86pc")) {
 			cpuArch = SerialComManager.ARCH_X86;
-		}else if(osArch.equals("amd64") || osArch.equals("x86_64") || osArch.equals("em64t") || osArch.equals("x86-64") || osArch.equals("universal")) {
+		}
+		else if(osArch.equals("amd64") || osArch.equals("x86_64") || osArch.equals("em64t") || osArch.equals("x86-64") || osArch.equals("universal")) {
 			cpuArch = SerialComManager.ARCH_AMD64; // universal may be needed for openjdk7 in Mac.
-		}else if(osArch.equals("ia64") || osArch.equals("ia64w")) {
+		}
+		else if(osArch.equals("ia64") || osArch.equals("ia64w")) {
 			cpuArch = SerialComManager.ARCH_IA64;
-		}else if(osArch.equals("ia64_32") || osArch.equals("ia64n")) {
+		}
+		else if(osArch.equals("ia64_32") || osArch.equals("ia64n")) {
 			cpuArch = SerialComManager.ARCH_IA64_32;
-		}else if(osArch.equals("ppc") || osArch.equals("power") || osArch.equals("powerpc") || osArch.equals("power_pc") || osArch.equals("power_rs")) {
+		}
+		else if(osArch.equals("ppc") || osArch.equals("power") || osArch.equals("powerpc") || osArch.equals("power_pc") || osArch.equals("power_rs")) {
 			cpuArch = SerialComManager.ARCH_PPC32;
-		}else if(osArch.equals("ppc64") || osArch.equals("power64") || osArch.equals("powerpc64") || osArch.equals("power_pc64") || osArch.equals("power_rs64")) {
+		}
+		else if(osArch.equals("ppc64") || osArch.equals("power64") || osArch.equals("powerpc64") || osArch.equals("power_pc64") || osArch.equals("power_rs64")) {
 			cpuArch = SerialComManager.ARCH_PPC64;
-		}else if(osArch.equals("powerpc64le")) {
+		}
+		else if(osArch.equals("powerpc64le")) {
 			cpuArch = SerialComManager.ARCH_PPC64LE;
-		}else if(osArch.equals("sparc")) {
+		}
+		else if(osArch.equals("sparc")) {
 			cpuArch = SerialComManager.ARCH_SPARC32;
-		}else if(osArch.equals("sparcv9")) {
+		}
+		else if(osArch.equals("sparcv9")) {
 			cpuArch = SerialComManager.ARCH_SPARC64;
-		}else if(osArch.equals("pa-risc") || osArch.equals("pa-risc2.0")) {
+		}
+		else if(osArch.equals("pa-risc") || osArch.equals("pa-risc2.0")) {
 			cpuArch = SerialComManager.ARCH_PA_RISC32;
-		}else if(osArch.equals("pa-risc2.0w")) {
+		}
+		else if(osArch.equals("pa-risc2.0w")) {
 			cpuArch = SerialComManager.ARCH_PA_RISC64;
-		}else if(osArch.equals("s390")) {
+		}
+		else if(osArch.equals("s390")) {
 			cpuArch = SerialComManager.ARCH_S390;
-		}else if(osArch.equals("s390x")) {
+		}
+		else if(osArch.equals("s390x")) {
 			cpuArch = SerialComManager.ARCH_S390X;
-		}else {
+		}
+		else {
 		}
 
 		return cpuArch;
@@ -174,8 +192,10 @@ public final class SerialComPlatform {
 	 * @throws SerialComUnexpectedException if "java.vm.vendor" java system property is null.
 	 */
 	private boolean isAndroid() throws SerialComUnexpectedException {
+	
 		// java.vm.vendor system property in android always returns The Android Project as per android javadocs.
 		String osVendor = mSerialComSystemProperty.getJavaVmVendor();
+		
 		if(osVendor == null) {
 			throw new SerialComUnexpectedException("The java.vm.vendor java system property is null in the system !");
 		}
@@ -194,16 +214,19 @@ public final class SerialComPlatform {
 	 * @throws SerialComUnexpectedException if "java.home" java system property is null.
 	 */
 	public final int getJAVAABIType() throws SerialComUnexpectedException {
+	
 		int abiType = SerialComManager.ABI_ARMEL;
+		
 		String javaHome = mSerialComSystemProperty.getJavaHome();
 		if(javaHome == null) {
 			throw new SerialComUnexpectedException("The java.home java system property is null in the system !");
 		}
 
 		try {
-			String[] cmdarray = { "/bin/sh", "-c", "find '" + javaHome +
-					"' -name 'libjvm.so' | head -1 | xargs readelf -A | " +
-			"grep 'Tag_ABI_VFP_args: VFP registers'" };
+			// Tag_ABI_VFP_args: VFP registers meand hardfloat
+			String[] cmdarray = { "/bin/sh", "-c", "find '" + javaHome + 
+								"' -name 'libjvm.so' | head -1 | xargs readelf -A | " + 
+								"grep 'Tag_ABI_VFP_args: VFP registers'" };
 			int exitValueOfSubProcess = Runtime.getRuntime().exec(cmdarray).waitFor();
 			if(exitValueOfSubProcess == 0) {
 				abiType = SerialComManager.ABI_ARMHF;

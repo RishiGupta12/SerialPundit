@@ -18,6 +18,8 @@ This note describes how to pack scm-x.x.x.jar library into an application jar fi
   Eclipse will automatically configure correct classpath internally.
   
 - To run application (Linux) run following command.
-  $ java -jar MyApplication.jar
+```
+$ java -jar MyApplication.jar
+```
   
 

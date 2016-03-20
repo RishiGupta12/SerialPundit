@@ -274,13 +274,11 @@ public final class SerialComPortJNIBridge {
 				}else {
 				}
 			}
-		}else if(cpuArch == SerialComManager.ARCH_ARMV5) {
-			if(osType == SerialComManager.OS_LINUX) {
-				libExtension = ".so";
-				libToExtractFromJar = "linux_" + SerialComManager.JAVA_LIB_VERSION + "_armv5.so";
-			}
 		}else {
+			throw new SerialComLoadException("This architecture is unknown to this library. Please contact us !");
 		}
+		
+		System.out.println("name: " + libToExtractFromJar);
 
 		/* Extract shared library from jar into working directory */
 		try {
