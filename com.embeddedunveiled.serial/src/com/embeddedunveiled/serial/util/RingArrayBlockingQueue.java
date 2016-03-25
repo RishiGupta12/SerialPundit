@@ -19,7 +19,6 @@
 package com.embeddedunveiled.serial.util;
 
 import java.util.AbstractList;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.NoSuchElementException;
 import java.util.concurrent.BlockingQueue;
@@ -37,7 +36,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * 
  * <p>Insertion methods  : offer(), offer(timeout), add(),  put() <br>
  *    Removal methods    : poll(), poll(timeout), take(), remove(), peek(), element() <br>
- *    Inspection methods :         <br></p>
+ *    Inspection methods : peek(), size(), isEmpty(), clear(), remainingCapacity()<br></p>
  * 
  * @author Rishi Gupta
  */
