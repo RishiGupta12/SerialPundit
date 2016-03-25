@@ -30,16 +30,16 @@ import com.embeddedunveiled.serial.SerialComManager;
  * - ports connected through USB hub/expander
  */
 public class Test1 {
-	static long a = 0;
-	public static void main(String[] args) {		
-		try {
-			SerialComManager scm = new SerialComManager();
-			String[] ports = scm.listAvailableComPorts();
-			for(String port: ports){
-				System.out.println(port);
-			}
-		}catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+    static long a = 0;
+    public static void main(String[] args) {		
+        try {
+            SerialComManager scm = new SerialComManager();
+            String[] ports = scm.listAvailableComPorts();
+            for(String port: ports){
+                System.out.println(port);
+            }
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }

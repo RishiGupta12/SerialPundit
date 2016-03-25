@@ -1,22 +1,24 @@
 ####Building
 ---------------------
 
-Build is done using make tool. Run build.sh shell script to build driver.
+Build is done using make tool. Run build.sh shell script to build this driver.
 
 
 ####Installing
 ---------------------
 
 If you want to permanently install driver in system run install.sh script which will install driver
-at suitable place to make it ready to be used with modprobe tool.
+at suitable place and make it ready to be used with modprobe tool.
 
 
 ####Loading/Running
 ---------------------
 
-When cp210x device is inserted into system, default Linux kernel drivers will take control of device.
+When cp210x device is inserted into system, default Linux kernel drivers will take control of the 
+cp210x device.
 
-Run load.sh script which will unload default driver and load this driver for cp210x device.
+Run load.sh script which will unload default driver and load this driver for cp210x the inserted 
+device.
 
 
 ####Debugging

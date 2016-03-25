@@ -19,7 +19,7 @@
 
 # Run this script as root user.
 
-# After Apple defualt VCP driver (com.apple.driver.AppleUSBFTDI) has been unloaded, this script
+# After Apple default VCP driver (com.apple.driver.AppleUSBFTDI) has been UNloaded, this script
 # is used to load drivers provided by FTDI. No reboot is required.
 
 set -e

@@ -277,8 +277,6 @@ public final class SerialComPortJNIBridge {
 		}else {
 			throw new SerialComLoadException("This architecture is unknown to this library. Please contact us !");
 		}
-		
-		System.out.println("name: " + libToExtractFromJar);
 
 		/* Extract shared library from jar into working directory */
 		try {
