@@ -25,6 +25,8 @@ import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import com.embeddedunveiled.serial.util.SerialComCRCUtil;
+
 /**
  * <p>Implements state machine for XMODEM-128 file transfer protocol in Java.</p>
  * 

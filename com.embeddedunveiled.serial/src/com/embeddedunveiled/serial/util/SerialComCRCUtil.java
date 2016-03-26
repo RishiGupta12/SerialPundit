@@ -16,7 +16,7 @@
  * along with 'serial communication manager'.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.embeddedunveiled.serial;
+package com.embeddedunveiled.serial.util;
 
 /**
  * <p>Utility class to calculate and generate CRC values for a given message. This can be used 

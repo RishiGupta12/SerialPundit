@@ -25,8 +25,8 @@ import java.io.FileOutputStream;
 import com.embeddedunveiled.serial.SerialComLoadException;
 import com.embeddedunveiled.serial.SerialComManager;
 import com.embeddedunveiled.serial.SerialComUnexpectedException;
-import com.embeddedunveiled.serial.SerialComUtil;
 import com.embeddedunveiled.serial.internal.SerialComSystemProperty;
+import com.embeddedunveiled.serial.util.SerialComUtil;
 
 /**
  * <p>This class is an interface between java and native shared library. The native library is found 

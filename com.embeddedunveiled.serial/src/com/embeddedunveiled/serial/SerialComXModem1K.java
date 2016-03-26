@@ -27,7 +27,7 @@ import java.io.IOException;
 
 import com.embeddedunveiled.serial.SerialComManager.FTPPROTO;
 import com.embeddedunveiled.serial.SerialComManager.FTPVAR;
-import com.embeddedunveiled.serial.SerialComCRCUtil;
+import com.embeddedunveiled.serial.util.SerialComCRCUtil;
 
 /**
  * <p>Implements state machine for XMODEM-1k file transfer protocol in Java. 

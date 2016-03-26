@@ -18,7 +18,7 @@
 
 package com.embeddedunveiled.serial.vendor;
 
-import com.embeddedunveiled.serial.SerialComUtil;
+import com.embeddedunveiled.serial.util.SerialComUtil;
 
 /**
  * <p>Represents an opened FT device with information about it.</p>

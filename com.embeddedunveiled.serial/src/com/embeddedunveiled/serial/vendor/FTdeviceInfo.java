@@ -18,7 +18,7 @@
 
 package com.embeddedunveiled.serial.vendor;
 
-import com.embeddedunveiled.serial.SerialComUtil;
+import com.embeddedunveiled.serial.util.SerialComUtil;
 
 /**
  * <p>Represents a device returned by calling listDevices() method in 

@@ -19,7 +19,7 @@
 package com.embeddedunveiled.serial.usb;
 
 import com.embeddedunveiled.serial.SerialComException;
-import com.embeddedunveiled.serial.SerialComUtil;
+import com.embeddedunveiled.serial.util.SerialComUtil;
 
 /**
  * <p>Represents a USB device with information about it.</p>

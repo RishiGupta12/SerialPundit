@@ -18,7 +18,7 @@
 
 package com.embeddedunveiled.serial.vendor;
 
-import com.embeddedunveiled.serial.SerialComUtil;
+import com.embeddedunveiled.serial.util.SerialComUtil;
 
 /**
  * <p>Represents a FT_DEVICE_LIST_INFO_NODE structure.</p>

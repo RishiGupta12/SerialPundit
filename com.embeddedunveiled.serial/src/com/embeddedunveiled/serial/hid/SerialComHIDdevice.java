@@ -19,7 +19,7 @@
 package com.embeddedunveiled.serial.hid;
 
 import com.embeddedunveiled.serial.SerialComException;
-import com.embeddedunveiled.serial.SerialComUtil;
+import com.embeddedunveiled.serial.util.SerialComUtil;
 
 
 /**

@@ -18,7 +18,7 @@
 
 package com.embeddedunveiled.serial.usb;
 
-import com.embeddedunveiled.serial.SerialComUtil;
+import com.embeddedunveiled.serial.util.SerialComUtil;
 
 /**
  * <p>Encapsulates various power related information about a USB device.</p>

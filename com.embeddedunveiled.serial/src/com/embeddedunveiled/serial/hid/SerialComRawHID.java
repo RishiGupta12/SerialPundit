@@ -24,10 +24,10 @@ import java.util.TreeMap;
 import com.embeddedunveiled.serial.ISerialComUSBHotPlugListener;
 import com.embeddedunveiled.serial.SerialComException;
 import com.embeddedunveiled.serial.SerialComManager;
-import com.embeddedunveiled.serial.SerialComUtil;
 import com.embeddedunveiled.serial.internal.HIDdevHandleInfo;
 import com.embeddedunveiled.serial.internal.SerialComHIDJNIBridge;
 import com.embeddedunveiled.serial.usb.SerialComUSBHID;
+import com.embeddedunveiled.serial.util.SerialComUtil;
 
 /* Executes as a worker thread waiting for input reports, reading whenever available and delivering 
  * them to the registered listener. */

@@ -16,7 +16,7 @@
  * along with 'serial communication manager'.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.embeddedunveiled.serial;
+package com.embeddedunveiled.serial.util;
 
 /**
  * <p>Provides common utility functions for serial port communication related projects.</p>
