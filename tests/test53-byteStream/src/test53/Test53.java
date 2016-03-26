@@ -62,8 +62,8 @@ public final class Test53 {
 			scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
 			scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
 
-			out = (SerialComOutByteStream) scm.createIOStream(SerialComManager.OutputStream, handle, SMODE.NONBLOCKING);
-			in = (SerialComInByteStream) scm.createIOStream(SerialComManager.InputStream, handle1, SMODE.NONBLOCKING);
+			out = (SerialComOutByteStream) scm.getIOStreamInstance(SerialComManager.OutputStream, handle, SMODE.NONBLOCKING);
+			in = (SerialComInByteStream) scm.getIOStreamInstance(SerialComManager.InputStream, handle1, SMODE.NONBLOCKING);
 
 			/* must throw exception as stream already exist for given handle */
 			try {

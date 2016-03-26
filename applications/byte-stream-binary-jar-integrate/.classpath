@@ -2,7 +2,7 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="/home/r/ws-host-uart/serial-communication-manager/applications/byte-stream-binary-jar-integrate/ui.jar"/>
 	<classpathentry kind="lib" path="/home/r/Desktop/scm-1.0.4.jar"/>
-	<classpathentry kind="lib" path="/home/r/ws-host-uart/serial-communication-manager/tools-and-utilities/application-designs/byte-stream-binary-jar-integrate/ui.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
