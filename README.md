@@ -78,9 +78,10 @@ public class Example {
 }
 ```
 
-##Drivers
+##Drivers and Services
+- [Drivers](drivers) for null modem emulator and cp210x usb-uart device have been written.
 
-Drivers for various IC is written [custom drivers](drivers)
+- [Services](services) a service for windows for managing com port database for OEM/ODM have been written.
 
 ##Wiki, Java docs, Example usage, Discussion, Trouble shooting
 
@@ -96,9 +97,10 @@ http://www.embeddedunveiled.com/
 - Provide peer support on mailing lists, forums or newsgroups
 
 ##Author, License and Copyright
-The 'serial communication manager (SCM)' is designed, developed and maintained by Rishi gupta. The Linkdin profile of the author can be found here : http://in.linkedin.com/pub/rishi-gupta/20/9b8/a10
+- The 'serial communication manager (SCM)' is designed, developed and maintained by Rishi gupta.              
+  Linkdin profile : http://in.linkedin.com/pub/rishi-gupta/20/9b8/a10
+  
+- This library is DUAL licensed. It is made available under the terms of the GNU Affero General Public License (AGPL) v3.0 for non-commercial use and under the terms of a commercial license for commercial use of this library. Contact author for commercial license.
 
-The SCM is dual licensed. It is made available under the terms of the GNU Affero General Public License (AGPL) v3.0 for non-commercial use and under the terms of a commercial license for commercial use of SCM. 
-
-See LICENSE file in repository for full license text for AGPL v3.0.
+  See LICENSE file in repository for full license text for AGPL v3.0.
 
