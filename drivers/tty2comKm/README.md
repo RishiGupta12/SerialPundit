@@ -46,5 +46,5 @@ There are three connection configurations supported by this driver.
 
 
 ##Build and Run
-See instructions in operating system specific directory for instructions and uses in subdirectories off this directory.
+See instructions in operating system specific directory for instructions and uses in subdirectories of this directory.
 

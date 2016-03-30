@@ -30,22 +30,3 @@ rm -rf *.o *~ core .depend .*.cmd *.mod.c .tmp_versions modules.order Module.sym
 echo "  "
 echo "Build done."
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

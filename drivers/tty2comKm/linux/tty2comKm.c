@@ -69,7 +69,8 @@ static void scmtty_wait_until_sent(struct tty_struct *tty, int timeout);
 static void scmtty_send_xchar(struct tty_struct *tty, char ch);
 static void scmtty_close(struct tty_struct * tty, struct file * filp);
 
-/* Number of virtual tty ports this driver is going to create by default */
+/* Default number of virtual tty ports this driver is going to support.
+ * TTY devices are created on demand. */
 #define VTTY_DEV_MAX 128
 
 /* Experimental range (major number of devices) */
@@ -385,6 +386,14 @@ static int scmtty_get_icount(struct tty_struct *tty, struct serial_icounter_stru
     return 0;
 }
 
+/*
+ * @file
+ * @buf
+ * @length
+ * @ppos
+ * 
+ * @return number of bytes consumed by this function on success or negative error code on error.
+ */
 static ssize_t scmtty_vadapt_proc_read(struct file *file, char __user *buf, size_t size, loff_t *ppos) 
 {
     int ret = 0;
@@ -437,8 +446,11 @@ static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *bu
     return length;
 }
 
+/* 
+ * Invoked when user space process opens /proc/scmtty_vadaptkm file to create/destroy virtual tty 
+ * device(s).
+ */
 static int proc_show(struct seq_file *m, void *v) {
-    seq_printf(m, "scmtty_vadapt proc opened !\n");//TODO
     return 0;
 }
 static int scmtty_vadapt_proc_open(struct inode *inode, struct  file *file) {
@@ -478,6 +490,7 @@ static const struct tty_operations scm_serial_ops = {
         .get_icount      = scmtty_get_icount,
 };
 
+/* Invoked when this driver is loaded */
 static int __init scm_tty2comKm_init(void)
 {
     int x = 0;
@@ -538,6 +551,7 @@ failed_register;
     return ret;
 }
 
+/* Invoked when this driver is unloaded */
 static void __exit scm_tty2comKm_exit(void)
 {
     int x = 0;
