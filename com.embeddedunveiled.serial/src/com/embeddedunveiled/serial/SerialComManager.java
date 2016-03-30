@@ -2235,7 +2235,10 @@ public final class SerialComManager {
 	}
 
 	/**
-	 * <p>Gives the name of the driver who is driving the given serial port.</p>
+	 * <p>Gives the name of the driver who is driving the given serial port. This API can be used where legacy serial ports 
+	 * have to be found. For example in Windows suppose there is a permanent RS232 port on mother board and a FT232 USB-UART 
+	 * is also attached. Let us say FT232 is COM1 and the one on mother board is COM2. Now calling this method by passing 
+	 * COM1 and then COM2 can easily tell that COM2 is the port we need.</p>
 	 * 
 	 * @param comPortName name only for windows (for ex; COM52), full path for unix-like os (for ex; /dev/ttyUSB0).
 	 * @return name of driver serving given serial port.
