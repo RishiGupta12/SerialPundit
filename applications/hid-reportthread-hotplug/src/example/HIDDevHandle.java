@@ -20,7 +20,7 @@ package example;
 
 public final class HIDDevHandle {
 
-	private long hidDevHandle;
+	private volatile long hidDevHandle;
 
 	public HIDDevHandle(long hidDevHandle) {
 		this.hidDevHandle = hidDevHandle;

@@ -102,3 +102,4 @@ public class AutomatedFactoryTest extends HotPlugEventWatcher {
 		}
 	}
 }
+

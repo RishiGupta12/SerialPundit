@@ -1,5 +1,6 @@
 This application suggest a design through which testing can be automated or may reduce the overhead 
-on tester for testing products which requires test to be run after the DUT has been plugged into system.
+on tester for testing products which requires test to be run after the DUT (device under test) has 
+been plugged into system.
 
 #####Running this application
    

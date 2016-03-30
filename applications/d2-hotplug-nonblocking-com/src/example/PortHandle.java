@@ -20,7 +20,7 @@ package example;
 
 public final class PortHandle {
 
-	private long comPortHandle;
+	private volatile long comPortHandle;
 
 	public PortHandle(long comPortHandle) {
 		this.comPortHandle = comPortHandle;
