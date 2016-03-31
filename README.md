@@ -45,6 +45,18 @@ PROJECT
 - Extensively documented both Java (online javadocs) and C code.
 - Scripts for quickly building and testing project.
 
+##Drivers and Services
+
+#####Null modem emulator
+- [Feature](drivers) rich null modem emulation driver supporting null modem, loopback and custom connections.
+
+#####Usb-uart
+- [Driver](drivers) for cp210x IC and products based on it with access to GPIO, IOCTL support, configuration scripts etc.
+
+#####ComDBFree
+
+- [ComDBFree](services) is a service for OEM/ODM to fully automate factory testing by managing COM ports assignment in windows dynamically from test application/setup itself.
+
 ##Getting started
 
 The folder prebuilt-release in this repository contains ready-to-use jar file (scm-1.0.4.jar) that can be imported in any project and referenced right away. Simply add scm-1.0.4.jar in your project as external library. 
@@ -78,14 +90,11 @@ public class Example {
 }
 ```
 
-##Drivers and Services
-- [Drivers](drivers) for null modem emulator and cp210x usb-uart device have been written.
+##API usage
+[Several](applications) full applications demonstrating usage of features and API of this library.
 
-- [Services](services) a service for windows for managing com port database for OEM/ODM have been written.
-
-##Wiki, Java docs, Example usage, Discussion, Trouble shooting
-
-http://www.embeddedunveiled.com/
+##Support and discussion
+[Google group](https://groups.google.com/d/forum/serial-communication-manager) for feature request, asking questions and raising bugs etc.
 
 ##Help the project grow [<img src="https://github.com/RishiGupta12/serial-communication-manager/blob/master/images/help.jpg">](https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=gupt21%40gmail%2ecom&lc=IN&item_name=Serial%20Project&button_subtype=services&currency_code=USD&bn=PP%2dBuyNowBF%3abtn_buynowCC_LG%2egif%3aNonHosted)
 

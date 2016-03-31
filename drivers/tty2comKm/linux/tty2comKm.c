@@ -89,8 +89,8 @@ static void scmtty_close(struct tty_struct * tty, struct file * filp);
 struct vtty_dev {
     ushort own_index;
     ushort peer_index;
-    ushort msr;
-    ushort mcr;
+    ushort msr;  // modem status register
+    ushort mcr;  // modem control register
     spinlock_t lock;
     int open_count;
     struct tty_struct *own_tty;

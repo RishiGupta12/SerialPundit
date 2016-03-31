@@ -1,7 +1,9 @@
 ####Building
 ---------------------
 
-Build is done using make tool. Run build.sh shell script to build this driver.
+- Prebuilt driver scm_cp210x.ko is provided in repository.
+
+- Build is done using make tool. Run build.sh shell script to build this driver.
 
 
 ####Installing
