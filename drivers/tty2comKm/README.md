@@ -1,6 +1,6 @@
 It is a kernel mode null modem emulator driver providing full duplex communication and handshaking signals.
 
-It creates virtual serial ports pair that appears same as real once to the underlying operating system.
+It creates virtual serial ports pair that appears same as the real once to the application software.
 
 ##Use cases
 - Fully automate Junit testing and continuous integration
@@ -19,8 +19,8 @@ It creates virtual serial ports pair that appears same as real once to the under
   [hw device]--[hw comport]--[plugin software (process data)]--[virtual comport]--[Existing application]
 
 ##Features
-- Emulate A plug and play device
-- Create standard, loopback or custom connected serial devices
+- Emulate a plug and play device
+- Create standard, loopback or custom pinout connected serial devices
 - Create/destroy virtual serial ports dynamically (no reboot required)
 - Ports can be created automatically at system boots
 - Serial ports can be deleted even when opened by an application (useful in automated testing)

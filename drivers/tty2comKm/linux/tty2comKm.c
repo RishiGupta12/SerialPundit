@@ -20,8 +20,8 @@
  * Virtual multi-port serial adaptor :
  *
  * This driver implements a virtual multiport serial adaptor in such a way that the virtual adaptor can have 
- * from 0 to N number of virtual serial(tty) ports. The virtual tty ports created by this adaptor are used in 
- * exactly same way as real tty devices.
+ * from 0 to N number of virtual serial(tty) devices. The virtual tty devices created by this adaptor are used 
+ * in exactly the same way as the real tty devices using termios APIs.
  */
 
 #include <linux/kernel.h>
@@ -44,7 +44,7 @@
 /* Module information */
 #define DRIVER_VERSION "v1.0"
 #define DRIVER_AUTHOR "Rishi Gupta"
-#define DRIVER_DESC "Serial port null modem emulator driver (kernel mode)"
+#define DRIVER_DESC "Serial port null modem emulation driver (kernel mode)"
 
 static int scmtty_open(struct tty_struct * tty, struct file * filp);
 static int scmtty_write(struct tty_struct * tty, const unsigned char *buf, int count);
@@ -76,6 +76,12 @@ static void scmtty_close(struct tty_struct * tty, struct file * filp);
 /* Experimental range (major number of devices) */
 #define SCM_VTTY_MAJOR 240
 
+/* Pin out configurations definitions */
+#define CON_CTS   0x01
+#define CON_DCD   0x02
+#define CON_DSR   0x04
+#define CON_RI    0x08
+
 /* Modem control lines definitions */
 #define SCM_MCR_DTR    0x01
 #define SCM_MCR_RTS    0x02
@@ -89,14 +95,23 @@ static void scmtty_close(struct tty_struct * tty, struct file * filp);
 struct vtty_dev {
     ushort own_index;
     ushort peer_index;
-    ushort msr;  // modem status register
-    ushort mcr;  // modem control register
+    ushort msr_reg;  // modem status register
+    ushort mcr_reg;  // modem control register
     spinlock_t lock;
     int open_count;
+    int rts_mapping;
+    int dtr_mapping;
+    int is_nullmodem;
     struct tty_struct *own_tty;
     struct tty_struct *peer_tty;
     struct serial_struct serial;
     struct serial_icounter_struct icount;
+    struct device *device; //TODO CHK IF NEEDED OR NOT
+};
+
+struct vtty_info {
+    int index;
+    struct vtty_dev *vttydev;
 };
 
 /* These values may be overriden if module is loaded with parameters */
@@ -108,8 +123,8 @@ static ushort init_num_lb_dev = VTTY_DEV_MAX;
 static struct tty_driver *scmtty_driver;
 
 /* Used when creating or destroying virtual tty devices */
-DEFINE_SPINLOCK(adaptlock);  // atomically create/destroy tty devices
-int *index_counter = NULL;  //  keep track of indexes in use currently 
+static DEFINE_SPINLOCK(adaptlock);        // atomically create/destroy tty devices
+struct vtty_info *index_manager = NULL;   //  keep track of indexes in use currently 
 
 /*
  * Invoked when open() is called on a serial port's device node. The tty layr will allocate a 
@@ -123,9 +138,7 @@ int *index_counter = NULL;  //  keep track of indexes in use currently
  */
 static int scmtty_open(struct tty_struct * tty, struct file * filp)
 {
-    printk(KERN_INFO "rishi : %d\n", tty->index);
-    //http://lxr.free-electrons.com/source/drivers/tty/tty_port.c#L568
-    //http://lxr.free-electrons.com/source/net/irda/ircomm/ircomm_tty.c#L84
+
     return 0;
 }
 
@@ -225,13 +238,7 @@ static int scmtty_chars_in_buffer(struct tty_struct *tty)
  */
 static int scmtty_ioctl(struct tty_struct *tty, unsigned int cmd, unsigned long arg) 
 {
-    //wait : https://github.com/projectara/greybus/blob/master/uart.c
-    //https://github.com/torvalds/linux/blob/master/drivers/usb/class/cdc-acm.c
-    //https://github.com/torvalds/linux/blob/master/drivers/tty/serial/serial_core.c
 
-
-    //uart line info https://github.com/torvalds/linux/blob/master/drivers/tty/serial/serial_core.c
-    // 
 
     return -ENOIOCTLCMD;
 }
@@ -377,11 +384,7 @@ static int scmtty_tiocmset(struct tty_struct *tty, unsigned int set, unsigned in
  */
 static int scmtty_get_icount(struct tty_struct *tty, struct serial_icounter_struct *icount) 
 {
-    //http://lxr.free-electrons.com/source/net/irda/ircomm/ircomm_tty_ioctl.c#L391
-    //http://lxr.free-electrons.com/source/drivers/usb/serial/generic.c#L514
-    //http://lxr.free-electrons.com/source/drivers/usb/serial/usb-serial.c#L519
-    //https://github.com/torvalds/linux/blob/master/drivers/tty/serial/serial_core.c             VIMP
-    //https://github.com/martinezjavier/ldd3/blob/master/tty/tiny_tty.c
+
 
     return 0;
 }
@@ -394,67 +397,308 @@ static int scmtty_get_icount(struct tty_struct *tty, struct serial_icounter_stru
  * 
  * @return number of bytes consumed by this function on success or negative error code on error.
  */
-static ssize_t scmtty_vadapt_proc_read(struct file *file, char __user *buf, size_t size, loff_t *ppos) 
+static ssize_t scmtty_vadapt_proc_read(struct file *file, char __user *buf, size_t size, loff_t *ppos)
 {
     int ret = 0;
-    ret = copy_to_user(buf, "rishi", sizeof("rishi"));//TODO
+    //ret = copy_to_user(buf, "rishi", sizeof("rishi"));//TODO
     return ret;
 }
 
-//"gennm-xxxxxx-
+static int extract_mapping(char data[], int x) {
+    int i = 0;
+    int mapping = 0;
+    for(i=0; i<8; i++) {
+        if(data[x] == '8') {
+            mapping |= CON_CTS;
+        }else if(data[x] == '1') {
+            mapping |= CON_DCD;
+        }else if(data[x] == '6') {
+            mapping |= CON_DSR;
+        }else if(data[x] == '9') {
+            mapping |= CON_RI;
+        }else if(data[x] == '#') {
+            break;
+        }else if((data[x] == 'x') || (data[x] == ',')) {
+        }else {
+            return -EINVAL;
+        }
+        x++;
+    }
+    return mapping;
+}
 
 /*
- * 1. # echo "gensnm" > /proc/scmtty_vadaptkm
- * 3. # echo "gensnm-xxxxxx" > /proc/scmtty_vadaptkm
- * 2. # echo "genslb" > /proc/scmtty_vadaptkm
- * 4. # echo "genslb-xxxxxx" > /proc/scmtty_vadaptkm
+ * Standard DB9 pin assignment: 1 - DCD, 2 - RX, 3 - TX, 4 - DTR, 5 - GND, 6 - DSR, 7 - RTS, 8 - CTS, 9 - RI
+ * Assignment 7-8 means connect local RTS pin to remote CTS pin. Assignment 4-1,6 meane connect local DTR to 
+ * remote DSR and DCD pins. Assignment 7-x means leave local RTS pin unconnected. The 'y' at last will raise 
+ * DCD pin when device is opened. When removing tty device, if the given device is one of the device in null 
+ * modem pair, coupled device will also be deleted aautomatically.
+ * 
+ * 1. Create standard null modem connection:
+ * $echo "gennm#vdev1#vdev2#7-8,x,x,x#4-1,6,x,x#7-8,x,x,x#4-1,6,x,x#y" > /proc/scmtty_vadaptkm
+ * 
+ * 2. Create standard loop back connection:
+ * $echo "genlb#vdevt#xxxxx#7-8,x,x,x#4-1,6,x,x#x-x,x,x,x#x-x,x,x,x#y" > /proc/scmtty_vadaptkm
+ * 
+ * 3. Delete a particular tty device:
+ * $echo "del#vdevt#xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" > /proc/scmtty_vadaptkm
+ * 
+ * 4. Delete all virtual tty devices:
+ * $echo "del#xxxxx#xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" > /proc/scmtty_vadaptkm
  * 
  * @file
  * @buf
  * @length
  * @ppos
  * 
- * @return number of bytes consumed by this function on success or negative error code on error.
+ * @return number of bytes consumed by this function on success or negative error code on failure.
  */
-static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *buf, size_t length, loff_t *ppos) 
+static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *buf, size_t length, loff_t * ppos)
 {
-    struct device *device;
-    char cmd[8];
+    int x = 0;
+    int y = 0;
+    int i = 0;
+    int ret = 0;
+    int create = 0;
+    int vdev1idx = -1;
+    int vdev2idx = -1;
+    int vdev1rts = 0;
+    int vdev2rts = 0;
+    int vdev1dtr = 0;
+    int vdev2dtr = 0;
+    int is_loopback = -1;
 
-    if(length != 8) {
+    char tmp[8];
+    char data[64];
+
+    struct vtty_dev *vttydev1 = NULL;
+    struct vtty_dev *vttydev2 = NULL;
+    struct device *device1 = NULL;
+    struct device *device2 = NULL;
+
+    if(length != 60)
+        return -EINVAL;
+
+    if(copy_from_user(data, buf, length) != 0) {
+        return -EFAULT;
+    }
+    data[60] = '\0';
+
+    // initial sanitization
+    if((data[0] == 'g') && (data[1] == 'e') && (data[2] == 'n')) {
+        if((data[3] == 'n') && (data[4] == 'm')) {
+        }else if((data[3] == 'l') && (data[4] == 'b')) {
+            is_loopback = 1;
+        }else {
+            return -EINVAL;
+        }
+        create = 1;
+    }else if((data[0] == 'd') && (data[1] == 'e') && (data[2] == 'l')) {
+        create = -1;
+    }else {
         return -EINVAL;
     }
 
-    if(copy_from_user(cmd, buf, 8) != 0) {
-        return -EFAULT;
+    if(create == 1) {
+        // extract 1st device index
+        x = 6;
+        if(data[6] != 'x') {
+            memset(tmp, '\0', sizeof(tmp));
+            for(i=0; i<5; i++) {
+                tmp[i] = data[x];
+                x++;
+            }
+            ret = kstrtouint(tmp, 10, &vdev1idx);
+            if(ret != 0) 
+                return ret;
+        }
+        vttydev1 = (struct vtty_dev *) kcalloc(1, sizeof(struct vtty_dev *), GFP_KERNEL);
+        if(vttydev1 == NULL)
+            return -ENOMEM;
+
+        // extract 2nd device index if null modem pair is to be created
+        if(is_loopback != 1) {
+            x = 12;
+            if(data[x] != 'x') {
+                memset(tmp, '\0', sizeof(tmp));
+                i = 0;
+                for(i=0; i<5; i++) {
+                    tmp[i] = data[x];
+                    x++;
+                }
+                ret = kstrtouint(tmp, 10, &vdev2idx);
+                if(ret != 0)
+                    return ret;
+            }
+            vttydev2 = (struct vtty_dev *) kcalloc(1, sizeof(struct vtty_dev *), GFP_KERNEL);
+            if(vttydev2 == NULL) {
+                ret = -ENOMEM;
+                goto fail_arg;
+            }
+        }
+
+        // rts mappings (dev1)
+        if((data[18] != '7') || (data[19] != '-')) {
+            ret = -EINVAL;
+            goto fail_arg;
+        }
+        ret = extract_mapping(data, 20);
+        if(ret < 0)
+            goto fail_arg;
+        vdev1rts = ret;
+
+        if((data[27] != '#') || (data[28] != '4') || (data[29] != '-'))
+            goto fail_arg;
+
+        // dtr mapping (dev1)
+        ret = extract_mapping(data, 30);
+        if(ret < 0)
+            goto fail_arg;
+        vdev1dtr = ret;
+
+        if(data[37] != '#')
+            goto fail_arg;
+
+        if(is_loopback != 1) {
+            // rts mappings (dev2)
+            if((data[38] != '7') || (data[39] != '-')) {
+                ret = -EINVAL;
+                goto fail_arg;
+            }
+            ret = extract_mapping(data, 40);
+            if(ret < 0)
+                goto fail_arg;
+            vdev2rts = ret;
+
+            // dtr mapping (dev2)
+            if((data[47] != '#') || (data[48] != '4') || (data[49] != '-'))
+                goto fail_arg;
+
+            ret = extract_mapping(data, 50);
+            if(ret < 0)
+                goto fail_arg;
+            vdev2dtr = ret;
+
+            if(data[57] != '#')
+                goto fail_arg;
+        }
+
+        //TODO raisecd data[58] 'y'
+
+        // The (driver->flags & TTY_DRIVER_DYNAMIC_ALLOC) will evaluate to zero as we are allocating devices 
+        // dynamically. This will create a kernel device and register it with kernel subsystem(s) as appropriate, 
+        // associating the device at given index of tty driver.
+        spin_lock(&adaptlock);
+
+        if(vdev1idx == -1) {
+            for(x=0; x < max_num_vtty_dev;  x++) {
+                if(index_manager[x].index == -1) {
+                    i = x;
+                    break;
+                }
+            }
+        }else {
+            if(index_manager[vdev1idx].index == -1) {
+                i = vdev1idx;
+            }else {
+                ret = -EEXIST;
+                goto fail_arg;
+            }
+        }
+        device1 = tty_register_device(scmtty_driver, i, NULL);
+        if(device1 == NULL) {
+            ret = -ENOMEM;
+            goto fail_arg;
+        }
+        index_manager[i].index = i;
+        index_manager[i].vttydev = vttydev1;
+
+        if(is_loopback != 1) {
+            if(vdev2idx == -1) {
+                for(x=0; x < max_num_vtty_dev;  x++) {
+                    if(index_manager[x].index == -1) {
+                        y = x;
+                        break;
+                    }
+                }
+            }else {
+                if(index_manager[vdev2idx].index == -1) {
+                    y = vdev2idx;
+                }else {
+                    ret = -EEXIST;
+                    goto fail_arg;
+                }
+            }
+            device2 = tty_register_device(scmtty_driver, y, NULL);
+            if(device2 == NULL) {
+                ret = -ENOMEM;
+                goto fail_register;
+            }
+            index_manager[y].index = y;
+            index_manager[y].vttydev = vttydev2;
+        }
+
+        spin_unlock(&adaptlock);
     }
-
-    // The (driver->flags & TTY_DRIVER_DYNAMIC_ALLOC) will evaluate to zero as we are allocating devices 
-    // dynamically. This will create a kernel device and register it as appropriate, associating the 
-    // device at given index of tty driver.
-
-    spin_lock(&adaptlock);
-    spin_unlock(&adaptlock);
-
-    if(cmd[4] == 'x') {
-        //TODO INDEX
-        device = tty_register_device(scmtty_driver, 0, NULL);
-    }else {
-        device = tty_register_device(scmtty_driver, 0, NULL);
+    else {
+        if(data[4] == 'x') {
+            for(x=0; x < max_num_vtty_dev;  x++) {
+                if(index_manager[x].index != -1) {
+                    tty_unregister_device(scmtty_driver, index_manager[x].index);
+                    kfree(index_manager[x].vttydev);
+                }
+            }
+        }else {
+            x = 4;
+            memset(tmp, '\0', sizeof(tmp));
+            i = 0;
+            for(i=0; i<5; i++) {
+                tmp[i] = data[x];
+                x++;
+            }
+            ret = kstrtouint(tmp, 10, &vdev1idx);
+            if(ret != 0)
+                return ret;
+            if(index_manager[vdev1idx].index != -1) {
+                tty_unregister_device(scmtty_driver, index_manager[vdev1idx].index);
+                kfree(index_manager[vdev1idx].vttydev);
+            }else {
+                return -EINVAL;
+            }
+        }
     }
 
     return length;
+
+    fail_register:
+    tty_unregister_device(scmtty_driver, i);
+    fail_arg:
+    if(vttydev2 != NULL)
+        kfree(vttydev2);
+    if(vttydev1 != NULL)
+        kfree(vttydev1);
+    return ret;
 }
 
 /* 
- * Invoked when user space process opens /proc/scmtty_vadaptkm file to create/destroy virtual tty 
- * device(s).
+ * Invoked when user space process opens /proc/scmtty_vadaptkm file to create/destroy 
+ * virtual tty device(s).
+ * 
+ * @return 0 on success.
  */
-static int proc_show(struct seq_file *m, void *v) {
+static int scmtty_vadapt_proc_open(struct inode *inode, struct  file *file) 
+{
     return 0;
 }
-static int scmtty_vadapt_proc_open(struct inode *inode, struct  file *file) {
-    return single_open(file, proc_show, NULL);
+
+/* 
+ * Invoked when user space process closes /proc/scmtty_vadaptkm file.
+ * 
+ * @return 0 on success.
+ */
+static int scmtty_vadapt_proc_close(struct inode *inode, struct file *file) 
+{
+    return 0;
 }
 
 static const struct file_operations scmtty_vadapt_proc_fops = {
@@ -462,8 +706,7 @@ static const struct file_operations scmtty_vadapt_proc_fops = {
         .open = scmtty_vadapt_proc_open,
         .read = scmtty_vadapt_proc_read,
         .write = scmtty_vadapt_proc_write,
-        .llseek = seq_lseek,
-        .release = single_release,
+        .release = scmtty_vadapt_proc_close,
 };
 
 static const struct tty_operations scm_serial_ops = {
@@ -505,7 +748,7 @@ static int __init scm_tty2comKm_init(void)
 
     scmtty_driver->owner = THIS_MODULE;
     scmtty_driver->driver_name = "tty2comKm";
-    scmtty_driver->name = "tty2comport";
+    scmtty_driver->name = "tty2com";
     scmtty_driver->major = SCM_VTTY_MAJOR,
             scmtty_driver->type = TTY_DRIVER_TYPE_SERIAL,
             scmtty_driver->subtype = SERIAL_TYPE_NORMAL,
@@ -518,21 +761,21 @@ static int __init scm_tty2comKm_init(void)
     tty_set_operations(scmtty_driver, &scm_serial_ops);
 
     ret = tty_register_driver(scmtty_driver);
-    if (ret) {
+    if (ret) 
         goto failed_register;
-    }
 
-    /* A value of -1 means that index is available for use */
-    index_counter = (int *) kmalloc((max_num_vtty_dev * sizeof(int)), GFP_KERNEL);
-    if(index_counter == NULL) {
+    /* A value of -1 at particular 'X' (index_manager[X].index) means that tty2comportX is available for use */
+    index_manager = (struct vtty_info *) kcalloc(max_num_vtty_dev, sizeof(struct vtty_info), GFP_KERNEL);
+    if(index_manager == NULL) {
         ret = -ENOMEM;
         goto failed_alloc;
     }
     for(x=0; x < max_num_vtty_dev;  x++) {
-        index_counter[x] = -1;
+        index_manager[x].index = -1;
     }
 
-    /* Application should read/write to this file to create/destroy tty device and query informations */
+    /* Application should read/write to this file to create/destroy tty device and query informations about 
+     * existing virtual tty devices */
     pde = proc_create("scmtty_vadaptkm", 0666, NULL, &scmtty_vadapt_proc_fops);
     if(pde == NULL) {
         ret = -ENOMEM;
@@ -542,11 +785,11 @@ static int __init scm_tty2comKm_init(void)
     printk(KERN_INFO "%s %s %s\n", "tty2comKm:", DRIVER_DESC, DRIVER_VERSION);
     return 0;
 
-failed_proc:
-    kfree(index_counter);
-failed_alloc:
+    failed_proc:
+    kfree(index_manager);
+    failed_alloc:
     tty_unregister_driver(scmtty_driver);
-failed_register;
+    failed_register:
     put_tty_driver(scmtty_driver);
     return ret;
 }
@@ -555,19 +798,19 @@ failed_register;
 static void __exit scm_tty2comKm_exit(void)
 {
     int x = 0;
-    int y = sizeof(index_counter) / sizeof(ushort);
-    
+
     remove_proc_entry("scmtty_vadaptkm", NULL);
-    
-    for(x=0; x <= y;  x++) {
-        if(index_counter[x] != -1)
-            tty_unregister_device(scmtty_driver, x);
+
+    for(x=0; x < max_num_vtty_dev;  x++) {
+        if(index_manager[x].index != -1) {
+            tty_unregister_device(scmtty_driver, index_manager[x].index);
+            kfree(index_manager[x].vttydev);
+        }
     }
-    
+    kfree(index_manager);
+
     tty_unregister_driver(scmtty_driver);
     put_tty_driver(scmtty_driver);
-    
-    printk(KERN_INFO "%s\n", "tty2comKm: kernel driver unloaded !");
 }
 
 module_init(scm_tty2comKm_init);
@@ -577,13 +820,14 @@ module_param(max_num_vtty_dev, ushort, 0);
 MODULE_PARM_DESC(max_num_vtty_dev, "Maximum number of virtual tty devices this driver can create.");
 
 module_param(init_num_nm_pair, ushort, 0);
-MODULE_PARM_DESC(init_num_nm_pair, "Number of standard null modem pairs this driver should create at load time.");
+MODULE_PARM_DESC(init_num_nm_pair, "Number of standard null modem pairs to be created at load time.");
 
 module_param(init_num_lb_dev, ushort, 0);
-MODULE_PARM_DESC(init_num_lb_dev, "Number of standard loopback tty devices this driver should create at load time.");
+MODULE_PARM_DESC(init_num_lb_dev, "Number of standard loopback tty devices to be created at load time.");
 
 MODULE_AUTHOR( DRIVER_AUTHOR );
 MODULE_DESCRIPTION( DRIVER_DESC );
-MODULE_LICENSE("GPL v3");
+MODULE_LICENSE("Proprietary");
 MODULE_VERSION( DRIVER_VERSION );
+
 
