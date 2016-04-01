@@ -126,9 +126,9 @@
 
 /* Function prototypes for cp210x usb-serial converter */
 static int write_cp210x_register(struct usb_serial_port *port, u8 request, u8 requestType, int value, 
-		int index, unsigned int *data, int size);
+        int index, unsigned int *data, int size);
 static int read_cp210x_register(struct usb_serial_port *port, u8 request, u8 requestType, int value, 
-		int index, unsigned int *data, int size);
+        int index, unsigned int *data, int size);
 
 static ssize_t cp210x_gpio_1_store(struct device *dev, struct device_attribute *attr, const char *valbuf, size_t count);
 static ssize_t cp210x_gpio_1_show(struct device *dev, struct device_attribute *attr, char *buf);
@@ -158,19 +158,19 @@ static void scm_cp210x_close(struct usb_serial_port *port);
 static bool dbg = false;
 
 struct cp210x_port_private {
-	int cp210x_chip_type;
-	int interface_enabled;
+    int cp210x_chip_type;
+    int interface_enabled;
 };
 
 /* struct cp210x_products_quirk is used by products that need to do extra things. */
 struct cp210x_products_quirk {
-	int (*probe)(struct usb_serial *);
-	int (*port_probe)(struct usb_serial_port *);
+    int (*probe)(struct usb_serial *);
+    int (*port_probe)(struct usb_serial_port *);
 };
 
 static struct cp210x_products_quirk xyz_product_quirk = {
-		.probe  = xyz_product_probe,
-		.port_probe = xyz_product_port_probe,
+        .probe  = xyz_product_probe,
+        .port_probe = xyz_product_port_probe,
 };
 
 /* 
@@ -183,11 +183,11 @@ static struct cp210x_products_quirk xyz_product_quirk = {
  * products.
  */
 static const struct usb_device_id id_table[] = {
-		{ USB_DEVICE(0x10C4, 0xEA60) },
-		{ USB_DEVICE(0x10C4, 0xEA61) },
-		{ USB_DEVICE(0x10C4, 0xEA70) },
-		{ USB_DEVICE(0x10C4, 0xEA80), .driver_info = (kernel_ulong_t) &xyz_product_quirk },
-		{ } /* terminating entry */
+        { USB_DEVICE(0x10C4, 0xEA60) },
+        { USB_DEVICE(0x10C4, 0xEA61) },
+        { USB_DEVICE(0x10C4, 0xEA70) },
+        { USB_DEVICE(0x10C4, 0xEA80), .driver_info = (kernel_ulong_t) &xyz_product_quirk },
+        { } /* terminating entry */
 };
 MODULE_DEVICE_TABLE(usb, id_table);
 
@@ -228,35 +228,35 @@ MODULE_DEVICE_TABLE(usb, id_table);
  * interface: /sys/bus/usb/drivers/scm_cp210x/3-3:1.0 -> ../../../../devices/pci0000:00/0000:00:14.0/usb3/3-3/3-3:1.0
  */
 static struct usb_serial_driver scm_cp210x_device = {
-		.driver = {
-				.owner = THIS_MODULE,
-				.name  = "scm_cp210x",
-		},
-		.description   = "CP210X USB Serial Device",
-		.id_table      = id_table,
-		.num_ports     = 1,
-		.bulk_in_size  = 256,
-		.bulk_out_size = 256,
-		.probe         = scm_cp210x_probe,
-		.attach        = scm_cp210x_startup,
-		.release       = scm_cp210x_shutdown,
-		.port_probe    = scm_cp210x_port_probe,
-		.port_remove   = scm_cp210x_port_remove,
-		.open          = scm_cp210x_open,
-		.close         = scm_cp210x_close,
-		.ioctl         = scm_cp210x_ioctl,
-		.set_termios   = scm_cp210x_set_termios,
-		.break_ctl     = scm_cp210x_break_ctl,
-		.throttle      = usb_serial_generic_throttle,
-		.unthrottle    = usb_serial_generic_unthrottle,
-		.tiocmget      = scm_cp210x_tiocmget,
-		.tiocmset      = scm_cp210x_tiocmset,
-		.tiocmiwait    = usb_serial_generic_tiocmiwait,
-		.get_icount    = usb_serial_generic_get_icount,
-		.dtr_rts       = scm_cp210x_dtr_rts,
+        .driver = {
+                .owner = THIS_MODULE,
+                .name  = "scm_cp210x",
+        },
+        .description   = "CP210X USB Serial Device",
+        .id_table      = id_table,
+        .num_ports     = 1,
+        .bulk_in_size  = 256,
+        .bulk_out_size = 256,
+        .probe         = scm_cp210x_probe,
+        .attach        = scm_cp210x_startup,
+        .release       = scm_cp210x_shutdown,
+        .port_probe    = scm_cp210x_port_probe,
+        .port_remove   = scm_cp210x_port_remove,
+        .open          = scm_cp210x_open,
+        .close         = scm_cp210x_close,
+        .ioctl         = scm_cp210x_ioctl,
+        .set_termios   = scm_cp210x_set_termios,
+        .break_ctl     = scm_cp210x_break_ctl,
+        .throttle      = usb_serial_generic_throttle,
+        .unthrottle    = usb_serial_generic_unthrottle,
+        .tiocmget      = scm_cp210x_tiocmget,
+        .tiocmset      = scm_cp210x_tiocmset,
+        .tiocmiwait    = usb_serial_generic_tiocmiwait,
+        .get_icount    = usb_serial_generic_get_icount,
+        .dtr_rts       = scm_cp210x_dtr_rts,
 };
 static struct usb_serial_driver * const serial_drivers[] = {
-		&scm_cp210x_device, NULL
+        &scm_cp210x_device, NULL
 };
 
 /* 
@@ -277,13 +277,13 @@ static struct usb_serial_driver * const serial_drivers[] = {
 static DEVICE_ATTR(cp210x_gpio_1, (S_IWUSR | S_IRUGO), cp210x_gpio_1_show, cp210x_gpio_1_store);
 
 static struct attribute *scm_cp210x_attrs[] = {
-		&dev_attr_cp210x_gpio_1.attr,
-		NULL,
+        &dev_attr_cp210x_gpio_1.attr,
+        NULL,
 };
 
 static const struct attribute_group scm_cp210x_attr_group = {
-		.name = "scm_cp210x_gpio",
-		.attrs = scm_cp210x_attrs,
+        .name = "scm_cp210x_gpio",
+        .attrs = scm_cp210x_attrs,
 };
 
 /* 
@@ -304,17 +304,17 @@ static const struct attribute_group scm_cp210x_attr_group = {
  */
 static int create_cp210x_sysfs_attrs(struct usb_serial_port *port)
 {    
-	int ret;
-	struct cp210x_port_private *port_priv = usb_get_serial_port_data(port);
+    int ret;
+    struct cp210x_port_private *port_priv = usb_get_serial_port_data(port);
 
-	if((port_priv->cp210x_chip_type == PART_CP2102) || (port_priv->cp210x_chip_type == PART_CP2109))
-		return 0;
+    if((port_priv->cp210x_chip_type == PART_CP2102) || (port_priv->cp210x_chip_type == PART_CP2109))
+        return 0;
 
-	ret = sysfs_create_group(&port->dev.kobj, &scm_cp210x_attr_group);
-	if (ret < 0)
-		return ret;
+    ret = sysfs_create_group(&port->dev.kobj, &scm_cp210x_attr_group);
+    if (ret < 0)
+        return ret;
 
-	return 0;
+    return 0;
 }
 
 /* 
@@ -322,13 +322,13 @@ static int create_cp210x_sysfs_attrs(struct usb_serial_port *port)
  */
 static void remove_cp210x_sysfs_attrs(struct usb_serial_port *port)
 {
-	struct cp210x_port_private *port_priv;
-	port_priv = usb_get_serial_port_data(port);
+    struct cp210x_port_private *port_priv;
+    port_priv = usb_get_serial_port_data(port);
 
-	if((port_priv->cp210x_chip_type == PART_CP2102) || (port_priv->cp210x_chip_type == PART_CP2109))
-		return;
+    if((port_priv->cp210x_chip_type == PART_CP2102) || (port_priv->cp210x_chip_type == PART_CP2109))
+        return;
 
-	sysfs_remove_group(&port->dev.kobj, &scm_cp210x_attr_group);
+    sysfs_remove_group(&port->dev.kobj, &scm_cp210x_attr_group);
 }
 
 /* 
@@ -336,83 +336,86 @@ static void remove_cp210x_sysfs_attrs(struct usb_serial_port *port)
  */
 static ssize_t cp210x_gpio_1_show(struct device *dev, struct device_attribute *attr, char *buf)
 {
-	int result = 0;
-	unsigned long latch_buf = 0;
-	struct usb_serial_port *port = to_usb_serial_port(dev);
-	struct cp210x_port_private *port_priv = usb_get_serial_port_data(port);
+    int result = 0;
+    unsigned long latch_buf = 0;
+    struct usb_serial_port *port = to_usb_serial_port(dev);
+    struct cp210x_port_private *port_priv = usb_get_serial_port_data(port);
 
-	if ((PART_CP2103 == port_priv->cp210x_chip_type) || (PART_CP2104 == port_priv->cp210x_chip_type)) {
-		result = read_cp210x_register(port, CP210X_VENDOR_SPECIFIC, REQTYPE_HOST_TO_DEVICE, CP210X_READ_LATCH, 
-				0, (unsigned int*)&latch_buf, 1);
-		if (result != 0)
-			return result;
-	}
-	else if (PART_CP2105 == port_priv->cp210x_chip_type) {
-		result = read_cp210x_register(port, CP210X_VENDOR_SPECIFIC, REQTYPE_INTERFACE_TO_HOST, CP210X_READ_LATCH, 
-				port->serial->interface->cur_altsetting->desc.bInterfaceNumber, 
-				(unsigned int*)&latch_buf, 1);
-		if (result != 0)
-			return result;
-	}
-	else if (PART_CP2108 == port_priv->cp210x_chip_type) {
-		result = read_cp210x_register(port, CP210X_VENDOR_SPECIFIC, REQTYPE_DEVICE_TO_HOST, CP210X_READ_LATCH, 
-				port->serial->interface->cur_altsetting->desc.bInterfaceNumber, 
-				(unsigned int*)&latch_buf, 2);
-		if (result != 0)
-			return result;
-	}
-	else {
-		return -ENOTSUPP;
-	}
+    if ((PART_CP2103 == port_priv->cp210x_chip_type) || (PART_CP2104 == port_priv->cp210x_chip_type)) {
+        result = read_cp210x_register(port, CP210X_VENDOR_SPECIFIC, REQTYPE_HOST_TO_DEVICE, CP210X_READ_LATCH, 
+                0, (unsigned int*)&latch_buf, 1);
+        if (result != 0)
+            return result;
+    }
+    else if (PART_CP2105 == port_priv->cp210x_chip_type) {
+        result = read_cp210x_register(port, CP210X_VENDOR_SPECIFIC, REQTYPE_INTERFACE_TO_HOST, CP210X_READ_LATCH, 
+                port->serial->interface->cur_altsetting->desc.bInterfaceNumber, 
+                (unsigned int*)&latch_buf, 1);
+        if (result != 0)
+            return result;
+    }
+    else if (PART_CP2108 == port_priv->cp210x_chip_type) {
+        result = read_cp210x_register(port, CP210X_VENDOR_SPECIFIC, REQTYPE_DEVICE_TO_HOST, CP210X_READ_LATCH, 
+                port->serial->interface->cur_altsetting->desc.bInterfaceNumber, 
+                (unsigned int*)&latch_buf, 2);
+        if (result != 0)
+            return result;
+    }
+    else {
+        return -ENOTSUPP;
+    }
 
-	return sprintf(buf, "%d\n", (int)(latch_buf & 0x02));
+    return sprintf(buf, "%d\n", (int)(latch_buf & 0x02));
 }
 
 /* 
  * Invoked when user space application write to sysfs file for GPIO_1.
  */
 static ssize_t cp210x_gpio_1_store(struct device *dev, struct device_attribute *attr, const char *valbuf, 
-		size_t count)
+        size_t count)
 {
-	int result = 0;
-	unsigned int val = 0;
-	unsigned long latch_buf = 0;
-	struct usb_serial_port *port = to_usb_serial_port(dev);
-	struct cp210x_port_private *port_priv = usb_get_serial_port_data(port);
+    int result = 0;
+    unsigned int val = 0;
+    unsigned long latch_buf = 0;
+    struct usb_serial_port *port = to_usb_serial_port(dev);
+    struct cp210x_port_private *port_priv = usb_get_serial_port_data(port);
 
-	kstrtouint(valbuf, 10, &val);
-	if(val > 0)
-		latch_buf = 0x202;
-	else
-		latch_buf = 0x200;
+    result = kstrtouint(valbuf, 10, &val);
+    if (result != 0)
+        return result;
 
-	if ((PART_CP2103 == port_priv->cp210x_chip_type) || (PART_CP2104 == port_priv->cp210x_chip_type)) {
-		result = write_cp210x_register(port, CP210X_VENDOR_SPECIFIC, REQTYPE_HOST_TO_DEVICE, 
-				CP210X_WRITE_LATCH, latch_buf, NULL, 0);
-		if (result != 0)
-			return result;
-	}
-	else if (PART_CP2105 == port_priv->cp210x_chip_type) {
-		result = write_cp210x_register(port, CP210X_VENDOR_SPECIFIC, REQTYPE_HOST_TO_INTERFACE, 
-				CP210X_WRITE_LATCH,
-				port->serial->interface->cur_altsetting->desc.bInterfaceNumber,
-				(unsigned int*)&latch_buf, 2);
-		if (result != 0)
-			return result;
-	}
-	else if (PART_CP2108 == port_priv->cp210x_chip_type) {
-		result = write_cp210x_register(port, CP210X_VENDOR_SPECIFIC, REQTYPE_HOST_TO_DEVICE,
-				CP210X_WRITE_LATCH, 
-				port->serial->interface->cur_altsetting->desc.bInterfaceNumber,
-				(unsigned int*)&latch_buf, 4);
-		if (result != 0)
-			return result;
-	}
-	else {
-		return -ENOTSUPP;
-	}
+    if(val > 0)
+        latch_buf = 0x202; // 00000010 00000010
+    else
+        latch_buf = 0x200; // 00000010 00000000
 
-	return count;
+    if ((PART_CP2103 == port_priv->cp210x_chip_type) || (PART_CP2104 == port_priv->cp210x_chip_type)) {
+        result = write_cp210x_register(port, CP210X_VENDOR_SPECIFIC, REQTYPE_HOST_TO_DEVICE, 
+                CP210X_WRITE_LATCH, latch_buf, NULL, 0);
+        if (result != 0)
+            return result;
+    }
+    else if (PART_CP2105 == port_priv->cp210x_chip_type) {
+        result = write_cp210x_register(port, CP210X_VENDOR_SPECIFIC, REQTYPE_HOST_TO_INTERFACE, 
+                CP210X_WRITE_LATCH,
+                port->serial->interface->cur_altsetting->desc.bInterfaceNumber,
+                (unsigned int*)&latch_buf, 2);
+        if (result != 0)
+            return result;
+    }
+    else if (PART_CP2108 == port_priv->cp210x_chip_type) {
+        result = write_cp210x_register(port, CP210X_VENDOR_SPECIFIC, REQTYPE_HOST_TO_DEVICE,
+                CP210X_WRITE_LATCH, 
+                port->serial->interface->cur_altsetting->desc.bInterfaceNumber,
+                (unsigned int*)&latch_buf, 4);
+        if (result != 0)
+            return result;
+    }
+    else {
+        return -ENOTSUPP;
+    }
+
+    return count;
 }
 
 /* 
@@ -420,37 +423,37 @@ static ssize_t cp210x_gpio_1_store(struct device *dev, struct device_attribute *
  */
 static int xyz_product_port_probe(struct usb_serial_port *port) 
 {
-	/* 
-	 * Let us assume that the cp2104 based product is a temperature monitor product. It senses ambient temperature
-	 * and send that value to computer through cp2104 IC, The board uses a LDO (low drop out) voltage regulator
-	 * to power temperature sensor. The LDO takes power from Vbus pin of USB port and step down it and supply
-	 * power to sensor. In order to save power, this LDO is turned on when this port is probed and turned off when 
-	 * this port is released. A GPIO_0 pin of cp2104 connects to LDO's enable pin to turn on/off it. 
-	 * 
-	 * int result = 0;
-	 * struct usb_device *usbdev = port->serial->dev;
-	 * struct cp210x_port_private *port_priv = usb_get_serial_port_data(port);
-	 * 
-	 * if (usbdev->manufacturer && !strcmp(usbdev->manufacturer, "company name")) {
-	 *     if (usbdev->product && !strcmp(usbdev->product, "product name")) {
-	 *         result = write_cp210x_register(port, CP210X_IFC_ENABLE, REQTYPE_HOST_TO_INTERFACE, UART_ENABLE, 
-	 *                               serial->interface->cur_altsetting->desc.bInterfaceNumber, NULL, 0);
-	 *         if (result != 0)
-	 *             return result;
-	 *
-	 *         result = write_cp210x_register(port, CP210X_VENDOR_SPECIFIC, REQTYPE_HOST_TO_DEVICE, CP210X_WRITE_LATCH,
-	 *                                        0x101, NULL, 0);              
-	 *         if (result != 0) {
-	 *             write_cp210x_register(port, CP210X_IFC_ENABLE, REQTYPE_HOST_TO_INTERFACE, UART_DISABLE,
-	 *                                   serial->interface->cur_altsetting->desc.bInterfaceNumber, NULL, 0);
-	 *         }
-	 *         return result;
-	 *      }
-	 *      
-	 *      port_priv->interface_enabled = 1;
-	 *  }
-	 */
-	return 0;
+    /* 
+     * Let us assume that the cp2104 based product is a temperature monitor product. It senses ambient temperature
+     * and send that value to computer through cp2104 IC, The board uses a LDO (low drop out) voltage regulator
+     * to power temperature sensor. The LDO takes power from Vbus pin of USB port and step down it and supply
+     * power to sensor. In order to save power, this LDO is turned on when this port is probed and turned off when 
+     * this port is released. A GPIO_0 pin of cp2104 connects to LDO's enable pin to turn on/off it. 
+     * 
+     * int result = 0;
+     * struct usb_device *usbdev = port->serial->dev;
+     * struct cp210x_port_private *port_priv = usb_get_serial_port_data(port);
+     * 
+     * if (usbdev->manufacturer && !strcmp(usbdev->manufacturer, "company name")) {
+     *     if (usbdev->product && !strcmp(usbdev->product, "product name")) {
+     *         result = write_cp210x_register(port, CP210X_IFC_ENABLE, REQTYPE_HOST_TO_INTERFACE, UART_ENABLE, 
+     *                               serial->interface->cur_altsetting->desc.bInterfaceNumber, NULL, 0);
+     *         if (result != 0)
+     *             return result;
+     *
+     *         result = write_cp210x_register(port, CP210X_VENDOR_SPECIFIC, REQTYPE_HOST_TO_DEVICE, CP210X_WRITE_LATCH,
+     *                                        0x101, NULL, 0);              
+     *         if (result != 0) {
+     *             write_cp210x_register(port, CP210X_IFC_ENABLE, REQTYPE_HOST_TO_INTERFACE, UART_DISABLE,
+     *                                   serial->interface->cur_altsetting->desc.bInterfaceNumber, NULL, 0);
+     *         }
+     *         return result;
+     *      }
+     *      
+     *      port_priv->interface_enabled = 1;
+     *  }
+     */
+    return 0;
 }
 
 /*
@@ -458,19 +461,19 @@ static int xyz_product_port_probe(struct usb_serial_port *port)
  */
 static int scm_cp210x_port_probe(struct usb_serial_port *port) 
 {
-	struct cp210x_products_quirk *quirk = usb_get_serial_data(port->serial);
+    struct cp210x_products_quirk *quirk = usb_get_serial_data(port->serial);
 
-	/* If this device has a product specific port probe defined by this driver, call it. */
-	if (quirk && quirk->port_probe) {
-		int ret = quirk->port_probe(port);
-		if (ret != 0)
-			return ret;
-	}
+    /* If this device has a product specific port probe defined by this driver, call it. */
+    if (quirk && quirk->port_probe) {
+        int ret = quirk->port_probe(port);
+        if (ret != 0)
+            return ret;
+    }
 
-	/* Create sysfs entries */
-	create_cp210x_sysfs_attrs(port);
+    /* Create sysfs entries */
+    create_cp210x_sysfs_attrs(port);
 
-	return 0;
+    return 0;
 }
 
 /*
@@ -478,8 +481,8 @@ static int scm_cp210x_port_probe(struct usb_serial_port *port)
  */
 static int scm_cp210x_port_remove(struct usb_serial_port *port)
 {
-	remove_cp210x_sysfs_attrs(port);
-	return 0;
+    remove_cp210x_sysfs_attrs(port);
+    return 0;
 }
 
 /* 
@@ -488,46 +491,46 @@ static int scm_cp210x_port_remove(struct usb_serial_port *port)
  */
 static int xyz_product_probe(struct usb_serial *serial) 
 {
-	/*
-	 * 1. On a dual/quad serial port devices, a particular port may be dedicated for a particular functionality
-	 *    and may be driven from user space driver. This is typically the case with JTAG adapters where usually 
-	 *    1st serial port will be used for JTAG purpose while others will be used for regular serial communication.
-	 * 
-	 * The code given below makes this driver ignore 1st serial port and hence available for user space driver.
-	 * 
-	 *  struct usb_device *usbdev = serial->dev;
-	 *  struct usb_interface *interface = serial->interface;
-	 *  if (usbdev->manufacturer && !strcmp(usbdev->manufacturer, "company name")) {
-	 *      if (interface == usbdev->actconfig->interface[0]) {
-	 *          dev_info(&usbdev->dev, "Ignoring usb-serial first port reserved for JTAG usage.\n");
-	 *          return -ENODEV;
-	 *      }
-	 *  }
-	 *  
-	 * 2. Product specific initialization can be done like setting latency related parameters or a 
-	 *    particular GPIO pin can be configured.
-	 * 
-	 * The code given below sends a configuration control message to the given USB device.
-	 * 
-	 * struct usb_device *usbdev = serial->dev;
-	 * int result = 0;
-	 * int latency = 2;
-	 * dev_info(&usbdev->dev, Setting latency value for usb-serial device : %d\n", latency);
-	 * result = write_cp210x_register(serial->port, XYZ_REQUEST, REQTYPE_HOST_TO_INTERFACE, latency, 
-	 *                                serial->interface->cur_altsetting->desc.bInterfaceNumber, 
-	 *                                NULL, 0);
-	 * if (result != 0) {
-	 *     return result;
-	 * }
-	 * return 0;
-	 * 
-	 * 3. For non-standard or device firmware specific task such as identification of end points and then 
-	 *    configuring something may be done here. Drivers usually need to detect endpoint addresses and
-	 *    buffer sizes.
-	 *    
-	 * 4. For some USB devices, firmware is loaded into them when probed.
-	 */
-	return 0;
+    /*
+     * 1. On a dual/quad serial port devices, a particular port may be dedicated for a particular functionality
+     *    and may be driven from user space driver. This is typically the case with JTAG adapters where usually 
+     *    1st serial port will be used for JTAG purpose while others will be used for regular serial communication.
+     * 
+     * The code given below makes this driver ignore 1st serial port and hence available for user space driver.
+     * 
+     *  struct usb_device *usbdev = serial->dev;
+     *  struct usb_interface *interface = serial->interface;
+     *  if (usbdev->manufacturer && !strcmp(usbdev->manufacturer, "company name")) {
+     *      if (interface == usbdev->actconfig->interface[0]) {
+     *          dev_info(&usbdev->dev, "Ignoring usb-serial first port reserved for JTAG usage.\n");
+     *          return -ENODEV;
+     *      }
+     *  }
+     *  
+     * 2. Product specific initialization can be done like setting latency related parameters or a 
+     *    particular GPIO pin can be configured.
+     * 
+     * The code given below sends a configuration control message to the given USB device.
+     * 
+     * struct usb_device *usbdev = serial->dev;
+     * int result = 0;
+     * int latency = 2;
+     * dev_info(&usbdev->dev, Setting latency value for usb-serial device : %d\n", latency);
+     * result = write_cp210x_register(serial->port, XYZ_REQUEST, REQTYPE_HOST_TO_INTERFACE, latency, 
+     *                                serial->interface->cur_altsetting->desc.bInterfaceNumber, 
+     *                                NULL, 0);
+     * if (result != 0) {
+     *     return result;
+     * }
+     * return 0;
+     * 
+     * 3. For non-standard or device firmware specific task such as identification of end points and then 
+     *    configuring something may be done here. Drivers usually need to detect endpoint addresses and
+     *    buffer sizes.
+     *    
+     * 4. For some USB devices, firmware is loaded into them when probed.
+     */
+    return 0;
 }
 
 /* 
@@ -563,22 +566,22 @@ static int xyz_product_probe(struct usb_serial *serial)
  */
 static int scm_cp210x_probe(struct usb_serial *serial, const struct usb_device_id *id)
 {
-	int ret;
-	struct cp210x_products_quirk *quirk = (struct cp210x_products_quirk *) id->driver_info;
+    int ret;
+    struct cp210x_products_quirk *quirk = (struct cp210x_products_quirk *) id->driver_info;
 
-	/* If this device has a product specific probe defined by this driver, call it. */
-	if (quirk && quirk->probe) {
-		ret = quirk->probe(serial);
-		if (ret != 0)
-			return ret;
-	}
+    /* If this device has a product specific probe defined by this driver, call it. */
+    if (quirk && quirk->probe) {
+        ret = quirk->probe(serial);
+        if (ret != 0)
+            return ret;
+    }
 
-	/* Save driver_info as private data in USB device structure. When port is probed, port's probe function will 
-	 * check if product's port specific probe function has been defined by this driver. If defined, that specific 
-	 * probe function will get called. */
-	usb_set_serial_data(serial, (void *)id->driver_info);
+    /* Save driver_info as private data in USB device structure. When port is probed, port's probe function will 
+     * check if product's port specific probe function has been defined by this driver. If defined, that specific 
+     * probe function will get called. */
+    usb_set_serial_data(serial, (void *)id->driver_info);
 
-	return 0;
+    return 0;
 }
 
 /*
@@ -587,47 +590,47 @@ static int scm_cp210x_probe(struct usb_serial *serial, const struct usb_device_i
  */
 static int scm_cp210x_startup(struct usb_serial *serial)
 {
-	int x = 0;
-	int result = 0;
-	int clean = 0;
-	int num_allocation = 0;
-	unsigned int part_num;
-	struct cp210x_port_private *port_priv;
+    int x = 0;
+    int result = 0;
+    int clean = 0;
+    int num_allocation = 0;
+    unsigned int part_num;
+    struct cp210x_port_private *port_priv;
 
-	for (x = 0; x < serial->num_ports; x++) {
+    for (x = 0; x < serial->num_ports; x++) {
 
-		/* Allocate memory to hold data private to a port and set its pointer for later retrieval. */
-		port_priv = kzalloc(sizeof(struct cp210x_port_private), GFP_KERNEL);
-		if (!port_priv) {
-			result = -ENOMEM;
-			clean = 1;
-			break;
-		}
+        /* Allocate memory to hold data private to a port and set its pointer for later retrieval. */
+        port_priv = kzalloc(sizeof(struct cp210x_port_private), GFP_KERNEL);
+        if (!port_priv) {
+            result = -ENOMEM;
+            clean = 1;
+            break;
+        }
 
-		/* Determine CP210X chip type so that device specific task like IOCTL can be executed. */
-		result = read_cp210x_register(serial->port[x], CP210X_VENDOR_SPECIFIC, REQTYPE_DEVICE_TO_HOST, 
-				CP210X_GET_PARTNUM,
-				serial->interface->cur_altsetting->desc.bInterfaceNumber, &part_num, 1);
-		if (result < 0) {
-			clean = 1;
-			break;
-		}
+        /* Determine CP210X chip type so that device specific task like IOCTL can be executed. */
+        result = read_cp210x_register(serial->port[x], CP210X_VENDOR_SPECIFIC, REQTYPE_DEVICE_TO_HOST, 
+                CP210X_GET_PARTNUM,
+                serial->interface->cur_altsetting->desc.bInterfaceNumber, &part_num, 1);
+        if (result < 0) {
+            clean = 1;
+            break;
+        }
 
-		port_priv->cp210x_chip_type = part_num & 0x000000FF;
+        port_priv->cp210x_chip_type = part_num & 0x000000FF;
 
-		usb_set_serial_port_data(serial->port[x], port_priv);
-		num_allocation++;
-	}
+        usb_set_serial_port_data(serial->port[x], port_priv);
+        num_allocation++;
+    }
 
-	if (clean == 1) {
-		for (x = 0; x < num_allocation; x++) {
-			port_priv = usb_get_serial_port_data(serial->port[x]);
-			kfree(port_priv);
-		}
-		return result;
-	}
+    if (clean == 1) {
+        for (x = 0; x < num_allocation; x++) {
+            port_priv = usb_get_serial_port_data(serial->port[x]);
+            kfree(port_priv);
+        }
+        return result;
+    }
 
-	return 0;
+    return 0;
 }
 
 /*
@@ -635,13 +638,13 @@ static int scm_cp210x_startup(struct usb_serial *serial)
  */
 static void scm_cp210x_shutdown(struct usb_serial *serial)
 {
-	int x = 0;
-	struct cp210x_port_private *port_priv;
+    int x = 0;
+    struct cp210x_port_private *port_priv;
 
-	for (x = 0; x < serial->num_ports; x++) {
-		port_priv = usb_get_serial_port_data(serial->port[x]);
-		kfree(port_priv);
-	} 
+    for (x = 0; x < serial->num_ports; x++) {
+        port_priv = usb_get_serial_port_data(serial->port[x]);
+        kfree(port_priv);
+    } 
 }
 
 /*
@@ -652,44 +655,44 @@ static void scm_cp210x_shutdown(struct usb_serial *serial)
  * Return 0 on success and negative error code on an error.
  */
 static int write_cp210x_register(struct usb_serial_port *port, u8 request, u8 requestType, int value, 
-		int index, unsigned int *data, int size)
+        int index, unsigned int *data, int size)
 {
-	__le32 *buf = NULL;
-	int result, x, length = 0;
+    __le32 *buf = NULL;
+    int result, x, length = 0;
 
-	if (size) {
-		/* Number of integers required to contain the array */
-		length = (((size - 1) | 3) + 1) / 4;
+    if (size) {
+        /* Number of integers required to contain the array */
+        length = (((size - 1) | 3) + 1) / 4;
 
-		buf = kmalloc(length * sizeof(__le32), GFP_KERNEL);
-		if (!buf) {
-			dev_err(&port->dev, "%s - out of memory.\n", __func__);
-			return -ENOMEM;
-		}
+        buf = kmalloc(length * sizeof(__le32), GFP_KERNEL);
+        if (!buf) {
+            dev_err(&port->dev, "%s - out of memory.\n", __func__);
+            return -ENOMEM;
+        }
 
-		/* Array of integers into bytes */
-		for (x = 0; x < length; x++)
-			buf[x] = cpu_to_le32(data[x]);
-	}
+        /* Array of integers into bytes */
+        for (x = 0; x < length; x++)
+            buf[x] = cpu_to_le32(data[x]);
+    }
 
-	/* Send a simple control message to a specified endpoint and waits for the message to complete, 
-	 * or timeout (5000 milliseconds). */
-	result = usb_control_msg(port->serial->dev, usb_sndctrlpipe(port->serial->dev, 0), request, requestType, 
-			value, index, buf, size, USB_CTRL_SET_TIMEOUT);
+    /* Send a simple control message to a specified endpoint and waits for the message to complete, 
+     * or timeout (5000 milliseconds). */
+    result = usb_control_msg(port->serial->dev, usb_sndctrlpipe(port->serial->dev, 0), request, requestType, 
+            value, index, buf, size, USB_CTRL_SET_TIMEOUT);
 
-	if (buf)
-		kfree(buf);
+    if (buf)
+        kfree(buf);
 
-	if (result != size) {
-		dev_dbg(&port->dev, "%s - Unable to write register, request=0x%x size=%d result=%d\n", __func__, 
-				request, size, result);
-		if (result > 0)
-			return -EPROTO;
+    if (result != size) {
+        dev_dbg(&port->dev, "%s - Unable to write register, request=0x%x size=%d result=%d\n", __func__, 
+                request, size, result);
+        if (result > 0)
+            return -EPROTO;
 
-		return result;
-	}
+        return result;
+    }
 
-	return 0;
+    return 0;
 }
 
 /* 
@@ -698,40 +701,40 @@ static int write_cp210x_register(struct usb_serial_port *port, u8 request, u8 re
  * Return 0 on success and negative error code on an error.
  */
 static int read_cp210x_register(struct usb_serial_port *port, u8 request, u8 requestType, int value, 
-		int index, unsigned int *data, int size)
+        int index, unsigned int *data, int size)
 {
-	__le32 *buf = NULL;
-	int result, x, length = 0;
+    __le32 *buf = NULL;
+    int result, x, length = 0;
 
-	/* Number of integers required to contain the array */
-	length = (((size - 1) | 3) + 1) / 4;
+    /* Number of integers required to contain the array */
+    length = (((size - 1) | 3) + 1) / 4;
 
-	buf = kcalloc(length, sizeof(__le32), GFP_KERNEL);
-	if (!buf) {
-		dev_err(&port->dev, "%s - out of memory.\n", __func__);
-		return -ENOMEM;
-	}
+    buf = kcalloc(length, sizeof(__le32), GFP_KERNEL);
+    if (!buf) {
+        dev_err(&port->dev, "%s - out of memory.\n", __func__);
+        return -ENOMEM;
+    }
 
-	result = usb_control_msg(port->serial->dev, usb_rcvctrlpipe(port->serial->dev, 0), request, requestType, 
-			value, port->serial->interface->cur_altsetting->desc.bInterfaceNumber, buf, size, 
-			USB_CTRL_GET_TIMEOUT);
+    result = usb_control_msg(port->serial->dev, usb_rcvctrlpipe(port->serial->dev, 0), request, requestType, 
+            value, port->serial->interface->cur_altsetting->desc.bInterfaceNumber, buf, size, 
+            USB_CTRL_GET_TIMEOUT);
 
-	/* Convert data into an array of integers */
-	for (x = 0; x < length; x++)
-		data[x] = le32_to_cpu(buf[x]);
+    /* Convert data into an array of integers */
+    for (x = 0; x < length; x++)
+        data[x] = le32_to_cpu(buf[x]);
 
-	kfree(buf);
+    kfree(buf);
 
-	if (result != size) {
-		dev_dbg(&port->dev, "%s - Unable to read resister, request=0x%x size=%d result=%d\n", __func__, 
-				request, size, result);
-		if (result > 0)
-			return -EPROTO;
+    if (result != size) {
+        dev_dbg(&port->dev, "%s - Unable to read resister, request=0x%x size=%d result=%d\n", __func__, 
+                request, size, result);
+        if (result > 0)
+            return -EPROTO;
 
-		return result;
-	}
+        return result;
+    }
 
-	return 0;
+    return 0;
 }
 
 /* 
@@ -743,208 +746,208 @@ static int read_cp210x_register(struct usb_serial_port *port, u8 request, u8 req
  * whether their is a difference between termios structure it sent and 
  */
 static void scm_cp210x_set_termios(struct tty_struct *tty, struct usb_serial_port *port, 
-		struct ktermios *old_termios)
+        struct ktermios *old_termios)
 {
-	int result = 0;
-	u32 baud = 0;
-	unsigned int bits = 0;
-	int update_data_size = 0;
+    int result = 0;
+    u32 baud = 0;
+    unsigned int bits = 0;
+    int update_data_size = 0;
 
-	unsigned char splchar[6];
+    unsigned char splchar[6];
 
-	/* Each variable is 4 bytes (32 bits) in size and ordered with offset as shown below.
-	 * <--ulXoffLimit--><--ulXonLimit--><--ulFlowReplace--><--ulControlHandshake--> */
-	unsigned int flowctrl[4];
+    /* Each variable is 4 bytes (32 bits) in size and ordered with offset as shown below.
+     * <--ulXoffLimit--><--ulXonLimit--><--ulFlowReplace--><--ulControlHandshake--> */
+    unsigned int flowctrl[4];
 
-	struct usb_device *usbdev = port->serial->dev;
-	struct usb_interface *interface = port->serial->interface;
-	struct cp210x_port_private *port_priv = usb_get_serial_port_data(port);
+    struct usb_device *usbdev = port->serial->dev;
+    struct usb_interface *interface = port->serial->interface;
+    struct cp210x_port_private *port_priv = usb_get_serial_port_data(port);
 
-	/* B0, is used to terminate the connection.  If B0 is specified, the modem control lines shall 
+    /* B0, is used to terminate the connection.  If B0 is specified, the modem control lines shall 
        no longer be asserted. No flow control, drop DTR, RTS.*/
-	if ((tty->termios.c_cflag & CBAUD) == B0 ) {
-		flowctrl[0] |= 0x01;
-		flowctrl[1] |= 0x40;
-		result = write_cp210x_register(port, CP210X_SET_FLOW, REQTYPE_HOST_TO_INTERFACE, 0, 
-				port->serial->interface->cur_altsetting->desc.bInterfaceNumber,
-				flowctrl, 0x0010);
-		update_cp210x_mctrl_lines(port, 0, TIOCM_DTR|TIOCM_RTS);
-		return;
-	}
+    if ((tty->termios.c_cflag & CBAUD) == B0 ) {
+        flowctrl[0] |= 0x01;
+        flowctrl[1] |= 0x40;
+        result = write_cp210x_register(port, CP210X_SET_FLOW, REQTYPE_HOST_TO_INTERFACE, 0, 
+                port->serial->interface->cur_altsetting->desc.bInterfaceNumber,
+                flowctrl, 0x0010);
+        update_cp210x_mctrl_lines(port, 0, TIOCM_DTR|TIOCM_RTS);
+        return;
+    }
 
-	/* If spring back to life from B0, raise DTR and RTS. This might get overridden in next steps. */
-	if (!old_termios || (old_termios->c_cflag & CBAUD) == B0) {
-		update_cp210x_mctrl_lines(port, TIOCM_DTR|TIOCM_RTS, 0);
-	}
+    /* If spring back to life from B0, raise DTR and RTS. This might get overridden in next steps. */
+    if (!old_termios || (old_termios->c_cflag & CBAUD) == B0) {
+        update_cp210x_mctrl_lines(port, TIOCM_DTR|TIOCM_RTS, 0);
+    }
 
-	/* Update baudrate (as per AN205 app note) */
-	baud = tty_get_baud_rate(tty);
-	if (!baud) {
-		baud = 9600;
-	}
+    /* Update baudrate (as per AN205 app note) */
+    baud = tty_get_baud_rate(tty);
+    if (!baud) {
+        baud = 9600;
+    }
 
-	if (baud <= 300)
-		baud = 300;
-	else if (baud <= 600)     baud = 600;
-	else if (baud <= 1200)    baud = 1200;
-	else if (baud <= 1800)    baud = 1800;
-	else if (baud <= 2400)    baud = 2400;
-	else if (baud <= 4000)    baud = 4000;
-	else if (baud <= 4803)    baud = 4800;
-	else if (baud <= 7207)    baud = 7200;
-	else if (baud <= 9612)    baud = 9600;
-	else if (baud <= 14428)   baud = 14400;
-	else if (baud <= 16062)   baud = 16000;
-	else if (baud <= 19250)   baud = 19200;
-	else if (baud <= 28912)   baud = 28800;
-	else if (baud <= 38601)   baud = 38400;
-	else if (baud <= 51558)   baud = 51200;
-	else if (baud <= 56280)   baud = 56000;
-	else if (baud <= 58053)   baud = 57600;
-	else if (baud <= 64111)   baud = 64000;
-	else if (baud <= 77608)   baud = 76800;
-	else if (baud <= 117028)  baud = 115200;
-	else if (baud <= 129347)  baud = 128000;
-	else if (baud <= 156868)  baud = 153600;
-	else if (baud <= 237832)  baud = 230400;
-	else if (baud <= 254234)  baud = 250000;
-	else if (baud <= 273066)  baud = 256000;
-	else if (baud <= 491520)  baud = 460800;
-	else if (baud <= 567138)  baud = 500000;
-	else if (baud <= 670254)  baud = 576000;
-	else if (baud < 1000000)
-		baud = 921600;
-	else if (baud > 2000000)
-		baud = 2000000;
-	else {
-		baud = 9600;
-	}
+    if (baud <= 300)
+        baud = 300;
+    else if (baud <= 600)     baud = 600;
+    else if (baud <= 1200)    baud = 1200;
+    else if (baud <= 1800)    baud = 1800;
+    else if (baud <= 2400)    baud = 2400;
+    else if (baud <= 4000)    baud = 4000;
+    else if (baud <= 4803)    baud = 4800;
+    else if (baud <= 7207)    baud = 7200;
+    else if (baud <= 9612)    baud = 9600;
+    else if (baud <= 14428)   baud = 14400;
+    else if (baud <= 16062)   baud = 16000;
+    else if (baud <= 19250)   baud = 19200;
+    else if (baud <= 28912)   baud = 28800;
+    else if (baud <= 38601)   baud = 38400;
+    else if (baud <= 51558)   baud = 51200;
+    else if (baud <= 56280)   baud = 56000;
+    else if (baud <= 58053)   baud = 57600;
+    else if (baud <= 64111)   baud = 64000;
+    else if (baud <= 77608)   baud = 76800;
+    else if (baud <= 117028)  baud = 115200;
+    else if (baud <= 129347)  baud = 128000;
+    else if (baud <= 156868)  baud = 153600;
+    else if (baud <= 237832)  baud = 230400;
+    else if (baud <= 254234)  baud = 250000;
+    else if (baud <= 273066)  baud = 256000;
+    else if (baud <= 491520)  baud = 460800;
+    else if (baud <= 567138)  baud = 500000;
+    else if (baud <= 670254)  baud = 576000;
+    else if (baud < 1000000)
+        baud = 921600;
+    else if (baud > 2000000)
+        baud = 2000000;
+    else {
+        baud = 9600;
+    }
 
-	result = write_cp210x_register(port, CP210X_SET_BAUDRATE, REQTYPE_HOST_TO_INTERFACE, 0, 
-			port->serial->interface->cur_altsetting->desc.bInterfaceNumber,
-			&baud, 4);
-	if(result < 0) {
-		dev_dbg(&port->dev, "%s - failed to set baudrate with err code: %d\n", __func__, result);
-		if (old_termios != NULL)
-			baud = tty_termios_baud_rate(old_termios);
-		else
-			baud = 0;
-	}
+    result = write_cp210x_register(port, CP210X_SET_BAUDRATE, REQTYPE_HOST_TO_INTERFACE, 0, 
+            port->serial->interface->cur_altsetting->desc.bInterfaceNumber,
+            &baud, 4);
+    if(result < 0) {
+        dev_dbg(&port->dev, "%s - failed to set baudrate with err code: %d\n", __func__, result);
+        if (old_termios != NULL)
+            baud = tty_termios_baud_rate(old_termios);
+        else
+            baud = 0;
+    }
 
-	tty_encode_baud_rate(tty, baud, baud);
+    tty_encode_baud_rate(tty, baud, baud);
 
-	/* Update flow control (AN571 app note). */
-	flowctrl[0] &= ~0x7B;
+    /* Update flow control (AN571 app note). */
+    flowctrl[0] &= ~0x7B;
 
-	if (tty->termios.c_cflag & CRTSCTS) {
-		/* hardware (RTS/CTS) flow control, DTR will always be on. */
-		flowctrl[0] |= 0x09;
-		flowctrl[1] = 0x80;
-	}
-	else if((tty->termios.c_iflag & IXON) || (tty->termios.c_iflag & IXOFF)) {
-		/* software flow control */
-		flowctrl[0] |= 0x01;
-		flowctrl[1] |= 0x07;
+    if (tty->termios.c_cflag & CRTSCTS) {
+        /* hardware (RTS/CTS) flow control, DTR will always be on. */
+        flowctrl[0] |= 0x09;
+        flowctrl[1] = 0x80;
+    }
+    else if((tty->termios.c_iflag & IXON) || (tty->termios.c_iflag & IXOFF)) {
+        /* software flow control */
+        flowctrl[0] |= 0x01;
+        flowctrl[1] |= 0x07;
 
-		/* set xon/xoff limit based on chip type */
-		if ((PART_CP2105 == port_priv->cp210x_chip_type) && (interface == usbdev->actconfig->interface[1])) {
-			/* ECI */
-			flowctrl[2] |= 280;
-			flowctrl[3] |= 280;
-		}else {
-			/* SCI */
-			flowctrl[2] |= 500;
-			flowctrl[3] |= 500;
-		}
+        /* set xon/xoff limit based on chip type */
+        if ((PART_CP2105 == port_priv->cp210x_chip_type) && (interface == usbdev->actconfig->interface[1])) {
+            /* ECI */
+            flowctrl[2] |= 280;
+            flowctrl[3] |= 280;
+        }else {
+            /* SCI */
+            flowctrl[2] |= 500;
+            flowctrl[3] |= 500;
+        }
 
-		splchar[4] = tty->termios.c_cc[VSTART];
-		splchar[5] = tty->termios.c_cc[VSTOP];
+        splchar[4] = tty->termios.c_cc[VSTART];
+        splchar[5] = tty->termios.c_cc[VSTOP];
 
-		result = usb_control_msg(port->serial->dev, usb_sndctrlpipe(port->serial->dev, 0), CP210X_SET_CHARS, 
-				REQTYPE_HOST_TO_INTERFACE, 0,
-				port->serial->interface->cur_altsetting->desc.bInterfaceNumber, splchar,
-				0x0006, USB_CTRL_SET_TIMEOUT);
-		if (result != 0x0006) {
-			dev_dbg(&port->dev, "%s - failed with err code: %d\n", __func__, result);
-		}
-	}
-	else {
-		/* no flow control */
-		flowctrl[0] |= 0x01;
-		flowctrl[1] |= 0x40;
-	}
+        result = usb_control_msg(port->serial->dev, usb_sndctrlpipe(port->serial->dev, 0), CP210X_SET_CHARS, 
+                REQTYPE_HOST_TO_INTERFACE, 0,
+                port->serial->interface->cur_altsetting->desc.bInterfaceNumber, splchar,
+                0x0006, USB_CTRL_SET_TIMEOUT);
+        if (result != 0x0006) {
+            dev_dbg(&port->dev, "%s - failed with err code: %d\n", __func__, result);
+        }
+    }
+    else {
+        /* no flow control */
+        flowctrl[0] |= 0x01;
+        flowctrl[1] |= 0x40;
+    }
 
-	result = write_cp210x_register(port, CP210X_SET_FLOW, REQTYPE_HOST_TO_INTERFACE, 0, 
-			port->serial->interface->cur_altsetting->desc.bInterfaceNumber,
-			flowctrl, 0x0010);
+    result = write_cp210x_register(port, CP210X_SET_FLOW, REQTYPE_HOST_TO_INTERFACE, 0, 
+            port->serial->interface->cur_altsetting->desc.bInterfaceNumber,
+            flowctrl, 0x0010);
 
-	/* Update number of data bits in UART frame */
-	bits &= ~BITS_DATA_MASK; /* reset */
+    /* Update number of data bits in UART frame */
+    bits &= ~BITS_DATA_MASK; /* reset */
 
-	switch (tty->termios.c_cflag & CSIZE) {
-	case CS5: bits |= BITS_DATA_5;
-	if(baud >= 921600) {
-		bits |= BITS_DATA_8;
-		tty->termios.c_cflag |= CS8;
-		update_data_size = 1;
-		dev_dbg(&port->dev, "for baudrate >= 921600, only 7/8 data bits are supported.");
-	}
-	break;
-	case CS6: bits |= BITS_DATA_6;
-	if(baud >= 921600) {
-		bits |= BITS_DATA_8;
-		tty->termios.c_cflag |= CS8;
-		update_data_size = 1;
-		dev_dbg(&port->dev, "for baudrate >= 921600, only 7/8 data bits are supported.");
-	}
-	break;
-	case CS7: bits |= BITS_DATA_7;
-	break;
-	case CS8: bits |= BITS_DATA_8;
-	break;
-	default:  bits |= BITS_DATA_8;
-	tty->termios.c_cflag |= CS8;
-	update_data_size = 1;
-	dev_dbg(&port->dev, "cp210x device supports only 5,6,7,8 number of data bits.\n");
-	}
+    switch (tty->termios.c_cflag & CSIZE) {
+    case CS5: bits |= BITS_DATA_5;
+    if(baud >= 921600) {
+        bits |= BITS_DATA_8;
+        tty->termios.c_cflag |= CS8;
+        update_data_size = 1;
+        dev_dbg(&port->dev, "for baudrate >= 921600, only 7/8 data bits are supported.");
+    }
+    break;
+    case CS6: bits |= BITS_DATA_6;
+    if(baud >= 921600) {
+        bits |= BITS_DATA_8;
+        tty->termios.c_cflag |= CS8;
+        update_data_size = 1;
+        dev_dbg(&port->dev, "for baudrate >= 921600, only 7/8 data bits are supported.");
+    }
+    break;
+    case CS7: bits |= BITS_DATA_7;
+    break;
+    case CS8: bits |= BITS_DATA_8;
+    break;
+    default:  bits |= BITS_DATA_8;
+    tty->termios.c_cflag |= CS8;
+    update_data_size = 1;
+    dev_dbg(&port->dev, "cp210x device supports only 5,6,7,8 number of data bits.\n");
+    }
 
-	/* Update number of stop bits */
-	bits &= ~BITS_STOP_MASK;
+    /* Update number of stop bits */
+    bits &= ~BITS_STOP_MASK;
 
-	if (tty->termios.c_cflag & CSTOPB) {
-		bits |= BITS_STOP_2;
-	}else {
-		bits |= BITS_STOP_1;
-	}
+    if (tty->termios.c_cflag & CSTOPB) {
+        bits |= BITS_STOP_2;
+    }else {
+        bits |= BITS_STOP_1;
+    }
 
-	/* Update parity type */
-	bits &= ~BITS_PARITY_MASK;
+    /* Update parity type */
+    bits &= ~BITS_PARITY_MASK;
 
-	if (tty->termios.c_cflag & PARENB) {
-		if (tty->termios.c_cflag & CMSPAR) {
-			if (tty->termios.c_cflag & PARODD) {
-				bits |= BITS_PARITY_MARK;
-			}else {
-				bits |= BITS_PARITY_SPACE;
-			}
-		}else {
-			if (tty->termios.c_cflag & PARODD) {
-				bits |= BITS_PARITY_ODD;
-			}else {
-				bits |= BITS_PARITY_EVEN;
-			}
-		}
-	}
+    if (tty->termios.c_cflag & PARENB) {
+        if (tty->termios.c_cflag & CMSPAR) {
+            if (tty->termios.c_cflag & PARODD) {
+                bits |= BITS_PARITY_MARK;
+            }else {
+                bits |= BITS_PARITY_SPACE;
+            }
+        }else {
+            if (tty->termios.c_cflag & PARODD) {
+                bits |= BITS_PARITY_ODD;
+            }else {
+                bits |= BITS_PARITY_EVEN;
+            }
+        }
+    }
 
-	result = write_cp210x_register(port, CP210X_SET_LINE_CTL, REQTYPE_HOST_TO_INTERFACE, bits, 
-			port->serial->interface->cur_altsetting->desc.bInterfaceNumber,
-			NULL, 0);
-	if(result < 0) {
-		/* If failed revert back settings */
-		if(update_data_size == 1)
-			tty->termios.c_cflag |= (old_termios->c_cflag & CSIZE);
-		dev_dbg(&port->dev, "%s - failed with err code: %d\n", __func__, result);
-	}
+    result = write_cp210x_register(port, CP210X_SET_LINE_CTL, REQTYPE_HOST_TO_INTERFACE, bits, 
+            port->serial->interface->cur_altsetting->desc.bInterfaceNumber,
+            NULL, 0);
+    if(result < 0) {
+        /* If failed revert back settings */
+        if(update_data_size == 1)
+            tty->termios.c_cflag |= (old_termios->c_cflag & CSIZE);
+        dev_dbg(&port->dev, "%s - failed with err code: %d\n", __func__, result);
+    }
 }
 
 /* 
@@ -952,90 +955,90 @@ static void scm_cp210x_set_termios(struct tty_struct *tty, struct usb_serial_por
  */
 static int scm_cp210x_ioctl(struct tty_struct *tty, unsigned int cmd, unsigned long arg)
 {
-	int result = 0;
-	unsigned long latch_buf = 0;
-	struct usb_serial_port *port = tty->driver_data;
-	struct cp210x_port_private *port_priv = usb_get_serial_port_data(port);
+    int result = 0;
+    unsigned long latch_buf = 0;
+    struct usb_serial_port *port = tty->driver_data;
+    struct cp210x_port_private *port_priv = usb_get_serial_port_data(port);
 
-	switch (cmd) {
+    switch (cmd) {
 
-	case IOCTL_GPIOSET:
+    case IOCTL_GPIOSET:
 
-		if ((PART_CP2103 == port_priv->cp210x_chip_type) || (PART_CP2104 == port_priv->cp210x_chip_type)) {
-			if (copy_from_user(&latch_buf, (unsigned int*)arg, 2))
-				return -EFAULT;
-			result = write_cp210x_register(port, CP210X_VENDOR_SPECIFIC, REQTYPE_HOST_TO_DEVICE, 
-					CP210X_WRITE_LATCH, latch_buf, NULL, 0);
-			if (result != 0)
-				return result;
-			return 0;
-		}
-		else if (PART_CP2105 == port_priv->cp210x_chip_type) {
-			if (copy_from_user(&latch_buf, (unsigned int*)arg, 2))
-				return -EFAULT;
-			result = write_cp210x_register(port, CP210X_VENDOR_SPECIFIC, REQTYPE_HOST_TO_INTERFACE,
-					CP210X_WRITE_LATCH, 
-					port->serial->interface->cur_altsetting->desc.bInterfaceNumber,
-					(unsigned int*)&latch_buf, 2);
-			return result;
-		}
-		else if (PART_CP2108 == port_priv->cp210x_chip_type) {
-			if (copy_from_user(&latch_buf, (unsigned int*)arg, 4))
-				return -EFAULT;
-			result = write_cp210x_register(port, CP210X_VENDOR_SPECIFIC, REQTYPE_HOST_TO_DEVICE,
-					CP210X_WRITE_LATCH, 
-					port->serial->interface->cur_altsetting->desc.bInterfaceNumber,
-					(unsigned int*)&latch_buf, 4);
-			return result;
-		}
-		else {
-			return -ENOTSUPP;
-		}
-		break;
+        if ((PART_CP2103 == port_priv->cp210x_chip_type) || (PART_CP2104 == port_priv->cp210x_chip_type)) {
+            if (copy_from_user(&latch_buf, (unsigned int*)arg, 2))
+                return -EFAULT;
+            result = write_cp210x_register(port, CP210X_VENDOR_SPECIFIC, REQTYPE_HOST_TO_DEVICE, 
+                    CP210X_WRITE_LATCH, latch_buf, NULL, 0);
+            if (result != 0)
+                return result;
+            return 0;
+        }
+        else if (PART_CP2105 == port_priv->cp210x_chip_type) {
+            if (copy_from_user(&latch_buf, (unsigned int*)arg, 2))
+                return -EFAULT;
+            result = write_cp210x_register(port, CP210X_VENDOR_SPECIFIC, REQTYPE_HOST_TO_INTERFACE,
+                    CP210X_WRITE_LATCH, 
+                    port->serial->interface->cur_altsetting->desc.bInterfaceNumber,
+                    (unsigned int*)&latch_buf, 2);
+            return result;
+        }
+        else if (PART_CP2108 == port_priv->cp210x_chip_type) {
+            if (copy_from_user(&latch_buf, (unsigned int*)arg, 4))
+                return -EFAULT;
+            result = write_cp210x_register(port, CP210X_VENDOR_SPECIFIC, REQTYPE_HOST_TO_DEVICE,
+                    CP210X_WRITE_LATCH, 
+                    port->serial->interface->cur_altsetting->desc.bInterfaceNumber,
+                    (unsigned int*)&latch_buf, 4);
+            return result;
+        }
+        else {
+            return -ENOTSUPP;
+        }
+        break;
 
-	case IOCTL_GPIOGET:
+    case IOCTL_GPIOGET:
 
-		if ((PART_CP2103 == port_priv->cp210x_chip_type) || (PART_CP2104 == port_priv->cp210x_chip_type)) {
-			result = read_cp210x_register(port, CP210X_VENDOR_SPECIFIC, REQTYPE_HOST_TO_DEVICE, 
-					CP210X_READ_LATCH, 0, (unsigned int*)&latch_buf, 1);
-			if (result != 0)
-				return result;
-			if (copy_to_user((unsigned int*)arg, &latch_buf, 1))
-				return -EFAULT;
-			return 0;
-		}
-		else if (PART_CP2105 == port_priv->cp210x_chip_type) {
-			result = read_cp210x_register(port, CP210X_VENDOR_SPECIFIC, REQTYPE_INTERFACE_TO_HOST, 
-					CP210X_READ_LATCH, 
-					port->serial->interface->cur_altsetting->desc.bInterfaceNumber, 
-					(unsigned int*)&latch_buf, 1);
-			if (result != 0)
-				return result;
-			if (copy_to_user((unsigned int*)arg, &latch_buf, 1))
-				return -EFAULT;
-			return 0;
-		}
-		else if (PART_CP2108 == port_priv->cp210x_chip_type) {
-			result = read_cp210x_register(port, CP210X_VENDOR_SPECIFIC, REQTYPE_DEVICE_TO_HOST, 
-					CP210X_READ_LATCH, 
-					port->serial->interface->cur_altsetting->desc.bInterfaceNumber, 
-					(unsigned int*)&latch_buf, 2);
-			if (result != 0)
-				return result;
-			if (copy_to_user((unsigned int*)arg, &latch_buf, 2))
-				return -EFAULT;
-			return 0;
-		}
-		else {
-			return -ENOTSUPP;
-		}
-		break;
+        if ((PART_CP2103 == port_priv->cp210x_chip_type) || (PART_CP2104 == port_priv->cp210x_chip_type)) {
+            result = read_cp210x_register(port, CP210X_VENDOR_SPECIFIC, REQTYPE_HOST_TO_DEVICE, 
+                    CP210X_READ_LATCH, 0, (unsigned int*)&latch_buf, 1);
+            if (result != 0)
+                return result;
+            if (copy_to_user((unsigned int*)arg, &latch_buf, 1))
+                return -EFAULT;
+            return 0;
+        }
+        else if (PART_CP2105 == port_priv->cp210x_chip_type) {
+            result = read_cp210x_register(port, CP210X_VENDOR_SPECIFIC, REQTYPE_INTERFACE_TO_HOST, 
+                    CP210X_READ_LATCH, 
+                    port->serial->interface->cur_altsetting->desc.bInterfaceNumber, 
+                    (unsigned int*)&latch_buf, 1);
+            if (result != 0)
+                return result;
+            if (copy_to_user((unsigned int*)arg, &latch_buf, 1))
+                return -EFAULT;
+            return 0;
+        }
+        else if (PART_CP2108 == port_priv->cp210x_chip_type) {
+            result = read_cp210x_register(port, CP210X_VENDOR_SPECIFIC, REQTYPE_DEVICE_TO_HOST, 
+                    CP210X_READ_LATCH, 
+                    port->serial->interface->cur_altsetting->desc.bInterfaceNumber, 
+                    (unsigned int*)&latch_buf, 2);
+            if (result != 0)
+                return result;
+            if (copy_to_user((unsigned int*)arg, &latch_buf, 2))
+                return -EFAULT;
+            return 0;
+        }
+        else {
+            return -ENOTSUPP;
+        }
+        break;
 
-	default:
-		break;
-	}
+    default:
+        break;
+    }
 
-	return -ENOIOCTLCMD;
+    return -ENOIOCTLCMD;
 }
 
 /* 
@@ -1043,24 +1046,24 @@ static int scm_cp210x_ioctl(struct tty_struct *tty, unsigned int cmd, unsigned l
  */
 static int scm_cp210x_tiocmget(struct tty_struct *tty)
 {
-	struct usb_serial_port *port = tty->driver_data;
-	unsigned int control;
-	int result;
+    struct usb_serial_port *port = tty->driver_data;
+    unsigned int control;
+    int result;
 
-	result = read_cp210x_register(port, CP210X_GET_MDMSTS, REQTYPE_INTERFACE_TO_HOST, CP210X_GET_PARTNUM,
-			0, &control, 1);
-	if (result < 0) {
-		return result;
-	}
+    result = read_cp210x_register(port, CP210X_GET_MDMSTS, REQTYPE_INTERFACE_TO_HOST, CP210X_GET_PARTNUM,
+            0, &control, 1);
+    if (result < 0) {
+        return result;
+    }
 
-	result = ((control & CONTROL_DTR) ? TIOCM_DTR : 0)
-	    		   | ((control & CONTROL_RTS) ? TIOCM_RTS : 0)
-	    		   | ((control & CONTROL_CTS) ? TIOCM_CTS : 0)
-	    		   | ((control & CONTROL_DSR) ? TIOCM_DSR : 0)
-	    		   | ((control & CONTROL_RING)? TIOCM_RI  : 0)
-	    		   | ((control & CONTROL_DCD) ? TIOCM_CD  : 0);
+    result = ((control & CONTROL_DTR) ? TIOCM_DTR : 0)
+	    		           | ((control & CONTROL_RTS) ? TIOCM_RTS : 0)
+	    		           | ((control & CONTROL_CTS) ? TIOCM_CTS : 0)
+	    		           | ((control & CONTROL_DSR) ? TIOCM_DSR : 0)
+	    		           | ((control & CONTROL_RING)? TIOCM_RI  : 0)
+	    		           | ((control & CONTROL_DCD) ? TIOCM_CD  : 0);
 
-	return result;
+    return result;
 }
 
 /* 
@@ -1070,27 +1073,27 @@ static int scm_cp210x_tiocmget(struct tty_struct *tty)
  */
 static int update_cp210x_mctrl_lines(struct usb_serial_port *port, unsigned int set, unsigned int clear)
 {
-	unsigned int control = 0;
+    unsigned int control = 0;
 
-	if (set & TIOCM_RTS) {
-		control |= CONTROL_RTS;
-		control |= CONTROL_WRITE_RTS;
-	}
-	if (set & TIOCM_DTR) {
-		control |= CONTROL_DTR;
-		control |= CONTROL_WRITE_DTR;
-	}
-	if (clear & TIOCM_RTS) {
-		control &= ~CONTROL_RTS;
-		control |= CONTROL_WRITE_RTS;
-	}
-	if (clear & TIOCM_DTR) {
-		control &= ~CONTROL_DTR;
-		control |= CONTROL_WRITE_DTR;
-	}
+    if (set & TIOCM_RTS) {
+        control |= CONTROL_RTS;
+        control |= CONTROL_WRITE_RTS;
+    }
+    if (set & TIOCM_DTR) {
+        control |= CONTROL_DTR;
+        control |= CONTROL_WRITE_DTR;
+    }
+    if (clear & TIOCM_RTS) {
+        control &= ~CONTROL_RTS;
+        control |= CONTROL_WRITE_RTS;
+    }
+    if (clear & TIOCM_DTR) {
+        control &= ~CONTROL_DTR;
+        control |= CONTROL_WRITE_DTR;
+    }
 
-	return write_cp210x_register(port, CP210X_SET_MHS, REQTYPE_HOST_TO_INTERFACE, control, 
-			port->serial->interface->cur_altsetting->desc.bInterfaceNumber, NULL, 0);
+    return write_cp210x_register(port, CP210X_SET_MHS, REQTYPE_HOST_TO_INTERFACE, control, 
+            port->serial->interface->cur_altsetting->desc.bInterfaceNumber, NULL, 0);
 }
 
 /* 
@@ -1098,7 +1101,7 @@ static int update_cp210x_mctrl_lines(struct usb_serial_port *port, unsigned int 
  */
 static int scm_cp210x_tiocmset(struct tty_struct *tty, unsigned int set, unsigned int clear)
 {
-	return update_cp210x_mctrl_lines(tty->driver_data, set, clear);
+    return update_cp210x_mctrl_lines(tty->driver_data, set, clear);
 }
 
 /* 
@@ -1106,10 +1109,10 @@ static int scm_cp210x_tiocmset(struct tty_struct *tty, unsigned int set, unsigne
  */
 static void scm_cp210x_dtr_rts(struct usb_serial_port *port, int on)
 {
-	if (on)
-		update_cp210x_mctrl_lines(port, TIOCM_DTR|TIOCM_RTS, 0);
-	else
-		update_cp210x_mctrl_lines(port, 0, TIOCM_DTR|TIOCM_RTS);
+    if (on)
+        update_cp210x_mctrl_lines(port, TIOCM_DTR|TIOCM_RTS, 0);
+    else
+        update_cp210x_mctrl_lines(port, 0, TIOCM_DTR|TIOCM_RTS);
 }
 
 /* 
@@ -1117,20 +1120,20 @@ static void scm_cp210x_dtr_rts(struct usb_serial_port *port, int on)
  */
 static void scm_cp210x_break_ctl(struct tty_struct *tty, int break_state)
 {
-	int result = 0;
-	unsigned int state = 0;
-	struct usb_serial_port *port = tty->driver_data;
+    int result = 0;
+    unsigned int state = 0;
+    struct usb_serial_port *port = tty->driver_data;
 
-	if (break_state == 0)
-		state = BREAK_OFF;
-	else
-		state = BREAK_ON;
+    if (break_state == 0)
+        state = BREAK_OFF;
+    else
+        state = BREAK_ON;
 
-	result = write_cp210x_register(port, CP210X_SET_BREAK, REQTYPE_HOST_TO_INTERFACE, state, 
-			port->serial->interface->cur_altsetting->desc.bInterfaceNumber, NULL, 0);
-	if (result != 0) {
-		dev_dbg(&port->dev, "%s - failed with err code: %d\n", __func__, result);
-	}
+    result = write_cp210x_register(port, CP210X_SET_BREAK, REQTYPE_HOST_TO_INTERFACE, state, 
+            port->serial->interface->cur_altsetting->desc.bInterfaceNumber, NULL, 0);
+    if (result != 0) {
+        dev_dbg(&port->dev, "%s - failed with err code: %d\n", __func__, result);
+    }
 }
 
 /*
@@ -1148,25 +1151,25 @@ static void scm_cp210x_break_ctl(struct tty_struct *tty, int break_state)
  */
 static int scm_cp210x_open(struct tty_struct *tty, struct usb_serial_port *port)
 {
-	int result = 0;
-	struct cp210x_port_private *port_priv = usb_get_serial_port_data(port);
+    int result = 0;
+    struct cp210x_port_private *port_priv = usb_get_serial_port_data(port);
 
-	/* If the interface is not enabled, enable it. */
-	if(port_priv->interface_enabled == 0) {
-		result = write_cp210x_register(port, CP210X_IFC_ENABLE, REQTYPE_HOST_TO_INTERFACE, UART_ENABLE, 
-				port->serial->interface->cur_altsetting->desc.bInterfaceNumber, NULL, 0);
-		if (result < 0)
-			return result;
-	}
+    /* If the interface is not enabled, enable it. */
+    if(port_priv->interface_enabled == 0) {
+        result = write_cp210x_register(port, CP210X_IFC_ENABLE, REQTYPE_HOST_TO_INTERFACE, UART_ENABLE, 
+                port->serial->interface->cur_altsetting->desc.bInterfaceNumber, NULL, 0);
+        if (result < 0)
+            return result;
+    }
 
-	/* The usbserial driver initializes default termios settings in usb_serial_init function 
-	 * (9600 8N1 raw mode). We apply them to a cp210x device as is, to start with a sane state. */
-	if (tty)
-		scm_cp210x_set_termios(tty, port, NULL);
+    /* The usbserial driver initializes default termios settings in usb_serial_init function 
+     * (9600 8N1 raw mode). We apply them to a cp210x device as is, to start with a sane state. */
+    if (tty)
+        scm_cp210x_set_termios(tty, port, NULL);
 
-	/* This will clear throttle, and submit read urb (issue an asynchronous transfer request  
-	 * for an endpoint). */
-	return usb_serial_generic_open(tty, port);
+    /* This will clear throttle, and submit read urb (issue an asynchronous transfer request  
+     * for an endpoint). */
+    return usb_serial_generic_open(tty, port);
 }
 
 /* 
@@ -1185,9 +1188,9 @@ static int scm_cp210x_open(struct tty_struct *tty, struct usb_serial_port *port)
  */
 static void scm_cp210x_close(struct usb_serial_port *port)
 {
-	usb_serial_generic_close(port);
-	write_cp210x_register(port, CP210X_IFC_ENABLE, REQTYPE_HOST_TO_INTERFACE, UART_DISABLE,
-			port->serial->interface->cur_altsetting->desc.bInterfaceNumber, NULL, 0);
+    usb_serial_generic_close(port);
+    write_cp210x_register(port, CP210X_IFC_ENABLE, REQTYPE_HOST_TO_INTERFACE, UART_DISABLE,
+            port->serial->interface->cur_altsetting->desc.bInterfaceNumber, NULL, 0);
 }
 
 /* Helper macro for registering a usb-serial driver (module_init/module_exit). This basically 
@@ -1202,3 +1205,6 @@ MODULE_LICENSE("GPL");
 
 module_param(dbg, bool, S_IRUGO | S_IWUSR);
 MODULE_PARM_DESC(dbg, "Debuging enabled or not");
+
+
+
