@@ -37,9 +37,9 @@
 #include <linux/sched.h>
 #include <linux/version.h>
 #include <linux/spinlock.h>
+#include <linux/mutex.h>
 #include <asm/uaccess.h>
 #include <linux/proc_fs.h>
-#include <linux/seq_file.h>
 
 /* Module information */
 #define DRIVER_VERSION "v1.0"
@@ -91,18 +91,16 @@ static void scmtty_close(struct tty_struct * tty, struct file * filp);
 #define SCM_MSR_RI     0x20
 #define SCM_MSR_DSR    0x40
 
-/* Represent a virtual tty device in virtual adaptor */
+/* Represent a virtual tty device in this virtual adaptor */
 struct vtty_dev {
-    ushort own_index;
-    ushort peer_index;
-    ushort msr_reg;  // modem status register
-    ushort mcr_reg;  // modem control register
-    spinlock_t lock;
+    int peer_index;
+    int msr_reg; // modem status register
+    int mcr_reg; // modem control register
     int open_count;
     int rts_mapping;
     int dtr_mapping;
-    int is_nullmodem;
-    struct tty_struct *own_tty;
+    int set_dcd_atopen;
+    spinlock_t lock;
     struct tty_struct *peer_tty;
     struct serial_struct serial;
     struct serial_icounter_struct icount;
@@ -116,8 +114,8 @@ struct vtty_info {
 
 /* These values may be overriden if module is loaded with parameters */
 static ushort max_num_vtty_dev = VTTY_DEV_MAX;
-static ushort init_num_nm_pair = VTTY_DEV_MAX;
-static ushort init_num_lb_dev = VTTY_DEV_MAX;
+static ushort init_num_nm_pair = 0;
+static ushort init_num_lb_dev = 0;
 
 /* Describes this driver kernel module */
 static struct tty_driver *scmtty_driver;
@@ -435,16 +433,16 @@ static int extract_mapping(char data[], int x) {
  * modem pair, coupled device will also be deleted aautomatically.
  * 
  * 1. Create standard null modem connection:
- * $echo "gennm#vdev1#vdev2#7-8,x,x,x#4-1,6,x,x#7-8,x,x,x#4-1,6,x,x#y" > /proc/scmtty_vadaptkm
+ * $echo "gennm#vdev1#vdev2#7-8,x,x,x#4-1,6,x,x#7-8,x,x,x#4-1,6,x,x#y#y" > /proc/scmtty_vadaptkm
  * 
  * 2. Create standard loop back connection:
- * $echo "genlb#vdevt#xxxxx#7-8,x,x,x#4-1,6,x,x#x-x,x,x,x#x-x,x,x,x#y" > /proc/scmtty_vadaptkm
+ * $echo "genlb#vdevt#xxxxx#7-8,x,x,x#4-1,6,x,x#x-x,x,x,x#x-x,x,x,x#y#x" > /proc/scmtty_vadaptkm
  * 
  * 3. Delete a particular tty device:
- * $echo "del#vdevt#xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" > /proc/scmtty_vadaptkm
+ * $echo "del#vdevt#xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" > /proc/scmtty_vadaptkm
  * 
- * 4. Delete all virtual tty devices:
- * $echo "del#xxxxx#xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" > /proc/scmtty_vadaptkm
+ * 4. Delete all virtual tty devices in this adaptor:
+ * $echo "del#xxxxx#xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" > /proc/scmtty_vadaptkm
  * 
  * @file
  * @buf
@@ -476,13 +474,18 @@ static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *bu
     struct device *device1 = NULL;
     struct device *device2 = NULL;
 
-    if(length != 60)
+    if(length == 62) {
+        if(copy_from_user(data, buf, length) != 0) {
+            return -EFAULT;
+        }
+    }else if(length == 2) {
+        memcpy(data, "gennm#xxxxx#xxxxx#7-8,x,x,x#4-1,6,x,x#7-8,x,x,x#4-1,6,x,x#y#y", 61);
+    }else if(length == 3) {
+        memcpy(data, "genlb#xxxxx#xxxxx#7-8,x,x,x#4-1,6,x,x#x-x,x,x,x#x-x,x,x,x#y#x", 61);
+    }else {
         return -EINVAL;
-
-    if(copy_from_user(data, buf, length) != 0) {
-        return -EFAULT;
     }
-    data[60] = '\0';
+    data[62] = '\0';
 
     // initial sanitization
     if((data[0] == 'g') && (data[1] == 'e') && (data[2] == 'n')) {
@@ -583,13 +586,12 @@ static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *bu
                 goto fail_arg;
         }
 
-        //TODO raisecd data[58] 'y'
-
-        // The (driver->flags & TTY_DRIVER_DYNAMIC_ALLOC) will evaluate to zero as we are allocating devices 
-        // dynamically. This will create a kernel device and register it with kernel subsystem(s) as appropriate, 
-        // associating the device at given index of tty driver.
+        // The (driver->flags & TTY_DRIVER_DYNAMIC_ALLOC) will evaluate to zero as we are allocating 
+        // devices dynamically. This will create a kernel device and register it with kernel subsystem(s) 
+        // as appropriate, associating the device at given index of this driver.
         spin_lock(&adaptlock);
 
+        i = -1;
         if(vdev1idx == -1) {
             for(x=0; x < max_num_vtty_dev;  x++) {
                 if(index_manager[x].index == -1) {
@@ -605,6 +607,10 @@ static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *bu
                 goto fail_arg;
             }
         }
+        if(i == -1) {
+            ret = -ENOMEM;
+            goto fail_arg;
+        }
         device1 = tty_register_device(scmtty_driver, i, NULL);
         if(device1 == NULL) {
             ret = -ENOMEM;
@@ -613,6 +619,7 @@ static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *bu
         index_manager[i].index = i;
         index_manager[i].vttydev = vttydev1;
 
+        y = -1;
         if(is_loopback != 1) {
             if(vdev2idx == -1) {
                 for(x=0; x < max_num_vtty_dev;  x++) {
@@ -629,6 +636,10 @@ static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *bu
                     goto fail_arg;
                 }
             }
+            if(y == -1) {
+                ret = -ENOMEM;
+                goto fail_arg;
+            }
             device2 = tty_register_device(scmtty_driver, y, NULL);
             if(device2 == NULL) {
                 ret = -ENOMEM;
@@ -639,6 +650,21 @@ static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *bu
         }
 
         spin_unlock(&adaptlock);
+        
+        // do minimum required initialization
+        spin_lock_init(&vttydev1->lock);
+        if(data[59] == 'y')
+            vttydev1->set_dcd_atopen = 1;
+        else
+            vttydev1->set_dcd_atopen = 0;
+        
+        if(is_loopback != 1) {
+            spin_lock_init(&vttydev2->lock);
+            if(data[61] == 'y')
+                vttydev2->set_dcd_atopen = 1;
+            else
+                vttydev2->set_dcd_atopen = 0;
+        }
     }
     else {
         if(data[4] == 'x') {
@@ -646,6 +672,7 @@ static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *bu
                 if(index_manager[x].index != -1) {
                     tty_unregister_device(scmtty_driver, index_manager[x].index);
                     kfree(index_manager[x].vttydev);
+                    index_manager[x].index = -1;
                 }
             }
         }else {
@@ -662,6 +689,7 @@ static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *bu
             if(index_manager[vdev1idx].index != -1) {
                 tty_unregister_device(scmtty_driver, index_manager[vdev1idx].index);
                 kfree(index_manager[vdev1idx].vttydev);
+                index_manager[vdev1idx].index = -1;
             }else {
                 return -EINVAL;
             }
@@ -733,7 +761,17 @@ static const struct tty_operations scm_serial_ops = {
         .get_icount      = scmtty_get_icount,
 };
 
-/* Invoked when this driver is loaded */
+/* 
+ * Invoked when this driver is loaded. If the user supplies correct number of virtual devices
+ * to be created when this module is loaded, the virtual devices will be made, otherwise they
+ * will not be made and have to be created using proc file.
+ *
+ * For example; to support maximum 20 devices, 1 null-modem pair and 1 loop back device run
+ * following command:
+ * $insmod ./tty2comKm.ko max_num_vtty_dev=20 init_num_nm_pair=1 init_num_lb_dev=1
+ *
+ * @return: 0 on success or negative error code on failure.
+ */
 static int __init scm_tty2comKm_init(void)
 {
     int x = 0;
@@ -764,22 +802,33 @@ static int __init scm_tty2comKm_init(void)
     if (ret) 
         goto failed_register;
 
-    /* A value of -1 at particular 'X' (index_manager[X].index) means that tty2comportX is available for use */
     index_manager = (struct vtty_info *) kcalloc(max_num_vtty_dev, sizeof(struct vtty_info), GFP_KERNEL);
     if(index_manager == NULL) {
         ret = -ENOMEM;
         goto failed_alloc;
     }
+
+    /* A value of -1 at particular 'X' (index_manager[X].index) means that tty2comportX is available for use */
     for(x=0; x < max_num_vtty_dev;  x++) {
         index_manager[x].index = -1;
     }
 
-    /* Application should read/write to this file to create/destroy tty device and query informations about 
-     * existing virtual tty devices */
+    /* Application should read/write to this file to create/destroy tty device and query informations associated 
+     * with them */
     pde = proc_create("scmtty_vadaptkm", 0666, NULL, &scmtty_vadapt_proc_fops);
     if(pde == NULL) {
         ret = -ENOMEM;
         goto failed_proc;
+    }
+    
+    /* If module was supplied parameters create null-modem and loopback virtual tty devices */
+    if (((2 * init_num_nm_pair) + init_num_lb_dev) <= max_num_vtty_dev) {
+        for(x=0; x < init_num_nm_pair; x++) {
+            scmtty_vadapt_proc_write(NULL, NULL, 2, NULL);
+        }
+        for(x=0; x < init_num_lb_dev; x++) {
+            scmtty_vadapt_proc_write(NULL, NULL, 3, NULL);
+        }
     }
 
     printk(KERN_INFO "%s %s %s\n", "tty2comKm:", DRIVER_DESC, DRIVER_VERSION);
@@ -794,7 +843,9 @@ static int __init scm_tty2comKm_init(void)
     return ret;
 }
 
-/* Invoked when this driver is unloaded */
+/* 
+ * Invoked when this driver is unloaded.
+ */
 static void __exit scm_tty2comKm_exit(void)
 {
     int x = 0;
@@ -829,5 +880,4 @@ MODULE_AUTHOR( DRIVER_AUTHOR );
 MODULE_DESCRIPTION( DRIVER_DESC );
 MODULE_LICENSE("Proprietary");
 MODULE_VERSION( DRIVER_VERSION );
-
-
+   

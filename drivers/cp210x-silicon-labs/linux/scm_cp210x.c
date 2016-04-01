@@ -1062,7 +1062,6 @@ static int scm_cp210x_tiocmget(struct tty_struct *tty)
 	    		           | ((control & CONTROL_DSR) ? TIOCM_DSR : 0)
 	    		           | ((control & CONTROL_RING)? TIOCM_RI  : 0)
 	    		           | ((control & CONTROL_DCD) ? TIOCM_CD  : 0);
-
     return result;
 }
 
@@ -1138,16 +1137,16 @@ static void scm_cp210x_break_ctl(struct tty_struct *tty, int break_state)
 
 /*
  * 1. After the tty device node has been bound to individual serial port, when application opens
- * serial port, kernel finds that this node is registered with it and it then call tty layer's
- * open function. 
+ *    serial port, kernel finds that this node is registered with it and it then call tty layer's
+ *    open function. 
  *
  * 2. Because USB serial core has registered this node with tty layer, USB serial core's open
- * function gets called. This function determines which specific driver is managing this node
- * and it then call open function of that specific driver of USB-UART interface. This specific
- * driver typically initialize interface for communication and allocate memory if needed.
+ *    function gets called. This function determines which specific driver is managing this node
+ *    and it then call open function of that specific driver of USB-UART interface. This specific
+ *    driver typically initialize interface for communication and allocate memory if needed.
  *
  * 3. The module count for the specified USB serial driver is incremented in order prevent it from 
- * being unloaded when an application is using it.
+ *    being unloaded when an application is using it.
  */
 static int scm_cp210x_open(struct tty_struct *tty, struct usb_serial_port *port)
 {
@@ -1174,17 +1173,17 @@ static int scm_cp210x_open(struct tty_struct *tty, struct usb_serial_port *port)
 
 /* 
  * 1. The application call close system call on serial port's device node. This causes tty_release function
- * in tty core to be invoked.
+ *    in tty core to be invoked.
  *
  * 2. The tty_release function determines if this is the last reference held on this device node as same
- * device node can be opened many times (non-exclusive mode). If it is last reference then close function
- * of USB serial core is called.
+ *    device node can be opened many times (non-exclusive mode). If it is last reference then close function
+ *    of USB serial core is called.
  *
  * 3. The USB serial core calls close function of specific USB interface driver and possibly cancel pending
- * USB transfers if any.
+ *    USB transfers if any.
  *
  * 4. The USB serial core then decrements the module count for the USB serial driver and if count reaches
- * zero, it may be unloaded.
+ *    zero, it may be unloaded.
  */
 static void scm_cp210x_close(struct usb_serial_port *port)
 {
@@ -1205,6 +1204,4 @@ MODULE_LICENSE("GPL");
 
 module_param(dbg, bool, S_IRUGO | S_IWUSR);
 MODULE_PARM_DESC(dbg, "Debuging enabled or not");
-
-
-
+ 
