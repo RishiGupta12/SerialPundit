@@ -42,6 +42,7 @@ import com.embeddedunveiled.serial.internal.SerialComPortMapperJNIBridge;
 import com.embeddedunveiled.serial.internal.SerialComPortsList;
 import com.embeddedunveiled.serial.internal.SerialComSystemProperty;
 import com.embeddedunveiled.serial.mapper.SerialComPortMapper;
+import com.embeddedunveiled.serial.nullmodem.SerialComNullModem;
 import com.embeddedunveiled.serial.usb.SerialComUSB;
 import com.embeddedunveiled.serial.usb.SerialComUSBdevice;
 import com.embeddedunveiled.serial.vendor.SerialComVendorLib;
@@ -516,6 +517,7 @@ public final class SerialComManager {
 	private static final Object lockA = new Object();
 	private static boolean nativeLibLoadAndInitAlready = false;
 	private static SerialComVendorLib mSerialComVendorLib;
+	private static SerialComNullModem mSerialComNullModem;
 	private static SerialComHIDJNIBridge mSerialComHIDJNIBridge;
 	private static SerialComBluetoothJNIBridge mSerialComBluetoothJNIBridge;
 	private static SerialComPortMapperJNIBridge mSerialComPortMapperJNIBridge;
@@ -2886,5 +2888,18 @@ public final class SerialComManager {
 		}
 
 		return new SerialComDBRelease(mSerialComDBReleaseJNIBridge);
+	}
+	
+	/**
+	 * <p>Provides an instance of SerialComNullModem class for managing virtual serial device, null modem,
+	 * loop back and custom pinout connected virtual serial devices.</p>
+	 * 
+	 * @return an instance of SerialComNullModem.
+	 */
+	public SerialComNullModem getSerialComNullModemInstance() {
+	    if(mSerialComNullModem == null) {
+	        mSerialComNullModem = new SerialComNullModem(osType);
+	    }
+	    return mSerialComNullModem;
 	}
 }
