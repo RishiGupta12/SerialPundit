@@ -48,7 +48,7 @@ PROJECT
 ##Drivers and Services
 
 #####Null modem emulator
-- [Feature](drivers) rich null modem emulation driver supporting null modem, loopback and custom connections.
+- [Feature](drivers) rich null modem emulation driver supporting null modem, loopback, custom pinout and dynamic virtual serial port creation.
 
 #####Usb-uart
 - [Driver](drivers) for cp210x IC and products based on it with access to GPIO, IOCTL support, configuration scripts etc.
@@ -107,7 +107,8 @@ public class Example {
 
 ##Author, License and Copyright
 - The 'serial communication manager (SCM)' is designed, developed and maintained by Rishi gupta.              
-  Linkdin profile : http://in.linkedin.com/pub/rishi-gupta/20/9b8/a10
+  Linkdin profile : http://in.linkedin.com/pub/rishi-gupta/20/9b8/a10    
+  Xing profile:
   
 - This library is DUAL licensed. It is made available under the terms of the GNU Affero General Public License (AGPL) v3.0 for non-commercial use and under the terms of a commercial license for commercial use of this library. Contact author for commercial license.
 
