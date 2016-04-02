@@ -17,6 +17,7 @@ It creates virtual serial ports pair that appears same as the real once to the a
 - Development cost reduction across team
 - Add new functionality to existing application by inserting plugin between serial hardware and existing application   
   [hw device]--[hw comport]--[plugin software (process data)]--[virtual comport]--[Existing application]
+- Write user space drivers for example multiplex several connections on single GSM Modem
 
 ##Features
 - Emulate a plug and play device
