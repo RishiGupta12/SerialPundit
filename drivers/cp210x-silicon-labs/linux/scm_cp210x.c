@@ -841,8 +841,9 @@ static void scm_cp210x_set_termios(struct tty_struct *tty, struct usb_serial_por
 
     if (tty->termios.c_cflag & CRTSCTS) {
         /* hardware (RTS/CTS) flow control, DTR will always be on. */
-        flowctrl[0] |= 0x09;
-        flowctrl[1] = 0x80;
+        flowctrl[0] &= ~0x7B;
+        flowctrl[0] |=  0x09;
+        flowctrl[1]  =  0x80;
     }
     else if((tty->termios.c_iflag & IXON) || (tty->termios.c_iflag & IXOFF)) {
         /* software flow control */
@@ -873,8 +874,9 @@ static void scm_cp210x_set_termios(struct tty_struct *tty, struct usb_serial_por
     }
     else {
         /* no flow control */
-        flowctrl[0] |= 0x01;
-        flowctrl[1] |= 0x40;
+        flowctrl[0] &= ~0x7B;
+        flowctrl[0] |=  0x01;
+        flowctrl[1] |=  0x40;
     }
 
     result = write_cp210x_register(port, CP210X_SET_FLOW, REQTYPE_HOST_TO_INTERFACE, 0, 
