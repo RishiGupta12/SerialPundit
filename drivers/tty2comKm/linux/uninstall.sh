@@ -21,16 +21,14 @@
 
 if [[ $EUID -ne 0 ]]; then
    echo "This script must be run as root user !" 1>&2
-   exit 0
+   exit 1
 fi
-
-cd "$(dirname "$0")"
 
 KDIR=$(uname -r)
 
-cp ./tty2comKm.ko /lib/modules/$KDIR/kernel/drivers/usb/serial
+rm /lib/modules/$KDIR/kernel/drivers/usb/serial/tty2comKm.ko
 
-echo "wait resolving dependencies !"
+echo "wait removing and cleaning up !"
 depmod
 echo "done"
 
