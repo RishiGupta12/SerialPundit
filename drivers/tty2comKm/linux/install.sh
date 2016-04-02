@@ -28,7 +28,7 @@ cd "$(dirname "$0")"
 
 KDIR=$(uname -r)
 
-cp ./tty2comKm.ko /lib/modules/$KDIR/kernel/drivers/usb/serial
+cp ./tty2comKm.ko /lib/modules/$KDIR/kernel/drivers/tty
 
 echo "wait resolving dependencies !"
 depmod
