@@ -29,6 +29,8 @@
 
 # echo 8 > /proc/sys/kernel/printk
 
+set -e
+
 if [[ $EUID -ne 0 ]]; then
    echo "This script must be run as root user !" 1>&2
    exit 1

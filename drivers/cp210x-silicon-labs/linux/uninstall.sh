@@ -19,6 +19,8 @@
 
 # Run this script as root user. This script has been tested with Ubuntu 12.04.
 
+set -e
+
 if [[ $EUID -ne 0 ]]; then
    echo "This script must be run as root user !" 1>&2
    exit 1

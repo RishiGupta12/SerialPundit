@@ -764,7 +764,8 @@ static void scm_cp210x_set_termios(struct tty_struct *tty, struct usb_serial_por
     struct cp210x_port_private *port_priv = usb_get_serial_port_data(port);
 
     /* B0, is used to terminate the connection.  If B0 is specified, the modem control lines shall 
-       no longer be asserted. No flow control, drop DTR, RTS.*/
+       no longer be asserted. No flow control and drop DTR, RTS. It is also used to wakeup some 
+       modems for example Siemens MC35i. */
     if ((tty->termios.c_cflag & CBAUD) == B0 ) {
         flowctrl[0] |= 0x01;
         flowctrl[1] |= 0x40;
