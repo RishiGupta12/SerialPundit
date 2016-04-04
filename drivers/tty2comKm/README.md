@@ -17,7 +17,8 @@ It creates virtual serial ports pair that appears same as the real once to the a
 - Development cost reduction across team
 - Add new functionality to existing application by inserting plugin between serial hardware and existing application   
   [hw device]--[hw comport]--[plugin software (process data)]--[virtual comport]--[Existing application]
-- Write user space drivers for example multiplex several connections on single GSM Modem
+- Write user space drivers for ex; multiplex several virtual connections on single physical GSM Modem line
+- Protocol converter engine software
 
 ##Features
 - Emulate a plug and play device
@@ -33,6 +34,12 @@ It creates virtual serial ports pair that appears same as the real once to the a
 - Virtual box and VMware virtual machine supported
 - API to control virtual ports directly from your application
 
+##Demo application
+
+
+##Build and Run
+See instructions in operating system specific directory for instructions and uses in subdirectories of this directory.
+
 ##Pins mapping
 
 There are three connection configurations supported by this driver.
@@ -45,11 +52,4 @@ There are three connection configurations supported by this driver.
 ####Loopback
 
 ####Custom
-
-
-##Demo application
-
-
-##Build and Run
-See instructions in operating system specific directory for instructions and uses in subdirectories of this directory.
 
