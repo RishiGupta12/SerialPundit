@@ -93,9 +93,15 @@ static int get_serial_info(struct tty_struct *tty, unsigned long arg);
 
 /* Modem status register definitions */
 #define SCM_MSR_CTS    0x0008
-#define SCM_MSR_DCD     0x0010
+#define SCM_MSR_DCD    0x0010
 #define SCM_MSR_RI     0x0020
 #define SCM_MSR_DSR    0x0040
+
+/* Line error definitions */
+#define SCM_TTY_BREAK     0X0080
+#define SCM_TTY_FRAME     0X0100
+#define SCM_TTY_PARITY    0X0200
+#define SCM_TTY_OVERRUN   0X0400
 
 /* Represent a virtual tty device in this virtual adaptor. The peer_index will contain own 
  * index if this device is loop back configured device (peer == own). */
@@ -107,6 +113,7 @@ struct vtty_dev {
     int dtr_mappings;
     int set_dtr_atopen;
     spinlock_t lock;
+    int is_break_on;
     struct tty_struct *peer_tty;
     struct serial_struct serial; //TODO
     struct async_icount icount;
@@ -301,8 +308,11 @@ static void scmtty_close(struct tty_struct *tty, struct file *filp)
  */
 static int scmtty_write(struct tty_struct *tty, const unsigned char *buf, int count)
 {
-    struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
     struct tty_struct *tty_to_write = NULL;
+    struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
+
+    if(local_vttydev->is_break_on == 1)
+        return -EIO;
 
     if(tty->index != local_vttydev->peer_index)
         tty_to_write = local_vttydev->peer_tty;
@@ -329,11 +339,13 @@ static int scmtty_write(struct tty_struct *tty, const unsigned char *buf, int co
  */
 static int scmtty_put_char(struct tty_struct *tty, unsigned char ch)
 {
-    struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
     struct tty_struct *tty_to_write = NULL;
+    struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
 
     if (!tty)
         return 0;
+    if(local_vttydev->is_break_on == 1)
+        return -EIO;
 
     if(tty->index != local_vttydev->peer_index)
         tty_to_write = local_vttydev->peer_tty;
@@ -447,15 +459,13 @@ static int scmtty_ioctl(struct tty_struct *tty, unsigned int cmd, unsigned long 
  * contains currently active settings and tty->termios contains new settings to be applied.
  * 
  * @tty: tty device whose line settings is to be updated
- * @old: currently applied serial line settings
+ * @old_termios: currently applied serial line settings
  */
-static void scmtty_set_termios(struct tty_struct *tty, struct ktermios * old)
+static void scmtty_set_termios(struct tty_struct *tty, struct ktermios *old_termios)
 {
     u32 baud = 0;
-    unsigned int mcr_ctrl_reg = 0;
-    unsigned int msr_state_reg = 0;
-    int rts_mappings = 0;
-    int dtr_mappings = 0;
+    unsigned int rts_mappings = 0;
+    unsigned int dtr_mappings = 0;
     struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
     struct vtty_dev *remote_vttydev = NULL;
 
@@ -467,7 +477,8 @@ static void scmtty_set_termios(struct tty_struct *tty, struct ktermios * old)
 
     // Typically B0 is used to terminate the connection. Drop RTS and DTR.
     if ((tty->termios.c_cflag & CBAUD) == B0 ) {
-        return update_modem_lines(tty, 0, TIOCM_DTR | TIOCM_RTS);
+        update_modem_lines(tty, 0, TIOCM_DTR | TIOCM_RTS);
+        return;
     }
 
     /* If coming out of B0, raise DTR and RTS. This might get overridden in next steps. */
@@ -492,15 +503,12 @@ static void scmtty_set_termios(struct tty_struct *tty, struct ktermios * old)
 static void scmtty_throttle(struct tty_struct * tty) 
 {
     if (tty->termios.c_cflag & CRTSCTS) {
-        /* hardware (RTS/CTS) flow control */
-        return update_modem_lines(tty, 0, TIOCM_RTS);
+        update_modem_lines(tty, 0, TIOCM_RTS);
     }
     else if((tty->termios.c_iflag & IXON) || (tty->termios.c_iflag & IXOFF)) {
-        /* software flow control */
         scmtty_put_char(tty, STOP_CHAR(tty));
     }
     else {
-        // do nothing
     }
 }
 
@@ -512,13 +520,13 @@ static void scmtty_throttle(struct tty_struct * tty)
  * Start/stop is about what action to take at local end itself to start or stop data as per the flow 
  * control.
  * 
- * @tty: tty device ready to receive data
+ * @tty: tty device which is ready to receive data
  */
 static void scmtty_unthrottle(struct tty_struct * tty) 
 {
     if (tty->termios.c_cflag & CRTSCTS) {
         /* hardware (RTS/CTS) flow control */
-        return update_modem_lines(tty, TIOCM_RTS, 0);
+        update_modem_lines(tty, TIOCM_RTS, 0);
     }
     else if((tty->termios.c_iflag & IXON) || (tty->termios.c_iflag & IXOFF)) {
         /* software flow control */
@@ -566,9 +574,34 @@ static void scmtty_hangup(struct tty_struct *tty)
 
 /*
  * Invoked by tty layer to turn break condition on and off for a tty device.
+ *
+ * @tty: tty device who should set or reset given break condition on its output line
+ * @state: 1 if break is to be asserted or 0 for de-assertion
+ * 
+ * @return 0 on success otherwise negative error code on failure
  */
 static int scmtty_break_ctl(struct tty_struct *tty, int state) 
 {
+    struct tty_struct *tty_to_write = NULL;
+    struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
+
+    if(tty->index != local_vttydev->peer_index)
+        tty_to_write = local_vttydev->peer_tty;
+    else
+        tty_to_write = tty;
+
+    if(state == 1) {
+        if(local_vttydev->is_break_on == 1)
+            return 0;
+        local_vttydev->is_break_on = 1;
+        tty_insert_flip_string_fixed_flag(tty_to_write->port, 0, TTY_BREAK, 1);
+        tty_flip_buffer_push(tty_to_write->port);
+    }else if(state == 0) {
+        local_vttydev->is_break_on = 0;
+    }else {
+        return -EINVAL;
+    }
+
     return 0;
 }
 
