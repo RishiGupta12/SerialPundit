@@ -1,7 +1,7 @@
 ####Building
 ---------------------
 
-- Prebuilt driver scm_cp210x.ko is provided in repository.
+- Prebuilt driver for x86_64 arch scm_cp210x.ko is provided in repository.
 
 - Build is done using make tool. Run build.sh shell script to build this driver.
 

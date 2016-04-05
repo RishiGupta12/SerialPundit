@@ -71,7 +71,6 @@ static void scmtty_close(struct tty_struct *tty, struct file *filp);
 
 static int extract_mapping(char data[], int x);
 static int update_modem_lines(struct tty_struct *tty, unsigned int set, unsigned int clear);
-static int set_serial_info(struct tty_struct *tty, unsigned long arg);
 static int get_serial_info(struct tty_struct *tty, unsigned long arg);
 
 /* Default number of virtual tty ports this driver is going to support.
@@ -150,14 +149,13 @@ static int update_modem_lines(struct tty_struct *tty, unsigned int set, unsigned
     unsigned int msr_state_reg = 0;
     int rts_mappings = 0;
     int dtr_mappings = 0;
-    struct vtty_dev *local_vttydev = NULL;
+    struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
     struct vtty_dev *remote_vttydev = NULL;
 
     //TODO SCM_MCR_LOOP 
 
-    local_vttydev = index_manager[tty->index].vttydev;
     if(tty->index != local_vttydev->peer_index)
-        remote_vttydev = local_vttydev->peer_tty;
+        remote_vttydev = index_manager[local_vttydev->peer_index].vttydev;
 
     rts_mappings = local_vttydev->rts_mappings;
     dtr_mappings = local_vttydev->dtr_mappings;
@@ -386,6 +384,14 @@ static int scmtty_chars_in_buffer(struct tty_struct *tty)
     return 0;
 }
 
+/*
+ * Provides port specific information to the caller.
+ * 
+ * @tty: tty device associated with port in question
+ * @arg: user space buffer for returning information
+ * 
+ * @return 0 on success otherwise a negative error code on failure
+ */
 static int get_serial_info(struct tty_struct *tty, unsigned long arg)
 {
     struct serial_struct info;
@@ -397,25 +403,20 @@ static int get_serial_info(struct tty_struct *tty, unsigned long arg)
 
     memset(&info, 0, sizeof(info));
 
-    info.type           = serial.type;
+    info.type           = PORT_16550A;
     info.line           = serial.line;
-    info.port           = serial.port;
-    info.irq            = serial.irq;
-    info.flags          = ASYNC_SKIP_TEST | ASYNC_AUTO_IRQ;
-    info.xmit_fifo_size = serial.xmit_fifo_size;
-    info.baud_base      = serial.baud_base;
-    info.close_delay    = 5*HZ;
-    info.closing_wait   = 30*HZ;
-    info.custom_divisor = serial.custom_divisor;
-    info.hub6           = serial.hub6;
-    info.io_type        = serial.io_type;
+    info.port           = tty->index;
+    info.irq            = 0;
+    info.flags          = tty->port->flags;
+    info.xmit_fifo_size = 0;
+    info.baud_base      = 0;
+    info.close_delay    = tty->port->close_delay;
+    info.closing_wait   = tty->port->closing_wait;
+    info.custom_divisor = 0;
+    info.hub6           = 0;
+    info.io_type        = SERIAL_IO_MEM;
 
-    return 0;
-}
-
-static int set_serial_info(struct tty_struct *tty, unsigned long arg)
-{
-    return 0;
+    return (copy_to_user((void __user *)arg, &info, sizeof(struct serial_struct))) ? -EFAULT : 0;
 }
 
 /*
@@ -436,63 +437,121 @@ static int scmtty_ioctl(struct tty_struct *tty, unsigned int cmd, unsigned long 
 
     case TIOCGSERIAL:
         return get_serial_info(tty, arg);
-
-    case TIOCSSERIAL:
-        return set_serial_info(tty, arg);
     }
 
     return -ENOIOCTLCMD;
 }
 
 /*
- * Invoked when the termios structure (terminal settings) for this tty device is changed.
+ * Invoked when the termios structure (terminal settings) for this tty device is changed. The old_termios 
+ * contains currently active settings and tty->termios contains new settings to be applied.
  * 
- * @tty:
- * @old:
+ * @tty: tty device whose line settings is to be updated
+ * @old: currently applied serial line settings
  */
 static void scmtty_set_termios(struct tty_struct *tty, struct ktermios * old)
 {
+    u32 baud = 0;
+    unsigned int mcr_ctrl_reg = 0;
+    unsigned int msr_state_reg = 0;
+    int rts_mappings = 0;
+    int dtr_mappings = 0;
+    struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
+    struct vtty_dev *remote_vttydev = NULL;
 
+    rts_mappings = local_vttydev->rts_mappings;
+    dtr_mappings = local_vttydev->dtr_mappings;
+
+    if(tty->index != local_vttydev->peer_index)
+        remote_vttydev = index_manager[local_vttydev->peer_index].vttydev;
+
+    // Typically B0 is used to terminate the connection. Drop RTS and DTR.
+    if ((tty->termios.c_cflag & CBAUD) == B0 ) {
+        return update_modem_lines(tty, 0, TIOCM_DTR | TIOCM_RTS);
+    }
+
+    /* If coming out of B0, raise DTR and RTS. This might get overridden in next steps. */
+    if (!old_termios || (old_termios->c_cflag & CBAUD) == B0) {
+        update_modem_lines(tty, TIOCM_DTR | TIOCM_RTS, 0);
+    }
+
+    baud = tty_get_baud_rate(tty);
+    if (!baud) {
+        baud = 9600;
+    }
+    tty_encode_baud_rate(tty, baud, baud);
+
+    //TODO handle stop bits flow ctrl start bits etc.
 }
 
 /*
  * Invoked when tty layer's input buffers are about to get full.
  * 
- * @tty:
+ * @tty: tty device whose buffers are about to get full
  */
 static void scmtty_throttle(struct tty_struct * tty) 
 {
-
+    if (tty->termios.c_cflag & CRTSCTS) {
+        /* hardware (RTS/CTS) flow control */
+        return update_modem_lines(tty, 0, TIOCM_RTS);
+    }
+    else if((tty->termios.c_iflag & IXON) || (tty->termios.c_iflag & IXOFF)) {
+        /* software flow control */
+        scmtty_put_char(tty, STOP_CHAR(tty));
+    }
+    else {
+        // do nothing
+    }
 }
 
 /*
  * Invoked when the tty layer's input buffers have been emptied out, and it now can accept more data.
  * 
- * @tty:
+ * Throttle/unthrottle is about notifying remote end to start or stop data as per the flow control. 
+ * 
+ * Start/stop is about what action to take at local end itself to start or stop data as per the flow 
+ * control.
+ * 
+ * @tty: tty device ready to receive data
  */
 static void scmtty_unthrottle(struct tty_struct * tty) 
 {
-
+    if (tty->termios.c_cflag & CRTSCTS) {
+        /* hardware (RTS/CTS) flow control */
+        return update_modem_lines(tty, TIOCM_RTS, 0);
+    }
+    else if((tty->termios.c_iflag & IXON) || (tty->termios.c_iflag & IXOFF)) {
+        /* software flow control */
+        scmtty_put_char(tty, START_CHAR(tty));
+    }
+    else {
+        // do nothing
+    }
 }
 
 /*
  * Invoked when this driver should stop sending data for example as a part of flow control mechanism.
  * 
- * @tty:
+ * Line discipline n_tty calls this function if this device uses software flow control and an XOFF 
+ * character is received from other end.
+ * 
+ * @tty: tty device who should stop sending data to other end
  */
 static void scmtty_stop(struct tty_struct *tty) 
 {
-
+    //TODO any action item here ?write() should not write ?
 }
 
 /*
- * Invoked when this driver should resume sending data for example as a part of flow control mechanism.
+ * Invoked when this driver should start sending data for example as a part of flow control mechanism.
  * 
- * @tty:
+ * Line discipline n_tty calls this function if this device uses software flow control and an XON
+ * character is received from other end.
+ * 
+ * @tty: tty device who should start sending data to other end
  */
 static void scmtty_start(struct tty_struct *tty) 
 {
-
 }
 
 /*
@@ -541,14 +600,20 @@ static void scmtty_wait_until_sent(struct tty_struct *tty, int timeout)
 }
 
 /*
- * Invoked by tty layer to inform this driver to send XON or XOFF character.
+ * Invoked by tty layer to execute TCIOFF and TCION IOCTL commands generally because user space process 
+ * called tcflow() function. It send a high priority character to the tty device end even if stopped.
  * 
- * @tty:
- * @ch:
+ * If this function (send_xchar) is defined by tty device driver, tty core will call this function. If 
+ * it is not specified then tty core will first instruct this driver to start transmission (start()) 
+ * and then invoke write() of this driver passing character to be written and then it will call stop() 
+ * function of this driver.
+ * 
+ * @tty: tty device who is sending this character
+ * @ch: character to be sent (typically it is XOFF or XON)
  */
 static void scmtty_send_xchar(struct tty_struct *tty, char ch) 
 {
-
+    scmtty_put_char(tty, ch);
 }
 
 /*
@@ -628,7 +693,7 @@ static int scmtty_get_icount(struct tty_struct *tty, struct serial_icounter_stru
  * @length
  * @ppos
  * 
- * @return number of bytes consumed by this function on success or negative error code on error.
+ * @return number of bytes copied to user buffer on success or negative error code on error
  */
 static ssize_t scmtty_vadapt_proc_read(struct file *file, char __user *buf, size_t size, loff_t *ppos)
 {
@@ -688,7 +753,7 @@ static int extract_mapping(char data[], int x) {
  * @length length of the command
  * @ppos offset in file
  * 
- * @return number of bytes consumed by this function on success or negative error code on failure.
+ * @return number of bytes consumed by this function on success or negative error code on failure
  */
 static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *buf, size_t length, loff_t * ppos)
 {

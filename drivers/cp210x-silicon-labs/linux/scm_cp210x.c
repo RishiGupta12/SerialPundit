@@ -896,6 +896,7 @@ static void scm_cp210x_set_termios(struct tty_struct *tty, struct usb_serial_por
         dev_dbg(&port->dev, "for baudrate >= 921600, only 7/8 data bits are supported.");
     }
     break;
+
     case CS6: bits |= BITS_DATA_6;
     if(baud >= 921600) {
         bits |= BITS_DATA_8;
@@ -904,10 +905,13 @@ static void scm_cp210x_set_termios(struct tty_struct *tty, struct usb_serial_por
         dev_dbg(&port->dev, "for baudrate >= 921600, only 7/8 data bits are supported.");
     }
     break;
+
     case CS7: bits |= BITS_DATA_7;
     break;
+
     case CS8: bits |= BITS_DATA_8;
     break;
+
     default:  bits |= BITS_DATA_8;
     tty->termios.c_cflag |= CS8;
     update_data_size = 1;
@@ -917,28 +921,25 @@ static void scm_cp210x_set_termios(struct tty_struct *tty, struct usb_serial_por
     /* Update number of stop bits */
     bits &= ~BITS_STOP_MASK;
 
-    if (tty->termios.c_cflag & CSTOPB) {
+    if (tty->termios.c_cflag & CSTOPB)
         bits |= BITS_STOP_2;
-    }else {
+    else
         bits |= BITS_STOP_1;
-    }
 
     /* Update parity type */
     bits &= ~BITS_PARITY_MASK;
 
     if (tty->termios.c_cflag & PARENB) {
         if (tty->termios.c_cflag & CMSPAR) {
-            if (tty->termios.c_cflag & PARODD) {
+            if (tty->termios.c_cflag & PARODD)
                 bits |= BITS_PARITY_MARK;
-            }else {
+            else
                 bits |= BITS_PARITY_SPACE;
-            }
         }else {
-            if (tty->termios.c_cflag & PARODD) {
+            if (tty->termios.c_cflag & PARODD)
                 bits |= BITS_PARITY_ODD;
-            }else {
+            else
                 bits |= BITS_PARITY_EVEN;
-            }
         }
     }
 
@@ -1055,16 +1056,15 @@ static int scm_cp210x_tiocmget(struct tty_struct *tty)
 
     result = read_cp210x_register(port, CP210X_GET_MDMSTS, REQTYPE_INTERFACE_TO_HOST, CP210X_GET_PARTNUM,
             0, &control, 1);
-    if (result < 0) {
+    if (result < 0)
         return result;
-    }
 
-    result = ((control & CONTROL_DTR) ? TIOCM_DTR : 0)
-	    		           | ((control & CONTROL_RTS) ? TIOCM_RTS : 0)
-	    		           | ((control & CONTROL_CTS) ? TIOCM_CTS : 0)
-	    		           | ((control & CONTROL_DSR) ? TIOCM_DSR : 0)
-	    		           | ((control & CONTROL_RING)? TIOCM_RI  : 0)
-	    		           | ((control & CONTROL_DCD) ? TIOCM_CD  : 0);
+    result= ((control & CONTROL_DTR)  ? TIOCM_DTR : 0) | 
+            ((control & CONTROL_RTS)  ? TIOCM_RTS : 0) | 
+            ((control & CONTROL_CTS)  ? TIOCM_CTS : 0) | 
+            ((control & CONTROL_DSR)  ? TIOCM_DSR : 0) | 
+            ((control & CONTROL_RING) ? TIOCM_RI  : 0) | 
+            ((control & CONTROL_DCD)  ? TIOCM_CD  : 0);
     return result;
 }
 
@@ -1133,9 +1133,8 @@ static void scm_cp210x_break_ctl(struct tty_struct *tty, int break_state)
 
     result = write_cp210x_register(port, CP210X_SET_BREAK, REQTYPE_HOST_TO_INTERFACE, state, 
             port->serial->interface->cur_altsetting->desc.bInterfaceNumber, NULL, 0);
-    if (result != 0) {
+    if (result != 0)
         dev_dbg(&port->dev, "%s - failed with err code: %d\n", __func__, result);
-    }
 }
 
 /*
@@ -1207,4 +1206,4 @@ MODULE_LICENSE("GPL");
 
 module_param(dbg, bool, S_IRUGO | S_IWUSR);
 MODULE_PARM_DESC(dbg, "Debuging enabled or not");
- 
+
