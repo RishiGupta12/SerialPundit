@@ -21,15 +21,16 @@ It creates virtual serial ports pair that appears same as the real once to the a
 - Protocol converter engine software
 
 ##Features
-- Emulate a plug and play device
 - Create standard, loopback or custom pinout connected serial devices
-- Create/destroy virtual serial ports dynamically (no reboot required)
-- Ports can be created automatically at system boots
-- Serial ports can be deleted even when opened by an application (useful in automated testing)
-- Emulate all serial port settings and control signals
 - Emulate none, software and hardware flow controls
-- Create large number of serial ports
+- Emulate parity, frame, overrun and line break events
+- Emulate all serial port settings and control signals (RTS,DTR,CTS,DCD,RI,LOOP,DSR)
+- Create/destroy virtual serial ports dynamically directly from your application without reboot
 - Operating system specific serial port APIs and IOCTL supported
+- Serial ports can be deleted even when opened by an application (useful in automated testing)
+- Emulate a plug and play device
+- Ports can be created automatically at system boots
+- Create large number of serial ports
 - Speed is directly proportional to your software/hardware configuration
 - Virtual box and VMware virtual machine supported
 - API to control virtual ports directly from your application
