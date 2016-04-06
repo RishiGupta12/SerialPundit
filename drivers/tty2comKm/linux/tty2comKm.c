@@ -160,6 +160,15 @@ static const struct tty_port_operations vttydev_port_ops = {
 /*
  * Notifies tty layer that a framing error has happend while receiving data on serial port.
  * 
+ * 1. Emulate framing error:
+ * $echo "1" > /sys/class/tty/tty2comXX/scmvtty_errevt/evt
+ * 
+ * 2. Emulate parity error:
+ * $echo "2" > /sys/class/tty/tty2comXX/scmvtty_errevt/evt
+ * 
+ * 3. Emulate overrun error:
+ * $echo "3" > /sys/class/tty/tty2comXX/scmvtty_errevt/evt
+ * 
  * @dev: device associated with given sysfs entry
  * @attr: sysfs attribute
  * @buf: error event passed from user space to kernel via this sysfs attribute
@@ -169,17 +178,22 @@ static const struct tty_port_operations vttydev_port_ops = {
  */
 static ssize_t evt_store(struct device *dev, struct device_attribute *attr, const char *buf, size_t count)
 {
+    struct vtty_dev *vttydev = NULL;
     struct vtty_dev *local_vttydev = NULL;
     struct tty_struct *tty_to_write = NULL;
 
     if(!buf)
-        return -EIO;
+        return -EINVAL;
 
     local_vttydev = (struct vtty_dev *) dev_get_drvdata(dev);
-    if(local_vttydev->own_index != local_vttydev->peer_index)
+    if(local_vttydev->own_index != local_vttydev->peer_index) {
         tty_to_write = index_manager[local_vttydev->peer_index].vttydev->own_tty;
-    else
+        vttydev = index_manager[local_vttydev->peer_index].vttydev;
+    }
+    else {
         tty_to_write = local_vttydev->own_tty;
+        vttydev = local_vttydev;
+    }
 
     if(tty_to_write == NULL)
         return -EIO;
@@ -187,15 +201,18 @@ static ssize_t evt_store(struct device *dev, struct device_attribute *attr, cons
     switch(buf[0]) {
     case '1' : 
         tty_insert_flip_string_fixed_flag(tty_to_write->port, 0, TTY_FRAME, 1);
+        local_vttydev->icount.frame++;
         break;
     case '2' :
         tty_insert_flip_string_fixed_flag(tty_to_write->port, 0, TTY_PARITY, 1);
+        local_vttydev->icount.parity++;
         break;
     case '3' :
         tty_insert_flip_string_fixed_flag(tty_to_write->port, 0, TTY_OVERRUN, 1);
+        local_vttydev->icount.overrun++;
         break;
     default :
-        return -ENOTSUPP;
+        return -EINVAL;
     }
     tty_flip_buffer_push(tty_to_write->port);
 
@@ -215,10 +232,15 @@ static ssize_t evt_store(struct device *dev, struct device_attribute *attr, cons
  */
 static int update_modem_lines(struct tty_struct *tty, unsigned int set, unsigned int clear)
 {
-    unsigned int mcr_ctrl_reg = 0;
-    unsigned int msr_state_reg = 0;
     int rts_mappings = 0;
     int dtr_mappings = 0;
+    int ctsint = 0;
+    int dcdint = 0;
+    int dsrint = 0;
+    int rngint = 0;
+    unsigned int mcr_ctrl_reg = 0;
+    unsigned int msr_state_reg = 0;
+    struct async_icount *evicount;
     struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
     struct vtty_dev *remote_vttydev = NULL;
 
@@ -233,72 +255,98 @@ static int update_modem_lines(struct tty_struct *tty, unsigned int set, unsigned
     if (set & TIOCM_RTS) {
         mcr_ctrl_reg |= SCM_MCR_RTS;
         if((rts_mappings & CON_CTS) == CON_CTS) {
-            msr_state_reg |= SCM_MSR_CTS; 
+            msr_state_reg |= SCM_MSR_CTS;
+            ctsint++;
         }
         if((rts_mappings & CON_DCD) == CON_DCD) {
-            msr_state_reg |= SCM_MSR_DCD; 
+            msr_state_reg |= SCM_MSR_DCD;
+            dcdint++;
         }
         if((rts_mappings & CON_DSR) == CON_DSR) {
-            msr_state_reg |= SCM_MSR_DSR; 
+            msr_state_reg |= SCM_MSR_DSR;
+            dsrint++;
         }
         if((rts_mappings & CON_RI) == CON_RI) {
-            msr_state_reg |= SCM_MSR_RI; 
+            msr_state_reg |= SCM_MSR_RI;
+            rngint++;
         }
     }
 
     if (set & TIOCM_DTR) {
         mcr_ctrl_reg |= SCM_MCR_DTR;
         if((dtr_mappings & CON_CTS) == CON_CTS) {
-            msr_state_reg |= SCM_MSR_CTS; 
+            msr_state_reg |= SCM_MSR_CTS;
+            ctsint++;
         }
         if((dtr_mappings & CON_DCD) == CON_DCD) {
-            msr_state_reg |= SCM_MSR_DCD; 
+            msr_state_reg |= SCM_MSR_DCD;
+            dcdint++;
         }
         if((dtr_mappings & CON_DSR) == CON_DSR) {
-            msr_state_reg |= SCM_MSR_DSR; 
+            msr_state_reg |= SCM_MSR_DSR;
+            dsrint++;
         }
         if((dtr_mappings & CON_RI) == CON_RI) {
-            msr_state_reg |= SCM_MSR_RI; 
+            msr_state_reg |= SCM_MSR_RI;
+            rngint++;
         }
     }
 
     if (clear & TIOCM_RTS) {
         mcr_ctrl_reg &= ~SCM_MCR_RTS;
         if((rts_mappings & CON_CTS) == CON_CTS) {
-            msr_state_reg &= ~SCM_MSR_CTS; 
+            msr_state_reg &= ~SCM_MSR_CTS;
+            ctsint++;
         }
         if((rts_mappings & CON_DCD) == CON_DCD) {
-            msr_state_reg &= ~SCM_MSR_DCD; 
+            msr_state_reg &= ~SCM_MSR_DCD;
+            dcdint++;
         }
         if((rts_mappings & CON_DSR) == CON_DSR) {
-            msr_state_reg &= ~SCM_MSR_DSR; 
+            msr_state_reg &= ~SCM_MSR_DSR;
+            dsrint++;
         }
         if((rts_mappings & CON_RI) == CON_RI) {
-            msr_state_reg &= ~SCM_MSR_RI; 
+            msr_state_reg &= ~SCM_MSR_RI;
+            rngint++;
         }
     }
 
     if (clear & TIOCM_DTR) {
         mcr_ctrl_reg &= ~SCM_MCR_DTR;
         if((dtr_mappings & CON_CTS) == CON_CTS) {
-            msr_state_reg &= ~SCM_MSR_CTS; 
+            msr_state_reg &= ~SCM_MSR_CTS;
+            ctsint++;
         }
         if((dtr_mappings & CON_DCD) == CON_DCD) {
-            msr_state_reg &= ~SCM_MSR_DCD; 
+            msr_state_reg &= ~SCM_MSR_DCD;
+            dcdint++;
         }
         if((dtr_mappings & CON_DSR) == CON_DSR) {
-            msr_state_reg &= ~SCM_MSR_DSR; 
+            msr_state_reg &= ~SCM_MSR_DSR;
+            dsrint++;
         }
         if((dtr_mappings & CON_RI) == CON_RI) {
-            msr_state_reg &= ~SCM_MSR_RI; 
+            msr_state_reg &= ~SCM_MSR_RI;
+            rngint++;
         }
     }
 
     local_vttydev->mcr_reg = mcr_ctrl_reg;
-    if(remote_vttydev == NULL)
+
+    if(remote_vttydev == NULL) {
         local_vttydev->msr_reg = msr_state_reg;
-    else
+        evicount = &local_vttydev->icount;
+    }
+    else {
         remote_vttydev->msr_reg = msr_state_reg;
+        evicount = &remote_vttydev->icount;
+    }
+
+    evicount->cts += ctsint;
+    evicount->dsr += dsrint;
+    evicount->dcd += dcdint;
+    evicount->rng += rngint;
 
     return 0;
 }
@@ -366,11 +414,11 @@ static void scmtty_close(struct tty_struct *tty, struct file *filp)
  * Invoked by tty layer when data is to be sent to tty device may be as a response to write() call in 
  * user space.
  * 
- * @tty: tty device upon whom write() is invoked
- * @buf:
- * @count:
+ * @tty: tty device who will send given data
+ * @buf: data to be sent
+ * @count: number of data bytes in buf
  * 
- * @return number of characters consumed (sent to tty device) or negative error code on failure.
+ * @return number of characters sent or negative error code on failure
  */
 static int scmtty_write(struct tty_struct *tty, const unsigned char *buf, int count)
 {
@@ -388,6 +436,8 @@ static int scmtty_write(struct tty_struct *tty, const unsigned char *buf, int co
     tty_insert_flip_string(tty_to_write->port, buf, count);
     tty_flip_buffer_push(tty_to_write->port);
 
+    local_vttydev->icount.tx++;
+
     //TODO DONT WRITE IF PORT SETTINGS DOES NOT MATCH
 
     return count;
@@ -397,11 +447,11 @@ static int scmtty_write(struct tty_struct *tty, const unsigned char *buf, int co
  * Invoked by tty layer when a single character is to be sent to the tty device. This character may be 
  * ignored if there is no room in the device for the character to be sent.
  * 
- * @tty: tty device upon whom this function is invoked
- * @buf:
- * @count:
+ * @tty: tty device who will send given data
+ * @buf: data to be sent
+ * @count: number of data bytes in buf
  * 
- * @return number of characters consumed (sent to tty device) or negative error code on failure.
+ * @return number of characters sent or negative error code on failure
  */
 static int scmtty_put_char(struct tty_struct *tty, unsigned char ch)
 {
@@ -420,6 +470,8 @@ static int scmtty_put_char(struct tty_struct *tty, unsigned char ch)
 
     tty_insert_flip_char(tty_to_write->port, ch, TTY_NORMAL);
     tty_flip_buffer_push(tty_to_write->port);
+
+    local_vttydev->icount.tx++;
 
     return 1;
 }
@@ -454,7 +506,7 @@ static int get_serial_info(struct tty_struct *tty, unsigned long arg)
 
     memset(&info, 0, sizeof(info));
 
-    info.type           = PORT_16550A;
+    info.type           = PORT_UNKNOWN;
     info.line           = serial.line;
     info.port           = tty->index;
     info.irq            = 0;
@@ -679,12 +731,17 @@ static int scmtty_tiocmset(struct tty_struct *tty, unsigned int set, unsigned in
 static int scmtty_break_ctl(struct tty_struct *tty, int state) 
 {
     struct tty_struct *tty_to_write = NULL;
+    struct vtty_dev *vttydev = NULL;
     struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
 
-    if(tty->index != local_vttydev->peer_index)
+    if(tty->index != local_vttydev->peer_index) {
         tty_to_write = local_vttydev->peer_tty;
-    else
+        vttydev = local_vttydev;
+    }
+    else {
         tty_to_write = tty;
+        vttydev = index_manager[local_vttydev->peer_index].vttydev;
+    }
 
     if(state == 1) {
         if(local_vttydev->is_break_on == 1)
@@ -698,6 +755,8 @@ static int scmtty_break_ctl(struct tty_struct *tty, int state)
         return -EINVAL;
     }
 
+    vttydev->icount.brk++;
+
     return 0;
 }
 
@@ -708,11 +767,12 @@ static int scmtty_break_ctl(struct tty_struct *tty, int state)
  */
 static void scmtty_hangup(struct tty_struct *tty) 
 {
-
+    //TODO
 }
 
 /*
- * Invoked to execute ioctl command TIOCGICOUNT to get the number of interrupts.
+ * Invoked to execute ioctl command TIOCGICOUNT to get the number of interrupts. Both 1->0 and 
+ * 0->1 transitions are counted, except for RI, where only 0->1 transitions are counted.
  * 
  * @tty: tty device whose interrupts information is to be collected
  * @icount: memory location from which tty core will copy data to user space buffer
