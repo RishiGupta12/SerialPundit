@@ -28,6 +28,7 @@
 #include <linux/errno.h>
 #include <linux/init.h>
 #include <linux/module.h>
+#include <linux/moduleparam.h>
 #include <linux/slab.h>
 #include <linux/wait.h>
 #include <linux/tty.h>
@@ -40,6 +41,7 @@
 #include <linux/mutex.h>
 #include <asm/uaccess.h>
 #include <linux/proc_fs.h>
+#include <linux/device.h>
 
 /* Module information */
 #define DRIVER_VERSION "v1.0"
@@ -73,6 +75,12 @@ static int extract_mapping(char data[], int x);
 static int update_modem_lines(struct tty_struct *tty, unsigned int set, unsigned int clear);
 static int get_serial_info(struct tty_struct *tty, unsigned long arg);
 
+static ssize_t evt_store(struct device *dev, struct device_attribute *attr, const char *buf, size_t count);
+static int scmtty_vadapt_proc_open(struct inode *inode, struct  file *file);
+static int scmtty_vadapt_proc_close(struct inode *inode, struct file *file);
+static ssize_t scmtty_vadapt_proc_read(struct file *file, char __user *buf, size_t size, loff_t *ppos);
+static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *buf, size_t length, loff_t * ppos);
+
 /* Default number of virtual tty ports this driver is going to support.
  * TTY devices are created on demand. */
 #define VTTY_DEV_MAX 128
@@ -97,15 +105,10 @@ static int get_serial_info(struct tty_struct *tty, unsigned long arg);
 #define SCM_MSR_RI     0x0020
 #define SCM_MSR_DSR    0x0040
 
-/* Line error definitions */
-#define SCM_TTY_BREAK     0X0080
-#define SCM_TTY_FRAME     0X0100
-#define SCM_TTY_PARITY    0X0200
-#define SCM_TTY_OVERRUN   0X0400
-
 /* Represent a virtual tty device in this virtual adaptor. The peer_index will contain own 
  * index if this device is loop back configured device (peer == own). */
 struct vtty_dev {
+    int own_index;
     int peer_index;
     int msr_reg; // shadow modem status register
     int mcr_reg; // shadow modem control register
@@ -114,9 +117,11 @@ struct vtty_dev {
     int set_dtr_atopen;
     spinlock_t lock;
     int is_break_on;
+    struct tty_struct *own_tty;
     struct tty_struct *peer_tty;
     struct serial_struct serial; //TODO
     struct async_icount icount;
+    struct device *device;
 };
 
 struct vtty_info {
@@ -136,8 +141,66 @@ static struct tty_driver *scmtty_driver;
 static DEFINE_SPINLOCK(adaptlock);        // atomically create/destroy tty devices
 struct vtty_info *index_manager = NULL;   //  keep track of indexes in use currently
 
+/* Per device sysfs entries to emulate frame, parity and overrun error events during data reception */
+static DEVICE_ATTR(evt, S_IWUSR | S_IRUGO, NULL, evt_store);
+
+static struct attribute *scmvtty_error_events_attrs[] = {
+        &dev_attr_evt.attr,
+        NULL,
+};
+
+static const struct attribute_group scmvtty_error_events_attr_group = {
+        .name = "scmvtty_errevt",
+        .attrs = scmvtty_error_events_attrs,
+};
+
 static const struct tty_port_operations vttydev_port_ops = {
 };
+
+/*
+ * Notifies tty layer that a framing error has happend while receiving data on serial port.
+ * 
+ * @dev: device associated with given sysfs entry
+ * @attr: sysfs attribute
+ * @buf: error event passed from user space to kernel via this sysfs attribute
+ * @count: number of bytes in buf
+ * 
+ * @return number of bytes consumed from buf on success or negative error code on error
+ */
+static ssize_t evt_store(struct device *dev, struct device_attribute *attr, const char *buf, size_t count)
+{
+    struct vtty_dev *local_vttydev = NULL;
+    struct tty_struct *tty_to_write = NULL;
+
+    if(!buf)
+        return -EIO;
+
+    local_vttydev = (struct vtty_dev *) dev_get_drvdata(dev);
+    if(local_vttydev->own_index != local_vttydev->peer_index)
+        tty_to_write = index_manager[local_vttydev->peer_index].vttydev->own_tty;
+    else
+        tty_to_write = local_vttydev->own_tty;
+
+    if(tty_to_write == NULL)
+        return -EIO;
+
+    switch(buf[0]) {
+    case '1' : 
+        tty_insert_flip_string_fixed_flag(tty_to_write->port, 0, TTY_FRAME, 1);
+        break;
+    case '2' :
+        tty_insert_flip_string_fixed_flag(tty_to_write->port, 0, TTY_PARITY, 1);
+        break;
+    case '3' :
+        tty_insert_flip_string_fixed_flag(tty_to_write->port, 0, TTY_OVERRUN, 1);
+        break;
+    default :
+        return -ENOTSUPP;
+    }
+    tty_flip_buffer_push(tty_to_write->port);
+
+    return count;
+}
 
 /* 
  * Update modem control and modem status registers according to the bit mask(s) provided. The 
@@ -260,6 +323,9 @@ static int scmtty_open(struct tty_struct *tty, struct file *filp)
     struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
     struct vtty_dev *remote_vttydev = NULL;
 
+    local_vttydev->own_index = tty->index;
+    local_vttydev->own_tty = tty;
+
     // If this device is one end of null modem connection, provide our address to remote end
     if(tty->index != local_vttydev->peer_index) {
         remote_vttydev = index_manager[local_vttydev->peer_index].vttydev;
@@ -370,33 +436,6 @@ static void scmtty_flush_chars(struct tty_struct *tty)
 }
 
 /*
- * Return the number of bytes that can be queued to this device at the present time. The result should be 
- * treated as a guarantee and the driver cannot offer a value it later shrinks by more than the number of 
- * bytes written.
- * 
- * @tty: tty device enquired
- * 
- * @return number of bytes that can be queued to this device at the present time
- */
-static int scmtty_write_room(struct tty_struct *tty)
-{
-    return 2048;
-}
-
-/*
- * Return the number of bytes of data in the device private output queue. Invoked when ioctl command 
- * TIOCOUTQ is executed or by tty layer as and when required (tty_wait_until_sent()).
- * 
- * @tty: tty device enquired
- * 
- * @return number of bytes of data in the device private output queue
- */
-static int scmtty_chars_in_buffer(struct tty_struct *tty)
-{
-    return 0;
-}
-
-/*
  * Provides port specific information to the caller.
  * 
  * @tty: tty device associated with port in question
@@ -432,26 +471,17 @@ static int get_serial_info(struct tty_struct *tty, unsigned long arg)
 }
 
 /*
- * Invoked to execute standard and device/driver specific ioctl commands.
+ * Return the number of bytes that can be queued to this device at the present time. The result should be 
+ * treated as a guarantee and the driver cannot offer a value it later shrinks by more than the number of 
+ * bytes written.
  * 
- * If the requested command is not supported, this driver will return -ENOIOCTLCMD so that the tty layer 
- * can invoke generic version of the givwn ioctl command if possible.
+ * @tty: tty device enquired
  * 
- * @tty:
- * @cmd:
- * @arg:
- * 
- * @return 0 on success otherwise a negative error code on failures
+ * @return number of bytes that can be queued to this device at the present time
  */
-static int scmtty_ioctl(struct tty_struct *tty, unsigned int cmd, unsigned long arg) 
+static int scmtty_write_room(struct tty_struct *tty)
 {
-    switch (cmd) {
-
-    case TIOCGSERIAL:
-        return get_serial_info(tty, arg);
-    }
-
-    return -ENOIOCTLCMD;
+    return 2048;
 }
 
 /*
@@ -493,6 +523,42 @@ static void scmtty_set_termios(struct tty_struct *tty, struct ktermios *old_term
     tty_encode_baud_rate(tty, baud, baud);
 
     //TODO handle stop bits flow ctrl start bits etc.
+}
+
+/*
+ * Return the number of bytes of data in the device private output queue. Invoked when ioctl command 
+ * TIOCOUTQ is executed or by tty layer as and when required (tty_wait_until_sent()).
+ * 
+ * @tty: tty device enquired
+ * 
+ * @return number of bytes of data in the device private output queue
+ */
+static int scmtty_chars_in_buffer(struct tty_struct *tty)
+{
+    return 0;
+}
+
+/*
+ * Invoked to execute standard and device/driver specific ioctl commands.
+ * 
+ * If the requested command is not supported, this driver will return -ENOIOCTLCMD so that the tty layer 
+ * can invoke generic version of the givwn ioctl command if possible.
+ * 
+ * @tty: tty device for whom given ioctl command is to be executed
+ * @cmd: ioctl command to execute
+ * @arg: arguments accompanying the command
+ * 
+ * @return 0 on success otherwise a negative error code on failures
+ */
+static int scmtty_ioctl(struct tty_struct *tty, unsigned int cmd, unsigned long arg) 
+{
+    switch (cmd) {
+
+    case TIOCGSERIAL:
+        return get_serial_info(tty, arg);
+    }
+
+    return -ENOIOCTLCMD;
 }
 
 /*
@@ -563,13 +629,43 @@ static void scmtty_start(struct tty_struct *tty)
 }
 
 /*
- * Invoked by tty layer to inform this driver that it should hangup the tty device.
+ * Obtain the modem status bits for the given tty device. Invoked typically when ioctl command TIOCMGET 
+ * is executed on this tty device.
  * 
- * @tty: 
+ * @tty: tty device whose status is enquired
+ * 
+ * @return bit mask (TIOCM_XXX) of modem control and modem status registers
  */
-static void scmtty_hangup(struct tty_struct *tty) 
+static int scmtty_tiocmget(struct tty_struct *tty) 
 {
+    int status = 0;
+    struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
+    int msr_reg = local_vttydev->msr_reg;
+    int mcr_reg = local_vttydev->mcr_reg;
 
+    status= ((mcr_reg & SCM_MCR_DTR)  ? TIOCM_DTR  : 0) |
+            ((mcr_reg & SCM_MCR_RTS)  ? TIOCM_RTS  : 0) |
+            ((mcr_reg & SCM_MCR_LOOP) ? TIOCM_LOOP : 0) |
+            ((msr_reg & SCM_MSR_DCD)  ? TIOCM_CAR  : 0) |
+            ((msr_reg & SCM_MSR_RI)   ? TIOCM_RI   : 0) |
+            ((msr_reg & SCM_MSR_CTS)  ? TIOCM_CTS  : 0) |
+            ((msr_reg & SCM_MSR_DSR)  ? TIOCM_DSR  : 0);
+    return status;
+}
+
+/*
+ * Set the modem status bits. Invoked typically when ioctl command TIOCMSET is executed on this tty 
+ * device.
+ * 
+ * @tty: tty device whose modem control register is to be updated with given value
+ * @set: bit mask of signals which should be asserted
+ * @clear: bit mask of signals which should be de-asserted
+ * 
+ * @return 0 on success otherwise negative error code on failure
+ */
+static int scmtty_tiocmset(struct tty_struct *tty, unsigned int set, unsigned int clear) 
+{
+    return update_modem_lines(tty, set, clear); //TODO UPDATE SHOULD HAPPEN WITH LOCKING
 }
 
 /*
@@ -601,6 +697,47 @@ static int scmtty_break_ctl(struct tty_struct *tty, int state)
     }else {
         return -EINVAL;
     }
+
+    return 0;
+}
+
+/*
+ * Invoked by tty layer to inform this driver that it should hangup the tty device.
+ * 
+ * @tty: 
+ */
+static void scmtty_hangup(struct tty_struct *tty) 
+{
+
+}
+
+/*
+ * Invoked to execute ioctl command TIOCGICOUNT to get the number of interrupts.
+ * 
+ * @tty: tty device whose interrupts information is to be collected
+ * @icount: memory location from which tty core will copy data to user space buffer
+ * 
+ * @return 0 on success otherwise negative error code on failure
+ */
+static int scmtty_get_icount(struct tty_struct *tty, struct serial_icounter_struct *icount) 
+{
+    struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
+    struct async_icount cnow;
+
+    /* atomically copy TODO LOCK */
+    cnow = local_vttydev->icount;
+
+    icount->cts = cnow.cts;
+    icount->dsr = cnow.dsr;
+    icount->rng = cnow.rng;
+    icount->dcd = cnow.dcd;
+    icount->tx = cnow.tx;
+    icount->rx = cnow.rx;
+    icount->frame = cnow.frame;
+    icount->parity = cnow.parity;
+    icount->overrun = cnow.overrun;
+    icount->brk = cnow.brk;
+    icount->buf_overrun = cnow.buf_overrun;
 
     return 0;
 }
@@ -647,77 +784,6 @@ static void scmtty_wait_until_sent(struct tty_struct *tty, int timeout)
 static void scmtty_send_xchar(struct tty_struct *tty, char ch) 
 {
     scmtty_put_char(tty, ch);
-}
-
-/*
- * Obtain the modem status bits for the given tty device. Invoked typically when ioctl command TIOCMGET 
- * is executed on this tty device.
- * 
- * @tty: tty device whose status is enquired
- * 
- * @return bit mask (TIOCM_XXX) of modem control and modem status registers
- */
-static int scmtty_tiocmget(struct tty_struct *tty) 
-{
-    int status = 0;
-    struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
-    int msr_reg = local_vttydev->msr_reg;
-    int mcr_reg = local_vttydev->mcr_reg;
-
-    status= ((mcr_reg & SCM_MCR_DTR)  ? TIOCM_DTR  : 0) |
-            ((mcr_reg & SCM_MCR_RTS)  ? TIOCM_RTS  : 0) |
-            ((mcr_reg & SCM_MCR_LOOP) ? TIOCM_LOOP : 0) |
-            ((msr_reg & SCM_MSR_DCD)  ? TIOCM_CAR  : 0) |
-            ((msr_reg & SCM_MSR_RI)   ? TIOCM_RI   : 0) |
-            ((msr_reg & SCM_MSR_CTS)  ? TIOCM_CTS  : 0) |
-            ((msr_reg & SCM_MSR_DSR)  ? TIOCM_DSR  : 0);
-    return status;
-}
-
-/*
- * Set the modem status bits. Invoked typically when ioctl command TIOCMSET is executed on this tty 
- * device.
- * 
- * @tty: tty device whose modem control register is to be updated with given value
- * @set: bit mask of signals which should be asserted
- * @clear: bit mask of signals which should be de-asserted
- * 
- * @return 0 on success otherwise negative error code on failure
- */
-static int scmtty_tiocmset(struct tty_struct *tty, unsigned int set, unsigned int clear) 
-{
-    return update_modem_lines(tty, set, clear); //TODO UPDATE SHOULD HAPPEN WITH LOCKING
-}
-
-/*
- * Invoked to execute ioctl command TIOCGICOUNT to get the number of interrupts.
- * 
- * @tty: tty device whose interrupts information is to be collected
- * @icount: memory location from which tty core will copy data to user space buffer
- * 
- * @return 0 on success otherwise negative error code on failure
- */
-static int scmtty_get_icount(struct tty_struct *tty, struct serial_icounter_struct *icount) 
-{
-    struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
-    struct async_icount cnow;
-
-    /* atomically copy TODO LOCK */
-    cnow = local_vttydev->icount;
-
-    icount->cts = cnow.cts;
-    icount->dsr = cnow.dsr;
-    icount->rng = cnow.rng;
-    icount->dcd = cnow.dcd;
-    icount->tx = cnow.tx;
-    icount->rx = cnow.rx;
-    icount->frame = cnow.frame;
-    icount->parity = cnow.parity;
-    icount->overrun = cnow.overrun;
-    icount->brk = cnow.brk;
-    icount->buf_overrun = cnow.buf_overrun;
-
-    return 0;
 }
 
 /*
@@ -977,6 +1043,7 @@ static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *bu
             vttydev1->set_dtr_atopen = 1;
         else
             vttydev1->set_dtr_atopen = 0;
+        vttydev1->own_index = i;
         vttydev1->peer_index = i;
         vttydev1->rts_mappings = vdev1rts;
         vttydev1->dtr_mappings = vdev1dtr;
@@ -1017,7 +1084,9 @@ static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *bu
                 vttydev2->set_dtr_atopen = 1;
             else
                 vttydev2->set_dtr_atopen = 0;
+            vttydev2->own_index = i;
             vttydev1->peer_index = y;
+            vttydev2->own_index = y;
             vttydev2->peer_index = i;
             vttydev2->rts_mappings = vdev2rts;
             vttydev2->dtr_mappings = vdev2dtr;
@@ -1037,10 +1106,28 @@ static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *bu
             goto fail_arg;
         }
 
+        vttydev1->device = device1;
+        dev_set_drvdata(device1, vttydev1);
+
+        x = sysfs_create_group(&device1->kobj, &scmvtty_error_events_attr_group);
+        if(x < 0) {
+            spin_unlock(&adaptlock);
+            goto fail_arg;
+        }
+
         if(is_loopback != 1) {
             device2 = tty_register_device(scmtty_driver, y, NULL);
             if(device2 == NULL) {
                 ret = -ENOMEM;
+                spin_unlock(&adaptlock);
+                goto fail_register;
+            }
+
+            vttydev2->device = device2;
+            dev_set_drvdata(device2, vttydev2);
+
+            x = sysfs_create_group(&device2->kobj, &scmvtty_error_events_attr_group);
+            if(x < 0) {
                 spin_unlock(&adaptlock);
                 goto fail_register;
             }
@@ -1056,6 +1143,8 @@ static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *bu
             spin_lock(&adaptlock);
             for(x=0; x < max_num_vtty_dev; x++) {
                 if(index_manager[x].index != -1) {
+                    vttydev1 = index_manager[x].vttydev;
+                    sysfs_remove_group(&vttydev1->device->kobj, &scmvtty_error_events_attr_group);
                     tty_unregister_device(scmtty_driver, index_manager[x].index);
                     kfree(index_manager[x].vttydev);
                     tty_port_destroy(scmtty_driver->ports[x]);
@@ -1079,6 +1168,8 @@ static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *bu
             if(index_manager[vdev1idx].index != -1) {
                 spin_lock(&adaptlock);
                 x = index_manager[vdev1idx].index;
+                vttydev1 = index_manager[x].vttydev;
+                sysfs_remove_group(&vttydev1->device->kobj, &scmvtty_error_events_attr_group);
                 tty_unregister_device(scmtty_driver, index_manager[vdev1idx].index);
                 kfree(index_manager[vdev1idx].vttydev);
                 tty_port_destroy(scmtty_driver->ports[x]);
@@ -1094,8 +1185,11 @@ static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *bu
     return length;
 
     fail_register:
+    sysfs_remove_group(&device1->kobj, &scmvtty_error_events_attr_group);
     tty_unregister_device(scmtty_driver, i);
     fail_arg:
+    if(device1 != NULL)
+        tty_unregister_device(scmtty_driver, i);
     if(vttydev2 != NULL)
         kfree(vttydev2);
     if(vttydev1 != NULL)
@@ -1255,13 +1349,16 @@ static int __init scm_tty2comKm_init(void)
 static void __exit scm_tty2comKm_exit(void)
 {
     int x = 0;
+    struct vtty_dev *vttydev = NULL;
 
     remove_proc_entry("scmtty_vadaptkm", NULL);
 
     for(x=0; x < max_num_vtty_dev; x++) {
         if(index_manager[x].index != -1) {
+            vttydev = index_manager[x].vttydev;
+            sysfs_remove_group(&vttydev->device->kobj, &scmvtty_error_events_attr_group);
             tty_unregister_device(scmtty_driver, index_manager[x].index);
-            kfree(index_manager[x].vttydev);
+            kfree(vttydev);
             tty_port_destroy(scmtty_driver->ports[x]);
             kfree(scmtty_driver->ports[x]);
         }

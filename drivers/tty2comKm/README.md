@@ -22,17 +22,18 @@ It creates virtual serial ports pair that appears same as the real once to the a
 
 ##Features
 - Create standard, loopback or custom pinout connected serial devices
-- Emulate none, software and hardware flow controls
-- Emulate parity, frame, overrun and line break events
-- Emulate all serial port settings and control signals (RTS,DTR,CTS,DCD,RI,LOOP,DSR)
+- Software, hardware and no flow controls emulation
+- Parity, frame, overrun and line break events emulation
+- Control signals (RTS,DTR,CTS,DCD,RI,LOOP,DSR) and all serial port settings
 - Create/destroy virtual serial ports dynamically directly from your application without reboot
 - Operating system specific serial port APIs and IOCTL supported
 - Serial ports can be deleted even when opened by an application (useful in automated testing)
-- Emulate a plug and play device
+- Plug and play device emulated
 - Ports can be created automatically at system boots
 - Create large number of serial ports
 - Speed is directly proportional to your software/hardware configuration
 - Virtual box and VMware virtual machine supported
+- Mismatched line settings causes garbled data as in real life and appropriate error event generation
 - API to control virtual ports directly from your application
 
 ##Demo application
