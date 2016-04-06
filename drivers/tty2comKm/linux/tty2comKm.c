@@ -119,7 +119,7 @@ struct vtty_dev {
     int is_break_on;
     struct tty_struct *own_tty;
     struct tty_struct *peer_tty;
-    struct serial_struct serial; //TODO
+    struct serial_struct serial;
     struct async_icount icount;
     struct device *device;
 };
@@ -373,6 +373,8 @@ static int scmtty_open(struct tty_struct *tty, struct file *filp)
     int dsrint = 0;
     int rngint = 0;
     unsigned int msr_state_reg = 0;
+    struct async_icount *evicount;
+    struct vtty_dev *vttydev = NULL;
     struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
     struct vtty_dev *remote_vttydev = NULL;
 
@@ -413,6 +415,12 @@ static int scmtty_open(struct tty_struct *tty, struct file *filp)
 
     }
     index_manager[local_vttydev->peer_index].vttydev->msr_reg |= msr_state_reg;
+
+    evicount = &index_manager[local_vttydev->peer_index].vttydev->icount;
+    evicount->cts += ctsint;
+    evicount->dsr += dsrint;
+    evicount->dcd += dcdint;
+    evicount->rng += rngint;
 
     return 0;
 }
