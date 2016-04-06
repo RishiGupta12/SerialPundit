@@ -232,12 +232,12 @@ static ssize_t evt_store(struct device *dev, struct device_attribute *attr, cons
  */
 static int update_modem_lines(struct tty_struct *tty, unsigned int set, unsigned int clear)
 {
-    int rts_mappings = 0;
-    int dtr_mappings = 0;
     int ctsint = 0;
     int dcdint = 0;
     int dsrint = 0;
     int rngint = 0;
+    int rts_mappings = 0;
+    int dtr_mappings = 0;
     unsigned int mcr_ctrl_reg = 0;
     unsigned int msr_state_reg = 0;
     struct async_icount *evicount;
@@ -368,6 +368,11 @@ static int update_modem_lines(struct tty_struct *tty, unsigned int set, unsigned
  */
 static int scmtty_open(struct tty_struct *tty, struct file *filp)
 {    
+    int ctsint = 0;
+    int dcdint = 0;
+    int dsrint = 0;
+    int rngint = 0;
+    unsigned int msr_state_reg = 0;
     struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
     struct vtty_dev *remote_vttydev = NULL;
 
@@ -387,8 +392,27 @@ static int scmtty_open(struct tty_struct *tty, struct file *filp)
     // immediately instead of scheduling it.
     tty->port->low_latency = 1;
 
-    if(local_vttydev->set_dtr_atopen == 1)
-        index_manager[local_vttydev->peer_index].vttydev->msr_reg |= SCM_MSR_DCD; //TODO IF DCD IS ASSERTED, MCR REG SHOULD SET DTR ALSO
+    if(local_vttydev->set_dtr_atopen == 1) {
+        local_vttydev->mcr_reg |= SCM_MCR_DTR;
+        if((local_vttydev->dtr_mappings & CON_CTS) == CON_CTS) {
+            msr_state_reg |= SCM_MSR_CTS;
+            ctsint++;
+        }
+        if((local_vttydev->dtr_mappings & CON_DCD) == CON_DCD) {
+            msr_state_reg |= SCM_MSR_DCD;
+            dcdint++;
+        }
+        if((local_vttydev->dtr_mappings & CON_DSR) == CON_DSR) {
+            msr_state_reg |= SCM_MSR_DSR;
+            dsrint++;
+        }
+        if((local_vttydev->dtr_mappings & CON_RI) == CON_RI) {
+            msr_state_reg |= SCM_MSR_RI;
+            rngint++;
+        }
+
+    }
+    index_manager[local_vttydev->peer_index].vttydev->msr_reg |= msr_state_reg;
 
     return 0;
 }
@@ -422,24 +446,34 @@ static void scmtty_close(struct tty_struct *tty, struct file *filp)
  */
 static int scmtty_write(struct tty_struct *tty, const unsigned char *buf, int count)
 {
+    struct vtty_dev *vttydev = NULL;
     struct tty_struct *tty_to_write = NULL;
     struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
 
     if(local_vttydev->is_break_on == 1)
         return -EIO;
 
-    if(tty->index != local_vttydev->peer_index)
+    if(tty->index != local_vttydev->peer_index) {
         tty_to_write = local_vttydev->peer_tty;
-    else
+        vttydev = local_vttydev;
+    }
+    else {
         tty_to_write = tty;
+        vttydev = index_manager[local_vttydev->peer_index].vttydev;
+    }
 
-    tty_insert_flip_string(tty_to_write->port, buf, count);
-    tty_flip_buffer_push(tty_to_write->port);
-
-    local_vttydev->icount.tx++;
+    if(tty_to_write != NULL) {
+        tty_insert_flip_string(tty_to_write->port, buf, count);
+        tty_flip_buffer_push(tty_to_write->port);
+        local_vttydev->icount.tx++;
+        vttydev->icount.rx++;
+    }else {
+        // other end is still not opened, emulate transmission from local end
+        // but don't make other end receive it.
+        local_vttydev->icount.tx++;
+    }
 
     //TODO DONT WRITE IF PORT SETTINGS DOES NOT MATCH
-
     return count;
 }
 
@@ -455,6 +489,7 @@ static int scmtty_write(struct tty_struct *tty, const unsigned char *buf, int co
  */
 static int scmtty_put_char(struct tty_struct *tty, unsigned char ch)
 {
+    struct vtty_dev *vttydev = NULL;
     struct tty_struct *tty_to_write = NULL;
     struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
 
@@ -463,15 +498,23 @@ static int scmtty_put_char(struct tty_struct *tty, unsigned char ch)
     if(local_vttydev->is_break_on == 1)
         return -EIO;
 
-    if(tty->index != local_vttydev->peer_index)
+    if(tty->index != local_vttydev->peer_index) {
         tty_to_write = local_vttydev->peer_tty;
-    else
+        vttydev = local_vttydev;
+    }
+    else {
         tty_to_write = tty;
+        vttydev = index_manager[local_vttydev->peer_index].vttydev;
+    }
 
-    tty_insert_flip_char(tty_to_write->port, ch, TTY_NORMAL);
-    tty_flip_buffer_push(tty_to_write->port);
-
-    local_vttydev->icount.tx++;
+    if(tty_to_write != NULL) {
+        tty_insert_flip_char(tty_to_write->port, ch, TTY_NORMAL);
+        tty_flip_buffer_push(tty_to_write->port);
+        local_vttydev->icount.tx++;
+        vttydev->icount.rx++;
+    }else {
+        local_vttydev->icount.tx++;
+    }
 
     return 1;
 }
@@ -605,7 +648,6 @@ static int scmtty_chars_in_buffer(struct tty_struct *tty)
 static int scmtty_ioctl(struct tty_struct *tty, unsigned int cmd, unsigned long arg) 
 {
     switch (cmd) {
-
     case TIOCGSERIAL:
         return get_serial_info(tty, arg);
     }
@@ -747,15 +789,16 @@ static int scmtty_break_ctl(struct tty_struct *tty, int state)
         if(local_vttydev->is_break_on == 1)
             return 0;
         local_vttydev->is_break_on = 1;
-        tty_insert_flip_string_fixed_flag(tty_to_write->port, 0, TTY_BREAK, 1);
-        tty_flip_buffer_push(tty_to_write->port);
+        if(tty_to_write != NULL) {
+            tty_insert_flip_string_fixed_flag(tty_to_write->port, 0, TTY_BREAK, 1);
+            tty_flip_buffer_push(tty_to_write->port);
+            vttydev->icount.brk++;
+        }
     }else if(state == 0) {
         local_vttydev->is_break_on = 0;
     }else {
         return -EINVAL;
     }
-
-    vttydev->icount.brk++;
 
     return 0;
 }
@@ -861,6 +904,11 @@ static ssize_t scmtty_vadapt_proc_read(struct file *file, char __user *buf, size
     return ret;
 }
 
+/*
+ * Extract pin mappings from local to remote tty devices.
+ * 
+ * @return: 0 on success or negative error code
+ */
 static int extract_mapping(char data[], int x) {
     int i = 0;
     int mapping = 0;
