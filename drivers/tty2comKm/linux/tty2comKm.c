@@ -19,9 +19,10 @@
 /* 
  * Virtual multi-port serial adaptor :
  *
- * This driver implements a virtual multiport serial adaptor in such a way that the virtual adaptor can have 
- * from 0 to N number of virtual serial(tty) devices. The virtual tty devices created by this adaptor are used 
- * in exactly the same way as the real tty devices using termios APIs.
+ * This driver implements a virtual multiport serial adaptor in such a way that the virtual adaptor 
+ * can have from 0 to N number of virtual serial ports (tty devices). The virtual tty devices created 
+ * by this adaptor are used in exactly the same way using termios and Linux/Posix APIs as the real tty 
+ * devices.
  */
 
 #include <linux/kernel.h>
@@ -142,7 +143,7 @@ static DEFINE_SPINLOCK(adaptlock);        // atomically create/destroy tty devic
 struct vtty_info *index_manager = NULL;   //  keep track of indexes in use currently
 
 /* Per device sysfs entries to emulate frame, parity and overrun error events during data reception */
-static DEVICE_ATTR(evt, S_IWUSR | S_IRUGO, NULL, evt_store);
+static DEVICE_ATTR(evt, 0666, NULL, evt_store);
 
 static struct attribute *scmvtty_error_events_attrs[] = {
         &dev_attr_evt.attr,
@@ -161,18 +162,18 @@ static const struct tty_port_operations vttydev_port_ops = {
  * Notifies tty layer that a framing error has happend while receiving data on serial port.
  * 
  * 1. Emulate framing error:
- * $echo "1" > /sys/class/tty/tty2comXX/scmvtty_errevt/evt
+ * $echo "1" > /sys/devices/virtual/tty/tty2com0/scmvtty_errevt/evt
  * 
  * 2. Emulate parity error:
- * $echo "2" > /sys/class/tty/tty2comXX/scmvtty_errevt/evt
+ * $echo "2" > /sys/devices/virtual/tty/tty2com0/scmvtty_errevt/evt
  * 
  * 3. Emulate overrun error:
- * $echo "3" > /sys/class/tty/tty2comXX/scmvtty_errevt/evt
+ * $echo "3" > /sys/devices/virtual/tty/tty2com0/scmvtty_errevt/evt
  * 
  * @dev: device associated with given sysfs entry
- * @attr: sysfs attribute
+ * @attr: sysfs attribute corresponding to this function
  * @buf: error event passed from user space to kernel via this sysfs attribute
- * @count: number of bytes in buf
+ * @count: number of characters in buf
  * 
  * @return number of bytes consumed from buf on success or negative error code on error
  */
@@ -182,12 +183,13 @@ static ssize_t evt_store(struct device *dev, struct device_attribute *attr, cons
     struct vtty_dev *local_vttydev = NULL;
     struct tty_struct *tty_to_write = NULL;
 
-    if(!buf)
+    if(!buf || (count == 0))
         return -EINVAL;
 
     local_vttydev = (struct vtty_dev *) dev_get_drvdata(dev);
+
     if(local_vttydev->own_index != local_vttydev->peer_index) {
-        tty_to_write = index_manager[local_vttydev->peer_index].vttydev->own_tty;
+        tty_to_write = local_vttydev->peer_tty;
         vttydev = index_manager[local_vttydev->peer_index].vttydev;
     }
     else {
@@ -200,15 +202,15 @@ static ssize_t evt_store(struct device *dev, struct device_attribute *attr, cons
 
     switch(buf[0]) {
     case '1' : 
-        tty_insert_flip_string_fixed_flag(tty_to_write->port, 0, TTY_FRAME, 1);
+        tty_insert_flip_char(tty_to_write->port, 0, TTY_FRAME);
         local_vttydev->icount.frame++;
         break;
     case '2' :
-        tty_insert_flip_string_fixed_flag(tty_to_write->port, 0, TTY_PARITY, 1);
+        tty_insert_flip_char(tty_to_write->port, 0, TTY_PARITY);
         local_vttydev->icount.parity++;
         break;
     case '3' :
-        tty_insert_flip_string_fixed_flag(tty_to_write->port, 0, TTY_OVERRUN, 1);
+        tty_insert_flip_char(tty_to_write->port, 0, TTY_OVERRUN);
         local_vttydev->icount.overrun++;
         break;
     default :
