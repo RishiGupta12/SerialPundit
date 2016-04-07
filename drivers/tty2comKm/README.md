@@ -82,7 +82,6 @@ There are three connection configurations supported by this driver.
 The local pins RTS, DTR, DCD, DSR and RI can be connected to local/remote pins as desired.
 
 *Custom null modem :*   
-In null modem connection TX of local port is connected to RX of remote port and vice-versa.
 ```
  tty2com0            tty2com1
      RXD -------------- TXD

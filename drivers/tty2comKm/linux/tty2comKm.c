@@ -644,6 +644,44 @@ static int scmtty_chars_in_buffer(struct tty_struct *tty)
 }
 
 /*
+ * Checks if any of the given signal line has changed based on interrupts.
+ * 
+ * @local_vttydev: vtty device for which check has to be made
+ * @mask: bit mask of TIOCM_RNG, TIOCM_DSR, TIOCM_CAR and TIOCM_CTS
+ * @prev: values of previous interrupts
+ * 
+ * @return 1 if changed otherwise 0 if unchanged
+ */
+static int check_msr_delta(struct vtty_dev *local_vttydev, unsigned long mask, struct async_icount *prev)
+{
+    struct async_icount now;
+    int delta;
+    now = local_vttydev->icount;
+    delta = ((mask & TIOCM_RNG && prev->rng != now.rng) || 
+            ( mask & TIOCM_DSR && prev->dsr != now.dsr) ||
+            ( mask & TIOCM_CAR && prev->dcd != now.dcd) ||
+            ( mask & TIOCM_CTS && prev->cts != now.cts));
+    *prev = now;
+    return delta;
+}
+/*
+ * Sleeps until at-least one of the modem lines changes.
+ * 
+ * @tty: tty device whose modem lines is to be monitored
+ * @mask: bit mask of TIOCM_RNG, TIOCM_DSR, TIOCM_CAR and TIOCM_CTS
+ * 
+ * @return -ERESTARTSYS if it was interrupted by a signal and 0 if modem line changed
+ */
+static int wait_msr_change(struct tty_struct *tty, unsigned long mask)
+{
+    int ret;
+    struct async_icount prev;
+    struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
+    prev = local_vttydev->icount;
+    return wait_event_interruptible(tty->port->delta_msr_wait, check_msr_delta(local_vttydev, mask, &prev));
+}
+
+/*
  * Invoked to execute standard and device/driver specific ioctl commands.
  * 
  * If the requested command is not supported, this driver will return -ENOIOCTLCMD so that the tty layer 
@@ -660,8 +698,9 @@ static int scmtty_ioctl(struct tty_struct *tty, unsigned int cmd, unsigned long 
     switch (cmd) {
     case TIOCGSERIAL:
         return get_serial_info(tty, arg);
+    case TIOCMIWAIT:
+        return wait_msr_change(tty, arg);
     }
-
     return -ENOIOCTLCMD;
 }
 
