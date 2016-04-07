@@ -17,6 +17,7 @@
 # along with 'serial communication manager'.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################################
 
-cd "$(dirname "$0")"
+
 set -e
 rmmod tty2comKm.ko
+ 

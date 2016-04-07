@@ -31,11 +31,11 @@ fi
 file="$(dirname "$0")/tty2comKm.ko"
 
 if [ -f "$file" ]; then
-	insmod ./tty2comKm.ko
-	echo "Driver tty2comKm loaded successfully !"
-	exit 0
+    insmod ./tty2comKm.ko
+    echo "Driver tty2comKm loaded successfully !"
+    exit 0
 fi
 
 echo "File tty2comKm.ko not found in current directory !" 1>&2
-exit 1
+exit 0
 

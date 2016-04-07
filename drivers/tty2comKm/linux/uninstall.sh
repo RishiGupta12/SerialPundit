@@ -28,15 +28,15 @@ KDIR=$(uname -r)
 
 ufile="/etc/udev/rules.d/99-tty2comKm.rules"
 if [[ -f "$ufile" ]]; then
-	rm "$ufile"
-	udevadm control --reload-rules
+    rm "$ufile"
+    udevadm control --reload-rules
     udevadm trigger --attr-match=subsystem=tty
 fi
 
 dfile="/lib/modules/$KDIR/kernel/drivers/tty/tty2comKm.ko"
 if [[ -f "$dfile" ]]; then
-	rm "$dfile"
-	depmod
+    rm "$dfile"
+    depmod
 fi
 
 echo "uninstallation complete !"

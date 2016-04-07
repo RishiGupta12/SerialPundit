@@ -21,9 +21,7 @@ cd "$(dirname "$0")"
 
 set -e
 
-echo "Building......"
-echo "  "
-
+make clean
 make
 rm -rf *.o *~ core .depend .*.cmd *.mod.c .tmp_versions modules.order Module.symvers
 

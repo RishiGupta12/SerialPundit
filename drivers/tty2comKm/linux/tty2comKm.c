@@ -820,7 +820,50 @@ static int scmtty_break_ctl(struct tty_struct *tty, int state)
  */
 static void scmtty_hangup(struct tty_struct *tty) 
 {
-    //TODO
+    int ctsint = 0;
+    int dcdint = 0;
+    int dsrint = 0;
+    int rngint = 0;
+    unsigned int msr_state_reg = 0;
+    struct async_icount *evicount;
+    struct vtty_dev *vttydev = NULL;
+    struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
+
+    if(tty->termios.c_cflag & HUPCL) {
+        if(tty->index != local_vttydev->peer_index) {
+            vttydev = local_vttydev;
+        }
+        else {
+            vttydev = index_manager[local_vttydev->peer_index].vttydev;
+        }
+
+        local_vttydev->mcr_reg |= SCM_MCR_DTR;
+
+        vttydev->msr_reg |= msr_state_reg;
+        if((local_vttydev->dtr_mappings & CON_CTS) == CON_CTS) {
+            msr_state_reg |= SCM_MSR_CTS;
+            ctsint++;
+        }
+        if((local_vttydev->dtr_mappings & CON_DCD) == CON_DCD) {
+            msr_state_reg |= SCM_MSR_DCD;
+            dcdint++;
+        }
+        if((local_vttydev->dtr_mappings & CON_DSR) == CON_DSR) {
+            msr_state_reg |= SCM_MSR_DSR;
+            dsrint++;
+        }
+        if((local_vttydev->dtr_mappings & CON_RI) == CON_RI) {
+            msr_state_reg |= SCM_MSR_RI;
+            rngint++;
+        }
+        index_manager[local_vttydev->peer_index].vttydev->msr_reg |= msr_state_reg;
+
+        evicount = &index_manager[local_vttydev->peer_index].vttydev->icount;
+        evicount->cts += ctsint;
+        evicount->dsr += dsrint;
+        evicount->dcd += dcdint;
+        evicount->rng += rngint;
+    }
 }
 
 /*
