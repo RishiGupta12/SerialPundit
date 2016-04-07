@@ -1,4 +1,4 @@
-It is a kernel mode null modem emulator driver providing full duplex communication and handshaking signals.
+It is a null modem / loop back kernel mode driver providing full duplex communication and handshaking signals.
 
 It creates virtual serial ports pair that appears same as the real once to the application software.
 
@@ -40,18 +40,71 @@ It creates virtual serial ports pair that appears same as the real once to the a
 
 
 ##Build and Run
-See instructions in operating system specific directory for instructions and uses in subdirectories of this directory.
+See instructions in operating system specific directory for build scripts, udev rules, steps to install etc.
 
 ##Pins mapping
 
 There are three connection configurations supported by this driver.
 
-####Standard
+####Standard nulll modem
+```
+ tty2com0            tty2com1
+     RXD -------------- TXD
+     TXD -------------- RXD
+     DTR -------------- DSR,DCD
+ DSR,DCD -------------- DTR
+     CTS -------------- RTS
+     RTS -------------- CTS
+     GND -------------- GND
+```
 - TX of local port is connected to RX of remote port and vice-versa
 - DTR of the local port is connected to DSR and DCD of the remote port
 - RTS of the local port is connected to CTS of the remote port
 
-####Loopback
+####Standard loop back
+```
+   tty2com0            
+     RXD -----]
+     TXD -----]
+     
+     DTR -----]
+ DSR,DCD -----]
+ 
+     RTS -----]
+     CTS -----]
+```
+- TX of local port is connected to RX of local port and vice-versa
+- DTR of the local port is connected to DSR and DCD of the local port
+- RTS of the local port is connected to CTS of the local port
 
 ####Custom
+
+The local pins RTS, DTR, DCD, DSR and RI can be connected to local/remote pins as desired.
+
+*Custom null modem :*   
+In null modem connection TX of local port is connected to RX of remote port and vice-versa.
+```
+ tty2com0            tty2com1
+     RXD -------------- TXD
+     TXD -------------- RXD
+     RTS -------------- DSR,DCD
+ DSR,DCD -------------- DTR
+     CTS -------------- RTS
+     GND -------------- GND
+```
+
+*Custom loop back :*   
+```
+   tty2com0            
+     RXD -----]
+     TXD -----]
+     
+     RTS -----]
+ DSR,DCD -----]
+ 
+     DTR -----]
+     CTS -----]
+```
+
+You can create all the configurations as per the application requirements.
 

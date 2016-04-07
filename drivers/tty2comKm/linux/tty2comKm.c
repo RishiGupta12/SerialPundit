@@ -830,16 +830,12 @@ static void scmtty_hangup(struct tty_struct *tty)
     struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
 
     if(tty->termios.c_cflag & HUPCL) {
-        if(tty->index != local_vttydev->peer_index) {
+        if(tty->index != local_vttydev->peer_index)
             vttydev = local_vttydev;
-        }
-        else {
+        else
             vttydev = index_manager[local_vttydev->peer_index].vttydev;
-        }
 
         local_vttydev->mcr_reg |= SCM_MCR_DTR;
-
-        vttydev->msr_reg |= msr_state_reg;
         if((local_vttydev->dtr_mappings & CON_CTS) == CON_CTS) {
             msr_state_reg |= SCM_MSR_CTS;
             ctsint++;
