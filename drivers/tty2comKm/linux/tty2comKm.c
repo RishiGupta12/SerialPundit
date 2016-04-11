@@ -73,6 +73,22 @@
 #define SCM_MSR_RI     0x0020
 #define SCM_MSR_DSR    0x0040
 
+/* UART frame structure definitions */
+#define SCM_CRTSCTS        0x0001
+#define SCM_XON            0x0002
+#define SCM_NONE           0X0004
+#define BITS_DATA_5        0X0008
+#define BITS_DATA_6        0X0010
+#define BITS_DATA_7        0X0020
+#define BITS_DATA_8        0X0040
+#define BITS_PARITY_NONE   0x0080
+#define BITS_PARITY_ODD    0x0100
+#define BITS_PARITY_EVEN   0x0200
+#define BITS_PARITY_MARK   0x0400
+#define BITS_PARITY_SPACE  0x0800
+#define BITS_STOP_1        0x1000
+#define BITS_STOP_2        0x2000
+
 /* Represent a virtual tty device in this virtual adaptor. The peer_index will contain own 
  * index if this device is loop back configured device (peer == own). */
 struct vtty_dev {
@@ -85,6 +101,8 @@ struct vtty_dev {
     int set_dtr_atopen;
     struct mutex lock;
     int is_break_on;
+    int baud;
+    int uart_frame;
     struct tty_struct *own_tty;
     struct tty_struct *peer_tty;
     struct serial_struct serial;
@@ -385,7 +403,6 @@ static int scmtty_open(struct tty_struct *tty, struct file *filp)
     int rngint = 0;
     unsigned int msr_state_reg = 0;
     struct async_icount *evicount;
-    struct vtty_dev *vttydev = NULL;
     struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
     struct vtty_dev *remote_vttydev = NULL;
 
@@ -486,6 +503,8 @@ static int scmtty_write(struct tty_struct *tty, const unsigned char *buf, int co
     else {
         tty_to_write = tty;
         vttydev = index_manager[local_vttydev->peer_index].vttydev;
+        if((local_vttydev->baud != vttydev->baud) || (local_vttydev->uart_frame != vttydev->uart_frame))
+            return count;
     }
 
     if(tty_to_write != NULL) {
@@ -501,7 +520,6 @@ static int scmtty_write(struct tty_struct *tty, const unsigned char *buf, int co
         local_vttydev->icount.tx++;
     }
 
-    //TODO DONT WRITE IF PORT SETTINGS DOES NOT MATCH
     return count;
 }
 
@@ -533,6 +551,8 @@ static int scmtty_put_char(struct tty_struct *tty, unsigned char ch)
     else {
         tty_to_write = tty;
         vttydev = index_manager[local_vttydev->peer_index].vttydev;
+        if((local_vttydev->baud != vttydev->baud) || (local_vttydev->uart_frame != vttydev->uart_frame))
+            return 1;
     }
 
     if(tty_to_write != NULL) {
@@ -619,6 +639,7 @@ static int scmtty_write_room(struct tty_struct *tty)
 static void scmtty_set_termios(struct tty_struct *tty, struct ktermios *old_termios)
 {
     u32 baud = 0;
+    int uart_frame_settings = 0;
     unsigned int rts_mappings = 0;
     unsigned int dtr_mappings = 0;
     struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
@@ -647,7 +668,43 @@ static void scmtty_set_termios(struct tty_struct *tty, struct ktermios *old_term
     }
     tty_encode_baud_rate(tty, baud, baud);
 
-    //TODO handle stop bits flow ctrl start bits etc.
+    local_vttydev->baud = baud;
+
+    if (tty->termios.c_cflag & CRTSCTS) {
+        uart_frame_settings |= SCM_CRTSCTS;
+    }else if((tty->termios.c_iflag & IXON) || (tty->termios.c_iflag & IXOFF)) {
+        uart_frame_settings |= SCM_XON;
+    }else {
+        uart_frame_settings |= SCM_NONE;
+    }
+
+    switch (tty->termios.c_cflag & CSIZE) {
+    case CS5: uart_frame_settings |= BITS_DATA_5;
+    case CS6: uart_frame_settings |= BITS_DATA_6;
+    case CS7: uart_frame_settings |= BITS_DATA_7;
+    case CS8: uart_frame_settings |= BITS_DATA_8;
+    }
+
+    if (tty->termios.c_cflag & CSTOPB)
+        uart_frame_settings |= BITS_STOP_2;
+    else
+        uart_frame_settings |= BITS_STOP_1;
+
+    if (tty->termios.c_cflag & PARENB) {
+        if (tty->termios.c_cflag & CMSPAR) {
+            if (tty->termios.c_cflag & PARODD)
+                uart_frame_settings |= BITS_PARITY_MARK;
+            else
+                uart_frame_settings |= BITS_PARITY_SPACE;
+        }else {
+            if (tty->termios.c_cflag & PARODD)
+                uart_frame_settings |= BITS_PARITY_ODD;
+            else
+                uart_frame_settings |= BITS_PARITY_EVEN;
+        }
+    }else {
+        uart_frame_settings |= BITS_PARITY_NONE;
+    }
 }
 
 /*
@@ -801,11 +858,13 @@ static void scmtty_start(struct tty_struct *tty)
 static int scmtty_tiocmget(struct tty_struct *tty) 
 {
     int status = 0;
+    int msr_reg = 0;
+    int mcr_reg = 0;
     struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
 
     mutex_lock(&local_vttydev->lock);
-    int msr_reg = local_vttydev->msr_reg;
-    int mcr_reg = local_vttydev->mcr_reg;
+    msr_reg = local_vttydev->msr_reg;
+    mcr_reg = local_vttydev->mcr_reg;
     mutex_unlock(&local_vttydev->lock);
 
     status= ((mcr_reg & SCM_MCR_DTR)  ? TIOCM_DTR  : 0) |

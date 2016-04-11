@@ -25,6 +25,5 @@ make clean
 make
 rm -rf *.o *~ core .depend .*.cmd *.mod.c .tmp_versions modules.order Module.symvers
 
-echo "  "
 echo "Build done."
 
