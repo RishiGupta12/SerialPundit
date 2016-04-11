@@ -57,10 +57,10 @@
 #define SCM_VTTY_MAJOR 240
 
 /* Pin out configurations definitions */
-#define CON_CTS   0x0001
-#define CON_DCD   0x0002
-#define CON_DSR   0x0004
-#define CON_RI    0x0008
+#define SCM_CON_CTS    0x0001
+#define SCM_CON_DCD    0x0002
+#define SCM_CON_DSR    0x0004
+#define SCM_CON_RI     0x0008
 
 /* Modem control register definitions */
 #define SCM_MCR_DTR    0x0001
@@ -74,20 +74,20 @@
 #define SCM_MSR_DSR    0x0040
 
 /* UART frame structure definitions */
-#define SCM_CRTSCTS        0x0001
-#define SCM_XON            0x0002
-#define SCM_NONE           0X0004
-#define BITS_DATA_5        0X0008
-#define BITS_DATA_6        0X0010
-#define BITS_DATA_7        0X0020
-#define BITS_DATA_8        0X0040
-#define BITS_PARITY_NONE   0x0080
-#define BITS_PARITY_ODD    0x0100
-#define BITS_PARITY_EVEN   0x0200
-#define BITS_PARITY_MARK   0x0400
-#define BITS_PARITY_SPACE  0x0800
-#define BITS_STOP_1        0x1000
-#define BITS_STOP_2        0x2000
+#define SCM_CRTSCTS       0x0001
+#define SCM_XON           0x0002
+#define SCM_NONE          0X0004
+#define SCM_DATA_5        0X0008
+#define SCM_DATA_6        0X0010
+#define SCM_DATA_7        0X0020
+#define SCM_DATA_8        0X0040
+#define SCM_PARITY_NONE   0x0080
+#define SCM_PARITY_ODD    0x0100
+#define SCM_PARITY_EVEN   0x0200
+#define SCM_PARITY_MARK   0x0400
+#define SCM_PARITY_SPACE  0x0800
+#define SCM_STOP_1        0x1000
+#define SCM_STOP_2        0x2000
 
 /* Represent a virtual tty device in this virtual adaptor. The peer_index will contain own 
  * index if this device is loop back configured device (peer == own). */
@@ -226,16 +226,22 @@ static ssize_t evt_store(struct device *dev, struct device_attribute *attr, cons
 
     switch(buf[0]) {
     case '1' : 
+        mutex_lock(&local_vttydev->lock);
         tty_insert_flip_char(tty_to_write->port, 0, TTY_FRAME);
         local_vttydev->icount.frame++;
+        mutex_unlock(&local_vttydev->lock);
         break;
     case '2' :
+        mutex_lock(&local_vttydev->lock);
         tty_insert_flip_char(tty_to_write->port, 0, TTY_PARITY);
         local_vttydev->icount.parity++;
+        mutex_unlock(&local_vttydev->lock);
         break;
     case '3' :
+        mutex_lock(&local_vttydev->lock);
         tty_insert_flip_char(tty_to_write->port, 0, TTY_OVERRUN);
         local_vttydev->icount.overrun++;
+        mutex_unlock(&local_vttydev->lock);
         break;
     default :
         return -EINVAL;
@@ -280,19 +286,19 @@ static int update_modem_lines(struct tty_struct *tty, unsigned int set, unsigned
 
     if (set & TIOCM_RTS) {
         mcr_ctrl_reg |= SCM_MCR_RTS;
-        if((rts_mappings & CON_CTS) == CON_CTS) {
+        if((rts_mappings & SCM_CON_CTS) == SCM_CON_CTS) {
             msr_state_reg |= SCM_MSR_CTS;
             ctsint++;
         }
-        if((rts_mappings & CON_DCD) == CON_DCD) {
+        if((rts_mappings & SCM_CON_DCD) == SCM_CON_DCD) {
             msr_state_reg |= SCM_MSR_DCD;
             dcdint++;
         }
-        if((rts_mappings & CON_DSR) == CON_DSR) {
+        if((rts_mappings & SCM_CON_DSR) == SCM_CON_DSR) {
             msr_state_reg |= SCM_MSR_DSR;
             dsrint++;
         }
-        if((rts_mappings & CON_RI) == CON_RI) {
+        if((rts_mappings & SCM_CON_RI) == SCM_CON_RI) {
             msr_state_reg |= SCM_MSR_RI;
             rngint++;
         }
@@ -300,19 +306,19 @@ static int update_modem_lines(struct tty_struct *tty, unsigned int set, unsigned
 
     if (set & TIOCM_DTR) {
         mcr_ctrl_reg |= SCM_MCR_DTR;
-        if((dtr_mappings & CON_CTS) == CON_CTS) {
+        if((dtr_mappings & SCM_CON_CTS) == SCM_CON_CTS) {
             msr_state_reg |= SCM_MSR_CTS;
             ctsint++;
         }
-        if((dtr_mappings & CON_DCD) == CON_DCD) {
+        if((dtr_mappings & SCM_CON_DCD) == SCM_CON_DCD) {
             msr_state_reg |= SCM_MSR_DCD;
             dcdint++;
         }
-        if((dtr_mappings & CON_DSR) == CON_DSR) {
+        if((dtr_mappings & SCM_CON_DSR) == SCM_CON_DSR) {
             msr_state_reg |= SCM_MSR_DSR;
             dsrint++;
         }
-        if((dtr_mappings & CON_RI) == CON_RI) {
+        if((dtr_mappings & SCM_CON_RI) == SCM_CON_RI) {
             msr_state_reg |= SCM_MSR_RI;
             rngint++;
         }
@@ -320,19 +326,19 @@ static int update_modem_lines(struct tty_struct *tty, unsigned int set, unsigned
 
     if (clear & TIOCM_RTS) {
         mcr_ctrl_reg &= ~SCM_MCR_RTS;
-        if((rts_mappings & CON_CTS) == CON_CTS) {
+        if((rts_mappings & SCM_CON_CTS) == SCM_CON_CTS) {
             msr_state_reg &= ~SCM_MSR_CTS;
             ctsint++;
         }
-        if((rts_mappings & CON_DCD) == CON_DCD) {
+        if((rts_mappings & SCM_CON_DCD) == SCM_CON_DCD) {
             msr_state_reg &= ~SCM_MSR_DCD;
             dcdint++;
         }
-        if((rts_mappings & CON_DSR) == CON_DSR) {
+        if((rts_mappings & SCM_CON_DSR) == SCM_CON_DSR) {
             msr_state_reg &= ~SCM_MSR_DSR;
             dsrint++;
         }
-        if((rts_mappings & CON_RI) == CON_RI) {
+        if((rts_mappings & SCM_CON_RI) == SCM_CON_RI) {
             msr_state_reg &= ~SCM_MSR_RI;
             rngint++;
         }
@@ -340,19 +346,19 @@ static int update_modem_lines(struct tty_struct *tty, unsigned int set, unsigned
 
     if (clear & TIOCM_DTR) {
         mcr_ctrl_reg &= ~SCM_MCR_DTR;
-        if((dtr_mappings & CON_CTS) == CON_CTS) {
+        if((dtr_mappings & SCM_CON_CTS) == SCM_CON_CTS) {
             msr_state_reg &= ~SCM_MSR_CTS;
             ctsint++;
         }
-        if((dtr_mappings & CON_DCD) == CON_DCD) {
+        if((dtr_mappings & SCM_CON_DCD) == SCM_CON_DCD) {
             msr_state_reg &= ~SCM_MSR_DCD;
             dcdint++;
         }
-        if((dtr_mappings & CON_DSR) == CON_DSR) {
+        if((dtr_mappings & SCM_CON_DSR) == SCM_CON_DSR) {
             msr_state_reg &= ~SCM_MSR_DSR;
             dsrint++;
         }
-        if((dtr_mappings & CON_RI) == CON_RI) {
+        if((dtr_mappings & SCM_CON_RI) == SCM_CON_RI) {
             msr_state_reg &= ~SCM_MSR_RI;
             rngint++;
         }
@@ -422,21 +428,23 @@ static int scmtty_open(struct tty_struct *tty, struct file *filp)
     // immediately instead of scheduling it.
     tty->port->low_latency = 1;
 
+    mutex_lock(&local_vttydev->lock);
+
     if(local_vttydev->set_dtr_atopen == 1) {
         local_vttydev->mcr_reg |= SCM_MCR_DTR;
-        if((local_vttydev->dtr_mappings & CON_CTS) == CON_CTS) {
+        if((local_vttydev->dtr_mappings & SCM_CON_CTS) == SCM_CON_CTS) {
             msr_state_reg |= SCM_MSR_CTS;
             ctsint++;
         }
-        if((local_vttydev->dtr_mappings & CON_DCD) == CON_DCD) {
+        if((local_vttydev->dtr_mappings & SCM_CON_DCD) == SCM_CON_DCD) {
             msr_state_reg |= SCM_MSR_DCD;
             dcdint++;
         }
-        if((local_vttydev->dtr_mappings & CON_DSR) == CON_DSR) {
+        if((local_vttydev->dtr_mappings & SCM_CON_DSR) == SCM_CON_DSR) {
             msr_state_reg |= SCM_MSR_DSR;
             dsrint++;
         }
-        if((local_vttydev->dtr_mappings & CON_RI) == CON_RI) {
+        if((local_vttydev->dtr_mappings & SCM_CON_RI) == SCM_CON_RI) {
             msr_state_reg |= SCM_MSR_RI;
             rngint++;
         }
@@ -450,7 +458,6 @@ static int scmtty_open(struct tty_struct *tty, struct file *filp)
     evicount->dcd += dcdint;
     evicount->rng += rngint;
 
-    mutex_lock(&local_vttydev->lock);
     ret = tty_port_open(tty->port, tty, filp);
     mutex_unlock(&local_vttydev->lock);
     return ret; 
@@ -469,10 +476,11 @@ static void scmtty_close(struct tty_struct *tty, struct file *filp)
 {
     struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
 
+    mutex_lock(&local_vttydev->lock);
+
     if(local_vttydev->set_dtr_atopen == 1)
         index_manager[local_vttydev->peer_index].vttydev->msr_reg &= ~SCM_MSR_DCD;
 
-    mutex_lock(&local_vttydev->lock);
     tty_port_close(tty->port, tty, filp);
     mutex_unlock(&local_vttydev->lock);
 }
@@ -507,11 +515,10 @@ static int scmtty_write(struct tty_struct *tty, const unsigned char *buf, int co
             return count;
     }
 
+    mutex_lock(&local_vttydev->lock);
     if(tty_to_write != NULL) {
-        mutex_lock(&local_vttydev->lock);
         tty_insert_flip_string(tty_to_write->port, buf, count);
         tty_flip_buffer_push(tty_to_write->port);
-        mutex_unlock(&local_vttydev->lock);
         local_vttydev->icount.tx++;
         vttydev->icount.rx++;
     }else {
@@ -519,6 +526,7 @@ static int scmtty_write(struct tty_struct *tty, const unsigned char *buf, int co
         // but don't make other end receive it.
         local_vttydev->icount.tx++;
     }
+    mutex_unlock(&local_vttydev->lock);
 
     return count;
 }
@@ -555,16 +563,16 @@ static int scmtty_put_char(struct tty_struct *tty, unsigned char ch)
             return 1;
     }
 
+    mutex_lock(&local_vttydev->lock);
     if(tty_to_write != NULL) {
-        mutex_lock(&local_vttydev->lock);
         tty_insert_flip_char(tty_to_write->port, ch, TTY_NORMAL);
         tty_flip_buffer_push(tty_to_write->port);
-        mutex_unlock(&local_vttydev->lock);
         local_vttydev->icount.tx++;
         vttydev->icount.rx++;
     }else {
         local_vttydev->icount.tx++;
     }
+    mutex_unlock(&local_vttydev->lock);
 
     return 1;
 }
@@ -662,6 +670,8 @@ static void scmtty_set_termios(struct tty_struct *tty, struct ktermios *old_term
         update_modem_lines(tty, TIOCM_DTR | TIOCM_RTS, 0);
     }
 
+    mutex_lock(&local_vttydev->lock);
+
     baud = tty_get_baud_rate(tty);
     if (!baud) {
         baud = 9600;
@@ -679,32 +689,34 @@ static void scmtty_set_termios(struct tty_struct *tty, struct ktermios *old_term
     }
 
     switch (tty->termios.c_cflag & CSIZE) {
-    case CS5: uart_frame_settings |= BITS_DATA_5;
-    case CS6: uart_frame_settings |= BITS_DATA_6;
-    case CS7: uart_frame_settings |= BITS_DATA_7;
-    case CS8: uart_frame_settings |= BITS_DATA_8;
+    case CS5: uart_frame_settings |= SCM_DATA_5;
+    case CS6: uart_frame_settings |= SCM_DATA_6;
+    case CS7: uart_frame_settings |= SCM_DATA_7;
+    case CS8: uart_frame_settings |= SCM_DATA_8;
     }
 
     if (tty->termios.c_cflag & CSTOPB)
-        uart_frame_settings |= BITS_STOP_2;
+        uart_frame_settings |= SCM_STOP_2;
     else
-        uart_frame_settings |= BITS_STOP_1;
+        uart_frame_settings |= SCM_STOP_1;
 
     if (tty->termios.c_cflag & PARENB) {
         if (tty->termios.c_cflag & CMSPAR) {
             if (tty->termios.c_cflag & PARODD)
-                uart_frame_settings |= BITS_PARITY_MARK;
+                uart_frame_settings |= SCM_PARITY_MARK;
             else
-                uart_frame_settings |= BITS_PARITY_SPACE;
+                uart_frame_settings |= SCM_PARITY_SPACE;
         }else {
             if (tty->termios.c_cflag & PARODD)
-                uart_frame_settings |= BITS_PARITY_ODD;
+                uart_frame_settings |= SCM_PARITY_ODD;
             else
-                uart_frame_settings |= BITS_PARITY_EVEN;
+                uart_frame_settings |= SCM_PARITY_EVEN;
         }
     }else {
-        uart_frame_settings |= BITS_PARITY_NONE;
+        uart_frame_settings |= SCM_PARITY_NONE;
     }
+
+    mutex_unlock(&local_vttydev->lock);
 }
 
 /*
@@ -832,7 +844,6 @@ static void scmtty_unthrottle(struct tty_struct * tty)
  */
 static void scmtty_stop(struct tty_struct *tty) 
 {
-    //TODO any action item here ?write() should not write ?
 }
 
 /*
@@ -944,47 +955,8 @@ static int scmtty_break_ctl(struct tty_struct *tty, int state)
  */
 static void scmtty_hangup(struct tty_struct *tty) 
 {
-    int ctsint = 0;
-    int dcdint = 0;
-    int dsrint = 0;
-    int rngint = 0;
-    unsigned int msr_state_reg = 0;
-    struct async_icount *evicount;
-    struct vtty_dev *vttydev = NULL;
-    struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
-
-    if(tty->termios.c_cflag & HUPCL) {
-        if(tty->index != local_vttydev->peer_index)
-            vttydev = local_vttydev;
-        else
-            vttydev = index_manager[local_vttydev->peer_index].vttydev;
-
-        local_vttydev->mcr_reg |= SCM_MCR_DTR;
-        if((local_vttydev->dtr_mappings & CON_CTS) == CON_CTS) {
-            msr_state_reg |= SCM_MSR_CTS;
-            ctsint++;
-        }
-        if((local_vttydev->dtr_mappings & CON_DCD) == CON_DCD) {
-            msr_state_reg |= SCM_MSR_DCD;
-            dcdint++;
-        }
-        if((local_vttydev->dtr_mappings & CON_DSR) == CON_DSR) {
-            msr_state_reg |= SCM_MSR_DSR;
-            dsrint++;
-        }
-        if((local_vttydev->dtr_mappings & CON_RI) == CON_RI) {
-            msr_state_reg |= SCM_MSR_RI;
-            rngint++;
-        }
-        index_manager[local_vttydev->peer_index].vttydev->msr_reg |= msr_state_reg;
-
-        evicount = &index_manager[local_vttydev->peer_index].vttydev->icount;
-        evicount->cts += ctsint;
-        evicount->dsr += dsrint;
-        evicount->dcd += dcdint;
-        evicount->rng += rngint;
-        //TODO
-    }
+    if(tty->termios.c_cflag & HUPCL)
+        update_modem_lines(tty, 0, TIOCM_DTR | TIOCM_RTS);
 }
 
 /*
@@ -1112,13 +1084,13 @@ static int extract_mapping(char data[], int x) {
     int mapping = 0;
     for(i=0; i<8; i++) {
         if(data[x] == '8') {
-            mapping |= CON_CTS;
+            mapping |= SCM_CON_CTS;
         }else if(data[x] == '1') {
-            mapping |= CON_DCD;
+            mapping |= SCM_CON_DCD;
         }else if(data[x] == '6') {
-            mapping |= CON_DSR;
+            mapping |= SCM_CON_DSR;
         }else if(data[x] == '9') {
-            mapping |= CON_RI;
+            mapping |= SCM_CON_RI;
         }else if(data[x] == '#') {
             break;
         }else if((data[x] == 'x') || (data[x] == ',')) {
@@ -1578,7 +1550,6 @@ static const struct tty_operations scm_serial_ops = {
  * and 1 loop back device, load this driver module as shown below:
  * 
  * $insmod ./tty2comKm.ko max_num_vtty_dev=20 init_num_nm_pair=1 init_num_lb_dev=1
- * insmod ./tty2comKm.ko "max_num_vtty_dev=20" "init_num_nm_pair=1" "init_num_lb_dev=1"
  *
  * @return: 0 on success or negative error code on failure.
  */
