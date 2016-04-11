@@ -83,7 +83,7 @@ struct vtty_dev {
     int rts_mappings;
     int dtr_mappings;
     int set_dtr_atopen;
-    spinlock_t lock;
+    struct mutex lock;
     int is_break_on;
     struct tty_struct *own_tty;
     struct tty_struct *peer_tty;
@@ -340,6 +340,7 @@ static int update_modem_lines(struct tty_struct *tty, unsigned int set, unsigned
         }
     }
 
+    mutex_lock(&local_vttydev->lock);
     local_vttydev->mcr_reg = mcr_ctrl_reg;
 
     if(remote_vttydev == NULL) {
@@ -355,6 +356,7 @@ static int update_modem_lines(struct tty_struct *tty, unsigned int set, unsigned
     evicount->dsr += dsrint;
     evicount->dcd += dcdint;
     evicount->rng += rngint;
+    mutex_unlock(&local_vttydev->lock);
 
     return 0;
 }
@@ -376,6 +378,7 @@ static int update_modem_lines(struct tty_struct *tty, unsigned int set, unsigned
  */
 static int scmtty_open(struct tty_struct *tty, struct file *filp)
 {    
+    int ret = 0;
     int ctsint = 0;
     int dcdint = 0;
     int dsrint = 0;
@@ -430,7 +433,10 @@ static int scmtty_open(struct tty_struct *tty, struct file *filp)
     evicount->dcd += dcdint;
     evicount->rng += rngint;
 
-    return 0;
+    mutex_lock(&local_vttydev->lock);
+    ret = tty_port_open(tty->port, tty, filp);
+    mutex_unlock(&local_vttydev->lock);
+    return ret; 
 }
 
 /*
@@ -448,6 +454,10 @@ static void scmtty_close(struct tty_struct *tty, struct file *filp)
 
     if(local_vttydev->set_dtr_atopen == 1)
         index_manager[local_vttydev->peer_index].vttydev->msr_reg &= ~SCM_MSR_DCD;
+
+    mutex_lock(&local_vttydev->lock);
+    tty_port_close(tty->port, tty, filp);
+    mutex_unlock(&local_vttydev->lock);
 }
 
 /* 
@@ -479,8 +489,10 @@ static int scmtty_write(struct tty_struct *tty, const unsigned char *buf, int co
     }
 
     if(tty_to_write != NULL) {
+        mutex_lock(&local_vttydev->lock);
         tty_insert_flip_string(tty_to_write->port, buf, count);
         tty_flip_buffer_push(tty_to_write->port);
+        mutex_unlock(&local_vttydev->lock);
         local_vttydev->icount.tx++;
         vttydev->icount.rx++;
     }else {
@@ -524,8 +536,10 @@ static int scmtty_put_char(struct tty_struct *tty, unsigned char ch)
     }
 
     if(tty_to_write != NULL) {
+        mutex_lock(&local_vttydev->lock);
         tty_insert_flip_char(tty_to_write->port, ch, TTY_NORMAL);
         tty_flip_buffer_push(tty_to_write->port);
+        mutex_unlock(&local_vttydev->lock);
         local_vttydev->icount.tx++;
         vttydev->icount.rx++;
     }else {
@@ -788,8 +802,11 @@ static int scmtty_tiocmget(struct tty_struct *tty)
 {
     int status = 0;
     struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
+
+    mutex_lock(&local_vttydev->lock);
     int msr_reg = local_vttydev->msr_reg;
     int mcr_reg = local_vttydev->mcr_reg;
+    mutex_unlock(&local_vttydev->lock);
 
     status= ((mcr_reg & SCM_MCR_DTR)  ? TIOCM_DTR  : 0) |
             ((mcr_reg & SCM_MCR_RTS)  ? TIOCM_RTS  : 0) |
@@ -813,7 +830,7 @@ static int scmtty_tiocmget(struct tty_struct *tty)
  */
 static int scmtty_tiocmset(struct tty_struct *tty, unsigned int set, unsigned int clear) 
 {
-    return update_modem_lines(tty, set, clear); //TODO UPDATE SHOULD HAPPEN WITH LOCKING
+    return update_modem_lines(tty, set, clear);
 }
 
 /*
@@ -839,6 +856,7 @@ static int scmtty_break_ctl(struct tty_struct *tty, int state)
         vttydev = index_manager[local_vttydev->peer_index].vttydev;
     }
 
+    mutex_lock(&local_vttydev->lock);
     if(state == 1) {
         if(local_vttydev->is_break_on == 1)
             return 0;
@@ -851,9 +869,11 @@ static int scmtty_break_ctl(struct tty_struct *tty, int state)
     }else if(state == 0) {
         local_vttydev->is_break_on = 0;
     }else {
+        mutex_unlock(&local_vttydev->lock);
         return -EINVAL;
     }
 
+    mutex_unlock(&local_vttydev->lock);
     return 0;
 }
 
@@ -963,7 +983,6 @@ static void scmtty_flush_buffer(struct tty_struct *tty)
  */
 static void scmtty_wait_until_sent(struct tty_struct *tty, int timeout) 
 {
-
 }
 
 /*
@@ -1051,15 +1070,15 @@ static int extract_mapping(char data[], int x) {
 }
 
 /*
+ * This function is equivalent to a typical 'probe' function in linux device driver model for this virtual 
+ * adaptor.
+ *
  * Standard DB9 pin assignment: 1 - DCD, 2 - RX, 3 - TX, 4 - DTR, 5 - GND, 6 - DSR, 7 - RTS, 8 - CTS, 9 - RI.
  * 
  * Assignment 7-8 means connect local RTS pin to remote CTS pin. Assignment 4-1,6 means connect local DTR to 
  * remote DSR and DCD pins. Assignment 7-x means leave local RTS pin unconnected. The 'y' at last will raise 
  * remote DCD pin when local device is opened. When removing tty device, if the given device is one of the 
  * device in a null modem pair, coupled device will also be deleted automatically.
- * 
- * This function is equivalent to a typical 'probe' function in linux device driver model for this virtual 
- * adaptor.
  * 
  * 1. Create standard null modem connection:
  * $echo "gennm#vdev1#vdev2#7-8,x,x,x#4-1,6,x,x#7-8,x,x,x#4-1,6,x,x#y#y" > /proc/scmtty_vadaptkm
@@ -1277,7 +1296,7 @@ static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *bu
         vttydev1->mcr_reg = 0;
         index_manager[i].index = i;
         index_manager[i].vttydev = vttydev1;
-        spin_lock_init(&vttydev1->lock);
+        mutex_init(&vttydev1->lock);
 
         tty_port_link_device(port1, scmtty_driver, i);
 
@@ -1320,7 +1339,7 @@ static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *bu
             vttydev2->mcr_reg = 0;
             index_manager[y].index = y;
             index_manager[y].vttydev = vttydev2;
-            spin_lock_init(&vttydev2->lock);
+            mutex_init(&vttydev2->lock);
 
             tty_port_link_device(port2, scmtty_driver, y);
         }
