@@ -25,6 +25,7 @@ It creates virtual serial ports pair that appears same as the real once to the a
 - Software, hardware and no flow controls emulation
 - Parity, frame, overrun and line break events emulation
 - Control signals (RTS,DTR,CTS,DCD,RI,LOOP,DSR) and all serial port settings
+- Ring indicator line signal emulation
 - Create/destroy virtual serial ports dynamically directly from your application without reboot
 - Operating system specific serial port APIs and IOCTL supported
 - Serial ports can be deleted even when opened by an application (useful in automated testing)
@@ -33,6 +34,7 @@ It creates virtual serial ports pair that appears same as the real once to the a
 - Create large number of serial ports
 - Speed is directly proportional to your software/hardware configuration
 - Virtual box and VMware virtual machine supported
+- Multithreaded environment supported
 - Mismatched line settings causes garbled data as in real life and appropriate error event generation
 - API to control virtual ports directly from your application
 

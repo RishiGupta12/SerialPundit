@@ -194,6 +194,12 @@ static int last_nmdev2_idx = -1;
  * 3. Emulate overrun error:
  * $echo "3" > /sys/devices/virtual/tty/tty2com0/scmvtty_errevt/evt
  * 
+ * 4. Emulate ring indicator (set RI signal):
+ * $echo "4" > /sys/devices/virtual/tty/tty2com0/scmvtty_errevt/evt
+ * 
+ * 5. Emulate ring indicator (un-set RI signal):
+ * $echo "5" > /sys/devices/virtual/tty/tty2com0/scmvtty_errevt/evt
+ * 
  * @dev: device associated with given sysfs entry
  * @attr: sysfs attribute corresponding to this function
  * @buf: error event passed from user space to kernel via this sysfs attribute
@@ -224,30 +230,36 @@ static ssize_t evt_store(struct device *dev, struct device_attribute *attr, cons
     if(tty_to_write == NULL)
         return -EIO;
 
+    mutex_lock(&local_vttydev->lock);
+
     switch(buf[0]) {
     case '1' : 
-        mutex_lock(&local_vttydev->lock);
         tty_insert_flip_char(tty_to_write->port, 0, TTY_FRAME);
         local_vttydev->icount.frame++;
-        mutex_unlock(&local_vttydev->lock);
         break;
     case '2' :
-        mutex_lock(&local_vttydev->lock);
         tty_insert_flip_char(tty_to_write->port, 0, TTY_PARITY);
         local_vttydev->icount.parity++;
-        mutex_unlock(&local_vttydev->lock);
         break;
     case '3' :
-        mutex_lock(&local_vttydev->lock);
         tty_insert_flip_char(tty_to_write->port, 0, TTY_OVERRUN);
         local_vttydev->icount.overrun++;
-        mutex_unlock(&local_vttydev->lock);
+        break;
+    case '4' :
+        vttydev->msr_reg |= SCM_MSR_RI;
+        vttydev->icount.rng++;
+        break;
+    case '5' :
+        vttydev->msr_reg &= ~SCM_MSR_RI;
+        vttydev->icount.rng++;
         break;
     default :
+        mutex_unlock(&local_vttydev->lock);
         return -EINVAL;
     }
     tty_flip_buffer_push(tty_to_write->port);
 
+    mutex_unlock(&local_vttydev->lock);
     return count;
 }
 
@@ -275,8 +287,6 @@ static int update_modem_lines(struct tty_struct *tty, unsigned int set, unsigned
     struct async_icount *evicount;
     struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
     struct vtty_dev *remote_vttydev = NULL;
-
-    //TODO SCM_MCR_LOOP 
 
     if(tty->index != local_vttydev->peer_index)
         remote_vttydev = index_manager[local_vttydev->peer_index].vttydev;
@@ -501,6 +511,10 @@ static int scmtty_write(struct tty_struct *tty, const unsigned char *buf, int co
     struct tty_struct *tty_to_write = NULL;
     struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
 
+    if (!tty)
+        return 0;
+    if (tty->stopped)
+        return 0;
     if(local_vttydev->is_break_on == 1)
         return -EIO;
 
@@ -548,6 +562,8 @@ static int scmtty_put_char(struct tty_struct *tty, unsigned char ch)
     struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
 
     if (!tty)
+        return 0;
+    if (tty->stopped)
         return 0;
     if(local_vttydev->is_break_on == 1)
         return -EIO;
