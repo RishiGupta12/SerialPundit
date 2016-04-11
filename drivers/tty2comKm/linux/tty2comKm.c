@@ -49,39 +49,6 @@
 #define DRIVER_AUTHOR "Rishi Gupta"
 #define DRIVER_DESC "Serial port null modem emulation driver (kernel mode)"
 
-static int scmtty_open(struct tty_struct *tty, struct file *filp);
-static int scmtty_write(struct tty_struct *tty, const unsigned char *buf, int count);
-static int scmtty_put_char(struct tty_struct *tty, unsigned char ch);
-static int scmtty_break_ctl(struct tty_struct *tty, int state);
-static int scmtty_write_room(struct tty_struct *tty);
-static int scmtty_chars_in_buffer(struct tty_struct *tty);
-static int scmtty_ioctl(struct tty_struct *tty, unsigned int cmd, unsigned long arg);
-static int scmtty_tiocmget(struct tty_struct *tty);
-static int scmtty_tiocmset(struct tty_struct *tty, unsigned int set, unsigned int clear);
-static int scmtty_get_icount(struct tty_struct *tty, struct serial_icounter_struct *icount);
-
-static void scmtty_set_termios(struct tty_struct *tty, struct ktermios *old);
-static void scmtty_throttle(struct tty_struct *tty);
-static void scmtty_unthrottle(struct tty_struct *tty);
-static void scmtty_stop(struct tty_struct *tty);
-static void scmtty_start(struct tty_struct *tty);
-static void scmtty_hangup(struct tty_struct *tty);
-static void scmtty_flush_chars(struct tty_struct *tty);
-static void scmtty_flush_buffer(struct tty_struct *tty);
-static void scmtty_wait_until_sent(struct tty_struct *tty, int timeout);
-static void scmtty_send_xchar(struct tty_struct *tty, char ch);
-static void scmtty_close(struct tty_struct *tty, struct file *filp);
-
-static int extract_mapping(char data[], int x);
-static int update_modem_lines(struct tty_struct *tty, unsigned int set, unsigned int clear);
-static int get_serial_info(struct tty_struct *tty, unsigned long arg);
-
-static ssize_t evt_store(struct device *dev, struct device_attribute *attr, const char *buf, size_t count);
-static int scmtty_vadapt_proc_open(struct inode *inode, struct  file *file);
-static int scmtty_vadapt_proc_close(struct inode *inode, struct file *file);
-static ssize_t scmtty_vadapt_proc_read(struct file *file, char __user *buf, size_t size, loff_t *ppos);
-static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *buf, size_t length, loff_t * ppos);
-
 /* Default number of virtual tty ports this driver is going to support.
  * TTY devices are created on demand. */
 #define VTTY_DEV_MAX 128
@@ -130,6 +97,41 @@ struct vtty_info {
     struct vtty_dev *vttydev;
 };
 
+static int scmtty_open(struct tty_struct *tty, struct file *filp);
+static int scmtty_write(struct tty_struct *tty, const unsigned char *buf, int count);
+static int scmtty_put_char(struct tty_struct *tty, unsigned char ch);
+static int scmtty_break_ctl(struct tty_struct *tty, int state);
+static int scmtty_write_room(struct tty_struct *tty);
+static int scmtty_chars_in_buffer(struct tty_struct *tty);
+static int scmtty_ioctl(struct tty_struct *tty, unsigned int cmd, unsigned long arg);
+static int scmtty_tiocmget(struct tty_struct *tty);
+static int scmtty_tiocmset(struct tty_struct *tty, unsigned int set, unsigned int clear);
+static int scmtty_get_icount(struct tty_struct *tty, struct serial_icounter_struct *icount);
+
+static void scmtty_set_termios(struct tty_struct *tty, struct ktermios *old);
+static void scmtty_throttle(struct tty_struct *tty);
+static void scmtty_unthrottle(struct tty_struct *tty);
+static void scmtty_stop(struct tty_struct *tty);
+static void scmtty_start(struct tty_struct *tty);
+static void scmtty_hangup(struct tty_struct *tty);
+static void scmtty_flush_chars(struct tty_struct *tty);
+static void scmtty_flush_buffer(struct tty_struct *tty);
+static void scmtty_wait_until_sent(struct tty_struct *tty, int timeout);
+static void scmtty_send_xchar(struct tty_struct *tty, char ch);
+static void scmtty_close(struct tty_struct *tty, struct file *filp);
+
+static int extract_mapping(char data[], int x);
+static int update_modem_lines(struct tty_struct *tty, unsigned int set, unsigned int clear);
+static int get_serial_info(struct tty_struct *tty, unsigned long arg);
+static int wait_msr_change(struct tty_struct *tty, unsigned long mask);
+static int check_msr_delta(struct vtty_dev *local_vttydev, unsigned long mask, struct async_icount *prev);
+
+static ssize_t evt_store(struct device *dev, struct device_attribute *attr, const char *buf, size_t count);
+static int scmtty_vadapt_proc_open(struct inode *inode, struct  file *file);
+static int scmtty_vadapt_proc_close(struct inode *inode, struct file *file);
+static ssize_t scmtty_vadapt_proc_read(struct file *file, char __user *buf, size_t size, loff_t *ppos);
+static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *buf, size_t length, loff_t * ppos);
+
 /* These values may be overriden if module is loaded with parameters */
 static ushort max_num_vtty_dev = VTTY_DEV_MAX;
 static ushort init_num_nm_pair = 0;
@@ -157,6 +159,10 @@ static const struct attribute_group scmvtty_error_events_attr_group = {
 
 static const struct tty_port_operations vttydev_port_ops = {
 };
+
+static int last_lbdev_idx  = -1;
+static int last_nmdev1_idx = -1;
+static int last_nmdev2_idx = -1;
 
 /*
  * Notifies tty layer that a framing error has happend while receiving data on serial port.
@@ -652,7 +658,7 @@ static int scmtty_chars_in_buffer(struct tty_struct *tty)
  * 
  * @return 1 if changed otherwise 0 if unchanged
  */
-static int check_msr_delta(struct vtty_dev *local_vttydev, unsigned long mask, struct async_icount *prev)
+static int check_msr_delta(struct vtty_dev *local_vttydev, unsigned long mask, struct async_icount *prev) 
 {
     struct async_icount now;
     int delta;
@@ -674,7 +680,6 @@ static int check_msr_delta(struct vtty_dev *local_vttydev, unsigned long mask, s
  */
 static int wait_msr_change(struct tty_struct *tty, unsigned long mask)
 {
-    int ret;
     struct async_icount prev;
     struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
     prev = local_vttydev->icount;
@@ -853,7 +858,8 @@ static int scmtty_break_ctl(struct tty_struct *tty, int state)
 }
 
 /*
- * Invoked by tty layer to inform this driver that it should hangup the tty device.
+ * Invoked by tty layer to inform this driver that it should hangup the tty device 
+ * (Lower modem control lines after last process closes the device).
  * 
  * @tty: 
  */
@@ -978,18 +984,42 @@ static void scmtty_send_xchar(struct tty_struct *tty, char ch)
 }
 
 /*
- * @file
- * @buf
- * @length
- * @ppos
+ * @file file for proc file
+ * @buf user space buffer that will contain data when this function returns
+ * @length number of character returned in buf
+ * @ppos offset
  * 
  * @return number of bytes copied to user buffer on success or negative error code on error
  */
 static ssize_t scmtty_vadapt_proc_read(struct file *file, char __user *buf, size_t size, loff_t *ppos)
 {
     int ret = 0;
-    //ret = copy_to_user(buf, "rishi", sizeof("rishi"));//TODO
-    return ret;
+    char data[64];
+
+    memset(data, '\0', sizeof(data));
+
+    spin_lock(&adaptlock);
+
+    if(last_lbdev_idx == -1) {
+        if(last_nmdev1_idx == -1) {
+            snprintf(data, 64, "%s", "xxxxx#xxxxx-xxxxx");
+        }else {
+            snprintf(data, 64, "%s#%05d-%05d", "xxxxx", last_nmdev1_idx, last_nmdev2_idx);
+        }
+    }else {
+        if(last_nmdev1_idx == -1) {
+            snprintf(data, 64, "%05d#%s", last_lbdev_idx, "xxxxx-xxxxx");
+        }else {
+            snprintf(data, 64, "%05d#%05d-%05d", last_lbdev_idx, last_nmdev1_idx, last_nmdev2_idx);
+        }
+    }
+
+    spin_unlock(&adaptlock);
+
+    ret = copy_to_user(buf, &data, 18);
+    if(ret)
+        return -EFAULT;
+    return 18;
 }
 
 /*
@@ -1327,6 +1357,11 @@ static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *bu
                 spin_unlock(&adaptlock);
                 goto fail_register;
             }
+
+            last_nmdev1_idx = i;
+            last_nmdev2_idx = y;
+        }else {
+            last_lbdev_idx = i;
         }
 
         spin_unlock(&adaptlock);
