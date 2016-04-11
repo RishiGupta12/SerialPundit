@@ -881,7 +881,7 @@ static int scmtty_break_ctl(struct tty_struct *tty, int state)
  * Invoked by tty layer to inform this driver that it should hangup the tty device 
  * (Lower modem control lines after last process closes the device).
  * 
- * @tty: 
+ * @tty: tty device that has hung up
  */
 static void scmtty_hangup(struct tty_struct *tty) 
 {
@@ -924,6 +924,7 @@ static void scmtty_hangup(struct tty_struct *tty)
         evicount->dsr += dsrint;
         evicount->dcd += dcdint;
         evicount->rng += rngint;
+        //TODO
     }
 }
 
@@ -941,8 +942,9 @@ static int scmtty_get_icount(struct tty_struct *tty, struct serial_icounter_stru
     struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
     struct async_icount cnow;
 
-    /* atomically copy TODO LOCK */
+    mutex_lock(&local_vttydev->lock);
     cnow = local_vttydev->icount;
+    mutex_unlock(&local_vttydev->lock);
 
     icount->cts = cnow.cts;
     icount->dsr = cnow.dsr;
