@@ -1173,7 +1173,7 @@ static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *bu
     struct device *device1 = NULL;
     struct device *device2 = NULL;
 
-    if(length == 62) {
+    if((length > 60) || (length < 63)) {
         if(copy_from_user(data, buf, length) != 0) {
             return -EFAULT;
         }

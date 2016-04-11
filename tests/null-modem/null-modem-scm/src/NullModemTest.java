@@ -1,8 +1,3 @@
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-
 /**
  * Author : Rishi Gupta
  * 
@@ -21,18 +16,27 @@ import java.io.InputStream;
  * along with 'serial communication manager'.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import com.embeddedunveiled.serial.SerialComManager;
+import com.embeddedunveiled.serial.nullmodem.SerialComNullModem;
+
 public final class NullModemTest {
 
-    public static void main(String[] args) {      
-        try {
-            File f = new File("/proc/scmtty_vadaptkm");
-            //            FileOutputStream out = new FileOutputStream(f);
-            //            out.write("genlb#xxxxx#xxxxx#7-8,x,x,x#4-1,6,x,x#x-x,x,x,x#x-x,x,x,x#y#x".getBytes(), 0, "genlb#xxxxx#xxxxx#7-8,x,x,x#4-1,6,x,x#x-x,x,x,x#x-x,x,x,x#y#x".length());
+    public static void main(String[] args) {
 
-            byte[] abc = new byte[128];
-            InputStream input = new FileInputStream("/proc/scmtty_vadaptkm");
-            input.read(abc);
-            System.out.println(new String(abc));
+        SerialComManager scm = null;
+
+        try {
+            scm = new SerialComManager();
+            SerialComNullModem scnm = scm.getSerialComNullModemInstance();
+
+            scnm.createStandardLoopBackDevice(-1);
+            scnm.createStandardLoopBackDevice(3);
+
+            scnm.createStandardNullModemDevices(-1, -1);
+            scnm.createStandardNullModemDevices(-1, 12);
+            scnm.createStandardNullModemDevices(7, -1);
+            scnm.createStandardNullModemDevices(9, 16);
+
         }catch (Exception e) {
             e.printStackTrace();
         }
