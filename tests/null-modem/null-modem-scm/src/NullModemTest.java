@@ -65,6 +65,25 @@ public final class NullModemTest {
             }catch (Exception e) {
                 e.printStackTrace();
             }
+
+            try {
+                Thread.sleep(3000);
+                scnm.destroyVirtualSerialDevice(9);
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            try {
+                scnm.destroyVirtualSerialDevice(-2);
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            try {
+                scnm.destroyVirtualSerialDevice(-1);
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
         }catch (Exception e) {
             e.printStackTrace();
         }

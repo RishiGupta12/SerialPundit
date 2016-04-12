@@ -20,10 +20,7 @@ package com.embeddedunveiled.serial.nullmodem;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.text.DecimalFormat;
 
 import com.embeddedunveiled.serial.SerialComManager;
 
@@ -114,6 +111,38 @@ public final class SerialComNullModem {
                     linuxVadapt.write(cmd.getBytes());
                 }
             }
+        }
+        return true;
+    }
+
+    /**
+     * <p>Removes all virtual serial devices created by tty2comKm driver if atIndex is -1 or removes only a 
+     * particular device as specified by atIndex argument. Note that if the given index represent to one of 
+     * the device nodes in a null modem pair, paired device will automatically be identified and deleted too.</p>
+     * 
+     * @param atIndex -1 if all devices are to be destroyed or valid device number.
+     * @return true on success.
+     * @throws IOException if the operation can not be complted due to some reason.
+     */
+    public boolean destroyVirtualSerialDevice(int atIndex) throws IOException {
+        if(osType == SerialComManager.OS_LINUX) {
+            if(atIndex < 0) {
+                if(atIndex != -1) {
+                    throw new IOException("If atIndex is negative, it has to be -1 only !");
+                }else {
+                    linuxVadapt.write("del#xxxxx#xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx".getBytes());
+                }
+            }
+            else {
+                if((atIndex > 65535)) {
+                    throw new IOException("The atIndex can be -1 <= atIndex =< 65535 !");
+                }else {
+                    String cmd = "del#".concat(String.format("%05d", atIndex));
+                    cmd = cmd.concat("#xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
+                    linuxVadapt.write(cmd.getBytes());
+                }
+            }
+
         }
         return true;
     }
