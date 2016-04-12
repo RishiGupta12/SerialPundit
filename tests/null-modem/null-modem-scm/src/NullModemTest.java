@@ -24,22 +24,49 @@ public final class NullModemTest {
     public static void main(String[] args) {
 
         SerialComManager scm = null;
+        SerialComNullModem scnm = null;
 
         try {
             scm = new SerialComManager();
-            SerialComNullModem scnm = scm.getSerialComNullModemInstance();
+            scnm = scm.getSerialComNullModemInstance();
 
-            scnm.createStandardLoopBackDevice(-1);
-            scnm.createStandardLoopBackDevice(3);
+            try {
+                scnm.createStandardLoopBackDevice(-1);
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
 
-            scnm.createStandardNullModemDevices(-1, -1);
-            scnm.createStandardNullModemDevices(-1, 12);
-            scnm.createStandardNullModemDevices(7, -1);
-            scnm.createStandardNullModemDevices(9, 16);
+            try {
+                scnm.createStandardLoopBackDevice(2);
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
 
+            try {
+                scnm.createStandardNullModemDevices(-1, -1);
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            try {
+                scnm.createStandardNullModemDevices(-1, 2);
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            try {
+                scnm.createStandardNullModemDevices(7, -1);
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            try {
+                scnm.createStandardNullModemDevices(9, 16);
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
         }catch (Exception e) {
             e.printStackTrace();
         }
     }
-
 }

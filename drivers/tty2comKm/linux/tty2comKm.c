@@ -1378,7 +1378,7 @@ static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *bu
                 vttydev2->set_dtr_atopen = 1;
             else
                 vttydev2->set_dtr_atopen = 0;
-            vttydev2->own_index = i;
+            vttydev1->own_index = i;
             vttydev1->peer_index = y;
             vttydev2->own_index = y;
             vttydev2->peer_index = i;
@@ -1405,6 +1405,7 @@ static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *bu
 
         x = sysfs_create_group(&device1->kobj, &scmvtty_error_events_attr_group);
         if(x < 0) {
+            tty_unregister_device(scmtty_driver, i);
             spin_unlock(&adaptlock);
             goto fail_arg;
         }
@@ -1422,6 +1423,8 @@ static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *bu
 
             x = sysfs_create_group(&device2->kobj, &scmvtty_error_events_attr_group);
             if(x < 0) {
+                tty_unregister_device(scmtty_driver, y);
+                index_manager[y].index = -1;
                 spin_unlock(&adaptlock);
                 goto fail_register;
             }
@@ -1486,9 +1489,9 @@ static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *bu
     fail_register:
     sysfs_remove_group(&device1->kobj, &scmvtty_error_events_attr_group);
     tty_unregister_device(scmtty_driver, i);
+    
     fail_arg:
-    if(device1 != NULL)
-        tty_unregister_device(scmtty_driver, i);
+    index_manager[i].index = -1;
     if(vttydev2 != NULL)
         kfree(vttydev2);
     if(vttydev1 != NULL)
