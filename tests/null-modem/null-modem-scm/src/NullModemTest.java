@@ -28,7 +28,7 @@ public final class NullModemTest {
 
         try {
             scm = new SerialComManager();
-            scnm = scm.getSerialComNullModemInstance();
+            scnm = scm.getSerialComNullModemInstance();           
 
             try {
                 scnm.createStandardLoopBackDevice(-1);
@@ -62,6 +62,19 @@ public final class NullModemTest {
 
             try {
                 scnm.createStandardNullModemDevices(9, 16);
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            try {
+                System.out.println("last loopback node : " + scnm.getLastLoopBackDeviceNode());
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            try {
+                String[] str = scnm.getLastNullModemDeviceNodes();
+                System.out.println("last null modem node : " + str[0] + "--" + str[1]);
             }catch (Exception e) {
                 e.printStackTrace();
             }

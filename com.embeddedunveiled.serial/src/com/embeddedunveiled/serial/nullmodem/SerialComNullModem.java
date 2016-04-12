@@ -19,6 +19,7 @@
 package com.embeddedunveiled.serial.nullmodem;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
@@ -33,13 +34,16 @@ import com.embeddedunveiled.serial.SerialComManager;
 public final class SerialComNullModem {
 
     private final int osType;
-    private FileOutputStream linuxVadapt;
+    private FileOutputStream linuxVadaptOut;
+    private FileInputStream linuxVadaptIn;
+    private final Object lock = new Object();
 
     public SerialComNullModem(int osType) {
         this.osType = osType;
         if(osType == SerialComManager.OS_LINUX) {
             try {
-                linuxVadapt = new FileOutputStream(new File("/proc/scmtty_vadaptkm"));
+                linuxVadaptOut = new FileOutputStream(new File("/proc/scmtty_vadaptkm"));
+                linuxVadaptIn = new FileInputStream(new File("/proc/scmtty_vadaptkm"));
             }catch (Exception e) {
                 e.printStackTrace();
             }
@@ -62,14 +66,16 @@ public final class SerialComNullModem {
     public boolean createStandardLoopBackDevice(int deviceIndex) throws IOException {
         if(osType == SerialComManager.OS_LINUX) {
             if(deviceIndex == -1) {
-                linuxVadapt.write("genlb#xxxxx#xxxxx#7-8,x,x,x#4-1,6,x,x#x-x,x,x,x#x-x,x,x,x#y#y".getBytes());
+                linuxVadaptOut.write("genlb#xxxxx#xxxxx#7-8,x,x,x#4-1,6,x,x#x-x,x,x,x#x-x,x,x,x#y#y".getBytes());
             }else {
                 if((deviceIndex < 0) || (deviceIndex > 65535)) {
                     throw new IOException("deviceIndex should be 0 <= deviceIndex =< 65535 !");
                 }
                 String cmd = "genlb#".concat(String.format("%05d", deviceIndex));
                 cmd = cmd.concat("#xxxxx#7-8,x,x,x#4-1,6,x,x#x-x,x,x,x#x-x,x,x,x#y#y");
-                linuxVadapt.write(cmd.getBytes());
+                synchronized(lock) {
+                    linuxVadaptOut.write(cmd.getBytes());
+                }
             }
         }
         return true;
@@ -94,23 +100,31 @@ public final class SerialComNullModem {
         if(osType == SerialComManager.OS_LINUX) {
             if(deviceIndex1 == -1) {
                 if(deviceIndex2 == -1) {
-                    linuxVadapt.write("gennm#xxxxx#xxxxx#7-8,x,x,x#4-1,6,x,x#7-8,x,x,x#4-1,6,x,x#y#y".getBytes());
+                    synchronized(lock) {
+                        linuxVadaptOut.write("gennm#xxxxx#xxxxx#7-8,x,x,x#4-1,6,x,x#7-8,x,x,x#4-1,6,x,x#y#y".getBytes());
+                    }
                 }else {
                     String cmd = "gennm#xxxxx#".concat(String.format("%05d", deviceIndex2));
                     cmd = cmd.concat("#7-8,x,x,x#4-1,6,x,x#7-8,x,x,x#4-1,6,x,x#y#y");
-                    linuxVadapt.write(cmd.getBytes());
+                    synchronized(lock) {
+                        linuxVadaptOut.write(cmd.getBytes());
+                    }
                 }
             }else {
                 if(deviceIndex2 == -1) {
                     String cmd = "gennm#".concat(String.format("%05d", deviceIndex1));
                     cmd = cmd.concat("#xxxxx#7-8,x,x,x#4-1,6,x,x#7-8,x,x,x#4-1,6,x,x#y#y");
-                    linuxVadapt.write(cmd.getBytes());
+                    synchronized(lock) {
+                        linuxVadaptOut.write(cmd.getBytes());
+                    }
                 }else {
                     String cmd = "gennm#".concat(String.format("%05d", deviceIndex1));
                     cmd = cmd.concat("#");
                     cmd = cmd.concat(String.format("%05d", deviceIndex2));
                     cmd = cmd.concat("#7-8,x,x,x#4-1,6,x,x#7-8,x,x,x#4-1,6,x,x#y#y");
-                    linuxVadapt.write(cmd.getBytes());
+                    synchronized(lock) {
+                        linuxVadaptOut.write(cmd.getBytes());
+                    }
                 }
             }
         }
@@ -124,7 +138,7 @@ public final class SerialComNullModem {
      * 
      * @param atIndex -1 if all devices are to be destroyed or valid device number.
      * @return true on success.
-     * @throws IOException if the operation can not be complted due to some reason.
+     * @throws IOException if the operation can not be completed due to some reason.
      */
     public boolean destroyVirtualSerialDevice(int atIndex) throws IOException {
         if(osType == SerialComManager.OS_LINUX) {
@@ -132,7 +146,9 @@ public final class SerialComNullModem {
                 if(atIndex != -1) {
                     throw new IOException("If atIndex is negative, it has to be -1 only !");
                 }else {
-                    linuxVadapt.write("del#xxxxx#xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx".getBytes());
+                    synchronized(lock) {
+                        linuxVadaptOut.write("del#xxxxx#xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx".getBytes());
+                    }
                 }
             }
             else {
@@ -141,17 +157,75 @@ public final class SerialComNullModem {
                 }else {
                     String cmd = "del#".concat(String.format("%05d", atIndex));
                     cmd = cmd.concat("#xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
-                    linuxVadapt.write(cmd.getBytes());
+                    synchronized(lock) {
+                        linuxVadaptOut.write(cmd.getBytes());
+                    }
                 }
             }
-
         }
         return true;
     }
+
+    /**
+     * <p>Returns the device node of last created loop back device.</p>
+     * 
+     * @return Device node on success otherwise null.
+     * @throws IOException if the operation can not be completed for some reason.
+     */
+    public String getLastLoopBackDeviceNode() throws IOException {
+        byte data[] = new byte[64];
+        byte tmp[] = new byte[5];
+
+        if(osType == SerialComManager.OS_LINUX) {
+            synchronized(lock) {
+                linuxVadaptIn.read(data); // 00002#00009-00016
+            }
+            for(int q=0; q<5; q++) {
+                tmp[q] = data[q];
+            }
+            int nodeNum = Integer.parseInt(new String(tmp), 10);
+            StringBuilder sb = new StringBuilder();
+            sb.append("/dev/tty2com");
+            sb.append(nodeNum);
+            return sb.toString();
+        }
+        return null;
+    }
+
+    /**
+     * <p>Returns the device nodes of last created null modem pair.</p>
+     * 
+     * @return Device nodes of null modem pair on success otherwise null.
+     * @throws IOException if the operation can not be completed for some reason.
+     */
+    public String[] getLastNullModemDeviceNodes() throws IOException {
+        byte data[] = new byte[64];
+        byte tmp1[] = new byte[5];
+        byte tmp2[] = new byte[5];
+
+        if(osType == SerialComManager.OS_LINUX) {
+            synchronized(lock) {
+                linuxVadaptIn.read(data); // 00002#00009-00016
+            }
+            for(int q=0; q<5; q++) {
+                tmp1[q] = data[q + 6];
+            }
+            for(int q=0; q<5; q++) {
+                tmp2[q] = data[q + 12];
+            }
+            int nodeNum1 = Integer.parseInt(new String(tmp1), 10);
+            int nodeNum2 = Integer.parseInt(new String(tmp2), 10);
+            StringBuilder sb = new StringBuilder();
+            sb.append("/dev/tty2com");
+            sb.append(nodeNum1);
+            String[] nodes = new String[2];
+            nodes[0] = sb.toString();
+            sb.delete(0, sb.length());
+            sb.append("/dev/tty2com");
+            sb.append(nodeNum2);
+            nodes[1] = sb.toString();
+            return nodes;
+        }
+        return null;
+    }
 }
-
-
-
-
-
-
