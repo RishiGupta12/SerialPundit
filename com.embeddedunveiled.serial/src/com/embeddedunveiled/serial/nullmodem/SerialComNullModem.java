@@ -27,11 +27,27 @@ import com.embeddedunveiled.serial.SerialComManager;
 
 /**
  * <p>Provides APIs to create and destroy virtual serial ports using the tty2comKm null modem emulation 
- * driver provided by this libary.</p>
+ * driver provided by this library. It follows the protocol as defined by tty2comKm driver.</p>
  * 
  * @author Rishi Gupta
  */
 public final class SerialComNullModem {
+
+    /**<p> Bit mask bit specifying that the given pin should be connected to CTS pin of other end. 
+     * Constant with value 0x0001. </p>*/
+    public static final int SCM_CON_CTS = 0x0001;
+
+    /**<p> Bit mask bit specifying that the given pin should be connected to DCD pin of other end. 
+     * Constant with value 0x0002. </p>*/
+    public static final int SCM_CON_DCD = 0x0002;
+
+    /**<p> Bit mask bit specifying that the given pin should be connected to DSR pin of other end. 
+     * Constant with value 0x0004. </p>*/
+    public static final int SCM_CON_DSR = 0x0004;
+
+    /**<p> Bit mask bit specifying that the given pin should be connected to RI pin of other end. 
+     * Constant with value 0x0008. </p>*/
+    public static final int SCM_CON_RI  = 0x0008;
 
     private final int osType;
     private FileOutputStream linuxVadaptOut;
@@ -128,6 +144,105 @@ public final class SerialComNullModem {
                 }
             }
         }
+        return true;
+    }
+
+    /**
+     * <p>Creates a virtual loop back device with given pin mappings.</p>
+     * 
+     * <p>To connect RTS pin to CTS pin use RTSConnections = SerialComNullModem.SCM_CON_CTS. A pin can be 
+     * connected to one or more pins using bit mask. For example to connect RTS pin to CTS and DSR use 
+     * RTSConnections = SerialComNullModem.SCM_CON_CTS | SerialComNullModem.SCM_CON_DSR.</p>
+     * 
+     * @param deviceIndex -1 or valid device number (0 <= deviceIndex =< 65535).
+     * @param RTSConnections Bit mask of SerialComNullModem.SCM_CON_XXX constants as per the desired pin mappings 
+     *         or 0 if RTS pin should be left unconnected.
+     * @param DTRConnections Bit mask of SerialComNullModem.SCM_CON_XXX constants as per the desired pin mappings 
+     *         or 0 if DTR pin should be left unconnected.
+     * @return true on success.
+     * @throws IOException if the operation can not be completed successfully.
+     */
+    public boolean createCustomLoopBackDevice(int deviceIndex, int RTSConnections, int DTRConnections) throws IOException {
+        StringBuilder sb = new StringBuilder();
+        if(osType == SerialComManager.OS_LINUX) {
+            sb.append("genlb#");
+            if(deviceIndex < 0) {
+                if(deviceIndex != -1) {
+                    throw new IOException("deviceIndex should be -1 <= deviceIndex =< 65535 !");
+                }
+                sb.append("xxxxx#xxxxx#7-");
+            }else {
+                if(deviceIndex > 65535) {
+                    throw new IOException("deviceIndex should be -1 <= deviceIndex =< 65535 !");
+                }
+                sb.append(String.format("%05d", deviceIndex));
+                sb.append("#xxxxx#7-");
+            }
+
+            if(RTSConnections == 0) {
+                sb.append("x,x,x,x#4-");
+            }else {
+                if((RTSConnections & SCM_CON_CTS) == SCM_CON_CTS) {
+                    sb.append(8);
+                }else {
+                    sb.append("x");
+                }
+                sb.append(",");
+                if((RTSConnections & SCM_CON_DCD) == SCM_CON_DCD) {
+                    sb.append(1);
+                }else {
+                    sb.append("x");
+                }
+                sb.append(",");
+                if((RTSConnections & SCM_CON_DSR) == SCM_CON_DSR) {
+                    sb.append(6);
+                }else {
+                    sb.append("x");
+                }
+                sb.append(",");
+                if((RTSConnections & SCM_CON_RI) == SCM_CON_RI) {
+                    sb.append(9);
+                }else {
+                    sb.append("x");
+                }
+                sb.append("#4-");
+            }
+
+            if(DTRConnections == 0) {
+                sb.append("x,x,x,x");
+            }else {
+                if((DTRConnections & SCM_CON_CTS) == SCM_CON_CTS) {
+                    sb.append(8);
+                }else {
+                    sb.append("x");
+                }
+                sb.append(",");
+                if((DTRConnections & SCM_CON_DCD) == SCM_CON_DCD) {
+                    sb.append(1);
+                }else {
+                    sb.append("x");
+                }
+                sb.append(",");
+                if((DTRConnections & SCM_CON_DSR) == SCM_CON_DSR) {
+                    sb.append(6);
+                }else {
+                    sb.append("x");
+                }
+                sb.append(",");
+                if((DTRConnections & SCM_CON_RI) == SCM_CON_RI) {
+                    sb.append(9);
+                }else {
+                    sb.append("x");
+                }
+            }
+
+            sb.append("#x-x,x,x,x#x-x,x,x,x#y#y");
+        }
+
+        synchronized(lock) {
+            linuxVadaptOut.write(sb.toString().getBytes());
+        }
+
         return true;
     }
 

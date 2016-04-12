@@ -80,7 +80,6 @@ public final class NullModemTest {
             }
 
             try {
-                Thread.sleep(3000);
                 scnm.destroyVirtualSerialDevice(9);
             }catch (Exception e) {
                 e.printStackTrace();
@@ -97,6 +96,31 @@ public final class NullModemTest {
             }catch (Exception e) {
                 e.printStackTrace();
             }
+
+            try {
+                scnm.createCustomLoopBackDevice(25, 0, 0);
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            try {
+                scnm.createCustomLoopBackDevice(-1, SerialComNullModem.SCM_CON_CTS, SerialComNullModem.SCM_CON_DCD | SerialComNullModem.SCM_CON_DSR);
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            try {
+                scnm.createCustomLoopBackDevice(65, 0, SerialComNullModem.SCM_CON_CTS | SerialComNullModem.SCM_CON_DCD | SerialComNullModem.SCM_CON_DSR);
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            try {
+                scnm.createCustomLoopBackDevice(29, SerialComNullModem.SCM_CON_CTS | SerialComNullModem.SCM_CON_DCD | SerialComNullModem.SCM_CON_DSR, 0);
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
+
         }catch (Exception e) {
             e.printStackTrace();
         }
