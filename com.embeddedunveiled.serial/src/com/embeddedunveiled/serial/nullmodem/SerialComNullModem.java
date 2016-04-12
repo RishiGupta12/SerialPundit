@@ -25,7 +25,8 @@ import java.io.IOException;
 import com.embeddedunveiled.serial.SerialComManager;
 
 /**
- * <p>Provides APIs to create and destroy virtual serial ports using the tty2comKm driver.</p>
+ * <p>Provides APIs to create and destroy virtual serial ports using the tty2comKm null modem emulation 
+ * driver provided by this libary.</p>
  * 
  * @author Rishi Gupta
  */
@@ -84,7 +85,8 @@ public final class SerialComNullModem {
      * createStandardNullModemDevices(-1, -1) will create /dev/tty2comXX and /dev/tty2comYY where XX/YY are the 
      * next free numbers managed by the driver internally.</p>
      * 
-     * @param deviceIndex1/2 -1 or valid device number (0 <= deviceIndex1/2 =< 65535).
+     * @param deviceIndex1 -1 or valid device number (0 <= deviceIndex1 =< 65535).
+     * @param deviceIndex2 -1 or valid device number (0 <= deviceIndex1 =< 65535).
      * @return true on success.
      * @throws IOException if virtual null modem device pair can not be created.
      */

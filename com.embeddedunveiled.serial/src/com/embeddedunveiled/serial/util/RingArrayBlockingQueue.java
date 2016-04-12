@@ -68,7 +68,6 @@ public final class RingArrayBlockingQueue<E> extends AbstractList<E> implements 
      * <p>Allocate and create queue with default initial capacity (DEFAULT_CAPACITY), default expansion 
      * factor (DEFAULT_EXPANSION_BY) and default maximum allowable size (DEFAULT_MAX_CAPACITY).</p>
      * 
-     * @param maxCapacity maximum size of queue.
      * @throws IllegalArgumentException if maxCapacity is zero or negative.
      */
     @SuppressWarnings("unchecked")

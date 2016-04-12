@@ -8,6 +8,7 @@ com.embeddedunveiled.serial.gsm
 com.embeddedunveiled.serial.hid
 com.embeddedunveiled.serial.internal
 com.embeddedunveiled.serial.mapper
+com.embeddedunveiled.serial.nullmodem
 com.embeddedunveiled.serial.usb
 com.embeddedunveiled.serial.util
 com.embeddedunveiled.serial.vendor
