@@ -112,7 +112,7 @@ public final class SerialComNullModem {
      * @return true on success.
      * @throws IOException if virtual null modem device pair can not be created.
      */
-    public boolean createStandardNullModemDevices(int deviceIndex1, int deviceIndex2) throws IOException {
+    public boolean createStandardNullModemPair(int deviceIndex1, int deviceIndex2) throws IOException {
         if(osType == SerialComManager.OS_LINUX) {
             if(deviceIndex1 == -1) {
                 if(deviceIndex2 == -1) {
@@ -150,19 +150,19 @@ public final class SerialComNullModem {
     /**
      * <p>Creates a virtual loop back device with given pin mappings.</p>
      * 
-     * <p>To connect RTS pin to CTS pin use RTSConnections = SerialComNullModem.SCM_CON_CTS. A pin can be 
+     * <p>To connect RTS pin to CTS pin use rtsMap = SerialComNullModem.SCM_CON_CTS. A pin can be 
      * connected to one or more pins using bit mask. For example to connect RTS pin to CTS and DSR use 
-     * RTSConnections = SerialComNullModem.SCM_CON_CTS | SerialComNullModem.SCM_CON_DSR.</p>
+     * rtsMap = SerialComNullModem.SCM_CON_CTS | SerialComNullModem.SCM_CON_DSR.</p>
      * 
      * @param deviceIndex -1 or valid device number (0 <= deviceIndex =< 65535).
-     * @param RTSConnections Bit mask of SerialComNullModem.SCM_CON_XXX constants as per the desired pin mappings 
+     * @param rtsMap Bit mask of SerialComNullModem.SCM_CON_XXX constants as per the desired pin mappings 
      *         or 0 if RTS pin should be left unconnected.
-     * @param DTRConnections Bit mask of SerialComNullModem.SCM_CON_XXX constants as per the desired pin mappings 
+     * @param dtrMap Bit mask of SerialComNullModem.SCM_CON_XXX constants as per the desired pin mappings 
      *         or 0 if DTR pin should be left unconnected.
      * @return true on success.
      * @throws IOException if the operation can not be completed successfully.
      */
-    public boolean createCustomLoopBackDevice(int deviceIndex, int RTSConnections, int DTRConnections) throws IOException {
+    public boolean createCustomLoopBackDevice(int deviceIndex, int rtsMap, int dtrMap) throws IOException {
         StringBuilder sb = new StringBuilder();
         if(osType == SerialComManager.OS_LINUX) {
             sb.append("genlb#");
@@ -179,28 +179,28 @@ public final class SerialComNullModem {
                 sb.append("#xxxxx#7-");
             }
 
-            if(RTSConnections == 0) {
+            if(rtsMap == 0) {
                 sb.append("x,x,x,x#4-");
             }else {
-                if((RTSConnections & SCM_CON_CTS) == SCM_CON_CTS) {
+                if((rtsMap & SCM_CON_CTS) == SCM_CON_CTS) {
                     sb.append(8);
                 }else {
                     sb.append("x");
                 }
                 sb.append(",");
-                if((RTSConnections & SCM_CON_DCD) == SCM_CON_DCD) {
+                if((rtsMap & SCM_CON_DCD) == SCM_CON_DCD) {
                     sb.append(1);
                 }else {
                     sb.append("x");
                 }
                 sb.append(",");
-                if((RTSConnections & SCM_CON_DSR) == SCM_CON_DSR) {
+                if((rtsMap & SCM_CON_DSR) == SCM_CON_DSR) {
                     sb.append(6);
                 }else {
                     sb.append("x");
                 }
                 sb.append(",");
-                if((RTSConnections & SCM_CON_RI) == SCM_CON_RI) {
+                if((rtsMap & SCM_CON_RI) == SCM_CON_RI) {
                     sb.append(9);
                 }else {
                     sb.append("x");
@@ -208,28 +208,28 @@ public final class SerialComNullModem {
                 sb.append("#4-");
             }
 
-            if(DTRConnections == 0) {
+            if(dtrMap == 0) {
                 sb.append("x,x,x,x");
             }else {
-                if((DTRConnections & SCM_CON_CTS) == SCM_CON_CTS) {
+                if((dtrMap & SCM_CON_CTS) == SCM_CON_CTS) {
                     sb.append(8);
                 }else {
                     sb.append("x");
                 }
                 sb.append(",");
-                if((DTRConnections & SCM_CON_DCD) == SCM_CON_DCD) {
+                if((dtrMap & SCM_CON_DCD) == SCM_CON_DCD) {
                     sb.append(1);
                 }else {
                     sb.append("x");
                 }
                 sb.append(",");
-                if((DTRConnections & SCM_CON_DSR) == SCM_CON_DSR) {
+                if((dtrMap & SCM_CON_DSR) == SCM_CON_DSR) {
                     sb.append(6);
                 }else {
                     sb.append("x");
                 }
                 sb.append(",");
-                if((DTRConnections & SCM_CON_RI) == SCM_CON_RI) {
+                if((dtrMap & SCM_CON_RI) == SCM_CON_RI) {
                     sb.append(9);
                 }else {
                     sb.append("x");
@@ -237,6 +237,170 @@ public final class SerialComNullModem {
             }
 
             sb.append("#x-x,x,x,x#x-x,x,x,x#y#y");
+        }
+
+        synchronized(lock) {
+            linuxVadaptOut.write(sb.toString().getBytes());
+        }
+
+        return true;
+    }
+
+    /**
+     * 
+     * @param idx1
+     * @param rtsMap1
+     * @param dtrMap1
+     * @param idx2
+     * @param rtsMap2
+     * @param dtrMap2
+     * @return
+     * @throws IOException
+     */
+    public boolean createStandardNullModemPair(int idx1, int rtsMap1, int dtrMap1, int idx2, int rtsMap2, int dtrMap2) throws IOException {
+        StringBuilder sb = new StringBuilder();
+        if(osType == SerialComManager.OS_LINUX) {
+            sb.append("gennm#");
+            if(idx1 < 0) {
+                if(idx1 != -1) {
+                    throw new IOException("deviceIndex should be -1 <= idx1 =< 65535 !");
+                }
+                sb.append("xxxxx");
+            }else {
+                if(idx1 > 65535) {
+                    throw new IOException("deviceIndex should be -1 <= idx1 =< 65535 !");
+                }
+                sb.append(String.format("%05d", idx1));
+            }
+            sb.append("#");
+            if(idx2 < 0) {
+                if(idx2 != -1) {
+                    throw new IOException("deviceIndex should be -1 <= idx2 =< 65535 !");
+                }
+                sb.append("xxxxx");
+            }else {
+                if(idx2 > 65535) {
+                    throw new IOException("deviceIndex should be -1 <= idx2 =< 65535 !");
+                }
+                sb.append(String.format("%05d", idx2));
+            }
+            sb.append("#7-");
+
+            if(rtsMap1 == 0) {
+                sb.append("x,x,x,x#4-");
+            }else {
+                if((rtsMap1 & SCM_CON_CTS) == SCM_CON_CTS) {
+                    sb.append(8);
+                }else {
+                    sb.append("x");
+                }
+                sb.append(",");
+                if((rtsMap1 & SCM_CON_DCD) == SCM_CON_DCD) {
+                    sb.append(1);
+                }else {
+                    sb.append("x");
+                }
+                sb.append(",");
+                if((rtsMap1 & SCM_CON_DSR) == SCM_CON_DSR) {
+                    sb.append(6);
+                }else {
+                    sb.append("x");
+                }
+                sb.append(",");
+                if((rtsMap1 & SCM_CON_RI) == SCM_CON_RI) {
+                    sb.append(9);
+                }else {
+                    sb.append("x");
+                }
+                sb.append("#4-");
+            }
+
+            if(dtrMap1 == 0) {
+                sb.append("x,x,x,x#7-");
+            }else {
+                if((dtrMap1 & SCM_CON_CTS) == SCM_CON_CTS) {
+                    sb.append(8);
+                }else {
+                    sb.append("x");
+                }
+                sb.append(",");
+                if((dtrMap1 & SCM_CON_DCD) == SCM_CON_DCD) {
+                    sb.append(1);
+                }else {
+                    sb.append("x");
+                }
+                sb.append(",");
+                if((dtrMap1 & SCM_CON_DSR) == SCM_CON_DSR) {
+                    sb.append(6);
+                }else {
+                    sb.append("x");
+                }
+                sb.append(",");
+                if((dtrMap1 & SCM_CON_RI) == SCM_CON_RI) {
+                    sb.append(9);
+                }else {
+                    sb.append("x");
+                }
+                sb.append("#7-");
+            }
+
+            if(rtsMap2 == 0) {
+                sb.append("x,x,x,x#4-");
+            }else {
+                if((rtsMap2 & SCM_CON_CTS) == SCM_CON_CTS) {
+                    sb.append(8);
+                }else {
+                    sb.append("x");
+                }
+                sb.append(",");
+                if((rtsMap2 & SCM_CON_DCD) == SCM_CON_DCD) {
+                    sb.append(1);
+                }else {
+                    sb.append("x");
+                }
+                sb.append(",");
+                if((rtsMap2 & SCM_CON_DSR) == SCM_CON_DSR) {
+                    sb.append(6);
+                }else {
+                    sb.append("x");
+                }
+                sb.append(",");
+                if((rtsMap2 & SCM_CON_RI) == SCM_CON_RI) {
+                    sb.append(9);
+                }else {
+                    sb.append("x");
+                }
+                sb.append("#4-");
+            }
+
+            if(dtrMap2 == 0) {
+                sb.append("x,x,x,x#y#y");
+            }else {
+                if((dtrMap2 & SCM_CON_CTS) == SCM_CON_CTS) {
+                    sb.append(8);
+                }else {
+                    sb.append("x");
+                }
+                sb.append(",");
+                if((dtrMap2 & SCM_CON_DCD) == SCM_CON_DCD) {
+                    sb.append(1);
+                }else {
+                    sb.append("x");
+                }
+                sb.append(",");
+                if((dtrMap2 & SCM_CON_DSR) == SCM_CON_DSR) {
+                    sb.append(6);
+                }else {
+                    sb.append("x");
+                }
+                sb.append(",");
+                if((dtrMap2 & SCM_CON_RI) == SCM_CON_RI) {
+                    sb.append(9);
+                }else {
+                    sb.append("x");
+                }
+                sb.append("#y#y");
+            }
         }
 
         synchronized(lock) {
@@ -313,7 +477,7 @@ public final class SerialComNullModem {
      * @return Device nodes of null modem pair on success otherwise null.
      * @throws IOException if the operation can not be completed for some reason.
      */
-    public String[] getLastNullModemDeviceNodes() throws IOException {
+    public String[] getLastNullModemDevicePairNodes() throws IOException {
         byte data[] = new byte[64];
         byte tmp1[] = new byte[5];
         byte tmp2[] = new byte[5];

@@ -43,25 +43,25 @@ public final class NullModemTest {
             }
 
             try {
-                scnm.createStandardNullModemDevices(-1, -1);
+                scnm.createStandardNullModemPair(-1, -1);
             }catch (Exception e) {
                 e.printStackTrace();
             }
 
             try {
-                scnm.createStandardNullModemDevices(-1, 2);
+                scnm.createStandardNullModemPair(-1, 2);
             }catch (Exception e) {
                 e.printStackTrace();
             }
 
             try {
-                scnm.createStandardNullModemDevices(7, -1);
+                scnm.createStandardNullModemPair(7, -1);
             }catch (Exception e) {
                 e.printStackTrace();
             }
 
             try {
-                scnm.createStandardNullModemDevices(9, 16);
+                scnm.createStandardNullModemPair(9, 16);
             }catch (Exception e) {
                 e.printStackTrace();
             }
@@ -73,7 +73,7 @@ public final class NullModemTest {
             }
 
             try {
-                String[] str = scnm.getLastNullModemDeviceNodes();
+                String[] str = scnm.getLastNullModemDevicePairNodes();
                 System.out.println("last null modem node : " + str[0] + "--" + str[1]);
             }catch (Exception e) {
                 e.printStackTrace();
@@ -117,6 +117,20 @@ public final class NullModemTest {
 
             try {
                 scnm.createCustomLoopBackDevice(29, SerialComNullModem.SCM_CON_CTS | SerialComNullModem.SCM_CON_DCD | SerialComNullModem.SCM_CON_DSR, 0);
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
+
+
+            try {
+                scnm.destroyVirtualSerialDevice(-1);
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            try {
+                scnm.createStandardNullModemPair(-1, SerialComNullModem.SCM_CON_CTS, SerialComNullModem.SCM_CON_DCD | SerialComNullModem.SCM_CON_DSR, 
+                        -1, SerialComNullModem.SCM_CON_CTS, SerialComNullModem.SCM_CON_DCD | SerialComNullModem.SCM_CON_DSR);
             }catch (Exception e) {
                 e.printStackTrace();
             }
