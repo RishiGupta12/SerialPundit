@@ -56,6 +56,18 @@ public final class SerialComNullModem {
      * Constant with value 0x0008. </p>*/
     public static final int SCM_CON_RI  = 0x0008;
 
+    /**<p> Bit mask bit specifying that a framing error should be emulated.</p> 
+     * Constant with value 0x0010. </p>*/
+    public static final int ERR_FRAME = 0x0010;
+
+    /**<p> Bit mask bit specifying that a parity error should be emulated.</p> 
+     * Constant with value 0x0020. </p>*/
+    public static final int ERR_PARITY = 0x0020;
+
+    /**<p> Bit mask bit specifying that a overrun error should be emulated.</p> 
+     * Constant with value 0x0040. </p>*/
+    public static final int ERR_OVERRUN = 0x0040;
+
     private final int osType;
     private FileOutputStream linuxVadaptOut;
     private FileInputStream linuxVadaptIn;
@@ -655,5 +667,45 @@ public final class SerialComNullModem {
             }
         }
         return list;
+    }
+
+    /**
+     * <p>Emulate the given line error (frame, parity or overrun) on given device.</p>
+     * 
+     * @param devNode virtual serial port which will receive this error event.
+     * @param error one of the constants SerialComNullModem.ERR_XXX.
+     * @return true if the given error has been emulated on given virtual serial port otherwise
+     *          false.
+     * @throws IOException if the operating system specific file is not found, writing to it fails 
+     *          or operation can not be completed due to some reason.
+     */
+    public boolean emulateLineError(final String devNode, int error) throws IOException {
+        if((devNode == null) || (devNode.length() == 0)) {
+            throw new IllegalArgumentException("The devNode can not be null or 0 length !");
+        }
+        if(osType == SerialComManager.OS_LINUX) {
+            // /sys/devices/virtual/tty/tty2com0/scmvtty_errevt/evt
+            StringBuilder sb = new StringBuilder();
+            sb.append("/sys/devices/virtual/tty/");
+            sb.append(devNode.substring(12));
+            sb.append("/scmvtty_errevt/evt");
+            try (FileOutputStream fout = new FileOutputStream(sb.toString())) {
+                if((error & ERR_FRAME) == ERR_FRAME) {
+                    fout.write("1".getBytes());
+                }else if((error & ERR_PARITY) == ERR_PARITY) {
+                    fout.write("2".getBytes());
+                }else if((error & ERR_OVERRUN) == ERR_OVERRUN) {
+                    fout.write("3".getBytes());
+                }else {
+                    fout.close();
+                    return false;
+                }
+                fout.close();
+            } catch (IOException e) {
+                throw e;
+            }
+        }
+
+        return true;
     }
 }
