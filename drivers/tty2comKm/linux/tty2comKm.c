@@ -49,8 +49,12 @@
 #define DRIVER_AUTHOR "Rishi Gupta"
 #define DRIVER_DESC "Serial port null modem emulation driver (kernel mode)"
 
-/* Default number of virtual tty ports this driver is going to support.
- * TTY devices are created on demand. */
+/* 
+ * Default number of virtual tty ports this driver is going to support.
+ * TTY devices are created on demand. Users can override this value at module load time for example 
+ * to support 5000 virtual devices :
+ * insmod ./tty2comKm.ko max_num_vtty_dev=5000
+ */
 #define VTTY_DEV_MAX 128
 
 /* Experimental range (major number of devices) */
@@ -1173,14 +1177,14 @@ static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *bu
     struct device *device1 = NULL;
     struct device *device2 = NULL;
 
-    if((length > 60) || (length < 63)) {
-        if(copy_from_user(data, buf, length) != 0) {
-            return -EFAULT;
-        }
-    }else if(length == 2) {
+    if(length == 2) {
         memcpy(data, "gennm#xxxxx#xxxxx#7-8,x,x,x#4-1,6,x,x#7-8,x,x,x#4-1,6,x,x#y#y", 61);
     }else if(length == 3) {
         memcpy(data, "genlb#xxxxx#xxxxx#7-8,x,x,x#4-1,6,x,x#x-x,x,x,x#x-x,x,x,x#y#x", 61);
+    }else if((length > 60) || (length < 63)) {
+        if(copy_from_user(data, buf, length) != 0) {
+            return -EFAULT;
+        }
     }else {
         return -EINVAL;
     }
@@ -1632,10 +1636,14 @@ static int __init scm_tty2comKm_init(void)
     /* If module was supplied parameters create null-modem and loopback virtual tty devices */
     if (((2 * init_num_nm_pair) + init_num_lb_dev) <= max_num_vtty_dev) {
         for(x=0; x < init_num_nm_pair; x++) {
-            scmtty_vadapt_proc_write(NULL, NULL, 2, NULL);
+            ret = scmtty_vadapt_proc_write(NULL, NULL, 2, NULL);
+            if(ret < 0)
+                printk(KERN_INFO "tty2comKm: failed to create null modem pair at index %d with error code %d\n", x, ret);
         }
         for(x=0; x < init_num_lb_dev; x++) {
-            scmtty_vadapt_proc_write(NULL, NULL, 3, NULL);
+            ret = scmtty_vadapt_proc_write(NULL, NULL, 3, NULL);
+            if(ret < 0)
+                printk(KERN_INFO "tty2comKm: failed to create loop back device at index %d with error code %d\n", x, ret);
         }
     }
 

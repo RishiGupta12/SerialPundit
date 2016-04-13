@@ -81,14 +81,27 @@ public final class SerialComNullModem {
      * <p>Create an instance of SerialComNullModem with given details.</p>
      *  
      * @param osType operating system this library is running on.
-     * @throws FileNotFoundException if the operating system and tty2comKm driver specific files are 
+     * @throws IOException if the operating system and tty2comKm driver specific files are 
      *          not found at the time this method is called.
      */
-    public SerialComNullModem(int osType) throws FileNotFoundException {
+    public SerialComNullModem(int osType) throws IOException {
         this.osType = osType;
         if(osType == SerialComManager.OS_LINUX) {
-            linuxVadaptOut = new FileOutputStream(new File("/proc/scmtty_vadaptkm"));
-            linuxVadaptIn = new FileInputStream(new File("/proc/scmtty_vadaptkm"));
+            try {
+                linuxVadaptOut = new FileOutputStream(new File("/proc/scmtty_vadaptkm"));
+            } catch(Exception e) {
+                throw e;
+            }
+            try {
+                linuxVadaptIn = new FileInputStream(new File("/proc/scmtty_vadaptkm"));
+            } catch(IOException e) {
+                try {
+                    linuxVadaptOut.close();
+                } catch (IOException e1) {
+                    throw e1;
+                }
+                throw e;
+            }
         }
         loopBackDevList = new TreeMap<Integer, String>();
         nullModemDevList = new TreeMap<Integer, String>();
@@ -697,10 +710,8 @@ public final class SerialComNullModem {
                 }else if((error & ERR_OVERRUN) == ERR_OVERRUN) {
                     fout.write("3".getBytes());
                 }else {
-                    fout.close();
                     return false;
                 }
-                fout.close();
             } catch (IOException e) {
                 throw e;
             }
@@ -734,7 +745,6 @@ public final class SerialComNullModem {
                 }else {
                     fout.write("5".getBytes());
                 }
-                fout.close();
             } catch (IOException e) {
                 throw e;
             }
