@@ -497,6 +497,9 @@ static void scmtty_close(struct tty_struct *tty, struct file *filp)
 
     tty_port_close(tty->port, tty, filp);
     mutex_unlock(&local_vttydev->lock);
+    
+    wake_up_interruptible(&tty->read_wait);
+    wake_up_interruptible(&tty->write_wait);
 }
 
 /* 
@@ -970,6 +973,9 @@ static int scmtty_break_ctl(struct tty_struct *tty, int state)
 /*
  * Invoked by tty layer to inform this driver that it should hangup the tty device 
  * (Lower modem control lines after last process closes the device).
+ *
+ * On the receiving end, if CLOCAL bit is set, DCD will be ignored otherwise SIGHUP 
+ * may be generated to indicate a line disconnect event.
  * 
  * @tty: tty device that has hung up
  */
