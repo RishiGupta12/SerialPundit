@@ -18,8 +18,6 @@
 
 package example;
 
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import com.embeddedunveiled.serial.ISerialComDataListener;
 import com.embeddedunveiled.serial.ISerialComUSBHotPlugListener;
@@ -29,157 +27,156 @@ import com.embeddedunveiled.serial.SerialComManager.DATABITS;
 import com.embeddedunveiled.serial.SerialComManager.FLOWCONTROL;
 import com.embeddedunveiled.serial.SerialComManager.PARITY;
 import com.embeddedunveiled.serial.SerialComManager.STOPBITS;
-import com.embeddedunveiled.serial.SerialComUtil;
+import com.embeddedunveiled.serial.util.SerialComUtil;
 import com.embeddedunveiled.serial.usb.SerialComUSB;
-
-/* Refer Readme.txt for details */
+import com.embeddedunveiled.serial.util.RingArrayBlockingQueue;
 
 /**
  * This class focuses on communicating data with serial port.
  */
 final class DataCommunicationHandler implements Runnable, ISerialComDataListener {
 
-	private final SerialComManager scm;
-	private final PortHandle phandle;
-	private final AtomicBoolean isDevConnected;
-	private final AtomicBoolean exitDataThread;
-	private final Object dataLock;
-	private final Object numByteLock;
-	private long comPortHandle;
-	private byte[] CMD = new byte[] { 0x41, 0x42, 0x43, 0x44, 0x45 };
-	private byte[] dataBuffer = new byte[32];
-	private int index = 0;
-	private int totalNumberOfBytesReadTillNow = 0;
-	private int q = 0;
+    private final SerialComManager scm;
+    private final PortHandle phandle;
+    private final AtomicBoolean isDevConnected;
+    private final AtomicBoolean exitDataThread;
+    private final Object dataLock;
+    private final Object numByteLock;
+    private long comPortHandle;
+    private byte[] CMD = new byte[] { 0x41, 0x42, 0x43, 0x44, 0x45 };
+    private byte[] dataBuffer = new byte[32];
+    private int index = 0;
+    private int totalNumberOfBytesReadTillNow = 0;
+    private int q = 0;
 
-	public DataCommunicationHandler(SerialComManager scm, AtomicBoolean exitDataThread, Object dataLock, 
-			AtomicBoolean isDevConnected, PortHandle phandle, Object numByteLock) {
-		this.scm = scm;
-		this.exitDataThread = exitDataThread;
-		this.dataLock = dataLock;
-		this.isDevConnected = isDevConnected;
-		this.phandle = phandle;
-		this.numByteLock = numByteLock;
-	}
+    public DataCommunicationHandler(SerialComManager scm, AtomicBoolean exitDataThread, Object dataLock, 
+            AtomicBoolean isDevConnected, PortHandle phandle, Object numByteLock) {
+        this.scm = scm;
+        this.exitDataThread = exitDataThread;
+        this.dataLock = dataLock;
+        this.isDevConnected = isDevConnected;
+        this.phandle = phandle;
+        this.numByteLock = numByteLock;
+    }
 
-	// In this run() method we can write our application logic, like process data received 
-	// from serial port and display result on screen or transmit it any radio.
-	// 1. When this thread should be terminated, other thread will make exitDataThread true.
-	// 2. This thread wait on dataLock until other thread notifies it. Typically when a serial 
-	// device is added USB thread will notify this thread.
-	// 3. When a serial device is removed, inner while loop will be stopped and this thread will
-	// wait in outer while loop using dataLock again until serial device is added in system again.
-	@Override
-	public void run() {
-		while(exitDataThread.get() == false) {
-			try {
-				synchronized(dataLock) {
-					dataLock.wait();
-				}
+    // In this run() method we can write our application logic, like process data received 
+    // from serial port and display result on screen or transmit it any radio.
+    // 1. When this thread should be terminated, other thread will make exitDataThread true.
+    // 2. This thread wait on dataLock until other thread notifies it. Typically when a serial 
+    // device is added USB thread will notify this thread.
+    // 3. When a serial device is removed, inner while loop will be stopped and this thread will
+    // wait in outer while loop using dataLock again until serial device is added in system again.
+    @Override
+    public void run() {
+        while(exitDataThread.get() == false) {
+            try {
+                synchronized(dataLock) {
+                    dataLock.wait();
+                }
 
-				// Check if this thread is asked to exit.
-				if(exitDataThread.get() == true) {
-					return;
-				}
+                // Check if this thread is asked to exit.
+                if(exitDataThread.get() == true) {
+                    return;
+                }
 
-				// Serial device is opened and closed by USB Hot plug thread. Handle of serial port
-				// is shared between two threads via PortHandle object.
-				comPortHandle = phandle.getComPortHandle();
+                // Serial device is opened and closed by USB Hot plug thread. Handle of serial port
+                // is shared between two threads via PortHandle object.
+                comPortHandle = phandle.getComPortHandle();
 
-				q = 0; // reset.
-				while(isDevConnected.get() == true) {
-					try {
-						// Try to send command to serial device (Host --> Device). There are reasons why this write may fail.
-						// (1) Serial device is unplugged. In this case, isDevConnected will be set to false and this while
-						// loop will be stopped. (2) Any I/O error occurs. In this case we try 10 times to send command to device
-						// and if we fail 10 times, we may treat it as fatal error and exit the application. Strategy to handle
-						// these 2 types of error is completely upto application developer.
-						if(q < 10) {
-							try {
-								scm.writeBytes(comPortHandle, CMD);
-							} catch (Exception e) {
-								System.out.println("Write status error : " + e.getMessage());
-								try {
-									// Give sufficient time to hot plug thread, so that it can detect and update variables to tell
-									// that device has been unplugged. This time can be tweaked as per application requirements.
-									Thread.sleep(200);
-								} catch(Exception e1) {
-								}
-								q++;
-								continue;
-							}
-						}else {
-							System.out.println("Number of tries to send command to serial device = " + q);
-							break;
-						}
+                q = 0; // reset.
+                while(isDevConnected.get() == true) {
+                    try {
+                        // Try to send command to serial device (Host --> Device). There are reasons why this write may fail.
+                        // (1) Serial device is unplugged. In this case, isDevConnected will be set to false and this while
+                        // loop will be stopped. (2) Any I/O error occurs. In this case we try 10 times to send command to device
+                        // and if we fail 10 times, we may treat it as fatal error and exit the application. Strategy to handle
+                        // these 2 types of error is completely upto application developer.
+                        if(q < 10) {
+                            try {
+                                scm.writeBytes(comPortHandle, CMD);
+                            } catch (Exception e) {
+                                System.out.println("Write status error : " + e.getMessage());
+                                try {
+                                    // Give sufficient time to hot plug thread, so that it can detect and update variables to tell
+                                    // that device has been unplugged. This time can be tweaked as per application requirements.
+                                    Thread.sleep(200);
+                                } catch(Exception e1) {
+                                }
+                                q++;
+                                continue;
+                            }
+                        }else {
+                            System.out.println("Number of tries to send command to serial device = " + q);
+                            break;
+                        }
 
-						// Wait till serial device sends 15 or more bytes to host.
-						synchronized(numByteLock) {
-							numByteLock.wait();
-						}
+                        // Wait till serial device sends 15 or more bytes to host.
+                        synchronized(numByteLock) {
+                            numByteLock.wait();
+                        }
 
-						// We were waiting for 15 bytes, but before they come serial device
-						// was removed, as a result of which numByteLock.notify was invoked.
-						// If came out if waiting due to device removal, break out of inner while loop.
-						if(isDevConnected.get() == false) {
-							break;
-						}
+                        // We were waiting for 15 bytes, but before they come serial device
+                        // was removed, as a result of which numByteLock.notify was invoked.
+                        // If came out if waiting due to device removal, break out of inner while loop.
+                        if(isDevConnected.get() == false) {
+                            break;
+                        }
 
-						// Print data received from serial port in hexadecimal format.
-						if(totalNumberOfBytesReadTillNow >= 15) {
-							System.out.println("Response read : " + SerialComUtil.byteArrayToHexString(dataBuffer, " "));
-						}
-					} catch (Exception e) {
-						// This e.printStackTrace is kept for application debugging only. It may be removed once
-						System.out.println("Read/Write status error : " + e.getMessage());
+                        // Print data received from serial port in hexadecimal format.
+                        if(totalNumberOfBytesReadTillNow >= 15) {
+                            System.out.println("Response read : " + SerialComUtil.byteArrayToHexString(dataBuffer, " "));
+                        }
+                    } catch (Exception e) {
+                        // This e.printStackTrace is kept for application debugging only. It may be removed once
+                        System.out.println("Read/Write status error : " + e.getMessage());
 
-						// Most probably user unplugged device, so let hot plug thread give chance to run and  
-						// update appropriate variables. This also handles the case where user plugs in device 
-						// and very soon unplugs it.
-						try {
-							Thread.sleep(300);
-						} catch (Exception e1) {
-						}
-					} 
-				}
-				System.out.println("Data exchange thread looping back to wait for device !");
-			} catch(Exception e) {
-				e.printStackTrace();
-			}
-		}
-		System.out.println("Data exchange thread exiting !");
-	}
+                        // Most probably user unplugged device, so let hot plug thread give chance to run and  
+                        // update appropriate variables. This also handles the case where user plugs in device 
+                        // and very soon unplugs it.
+                        try {
+                            Thread.sleep(300);
+                        } catch (Exception e1) {
+                        }
+                    } 
+                }
+                System.out.println("Data exchange thread looping back to wait for device !");
+            } catch(Exception e) {
+                e.printStackTrace();
+            }
+        }
+        System.out.println("Data exchange thread exiting !");
+    }
 
-	@Override
-	public void onDataListenerError(int errorNum) {
-		// Uncomment if you need this for your application design or debugging.
-		System.out.println("onDataListenerError : " + errorNum);
-	}
+    @Override
+    public void onDataListenerError(int errorNum) {
+        // Uncomment if you need this for your application design or debugging.
+        System.out.println("onDataListenerError : " + errorNum);
+    }
 
-	// This method is invoked by a dedicated native thread for this serial port.
-	@Override
-	public void onNewSerialDataAvailable(byte[] data) {
+    // This method is invoked by a dedicated native thread for this serial port.
+    @Override
+    public void onNewSerialDataAvailable(byte[] data) {
 
-		// Buffer data until 15 bytes has been received
-		if(totalNumberOfBytesReadTillNow < 15) {
-			for(int x=0; x < data.length; x++) {
-				dataBuffer[index] = data[x];
-				index++;
-			}
-			totalNumberOfBytesReadTillNow = totalNumberOfBytesReadTillNow + data.length;
-		}
+        // Buffer data until 15 bytes has been received
+        if(totalNumberOfBytesReadTillNow < 15) {
+            for(int x=0; x < data.length; x++) {
+                dataBuffer[index] = data[x];
+                index++;
+            }
+            totalNumberOfBytesReadTillNow = totalNumberOfBytesReadTillNow + data.length;
+        }
 
-		// If 15 (complete frame) or more bytes have been received, process them.
-		if(totalNumberOfBytesReadTillNow >= 15) {
-			synchronized(numByteLock) {
-				numByteLock.notify();
-			}
+        // If 15 (complete frame) or more bytes have been received, process them.
+        if(totalNumberOfBytesReadTillNow >= 15) {
+            synchronized(numByteLock) {
+                numByteLock.notify();
+            }
 
-			// reset for next iteration
-			index = 0;
-			totalNumberOfBytesReadTillNow = 0;
-		}
-	}
+            // reset for next iteration
+            index = 0;
+            totalNumberOfBytesReadTillNow = 0;
+        }
+    }
 }
 
 /** 
@@ -187,153 +184,153 @@ final class DataCommunicationHandler implements Runnable, ISerialComDataListener
  */
 final class ConcreteUSBHotPlugEventHandler implements Runnable, ISerialComUSBHotPlugListener {
 
-	/* MODIFY VID AND PID AS PER YOUR USB-UART DEVICE. This example is for FTDI FT232R. */
-//	private final int PRODUCT_VID = 0x0403; // FT232
-//	private final int PRODUCT_PID = 0x6001;
-//	private final int PRODUCT_VID = 0x10C4; // CP2102
-//	private final int PRODUCT_PID = 0xEA60;
-	private final int PRODUCT_VID = 0x04D8; // MCP2200
-	private final int PRODUCT_PID = 0x00DF;
-	/* ******************************************************************************** */
+    /* MODIFY VID AND PID AS PER YOUR USB-UART DEVICE. This example is for FTDI FT232R. */
+    //	private final int PRODUCT_VID = 0x0403; // FT232
+    //	private final int PRODUCT_PID = 0x6001;
+    //	private final int PRODUCT_VID = 0x10C4; // CP2102
+    //	private final int PRODUCT_PID = 0xEA60;
+    private final int PRODUCT_VID = 0x04D8; // MCP2200
+    private final int PRODUCT_PID = 0x00DF;
+    /* ******************************************************************************** */
 
-	private final SerialComManager scm;
-	private String[] comPorts;
-	private String openedComPortNode;
-	private DataCommunicationHandler dch;
-	private Thread dataCommunicatorThread;
-	private long comPortHandle = -1; // initial value.
-	private volatile PortHandle phandle; // declare volatile to make changes to this variable available immediately to other threads.
-	private int hotplugEvent;
-	private int eventSerialize = 1; // begin with add event.
-	private AtomicBoolean isDevConnected = new AtomicBoolean(false);
-	private final AtomicBoolean exitHotThread;
-	private AtomicBoolean exitDataThread = new AtomicBoolean(false);
-	private final Object lockApp;
-	private Object dataLock = new Object();
-	private final Object numByteLock = new Object();
-	private static BlockingQueue<Integer> mUSBhotplugEventQueue = new ArrayBlockingQueue<Integer>(1024);
+    private final SerialComManager scm;
+    private String[] comPorts;
+    private String openedComPortNode;
+    private DataCommunicationHandler dch;
+    private Thread dataCommunicatorThread;
+    private long comPortHandle = -1; // initial value.
+    private volatile PortHandle phandle; // declare volatile to make changes to this variable available immediately to other threads.
+    private int hotplugEvent;
+    private int eventSerialize = 1; // begin with add event.
+    private AtomicBoolean isDevConnected = new AtomicBoolean(false);
+    private final AtomicBoolean exitHotThread;
+    private AtomicBoolean exitDataThread = new AtomicBoolean(false);
+    private final Object lockApp;
+    private Object dataLock = new Object();
+    private final Object numByteLock = new Object();
+    private static RingArrayBlockingQueue<Integer> mUSBhotplugEventQueue = new RingArrayBlockingQueue<Integer>(1024);
 
-	public ConcreteUSBHotPlugEventHandler(AtomicBoolean exitHotThread, Object lockApp) throws Exception {
-		this.exitHotThread = exitHotThread;
-		this.lockApp = lockApp;
-		scm = new SerialComManager();
-	}
+    public ConcreteUSBHotPlugEventHandler(AtomicBoolean exitHotThread, Object lockApp) throws Exception {
+        this.exitHotThread = exitHotThread;
+        this.lockApp = lockApp;
+        scm = new SerialComManager();
+    }
 
-	// The onUSBHotPlugEvent() must return as soon as possible, therefore USB hot plug events are handled
-	// in a separate worker thread context. This just enqueues event and return to JNI layer.
-	@Override
-	public void onUSBHotPlugEvent(int event) {
-		try {
-			mUSBhotplugEventQueue.offer(event);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+    // The onUSBHotPlugEvent() must return as soon as possible, therefore USB hot plug events are handled
+    // in a separate worker thread context. This just enqueues event and return to JNI layer.
+    @Override
+    public void onUSBHotPlugEvent(int event, int usbvid, int usbpid, String serialNumber) {
+        try {
+            mUSBhotplugEventQueue.offer(event);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
-	// 1. If the device is added/removed after hot plug listener has been registered, it will 
-	//    be detected by hot plug listener.
-	// 2. If the hot plug listener has not started and device is added into system, it will be
-	//    detected by isUSBDevConnected() method.
-	// 3. In worst case race conditions if two add or two remove events get enqueued in queue,
-	//    they will be handled using eventSerialize variable.
-	// 4. If user plugs, unplugs and re-plugs device very fast, hotplug thread may detect all 
-	//    these events but data handler thread may not get chance to actually open device. This 
-	//    is handled by checking comPortHandle != -1 condition at appropriate places.
-	@Override
-	public void run() {
+    // 1. If the device is added/removed after hot plug listener has been registered, it will 
+    //    be detected by hot plug listener.
+    // 2. If the hot plug listener has not started and device is added into system, it will be
+    //    detected by isUSBDevConnected() method.
+    // 3. In worst case race conditions if two add or two remove events get enqueued in queue,
+    //    they will be handled using eventSerialize variable.
+    // 4. If user plugs, unplugs and re-plugs device very fast, hotplug thread may detect all 
+    //    these events but data handler thread may not get chance to actually open device. This 
+    //    is handled by checking comPortHandle != -1 condition at appropriate places.
+    @Override
+    public void run() {
 
-		// First register USB hot plug event listener and then enumerate devices. If the desired 
-		// USB CDC device is already connected to system insert an add event in queue.
-		try {
-			scm.registerUSBHotPlugEventListener(this, PRODUCT_VID, PRODUCT_PID, null);
-			if(scm.isUSBDevConnected(PRODUCT_VID, PRODUCT_PID, null)) {
-				mUSBhotplugEventQueue.offer(SerialComUSB.DEV_ADDED);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+        // First register USB hot plug event listener and then enumerate devices. If the desired 
+        // USB CDC device is already connected to system insert an add event in queue.
+        try {
+            scm.registerUSBHotPlugEventListener(this, PRODUCT_VID, PRODUCT_PID, null);
+            if(scm.isUSBDevConnected(PRODUCT_VID, PRODUCT_PID, null)) {
+                mUSBhotplugEventQueue.offer(SerialComUSB.DEV_ADDED);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-		// Keep looping until instructed to terminate this thread.
-		System.out.println("Application started !");
+        // Keep looping until instructed to terminate this thread.
+        System.out.println("Application started !");
 
-		phandle = new PortHandle(comPortHandle);
-		dch = new DataCommunicationHandler(scm, exitDataThread, dataLock, isDevConnected, phandle, numByteLock);
-		dataCommunicatorThread = new Thread(dch);
-		dataCommunicatorThread.start();
+        phandle = new PortHandle(comPortHandle);
+        dch = new DataCommunicationHandler(scm, exitDataThread, dataLock, isDevConnected, phandle, numByteLock);
+        dataCommunicatorThread = new Thread(dch);
+        dataCommunicatorThread.start();
 
-		// Keep looping until instructed to exit.
-		while(exitHotThread.get() == false) {
-			try {
-				// Until next USB hot plug event comes, this will block indefinitely.
-				hotplugEvent = mUSBhotplugEventQueue.take();
+        // Keep looping until instructed to exit.
+        while(exitHotThread.get() == false) {
+            try {
+                // Until next USB hot plug event comes, this will block indefinitely.
+                hotplugEvent = mUSBhotplugEventQueue.take();
 
-				if(hotplugEvent == SerialComUSB.DEV_ADDED) {
-					if((eventSerialize == 1) && (comPortHandle == -1)) {
-						// Give some time to operating system so that device nodes gets created 
-						// and given correct permissions.
-						Thread.sleep(500);
+                if(hotplugEvent == SerialComUSB.DEV_ADDED) {
+                    if((eventSerialize == 1) && (comPortHandle == -1)) {
+                        // Give some time to operating system so that device nodes gets created 
+                        // and given correct permissions.
+                        Thread.sleep(500);
 
-						comPorts = scm.findComPortFromUSBAttributes(PRODUCT_VID, PRODUCT_PID, null);
-						if(comPorts.length > 0) {
-							// Open and configure serial port.
-							openedComPortNode = comPorts[0];
-							System.out.println("Found serial port : " + openedComPortNode);
-							try {
-								comPortHandle = scm.openComPort(openedComPortNode, true, true, true);
-								scm.configureComPortData(comPortHandle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B9600, 0);
-								scm.configureComPortControl(comPortHandle, FLOWCONTROL.NONE, 'x', 'x', false, false);
-								phandle.setComPortHandle(comPortHandle);
+                        comPorts = scm.findComPortFromUSBAttributes(PRODUCT_VID, PRODUCT_PID, null);
+                        if(comPorts.length > 0) {
+                            // Open and configure serial port.
+                            openedComPortNode = comPorts[0];
+                            System.out.println("Found serial port : " + openedComPortNode);
+                            try {
+                                comPortHandle = scm.openComPort(openedComPortNode, true, true, true);
+                                scm.configureComPortData(comPortHandle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B9600, 0);
+                                scm.configureComPortControl(comPortHandle, FLOWCONTROL.NONE, 'x', 'x', false, false);
+                                phandle.setComPortHandle(comPortHandle);
 
-								// Update global connection state.
-								isDevConnected.set(true);
-								System.out.println("Opened serial port : " + openedComPortNode);
+                                // Update global connection state.
+                                isDevConnected.set(true);
+                                System.out.println("Opened serial port : " + openedComPortNode);
 
-								// after starting data communicator thread, register data listener.
-								scm.registerDataListener(comPortHandle, dch);
+                                // after starting data communicator thread, register data listener.
+                                scm.registerDataListener(comPortHandle, dch);
 
-								// specify remove as next event to execute.
-								eventSerialize = 0;
+                                // specify remove as next event to execute.
+                                eventSerialize = 0;
 
-								// Make data handler thread run and communicate with the serial device added.
-								synchronized(dataLock) {
-									dataLock.notify();
-								}
-							} catch (Exception e6) {
-								System.out.println("Open/Configure : " + e6.getMessage());
-							}
-						}
-					}
-				}else if(hotplugEvent == SerialComUSB.DEV_REMOVED) {
-					// If the device is unplugged from system, close handle.
-					if((eventSerialize == 0) && (comPortHandle != -1)) {
-						try {
-							isDevConnected.set(false);
-							synchronized(numByteLock) {
-								numByteLock.notify();
-							}
-							scm.unregisterDataListener(comPortHandle, dch);
-							scm.closeComPort(comPortHandle);
-							System.out.println("Closed serial port : " + openedComPortNode + "\n");
-						} catch (Exception e) {
-							// Closing port which no longer exist may throw exception. Just ignore it.
-							// We have to close the port to release resources.
-							System.out.println("Closing port after device removal error : " + e.getMessage());
-						}
-						// specify add as next event to execute.
-						comPortHandle = -1; // reset.
-						eventSerialize = 1; // specify add as next event to execute.
-					}
-				}else {
-					// do nothing.
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+                                // Make data handler thread run and communicate with the serial device added.
+                                synchronized(dataLock) {
+                                    dataLock.notify();
+                                }
+                            } catch (Exception e6) {
+                                System.out.println("Open/Configure : " + e6.getMessage());
+                            }
+                        }
+                    }
+                }else if(hotplugEvent == SerialComUSB.DEV_REMOVED) {
+                    // If the device is unplugged from system, close handle.
+                    if((eventSerialize == 0) && (comPortHandle != -1)) {
+                        try {
+                            isDevConnected.set(false);
+                            synchronized(numByteLock) {
+                                numByteLock.notify();
+                            }
+                            scm.unregisterDataListener(comPortHandle, dch);
+                            scm.closeComPort(comPortHandle);
+                            System.out.println("Closed serial port : " + openedComPortNode + "\n");
+                        } catch (Exception e) {
+                            // Closing port which no longer exist may throw exception. Just ignore it.
+                            // We have to close the port to release resources.
+                            System.out.println("Closing port after device removal error : " + e.getMessage());
+                        }
+                        // specify add as next event to execute.
+                        comPortHandle = -1; // reset.
+                        eventSerialize = 1; // specify add as next event to execute.
+                    }
+                }else {
+                    // do nothing.
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
 
-			// Knowingly give chance to other thread to run so that it can react to this event also as fast as possible.
-			Thread.yield();
-		}
-	}
+            // Knowingly give chance to other thread to run so that it can react to this event also as fast as possible.
+            Thread.yield();
+        }
+    }
 }
 
 /** 
@@ -341,19 +338,19 @@ final class ConcreteUSBHotPlugEventHandler implements Runnable, ISerialComUSBHot
  */
 public final class ComListenerDataReadApplication {
 
-	private static final Object lockApp = new Object();
-	private static AtomicBoolean exitHotThread = new AtomicBoolean(false);
+    private static final Object lockApp = new Object();
+    private static AtomicBoolean exitHotThread = new AtomicBoolean(false);
 
-	public static void main(String[] args) {
-		try {			
-			Thread t = new Thread( new ConcreteUSBHotPlugEventHandler(exitHotThread, lockApp));
-			t.start();
+    public static void main(String[] args) {
+        try {			
+            Thread t = new Thread( new ConcreteUSBHotPlugEventHandler(exitHotThread, lockApp));
+            t.start();
 
-			synchronized (lockApp) {
-				lockApp.wait();
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+            synchronized (lockApp) {
+                lockApp.wait();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }

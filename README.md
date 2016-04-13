@@ -27,7 +27,7 @@ It eliminates the complexities of serial port programming for different operatin
 - X/Y/Z FTP implemented with finite state machine.
 - Progress listener for GUI applications.
 - Both text and binary mode transfer can take place.
-- Abort command implmented to cancel transfer at any time.
+- Abort command support to cancel transfer at any time.
 - Send and receive in files in parallel.
 
 #####Vendor libraries integration
