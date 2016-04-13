@@ -632,4 +632,28 @@ public final class SerialComNullModem {
         }
         return list;
     }
+
+    /**
+     * <p>Returns list of virtual null modem device pairs created by tty2comKm driver and currently present 
+     * in system.</p>
+     * 
+     * @return list of virtual null modem devices created by tty2comKm driver and currently present in system 
+     *          or null if no null modem pair is created.
+     */
+    public String[] listNullModemDevicePairs() {
+        int x = 0;
+        String[] list = null;
+        synchronized(lock) {
+            int msize = nullModemDevList.size();
+            if(msize == 0) {
+                return null;
+            }
+            list = new String[msize];
+            for (Map.Entry<Integer, String> entry : nullModemDevList.entrySet()) {
+                list[x] = entry.getValue();
+                x++;
+            }
+        }
+        return list;
+    }
 }
