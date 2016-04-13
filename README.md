@@ -10,34 +10,51 @@ It is powerfully configurable for both poll and event driven application designs
 It eliminates the complexities of serial port programming for different operating systems, allowing engineers to concentrate on their application logic, facilitating faster engineering and development, reducing development cost and time to market.
 
 ##Features
-MODERN
+
+#####Serial over USB
 - Notification on USB Hotplug, calls listener whenever a USB-UART IC is added/removed.
 - Find COM port assigned to a USB device dynamically from USB-IF VID, PID and serial number.
 - Find information about all USB devices connected to system.
 - Custom baud rate setting and high baud rates (3 Mbps) settings supported.
-- Both polling based and event listener based data/event read supported.
-- IOCTL calls for GPIO control and power management.
-- USB HID class API for communicating with composite USB devices like MCP2200, CP2110 etc.
-- Find which driver is driving a particular serial port.
-- Completely port re-entrant, allowing it to be time-sliced.
 - USB power related information reporting like selective suspend or auto suspend.
-- Java NIO direct byte buffer API for faster data transfer.
 
-LEGACY
+#####Legacy
 - Access to EIA232 standard DTR, CD, CTS, RTS and DSR signals.
 - Hardware and software flow-control options.
+- Data and event listeners callbacks.
 
-OTHERS
+#####File transfer protocols
+- X/Y/Z FTP implemented with finite state machine.
+- Progress listener for GUI applications.
+- Both text and binary mode transfer can take place.
+- Abort command implmented to cancel transfer at any time.
+- Send and receive in files in parallel.
+
+#####Vendor libraries integration
 - Vendor libraries like D2XX from ftdi, SimpleIO from microchip, USBXpress from silicon labs etc supported.
-- X/Y/Z FTP API with finite state machine, progress listener for GUI applications, text/binary mode, abort command and send/receive in parallel.
+
+#####Feature rich
+- Java NIO direct byte buffer API for faster data transfer.
+- Both polling based and event listener based data/event read supported.
+- IOCTL calls for GPIO control and power management.
+- Find which driver is driving a particular serial port.
+- Completely port re-entrant, allowing it to be time-sliced.
 - Extraction of shared libraries at user defined locations for isolated environment and security.
 - Input and Output byte stream (blocking and non-blocking) for serial port communication.
 - CRC and other utility class for common functions for quick application development.
 - Optimized read and write methods for single byte, multiple byte or string sending/receiving.
-
-PROJECT
-- Functional, stress, stability, unit tested (Junit for continuous integration).
 - Application specific parameters tuning for performance with and without modification of drivers.
+
+#####HID (human interface device)
+- HID class API for communicating with composite USB devices like MCP2200, CP2110 etc.
+- Dynamically find HID devices or get hotplug event notifications.
+
+#####Cloud and IoT ready
+
+- Easily integrate into existing application server software like Apache mina etc.
+
+#####Build for performance and quality
+- Functional, stress, stability, unit tested (Junit for continuous integration).
 - Maven repository release for maven integration.
 - Extensive error detection and handling for reliable operations.
 - Fully Optimized for power, performance and memory.
@@ -48,7 +65,7 @@ PROJECT
 ##Drivers and Services
 
 #####Null modem emulator
-- [Feature](drivers) rich null modem emulation driver supporting null modem, loopback, custom pinout and dynamic virtual serial port creation.
+- [Feature](drivers) rich null modem emulation driver supporting null modem, loopback, custom pinout and dynamic virtual serial port creation. Corresponding Java API provided to control virtual serial devices from Java application.
 
 #####Usb-uart
 - [Driver](drivers) for cp210x IC and products based on it with access to GPIO, IOCTL support, configuration scripts etc.

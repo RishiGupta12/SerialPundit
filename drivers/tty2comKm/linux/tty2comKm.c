@@ -1215,6 +1215,8 @@ static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *bu
             ret = kstrtouint(tmp, 10, &vdev1idx);
             if(ret != 0) 
                 return ret;
+            if((vdev1idx < 0) || (vdev1idx > 65535))
+                return -EINVAL;
         }
 
         vttydev1 = (struct vtty_dev *) kcalloc(1, sizeof(struct vtty_dev), GFP_KERNEL);
@@ -1242,6 +1244,11 @@ static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *bu
                 ret = kstrtouint(tmp, 10, &vdev2idx);
                 if(ret != 0)
                     return ret;
+                if((vdev2idx < 0) || (vdev2idx > 65535)) {
+                    ret = -EINVAL;
+                    goto fail_arg;
+                }
+
             }
 
             vttydev2 = (struct vtty_dev *) kcalloc(1, sizeof(struct vtty_dev), GFP_KERNEL);
@@ -1489,7 +1496,7 @@ static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *bu
     fail_register:
     sysfs_remove_group(&device1->kobj, &scmvtty_error_events_attr_group);
     tty_unregister_device(scmtty_driver, i);
-    
+
     fail_arg:
     index_manager[i].index = -1;
     if(vttydev2 != NULL)
