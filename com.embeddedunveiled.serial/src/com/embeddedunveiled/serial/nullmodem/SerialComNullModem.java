@@ -708,4 +708,38 @@ public final class SerialComNullModem {
 
         return true;
     }
+
+    /**
+     * <p>Emulate line ringing event on given device node.</p>
+     * 
+     * @param devNode device node which will observe ringing conditions.
+     * @param state true if ringing event should be asserted or false for de-assertion.
+     * @return true on success.
+     * @throws IOException if the operating system specific file is not found, writing to it fails 
+     *          or operation can not be completed due to some reason.
+     */
+    public boolean emulateLineRingingEvent(final String devNode, boolean state) throws IOException {
+        if((devNode == null) || (devNode.length() == 0)) {
+            throw new IllegalArgumentException("The devNode can not be null or 0 length !");
+        }
+        if(osType == SerialComManager.OS_LINUX) {
+            // /sys/devices/virtual/tty/tty2com0/scmvtty_errevt/evt
+            StringBuilder sb = new StringBuilder();
+            sb.append("/sys/devices/virtual/tty/");
+            sb.append(devNode.substring(12));
+            sb.append("/scmvtty_errevt/evt");
+            try (FileOutputStream fout = new FileOutputStream(sb.toString())) {
+                if(state == true) {
+                    fout.write("4".getBytes());
+                }else {
+                    fout.write("5".getBytes());
+                }
+                fout.close();
+            } catch (IOException e) {
+                throw e;
+            }
+        }
+
+        return true;
+    }
 }
