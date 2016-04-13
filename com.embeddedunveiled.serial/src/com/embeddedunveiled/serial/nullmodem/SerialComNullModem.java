@@ -20,12 +20,10 @@ package com.embeddedunveiled.serial.nullmodem;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Map;
 import java.util.TreeMap;
-
 import com.embeddedunveiled.serial.SerialComManager;
 
 /**
@@ -750,6 +748,34 @@ public final class SerialComNullModem {
             }
         }
 
+        return true;
+    }
+
+    /**
+     * <p>Releases operating system specific resources acquired to carry out virtual device related
+     * operations. Applications must call this method when this class is no longer required.</p>
+     * 
+     * @return true on success.
+     * @throws IOException if the resources can not be released.
+     */
+    public boolean releaseResources() throws IOException {
+        if(osType == SerialComManager.OS_LINUX) {
+            try {
+                linuxVadaptOut.close();
+            } catch (IOException e) {
+                try {
+                    linuxVadaptIn.close();
+                } catch (IOException e1) {
+                    throw e1;
+                }
+                throw e;
+            }
+            try {
+                linuxVadaptIn.close();
+            } catch (IOException e) {
+                throw e;
+            }
+        }
         return true;
     }
 }
