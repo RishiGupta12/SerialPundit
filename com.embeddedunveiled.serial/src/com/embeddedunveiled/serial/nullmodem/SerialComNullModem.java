@@ -22,6 +22,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Map;
+import java.util.TreeMap;
 
 import com.embeddedunveiled.serial.SerialComManager;
 
@@ -54,6 +56,9 @@ public final class SerialComNullModem {
     private FileInputStream linuxVadaptIn;
     private final Object lock = new Object();
 
+    // creation of devices, removal of devices and modification to this map is synchronized.
+    private final TreeMap<Integer, String> loopBackDevList;
+
     public SerialComNullModem(int osType) {
         this.osType = osType;
         if(osType == SerialComManager.OS_LINUX) {
@@ -64,6 +69,7 @@ public final class SerialComNullModem {
                 e.printStackTrace();
             }
         }
+        loopBackDevList = new TreeMap<Integer, String>();
     }
 
     /**
@@ -76,25 +82,37 @@ public final class SerialComNullModem {
      * will create /dev/tty2comXX where XX is the next free number managed by the driver internally.</p>
      * 
      * @param deviceIndex -1 or valid device number (0 <= deviceIndex =< 65535).
-     * @return true on success.
-     * @throws IOException if virtual loop back device can not be created.
+     * @return Created virtual loop back device's node on success.
+     * @throws IOException if virtual loop back device can not be created,
+     *          IllegalArgumentException if deviceIndex is invalid.
      */
-    public boolean createStandardLoopBackDevice(int deviceIndex) throws IOException {
+    public String createStandardLoopBackDevice(int deviceIndex) throws IOException {
+        byte[] cmd = null;
+        String lbdev = null;
         if(osType == SerialComManager.OS_LINUX) {
             if(deviceIndex == -1) {
-                linuxVadaptOut.write("genlb#xxxxx#xxxxx#7-8,x,x,x#4-1,6,x,x#x-x,x,x,x#x-x,x,x,x#y#y".getBytes());
+                cmd = "genlb#xxxxx#xxxxx#7-8,x,x,x#4-1,6,x,x#x-x,x,x,x#x-x,x,x,x#y#y".getBytes();
             }else {
                 if((deviceIndex < 0) || (deviceIndex > 65535)) {
-                    throw new IOException("deviceIndex should be 0 <= deviceIndex =< 65535 !");
+                    throw new IllegalArgumentException("deviceIndex should be -1 <= deviceIndex =< 65535 !");
                 }
-                String cmd = "genlb#".concat(String.format("%05d", deviceIndex));
-                cmd = cmd.concat("#xxxxx#7-8,x,x,x#4-1,6,x,x#x-x,x,x,x#x-x,x,x,x#y#y");
-                synchronized(lock) {
-                    linuxVadaptOut.write(cmd.getBytes());
-                }
+                String cmdd = "genlb#".concat(String.format("%05d", deviceIndex));
+                cmdd = cmdd.concat("#xxxxx#7-8,x,x,x#4-1,6,x,x#x-x,x,x,x#x-x,x,x,x#y#y");
+                cmd = cmdd.getBytes();
             }
         }
-        return true;
+
+        synchronized(lock) {
+            linuxVadaptOut.write(cmd);
+            lbdev = getLastLoopBackDeviceNode();
+            if(deviceIndex == -1) {
+                int idx = Integer.parseInt(lbdev.substring(12), 10);
+                loopBackDevList.put(idx, lbdev);
+            }else {
+                loopBackDevList.put(deviceIndex, lbdev);
+            }
+        }
+        return lbdev;
     }
 
     /**
@@ -110,7 +128,8 @@ public final class SerialComNullModem {
      * @param deviceIndex1 -1 or valid device number (0 <= deviceIndex1 =< 65535).
      * @param deviceIndex2 -1 or valid device number (0 <= deviceIndex1 =< 65535).
      * @return true on success.
-     * @throws IOException if virtual null modem device pair can not be created.
+     * @throws IOException if virtual null modem device pair can not be created,
+     *          IllegalArgumentException if deviceIndex1/2 is invalid.
      */
     public boolean createStandardNullModemPair(int deviceIndex1, int deviceIndex2) throws IOException {
         if(osType == SerialComManager.OS_LINUX) {
@@ -120,6 +139,9 @@ public final class SerialComNullModem {
                         linuxVadaptOut.write("gennm#xxxxx#xxxxx#7-8,x,x,x#4-1,6,x,x#7-8,x,x,x#4-1,6,x,x#y#y".getBytes());
                     }
                 }else {
+                    if((deviceIndex2 < 0) || (deviceIndex2 > 65535)) {
+                        throw new IllegalArgumentException("deviceIndex2 should be -1 <= deviceIndex2 =< 65535 !");
+                    }
                     String cmd = "gennm#xxxxx#".concat(String.format("%05d", deviceIndex2));
                     cmd = cmd.concat("#7-8,x,x,x#4-1,6,x,x#7-8,x,x,x#4-1,6,x,x#y#y");
                     synchronized(lock) {
@@ -134,6 +156,9 @@ public final class SerialComNullModem {
                         linuxVadaptOut.write(cmd.getBytes());
                     }
                 }else {
+                    if((deviceIndex1 < 0) || (deviceIndex1 > 65535)) {
+                        throw new IllegalArgumentException("deviceIndex1 should be -1 <= deviceIndex1 =< 65535 !");
+                    }
                     String cmd = "gennm#".concat(String.format("%05d", deviceIndex1));
                     cmd = cmd.concat("#");
                     cmd = cmd.concat(String.format("%05d", deviceIndex2));
@@ -159,21 +184,23 @@ public final class SerialComNullModem {
      *         or 0 if RTS pin should be left unconnected.
      * @param dtrMap Bit mask of SerialComNullModem.SCM_CON_XXX constants as per the desired pin mappings 
      *         or 0 if DTR pin should be left unconnected.
-     * @return true on success.
-     * @throws IOException if the operation can not be completed successfully.
+     * @return Created virtual loop back device's node on success.
+     * @throws IOException if the operation can not be completed successfully,
+     *          IllegalArgumentException if invalid deviceIndex is supplied.
      */
-    public boolean createCustomLoopBackDevice(int deviceIndex, int rtsMap, int dtrMap) throws IOException {
+    public String createCustomLoopBackDevice(int deviceIndex, int rtsMap, int dtrMap) throws IOException {
+        String lbdev = null;
         StringBuilder sb = new StringBuilder();
         if(osType == SerialComManager.OS_LINUX) {
             sb.append("genlb#");
             if(deviceIndex < 0) {
                 if(deviceIndex != -1) {
-                    throw new IOException("deviceIndex should be -1 <= deviceIndex =< 65535 !");
+                    throw new IllegalArgumentException("Argument deviceIndex should be -1 <= deviceIndex =< 65535 !");
                 }
                 sb.append("xxxxx#xxxxx#7-");
             }else {
                 if(deviceIndex > 65535) {
-                    throw new IOException("deviceIndex should be -1 <= deviceIndex =< 65535 !");
+                    throw new IllegalArgumentException("Argument deviceIndex should be -1 <= deviceIndex =< 65535 !");
                 }
                 sb.append(String.format("%05d", deviceIndex));
                 sb.append("#xxxxx#7-");
@@ -241,9 +268,16 @@ public final class SerialComNullModem {
 
         synchronized(lock) {
             linuxVadaptOut.write(sb.toString().getBytes());
+            lbdev = getLastLoopBackDeviceNode();
+            if(deviceIndex == -1) {
+                int idx = Integer.parseInt(lbdev.substring(12), 10);
+                loopBackDevList.put(idx, lbdev);
+            }else {
+                loopBackDevList.put(deviceIndex, lbdev);
+            }
         }
 
-        return true;
+        return lbdev;
     }
 
     /**
@@ -256,6 +290,7 @@ public final class SerialComNullModem {
      * @param dtrMap2
      * @return
      * @throws IOException
+     *          IllegalArgumentException if invalid idx1/2 is supplied.
      */
     public boolean createStandardNullModemPair(int idx1, int rtsMap1, int dtrMap1, int idx2, int rtsMap2, int dtrMap2) throws IOException {
         StringBuilder sb = new StringBuilder();
@@ -263,24 +298,24 @@ public final class SerialComNullModem {
             sb.append("gennm#");
             if(idx1 < 0) {
                 if(idx1 != -1) {
-                    throw new IOException("deviceIndex should be -1 <= idx1 =< 65535 !");
+                    throw new IllegalArgumentException("Argument idx1 should be -1 <= idx1 =< 65535 !");
                 }
                 sb.append("xxxxx");
             }else {
                 if(idx1 > 65535) {
-                    throw new IOException("deviceIndex should be -1 <= idx1 =< 65535 !");
+                    throw new IllegalArgumentException("Argument idx1 should be -1 <= idx1 =< 65535 !");
                 }
                 sb.append(String.format("%05d", idx1));
             }
             sb.append("#");
             if(idx2 < 0) {
                 if(idx2 != -1) {
-                    throw new IOException("deviceIndex should be -1 <= idx2 =< 65535 !");
+                    throw new IllegalArgumentException("Argument idx2 should be -1 <= idx2 =< 65535 !");
                 }
                 sb.append("xxxxx");
             }else {
                 if(idx2 > 65535) {
-                    throw new IOException("deviceIndex should be -1 <= idx2 =< 65535 !");
+                    throw new IllegalArgumentException("Argument idx2 should be -1 <= idx2 =< 65535 !");
                 }
                 sb.append(String.format("%05d", idx2));
             }
@@ -417,13 +452,14 @@ public final class SerialComNullModem {
      * 
      * @param atIndex -1 if all devices are to be destroyed or valid device number.
      * @return true on success.
-     * @throws IOException if the operation can not be completed due to some reason.
+     * @throws IOException if the operation can not be completed due to some reason,
+     *          IllegalArgumentException if invalid atIndex is supplied.
      */
     public boolean destroyVirtualSerialDevice(int atIndex) throws IOException {
         if(osType == SerialComManager.OS_LINUX) {
             if(atIndex < 0) {
                 if(atIndex != -1) {
-                    throw new IOException("If atIndex is negative, it has to be -1 only !");
+                    throw new IllegalArgumentException("Argument atIndex is negative, it has to be -1 only !");
                 }else {
                     synchronized(lock) {
                         linuxVadaptOut.write("del#xxxxx#xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx".getBytes());
@@ -432,7 +468,7 @@ public final class SerialComNullModem {
             }
             else {
                 if((atIndex > 65535)) {
-                    throw new IOException("The atIndex can be -1 <= atIndex =< 65535 !");
+                    throw new IllegalArgumentException("Argument atIndex can be -1 <= atIndex =< 65535 !");
                 }else {
                     String cmd = "del#".concat(String.format("%05d", atIndex));
                     cmd = cmd.concat("#xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
@@ -456,9 +492,7 @@ public final class SerialComNullModem {
         byte tmp[] = new byte[5];
 
         if(osType == SerialComManager.OS_LINUX) {
-            synchronized(lock) {
-                linuxVadaptIn.read(data); // 00002#00009-00016
-            }
+            linuxVadaptIn.read(data); // 00002#00009-00016
             for(int q=0; q<5; q++) {
                 tmp[q] = data[q];
             }
@@ -483,9 +517,7 @@ public final class SerialComNullModem {
         byte tmp2[] = new byte[5];
 
         if(osType == SerialComManager.OS_LINUX) {
-            synchronized(lock) {
-                linuxVadaptIn.read(data); // 00002#00009-00016
-            }
+            linuxVadaptIn.read(data);
             for(int q=0; q<5; q++) {
                 tmp1[q] = data[q + 6];
             }
@@ -506,5 +538,28 @@ public final class SerialComNullModem {
             return nodes;
         }
         return null;
+    }
+
+    /**
+     * <p>Returns list of virtual loop back devices created by tty2comKm driver and currently present in system.</p>
+     * 
+     * @return list of virtual loop back devices created by tty2comKm driver and currently present in system or 
+     *          null if no loop back device is created.
+     */
+    public String[] listLoopBackDevices() {
+        int x = 0;
+        String[] list = null;
+        synchronized(lock) {
+            int msize = loopBackDevList.size();
+            if(msize == 0) {
+                return null;
+            }
+            list = new String[msize];
+            for (Map.Entry<Integer, String> entry : loopBackDevList.entrySet()) {
+                list[x] = entry.getValue();
+                x++;
+            }
+        }
+        return list;
     }
 }
