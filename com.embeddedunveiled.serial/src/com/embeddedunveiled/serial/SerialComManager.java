@@ -2895,8 +2895,10 @@ public final class SerialComManager {
 	 * loop back and custom pinout connected virtual serial devices.</p>
 	 * 
 	 * @return an instance of SerialComNullModem.
+	 * @throws IOException if the oprating system specific files corresponding to tty2comKm driver is not 
+	 *          found.
 	 */
-	public SerialComNullModem getSerialComNullModemInstance() {
+	public SerialComNullModem getSerialComNullModemInstance() throws IOException {
 	    if(mSerialComNullModem == null) {
 	        mSerialComNullModem = new SerialComNullModem(osType);
 	    }
