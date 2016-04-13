@@ -20,6 +20,7 @@ package com.embeddedunveiled.serial.nullmodem;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Map;
@@ -34,6 +35,10 @@ import com.embeddedunveiled.serial.SerialComManager;
  * @author Rishi Gupta
  */
 public final class SerialComNullModem {
+
+    /**<p> Bit mask bit specifying that the given pin should be left unconnected.</p> 
+     * Constant with value 0x0000. </p>*/
+    public static final int SCM_CON_NONE = 0x0000;
 
     /**<p> Bit mask bit specifying that the given pin should be connected to CTS pin of other end. 
      * Constant with value 0x0001. </p>*/
@@ -56,20 +61,25 @@ public final class SerialComNullModem {
     private FileInputStream linuxVadaptIn;
     private final Object lock = new Object();
 
-    // creation of devices, removal of devices and modification to this map is synchronized.
+    // creation of devices, removal of devices and modification to these maps is synchronized.
     private final TreeMap<Integer, String> loopBackDevList;
+    private final TreeMap<Integer, String> nullModemDevList;
 
-    public SerialComNullModem(int osType) {
+    /**
+     * <p>Create an instance of SerialComNullModem with given details.</p>
+     *  
+     * @param osType operating system this library is running on.
+     * @throws FileNotFoundException if the operating system and tty2comKm driver specific files are 
+     *          not found at the time this method is called.
+     */
+    public SerialComNullModem(int osType) throws FileNotFoundException {
         this.osType = osType;
         if(osType == SerialComManager.OS_LINUX) {
-            try {
-                linuxVadaptOut = new FileOutputStream(new File("/proc/scmtty_vadaptkm"));
-                linuxVadaptIn = new FileInputStream(new File("/proc/scmtty_vadaptkm"));
-            }catch (Exception e) {
-                e.printStackTrace();
-            }
+            linuxVadaptOut = new FileOutputStream(new File("/proc/scmtty_vadaptkm"));
+            linuxVadaptIn = new FileInputStream(new File("/proc/scmtty_vadaptkm"));
         }
         loopBackDevList = new TreeMap<Integer, String>();
+        nullModemDevList = new TreeMap<Integer, String>();
     }
 
     /**
@@ -100,18 +110,18 @@ public final class SerialComNullModem {
                 cmdd = cmdd.concat("#xxxxx#7-8,x,x,x#4-1,6,x,x#x-x,x,x,x#x-x,x,x,x#y#y");
                 cmd = cmdd.getBytes();
             }
-        }
-
-        synchronized(lock) {
-            linuxVadaptOut.write(cmd);
-            lbdev = getLastLoopBackDeviceNode();
-            if(deviceIndex == -1) {
-                int idx = Integer.parseInt(lbdev.substring(12), 10);
-                loopBackDevList.put(idx, lbdev);
-            }else {
-                loopBackDevList.put(deviceIndex, lbdev);
+            synchronized(lock) {
+                linuxVadaptOut.write(cmd);
+                lbdev = getLastLoopBackDeviceNode();
+                if(deviceIndex == -1) {
+                    int idx = Integer.parseInt(lbdev.substring(12), 10);
+                    loopBackDevList.put(idx, lbdev);
+                }else {
+                    loopBackDevList.put(deviceIndex, lbdev);
+                }
             }
         }
+
         return lbdev;
     }
 
@@ -127,49 +137,54 @@ public final class SerialComNullModem {
      * 
      * @param deviceIndex1 -1 or valid device number (0 <= deviceIndex1 =< 65535).
      * @param deviceIndex2 -1 or valid device number (0 <= deviceIndex1 =< 65535).
-     * @return true on success.
+     * @return Created virtual null modem pair device's node on success.
      * @throws IOException if virtual null modem device pair can not be created,
      *          IllegalArgumentException if deviceIndex1/2 is invalid.
      */
-    public boolean createStandardNullModemPair(int deviceIndex1, int deviceIndex2) throws IOException {
+    public String[] createStandardNullModemPair(int deviceIndex1, int deviceIndex2) throws IOException {
+        byte[] cmd = null;
+        String[] nmdevs = null;
         if(osType == SerialComManager.OS_LINUX) {
             if(deviceIndex1 == -1) {
                 if(deviceIndex2 == -1) {
-                    synchronized(lock) {
-                        linuxVadaptOut.write("gennm#xxxxx#xxxxx#7-8,x,x,x#4-1,6,x,x#7-8,x,x,x#4-1,6,x,x#y#y".getBytes());
-                    }
+                    cmd = "gennm#xxxxx#xxxxx#7-8,x,x,x#4-1,6,x,x#7-8,x,x,x#4-1,6,x,x#y#y".getBytes();
                 }else {
                     if((deviceIndex2 < 0) || (deviceIndex2 > 65535)) {
                         throw new IllegalArgumentException("deviceIndex2 should be -1 <= deviceIndex2 =< 65535 !");
                     }
-                    String cmd = "gennm#xxxxx#".concat(String.format("%05d", deviceIndex2));
-                    cmd = cmd.concat("#7-8,x,x,x#4-1,6,x,x#7-8,x,x,x#4-1,6,x,x#y#y");
-                    synchronized(lock) {
-                        linuxVadaptOut.write(cmd.getBytes());
-                    }
+                    String cmdd = "gennm#xxxxx#".concat(String.format("%05d", deviceIndex2));
+                    cmdd = cmdd.concat("#7-8,x,x,x#4-1,6,x,x#7-8,x,x,x#4-1,6,x,x#y#y");
+
                 }
             }else {
                 if(deviceIndex2 == -1) {
-                    String cmd = "gennm#".concat(String.format("%05d", deviceIndex1));
-                    cmd = cmd.concat("#xxxxx#7-8,x,x,x#4-1,6,x,x#7-8,x,x,x#4-1,6,x,x#y#y");
-                    synchronized(lock) {
-                        linuxVadaptOut.write(cmd.getBytes());
-                    }
+                    String cmdd = "gennm#".concat(String.format("%05d", deviceIndex1));
+                    cmdd = cmdd.concat("#xxxxx#7-8,x,x,x#4-1,6,x,x#7-8,x,x,x#4-1,6,x,x#y#y");
+                    cmd = cmdd.getBytes();
                 }else {
                     if((deviceIndex1 < 0) || (deviceIndex1 > 65535)) {
                         throw new IllegalArgumentException("deviceIndex1 should be -1 <= deviceIndex1 =< 65535 !");
                     }
-                    String cmd = "gennm#".concat(String.format("%05d", deviceIndex1));
-                    cmd = cmd.concat("#");
-                    cmd = cmd.concat(String.format("%05d", deviceIndex2));
-                    cmd = cmd.concat("#7-8,x,x,x#4-1,6,x,x#7-8,x,x,x#4-1,6,x,x#y#y");
-                    synchronized(lock) {
-                        linuxVadaptOut.write(cmd.getBytes());
-                    }
+                    String cmdd = "gennm#".concat(String.format("%05d", deviceIndex1));
+                    cmdd = cmdd.concat("#");
+                    cmdd = cmdd.concat(String.format("%05d", deviceIndex2));
+                    cmdd = cmdd.concat("#7-8,x,x,x#4-1,6,x,x#7-8,x,x,x#4-1,6,x,x#y#y");
+                    cmd = cmdd.getBytes();
                 }
             }
+            synchronized(lock) {
+                linuxVadaptOut.write(cmd);
+                nmdevs = getLastNullModemDevicePairNodes();
+                int idx = Integer.parseInt(nmdevs[0].substring(12), 10);
+                StringBuilder sb = new StringBuilder();
+                sb.append(nmdevs[0]);
+                sb.append(" <=> ");
+                sb.append(nmdevs[1]);
+                nullModemDevList.put(idx, sb.toString());
+            }
         }
-        return true;
+
+        return nmdevs;
     }
 
     /**
@@ -206,7 +221,7 @@ public final class SerialComNullModem {
                 sb.append("#xxxxx#7-");
             }
 
-            if(rtsMap == 0) {
+            if(rtsMap == SCM_CON_NONE) {
                 sb.append("x,x,x,x#4-");
             }else {
                 if((rtsMap & SCM_CON_CTS) == SCM_CON_CTS) {
@@ -235,7 +250,7 @@ public final class SerialComNullModem {
                 sb.append("#4-");
             }
 
-            if(dtrMap == 0) {
+            if(dtrMap == SCM_CON_NONE) {
                 sb.append("x,x,x,x");
             }else {
                 if((dtrMap & SCM_CON_CTS) == SCM_CON_CTS) {
@@ -264,16 +279,16 @@ public final class SerialComNullModem {
             }
 
             sb.append("#x-x,x,x,x#x-x,x,x,x#y#y");
-        }
 
-        synchronized(lock) {
-            linuxVadaptOut.write(sb.toString().getBytes());
-            lbdev = getLastLoopBackDeviceNode();
-            if(deviceIndex == -1) {
-                int idx = Integer.parseInt(lbdev.substring(12), 10);
-                loopBackDevList.put(idx, lbdev);
-            }else {
-                loopBackDevList.put(deviceIndex, lbdev);
+            synchronized(lock) {
+                linuxVadaptOut.write(sb.toString().getBytes());
+                lbdev = getLastLoopBackDeviceNode();
+                if(deviceIndex == -1) {
+                    int idx = Integer.parseInt(lbdev.substring(12), 10);
+                    loopBackDevList.put(idx, lbdev);
+                }else {
+                    loopBackDevList.put(deviceIndex, lbdev);
+                }
             }
         }
 
@@ -281,19 +296,22 @@ public final class SerialComNullModem {
     }
 
     /**
+     * <p>Creates a null modem device pair with given pin mappings.</p>
      * 
-     * @param idx1
-     * @param rtsMap1
-     * @param dtrMap1
-     * @param idx2
-     * @param rtsMap2
-     * @param dtrMap2
-     * @return
-     * @throws IOException
+     * @param idx1 index of 1st virtual serial port to be created.
+     * @param rtsMap1 pin mappings definition (define how RTS pin of idx1 device should be connected to pins of idx2 device).
+     * @param dtrMap1 pin mappings definition (define how DTR pin of idx1 device should be connected to pins of idx2 device).
+     * @param idx2 index of 2nd virtual serial port to be created.
+     * @param rtsMap2 pin mappings definition (define how RTS pin of idx2 device should be connected to pins of idx1 device).
+     * @param dtrMap2 pin mappings definition (define how DTR pin of idx2 device should be connected to pins of idx1 device).
+     * @return Created virtual null modem pair device's node on success.
+     * @throws IOException if the null modem device node pair can not be created, 
      *          IllegalArgumentException if invalid idx1/2 is supplied.
      */
-    public boolean createStandardNullModemPair(int idx1, int rtsMap1, int dtrMap1, int idx2, int rtsMap2, int dtrMap2) throws IOException {
+    public String[] createCustomNullModemPair(int idx1, int rtsMap1, int dtrMap1, int idx2, int rtsMap2, int dtrMap2) throws IOException {
+        String[] nmdevs = null;
         StringBuilder sb = new StringBuilder();
+
         if(osType == SerialComManager.OS_LINUX) {
             sb.append("gennm#");
             if(idx1 < 0) {
@@ -321,7 +339,7 @@ public final class SerialComNullModem {
             }
             sb.append("#7-");
 
-            if(rtsMap1 == 0) {
+            if(rtsMap1 == SCM_CON_NONE) {
                 sb.append("x,x,x,x#4-");
             }else {
                 if((rtsMap1 & SCM_CON_CTS) == SCM_CON_CTS) {
@@ -350,7 +368,7 @@ public final class SerialComNullModem {
                 sb.append("#4-");
             }
 
-            if(dtrMap1 == 0) {
+            if(dtrMap1 == SCM_CON_NONE) {
                 sb.append("x,x,x,x#7-");
             }else {
                 if((dtrMap1 & SCM_CON_CTS) == SCM_CON_CTS) {
@@ -379,7 +397,7 @@ public final class SerialComNullModem {
                 sb.append("#7-");
             }
 
-            if(rtsMap2 == 0) {
+            if(rtsMap2 == SCM_CON_NONE) {
                 sb.append("x,x,x,x#4-");
             }else {
                 if((rtsMap2 & SCM_CON_CTS) == SCM_CON_CTS) {
@@ -408,7 +426,7 @@ public final class SerialComNullModem {
                 sb.append("#4-");
             }
 
-            if(dtrMap2 == 0) {
+            if(dtrMap2 == SCM_CON_NONE) {
                 sb.append("x,x,x,x#y#y");
             }else {
                 if((dtrMap2 & SCM_CON_CTS) == SCM_CON_CTS) {
@@ -436,49 +454,101 @@ public final class SerialComNullModem {
                 }
                 sb.append("#y#y");
             }
+
+            synchronized(lock) {
+                linuxVadaptOut.write(sb.toString().getBytes());
+                nmdevs = getLastNullModemDevicePairNodes();
+                int idx = Integer.parseInt(nmdevs[0].substring(12), 10);
+                StringBuilder sb1 = new StringBuilder();
+                sb1.append(nmdevs[0]);
+                sb1.append(" <=> ");
+                sb1.append(nmdevs[1]);
+                nullModemDevList.put(idx, sb1.toString());
+            }
         }
 
-        synchronized(lock) {
-            linuxVadaptOut.write(sb.toString().getBytes());
-        }
+        return nmdevs;
+    }
 
+    /**
+     * <p>Removes all virtual serial devices created by tty2comKm driver.</p>
+     * 
+     * @return true on success.
+     * @throws IOException if the operation can not be completed due to some reason.
+     */
+    public boolean destroyAllVirtualDevices() throws IOException {
+        if(osType == SerialComManager.OS_LINUX) {
+            synchronized(lock) {
+                linuxVadaptOut.write("del#xxxxx#xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx".getBytes());
+                loopBackDevList.clear();
+                nullModemDevList.clear();
+            }
+        }
         return true;
     }
 
     /**
-     * <p>Removes all virtual serial devices created by tty2comKm driver if atIndex is -1 or removes only a 
-     * particular device as specified by atIndex argument. Note that if the given index represent to one of 
-     * the device nodes in a null modem pair, paired device will automatically be identified and deleted too.</p>
+     * <p>Removes the virtual loop back device created using tty2comKm driver.</p>
      * 
-     * @param atIndex -1 if all devices are to be destroyed or valid device number.
+     * @param deviceNode virtual serial port to be destroyed.
      * @return true on success.
-     * @throws IOException if the operation can not be completed due to some reason,
-     *          IllegalArgumentException if invalid atIndex is supplied.
+     * @throws IOException if the given device can not be deleted due to some reason,
+     *          IllegalArgumentException if invalid deviceNode is supplied or deviceNode is null.
      */
-    public boolean destroyVirtualSerialDevice(int atIndex) throws IOException {
-        if(osType == SerialComManager.OS_LINUX) {
-            if(atIndex < 0) {
-                if(atIndex != -1) {
-                    throw new IllegalArgumentException("Argument atIndex is negative, it has to be -1 only !");
-                }else {
-                    synchronized(lock) {
-                        linuxVadaptOut.write("del#xxxxx#xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx".getBytes());
-                    }
-                }
-            }
-            else {
-                if((atIndex > 65535)) {
-                    throw new IllegalArgumentException("Argument atIndex can be -1 <= atIndex =< 65535 !");
-                }else {
-                    String cmd = "del#".concat(String.format("%05d", atIndex));
-                    cmd = cmd.concat("#xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
-                    synchronized(lock) {
-                        linuxVadaptOut.write(cmd.getBytes());
-                    }
-                }
-            }
+    public boolean destroyVirtualLoopBackDevice(final String deviceNode) throws IOException {
+        if((deviceNode == null) || (deviceNode.length() == 0)) {
+            throw new IllegalArgumentException("The deviceNode can not be null or 0 length !");
         }
-        return true;
+        if(osType == SerialComManager.OS_LINUX) {
+            int nodeNum = Integer.parseInt(deviceNode.substring(12), 10);
+            synchronized(lock) {
+                if(loopBackDevList.containsKey(nodeNum)) {
+                    String cmd = "del#".concat(String.format("%05d", nodeNum));
+                    cmd = cmd.concat("#xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
+                    linuxVadaptOut.write(cmd.getBytes());
+                    loopBackDevList.remove(nodeNum);
+                    return true;
+                }
+            }
+            throw new IllegalArgumentException("Given device node is not found in our records !");
+        }
+        return false;
+    }
+
+    /**
+     * <p>Removes the virtual null modem device pair created using tty2comKm driver. The devNode1 must be 
+     * 1st device node as returned by createStandardNullModemPair() or createCustomNullModemPair() methods.</p>
+     * 
+     * @param devNode1 one of the device node of null modem pair to be destroyed.
+     * @param devNode2 one of the device node of null modem pair to be destroyed.
+     * @return true on success.
+     * @throws IOException if the given device can not be deleted due to some reason, 
+     *          IllegalArgumentException if invalid deviceNode is supplied or devNode1/2 is null.
+     */
+    public boolean destroyVirtualNullModemPair(final String devNode1, final String devNode2) throws IOException {
+        if((devNode1 == null) || (devNode1.length() == 0) || (devNode2 == null) || (devNode2.length() == 0)) {
+            throw new IllegalArgumentException("The devNode1/2 can not be null or 0 length string !");
+        }
+        if(devNode1.equals(devNode2)) {
+            throw new IllegalArgumentException("The devNode1 can not be equal to devNode2 !");
+        }
+        if(osType == SerialComManager.OS_LINUX) {
+            int idx = Integer.parseInt(devNode1.substring(12), 10);
+            String pair = nullModemDevList.get(idx);
+            if(pair == null) {
+                throw new IllegalArgumentException("Given device nodes are not found in our records !");
+            }
+            if(pair.contains(devNode2)) {
+                String cmd = "del#".concat(String.format("%05d", idx));
+                cmd = cmd.concat("#xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
+                linuxVadaptOut.write(cmd.getBytes());
+                nullModemDevList.remove(idx);
+                return true;
+            }
+            throw new IllegalArgumentException("Given devNode1 and devNode2 seems not to be a null modem pair !");
+        }
+
+        return false;
     }
 
     /**
