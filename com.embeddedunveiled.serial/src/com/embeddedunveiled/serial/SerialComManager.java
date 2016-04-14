@@ -250,13 +250,13 @@ public final class SerialComManager {
 
     /** <p>Pre-defined enum constants for controlling data flow between DTE and DCE or two serial devices.</p>*/
     public enum FLOWCONTROL {
-        /** <p>No flow control. Application is responsible to manage data buffers. Application can 
+        /** <p>No flow control; application is responsible to manage data buffers. Application can 
          * assert or de-assert RTS/CTS or DTR/DSR signals explicitly. </p>*/
         NONE(1),
-        /** <p>Operating system (or driver) will assert or de-assert RTS/CTS lineS as per the amount of 
+        /** <p>Operating system (or driver) will assert or de-assert RTS/CTS lines as per the amount of 
          * data in input buffers. </p>*/
         RTS_CTS(2),
-        /** <p>Operating system (or driver) will assert or de-assert DTR/DSR lineS as per the amount of 
+        /** <p>Operating system (or driver) will assert or de-assert DTR/DSR lines as per the amount of 
          * data in input buffers. </p>*/
         DTR_DSR(3),
         /** <p>Operating system (or driver) will send XON or XOFF characters as per the amount of data 

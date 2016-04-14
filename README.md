@@ -24,7 +24,7 @@ It eliminates the complexities of serial port programming for different operatin
 - Data and event listeners callbacks.
 
 #####File transfer protocols
-- X/Y/Z FTP implemented with finite state machine.
+- X/Y/Z FTP API implemented with finite state machine.
 - Progress listener for GUI applications.
 - Both text and binary mode transfer can take place.
 - Abort command support to cancel transfer at any time.
