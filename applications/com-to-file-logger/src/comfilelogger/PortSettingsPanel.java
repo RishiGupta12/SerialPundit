@@ -218,9 +218,9 @@ public final class PortSettingsPanel extends JPanel {
 				if(flow.equals("None")) {
 					flowctrlToUse = FLOWCONTROL.NONE;
 				}else if(flow.equals("RTS/CTS")) {
-					flowctrlToUse = FLOWCONTROL.HARDWARE;
+					flowctrlToUse = FLOWCONTROL.RTS_CTS;
 				}else if(flow.equals("Xon/Xoff")) {
-					flowctrlToUse = FLOWCONTROL.SOFTWARE;
+					flowctrlToUse = FLOWCONTROL.XON_XOFF;
 				}else {
 					flowctrlToUse = FLOWCONTROL.NONE;
 				}

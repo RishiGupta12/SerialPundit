@@ -48,7 +48,7 @@ public class Test4 {
 			// open and configure port that will listen event
 			long handle = scm.openComPort(PORT, true, true, true);
 			scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B9600, 0);
-			scm.configureComPortControl(handle, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+			scm.configureComPortControl(handle, FLOWCONTROL.RTS_CTS, 'x', 'x', false, false);
 
 			String[] config = scm.getCurrentConfiguration(handle);
 			System.out.println(Arrays.toString(config));

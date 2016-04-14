@@ -63,12 +63,12 @@ public class Test15 {
 
 			long handle = scm.openComPort(PORT, true, true, true);
 			scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
-			scm.configureComPortControl(handle, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+			scm.configureComPortControl(handle, FLOWCONTROL.RTS_CTS, 'x', 'x', false, false);
 			scm.registerLineEventListener(handle, eventListener);
 
 			long handle1 = scm.openComPort(PORT1, true, true, true);
 			scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
-			scm.configureComPortControl(handle1, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+			scm.configureComPortControl(handle1, FLOWCONTROL.RTS_CTS, 'x', 'x', false, false);
 
 			// both event will be called
 			Thread.sleep(1000);

@@ -96,7 +96,7 @@ public class Test22 {
 			// DTE terminal
 			long DTE = scm.openComPort(PORT, true, true, true);
 			scm.configureComPortData(DTE, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B9600, 0);
-			scm.configureComPortControl(DTE, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+			scm.configureComPortControl(DTE, FLOWCONTROL.RTS_CTS, 'x', 'x', false, false);
 			scm.registerDataListener(DTE, DTE1);
 			scm.setRTS(DTE, true);
 
@@ -105,7 +105,7 @@ public class Test22 {
 			// DCE terminal
 			long DCE = scm.openComPort(PORT1, true, true, true);
 			scm.configureComPortData(DCE, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B9600, 0);
-			scm.configureComPortControl(DCE, FLOWCONTROL.HARDWARE, 'x', 'x', false, false);
+			scm.configureComPortControl(DCE, FLOWCONTROL.RTS_CTS, 'x', 'x', false, false);
 			scm.registerDataListener(DCE, DCE1);
 			scm.registerLineEventListener(DCE, eventListener);
 

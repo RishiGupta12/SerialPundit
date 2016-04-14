@@ -79,10 +79,10 @@ public class Test50 {
 
 			long handle = scm.openComPort(PORT, true, true, true);
 			scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
-			scm.configureComPortControl(handle, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+			scm.configureComPortControl(handle, FLOWCONTROL.XON_XOFF, 'x', 'x', false, false);
 			long handle1 = scm.openComPort(PORT1, true, true, true);
 			scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
-			scm.configureComPortControl(handle1, FLOWCONTROL.SOFTWARE, 'x', 'x', false, false);
+			scm.configureComPortControl(handle1, FLOWCONTROL.XON_XOFF, 'x', 'x', false, false);
 
 			int x = 0;
 			for(x=0; x<5000; x++) {

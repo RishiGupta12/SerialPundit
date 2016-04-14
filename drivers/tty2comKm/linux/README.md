@@ -1,3 +1,7 @@
+####Cloning
+
+To clone driver follow steps as given in clone-driver.sh script.
+
 ####Building
 ---------------------
 

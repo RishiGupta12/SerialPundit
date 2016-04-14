@@ -82,14 +82,14 @@ public class Test20 {
 
 			long receiverHandle = scm.openComPort(PORT, true, true, true);
 			scm.configureComPortData(receiverHandle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
-			scm.configureComPortControl(receiverHandle, FLOWCONTROL.SOFTWARE, '$', '#', false, false);
+			scm.configureComPortControl(receiverHandle, FLOWCONTROL.XON_XOFF, '$', '#', false, false);
 			
 			Thread.sleep(90000);
 			scm.closeComPort(receiverHandle);
 
 //			long senderHandle = scm.openComPort(PORT1, true, true, true);
 //			scm.configureComPortData(senderHandle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
-//			scm.configureComPortControl(senderHandle, FLOWCONTROL.SOFTWARE, '$', '#', false, false);
+//			scm.configureComPortControl(senderHandle, FLOWCONTROL.XON_XOFF, '$', '#', false, false);
 //
 //			scm.registerDataListener(receiverHandle, receiver);
 //
