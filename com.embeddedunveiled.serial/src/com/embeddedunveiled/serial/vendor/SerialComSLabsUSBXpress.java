@@ -31,22 +31,24 @@ import com.embeddedunveiled.serial.internal.SerialComSystemProperty;
  * <p>Silicon labs provides libraries to communicate with their USB-UART devices. More information can 
  * be found here : http://www.silabs.com/products/mcu/Pages/USBXpress.aspx</p>
  * 
- * <p>[0] The data types used in java layer may be bigger in size than the native layer. For example; if native 
+ * <ul>
+ * <li><p>[0] The data types used in java layer may be bigger in size than the native layer. For example; if native 
  * function returns 16 bit signed integer, than java method will return 32 bit integer. This is done to make 
- * sure that no data loss occur. This library take care of sign and their applicability internally.</p>
+ * sure that no data loss occur. This library take care of sign and their applicability internally.</p></li>
  * 
- * <p>[1] Developers are requested to check with vendor library documentation if a particular function is supported
+ * <li>[1] Developers are requested to check with vendor library documentation if a particular function is supported
  * for desired platform or not and also how does a particular API will behave. Also consider paying attention to 
- * valid values and range when passing arguments to a method.</p>
+ * valid values and range when passing arguments to a method.</li>
  * 
- * <p>[2] The application note for USBXpress library is here : 
- * http://www.silabs.com/Support%20Documents/TechnicalDocs/an169.pdf</p>
+ * <li><p>[2] The application note for USBXpress library is here : 
+ * http://www.silabs.com/Support%20Documents/TechnicalDocs/an169.pdf</p></li>
  * 
- * <p>[3] It seems like USBXpress library uses user space drivers. So if you encounter any problems 
+ * <li>[3] It seems like USBXpress library uses user space drivers. So if you encounter any problems 
  * with permissions add the following udev rules file at appropriate location in your system : 
- * https://github.com/RishiGupta12/serial-communication-manager/blob/master/tools-and-utilities/99-scm-cp210x.rules</p>
+ * <github repository>/tools-and-utilities/99-scm-cp210x.rules</li>
  * 
- * <p>SCM version 1.0.4 is linked to v4.0 version of USBXpress from silicon labs.</p>
+ * <li><p>SCM version 1.0.4 is linked to v4.0 version of USBXpress from silicon labs.</p></li>
+ * </ul>
  * 
  * @author Rishi Gupta
  */
@@ -74,7 +76,7 @@ public final class SerialComSLabsUSBXpress extends SerialComVendorLib {
 	public static final int SI_HANDSHAKE_LINE = 0x07;
 
 	/**
-	 * <p>Allocates a new SerialComSLabsUSBXpress object and extract and load shared libraries as 
+	 * <p>Allocates a new SerialComSLabsUSBXpress object, extract and load shared libraries as 
 	 * required.</p>
 	 * 
 	 * @param libDirectory directory in which native library will be extracted and vendor library will 
@@ -100,6 +102,7 @@ public final class SerialComSLabsUSBXpress extends SerialComVendorLib {
 
 	/**
 	 * <p>Executes SI_GetNumDevices function of USBXpress library.</p>
+	 * 
 	 * <p>Returns the number of devices connected to the host.</p>
 	 * 
 	 * @return number of the devices connected to host presently.
@@ -274,14 +277,13 @@ public final class SerialComSLabsUSBXpress extends SerialComVendorLib {
 	 * 
 	 * <p>Sets the read and write time out values for the given device.</p>
 	 * 
-	 * @param handle handle of the device whose timeout values need to be set.
 	 * @param readTimeOut read time out in milliseconds.
 	 * @param writeTimeOut write time out in milliseconds.
 	 * @return true if the operation executed successfully.
 	 * @throws SerialComException if an I/O error occurs.
 	 * @throws IllegalArgumentException if divisor is negative.
 	 */
-	public boolean setTimeouts(final long handle, long readTimeOut, long writeTimeOut) throws SerialComException {
+	public boolean setTimeouts(long readTimeOut, long writeTimeOut) throws SerialComException {
 		if(readTimeOut < 0) {
 			throw new IllegalArgumentException("Argument readTimeOut can not be negative !");
 		}
@@ -289,7 +291,7 @@ public final class SerialComSLabsUSBXpress extends SerialComVendorLib {
 			throw new IllegalArgumentException("Argument writeTimeOut can not be negative !");
 		}
 
-		int ret = mSerialComSLabsUSBXpressJNIBridge.setTimeouts(handle, readTimeOut, writeTimeOut);
+		int ret = mSerialComSLabsUSBXpressJNIBridge.setTimeouts(readTimeOut, writeTimeOut);
 		if(ret < 0) {
 			throw new SerialComException("Could not set the desired timeout values for the requested device. Please retry !");
 		}
@@ -325,7 +327,7 @@ public final class SerialComSLabsUSBXpress extends SerialComVendorLib {
 	 * @throws SerialComException if an I/O error occurs.
 	 */
 	public long[] checkRXQueue(final long handle) throws SerialComException {
-		long[] ret = mSerialComSLabsUSBXpressJNIBridge.checkRXQueue();
+		long[] ret = mSerialComSLabsUSBXpressJNIBridge.checkRXQueue(handle);
 		if(ret == null) {
 			throw new SerialComException("Could not get the requested values for the given device. Please retry !");
 		}
@@ -441,7 +443,7 @@ public final class SerialComSLabsUSBXpress extends SerialComVendorLib {
 	 * is not necessarily synchronized with queued transmit data.</p>
 	 * 
 	 * @param handle of the device for whom break condition is to be set as given.
-	 * @param breakValue break is reset of this is 0x0000 and break is transmitted if this is 0x0001.
+	 * @param breakValue break is reset if this is 0x0000 and break is transmitted if this is 0x0001.
 	 * @return true if break condition set as given.
 	 * @throws SerialComException if an I/O error occurs.
 	 */
@@ -540,8 +542,8 @@ public final class SerialComSLabsUSBXpress extends SerialComVendorLib {
 	 * @return driver version number for the requested device handle.
 	 * @throws SerialComException if an I/O error occurs.
 	 */
-	public long getDllVersion(final long handle) throws SerialComException {
-		long ret = mSerialComSLabsUSBXpressJNIBridge.getDllVersion(handle);
+	public long getDllVersion() throws SerialComException {
+		long ret = mSerialComSLabsUSBXpressJNIBridge.getDllVersion();
 		if(ret < 0) {
 			throw new SerialComException("Could not get the dll version for the requested device. Please retry !");
 		}

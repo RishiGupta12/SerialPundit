@@ -37,6 +37,7 @@ Bug Fixes :
 	
 Drivers & Services :
     - Added cp210x Linux kernel driver
+    - Added loop back and null modem driver
     - Added user space virtual HID driver and corresponding Java API
     - Added serial port mapper service and corresponding Java API
 
