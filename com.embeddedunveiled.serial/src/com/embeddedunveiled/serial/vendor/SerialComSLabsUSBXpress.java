@@ -538,7 +538,6 @@ public final class SerialComSLabsUSBXpress extends SerialComVendorLib {
 	 * 
 	 * <p>Obtains the version of the DLL that is currently in use.</p>
 	 * 
-	 * @param handle handle of the device for whose dll version is to found.
 	 * @return driver version number for the requested device handle.
 	 * @throws SerialComException if an I/O error occurs.
 	 */
@@ -555,12 +554,11 @@ public final class SerialComSLabsUSBXpress extends SerialComVendorLib {
 	 * 
 	 * <p>Obtains the version of the Driver that is currently in the Windows System directory.</p>
 	 * 
-	 * @param handle handle of the device for whom driver version is to found.
 	 * @return driver version number for the requested device handle.
 	 * @throws SerialComException if an I/O error occurs.
 	 */
-	public long getDriverVersion(final long handle) throws SerialComException {
-		long ret =  mSerialComSLabsUSBXpressJNIBridge.getDriverVersion(handle);
+	public long getDriverVersion() throws SerialComException {
+		long ret =  mSerialComSLabsUSBXpressJNIBridge.getDriverVersion();
 		if(ret < 0) {
 			throw new SerialComException("Could not get the driver version for the requested device. Please retry !");
 		}

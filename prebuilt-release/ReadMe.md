@@ -1,6 +1,4 @@
--- Latest development release is scm-1.0.4-dev.jar (linux/windows/mac os x, please USE this instead of 1.0.3 as there are large updates included in 1.0.4).
-
--- Previous stable release is scm-1.0.3.jar (linux/windows/mac os x).
+Latest development release is scm-1.0.4.jar
 
 ##Platforms supported
 

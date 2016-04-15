@@ -177,7 +177,7 @@ public final class SerialComSLabsUSBXpressJNIBridge {
     public native int writeLatch(long handle, long mask, long latchValue);
     public native String getPartNumber(long handle);
     public native long getDllVersion();
-    public native long getDriverVersion(long handle);
+    public native long getDriverVersion();
     public native int deviceIOControl(long handle, int ctrlCode, byte[] inputBuf,
             int numBytesToRead, byte[] outputBuf, int numOfBytesToWrite);
 }
