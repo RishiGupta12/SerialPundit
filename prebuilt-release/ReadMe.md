@@ -58,3 +58,12 @@ libraryDependencies += "com.embeddedunveiled" % "scm" % "1.0.3"
 [com.embeddedunveiled/scm "1.0.3"]
 ```
 
+##Signature verification
+
+For Linux, change directory to where scm-x.x.x.jar file is placed on your system and check as follows :
+```
+$ gpg --verify scm-1.0.4.jar.asc scm-1.0.4.jar
+gpg: Signature made Friday 29 May 2015 11:28:11 AM IST using RSA key ID 2B942F12
+gpg: Good signature from "rishigupta (scm-library) <xxxx@gmail.com>"
+```
+
