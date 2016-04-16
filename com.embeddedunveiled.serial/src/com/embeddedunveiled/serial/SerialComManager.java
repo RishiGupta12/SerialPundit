@@ -693,17 +693,14 @@ public final class SerialComManager {
      * For example let us assume that in a poll based application calling Thread.sleep(10) make ~10 milliseconds sleep 
      * in Linux operating system but causes ~50 milliseconds sleep in Windows because these operating system may have 
      * different resolution for sleep timings. To deal with this write the application code in following manner :</p>
-     * <pre>
-     * {@code
-     * int osType = scm.getOSType();
-     * if(osType == SerialComManager.OS_LINUX) {
-     * 	Thread.sleep(10);
-     * }else if(osType == SerialComManager.OS_WINDOWS) {
-     * 	Thread.sleep(1);
-     * }else {
-     * 	Thread.sleep(5);
-     * }
-     * }</pre>
+     * int osType = scm.getOSType();<br>
+     * if(osType == SerialComManager.OS_LINUX) {<br>
+     * 	Thread.sleep(10);<br>
+     * }else if(osType == SerialComManager.OS_WINDOWS) {<br>
+     * 	Thread.sleep(1);<br>
+     * }else {<br>
+     * 	Thread.sleep(5);<br>
+     * }<br>
      * 
      * @return one of the constants OS_xxxxx defined in SerialComManager class.
      */

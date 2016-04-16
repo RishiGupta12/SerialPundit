@@ -32,18 +32,18 @@ import com.embeddedunveiled.serial.internal.SerialComSystemProperty;
  * be found here : http://www.silabs.com/products/mcu/Pages/USBXpress.aspx</p>
  * 
  * <ul>
- * <li><p>[0] The data types used in java layer may be bigger in size than the native layer. For example; if native 
+ * <li><p>The data types used in java layer may be bigger in size than the native layer. For example; if native 
  * function returns 16 bit signed integer, than java method will return 32 bit integer. This is done to make 
  * sure that no data loss occur. This library take care of sign and their applicability internally.</p></li>
  * 
- * <li>[1] Developers are requested to check with vendor library documentation if a particular function is supported
+ * <li>Developers are requested to check with vendor library documentation if a particular function is supported
  * for desired platform or not and also how does a particular API will behave. Also consider paying attention to 
  * valid values and range when passing arguments to a method.</li>
  * 
- * <li><p>[2] The application note for USBXpress library is here : 
+ * <li><p>The application note for USBXpress library is here : 
  * http://www.silabs.com/Support%20Documents/TechnicalDocs/an169.pdf</p></li>
  * 
- * <li>[3] It seems like USBXpress library uses user space drivers. So if you encounter any problems 
+ * <li>It seems like USBXpress library uses user space drivers. So if you encounter any problems 
  * with permissions add the following udev rules file at appropriate location in your system : 
  * <github repository>/tools-and-utilities/99-scm-cp210x.rules</li>
  * 
