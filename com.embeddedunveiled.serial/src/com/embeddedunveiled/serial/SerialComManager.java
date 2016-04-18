@@ -27,6 +27,11 @@ import java.nio.charset.Charset;
 import java.util.Map;
 import java.util.TreeMap;
 
+import com.embeddedunveiled.serial.ftp.ISerialComXmodemProgress;
+import com.embeddedunveiled.serial.ftp.SerialComXModem;
+import com.embeddedunveiled.serial.ftp.SerialComXModem1K;
+import com.embeddedunveiled.serial.ftp.SerialComXModemAbort;
+import com.embeddedunveiled.serial.ftp.SerialComXModemCRC;
 import com.embeddedunveiled.serial.hid.SerialComHID;
 import com.embeddedunveiled.serial.hid.SerialComRawHID;
 import com.embeddedunveiled.serial.internal.ISerialIOStream;

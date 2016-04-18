@@ -16,7 +16,7 @@
  * along with 'serial communication manager'.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.embeddedunveiled.serial;
+package com.embeddedunveiled.serial.ftp;
 
 /** 
  * <p>Acts as a messenger between application and SCM library to specify 
@@ -26,31 +26,31 @@ package com.embeddedunveiled.serial;
  */
 public final class SerialComXModemAbort {
 
-	private boolean abortTransferNow;
+    private volatile boolean abortTransferNow;
 
-	/**
-	 * <p>Allocates a new SerialComXModemAbort object.</p>
-	 */
-	public SerialComXModemAbort() {
-		abortTransferNow = false; // initial state.
-	}
+    /**
+     * <p>Allocates a new SerialComXModemAbort object.</p>
+     */
+    public SerialComXModemAbort() {
+        abortTransferNow = false; // initial state.
+    }
 
-	/** 
-	 * <p>Instructs SCM library to stop sending file if called by file sender,
-	 *  or to stop receiving file if called by file receiver using xmodem or 
-	 *  its variant protocols.</p>
-	 */
-	public void abortTransfer() {
-		abortTransferNow = true;
-	}
+    /** 
+     * <p>Instructs SCM library to stop sending file if called by file sender,
+     *  or to stop receiving file if called by file receiver using xmodem or 
+     *  its variant protocols.</p>
+     */
+    public void abortTransfer() {
+        abortTransferNow = true;
+    }
 
-	/** 
-	 * <p>Checks whether file transfer or reception should be aborted or not.</p>
-	 * 
-	 * @return true if it should be aborted otherwise false if file transfer 
-	 *          should continue.
-	 */
-	public boolean isTransferToBeAborted() {
-		return abortTransferNow;
-	}
+    /** 
+     * <p>Checks whether file transfer or reception should be aborted or not.</p>
+     * 
+     * @return true if it should be aborted otherwise false if file transfer 
+     *          should continue.
+     */
+    public boolean isTransferToBeAborted() {
+        return abortTransferNow;
+    }
 }
