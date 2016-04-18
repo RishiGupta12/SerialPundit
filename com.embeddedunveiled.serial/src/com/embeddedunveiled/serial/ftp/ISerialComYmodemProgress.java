@@ -19,8 +19,8 @@
 package com.embeddedunveiled.serial.ftp;
 
 /**
- * <p>The interface ISerialComXmodemProgress should be implemented by class who wish to 
- * know how many blocks have been sent or received using Xmodem protocol.</p>
+ * <p>The interface ISerialComYmodemProgress should be implemented by class who wish to 
+ * know how many blocks have been sent or received using Ymodem protocol.</p>
  * 
  * <p>The graphical user interface applications may want to show progress for example 
  * using a progress bar to inform user about how much data have been sent to receiver 
@@ -28,11 +28,11 @@ package com.embeddedunveiled.serial.ftp;
  * 
  * @author Rishi Gupta
  */
-public interface ISerialComXmodemProgress {
+public interface ISerialComYmodemProgress {
 
     /**
-     * <p>The class implementing this interface is expected to override onXmodemSentProgressUpdate() 
-     * method. This method gets called whenever a block is sent using Xmodem protocol.</p>
+     * <p>The class implementing this interface is expected to override onYmodemSentProgressUpdate() 
+     * method. This method gets called whenever a block is sent using Ymodem protocol.</p>
      * 
      * <p>This method should return as early as possible. Application might schedule GUI update 
      * for future.</p>
@@ -42,11 +42,11 @@ public interface ISerialComXmodemProgress {
      *         number of blocks sent from sender to receiver.
      * @param percentOfBlocksSent update in terms of percentage.
      */
-    public abstract void onXmodemSentProgressUpdate(long numBlock, int percentOfBlocksSent);
+    public abstract void onYmodemSentProgressUpdate(long numBlock, int percentOfBlocksSent);
 
     /**
-     * <p>The class implementing this interface is expected to override onXmodemReceiveProgressUpdate() 
-     * method. This method gets called whenever a block is sent using Xmodem protocol.</p>
+     * <p>The class implementing this interface is expected to override onYmodemReceiveProgressUpdate() 
+     * method. This method gets called whenever a block is sent using Ymodem protocol.</p>
      * 
      * <p>This method should return as early as possible. Application might schedule GUI update 
      * for future.</p>
@@ -55,5 +55,5 @@ public interface ISerialComXmodemProgress {
      *         is called. It includes both new blocks and resent blocks i.e. it represent total 
      *         number of blocks received from file sender.
      */
-    public abstract void onXmodemReceiveProgressUpdate(long numBlock);
+    public abstract void onYmodemReceiveProgressUpdate(long numBlock);
 }
