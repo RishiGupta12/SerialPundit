@@ -166,11 +166,13 @@ public final class SerialComYModemCRC {
         final int SENDNEXT   = 0x05;
         final int ENDTX      = 0x06;
         final int ABORT      = 0x07;
+        final int FINISHTX   = 0x08;
 
         boolean cReceived = false;
         boolean eotAckReceptionTimerInitialized = false;
         boolean establishingYmodemConnection = true;
         boolean waitForBlock0ACK = true;
+        boolean waitForFinalBlockACK = false;
         String errMsg = null;
         int retryCount = 0;
         int state = -1;
@@ -178,6 +180,8 @@ public final class SerialComYModemCRC {
         long responseWaitTimeOut = 0;
         long eotAckWaitTimeOutValue = 0;
         int percentOfBlocksSent = 0;
+        boolean finAckReceptionTimerInitialized = false;
+        long finAckWaitTimeOutValue = 0;
 
         lengthOfFileToProcess = filesToSend[currentlyProcessingFilenumber].length();
         inStream = new BufferedInputStream(new FileInputStream(filesToSend[currentlyProcessingFilenumber]));
@@ -234,6 +238,11 @@ public final class SerialComYModemCRC {
                 break;
 
             case BLOCK0SEND:
+                if(retryCount > 10) {
+                    errMsg = "Maximum number of retries reached while sending block 0 to receiver end !";
+                    state = ABORT;
+                    break;
+                }
                 assembleBlock0();
                 try {
                     scm.writeBytes(handle, block0, 0);
@@ -335,7 +344,7 @@ public final class SerialComYModemCRC {
                 }
 
                 if((state != ABORT) && (state != ENDTX)) {
-                    if(noMoreData != true) {						
+                    if(noMoreData != true) {	
                         if(data[0] == ACK) {
                             if(lastCharacterReceivedWasCAN == true) {
                                 // <CAN> <ACK> is invalid sequence.
@@ -405,24 +414,29 @@ public final class SerialComYModemCRC {
                     }else {
                         // if there is no more data to be sent, we are looking for ACK after sending EOT.
                         if(data[0] == ACK) {
-                            inStream.close();
-                            currentlyProcessingFilenumber++;
-
-                            if(currentlyProcessingFilenumber >= filesToSend.length) {
+                            if(waitForFinalBlockACK == true) {
                                 // successfully sent all files, let's go back home happily.
                                 return true;
-                            }
+                            }else {
+                                inStream.close();
+                                currentlyProcessingFilenumber++;
 
-                            // send next file, reset all stuff
-                            lengthOfFileToProcess = filesToSend[currentlyProcessingFilenumber].length();
-                            inStream = new BufferedInputStream(new FileInputStream(filesToSend[currentlyProcessingFilenumber]));
-                            cReceived = false;
-                            eotAckReceptionTimerInitialized = false;
-                            retryCount = 0;
-                            responseWaitTimeOut = 0;
-                            eotAckWaitTimeOutValue = 0;
-                            percentOfBlocksSent = 0;
-                            state = CONNECT;
+                                if(currentlyProcessingFilenumber >= filesToSend.length) {
+                                    state = FINISHTX;
+                                    break;
+                                }
+
+                                // send next file, reset all stuff
+                                lengthOfFileToProcess = filesToSend[currentlyProcessingFilenumber].length();
+                                inStream = new BufferedInputStream(new FileInputStream(filesToSend[currentlyProcessingFilenumber]));
+                                cReceived = false;
+                                eotAckReceptionTimerInitialized = false;
+                                retryCount = 0;
+                                responseWaitTimeOut = 0;
+                                eotAckWaitTimeOutValue = 0;
+                                percentOfBlocksSent = 0;
+                                state = CONNECT;
+                            }
                             break;
                         }else if(data[0] == CAN) {
                             // receiver might have sent us abort command while we were sending EOT to it.
@@ -430,12 +444,22 @@ public final class SerialComYModemCRC {
                             state = ABORT;
                             break;
                         }else {
-                            if(System.currentTimeMillis() >= eotAckWaitTimeOutValue) {
-                                errMsg = "Timedout while waiting for EOT reception acknowledgement from file receiver !";
-                                state = ABORT;
+                            if(waitForFinalBlockACK != true) {
+                                if(System.currentTimeMillis() >= eotAckWaitTimeOutValue) {
+                                    errMsg = "Timedout while waiting for EOT reception acknowledgement !";
+                                    state = ABORT;
+                                }else {
+                                    // re-send EOT (try more times), this also handles the NAK received case.
+                                    state = ENDTX;
+                                }
                             }else {
-                                // try more times, this also handles the NAK received case.
-                                state = ENDTX;
+                                if(System.currentTimeMillis() >= finAckWaitTimeOutValue) {
+                                    errMsg = "Timedout while waiting for final ymodem null block reception acknowledgement !";
+                                    state = ABORT;
+                                }else {
+                                    // re-send ymodem final null block (try more times), this also handles the NAK received case.
+                                    state = FINISHTX;
+                                }
                             }
                         }
                     }
@@ -462,7 +486,6 @@ public final class SerialComYModemCRC {
                     inStream.close();
                     throw exp;
                 }
-
                 state = WAITACK;
                 break;
 
@@ -477,6 +500,22 @@ public final class SerialComYModemCRC {
                     inStream.close();
                     throw exp;
                 }
+                state = WAITACK;
+                break;
+
+            case FINISHTX:
+                if(finAckReceptionTimerInitialized != true) {
+                    finAckWaitTimeOutValue = System.currentTimeMillis() + 60000; // 1 minute
+                    finAckReceptionTimerInitialized = true;
+                    assembleLastBlock();
+                }
+                try {
+                    scm.writeBytes(handle, block, 0);
+                } catch (SerialComException exp) {
+                    inStream.close();
+                    throw exp;
+                }
+                waitForFinalBlockACK = true;
                 state = WAITACK;
                 break;
 
@@ -584,6 +623,23 @@ public final class SerialComYModemCRC {
         blockCRCval = crcCalculator.getCRC16CCITTValue(block0, 3, (block0.length - 3));
         block0[block0.length - 2] = (byte) (blockCRCval >>> 8); // CRC high byte
         block0[block0.length - 1] = (byte) blockCRCval;         // CRC low byte
+    }
+
+    /*
+     * Prepares ymodem/crc block indicating that the sender has sent all the files.
+     * [SOH][0x00][0xFF][128 times 0x00][2 byte CRC]
+     */
+    private void assembleLastBlock() throws IOException {
+        int blockCRCval = 0;
+        block[0] = SOH;
+        block[1] = (byte) 0x00;
+        block[2] = (byte) 0xFF;
+        for(int d=0; d<128; d++) {
+            block[d+3] = (byte) 0x00;
+        }
+        blockCRCval = crcCalculator.getCRC16CCITTValue(block, 3, 130);
+        block[131] = (byte) (blockCRCval >>> 8);
+        block[132] = (byte) blockCRCval;
     }
 
     /* 
