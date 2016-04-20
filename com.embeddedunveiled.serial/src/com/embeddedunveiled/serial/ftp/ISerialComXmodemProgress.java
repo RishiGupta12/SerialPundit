@@ -18,6 +18,8 @@
 
 package com.embeddedunveiled.serial.ftp;
 
+import com.embeddedunveiled.serial.internal.ISerialComFTPProgress;
+
 /**
  * <p>The interface ISerialComXmodemProgress should be implemented by class who wish to 
  * know how many blocks have been sent or received using Xmodem protocol.</p>
@@ -28,7 +30,7 @@ package com.embeddedunveiled.serial.ftp;
  * 
  * @author Rishi Gupta
  */
-public interface ISerialComXmodemProgress {
+public interface ISerialComXmodemProgress extends ISerialComFTPProgress {
 
     /**
      * <p>The class implementing this interface is expected to override onXmodemSentProgressUpdate() 

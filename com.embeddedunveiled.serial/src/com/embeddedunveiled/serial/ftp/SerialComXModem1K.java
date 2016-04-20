@@ -33,8 +33,7 @@ import com.embeddedunveiled.serial.SerialComManager.FTPVAR;
 import com.embeddedunveiled.serial.util.SerialComCRCUtil;
 
 /**
- * <p>Implements state machine for XMODEM-1k file transfer protocol in Java. 
- * Increase in block size increases overall throughput.</p>
+ * <p>Implements state machine based file transfer based on XMODEM-1K file transfer protocol.</p>
  * 
  * @author Rishi Gupta
  */
@@ -58,7 +57,7 @@ public final class SerialComXModem1K {
     private long lengthOfFileToProcess;
     private boolean textMode;
     private ISerialComXmodemProgress progressListener;
-    private SerialComXModemAbort transferState;
+    private SerialComFTPCMDAbort transferState;
     private int osType;
 
     private int blockNumber;
@@ -88,8 +87,8 @@ public final class SerialComXModem1K {
     private long numberOfBlocksSent = 0;     // track how many blocks have been sent till now.
     private long numberOfBlocksReceived = 0; // track how many blocks have been received till now.
     private boolean lastCharacterReceivedWasCAN = false;
-    private byte abortSequence[] = new byte[] { CAN, CAN, CAN, CAN, CAN, BS, BS, BS, BS, BS };
-    SerialComCRCUtil crcCalculator = new SerialComCRCUtil();
+    private final byte ABORT_CMD[] = new byte[] { CAN, CAN, CAN, CAN, CAN, BS, BS, BS, BS, BS };
+    private final SerialComCRCUtil crcCalculator = new SerialComCRCUtil();
 
     /**
      * <p>Allocates a new SerialComXModem1K object with given details and associate it with the given 
@@ -103,12 +102,12 @@ public final class SerialComXModem1K {
      * @param progressListener object of class which implements ISerialComXmodemProgress interface and 
      *         is interested in knowing how many blocks have been sent/received till now.
      * @param transferState if application wish to abort sending/receiving file at instant of time due 
-     *         to any reason, it can call abortTransfer method on this object. It can be null of application 
+     *         to any reason, it can call abortTransfer method on this object. It can be null if application 
      *         does not wish to abort sending/receiving file explicitly.
      * @param osType operating system on which this application is running.
      */
     public SerialComXModem1K(SerialComManager scm, long handle, File fileToProcess, boolean textMode,
-            ISerialComXmodemProgress progressListener, SerialComXModemAbort transferState, int osType) {
+            ISerialComXmodemProgress progressListener, SerialComFTPCMDAbort transferState, int osType) {
         this.scm = scm;
         this.handle = handle;
         this.fileToProcess = fileToProcess;
@@ -130,13 +129,13 @@ public final class SerialComXModem1K {
     public boolean sendFileX() throws SecurityException, IOException, SerialComException {
 
         // Finite state machine's state.
-        final int CONNECT = 0;
-        final int BEGINSEND = 1;
-        final int WAITACK = 2;
-        final int RESEND = 3;
-        final int SENDNEXT = 4;
-        final int ENDTX = 5;
-        final int ABORT = 6;
+        final int CONNECT   = 0X00;
+        final int BEGINSEND = 0X01;
+        final int WAITACK   = 0X02;
+        final int RESEND    = 0X03;
+        final int SENDNEXT  = 0X04;
+        final int ENDTX     = 0X05;
+        final int ABORT     = 0X06;
 
         boolean cReceived = false;
         boolean eotAckReceptionTimerInitialized = false;
@@ -190,7 +189,7 @@ public final class SerialComXModem1K {
                     // check if application (file sender) wish to cancel sending file.
                     if((transferState != null) && (transferState.isTransferToBeAborted() == true)) {
                         inStream.close();
-                        scm.writeBytes(handle, abortSequence, 0);
+                        scm.writeBytes(handle, ABORT_CMD, 0);
                         return false;
                     }
                 }
@@ -234,7 +233,7 @@ public final class SerialComXModem1K {
                     // check if application (file sender) wish to cancel sending file.
                     if((transferState != null) && (transferState.isTransferToBeAborted() == true)) {
                         inStream.close();
-                        scm.writeBytes(handle, abortSequence, 0);
+                        scm.writeBytes(handle, ABORT_CMD, 0);
                         return false;
                     }
 
@@ -757,11 +756,11 @@ public final class SerialComXModem1K {
     public boolean receiveFileX() throws IOException, SerialComException {
 
         // Finite state machine's states.
-        final int CONNECT = 0;
-        final int RECEIVEDATA = 1;
-        final int VERIFY = 2;
-        final int REPLY = 3;
-        final int ABORT = 4;
+        final int CONNECT     = 0X00;
+        final int RECEIVEDATA = 0X01;
+        final int VERIFY      = 0X02;
+        final int REPLY       = 0X03;
+        final int ABORT       = 0X04;
 
         int z = 0;
         int delayVal = 300;
@@ -824,7 +823,7 @@ public final class SerialComXModem1K {
                     // check if application (file receiver) wish to cancel receiving file.
                     if((transferState != null) && (transferState.isTransferToBeAborted() == true)) {
                         outStream.close();
-                        scm.writeBytes(handle, abortSequence, 0);
+                        scm.writeBytes(handle, ABORT_CMD, 0);
                         return false;
                     }
 

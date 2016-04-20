@@ -28,12 +28,15 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import com.embeddedunveiled.serial.ftp.ISerialComXmodemProgress;
+import com.embeddedunveiled.serial.ftp.ISerialComYmodemProgress;
+import com.embeddedunveiled.serial.ftp.SerialComFTPCMDAbort;
 import com.embeddedunveiled.serial.ftp.SerialComXModem;
 import com.embeddedunveiled.serial.ftp.SerialComXModem1K;
-import com.embeddedunveiled.serial.ftp.SerialComXModemAbort;
 import com.embeddedunveiled.serial.ftp.SerialComXModemCRC;
+import com.embeddedunveiled.serial.ftp.SerialComYModemCRC;
 import com.embeddedunveiled.serial.hid.SerialComHID;
 import com.embeddedunveiled.serial.hid.SerialComRawHID;
+import com.embeddedunveiled.serial.internal.ISerialComFTPProgress;
 import com.embeddedunveiled.serial.internal.ISerialIOStream;
 import com.embeddedunveiled.serial.internal.SerialComBluetoothJNIBridge;
 import com.embeddedunveiled.serial.internal.SerialComCompletionDispatcher;
@@ -313,9 +316,9 @@ public final class SerialComManager {
     public enum FTPPROTO {
         /** <p>XMODEM protocol with three variants checksum, CRC and 1k.</p>*/
         XMODEM(1),
-        /** <p>YMODEM protocol with two variants CRC + 128 data bytes and CRC + 1k block.</p>*/
+        /** <p>YMODEM protocol with three variants checksum, CRC and 1k.</p>*/
         YMODEM(2),
-        /** <p>coming soon </p>*/
+        /** <p>coming soon</p>*/
         ZMODEM(3);
         private int value;
         private FTPPROTO(int value) {
@@ -328,16 +331,13 @@ public final class SerialComManager {
 
     /** <p>Pre-defined enum constants for defining variant of file transfer protocol to use. </p>*/
     public enum FTPVAR {
-        /** <p>Checksum for XMODEM protocol, 128 data byte block for YMODEM.  </p>*/ //TODO FOR zmodem
-        DEFAULT(0),
-        /** <p>Checksum variant for XMODEM protocol (1 byte checksum with total block size of 132). </p>*/
+        /** <p>1 byte checksum with 128 byte data block variant for X modem protocol. If you are new 
+         * to FTP protocols start with this. </p>*/
         CHKSUM(1),
-        /** <p>CRC variant for XMODEM protocol (2 byte CRC with total block size of 133).  </p>*/
+        /** <p>2 bytes CRC with 128 byte data block variant for X/Y modem protocols. </p>*/
         CRC(2),
-        /** <p>1k variant for X/Y MODEM protocol (2 byte CRC with total block size of 1024). </p>*/ //TODO DOUBLE CHK THIS
-        VAR1K(3),
-        /** <p>128 byte data variant for YMODEM protocol (//TODO).  </p>*/
-        VAR128B(4);
+        /** <p>2 byte CRC with 128/1024 bytes data block variant for X/Y modem protocols. </p>*/
+        VAR1K(3);
         private int value;
         private FTPVAR(int value) {
             this.value = value;	
@@ -2405,8 +2405,8 @@ public final class SerialComManager {
 
     /**
      * <p>This method gives the port name with which given handle is associated. If the given handle is
-     * unknown to SCM library, null is returned. A serial port is known to SCM if it was opened using 
-     * SCM library.</p>
+     * unknown to this library, null is returned. A serial port is known to this if it was opened using 
+     * SerialComManager's openComPort() method.</p>
      * 
      * @param handle for which the port name is to be found.
      * @return port name corresponding to the given handle.
@@ -2418,14 +2418,20 @@ public final class SerialComManager {
 
         handleInfo = mPortHandleInfo.get(handle);
         if(handleInfo == null) {
-            throw new SerialComException("Given handle does not represent a serial port opened through SCM !");
+            throw new SerialComException("Given handle is unknown to this library !");
         }
 
         return handleInfo.getOpenedPortName();
     }
 
     /**
-     * <p>Send given file using specified file transfer protocol.</p>
+     * <p>Send given file(s) using specified file transfer protocol.</p>
+     * 
+     * <p>For Xmodem trasnfer the element at 0th index of fileToSend array must represent a regular file. 
+     * If the length of fileToSend array is more than one, only 1st file will be sent.</p>
+     * 
+     * <p>For Ymodem transfer, the fileToSend array should contain all the files to be transffered to 
+     * receiver end where all the elements in fileToSend array represent regular files.</p>
      * 
      * @param handle of the port on which file is to be sent.
      * @param fileToSend File instance representing file to be sent.
@@ -2447,16 +2453,11 @@ public final class SerialComManager {
      * @throws IOException if error occurs while reading data from file to be sent.
      * @throws IllegalArgumentException if fileToSend or ftpProto or ftpVariant or ftpMode argument is null.
      */
-    public boolean sendFile(long handle, final java.io.File fileToSend, FTPPROTO ftpProto, FTPVAR ftpVariant, 
-            boolean textMode, ISerialComXmodemProgress progressListener, SerialComXModemAbort transferState) throws SerialComException, SecurityException,
-            FileNotFoundException, SerialComTimeOutException, IOException {
+    public boolean sendFile(long handle, final File[] fileToSend, FTPPROTO ftpProto, FTPVAR ftpVariant, 
+            boolean textMode, ISerialComFTPProgress progressListener, SerialComFTPCMDAbort transferState) throws IOException {
 
-        int protocol = 0;
-        int variant = 0;
-        boolean result = false;
-
-        if(fileToSend == null) {
-            throw new IllegalArgumentException("Argument fileToSend can not be null !");
+        if((fileToSend == null) || (fileToSend.length == 0)) {
+            throw new IllegalArgumentException("Argument fileToSend can not be null or of zero length !");
         }
         if(ftpProto == null) {
             throw new IllegalArgumentException("Argument ftpProto can not be null !");
@@ -2469,58 +2470,83 @@ public final class SerialComManager {
             throw new SerialComException("Given handle does not represent a serial port opened through SCM !");
         }
 
-        protocol = ftpProto.getValue();
-        variant = ftpVariant.getValue();
+        int protocol = ftpProto.getValue();
+        int variant = ftpVariant.getValue();
+
         if(protocol == 1) {
-            if((variant == 0) || (variant == 1)) {
-                SerialComXModem xmodem = new SerialComXModem(this, handle, fileToSend, textMode, progressListener, transferState, osType);
-                result = xmodem.sendFileX();
-            }else if(variant == 2) {
-                SerialComXModemCRC xmodem = new SerialComXModemCRC(this, handle, fileToSend, textMode, progressListener, transferState, osType);
-                result = xmodem.sendFileX();
-            }else if(variant == 3) {
-                SerialComXModem1K xmodem = new SerialComXModem1K(this, handle, fileToSend, textMode, progressListener, transferState, osType);
-                result = xmodem.sendFileX();
-            }else {
+            if(!fileToSend[0].isFile()) {
+                throw new IllegalArgumentException("For Xmodem fileToSend[0] must be a regular file !");
             }
-        }else if(protocol == 2) {
+            if(progressListener != null) {
+                if(!(progressListener instanceof ISerialComXmodemProgress)) {
+                    throw new IllegalArgumentException("Implement ISerialComXmodemProgress for non-null progressListener !");
+                }
+            }
+            switch(variant) {
+            case 1:
+                SerialComXModem xmodem = new SerialComXModem(this, handle, fileToSend[0], textMode, (ISerialComXmodemProgress)progressListener, transferState, osType);
+                return xmodem.sendFileX();
+            case 2:
+                SerialComXModemCRC xmodemc = new SerialComXModemCRC(this, handle, fileToSend[0], textMode, (ISerialComXmodemProgress)progressListener, transferState, osType);
+                return xmodemc.sendFileX();
+            case 3:
+                SerialComXModem1K xmodemk = new SerialComXModem1K(this, handle, fileToSend[0], textMode, (ISerialComXmodemProgress)progressListener, transferState, osType);
+                return xmodemk.sendFileX();
+            default:
+                throw new IllegalArgumentException("This variant is not applicable for for Xmodem transfer !");
+            }
+        }
+        else if(protocol == 2) {
+            switch(variant) {
+            case 2:
+                SerialComYModemCRC ymodemc = new SerialComYModemCRC(this, handle, fileToSend, textMode, (ISerialComYmodemProgress)progressListener, transferState, osType);
+                return ymodemc.sendFileY();
+            case 3:
+                //TODO
+            default:
+                throw new IllegalArgumentException("This variant is not applicable for for Ymodem transfer !");
+            }
+        }
+        else if(protocol == 3) {
 
-        }else if(protocol == 3) {
-
-        }else {
+        }
+        else {
         }
 
-        return result;
+        return false;
     }
 
     /**
      * <p>Receives file using specified file transfer protocol.</p>
      * 
-     * @param handle of the port on which file is to be sent.
-     * @param fileToReceive File instance representing file to be sent.
-     * @param ftpProto file transfer protocol to use for communication over serial port.
-     * @param ftpVariant variant of file transfer protocol to use.
-     * @param textMode if true file will be received as text file (ASCII mode), if false file will be received as binary file.
-     * @param progressListener object of class which implements ISerialComXmodemProgress interface and is interested in knowing
-     *         how many blocks have been received from file sender till now. If progressListener is null, update will not 
-     *         be delivered to application.
-     * @param transferState if application wish to abort receiving file at instant of time due to any reason, it can call 
-     *         abortTransfer method on this object. If the application does not wishes to abort receiving file explicitly 
-     *         transferState can be null.
+     * <p>For Xmodem transfer the fileToReceive must represent a regular file. For Ymodem transfer fileToReceive 
+     * must represent a directory in which received files will be saved.</p>
+     * 
+     * @param handle of the serial port on which file is to be sent.
+     * @param fileToReceive File instance representing file/folder to be sent.
+     * @param ftpProto file transfer protocol (FTPPROTO_XXX) to use for communication over serial port.
+     * @param ftpVariant variant of file transfer protocol (FTPVAR_XXX) to use.
+     * @param textMode if true file will be received as text file (ASCII mode), if false file will be received 
+     *         as binary file.
+     * @param progressListener object of class which implements ISerialComXmodemProgress interface and is interested 
+     *         in knowing how many blocks have been received from file sender till now. If progressListener is null, 
+     *         update will not be delivered to application.
+     * @param transferState if application wish to abort receiving file at instant of time due to any reason, it can 
+     *         call abortTransfer method on this object. If the application does not wishes to abort receiving file 
+     *         explicitly transferState can be null.
      * @return true on success, false if application instructed to abort.
      * @throws SerialComException if invalid handle is passed.
-     * @throws SecurityException If a security manager exists and its SecurityManager.checkRead(java.lang.String) method denies read access to the file.
-     * @throws FileNotFoundException if the file does not exist, is a directory rather than a regular file, or for some other reason cannot be opened for reading.
+     * @throws SecurityException If a security manager exists and its SecurityManager.checkRead(java.lang.String) method 
+     *          denies read access to the file.
+     * @throws FileNotFoundException if the file does not exist, is a directory rather than a regular file, or for some 
+     *          other reason cannot be opened for reading.
      * @throws SerialComTimeOutException if timeout occurs as per file transfer protocol.
      * @throws IOException if error occurs while reading data from file to be sent.
      * @throws IllegalArgumentException if fileToReceive or ftpProto or ftpVariant or ftpMode argument is null.
      */
-    public boolean receiveFile(long handle, final java.io.File fileToReceive, FTPPROTO ftpProto, FTPVAR ftpVariant, 
-            boolean textMode, ISerialComXmodemProgress progressListener, SerialComXModemAbort transferState) throws SerialComException, SecurityException, 
-            FileNotFoundException, SerialComTimeOutException, IOException {
+    public boolean receiveFile(long handle, final File fileToReceive, FTPPROTO ftpProto, FTPVAR ftpVariant, 
+            boolean textMode, ISerialComFTPProgress progressListener, SerialComFTPCMDAbort transferState) throws IOException {
 
-        int protocol = 0;
-        int variant = 0;
         boolean result = false;
 
         if(fileToReceive == null) {
@@ -2537,22 +2563,43 @@ public final class SerialComManager {
             throw new SerialComException("Given handle does not represent a serial port opened through SCM !");
         }
 
-        protocol = ftpProto.getValue();
-        variant = ftpVariant.getValue();
+        int protocol = ftpProto.getValue();
+        int variant = ftpVariant.getValue();
+
         if(protocol == 1) {
-            if((variant == 0) || (variant == 1)) {
-                SerialComXModem xmodem = new SerialComXModem(this, handle, fileToReceive, textMode, progressListener, transferState, osType);
+            if(!fileToReceive.isFile()) {
+                throw new IllegalArgumentException("The fileToReceive must be a regular file for Xmodem transfer !");
+            }
+            if(progressListener != null) {
+                if(!(progressListener instanceof ISerialComXmodemProgress)) {
+                    throw new IllegalArgumentException("Implement ISerialComXmodemProgress for non-null progressListener !");
+                }
+            }
+            if(variant == 1) {
+                SerialComXModem xmodem = new SerialComXModem(this, handle, fileToReceive, textMode, (ISerialComXmodemProgress)progressListener, transferState, osType);
                 result = xmodem.receiveFileX();
             }else if(variant == 2) {
-                SerialComXModemCRC xmodem = new SerialComXModemCRC(this, handle, fileToReceive, textMode, progressListener, transferState, osType);
+                SerialComXModemCRC xmodem = new SerialComXModemCRC(this, handle, fileToReceive, textMode, (ISerialComXmodemProgress)progressListener, transferState, osType);
                 result = xmodem.receiveFileX();
             }else if(variant == 3) {
-                SerialComXModem1K xmodem = new SerialComXModem1K(this, handle, fileToReceive, textMode, progressListener, transferState, osType);
+                SerialComXModem1K xmodem = new SerialComXModem1K(this, handle, fileToReceive, textMode, (ISerialComXmodemProgress)progressListener, transferState, osType);
                 result = xmodem.receiveFileX();
             }else {
+                throw new IllegalArgumentException("This variant is not applicable for for Xmodem transfer !");
             }
         }else if(protocol == 2) {
-
+            if(!fileToReceive.isDirectory()) {
+                throw new IllegalArgumentException("The fileToReceive must be a directory for Ymodem transfer !");
+            }
+            if(variant == 2) {
+                SerialComYModemCRC ymodem = new SerialComYModemCRC(this, handle, fileToReceive, textMode, (ISerialComYmodemProgress)progressListener, transferState, osType);
+                result = ymodem.receiveFileY();
+            }else if(variant == 3) {
+                //                SerialComYModem1K ymodem = new SerialComYModem1K(this, handle, fileToReceive, textMode, (ISerialComYmodemProgress)progressListener, transferState, osType);
+                //                result = ymodem.receiveFileX();
+            }else {
+                throw new IllegalArgumentException("This variant is not applicable for for Ymodem transfer !");
+            }
         }else if(protocol == 3) {
 
         }else {

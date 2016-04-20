@@ -24,19 +24,20 @@ package com.embeddedunveiled.serial.ftp;
  * 
  * @author Rishi Gupta
  */
-public final class SerialComXModemAbort {
+public final class SerialComFTPCMDAbort {
 
     private volatile boolean abortTransferNow;
 
     /**
-     * <p>Allocates a new SerialComXModemAbort object.</p>
+     * <p>Allocates a new SerialComFTPCMDAbort object with initial state as continue to 
+     * transfer.</p>
      */
-    public SerialComXModemAbort() {
+    public SerialComFTPCMDAbort() {
         abortTransferNow = false; // initial state.
     }
 
     /** 
-     * <p>Instructs SCM library to stop sending file if called by file sender,
+     * <p>Instructs this library to stop sending file if called by file sender,
      *  or to stop receiving file if called by file receiver using Xmodem or 
      *  its variant protocols.</p>
      */
