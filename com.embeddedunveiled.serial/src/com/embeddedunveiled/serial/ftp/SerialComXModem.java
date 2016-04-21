@@ -783,10 +783,12 @@ public final class SerialComXModem {
         boolean partialReadInProgress = false;
         byte[] data = null;
         String errMsg = null;
+        boolean isFileOpen = true;
 
         /* The data bytes get flushed automatically to file system physically whenever BufferedOutputStream's
 		   internal buffer gets full and request to write more bytes have arrived. */
         outStream = new BufferedOutputStream(new FileOutputStream(fileToProcess));
+        isFileOpen = true;
 
         // Clear receive buffer before start.
         try {
@@ -797,9 +799,9 @@ public final class SerialComXModem {
         }
 
         state = CONNECT; // entry point to state machine.
-
         while(true) {
             switch(state) {
+
             case CONNECT:
                 if(retryCount > 10) {
                     errMsg = "Timedout while trying to connect to file sender !";
@@ -816,6 +818,7 @@ public final class SerialComXModem {
                     throw exp;
                 }
                 break;
+
             case RECEIVEDATA:
                 // when the receiver is waiting for next block of data following conditions might occur :
                 // case 1: sender sent data block only (132 length block).
@@ -983,10 +986,17 @@ public final class SerialComXModem {
                     }
                 }
                 break;
+
             case VERIFY:
                 isCorrupted = false;      // reset.
                 isDuplicateBlock = false; // reset.
                 state = REPLY;
+
+                // check start of block.
+                if(block[0] != SOH) {
+                    isCorrupted = true;
+                    break;
+                }
                 // check duplicate block.
                 if(block[1] == ((blockNumber - 1) & 0xFF)){
                     isDuplicateBlock = true;
@@ -1012,6 +1022,7 @@ public final class SerialComXModem {
                     isCorrupted = true;
                 }
                 break;
+
             case REPLY:
                 try {
                     if(rxDone == false) {
@@ -1047,9 +1058,13 @@ public final class SerialComXModem {
                         state = RECEIVEDATA;
                     }else {
                         // file reception successfully finished, let's go back home happily.
+                        // sender might send EOT more than 1 time for any reason, so release resources only once.
                         scm.writeSingleByte(handle, ACK);
-                        outStream.flush();
-                        outStream.close();
+                        if(isFileOpen == true) {
+                            outStream.flush();
+                            outStream.close();
+                            isFileOpen = false;
+                        }
                         return true;
                     }
                 } catch (SerialComException exp) {
@@ -1061,11 +1076,13 @@ public final class SerialComXModem {
                 }
                 nextDataRecvTimeOut = System.currentTimeMillis() + 1000; // update timeout for next byte 1 second.
                 break;
+
             case ABORT:
                 /* if an IOexception occurs, control will not reach here instead exception would have been
                  * thrown already. */
                 outStream.close();
                 throw new SerialComTimeOutException(errMsg);
+
             default:
                 break;
             }

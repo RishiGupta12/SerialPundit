@@ -2437,18 +2437,20 @@ public final class SerialComManager {
      * @param fileToSend File instance representing file to be sent.
      * @param ftpProto file transfer protocol to use for communication over serial port.
      * @param ftpVariant variant of file transfer protocol to use.
-     * @param textMode if true file will be sent as text file (ASCII mode), if false file will be sent as binary file.
-     *         The text file must contain only valid ASCII characters.
-     * @param progressListener object of class which implements ISerialComXmodemProgress interface and is interested in knowing
-     *         how many blocks have been sent to file receiver till now. If progressListener is null, update will not 
-     *         be delivered to application.
-     * @param transferState if application wish to abort sending file at instant of time due to any reason, it can call 
-     *         abortTransfer method on this object. If the application does not wishes to abort sending file explicitly 
-     *         transferState can be null.
+     * @param textMode if true file will be sent as text file (ASCII mode), if false file will be sent as 
+     *         binary file. The text file must contain only valid ASCII characters.
+     * @param progressListener object of class which implements ISerialComXmodemProgress interface and is 
+     *         interested in knowing how many blocks have been sent to file receiver till now. If progressListener 
+     *         is null, update will not be delivered to application.
+     * @param transferState if application wish to abort sending file at instant of time due to any reason, it can 
+     *         call abortTransfer method on this object. If the application does not wishes to abort sending file 
+     *         explicitly transferState can be null.
      * @return true on success, false if application instructed to abort.
      * @throws SerialComException if invalid handle is passed.
-     * @throws SecurityException If a security manager exists and its SecurityManager.checkRead(java.lang.String) method denies read access to the file.
-     * @throws FileNotFoundException if the file does not exist, is a directory rather than a regular file, or for some other reason cannot be opened for reading.
+     * @throws SecurityException If a security manager exists and its SecurityManager.checkRead(java.lang.String) 
+     *          method denies read access to the file.
+     * @throws FileNotFoundException if the file does not exist, is a directory rather than a regular file, or 
+     *          for some other reason cannot be opened for reading.
      * @throws SerialComTimeOutException if timeout occurs as per file transfer protocol.
      * @throws IOException if error occurs while reading data from file to be sent.
      * @throws IllegalArgumentException if fileToSend or ftpProto or ftpVariant or ftpMode argument is null.
@@ -2588,8 +2590,8 @@ public final class SerialComManager {
                 throw new IllegalArgumentException("This variant is not applicable for for Xmodem transfer !");
             }
         }else if(protocol == 2) {
-            if(!fileToReceive.isDirectory()) {
-                throw new IllegalArgumentException("The fileToReceive must be a directory for Ymodem transfer !");
+            if(!fileToReceive.isDirectory() || !fileToReceive.canWrite()) {
+                throw new IllegalArgumentException("The fileToReceive must be a writable directory for Ymodem transfer !");
             }
             if(variant == 2) {
                 SerialComYModemCRC ymodem = new SerialComYModemCRC(this, handle, fileToReceive, textMode, (ISerialComYmodemProgress)progressListener, transferState, osType);

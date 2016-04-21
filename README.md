@@ -25,10 +25,10 @@ It eliminates the complexities of serial port programming for different operatin
 
 #####File transfer protocols
 - X/Y/Z modem FTP API implemented with finite state machine.
-- Progress listener for GUI applications.
+- Progress listener for GUI applications (number of blocks, percentage, file name etc.).
 - Both text and binary mode transfer can take place.
-- Abort command support to cancel transfer at any time.
-- Send and receive in files in parallel.
+- Abort command support to cancel transfer at any time by sender or receiver.
+- Send and receive in files in parallel in various format and multithreading handling.
 
 #####Vendor libraries integration
 - Vendor libraries like D2XX from ftdi, SimpleIO from microchip, USBXpress from silicon labs etc supported.
@@ -48,6 +48,9 @@ It eliminates the complexities of serial port programming for different operatin
 #####HID (human interface device)
 - HID class API for communicating with composite USB devices like MCP2200, CP2110 etc.
 - Dynamically find HID devices or get hotplug event notifications.
+- Input report listener for asynchronous operations.
+- Feature report, input report and output report in raw format available.
+- Find information like serial number, product name, manufacturer etc.
 
 #####Cloud and IoT ready
 

@@ -780,10 +780,12 @@ public final class SerialComXModem1K {
         byte[] data = null;
         String errMsg = null;
         int blockCRCval = 0;
+        boolean isFileOpen = true;
 
         /* The data bytes get flushed automatically to file system physically whenever BufferedOutputStream's internal
 		   buffer gets full and request to write more bytes have arrived. */
         outStream = new BufferedOutputStream(new FileOutputStream(fileToProcess));
+        isFileOpen = true;
 
         // Clear receive buffer before start
         try {
@@ -794,9 +796,9 @@ public final class SerialComXModem1K {
         }
 
         state = CONNECT; // entry point to state machine.
-
         while(true) {
             switch(state) {
+
             case CONNECT:
                 if(retryCount < 3) {
                     try {
@@ -813,6 +815,7 @@ public final class SerialComXModem1K {
                     return scm.receiveFile(handle, fileToProcess, FTPPROTO.XMODEM, FTPVAR.CHKSUM, textMode, progressListener, transferState);
                 }
                 break;
+
             case RECEIVEDATA:
                 // when the receiver is waiting for next block of data following conditions might occur :
                 // case 1: sender sent data block only (133 or 1029 length block).
@@ -1065,10 +1068,17 @@ public final class SerialComXModem1K {
                     }
                 }
                 break;
+
             case VERIFY:
                 isCorrupted = false;      // reset.
                 isDuplicateBlock = false; // reset.
                 state = REPLY;
+
+                // verify block start.
+                if(block[0] != STX) {
+                    isCorrupted = true;
+                    break;
+                }
                 // check duplicate block.
                 if(block[1] == (blockNumber - 1)){
                     isDuplicateBlock = true;
@@ -1102,6 +1112,7 @@ public final class SerialComXModem1K {
                     }
                 }
                 break;
+
             case REPLY:
                 try {
                     if(rxDone == false) {
@@ -1143,9 +1154,13 @@ public final class SerialComXModem1K {
                         state = RECEIVEDATA;
                     }else {
                         // file reception successfully finished, let us go back home.
+                        // sender might send EOT more than 1 time for any reason, so release resources only once.
                         scm.writeSingleByte(handle, ACK);
-                        outStream.flush();
-                        outStream.close();
+                        if(isFileOpen == true) {
+                            outStream.flush();
+                            outStream.close();
+                            isFileOpen = false;
+                        }
                         return true;
                     }
                 } catch (SerialComException exp) {
@@ -1157,11 +1172,13 @@ public final class SerialComXModem1K {
                 }
                 nextDataRecvTimeOut = System.currentTimeMillis() + 1000; // update timeout for next byte 1 second.
                 break;
+
             case ABORT:
                 /* if an IOexception occurs, control will not reach here instead exception would have been
                  * thrown already. */
                 outStream.close();
                 throw new SerialComTimeOutException(errMsg);
+
             default:
                 break;
             }

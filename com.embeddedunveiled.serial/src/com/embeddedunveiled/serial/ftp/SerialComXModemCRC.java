@@ -787,10 +787,12 @@ public final class SerialComXModemCRC {
         boolean partialReadInProgress = false;
         byte[] data = null;
         String errMsg = null;
+        boolean isFileOpen = true;
 
         /* The data bytes get flushed automatically to file system physically whenever BufferedOutputStream's
 		   internal buffer gets full and request to write more bytes have arrived. */
         outStream = new BufferedOutputStream(new FileOutputStream(fileToProcess));
+        isFileOpen = true;
 
         // Clear receive buffer before start.
         try {
@@ -992,6 +994,12 @@ public final class SerialComXModemCRC {
                 isCorrupted = false;      // reset.
                 isDuplicateBlock = false; // reset.
                 state = REPLY;
+
+                // verify block start.
+                if(block[0] != SOH) {
+                    isCorrupted = true;
+                    break;
+                }
                 // check duplicate block.
                 if(block[1] == ((blockNumber - 1) & 0xFF)){
                     isDuplicateBlock = true;
@@ -1051,9 +1059,13 @@ public final class SerialComXModemCRC {
                         state = RECEIVEDATA;
                     }else {
                         // file reception successfully finished, let's go back home happily.
+                        // sender might send EOT more than 1 time for any reason, so release resources only once.
                         scm.writeSingleByte(handle, ACK);
-                        outStream.flush();
-                        outStream.close();
+                        if(isFileOpen == true) {
+                            outStream.flush();
+                            outStream.close();
+                            isFileOpen = false;
+                        }
                         return true;
                     }
                 } catch (SerialComException exp) {
