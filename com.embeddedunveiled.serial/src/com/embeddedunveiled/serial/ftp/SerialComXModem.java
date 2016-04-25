@@ -316,8 +316,12 @@ public final class SerialComXModem {
                         // update GUI that a block has been sent if application has provided a listener
                         // for this purpose.
                         if(progressListener != null) {
-                            numberOfBlocksSent++;
-                            percentOfBlocksSent = (int) ((12800 * numberOfBlocksSent) / lengthOfFileToProcess);
+                            numberOfBlocksSent++;                            
+                            if(lengthOfFileToProcess != 0) {
+                                percentOfBlocksSent = (int) ((12800 * numberOfBlocksSent) / lengthOfFileToProcess);
+                            }else {
+                                percentOfBlocksSent = 100;
+                            }
                             if(percentOfBlocksSent >= 100) {
                                 // if the last block is not multiple of 128, than percent will go > 100,
                                 // so trim it. for example for a 1008 byte file, 1024 bytes (128*8) will
@@ -1052,6 +1056,7 @@ public final class SerialComXModem {
                                     blockNumber = 0x00;
                                 }
                             }
+                            duplicateBlockRetryCount = 0; // reset
                         }else {
                             scm.writeSingleByte(handle, NAK);
                         }

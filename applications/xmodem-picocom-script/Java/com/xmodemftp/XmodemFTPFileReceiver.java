@@ -36,7 +36,7 @@ public final class XmodemFTPFileReceiver {
 			long handle = scm.openComPort(args[0], true, true, true);
 			scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B9600, 0);
 			scm.configureComPortControl(handle, FLOWCONTROL.NONE, 'x', 'x', false, false);
-			boolean status = scm.receiveFile(handle, new File(args[1]), FTPPROTO.XMODEM, FTPVAR.DEFAULT, true, null, null);
+			boolean status = scm.receiveFile(handle, new File(args[1]), FTPPROTO.XMODEM, FTPVAR.CHKSUM, true, null, null);
 			System.out.println("File received status : " + status);
 			scm.closeComPort(handle);
 			System.exit(0);

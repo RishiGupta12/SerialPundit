@@ -318,7 +318,11 @@ public final class SerialComXModem1K {
                         // for this purpose.
                         if(progressListener != null) {
                             numberOfBlocksSent++;
-                            percentOfBlocksSent = (int) ((12800 * numberOfBlocksSent) / lengthOfFileToProcess);
+                            if(lengthOfFileToProcess != 0) {
+                                percentOfBlocksSent = (int) ((12800 * numberOfBlocksSent) / lengthOfFileToProcess);
+                            }else {
+                                percentOfBlocksSent = 100;
+                            }
                             if(percentOfBlocksSent >= 100) {
                                 percentOfBlocksSent = 100;
                             }
@@ -1147,6 +1151,7 @@ public final class SerialComXModem1K {
                                     blockNumber = 0x00;
                                 }
                             }
+                            duplicateBlockRetryCount = 0; // reset
                         }else {
                             scm.writeSingleByte(handle, NAK);
                         }

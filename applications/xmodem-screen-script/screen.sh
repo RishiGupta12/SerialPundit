@@ -18,7 +18,7 @@
 #################################################################################################
 
 # Run this script as ./screen.sh RECEIVE_PORT RECEIVE_FILE SEND_PORT SEND_FILE
-# For ex; ./screen.sh /dev/pts/1 /home/xyz/pic.txt /dev/pts/3 /home/xyz/pic1.txt
+# For ex; ./screen.sh /dev/pts/1 /home/user/xyz/pic.txt /dev/pts/3 /home/user/xyz/pic1.txt
 # *_PORT and *_FILE must be absolute names (with path).
 
 set -e
