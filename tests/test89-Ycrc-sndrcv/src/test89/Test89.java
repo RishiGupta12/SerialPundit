@@ -83,12 +83,11 @@ class Send extends Test89 implements Runnable, ISerialComYmodemProgress {
     }
 
     @Override
-    public void onYmodemSentProgressUpdate(long arg0, int arg1) {
-        // TODO Auto-generated method stub
-
+    public void onYmodemSentProgressUpdate(String name, long arg0, int arg1) {
+        System.out.println("send : " + name + " : number : " + arg0 + " : percent " + arg1);
     }
     @Override
-    public void onYmodemReceiveProgressUpdate(long arg0) {	
+    public void onYmodemReceiveProgressUpdate(String name, long arg0, int arg1) {	
     }
 }
 
@@ -163,12 +162,10 @@ public class Test89 implements ISerialComYmodemProgress {
     }
 
     @Override
-    public void onYmodemReceiveProgressUpdate(long arg0) {
-        System.out.println("block number received : " + arg0);
+    public void onYmodemReceiveProgressUpdate(String name, long arg0, int arg1) {
+        System.out.println("receive : " + name + " : number : " + arg0 + " : percent " + arg1);
     }
     @Override
-    public void onYmodemSentProgressUpdate(long arg0, int arg1) {
-        // TODO Auto-generated method stub
-
+    public void onYmodemSentProgressUpdate(String name, long arg0, int arg1) {
     }
 }

@@ -39,12 +39,13 @@ public interface ISerialComYmodemProgress extends ISerialComFTPProgress {
      * <p>This method should return as early as possible. Application might schedule GUI update 
      * for future.</p>
      * 
+     * @param fileName name of file that is currently getting sent.
      * @param numBlock number of the block sent by this application till the time this method is 
      *         called. It includes both newly sent and re-sent blocks i.e. it represent total 
      *         number of blocks sent from sender to receiver.
      * @param percentOfBlocksSent update in terms of percentage.
      */
-    public abstract void onYmodemSentProgressUpdate(long numBlock, int percentOfBlocksSent);
+    public abstract void onYmodemSentProgressUpdate(String fileName, long numBlock, int percentOfBlocksSent);
 
     /**
      * <p>The class implementing this interface is expected to override onYmodemReceiveProgressUpdate() 
@@ -53,9 +54,11 @@ public interface ISerialComYmodemProgress extends ISerialComFTPProgress {
      * <p>This method should return as early as possible. Application might schedule GUI update 
      * for future.</p>
      * 
+     * @param fileName name of file currently being received from sender.
      * @param numBlock number of the block received by this application till the time this method 
      *         is called. It includes both new blocks and resent blocks i.e. it represent total 
      *         number of blocks received from file sender.
+     * @param percentOfBlocksReceived update in terms of percentage.
      */
-    public abstract void onYmodemReceiveProgressUpdate(long numBlock);
+    public abstract void onYmodemReceiveProgressUpdate(String fileName, long numBlock, int percentOfBlocksReceived);
 }

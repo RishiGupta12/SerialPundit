@@ -183,6 +183,7 @@ public final class SerialComYModemCRC {
         boolean finAckReceptionTimerInitialized = false;
         long finAckWaitTimeOutValue = 0;
 
+        String currentlySendingFileName = filesToSend[currentlyProcessingFilenumber].getName();
         lengthOfFileToProcess = filesToSend[currentlyProcessingFilenumber].length();
         inStream = new BufferedInputStream(new FileInputStream(filesToSend[currentlyProcessingFilenumber]));
 
@@ -413,7 +414,7 @@ public final class SerialComYModemCRC {
                             if(percentOfBlocksSent >= 100) {
                                 percentOfBlocksSent = 100;
                             }
-                            progressListener.onYmodemSentProgressUpdate(numberOfBlocksSent, percentOfBlocksSent);
+                            progressListener.onYmodemSentProgressUpdate(currentlySendingFileName, numberOfBlocksSent, percentOfBlocksSent);
                         }
                     }else {
                         // if there is no more data to be sent, we are looking for ACK after sending EOT.
@@ -506,6 +507,7 @@ public final class SerialComYModemCRC {
                     inStream.close();
                     throw exp;
                 }
+                numberOfBlocksSent = 0; // reset
                 state = WAITACK;
                 break;
 
@@ -1045,6 +1047,7 @@ public final class SerialComYModemCRC {
         boolean partialReadInProgress = false;
         byte[] data = null;
         String errMsg = null;
+        int percentOfBlocksReceived = 0;
         boolean receiveBlock0OrFinalBlock = true;
         byte[] block0 = new byte[1029];
         long currentlyProcessingFileLength = 0;
@@ -1053,6 +1056,7 @@ public final class SerialComYModemCRC {
         boolean isFileOpen = false;
         boolean eotACKHasBeenSent = false;
         long totalNumberOfDataBytesReadTillNow = 0;
+        String nameOfFileBeingReceived = null;
         final String receiverDirAbsolutePath = filesToReceive.getAbsolutePath();
 
         // Clear receive buffer before start.
@@ -1176,7 +1180,6 @@ public final class SerialComYModemCRC {
                             state = REPLY;
                             break;
                         }else {
-                            ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
                             eotACKHasBeenSent = false; // reset
                             if(receiveBlock0OrFinalBlock != true) {
                                 // processing file data block
@@ -1323,8 +1326,13 @@ public final class SerialComYModemCRC {
                             break;
                         }
                     }
-                    String name = new String(block0, 3, x-3);
-                    File namefile = new File(receiverDirAbsolutePath, name);
+                    nameOfFileBeingReceived = new String(block0, 3, x-3);
+                    if((nameOfFileBeingReceived == null) || (nameOfFileBeingReceived.length() == 0)) {
+                        errMsg = "Sender did not sent file name !";
+                        state = ABORT;
+                        break;
+                    }
+                    File namefile = new File(receiverDirAbsolutePath, nameOfFileBeingReceived);
                     if(!namefile.exists()) {
                         namefile.createNewFile();
                     }
@@ -1390,13 +1398,8 @@ public final class SerialComYModemCRC {
                     }
                     break;
                 }
-                // verify block number sequence.
-                if(block[1] != (byte) blockNumber) {
-                    isCorrupted = true;
-                    break;
-                }
-                // verify block number.
-                if(block[2] != (byte) ~blockNumber) {
+                // verify block number sequence and block number itself.
+                if((block[1] != (byte) blockNumber) || (block[2] != (byte) ~blockNumber)) {
                     isCorrupted = true;
                     break;
                 }
@@ -1433,7 +1436,15 @@ public final class SerialComYModemCRC {
                             // a listener for this purpose.
                             if(progressListener != null) {
                                 numberOfBlocksReceived++;
-                                progressListener.onYmodemReceiveProgressUpdate(numberOfBlocksReceived);
+                                if(lengthOfFileToProcess != 0) {
+                                    percentOfBlocksReceived = (int) ((12800 * numberOfBlocksReceived) / lengthOfFileToProcess);
+                                }else {
+                                    percentOfBlocksReceived = 100;
+                                }
+                                if(percentOfBlocksReceived >= 100) {
+                                    percentOfBlocksReceived = 100;
+                                }
+                                progressListener.onYmodemReceiveProgressUpdate(nameOfFileBeingReceived, numberOfBlocksReceived, percentOfBlocksReceived);
                             }
 
                             if(isDuplicateBlock != true) {
