@@ -1014,13 +1014,8 @@ public final class SerialComXModemCRC {
                     }
                     break;
                 }
-                // verify block number sequence.
-                if(block[1] != (byte) blockNumber) {
-                    isCorrupted = true;
-                    break;
-                }
-                // verify block number.
-                if(block[2] != (byte) ~blockNumber) {
+                // verify block number sequence and block number.
+                if((block[1] != (byte) blockNumber) || (block[2] != (byte) ~blockNumber)) {
                     isCorrupted = true;
                     break;
                 }
