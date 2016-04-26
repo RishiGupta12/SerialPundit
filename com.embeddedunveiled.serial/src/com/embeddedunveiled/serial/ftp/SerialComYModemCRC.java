@@ -308,7 +308,7 @@ public final class SerialComYModemCRC {
                         }else {
                             // give sufficient time to remote end to close file resources and be able to 
                             // acknowledge us happily.
-                            Thread.sleep(1000);
+                            Thread.sleep(250);
                         }
                     } catch (InterruptedException e) {
                     }
