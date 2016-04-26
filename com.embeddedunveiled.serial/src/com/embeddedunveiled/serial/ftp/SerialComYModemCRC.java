@@ -1372,6 +1372,7 @@ public final class SerialComYModemCRC {
                         // our translation decision is based on text or binary mode.
                     }
 
+                    retryCount = 0; // reset
                     receiveBlock0OrFinalBlock = false; // reset
                     scm.writeSingleByte(handle, ACK);
                     state = CONNECT;
