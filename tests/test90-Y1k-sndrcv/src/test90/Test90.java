@@ -16,7 +16,7 @@
  * along with 'serial communication manager'.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package test89;
+package test90;
 
 import java.io.File;
 import java.util.concurrent.Executors;
@@ -53,7 +53,7 @@ class AbortTest implements Runnable {
 }
 
 // send file from one thread and receive from other using XMODEM checksum protocol 
-public class Test89 implements ISerialComYmodemProgress {
+public class Test90 implements ISerialComYmodemProgress {
 
     public static SerialComManager scm = null;
     public static String PORT1 = null;
@@ -72,7 +72,7 @@ public class Test89 implements ISerialComYmodemProgress {
     public static String rcvdiry3 = null;
     public static String rcvdiry2 = null;
     public static volatile boolean done = false;
-    public static Test89 test89 = new Test89();
+    public static Test90 test90 = new Test90();
 
     public static void main(String[] args) {
         try {
@@ -116,7 +116,7 @@ public class Test89 implements ISerialComYmodemProgress {
                         f[0] = new File(sndtxt1);
                         f[1] = new File(sndtxt2);
                         Thread.sleep(1000);
-                        boolean status1 = scm.sendFile(handle1, f, FTPPROTO.YMODEM, FTPVAR.CRC, true, test89, null);
+                        boolean status1 = scm.sendFile(handle1, f, FTPPROTO.YMODEM, FTPVAR.VAR1K, true, test90, null);
                         System.out.println("ASCII MODE sent txt status : " + status1);
                         done = true;
                         scm.closeComPort(handle1);
@@ -129,7 +129,7 @@ public class Test89 implements ISerialComYmodemProgress {
             long handle2 = scm.openComPort(PORT2, true, true, true);
             scm.configureComPortData(handle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
             scm.configureComPortControl(handle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
-            boolean status2 = scm.receiveFile(handle2, new File(rcvdiry1), FTPPROTO.YMODEM, FTPVAR.CRC, true, test89, null);
+            boolean status2 = scm.receiveFile(handle2, new File(rcvdiry1), FTPPROTO.YMODEM, FTPVAR.VAR1K, true, test90, null);
             System.out.println("ASCII MODE received status txt : " + status2);
             scm.closeComPort(handle2);
 
@@ -152,7 +152,7 @@ public class Test89 implements ISerialComYmodemProgress {
                         f[0] = new File(sndtxt1);
                         f[1] = new File(sndtxt2);
                         Thread.sleep(1000);
-                        boolean status3 = scm.sendFile(handle3, f, FTPPROTO.YMODEM, FTPVAR.CRC, false, test89, null);
+                        boolean status3 = scm.sendFile(handle3, f, FTPPROTO.YMODEM, FTPVAR.VAR1K, false, test90, null);
                         System.out.println("BINARY MODE sent txt status : " + status3);
                         done = true;
                         scm.closeComPort(handle3);
@@ -165,7 +165,7 @@ public class Test89 implements ISerialComYmodemProgress {
             long handle4 = scm.openComPort(PORT2, true, true, true);
             scm.configureComPortData(handle4, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
             scm.configureComPortControl(handle4, FLOWCONTROL.NONE, 'x', 'x', false, false);
-            boolean status4 = scm.receiveFile(handle4, new File(rcvdiry2), FTPPROTO.YMODEM, FTPVAR.CRC, false, test89, null);
+            boolean status4 = scm.receiveFile(handle4, new File(rcvdiry2), FTPPROTO.YMODEM, FTPVAR.VAR1K, false, test90, null);
             System.out.println("BINARY MODE received status txt : " + status4);
             scm.closeComPort(handle4);
 
@@ -188,7 +188,7 @@ public class Test89 implements ISerialComYmodemProgress {
                         f[0] = new File(sndjpg1);
                         f[1] = new File(sndjpg2);
                         Thread.sleep(1000);
-                        boolean status5 = scm.sendFile(handle5, f, FTPPROTO.YMODEM, FTPVAR.CRC, false, test89, null);
+                        boolean status5 = scm.sendFile(handle5, f, FTPPROTO.YMODEM, FTPVAR.VAR1K, false, test90, null);
                         System.out.println("BINARY MODE sent jpg status : " + status5);
                         done = true;
                         scm.closeComPort(handle5);
@@ -201,7 +201,7 @@ public class Test89 implements ISerialComYmodemProgress {
             long handle6 = scm.openComPort(PORT2, true, true, true);
             scm.configureComPortData(handle6, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
             scm.configureComPortControl(handle6, FLOWCONTROL.NONE, 'x', 'x', false, false);
-            boolean status6 = scm.receiveFile(handle6, new File(rcvdiry3), FTPPROTO.YMODEM, FTPVAR.CRC, false, test89, null);
+            boolean status6 = scm.receiveFile(handle6, new File(rcvdiry3), FTPPROTO.YMODEM, FTPVAR.VAR1K, false, test90, null);
             System.out.println("BINARY MODE received status jpg : " + status6);
             scm.closeComPort(handle6);
 
