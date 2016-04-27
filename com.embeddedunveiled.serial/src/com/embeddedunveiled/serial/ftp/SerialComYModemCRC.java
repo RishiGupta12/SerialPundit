@@ -53,8 +53,9 @@ public final class SerialComYModemCRC {
     private final SerialComManager scm;
     private final long handle;
     private File[] filesToSend;
+    private String currentlySendingFileName;
+    private long lengthOfFileToSend;
     private File filesToReceive;
-    private long lengthOfFileToProcess;
     private final boolean textMode;
     private final ISerialComYmodemProgress progressListener;
     private final SerialComFTPCMDAbort transferState;
@@ -182,9 +183,10 @@ public final class SerialComYModemCRC {
         int percentOfBlocksSent = 0;
         boolean finAckReceptionTimerInitialized = false;
         long finAckWaitTimeOutValue = 0;
+        boolean showSentProgress = false;
 
-        String currentlySendingFileName = filesToSend[currentlyProcessingFilenumber].getName();
-        lengthOfFileToProcess = filesToSend[currentlyProcessingFilenumber].length();
+        currentlySendingFileName = filesToSend[currentlyProcessingFilenumber].getName();
+        lengthOfFileToSend = filesToSend[currentlyProcessingFilenumber].length();
         inStream = new BufferedInputStream(new FileInputStream(filesToSend[currentlyProcessingFilenumber]));
 
         state = CONNECT;
@@ -207,6 +209,7 @@ public final class SerialComYModemCRC {
                          * have flushed garbage data. So receive buffer may contain garbage + C character. */
                         for(int x=0; x < data.length; x++) {
                             if(data[x] == C) {
+                                System.out.println("sssss");
                                 cReceived = true;
                                 if(needToSendBlock0 == true) {
                                     state = BLOCK0SEND;
@@ -253,6 +256,7 @@ public final class SerialComYModemCRC {
                 }
                 needToSendBlock0 = false;
                 waitForBlock0ACK = true;
+                showSentProgress = false;
                 state = WAITACK;
                 break;
 
@@ -272,6 +276,7 @@ public final class SerialComYModemCRC {
                     inStream.close();
                     throw exp;
                 }
+                showSentProgress = true;
                 state = WAITACK;
                 break;
 
@@ -287,6 +292,7 @@ public final class SerialComYModemCRC {
                     inStream.close();
                     throw exp;
                 }
+                showSentProgress = true;
                 state = WAITACK;
                 break;
 
@@ -404,17 +410,19 @@ public final class SerialComYModemCRC {
 
                         // update GUI that a block has been sent if application has provided a listener
                         // for this purpose.
-                        if(progressListener != null) {
-                            numberOfBlocksSent++;
-                            if(lengthOfFileToProcess != 0) {
-                                percentOfBlocksSent = (int) ((12800 * numberOfBlocksSent) / lengthOfFileToProcess);
-                            }else {
-                                percentOfBlocksSent = 100;
+                        if(showSentProgress == true) {
+                            if(progressListener != null) {
+                                numberOfBlocksSent++;
+                                if(lengthOfFileToSend != 0) {
+                                    percentOfBlocksSent = (int) ((12800 * numberOfBlocksSent) / lengthOfFileToSend);
+                                }else {
+                                    percentOfBlocksSent = 100;
+                                }
+                                if(percentOfBlocksSent >= 100) {
+                                    percentOfBlocksSent = 100;
+                                }
+                                progressListener.onYmodemSentProgressUpdate(currentlySendingFileName, numberOfBlocksSent, percentOfBlocksSent);
                             }
-                            if(percentOfBlocksSent >= 100) {
-                                percentOfBlocksSent = 100;
-                            }
-                            progressListener.onYmodemSentProgressUpdate(currentlySendingFileName, numberOfBlocksSent, percentOfBlocksSent);
                         }
                     }else {
                         // if there is no more data to be sent, we are looking for ACK after sending EOT.
@@ -432,7 +440,7 @@ public final class SerialComYModemCRC {
                                 }
 
                                 // send next file, reset all stuff
-                                lengthOfFileToProcess = filesToSend[currentlyProcessingFilenumber].length();
+                                lengthOfFileToSend = filesToSend[currentlyProcessingFilenumber].length();
                                 inStream = new BufferedInputStream(new FileInputStream(filesToSend[currentlyProcessingFilenumber]));
                                 cReceived = false;
                                 eotAckReceptionTimerInitialized = false;
@@ -442,6 +450,21 @@ public final class SerialComYModemCRC {
                                 percentOfBlocksSent = 0;
                                 needToSendBlock0 = true;
                                 noMoreData = false;
+                                alreadySentEOFchar = false;
+                                alreadySentEOFchar = false;
+                                isFirstDataBytePending = false;
+                                isSecondDataBytePending = false;
+                                isThirdDataBytePending = false;
+                                isLineFeedPending = false;
+                                isCarriageReturnPending = false;
+                                mark = -1;
+                                limit = -1;
+                                lastCharacterReceivedWasLF = false;
+                                lastCharacterReceivedWasCR = false;
+                                unprocessedByteInReceivedDataExist = false;
+                                lastCharacterReceivedWasCAN = false;
+                                data0 = 0;
+                                data1 = 0;
                                 state = CONNECT;
                             }
                             break;
@@ -493,6 +516,7 @@ public final class SerialComYModemCRC {
                     inStream.close();
                     throw exp;
                 }
+                showSentProgress = true;
                 state = WAITACK;
                 break;
 
@@ -508,6 +532,7 @@ public final class SerialComYModemCRC {
                     throw exp;
                 }
                 numberOfBlocksSent = 0; // reset
+                showSentProgress = false;
                 state = WAITACK;
                 break;
 
@@ -524,6 +549,7 @@ public final class SerialComYModemCRC {
                     throw exp;
                 }
                 waitForFinalBlockACK = true;
+                showSentProgress = false;
                 state = WAITACK;
                 break;
 
@@ -551,8 +577,8 @@ public final class SerialComYModemCRC {
         byte[] lenfm = null;
 
         // file name (null terminated)
-        String fileName = filesToSend[currentlyProcessingFilenumber].getName();
-        byte[] nameb = fileName.getBytes();
+        currentlySendingFileName = filesToSend[currentlyProcessingFilenumber].getName();
+        byte[] nameb = currentlySendingFileName.getBytes();
 
         // file length in bytes
         long fileLength = filesToSend[currentlyProcessingFilenumber].length();
@@ -1075,6 +1101,7 @@ public final class SerialComYModemCRC {
                 if(retryCount < 3) {
                     try {
                         scm.writeSingleByte(handle, C);
+                        System.out.println("rrrrr");
                         firstBlock = true;
                         connectTimeOut = System.currentTimeMillis() + 3000; // update timeout, 3 seconds.
                         state = BLOCKRCV;
@@ -1096,7 +1123,7 @@ public final class SerialComYModemCRC {
                 //         SPACE totaling 2 to 16 characters).
                 // case 3: sender sent data block followed immediately by abort command (135 to 149(133+16) total).
                 // case 4: sender sent abort command in between data block.
-                // case 5: sender can send block0 (128/1024), file data block(128) or final null block(128).
+                // case 5: sender can send block0 (133/1029), file data block(133) or final null block(133).
                 while(true) {
                     // check if application (file receiver) wish to cancel receiving file.
                     if((transferState != null) && (transferState.isTransferToBeAborted() == true)) {
@@ -1282,7 +1309,7 @@ public final class SerialComYModemCRC {
                         if(firstBlock == false) {
                             // reaching here means that we are waiting for receiving next block from file sender.
                             if(System.currentTimeMillis() > nextDataRecvTimeOut) {
-                                errMsg = "Timedout while trying to receive next data block from file sender !";
+                                errMsg = "Timedout while trying to receive next data byte from file sender !";
                                 state = ABORT;
                                 break;
                             }
@@ -1437,8 +1464,8 @@ public final class SerialComYModemCRC {
                             // a listener for this purpose.
                             if(progressListener != null) {
                                 numberOfBlocksReceived++;
-                                if(lengthOfFileToProcess != 0) {
-                                    percentOfBlocksReceived = (int) ((12800 * numberOfBlocksReceived) / lengthOfFileToProcess);
+                                if(currentlyProcessingFileLength > 0) {
+                                    percentOfBlocksReceived = (int) ((12800 * numberOfBlocksReceived) / currentlyProcessingFileLength);
                                 }else {
                                     percentOfBlocksReceived = 100;
                                 }
@@ -1448,13 +1475,13 @@ public final class SerialComYModemCRC {
                                 progressListener.onYmodemReceiveProgressUpdate(nameOfFileBeingReceived, numberOfBlocksReceived, percentOfBlocksReceived);
                             }
 
-                            if(isDuplicateBlock != true) {
+                            if(isDuplicateBlock == false) {
                                 blockNumber++;
                                 if(blockNumber > 0xFF) {
                                     blockNumber = 0x00;
                                 }
+                                duplicateBlockRetryCount = 0; // reset
                             }
-                            duplicateBlockRetryCount = 0; // reset
                         }else {
                             scm.writeSingleByte(handle, NAK);
                         }
@@ -1721,8 +1748,8 @@ public final class SerialComYModemCRC {
         outStream.write(tmpReceiveBuffer, 0, q);
 
         if(mark == 130) {
-            // indicates last byte in block array could not be processed as one more bytes was needed to test against
-            // all cases. so save this byte and process it next block of data received.
+            // indicates last byte in block array could not be processed as one more bytes was needed to 
+            // test against all cases. so save this byte and process it next block of data received.
             unprocessedByteInReceivedDataExist = true;
             unprocessedByteInLastReceivedBlock = block[130];
         }

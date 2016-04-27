@@ -240,7 +240,7 @@ public final class SerialComXModemCRC {
                         return false;
                     }
 
-                    // delay before next attempt to read from serial port
+                    // delay before next attempt to read from serial port.
                     try {
                         if(noMoreData != true) {
                             Thread.sleep(120);
@@ -250,7 +250,7 @@ public final class SerialComXModemCRC {
                     } catch (InterruptedException e) {
                     }
 
-                    // try to read data from serial port
+                    // try to read data from serial port.
                     try {
                         data = scm.readBytes(handle, 1);
                     } catch (SerialComException exp) {
@@ -385,7 +385,7 @@ public final class SerialComXModemCRC {
                 break;
 
             case ABORT:
-                /* if any IOexception occurs, control will not reach here instead exception would 
+                /* if any exception occurs, control will not reach here instead exception would 
                  * have been already thrown. This state is entered explicitly to abort executing 
                  * actions in state machine. */
                 inStream.close();
@@ -893,7 +893,7 @@ public final class SerialComXModemCRC {
                         }else if(data[0] == EOT) {
                             if(lastCharacterReceivedWasCAN == true) {
                                 // EOT after CAN was not expected, probably line has noise; abort transfer.
-                                errMsg = "Unexpected data sequence (<CAN> <EOT>) received from file sender !";
+                                errMsg = "Invalid data sequence (<CAN> <EOT>) received from file sender !";
                                 state = ABORT;
                                 break;
                             }
@@ -978,7 +978,7 @@ public final class SerialComXModemCRC {
                         if(firstBlock == false) {
                             // reaching here means that we are waiting for receiving next block from file sender.
                             if(System.currentTimeMillis() > nextDataRecvTimeOut) {
-                                errMsg = "Timedout while trying to receive next data byte (block) from file sender !";
+                                errMsg = "Timedout while trying to receive next data byte from file sender !";
                                 state = ABORT;
                                 break;
                             }
@@ -1046,13 +1046,13 @@ public final class SerialComXModemCRC {
                                 progressListener.onXmodemReceiveProgressUpdate(numberOfBlocksReceived);
                             }
 
-                            if(isDuplicateBlock != true) {
+                            if(isDuplicateBlock == false) {
                                 blockNumber++;
                                 if(blockNumber > 0xFF) {
                                     blockNumber = 0x00;
                                 }
+                                duplicateBlockRetryCount = 0; // reset
                             }
-                            duplicateBlockRetryCount = 0; // reset
                         }else {
                             scm.writeSingleByte(handle, NAK);
                         }

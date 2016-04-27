@@ -973,7 +973,7 @@ public final class SerialComXModem {
                         }
                     }else {
                         if(firstBlock == false) {
-                            // reaching here means that we are waiting for receiving next block from file sender.
+                            // reaching here means that we are waiting for receiving next data byte from file sender.
                             if(System.currentTimeMillis() > nextDataRecvTimeOut) {
                                 errMsg = "Timedout while trying to receive next data byte (block) from file sender !";
                                 state = ABORT;
@@ -1002,7 +1002,7 @@ public final class SerialComXModem {
                     break;
                 }
                 // check duplicate block.
-                if(block[1] == ((blockNumber - 1) & 0xFF)){
+                if(block[1] == ((blockNumber - 1) & 0xFF)) {
                     isDuplicateBlock = true;
                     duplicateBlockRetryCount++;
                     if(duplicateBlockRetryCount > 10) {
@@ -1017,7 +1017,7 @@ public final class SerialComXModem {
                     break;
                 }
                 // verify checksum.
-                if(block[131] != checksumCalculator.getChecksumValue(block, 3, 130)){
+                if(block[131] != checksumCalculator.getChecksumValue(block, 3, 130)) {
                     isCorrupted = true;
                 }
                 break;
@@ -1045,13 +1045,13 @@ public final class SerialComXModem {
                                 progressListener.onXmodemReceiveProgressUpdate(numberOfBlocksReceived);
                             }
 
-                            if(isDuplicateBlock != true) {
+                            if(isDuplicateBlock == false) {
                                 blockNumber++;
                                 if(blockNumber > 0xFF) {
                                     blockNumber = 0x00;
                                 }
+                                duplicateBlockRetryCount = 0; // reset
                             }
-                            duplicateBlockRetryCount = 0; // reset
                         }else {
                             scm.writeSingleByte(handle, NAK);
                         }
