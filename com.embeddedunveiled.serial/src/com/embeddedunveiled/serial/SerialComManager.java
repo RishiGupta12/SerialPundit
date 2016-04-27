@@ -2478,7 +2478,7 @@ public final class SerialComManager {
 
         if(protocol == 1) {
             if(!fileToSend[0].isFile()) {
-                throw new IllegalArgumentException("For Xmodem fileToSend[0] must be a regular file !");
+                throw new IllegalArgumentException("For Xmodem fileToSend[0] must be an existing regular file !");
             }
             if(progressListener != null) {
                 if(!(progressListener instanceof ISerialComXmodemProgress)) {
@@ -2572,7 +2572,7 @@ public final class SerialComManager {
 
         if(protocol == 1) {
             if(!fileToReceive.isFile()) {
-                throw new IllegalArgumentException("The fileToReceive must be a regular file for Xmodem transfer !");
+                throw new IllegalArgumentException("The fileToReceive must be an existing regular file for Xmodem transfer !");
             }
             if(progressListener != null) {
                 if(!(progressListener instanceof ISerialComXmodemProgress)) {

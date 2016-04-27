@@ -1385,7 +1385,7 @@ public final class SerialComYModem1K {
                     if(!namefile.exists()) {
                         namefile.createNewFile();
                     }
-                    outStream = new BufferedOutputStream(new FileOutputStream(namefile)); //TODO handle file path
+                    outStream = new BufferedOutputStream(new FileOutputStream(namefile));
                     isFileOpen = true;
 
                     // file length (number of data bytes):
