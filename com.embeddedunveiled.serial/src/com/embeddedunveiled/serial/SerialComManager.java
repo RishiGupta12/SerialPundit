@@ -33,6 +33,7 @@ import com.embeddedunveiled.serial.ftp.SerialComFTPCMDAbort;
 import com.embeddedunveiled.serial.ftp.SerialComXModem;
 import com.embeddedunveiled.serial.ftp.SerialComXModem1K;
 import com.embeddedunveiled.serial.ftp.SerialComXModemCRC;
+import com.embeddedunveiled.serial.ftp.SerialComYModem1K;
 import com.embeddedunveiled.serial.ftp.SerialComYModemCRC;
 import com.embeddedunveiled.serial.hid.SerialComHID;
 import com.embeddedunveiled.serial.hid.SerialComRawHID;
@@ -316,7 +317,7 @@ public final class SerialComManager {
     public enum FTPPROTO {
         /** <p>XMODEM protocol with three variants checksum, CRC and 1k.</p>*/
         XMODEM(1),
-        /** <p>YMODEM protocol with three variants checksum, CRC and 1k.</p>*/
+        /** <p>YMODEM protocol with two variants CRC and 1k.</p>*/
         YMODEM(2),
         /** <p>coming soon</p>*/
         ZMODEM(3);
@@ -2495,7 +2496,7 @@ public final class SerialComManager {
                 SerialComXModem1K xmodemk = new SerialComXModem1K(this, handle, fileToSend[0], textMode, (ISerialComXmodemProgress)progressListener, transferState, osType);
                 return xmodemk.sendFileX();
             default:
-                throw new IllegalArgumentException("This variant is not applicable for for Xmodem transfer !");
+                throw new IllegalArgumentException("This variant is not applicable for Xmodem transfer !");
             }
         }
         else if(protocol == 2) {
@@ -2504,9 +2505,10 @@ public final class SerialComManager {
                 SerialComYModemCRC ymodemc = new SerialComYModemCRC(this, handle, fileToSend, textMode, (ISerialComYmodemProgress)progressListener, transferState, osType);
                 return ymodemc.sendFileY();
             case 3:
-                //TODO
+                SerialComYModem1K ymodemk = new SerialComYModem1K(this, handle, fileToSend, textMode, (ISerialComYmodemProgress)progressListener, transferState, osType);
+                return ymodemk.sendFileY();
             default:
-                throw new IllegalArgumentException("This variant is not applicable for for Ymodem transfer !");
+                throw new IllegalArgumentException("This variant is not applicable for Ymodem transfer !");
             }
         }
         else if(protocol == 3) {
@@ -2581,11 +2583,11 @@ public final class SerialComManager {
                 SerialComXModem xmodem = new SerialComXModem(this, handle, fileToReceive, textMode, (ISerialComXmodemProgress)progressListener, transferState, osType);
                 result = xmodem.receiveFileX();
             }else if(variant == 2) {
-                SerialComXModemCRC xmodem = new SerialComXModemCRC(this, handle, fileToReceive, textMode, (ISerialComXmodemProgress)progressListener, transferState, osType);
-                result = xmodem.receiveFileX();
+                SerialComXModemCRC xmodemc = new SerialComXModemCRC(this, handle, fileToReceive, textMode, (ISerialComXmodemProgress)progressListener, transferState, osType);
+                result = xmodemc.receiveFileX();
             }else if(variant == 3) {
-                SerialComXModem1K xmodem = new SerialComXModem1K(this, handle, fileToReceive, textMode, (ISerialComXmodemProgress)progressListener, transferState, osType);
-                result = xmodem.receiveFileX();
+                SerialComXModem1K xmodemk = new SerialComXModem1K(this, handle, fileToReceive, textMode, (ISerialComXmodemProgress)progressListener, transferState, osType);
+                result = xmodemk.receiveFileX();
             }else {
                 throw new IllegalArgumentException("This variant is not applicable for for Xmodem transfer !");
             }
@@ -2594,11 +2596,11 @@ public final class SerialComManager {
                 throw new IllegalArgumentException("The fileToReceive must be a writable directory for Ymodem transfer !");
             }
             if(variant == 2) {
-                SerialComYModemCRC ymodem = new SerialComYModemCRC(this, handle, fileToReceive, textMode, (ISerialComYmodemProgress)progressListener, transferState, osType);
-                result = ymodem.receiveFileY();
+                SerialComYModemCRC ymodemc = new SerialComYModemCRC(this, handle, fileToReceive, textMode, (ISerialComYmodemProgress)progressListener, transferState, osType);
+                result = ymodemc.receiveFileY();
             }else if(variant == 3) {
-                //                SerialComYModem1K ymodem = new SerialComYModem1K(this, handle, fileToReceive, textMode, (ISerialComYmodemProgress)progressListener, transferState, osType);
-                //                result = ymodem.receiveFileX();
+                SerialComYModem1K ymodemk = new SerialComYModem1K(this, handle, fileToReceive, textMode, (ISerialComYmodemProgress)progressListener, transferState, osType);
+                result = ymodemk.receiveFileY();
             }else {
                 throw new IllegalArgumentException("This variant is not applicable for for Ymodem transfer !");
             }

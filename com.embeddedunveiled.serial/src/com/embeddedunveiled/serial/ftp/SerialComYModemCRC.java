@@ -209,7 +209,6 @@ public final class SerialComYModemCRC {
                          * have flushed garbage data. So receive buffer may contain garbage + C character. */
                         for(int x=0; x < data.length; x++) {
                             if(data[x] == C) {
-                                System.out.println("sssss");
                                 cReceived = true;
                                 if(needToSendBlock0 == true) {
                                     state = BLOCK0SEND;
@@ -1085,7 +1084,7 @@ public final class SerialComYModemCRC {
         String nameOfFileBeingReceived = null;
         final String receiverDirAbsolutePath = filesToReceive.getAbsolutePath();
 
-        // Clear receive buffer before start.
+        // Clear receive buffer before start. Ymodem is fully receiver driven by design.
         try {
             scm.clearPortIOBuffers(handle, true, false);
         } catch (SerialComException exp) {
@@ -1101,7 +1100,6 @@ public final class SerialComYModemCRC {
                 if(retryCount < 3) {
                     try {
                         scm.writeSingleByte(handle, C);
-                        System.out.println("rrrrr");
                         firstBlock = true;
                         connectTimeOut = System.currentTimeMillis() + 3000; // update timeout, 3 seconds.
                         state = BLOCKRCV;

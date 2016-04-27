@@ -1508,7 +1508,6 @@ public final class SerialComYModem1K {
                                 if(percentOfBlocksReceived >= 100) {
                                     percentOfBlocksReceived = 100;
                                 }
-                                System.out.println("" + currentlyProcessingFileLength + " : " + k + " : " + percentOfBlocksReceived);
                                 progressListener.onYmodemReceiveProgressUpdate(nameOfFileBeingReceived, numberOfBlocksReceived, percentOfBlocksReceived);
                             }
 
