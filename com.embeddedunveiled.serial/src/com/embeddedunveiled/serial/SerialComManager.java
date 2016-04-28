@@ -891,7 +891,8 @@ public final class SerialComManager {
      * 
      * <p>For Windows the exclusiveOwnerShip must be true as it does not allow sharing COM ports. An 
      * exception is thrown if exclusiveOwnerShip is set to false. For Solaris, exclusiveOwnerShip should be 
-     * set to false as of now.</p></li>
+     * set to false as of now. On Unix-like system this method uses ioctl command TIOCEXCL for exclusive access.
+     * and not lock files</p></li>
      *
      * <li>This method will clear both input and output buffers of drivers (or operating system).</li>
      * 
