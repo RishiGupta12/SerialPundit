@@ -1012,19 +1012,18 @@ public final class SerialComYModem1K {
         }else {
             /* file is to be send as a binary file. */
 
-            // read data from file to be sent.
+            // read data from the file to be sent.
             numBytesRead = inStream.read(block, 3, 1024);
-            if((numBytesRead > 0) && (numBytesRead < 1024)) {
+            if(numBytesRead == 1024) {
+            }else if(numBytesRead > 0) {
                 // assembling last block with padding.
-                x = numBytesRead;
-                for(x = x + 0; x < 1027; x++) {
+                for(x = numBytesRead + 3; x < 1027; x++) {
                     block[x] = SUB;
                 }
-            }else if(numBytesRead < 0){
+            }else {
                 // EOF encountered.
                 noMoreData = true;
                 return;
-            }else {
             }
         }
 

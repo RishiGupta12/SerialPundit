@@ -42,7 +42,7 @@ class Send extends Test80 implements Runnable, ISerialComXmodemProgress {
 			// text mode
 			File[] f = new File[1];
 			f[0] = new File(sndtfilepath);
-			boolean statusc = scm.sendFile(handle1, f, FTPPROTO.XMODEM, FTPVAR.CHKSUM, true, this, null);
+			boolean statusc = scm.sendFile(handle1, f, FTPPROTO.XMODEM, FTPVAR.CRC, false, this, null);
 			System.out.println("\nsent text status : " + statusc);
 
 			done = true;
@@ -105,7 +105,7 @@ public class Test80 implements ISerialComXmodemProgress {
 			}
 
 			PORT = "/dev/pts/3";
-			PORT1 = "/dev/pts/4";
+			PORT1 = "/dev/pts/2";
 
 			long handle = scm.openComPort(PORT, true, true, true);
 			scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
@@ -115,7 +115,7 @@ public class Test80 implements ISerialComXmodemProgress {
 			mThread.start();
 
 			// ascii text mode
-			boolean status = scm.receiveFile(handle, new File(rcvtfilepath), FTPPROTO.XMODEM, FTPVAR.CHKSUM, true, new Test80(), null);
+			boolean status = scm.receiveFile(handle, new File(rcvtfilepath), FTPPROTO.XMODEM, FTPVAR.CRC, false, new Test80(), null);
 			System.out.println("\nreceived status text : " + status);
 
 			while(done == false) { 

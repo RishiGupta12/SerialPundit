@@ -100,7 +100,7 @@ public class Test65 implements ISerialComXmodemProgress {
             }else{
             }
 
-            PORT1 = "/dev/pts/4";
+            PORT1 = "/dev/pts/2";
             PORT2 = "/dev/pts/3";
 
             Executors.newSingleThreadExecutor().execute(new Runnable() {

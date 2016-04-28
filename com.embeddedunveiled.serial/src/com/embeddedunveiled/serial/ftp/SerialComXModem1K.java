@@ -54,7 +54,6 @@ public final class SerialComXModem1K {
     private SerialComManager scm;
     private long handle;
     private File fileToProcess;
-    private long lengthOfFileToProcess;
     private boolean textMode;
     private ISerialComXmodemProgress progressListener;
     private SerialComFTPCMDAbort transferState;
@@ -126,7 +125,7 @@ public final class SerialComXModem1K {
      * @throws IOException if any I/O error occurs.
      * @throws SerialComException if any I/0 error on serial port communication occurs.
      */
-    public boolean sendFileX() throws SecurityException, IOException, SerialComException {
+    public boolean sendFileX() throws IOException {
 
         // Finite state machine's states.
         final int CONNECT   = 0X00;
@@ -147,7 +146,7 @@ public final class SerialComXModem1K {
         long eotAckWaitTimeOutValue = 0;
         int percentOfBlocksSent = 0;
 
-        lengthOfFileToProcess = fileToProcess.length();
+        long lengthOfFileToSend = fileToProcess.length();
         inStream = new BufferedInputStream(new FileInputStream(fileToProcess));
 
         state = CONNECT;
@@ -318,8 +317,8 @@ public final class SerialComXModem1K {
                         // for this purpose.
                         if(progressListener != null) {
                             numberOfBlocksSent++;
-                            if(lengthOfFileToProcess != 0) {
-                                percentOfBlocksSent = (int) ((12800 * numberOfBlocksSent) / lengthOfFileToProcess);
+                            if(lengthOfFileToSend != 0) {
+                                percentOfBlocksSent = (int) ((12800 * numberOfBlocksSent) / lengthOfFileToSend);
                             }else {
                                 percentOfBlocksSent = 100;
                             }
@@ -728,19 +727,18 @@ public final class SerialComXModem1K {
         }else {
             /* file is to be send as a binary file. */
 
-            // read data from file to be sent.
+            // read data from the file to be sent.
             numBytesRead = inStream.read(block, 3, 1024);
-            if((numBytesRead > 0) && (numBytesRead < 1024)) {
+            if(numBytesRead == 1024) {
+            }else if(numBytesRead > 0) {
                 // assembling last block with padding.
-                x = numBytesRead;
-                for(x = x + 0; x < 1027; x++) {
+                for(x = numBytesRead + 3; x < 1027; x++) {
                     block[x] = SUB;
                 }
-            }else if(numBytesRead < 0){
+            }else {
                 // EOF encountered.
                 noMoreData = true;
                 return;
-            }else {
             }
         }
 
@@ -758,7 +756,7 @@ public final class SerialComXModem1K {
      * @throws IOException if any I/O error occurs.
      * @throws SerialComException if any I/0 error on serial port communication occurs.
      */
-    public boolean receiveFileX() throws IOException, SerialComException {
+    public boolean receiveFileX() throws IOException {
 
         // Finite state machine's states.
         final int CONNECT     = 0X00;
