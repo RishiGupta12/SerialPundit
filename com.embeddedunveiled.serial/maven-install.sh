@@ -19,4 +19,5 @@
 
 set -e
 cd "$(dirname "$0")"
-mvn clean install -e
+mvn -Dmaven.test.skip=true clean install -e
+
