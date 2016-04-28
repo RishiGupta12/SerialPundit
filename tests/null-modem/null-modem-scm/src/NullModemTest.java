@@ -188,6 +188,9 @@ public final class NullModemTest {
                 e.printStackTrace();
             }
 
+            // Release operating system specific resources held by null modem class.
+            scnm.releaseResources();
+
             System.out.println("Done !");
 
         }catch (Exception e) {
