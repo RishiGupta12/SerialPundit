@@ -31,7 +31,7 @@ import com.embeddedunveiled.serial.SerialComTimeOutException;
 import com.embeddedunveiled.serial.util.SerialComCRCUtil;
 
 /**
- * <p>Implements state machine based file transfer based on YMODEM-CRC file transfer protocol.</p>
+ * <p>Implements state machine based file transfer based on YMODEM-1K file transfer protocol.</p>
  * 
  * @author Rishi Gupta
  */
@@ -148,7 +148,7 @@ public final class SerialComYModem1K {
     }
 
     /**
-     * <p>Represents actions to execute in state machine to implement ymodem/crc protocol
+     * <p>Represents actions to execute in state machine to implement ymodem-1k protocol
      * for sending files.</p>
      * 
      * @return true on success, false if application instructed to abort.
@@ -675,7 +675,7 @@ public final class SerialComYModem1K {
     }
 
     /* 
-     * Prepares ymodem/crc block of 1029 bytes in total using CRC-16-CCITT as given below :
+     * Prepares ymodem-1k block of 1029 bytes in total using CRC-16-CCITT as given below :
      * [SOH][blk #][255-blk #][1024 data bytes][2 byte CRC]
      * 
      * For text mode transfer, lines are terminated by CR+LF, EOF will be indicate
@@ -1035,7 +1035,7 @@ public final class SerialComYModem1K {
 
     /**
      * <p>Represents actions to execute in state machine to implement 
-     * ymodem-crc protocol for receiving files.</p>
+     * ymodem-1k protocol for receiving files.</p>
      * 
      * @return true on success, false if application instructed to abort.
      * @throws IOException if any I/O error occurs.

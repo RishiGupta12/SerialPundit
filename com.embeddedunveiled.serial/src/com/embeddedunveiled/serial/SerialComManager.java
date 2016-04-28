@@ -970,6 +970,9 @@ public final class SerialComManager {
      * 
      * <p>DTR line is dropped when port is closed.</p>
      * 
+     * <p>If a blocking operation is in progress like readBytesBlocking() etc. than first such operation must be 
+     * unblocked and then only closeComPort() should be called. It is invalid application design to violate this rule.</p> 
+     * 
      * <p>This method is thread safe.</p>
      * 
      * @param handle of the port to be closed.

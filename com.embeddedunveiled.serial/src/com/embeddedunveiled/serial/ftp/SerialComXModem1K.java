@@ -749,7 +749,7 @@ public final class SerialComXModem1K {
     }
 
     /**
-     * <p>Represents actions to execute in state machine to implement xmodem 
+     * <p>Represents actions to execute in state machine to implement xmodem-1k 
      * protocol for receiving files.</p>
      * 
      * @return true on success, false if application instructed to abort.
