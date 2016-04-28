@@ -1,4 +1,4 @@
-Latest development release is scm-1.0.4.jar
+Latest development release is scm-1.0.4.jar (last updated on 28-april-2016)
 
 ##Platforms supported
 
