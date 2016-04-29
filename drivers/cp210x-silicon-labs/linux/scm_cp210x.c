@@ -212,6 +212,11 @@ MODULE_DEVICE_TABLE(usb, id_table);
  * it. The usb_serial_generic_unthrottle function is called when the tty layer's input buffers have been emptied 
  * out and ready to accept data. The tty driver should then signal to the device that data can be received.
  *
+ * Typically usb-uart converters handles software/hardware flow control in hardware itself. The driver just 
+ * need to set desired flow control and device will automatically set/unset RTS Line or send XON/XOFF characters 
+ * as and when required. When tty layer instructs device driver to throttle, driver just refrains from 
+ * reading data from usb port.
+ *
  * TIOCMIWAIT: when application issues TIOCMIWAIT IOCTL, it wishes to sleep within the kernel until something 
  * happens to the MSR register of the tty device. This IOCTL is commonly used to wait for status line changes
  * The usb_serial_generic_tiocmiwait function is used for this purpose. 
