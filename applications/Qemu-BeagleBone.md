@@ -38,7 +38,7 @@ sudo linaro-media-create --image_file beagle_sd.img --dev beagle --binary nano-n
 http://www.oracle.com/technetwork/java/embedded/embedded-se/downloads/javase-embedded-downloads-2209751.html
 ```
 - Unpack the downloaded java pack.
-- Modify the root file system so that it contains embedded JVM. The output of fdisk is also shown.
+- Modify the root file system so that it contains embedded JVM. The output of fdisk is also shown, note number 106496.
 ```sh
 $ fdisk -lu beagle_sd.img | grep beagle
 Disk beagle_sd.img: 3221 MB, 3221225472 bytes

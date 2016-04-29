@@ -154,10 +154,11 @@ import com.embeddedunveiled.serial.comdb.SerialComDBRelease;
  * </td></tr>
  * </table>
  * 
- * [x] Native layer if fails to throw exception when an error occurs would log error message to STDERR file. 
+ * <ul><li><p>Native layer if fails to throw exception when an error occurs would log error message to STDERR file. 
  *     It is assumed that Java application running on production systems will deploy a Java logger which will 
  *     redirect STDERR messages to a log file. This way if an error occurs and native layer could not throw 
- *     exception for example in out of memory case it will still be logged for later analysis.</p>
+ *     exception for example in out of memory case it will still be logged for later analysis.</p></li>
+ * </ul>
  * 
  * @author Rishi Gupta
  * @version 1.0.4

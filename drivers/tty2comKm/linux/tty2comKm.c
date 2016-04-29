@@ -1037,8 +1037,8 @@ static void scmtty_flush_buffer(struct tty_struct *tty)
 /*
  * Invoked by tty layer in response to tcdrain() call.
  * 
- * @tty:
- * @timeout:
+ * @tty: tty device who should try to empty its output buffer
+ * @timeout: timeout value
  */
 static void scmtty_wait_until_sent(struct tty_struct *tty, int timeout) 
 {
@@ -1064,7 +1064,7 @@ static void scmtty_send_xchar(struct tty_struct *tty, char ch)
 /*
  * @file file for proc file
  * @buf user space buffer that will contain data when this function returns
- * @length number of character returned in buf
+ * @size number of character returned in buf
  * @ppos offset
  * 
  * @return number of bytes copied to user buffer on success or negative error code on error
