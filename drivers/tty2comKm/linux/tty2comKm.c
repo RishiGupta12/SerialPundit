@@ -187,7 +187,8 @@ static int last_nmdev1_idx = -1;
 static int last_nmdev2_idx = -1;
 
 /*
- * Notifies tty layer that a framing error has happend while receiving data on serial port.
+ * Notifies tty layer that a framing error has happend while receiving data on serial port. The serial 
+ * port on which the given error/event is to be emulated must have been opened before causing error event.
  * 
  * 1. Emulate framing error:
  * $echo "1" > /sys/devices/virtual/tty/tty2com0/scmvtty_errevt/evt
@@ -231,7 +232,9 @@ static ssize_t evt_store(struct device *dev, struct device_attribute *attr, cons
         vttydev = local_vttydev;
     }
 
-    if(tty_to_write == NULL)
+    if((tty_to_write == NULL) || (tty_to_write->port == NULL))
+        return -EIO;
+    if(tty_to_write->port->count <= 0)
         return -EIO;
 
     mutex_lock(&local_vttydev->lock);
@@ -1503,11 +1506,11 @@ static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *bu
 
     return length;
 
-fail_register:
+    fail_register:
     sysfs_remove_group(&device1->kobj, &scmvtty_error_events_attr_group);
     tty_unregister_device(scmtty_driver, i);
 
-fail_arg:
+    fail_arg:
     index_manager[i].index = -1;
     if(vttydev2 != NULL)
         kfree(vttydev2);
@@ -1661,11 +1664,11 @@ static int __init scm_tty2comKm_init(void)
     printk(KERN_INFO "%s %s %s\n", "tty2comKm:", DRIVER_DESC, DRIVER_VERSION);
     return 0;
 
-failed_proc:
+    failed_proc:
     kfree(index_manager);
-failed_alloc:
+    failed_alloc:
     tty_unregister_driver(scmtty_driver);
-failed_register:
+    failed_register:
     put_tty_driver(scmtty_driver);
     return ret;
 }
