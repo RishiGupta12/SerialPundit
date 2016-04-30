@@ -497,7 +497,7 @@ static void scmtty_close(struct tty_struct *tty, struct file *filp)
 
     tty_port_close(tty->port, tty, filp);
     mutex_unlock(&local_vttydev->lock);
-    
+
     wake_up_interruptible(&tty->read_wait);
     wake_up_interruptible(&tty->write_wait);
 }
@@ -1503,11 +1503,11 @@ static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *bu
 
     return length;
 
-    fail_register:
+fail_register:
     sysfs_remove_group(&device1->kobj, &scmvtty_error_events_attr_group);
     tty_unregister_device(scmtty_driver, i);
 
-    fail_arg:
+fail_arg:
     index_manager[i].index = -1;
     if(vttydev2 != NULL)
         kfree(vttydev2);
@@ -1587,6 +1587,11 @@ static const struct tty_operations scm_serial_ops = {
  * 
  * $insmod ./tty2comKm.ko max_num_vtty_dev=20 init_num_nm_pair=1 init_num_lb_dev=1
  *
+ * First all the null modem pair will be created and then loop back device will be created if 
+ * creating virtual devices at module load time is specified. For example for above command line 
+ * null modem pair : /dev/tty2com0 <---> /dev/tty2com1
+ * loop back       : /dev/tty2com2
+ *
  * @return: 0 on success or negative error code on failure.
  */
 static int __init scm_tty2comKm_init(void)
@@ -1656,11 +1661,11 @@ static int __init scm_tty2comKm_init(void)
     printk(KERN_INFO "%s %s %s\n", "tty2comKm:", DRIVER_DESC, DRIVER_VERSION);
     return 0;
 
-    failed_proc:
+failed_proc:
     kfree(index_manager);
-    failed_alloc:
+failed_alloc:
     tty_unregister_driver(scmtty_driver);
-    failed_register:
+failed_register:
     put_tty_driver(scmtty_driver);
     return ret;
 }

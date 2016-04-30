@@ -30,6 +30,7 @@ fi
 
 file="$(dirname "$0")/tty2comKm.ko"
 
+#insmod ./tty2comKm.ko max_num_vtty_dev=20 init_num_nm_pair=1 init_num_lb_dev=1
 if [ -f "$file" ]; then
     insmod ./tty2comKm.ko
     echo "Driver tty2comKm loaded successfully !"
