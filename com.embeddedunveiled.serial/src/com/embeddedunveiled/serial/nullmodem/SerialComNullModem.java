@@ -158,6 +158,9 @@ public final class SerialComNullModem {
      * createStandardNullModemDevices(-1, -1) will create /dev/tty2comXX and /dev/tty2comYY where XX/YY are the 
      * next free numbers managed by the driver internally.</p>
      * 
+     * <P>After calling this method it is advised to call getLastNullModemDevicePairNodes() method to get operating 
+     * system specific device node name.</p>
+     * 
      * @param deviceIndex1 -1 or valid device number (0 <= deviceIndex1 =< 65535).
      * @param deviceIndex2 -1 or valid device number (0 <= deviceIndex1 =< 65535).
      * @return Created virtual null modem pair device's node on success.
@@ -698,7 +701,7 @@ public final class SerialComNullModem {
             // /sys/devices/virtual/tty/tty2com0/scmvtty_errevt/evt
             StringBuilder sb = new StringBuilder();
             sb.append("/sys/devices/virtual/tty/");
-            sb.append(devNode.substring(12));
+            sb.append(devNode.substring(5));
             sb.append("/scmvtty_errevt/evt");
             try (FileOutputStream fout = new FileOutputStream(sb.toString())) {
                 if((error & ERR_FRAME) == ERR_FRAME) {
@@ -735,7 +738,7 @@ public final class SerialComNullModem {
             // /sys/devices/virtual/tty/tty2com0/scmvtty_errevt/evt
             StringBuilder sb = new StringBuilder();
             sb.append("/sys/devices/virtual/tty/");
-            sb.append(devNode.substring(12));
+            sb.append(devNode.substring(5));
             sb.append("/scmvtty_errevt/evt");
             try (FileOutputStream fout = new FileOutputStream(sb.toString())) {
                 if(state == true) {
