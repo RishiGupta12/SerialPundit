@@ -154,6 +154,12 @@ static int scmtty_vadapt_proc_close(struct inode *inode, struct file *file);
 static ssize_t scmtty_vadapt_proc_read(struct file *file, char __user *buf, size_t size, loff_t *ppos);
 static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *buf, size_t length, loff_t * ppos);
 
+static void scm_port_dtr_rts(struct tty_port *port, int raise);
+static int scm_port_carrier_raised(struct tty_port *port);
+static void scm_port_shutdown(struct tty_port *port);
+static int scm_port_activate(struct tty_port *port, struct tty_struct *tty);
+static void scm_port_destruct(struct tty_port *port);
+
 /* These values may be overriden if module is loaded with parameters */
 static ushort max_num_vtty_dev = VTTY_DEV_MAX;
 static ushort init_num_nm_pair = 0;
@@ -177,9 +183,6 @@ static struct attribute *scmvtty_error_events_attrs[] = {
 static const struct attribute_group scmvtty_error_events_attr_group = {
         .name = "scmvtty_errevt",
         .attrs = scmvtty_error_events_attrs,
-};
-
-static const struct tty_port_operations vttydev_port_ops = {
 };
 
 static int last_lbdev_idx  = -1;
@@ -232,9 +235,7 @@ static ssize_t evt_store(struct device *dev, struct device_attribute *attr, cons
         vttydev = local_vttydev;
     }
 
-    if((tty_to_write == NULL) || (tty_to_write->port == NULL))
-        return -EIO;
-    if(tty_to_write->port->count <= 0)
+    if((tty_to_write == NULL) || (tty_to_write->port == NULL) || (tty_to_write->port->count <= 0))
         return -EIO;
 
     mutex_lock(&local_vttydev->lock);
@@ -274,6 +275,8 @@ static ssize_t evt_store(struct device *dev, struct device_attribute *attr, cons
  * Update modem control and modem status registers according to the bit mask(s) provided. The 
  * DTR and RTS values can be set only if the current handshaking state of the tty device allows 
  * direct control of the modem control lines. Update honours pin mappings.
+ *
+ * Caller holds the lock associated with the given tty's virtual tty info.
  * 
  * @tty: tty device whose modem control register is to be updated with given value(s)
  * @set: bit mask of signals which should be asserted
@@ -381,7 +384,6 @@ static int update_modem_lines(struct tty_struct *tty, unsigned int set, unsigned
         }
     }
 
-    mutex_lock(&local_vttydev->lock);
     local_vttydev->mcr_reg = mcr_ctrl_reg;
 
     if(remote_vttydev == NULL) {
@@ -397,7 +399,6 @@ static int update_modem_lines(struct tty_struct *tty, unsigned int set, unsigned
     evicount->dsr += dsrint;
     evicount->dcd += dcdint;
     evicount->rng += rngint;
-    mutex_unlock(&local_vttydev->lock);
 
     return 0;
 }
@@ -685,9 +686,12 @@ static void scmtty_set_termios(struct tty_struct *tty, struct ktermios *old_term
     if(tty->index != local_vttydev->peer_index)
         remote_vttydev = index_manager[local_vttydev->peer_index].vttydev;
 
+    mutex_lock(&local_vttydev->lock);
+
     // Typically B0 is used to terminate the connection. Drop RTS and DTR.
     if ((tty->termios.c_cflag & CBAUD) == B0 ) {
         update_modem_lines(tty, 0, TIOCM_DTR | TIOCM_RTS);
+        mutex_unlock(&local_vttydev->lock);
         return;
     }
 
@@ -695,8 +699,6 @@ static void scmtty_set_termios(struct tty_struct *tty, struct ktermios *old_term
     if (!old_termios || (old_termios->c_cflag & CBAUD) == B0) {
         update_modem_lines(tty, TIOCM_DTR | TIOCM_RTS, 0);
     }
-
-    mutex_lock(&local_vttydev->lock);
 
     baud = tty_get_baud_rate(tty);
     if (!baud) {
@@ -825,8 +827,11 @@ static int scmtty_ioctl(struct tty_struct *tty, unsigned int cmd, unsigned long 
  */
 static void scmtty_throttle(struct tty_struct * tty) 
 {
+    struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
     if (tty->termios.c_cflag & CRTSCTS) {
+        mutex_lock(&local_vttydev->lock);
         update_modem_lines(tty, 0, TIOCM_RTS);
+        mutex_unlock(&local_vttydev->lock);
     }
     else if((tty->termios.c_iflag & IXON) || (tty->termios.c_iflag & IXOFF)) {
         scmtty_put_char(tty, STOP_CHAR(tty));
@@ -847,9 +852,12 @@ static void scmtty_throttle(struct tty_struct * tty)
  */
 static void scmtty_unthrottle(struct tty_struct * tty) 
 {
+    struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
     if (tty->termios.c_cflag & CRTSCTS) {
         /* hardware (RTS/CTS) flow control */
+        mutex_lock(&local_vttydev->lock);
         update_modem_lines(tty, TIOCM_RTS, 0);
+        mutex_unlock(&local_vttydev->lock);
     }
     else if((tty->termios.c_iflag & IXON) || (tty->termios.c_iflag & IXOFF)) {
         /* software flow control */
@@ -926,7 +934,12 @@ static int scmtty_tiocmget(struct tty_struct *tty)
  */
 static int scmtty_tiocmset(struct tty_struct *tty, unsigned int set, unsigned int clear) 
 {
-    return update_modem_lines(tty, set, clear);
+    int ret = 0;
+    struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
+    mutex_lock(&local_vttydev->lock);
+    ret = update_modem_lines(tty, set, clear);
+    mutex_unlock(&local_vttydev->lock);
+    return ret;
 }
 
 /*
@@ -984,8 +997,11 @@ static int scmtty_break_ctl(struct tty_struct *tty, int state)
  */
 static void scmtty_hangup(struct tty_struct *tty) 
 {
-    if(tty->termios.c_cflag & HUPCL)
+    struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
+    if(tty->termios.c_cflag & HUPCL) {
         update_modem_lines(tty, 0, TIOCM_DTR | TIOCM_RTS);
+        mutex_unlock(&local_vttydev->lock);
+    }
 }
 
 /*
@@ -1062,6 +1078,69 @@ static void scmtty_wait_until_sent(struct tty_struct *tty, int timeout)
 static void scmtty_send_xchar(struct tty_struct *tty, char ch) 
 {
     scmtty_put_char(tty, ch);
+}
+
+static const struct tty_port_operations vttydev_port_ops = {
+        .dtr_rts        = scm_port_dtr_rts,
+        .carrier_raised = scm_port_carrier_raised,
+        .shutdown       = scm_port_shutdown,
+        .activate       = scm_port_activate,
+        .destruct       = scm_port_destruct,
+};
+
+/*
+ * Asserts or de-asserts lines as specified by raise argument.
+ * 
+ * @port serial port whose lines is to be updated
+ * @raise 1 if line should be asserted, 0 if line should be de-asserted
+ */
+static void scm_port_dtr_rts(struct tty_port *port, int raise) {
+    if(raise == 1)
+        update_modem_lines(port->tty, TIOCM_DTR | TIOCM_RTS, 0);
+    else
+        update_modem_lines(port->tty, 0, TIOCM_DTR | TIOCM_RTS);
+}
+
+/*
+ * Checks if the given port has received its carrier detect line raised.
+ * 
+ * @port serial port whose carrier detect line is to be checked.
+ * @return 1 if the carrier is raised otherwise 0
+ */
+static int scm_port_carrier_raised(struct tty_port *port) {
+    int msr_reg = 0;
+    struct vtty_dev *local_vttydev = index_manager[port->tty->index].vttydev;
+
+    mutex_lock(&local_vttydev->lock);
+    msr_reg = local_vttydev->msr_reg;
+    mutex_unlock(&local_vttydev->lock);
+
+    return (msr_reg & SCM_MSR_DCD) ? 1  : 0;
+}
+
+/*
+ * Shutdowns the given serial port, typically it is used to shutdown hardware.
+ * 
+ * @port: tty port to shut down
+ */
+static void scm_port_shutdown(struct tty_port *port) {
+}
+
+/*
+ * Activate the given serial port as opposed to shutdown. Typically used to turn something on hardware.
+ * 
+ * @port: tty port to activate
+ * @tty: tty corresponding to the given port
+ * @return 0 on success
+ */
+static int scm_port_activate(struct tty_port *port, struct tty_struct *tty) {
+    return 0;
+}
+
+/*
+ * Typically used for destroying serial port specific resources and freeing them.
+ */
+static void scm_port_destruct(struct tty_port *port) {
 }
 
 /*
@@ -1241,8 +1320,10 @@ static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *bu
             ret = -ENOMEM;
             goto fail_arg;
         }
-        port1->ops = &vttydev_port_ops;
+
+        // first initialize and then set port operations
         tty_port_init(port1);
+        port1->ops = &vttydev_port_ops;
 
         // extract 2nd device index if null modem pair is to be created
         if(is_loopback != 1) {
@@ -1275,8 +1356,8 @@ static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *bu
                 ret = -ENOMEM;
                 goto fail_arg;
             }
-            port2->ops = &vttydev_port_ops;
             tty_port_init(port2);
+            port2->ops = &vttydev_port_ops;
         }
 
         // rts mappings (dev1)
