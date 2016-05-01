@@ -169,7 +169,7 @@ static ushort init_num_lb_dev = 0;
 static struct tty_driver *scmtty_driver;
 
 /* Used when creating or destroying virtual tty devices */
-static DEFINE_SPINLOCK(adaptlock);        // atomically create/destroy tty devices
+static DEFINE_SPINLOCK(adaptlock);      // atomically create/destroy tty devices
 struct vtty_info *index_manager = NULL;   //  keep track of indexes in use currently
 
 /* Per device sysfs entries to emulate frame, parity and overrun error events during data reception */
@@ -190,8 +190,10 @@ static int last_nmdev1_idx = -1;
 static int last_nmdev2_idx = -1;
 
 /*
- * Notifies tty layer that a framing error has happend while receiving data on serial port. The serial 
- * port on which the given error/event is to be emulated must have been opened before causing error event.
+ * Notifies tty layer that a framing/parity/overrun error has happend while receiving data on serial port. 
+ * The serial port on which the given error/event is to be emulated must have been opened before causing 
+ * error event. In the example given below tty2com0 port will indicate to tty layer that it received 
+ * corrupted data.
  * 
  * 1. Emulate framing error:
  * $echo "1" > /sys/devices/virtual/tty/tty2com0/scmvtty_errevt/evt
@@ -217,24 +219,16 @@ static int last_nmdev2_idx = -1;
  */
 static ssize_t evt_store(struct device *dev, struct device_attribute *attr, const char *buf, size_t count)
 {
-    struct vtty_dev *vttydev = NULL;
     struct vtty_dev *local_vttydev = NULL;
     struct tty_struct *tty_to_write = NULL;
 
-    if(!buf || (count == 0))
+    if(!buf || (count <= 0))
         return -EINVAL;
 
     local_vttydev = (struct vtty_dev *) dev_get_drvdata(dev);
+    tty_to_write = local_vttydev->own_tty;
 
-    if(local_vttydev->own_index != local_vttydev->peer_index) {
-        tty_to_write = local_vttydev->peer_tty;
-        vttydev = index_manager[local_vttydev->peer_index].vttydev;
-    }
-    else {
-        tty_to_write = local_vttydev->own_tty;
-        vttydev = local_vttydev;
-    }
-
+    /* ensure required structure has been initialized and port has been opened. */
     if((tty_to_write == NULL) || (tty_to_write->port == NULL) || (tty_to_write->port->count <= 0))
         return -EIO;
 
@@ -254,12 +248,12 @@ static ssize_t evt_store(struct device *dev, struct device_attribute *attr, cons
         local_vttydev->icount.overrun++;
         break;
     case '4' :
-        vttydev->msr_reg |= SCM_MSR_RI;
-        vttydev->icount.rng++;
+        local_vttydev->msr_reg |= SCM_MSR_RI;
+        local_vttydev->icount.rng++;
         break;
     case '5' :
-        vttydev->msr_reg &= ~SCM_MSR_RI;
-        vttydev->icount.rng++;
+        local_vttydev->msr_reg &= ~SCM_MSR_RI;
+        local_vttydev->icount.rng++;
         break;
     default :
         mutex_unlock(&local_vttydev->lock);
