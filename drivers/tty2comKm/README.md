@@ -19,7 +19,7 @@ It creates virtual serial ports pair that appears same as the real once to the a
   [hw device]--[hw comport]--[plugin software (process data)]--[virtual comport]--[Existing application]
 - Write user space drivers for ex; multiplex several virtual connections on single physical GSM Modem line
 - Protocol converter engine software
-- Capture the output of Guest OS on virtual machine and re-direct it to a terminal program
+- Capture the output of guest OS running on virtual machine and re-direct it to a terminal program on host
 
 ##Features
 - Create standard, loopback or custom pinout connected serial devices
