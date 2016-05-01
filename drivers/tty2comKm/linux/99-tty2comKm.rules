@@ -17,5 +17,5 @@
 #################################################################################################
 
 
-ACTION=="add", SUBSYSTEM=="tty", KERNEL=="tty2com[0-9]", MODE="0666"
+ACTION=="add", SUBSYSTEM=="tty", KERNEL=="tty2com[0-9]*", MODE="0666"
 
