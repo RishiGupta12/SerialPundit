@@ -1429,10 +1429,13 @@ public final class SerialComManager {
      * due to reasons like, there is less data in operating system buffer (serial port) or operating 
      * system returned less data which is also legal.</p>
      * 
-     * <p>Application must catch exception thrown by this method. When this method returns and 
-     * exception with message SerialComManager.EXP_UNBLOCKIO is thrown, it indicates that the 
-     * blocked read method was explicitly unblocked by another thread (possibly because serial 
-     * port is going to be closed).</p>
+     * <p>When no data at serial port has arrived and application wishes to unblock and return the control 
+     * to the caller for example because application now wants to close the serial port, it should 
+     * call unblockBlockingIOOperation() passing the same context to this method.</p>
+     * 
+     * <p>If using blocking context, it is advised to catch SerialComException exception and check if 
+     * this contain message SerialComManager.EXP_UNBLOCKIO. This message indicates that  no error occurred 
+     * while waiting/reading data from serial port but application has explicitly asked to return.</p>
      * 
      * @param handle of the serial port from which to read bytes.
      * @param byteCount number of bytes to read from serial port.
@@ -1457,9 +1460,11 @@ public final class SerialComManager {
     }
 
     /** 
-     * <p>Read specified number of bytes from given serial port.</p>
-     * <p>1. If data is read from serial port, array of bytes containing data is returned.</p>
-     * <p>2. If there was no data in serial port to read, null is returned.</p>
+     * <p>Read specified number of data bytes from the given serial port.</p>
+     * <ul>
+     * <li>If data is read from serial port, array of bytes containing data is returned.</li>
+     * <li><p>If there was no data at serial port to read, null is returned.</p></li>
+     * </ul>
      * 
      * <p>The number of bytes to read must be greater than or equal to 1 and less than or equal to 
      * 2048 (1 <= byteCount <= 2048). This method may return less than the requested number of bytes 
@@ -1498,11 +1503,11 @@ public final class SerialComManager {
     }
 
     /**
-     * <p>This method reads data from serial port and converts it into string.</p>
+     * <p>Reads data from serial port and converts it into string.</p>
      * 
-     * <p> It Constructs a new string by decoding the specified array of bytes using the platform's 
-     * default charset. The length of the new string is a function of the charset, and hence may not be 
-     * equal to the length of the byte array read from serial port.</p>
+     * <p> It constructs a new string by decoding the specified array of bytes using the platform's 
+     * default character set. The length of the new string is a function of the character set, and hence 
+     * may not be equal to the length of the byte array read from serial port.</p>
      * 
      * @param handle of port from which to read bytes.
      * @param byteCount number of bytes to read from this port.
@@ -1521,7 +1526,7 @@ public final class SerialComManager {
      * <p>This method reads data from serial port and converts it into string.</p>
      * 
      * <p> It Constructs a new string by decoding the specified array of bytes using the platform's 
-     * default charset. The length of the new string is a function of the charset, and hence may not be 
+     * default character set. The length of the new string is a function of the charset, and hence may not be 
      * equal to the length of the byte array read from serial port.</p>
      * 
      * <p>Note that the length of data bytes read using this method can not be greater than 
@@ -1556,9 +1561,13 @@ public final class SerialComManager {
      * not block. For blocking behavior pass context value obtained by call to createBlockingIOContext method. 
      * If a valid context is passed, this method will block until there is data to read from serial port.</p>
      * 
-     * <p>Application must catch exception thrown by this method if using blocking mode. When this method returns 
-     * and exception with message SerialComManager.EXP_UNBLOCKIO is thrown, it indicates that the blocked 
-     * read method was explicitly unblocked by another thread (possibly because serial port is going to be closed).</p>
+     * <p>When no data at serial port has arrived and application wishes to unblock and return the control 
+     * to the caller for example because application now wants to close the serial port, it should 
+     * call unblockBlockingIOOperation() passing the same context to this method.</p>
+     * 
+     * <p>If using blocking context, it is advised to catch SerialComException exception and check if 
+     * this contain message SerialComManager.EXP_UNBLOCKIO. This message indicates that  no error occurred 
+     * while waiting/reading data from serial port but application has explicitly asked to return.</p>
      * 
      * @param handle of the port from which to read data bytes.
      * @param buffer data byte buffer in which bytes from serial port will be saved.
@@ -1566,13 +1575,16 @@ public final class SerialComManager {
      * @param length number of bytes to read into given buffer (0 <= length <= 2048).
      * @param context context obtained by call to createBlockingIOContext method for blocking behavior 
      *         or -1 for non-blocking behavior.
+     * @param lineErr instance of class SerialComLineErrors that will carry line error information or null 
+     *         if parity/framing errors should not be checked.
+     *         
      * @return number of bytes read from serial port.
      * @throws SerialComException if an I/O error occurs.
      * @throws NullPointerException if <code>buffer</code> is <code>null</code>.
      * @throws IndexOutOfBoundsException if offset is negative, length is negative, or length is 
      *          greater than buffer.length - offset.
      */
-    public int readBytes(long handle, byte[] buffer, int offset, int length, long context) throws SerialComException {
+    public int readBytes(long handle, byte[] buffer, int offset, int length, long context, SerialComLineErrors lineErr) throws SerialComException {
         if(buffer == null) {
             throw new NullPointerException("Null data buffer passed to read operation !");
         }
@@ -1586,7 +1598,7 @@ public final class SerialComManager {
             return 0;
         }
 
-        int numberOfBytesRead = mComPortJNIBridge.readBytesP(handle, buffer, offset, length, context);
+        int numberOfBytesRead = mComPortJNIBridge.readBytesP(handle, buffer, offset, length, context, lineErr);
         if(numberOfBytesRead < 0) {
             throw new SerialComException("Could not read data from serial port. Please retry !");
         }

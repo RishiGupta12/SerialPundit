@@ -26,6 +26,7 @@ import java.util.Comparator;
 import java.io.InputStream;
 import java.io.FileOutputStream;
 
+import com.embeddedunveiled.serial.SerialComLineErrors;
 import com.embeddedunveiled.serial.ISerialComUSBHotPlugListener;
 import com.embeddedunveiled.serial.SerialComLoadException;
 import com.embeddedunveiled.serial.SerialComManager;
@@ -356,7 +357,7 @@ public final class SerialComPortJNIBridge {
     public native int closeComPort(long handle);
 
     public native byte[] readBytes(long handle, int byteCount);
-    public native int readBytesP(long handle, byte[] buffer, int offset, int length, long context);
+    public native int readBytesP(long handle, byte[] buffer, int offset, int length, long context, SerialComLineErrors lineErr);
     public native byte[] readBytesBlocking(long handle, int byteCount, long context);
     public native int readBytesDirect(long handle, ByteBuffer buffer, int offset, int length);
 
