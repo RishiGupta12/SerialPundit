@@ -194,6 +194,10 @@ static int last_nmdev2_idx = -1;
  * The serial port on which the given error/event is to be emulated must have been opened before causing 
  * error event. In the example given below tty2com0 port will indicate to tty layer that it received 
  * corrupted data.
+ *
+ * The -7 is taken as corrupted character in this driver. For emulation purpose 0 can not be taken as corrupted
+ * charcter because parity and break both wil have same sequence (\377 \0 \0) and therefore application may not
+ * be able to differentiate.
  * 
  * 1. Emulate framing error:
  * $echo "1" > /sys/devices/virtual/tty/tty2com0/scmvtty_errevt/evt
@@ -236,15 +240,15 @@ static ssize_t evt_store(struct device *dev, struct device_attribute *attr, cons
 
     switch(buf[0]) {
     case '1' : 
-        tty_insert_flip_char(tty_to_write->port, 0, TTY_FRAME);
+        tty_insert_flip_char(tty_to_write->port, -7, TTY_FRAME);
         local_vttydev->icount.frame++;
         break;
     case '2' :
-        tty_insert_flip_char(tty_to_write->port, 0, TTY_PARITY);
+        tty_insert_flip_char(tty_to_write->port, -7, TTY_PARITY);
         local_vttydev->icount.parity++;
         break;
     case '3' :
-        tty_insert_flip_char(tty_to_write->port, 0, TTY_OVERRUN);
+        tty_insert_flip_char(tty_to_write->port, -7, TTY_OVERRUN);
         local_vttydev->icount.overrun++;
         break;
     case '4' :
