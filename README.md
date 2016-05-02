@@ -22,6 +22,8 @@ It eliminates the complexities of serial port programming for different operatin
 - Access to EIA232 standard DTR, CD, CTS, RTS and DSR signals.
 - Hardware and software flow-control options.
 - Data and event listeners callbacks.
+- Parity and framing errors reporting supported
+- Break condition send and receive API
 
 #####File transfer protocols
 - X/Y/Z modem FTP API implemented with finite state machine.

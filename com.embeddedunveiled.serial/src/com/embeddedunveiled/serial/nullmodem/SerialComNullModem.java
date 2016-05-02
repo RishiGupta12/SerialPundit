@@ -66,6 +66,10 @@ public final class SerialComNullModem {
      * Constant with value 0x0040. </p>*/
     public static final int ERR_OVERRUN = 0x0040;
 
+    /**<p> Bit mask bit specifying that a break condition reception should be emulated.</p> 
+     * Constant with value 0x0080. </p>*/
+    public static final int RCV_BREAK = 0x0080;
+
     private final int osType;
     private FileOutputStream linuxVadaptOut;
     private FileInputStream linuxVadaptIn;
@@ -710,6 +714,8 @@ public final class SerialComNullModem {
                     fout.write("2".getBytes());
                 }else if((error & ERR_OVERRUN) == ERR_OVERRUN) {
                     fout.write("3".getBytes());
+                }else if((error & RCV_BREAK) == RCV_BREAK) {
+                    fout.write("6".getBytes());
                 }else {
                     return false;
                 }

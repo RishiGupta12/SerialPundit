@@ -27,14 +27,21 @@ package com.embeddedunveiled.serial;
  */
 public final class SerialComLineErrors {
 
-    /** <p>The value indicating parity error while receiving data at serial port. Integer constant with value 0x01. </p>*/
+    /** <p>The value indicating parity error while receiving data at serial port. 
+     * Integer constant with value 0x01. </p>*/
     public static final int ERR_PARITY  = 0x01;
 
-    /** <p>The value indicating framing error while receiving data at serial port. Integer constant with value 0x02. </p>*/
+    /** <p>The value indicating framing error while receiving data at serial port. 
+     * Integer constant with value 0x02. </p>*/
     public static final int ERR_FRAME   = 0x02;
 
-    /** <p>The value indicating overrun error while receiving data at serial port. Integer constant with value 0x03. </p>*/
+    /** <p>The value indicating overrun error while receiving data at serial port. 
+     * Integer constant with value 0x03. </p>*/
     public static final int ERR_OVERRUN = 0x03;
+
+    /** <p>The value indicating that a break condition has been received at the serial port. 
+     * Integer constant with value 0x04. </p>*/
+    public static final int RCV_BREAK = 0x04;
 
     private int lineError;
 
@@ -94,5 +101,14 @@ public final class SerialComLineErrors {
      */
     public boolean hasAnyErrorOccurred() {
         return (lineError != 0) ? true : false;
+    }
+
+    /**
+     * <p>Tells whether a break condition is seen at serial port or not.</p>
+     * 
+     * @return true if break condition is received at serial port otherwise false
+     */
+    public boolean isBreakReceived() {
+        return ((lineError & RCV_BREAK) == RCV_BREAK) ? true : false;
     }
 }
