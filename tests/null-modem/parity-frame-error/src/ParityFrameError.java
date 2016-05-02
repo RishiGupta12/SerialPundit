@@ -38,25 +38,61 @@ public final class ParityFrameError {
             String[] ports = scnm.getLastNullModemDevicePairNodes();
 
             long handle0 = scm.openComPort(ports[0], true, true, true);
-            scm.configureComPortData(handle0, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B115200, 0);
+            scm.configureComPortData(handle0, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B115200, 0);
             scm.configureComPortControl(handle0, FLOWCONTROL.NONE, 'x', 'x', true, true);
             long handle1 = scm.openComPort(ports[1], true, true, true);
-            scm.configureComPortData(handle1, DATABITS.DB_7, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B115200, 0);
+            scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B115200, 0);
             scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', true, true);
 
 
             byte[] buffer = new byte[100];
             SerialComLineErrors lineErr = new SerialComLineErrors();
-            scm.writeString(handle0, "t", 0);
 
-            System.out.println("before : " + lineErr.hasParityErrorOccurred());
+            // PARITY 
+            System.out.println("PARITY  before : " + lineErr.hasParityErrorOccurred());
             scnm.emulateLineError(ports[1], SerialComNullModem.ERR_PARITY);
 
             int ret = scm.readBytes(handle1, buffer, 0, 50, -1, lineErr);
-            System.out.println("after : " + lineErr.hasParityErrorOccurred());
+            System.out.println("PARITY  after : " + lineErr.hasParityErrorOccurred());
 
             for(int x=0; x<ret; x++) {
-                System.out.println("after data : " + buffer[x]);
+                System.out.println("PARITY  after data : " + buffer[x]);
+            }
+
+            // OVERRUN
+            lineErr.resetLineErrors();
+            System.out.println("\nOVERRUN before : " + lineErr.hasOverrunErrorOccurred());
+            scnm.emulateLineError(ports[1], SerialComNullModem.ERR_OVERRUN);
+
+            int ret1 = scm.readBytes(handle1, buffer, 0, 50, -1, lineErr);
+            System.out.println("OVERRUN after : " + lineErr.hasOverrunErrorOccurred());
+
+            for(int x=0; x<ret1; x++) {
+                System.out.println("OVERRUN after data : " + buffer[x]);
+            }
+
+            // FRAME
+            lineErr.resetLineErrors();
+            System.out.println("\nFRAME before : " + lineErr.hasFramingErrorOccurred());
+            scnm.emulateLineError(ports[1], SerialComNullModem.ERR_FRAME);
+
+            int ret2 = scm.readBytes(handle1, buffer, 0, 50, -1, lineErr);
+            System.out.println("FRAME after : " + lineErr.hasFramingErrorOccurred());
+
+            for(int x=0; x<ret2; x++) {
+                System.out.println("FRAME after data : " + buffer[x]);
+            }
+
+            // BREAK
+            lineErr.resetLineErrors();
+            System.out.println("\nBREAK before : " + lineErr.isBreakReceived());
+            scnm.emulateLineError(ports[1], SerialComNullModem.ERR_BREAK);
+
+            int ret3 = scm.readBytes(handle1, buffer, 0, 50, -1, lineErr);
+            System.out.println("BREAK after : " + lineErr.isBreakReceived());
+
+            for(int x=0; x<ret3; x++) {
+                System.out.println("BREAK after data : " + buffer[x]);
             }
 
             scm.closeComPort(handle0);
