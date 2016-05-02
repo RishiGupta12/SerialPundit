@@ -214,6 +214,9 @@ static int last_nmdev2_idx = -1;
  * 5. Emulate ring indicator (un-set RI signal):
  * $echo "5" > /sys/devices/virtual/tty/tty2com0/scmvtty_errevt/evt
  * 
+ * 2. Emulate break received:
+ * $echo "6" > /sys/devices/virtual/tty/tty2com0/scmvtty_errevt/evt
+ *
  * A "framing error" occurs when the designated "start" and "stop" bits are not found. A Parity Error occurs
  * when the parity of the number of 1 bits disagrees with that specified by the parity bit. A "break condition"
  * occurs when the receiver input is at the "space" (logic low, i.e., '0') level for longer than some duration
@@ -271,6 +274,12 @@ static ssize_t evt_store(struct device *dev, struct device_attribute *attr, cons
     case '5' :
         local_vttydev->msr_reg &= ~SCM_MSR_RI;
         local_vttydev->icount.rng++;
+        break;
+    case '6' :
+        ret = tty_insert_flip_char(tty_to_write->port, 0, TTY_BREAK);
+        if(ret < 0)
+            goto fail;
+        local_vttydev->icount.brk++;
         break;
     default :
         mutex_unlock(&local_vttydev->lock);
