@@ -1609,16 +1609,19 @@ public final class SerialComManager {
      * <p>This method configures the rate at which communication will occur and the format of UART frame.
      * This method must be called before configureComPortControl method.</p>
      * 
-     * <p>[1] Most of the DTE/DCE (hardware) does not support different baud rates for transmission and reception 
-     * and therefore this method takes only single value applicable to both transmission and reception.</p>
+     * <ul>
+     * <li><p>[1] Most of the DTE/DCE (hardware) does not support different baud rates for transmission and reception 
+     * and therefore this method takes only single value applicable to both transmission and reception.</p></li>
      * 
-     * [2] All serial devices/drivers/operating systems does not support all the baud rates (maximum change in signal 
-     * per second), stop bits, data bits etc. Please consult hardware and software manuals as appropriate.
+     * <li>All serial devices/drivers/operating systems does not support all the baud rates (maximum change in signal 
+     * per second), stop bits, data bits etc. Please consult hardware and software manuals as appropriate.</li>
      * 
-     * <p>[3] If parity is enabled, the parity bit will be removed from UART frame before passing it to this library.</p>
+     * <li><p>If parity is enabled, the parity bit will be removed from UART frame before passing it to this library. 
+     * All hardware/driver/operating systems does not support all parity. Please check your manual.</p></li>
      * 
-     * [4] Some USB-UART devices supports non-standard baudrates. How to set these baudrate is device/driver and operating
-     * system specific.
+     * <li>Some USB-UART devices supports non-standard baudrates. How to set these baudrate is device/driver and operating
+     * system specific.</li>
+     * </ul>
      * 
      * @param handle of opened port to which this configuration applies to.
      * @param dataBits number of data bits in one frame (refer DATABITS enum in SerialComManager class for this).
