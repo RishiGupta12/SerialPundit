@@ -214,6 +214,12 @@ static int last_nmdev2_idx = -1;
  * 5. Emulate ring indicator (un-set RI signal):
  * $echo "5" > /sys/devices/virtual/tty/tty2com0/scmvtty_errevt/evt
  * 
+ * A "framing error" occurs when the designated "start" and "stop" bits are not found. A Parity Error occurs
+ * when the parity of the number of 1 bits disagrees with that specified by the parity bit. A "break condition"
+ * occurs when the receiver input is at the "space" (logic low, i.e., '0') level for longer than some duration
+ * of time, typically, for more than a character time. This is not necessarily an error, but appears to the
+ * receiver as a character of all zero bits with a framing error.
+ *
  * @dev: device associated with given sysfs entry
  * @attr: sysfs attribute corresponding to this function
  * @buf: error event passed from user space to kernel via this sysfs attribute
