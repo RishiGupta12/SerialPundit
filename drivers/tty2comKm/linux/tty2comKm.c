@@ -229,6 +229,7 @@ static int last_nmdev2_idx = -1;
  */
 static ssize_t evt_store(struct device *dev, struct device_attribute *attr, const char *buf, size_t count)
 {
+    int ret = 0;
     struct vtty_dev *local_vttydev = NULL;
     struct tty_struct *tty_to_write = NULL;
 
@@ -246,15 +247,21 @@ static ssize_t evt_store(struct device *dev, struct device_attribute *attr, cons
 
     switch(buf[0]) {
     case '1' : 
-        tty_insert_flip_char(tty_to_write->port, -7, TTY_FRAME);
+        ret = tty_insert_flip_char(tty_to_write->port, -7, TTY_FRAME);
+        if(ret < 0)
+            goto fail;
         local_vttydev->icount.frame++;
         break;
     case '2' :
-        tty_insert_flip_char(tty_to_write->port, -7, TTY_PARITY);
+        ret = tty_insert_flip_char(tty_to_write->port, -7, TTY_PARITY);
+        if(ret < 0)
+            goto fail;
         local_vttydev->icount.parity++;
         break;
     case '3' :
-        tty_insert_flip_char(tty_to_write->port, -7, TTY_OVERRUN);
+        ret = tty_insert_flip_char(tty_to_write->port, 0, TTY_OVERRUN);
+        if(ret < 0)
+            goto fail;
         local_vttydev->icount.overrun++;
         break;
     case '4' :
@@ -273,6 +280,10 @@ static ssize_t evt_store(struct device *dev, struct device_attribute *attr, cons
 
     mutex_unlock(&local_vttydev->lock);
     return count;
+
+    fail:
+    mutex_unlock(&local_vttydev->lock);
+    return ret;
 }
 
 /* 
