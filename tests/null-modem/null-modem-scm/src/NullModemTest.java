@@ -1,4 +1,4 @@
-/**
+/*
  * Author : Rishi Gupta
  * 
  * This file is part of 'serial communication manager' library.
@@ -19,6 +19,11 @@
 import java.util.concurrent.Executors;
 import com.embeddedunveiled.serial.SerialComManager;
 import com.embeddedunveiled.serial.nullmodem.SerialComNullModem;
+import com.embeddedunveiled.serial.SerialComManager.BAUDRATE;
+import com.embeddedunveiled.serial.SerialComManager.DATABITS;
+import com.embeddedunveiled.serial.SerialComManager.FLOWCONTROL;
+import com.embeddedunveiled.serial.SerialComManager.PARITY;
+import com.embeddedunveiled.serial.SerialComManager.STOPBITS;
 
 /* 
  * LOAD module to support large number of devices.
@@ -33,6 +38,34 @@ public final class NullModemTest {
         SerialComManager scm = new SerialComManager();
         final SerialComNullModem scnm = scm.getSerialComNullModemInstance();
         String a = null;
+
+        // num bytes in i/o buffer
+        try {
+            String[] ports = scnm.createStandardNullModemPair(-1, -1);
+            long hand1 = scm.openComPort(ports[0], true, true, false);
+            scm.configureComPortData(hand1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B115200, 0);
+            scm.configureComPortControl(hand1, FLOWCONTROL.NONE, 'x', 'x', true, true);
+            long hand2 = scm.openComPort(ports[1], true, true, false);
+            scm.configureComPortData(hand2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B115200, 0);
+            scm.configureComPortControl(hand2, FLOWCONTROL.NONE, 'x', 'x', true, true);
+
+            int[] b = scm.getByteCountInPortIOBuffer(hand1);
+            System.out.println("before: " + b[0] + " : " + b[1]);
+            scm.writeString(hand2, "test", 0);
+            int[] c = scm.getByteCountInPortIOBuffer(hand1);
+            System.out.println("after: " + c[0] + " : " + c[1]);
+
+            scm.closeComPort(hand1);
+            scm.closeComPort(hand2);
+        }catch (Exception e) {
+            scnm.destroyAllVirtualDevices();
+            e.printStackTrace();
+        }
+
+        int rishi = 0;
+        if(rishi + rishi == 0) {
+            return;
+        }
 
         try {
             Executors.newSingleThreadExecutor().execute(new Runnable() {
@@ -188,11 +221,10 @@ public final class NullModemTest {
                 e.printStackTrace();
             }
 
-            // Release operating system specific resources held by null modem class.
+            /********* Final clean up (Release operating system specific resources held by null modem class) *********/
+            scnm.destroyAllVirtualDevices();
             scnm.releaseResources();
-
             System.out.println("Done !");
-
         }catch (Exception e) {
             e.printStackTrace();
         }
