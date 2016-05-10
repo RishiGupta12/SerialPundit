@@ -1685,6 +1685,14 @@ public final class SerialComManager {
      * 
      * <p>Some serial devices does not support some flow controls scheme. Please refer to their manuals.</p>
      * 
+     * <ul>
+     * <li>It is advisable not to use same XON and XOFF character as opertaing system framework or driver 
+     * may check for special characters one after the other and will process them. For example while processing 
+     * data received at serial port, if driver sees XON it will instruct device to start transmission. But when 
+     * moving further in the processing function, it checks for XOFF and sees that XOFF character has been received 
+     * and therefore it will stop the transmission.</li>
+     * </ul>
+     * 
      * @param handle of opened port to which need to be configured.
      * @param flowctrl flow control, how data flow will be controlled (refer FLOWCONTROL enum for this).
      * @param xon character representing on condition if software flow control is used.
