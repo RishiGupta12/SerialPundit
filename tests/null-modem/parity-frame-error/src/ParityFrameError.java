@@ -40,6 +40,7 @@ public final class ParityFrameError {
             long handle0 = scm.openComPort(ports[0], true, true, true);
             scm.configureComPortData(handle0, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B115200, 0);
             scm.configureComPortControl(handle0, FLOWCONTROL.NONE, 'x', 'x', true, true);
+
             long handle1 = scm.openComPort(ports[1], true, true, true);
             scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B115200, 0);
             scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', true, true);
@@ -86,7 +87,7 @@ public final class ParityFrameError {
             // BREAK
             lineErr.resetLineErrors();
             System.out.println("\nBREAK before : " + lineErr.isBreakReceived());
-            scnm.emulateLineError(ports[1], SerialComNullModem.ERR_BREAK);
+            scnm.emulateLineError(ports[1], SerialComNullModem.RCV_BREAK);
 
             int ret3 = scm.readBytes(handle1, buffer, 0, 50, -1, lineErr);
             System.out.println("BREAK after : " + lineErr.isBreakReceived());
@@ -95,10 +96,22 @@ public final class ParityFrameError {
                 System.out.println("BREAK after data : " + buffer[x]);
             }
 
+            // BREAK SEND AND RECEIVE
+            lineErr.resetLineErrors();
+            System.out.println("\nBREAK before : " + lineErr.isBreakReceived());
+            scm.sendBreak(handle0, 100);
+
+            int ret4 = scm.readBytes(handle1, buffer, 0, 50, -1, lineErr);
+            System.out.println("BREAK after : " + lineErr.isBreakReceived());
+
+            for(int x=0; x<ret4; x++) {
+                System.out.println("BREAK after data : " + buffer[x]);
+            }
+
             scm.closeComPort(handle0);
             scm.closeComPort(handle1);
 
-            scnm.destroyAllVirtualDevices();
+            //scnm.destroyAllVirtualDevices();
             scnm.releaseResources(); 
 
             System.out.println("Done !");
