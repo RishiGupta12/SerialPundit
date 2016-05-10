@@ -96,7 +96,7 @@
 #define SCM_STOP_2        0x2000
 
 /* Represent a virtual tty device in this virtual adaptor. The peer_index will contain own 
- * index if this device is loop back configured device (peer == own). */
+ * index if this device is loop back configured device (peer_index == own_index). */
 struct vtty_dev {
     int own_index;
     int peer_index;
@@ -110,6 +110,7 @@ struct vtty_dev {
     int baud;
     int uart_frame;
     int waiting_msr_chg;
+    int tx_paused;
     struct tty_struct *own_tty;
     struct tty_struct *peer_tty;
     struct serial_struct serial;
@@ -531,8 +532,8 @@ static void scmtty_close(struct tty_struct *tty, struct file *filp)
 }
 
 /* 
- * Invoked by tty layer when data is to be sent to tty device may be as a response to write() call in 
- * user space.
+ * Invoked by tty layer via the line discipline when data is to be sent to tty device may be 
+ * as a response to write() call in user space.
  * 
  * @tty: tty device who will send given data
  * @buf: data to be sent
@@ -546,8 +547,9 @@ static int scmtty_write(struct tty_struct *tty, const unsigned char *buf, int co
     struct vtty_dev *rx_vttydev = NULL;
     struct vtty_dev *tx_vttydev = index_manager[tty->index].vttydev;
 
-    if ((!tty) || (tty->stopped) || (count < 1) || (!buf))
+    if (tx_vttydev->tx_paused || !tty || tty->stopped || (count < 1) || !buf || tty->hw_stopped)
         return 0;
+
     if (tx_vttydev->is_break_on == 1)
         return -EIO;
 
@@ -580,14 +582,14 @@ static int scmtty_write(struct tty_struct *tty, const unsigned char *buf, int co
     return count;
 }
 
-/* 
- * Invoked by tty layer when a single character is to be sent to the tty device. This character may be 
+/*
+ * Invoked by tty layer when a single character is to be sent to the tty device. This character may be
  * ignored if there is no room in the device for the character to be sent.
- * 
+ *
  * @tty: tty device who will send given data
  * @buf: data to be sent
  * @count: number of data bytes in buf
- * 
+ *
  * @return number of characters sent or negative error code on failure
  */
 static int scmtty_put_char(struct tty_struct *tty, unsigned char ch)
@@ -596,8 +598,9 @@ static int scmtty_put_char(struct tty_struct *tty, unsigned char ch)
     struct vtty_dev *rx_vttydev = NULL;
     struct vtty_dev *tx_vttydev = index_manager[tty->index].vttydev;
 
-    if((!tty) || (tty->stopped))
+    if(tx_vttydev->tx_paused || !tty || tty->stopped || tty->hw_stopped)
         return 0;
+
     if(tx_vttydev->is_break_on == 1)
         return -EIO;
 
@@ -615,7 +618,7 @@ static int scmtty_put_char(struct tty_struct *tty, unsigned char ch)
     }
 
     if(tty_to_write != NULL) {
-        tty_insert_flip_char(tty_to_write->port, ch, TTY_NORMAL);
+        tty_insert_flip_string(tty_to_write->port, &ch, 1);
         tty_flip_buffer_push(tty_to_write->port);
         tx_vttydev->icount.tx++;
         rx_vttydev->icount.rx++;
@@ -627,23 +630,22 @@ static int scmtty_put_char(struct tty_struct *tty, unsigned char ch)
 }
 
 /*
- * Invoked by tty layer indicating that the driver should inform tty device to start transmitting data out 
- * of serial port physically.
- * 
+ * Invoked by tty layer indicating that the driver should inform tty device to start transmitting data out
+ * of serial port physically. This tty device already transmit data as soon as it receive it.
+ *
  * @tty: tty device who should start transmission
  */
 static void scmtty_flush_chars(struct tty_struct *tty)
 {
-    /* This tty device already transmit data as soon as it receive it. */
 }
 
 /*
- * Provides port specific information to the caller as a result of executing  TIOCGSERIAL 
+ * Provides port specific information to the caller as a result of executing  TIOCGSERIAL
  * ioctl command.
- * 
+ *
  * @tty: tty device associated with port in question
  * @arg: user space buffer for returning information
- * 
+ *
  * @return 0 on success otherwise a negative error code on failure
  */
 static int get_serial_info(struct tty_struct *tty, unsigned long arg)
@@ -674,25 +676,28 @@ static int get_serial_info(struct tty_struct *tty, unsigned long arg)
 }
 
 /*
- * Return the number of bytes that can be queued to this device at the present time. The result should be 
- * treated as a guarantee and the driver cannot offer a value it later shrinks by more than the number of 
+ * Return the number of bytes that can be queued to this device at the present time. The result should be
+ * treated as a guarantee and the driver cannot offer a value it later shrinks by more than the number of
  * bytes written.
- * 
+ *
  * @tty: tty device enquired
- * 
+ *
  * @return number of bytes that can be queued to this device at the present time
  */
 static int scmtty_write_room(struct tty_struct *tty)
 {
-    if (tty->stopped)
+    struct vtty_dev *tx_vttydev = index_manager[tty->index].vttydev;
+
+    if (tx_vttydev->tx_paused || !tty || tty->stopped || tty->hw_stopped)
         return 0;
+
     return 2048;
 }
 
 /*
- * Invoked when the termios structure (terminal settings) for this tty device is changed. The old_termios 
+ * Invoked when the termios structure (terminal settings) for this tty device is changed. The old_termios
  * contains currently active settings and tty->termios contains new settings to be applied.
- * 
+ *
  * @tty: tty device whose line settings is to be updated
  * @old_termios: currently applied serial line settings
  */
@@ -777,11 +782,11 @@ static void scmtty_set_termios(struct tty_struct *tty, struct ktermios *old_term
 }
 
 /*
- * Return the number of bytes of data in the device private output queue. Invoked when ioctl command 
- * TIOCOUTQ is executed or by tty layer as and when required (tty_wait_until_sent()).
- * 
+ * Return the number of bytes of data in the device private output queue to be sent out. Invoked 
+ * when ioctl command TIOCOUTQ is executed or by tty layer as and when required (tty_wait_until_sent()).
+ *
  * @tty: tty device enquired
- * 
+ *
  * @return number of bytes of data in the device private output queue
  */
 static int scmtty_chars_in_buffer(struct tty_struct *tty)
@@ -791,14 +796,14 @@ static int scmtty_chars_in_buffer(struct tty_struct *tty)
 
 /*
  * Checks if any of the given signal line has changed based on interrupts.
- * 
+ *
  * @local_vttydev: vtty device for which check has to be made
  * @mask: bit mask of TIOCM_RNG, TIOCM_DSR, TIOCM_CAR and TIOCM_CTS
  * @prev: values of previous interrupts
- * 
+ *
  * @return 1 if changed otherwise 0 if unchanged
  */
-static int check_msr_delta(struct tty_struct *tty, struct vtty_dev *local_vttydev, unsigned long mask, struct async_icount *prev) 
+static int check_msr_delta(struct tty_struct *tty, struct vtty_dev *local_vttydev, unsigned long mask, struct async_icount *prev)
 {
     struct async_icount now;
     int delta = 0;
@@ -810,7 +815,7 @@ static int check_msr_delta(struct tty_struct *tty, struct vtty_dev *local_vttyde
     mutex_lock(&local_vttydev->lock);
     now = local_vttydev->icount;
     mutex_unlock(&local_vttydev->lock);
-    delta = ((mask & TIOCM_RNG && prev->rng != now.rng) || 
+    delta = ((mask & TIOCM_RNG && prev->rng != now.rng) ||
             ( mask & TIOCM_DSR && prev->dsr != now.dsr) ||
             ( mask & TIOCM_CAR && prev->dcd != now.dcd) ||
             ( mask & TIOCM_CTS && prev->cts != now.cts));
@@ -820,10 +825,10 @@ static int check_msr_delta(struct tty_struct *tty, struct vtty_dev *local_vttyde
 }
 /*
  * Sleeps until at-least one of the modem lines changes.
- * 
+ *
  * @tty: tty device whose modem lines is to be monitored
  * @mask: bit mask of TIOCM_RNG, TIOCM_DSR, TIOCM_CAR and TIOCM_CTS
- * 
+ *
  * @return -ERESTARTSYS if it was interrupted by a signal and 0 if modem line changed
  */
 static int wait_msr_change(struct tty_struct *tty, unsigned long mask)
@@ -848,17 +853,17 @@ static int wait_msr_change(struct tty_struct *tty, unsigned long mask)
 
 /*
  * Invoked to execute standard and device/driver specific ioctl commands.
- * 
- * If the requested command is not supported, this driver will return -ENOIOCTLCMD so that the tty layer 
+ *
+ * If the requested command is not supported, this driver will return -ENOIOCTLCMD so that the tty layer
  * can invoke generic version of the givwn ioctl command if possible.
- * 
+ *
  * @tty: tty device for whom given ioctl command is to be executed
  * @cmd: ioctl command to execute
  * @arg: arguments accompanying the command
- * 
+ *
  * @return 0 on success otherwise a negative error code on failures
  */
-static int scmtty_ioctl(struct tty_struct *tty, unsigned int cmd, unsigned long arg) 
+static int scmtty_ioctl(struct tty_struct *tty, unsigned int cmd, unsigned long arg)
 {
     switch (cmd) {
     case TIOCGSERIAL:
@@ -872,16 +877,20 @@ static int scmtty_ioctl(struct tty_struct *tty, unsigned int cmd, unsigned long 
 /*
  * Invoked when tty layer's input buffers are about to get full.
  * 
+ * When using RTS/CTS flow control, when RTS line is de-asserted, interrupt will be generated 
+ * in hardware. The interrupt handler will raise a flag to indicate transmission should be stopped. 
+ * This is achieved in this driver through tx_paused variable.
+ *
  * @tty: tty device whose buffers are about to get full
  */
-static void scmtty_throttle(struct tty_struct *tty) 
+static void scmtty_throttle(struct tty_struct *tty)
 {
     struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
-
-    printk(KERN_ERR "%pF CALLED %s : %p at index %d\n", __builtin_return_address(0), __FUNCTION__, tty, tty->index);
+    struct vtty_dev *remote_vttydev = index_manager[local_vttydev->peer_index].vttydev;
 
     if (tty->termios.c_cflag & CRTSCTS) {
         mutex_lock(&local_vttydev->lock);
+        remote_vttydev->tx_paused = 1;
         update_modem_lines(tty, 0, TIOCM_RTS);
         mutex_unlock(&local_vttydev->lock);
     }
@@ -894,23 +903,28 @@ static void scmtty_throttle(struct tty_struct *tty)
 
 /*
  * Invoked when the tty layer's input buffers have been emptied out, and it now can accept more data.
- * 
- * Throttle/unthrottle is about notifying remote end to start or stop data as per the flow control. 
- * 
- * Start/stop is about what action to take at local end itself to start or stop data as per the flow 
+ *
+ * Throttle/unthrottle is about notifying remote end to start or stop data as per the flow control.
+ *
+ * Start/stop is about what action to take at local end itself to start or stop data as per the flow
  * control.
- * 
+ *
  * @tty: tty device which is ready to receive data
  */
-static void scmtty_unthrottle(struct tty_struct *tty) 
+static void scmtty_unthrottle(struct tty_struct *tty)
 {
     struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
+    struct vtty_dev *remote_vttydev = index_manager[local_vttydev->peer_index].vttydev;
 
     if (tty->termios.c_cflag & CRTSCTS) {
         /* hardware (RTS/CTS) flow control */
         mutex_lock(&local_vttydev->lock);
+        remote_vttydev->tx_paused = 0;
         update_modem_lines(tty, TIOCM_RTS, 0);
         mutex_unlock(&local_vttydev->lock);
+
+        if (remote_vttydev->own_tty && remote_vttydev->own_tty->port)
+            tty_port_tty_wakeup(remote_vttydev->own_tty->port);
     }
     else if((tty->termios.c_iflag & IXON) || (tty->termios.c_iflag & IXOFF)) {
         /* software flow control */
@@ -923,37 +937,48 @@ static void scmtty_unthrottle(struct tty_struct *tty)
 
 /*
  * Invoked when this driver should stop sending data for example as a part of flow control mechanism.
- * 
- * Line discipline n_tty calls this function if this device uses software flow control and an XOFF 
+ *
+ * Line discipline n_tty calls this function if this device uses software flow control and an XOFF
  * character is received from other end.
- * 
+ *
  * @tty: tty device who should stop sending data to other end
  */
-static void scmtty_stop(struct tty_struct *tty) 
+static void scmtty_stop(struct tty_struct *tty)
 {
+    struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
+    mutex_lock(&local_vttydev->lock);
+    local_vttydev->tx_paused = 1;
+    mutex_unlock(&local_vttydev->lock);
 }
 
 /*
  * Invoked when this driver should start sending data for example as a part of flow control mechanism.
- * 
+ *
  * Line discipline n_tty calls this function if this device uses software flow control and an XON
  * character is received from other end.
- * 
+ *
  * @tty: tty device who should start sending data to other end
  */
-static void scmtty_start(struct tty_struct *tty) 
+static void scmtty_start(struct tty_struct *tty)
 {
+    struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
+    mutex_lock(&local_vttydev->lock);
+    local_vttydev->tx_paused = 0;
+    mutex_unlock(&local_vttydev->lock);
+
+    if (tty && tty->port)
+        tty_port_tty_wakeup(tty->port);
 }
 
 /*
- * Obtain the modem status bits for the given tty device. Invoked typically when ioctl command TIOCMGET 
+ * Obtain the modem status bits for the given tty device. Invoked typically when ioctl command TIOCMGET
  * is executed on this tty device.
- * 
+ *
  * @tty: tty device whose status is enquired
- * 
+ *
  * @return bit mask (TIOCM_XXX) of modem control and modem status registers
  */
-static int scmtty_tiocmget(struct tty_struct *tty) 
+static int scmtty_tiocmget(struct tty_struct *tty)
 {
     int status = 0;
     int msr_reg = 0;
@@ -976,16 +1001,16 @@ static int scmtty_tiocmget(struct tty_struct *tty)
 }
 
 /*
- * Set the modem status bits. Invoked typically when ioctl command TIOCMSET is executed on this tty 
+ * Set the modem status bits. Invoked typically when ioctl command TIOCMSET is executed on this tty
  * device.
- * 
+ *
  * @tty: tty device whose modem control register is to be updated with given value
  * @set: bit mask of signals which should be asserted
  * @clear: bit mask of signals which should be de-asserted
- * 
+ *
  * @return 0 on success otherwise negative error code on failure
  */
-static int scmtty_tiocmset(struct tty_struct *tty, unsigned int set, unsigned int clear) 
+static int scmtty_tiocmset(struct tty_struct *tty, unsigned int set, unsigned int clear)
 {
     int ret = 0;
     struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
@@ -1000,10 +1025,10 @@ static int scmtty_tiocmset(struct tty_struct *tty, unsigned int set, unsigned in
  *
  * @tty: tty device who should set or reset given break condition on its output line
  * @state: 1 if break is to be asserted or 0 for de-assertion
- * 
+ *
  * @return 0 on success otherwise negative error code on failure
  */
-static int scmtty_break_ctl(struct tty_struct *tty, int state) 
+static int scmtty_break_ctl(struct tty_struct *tty, int state)
 {
     struct tty_struct *tty_to_write = NULL;
     struct vtty_dev *brk_rx_vttydev = NULL;
@@ -1042,12 +1067,12 @@ static int scmtty_break_ctl(struct tty_struct *tty, int state)
 /*
  * Invoked by tty layer to inform this driver that it should hangup the tty device (Lower
  * modem control lines after last process using tty devices closes the device or exited).
- * 
+ *
  * Drop DTR/RTS if HUPCL is set. This causes any attached modem to hang up the line.
  *
- * On the receiving end, if CLOCAL bit is set, DCD will be ignored otherwise SIGHUP may be 
+ * On the receiving end, if CLOCAL bit is set, DCD will be ignored otherwise SIGHUP may be
  * generated to indicate a line disconnect event.
- * 
+ *
  * @tty: tty device that has hung up
  */
 static void scmtty_hangup(struct tty_struct *tty)
@@ -1067,15 +1092,15 @@ static void scmtty_hangup(struct tty_struct *tty)
 }
 
 /*
- * Invoked to execute ioctl command TIOCGICOUNT to get the number of interrupts. Both 1->0 and 
+ * Invoked to execute ioctl command TIOCGICOUNT to get the number of interrupts. Both 1->0 and
  * 0->1 transitions are counted, except for RI, where only 0->1 transitions are counted.
- * 
+ *
  * @tty: tty device whose interrupts information is to be collected
  * @icount: memory location from which tty core will copy data to user space buffer
- * 
+ *
  * @return 0 on success otherwise negative error code on failure
  */
-static int scmtty_get_icount(struct tty_struct *tty, struct serial_icounter_struct *icount) 
+static int scmtty_get_icount(struct tty_struct *tty, struct serial_icounter_struct *icount)
 {
     struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
     struct async_icount cnow;
@@ -1100,53 +1125,61 @@ static int scmtty_get_icount(struct tty_struct *tty, struct serial_icounter_stru
 }
 
 /*
- * Discard the internal output buffer for this tty device. Typically it may be called when executing IOCTL 
- * TCOFLUSH, closing the serial port, when break is received in input stream (flushing is configured) or 
- * when hangup occurs. 
- * 
- * On the other hand, when IOCTL command TCIFLUSH is invoked, tty flip buffer and line discipline queue gets 
- * emptied without involvement of tty driver. The driver is generally expected to not to keep data but send 
- * it to tty layer as soon as possible.
- * 
+ * Discard the internal output buffer for this tty device. Typically it may be called when executing IOCTL
+ * TCOFLUSH, closing the serial port, when break is received in input stream (flushing is configured) or
+ * when hangup occurs.
+ *
+ * On the other hand, when IOCTL command TCIFLUSH is invoked, tty flip buffer and line discipline queue gets
+ * emptied without involvement of tty driver. The driver is generally expected not to keep data but send
+ * it to tty layer as soon as possible when it receives data.
+ *
+ * The virtual tty device created by this driver does not have any local buffer.
+ *
  * @tty: tty device whose buffer should be flushed
  */
-static void scmtty_flush_buffer(struct tty_struct *tty) 
+static void scmtty_flush_buffer(struct tty_struct *tty)
 {
-    /* this tty device don't have local buffers */
 }
 
 /*
  * Invoked by tty layer in response to tcdrain() call.
- * 
+ *
  * @tty: tty device who should try to empty its output buffer
  * @timeout: timeout value
  */
-static void scmtty_wait_until_sent(struct tty_struct *tty, int timeout) 
+static void scmtty_wait_until_sent(struct tty_struct *tty, int timeout)
 {
 }
 
 /*
- * Invoked by tty layer to execute TCIOFF and TCION IOCTL commands generally because user space process 
+ * Invoked by tty layer to execute TCIOFF and TCION IOCTL commands generally because user space process
  * called tcflow() function. It send a high priority character to the tty device end even if stopped.
- * 
- * If this function (send_xchar) is defined by tty device driver, tty core will call this function. If 
- * it is not specified then tty core will first instruct this driver to start transmission (start()) 
- * and then invoke write() of this driver passing character to be written and then it will call stop() 
+ *
+ * If this function (send_xchar) is defined by tty device driver, tty core will call this function. If
+ * it is not specified then tty core will first instruct this driver to start transmission (start())
+ * and then invoke write() of this driver passing character to be written and then it will call stop()
  * function of this driver.
- * 
+ *
  * @tty: tty device who is sending this character
  * @ch: character to be sent (typically it is XOFF or XON)
  */
-static void scmtty_send_xchar(struct tty_struct *tty, char ch) 
+static void scmtty_send_xchar(struct tty_struct *tty, char ch)
 {
+    int was_paused = 0;
+    struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
+    was_paused = local_vttydev->tx_paused;
+    if(was_paused)
+        local_vttydev->tx_paused = 0;
     scmtty_put_char(tty, ch);
+    if(was_paused)
+        local_vttydev->tx_paused = 1;
 }
 
 /*
  * Asserts or de-asserts serial lines as specified by raise argument.
- * It is handled by this driver exlicitly as of now because this will eventually become 
+ * It is handled by this driver exlicitly as of now because this will eventually become
  * entirely internal to the tty port as per linux kernel development plan.
- * 
+ *
  * @port serial port whose lines is to be updated
  * @raise 1 if line should be asserted, 0 if line should be de-asserted
 static void scm_port_dtr_rts(struct tty_port *port, int raise) 
@@ -1160,12 +1193,12 @@ static void scm_port_dtr_rts(struct tty_port *port, int raise)
 
 /*
  * Checks if the given port has received its carrier detect line raised.
- * 
+ *
  * @port serial port whose carrier detect line is to be checked.
  *
  * @return 1 if the carrier is raised otherwise 0
  */
-static int scm_port_carrier_raised(struct tty_port *port) 
+static int scm_port_carrier_raised(struct tty_port *port)
 {
     int msr_reg = 0;
     struct vtty_dev *local_vttydev = index_manager[port->tty->index].vttydev;
@@ -1179,32 +1212,32 @@ static int scm_port_carrier_raised(struct tty_port *port)
 
 /*
  * Shutdowns the given serial port, typically it is used to shutdown hardware.
- * 
+ *
  * @port: tty port to shut down
  */
-static void scm_port_shutdown(struct tty_port *port) 
+static void scm_port_shutdown(struct tty_port *port)
 {
 }
 
 /*
  * Activate the given serial port as opposed to shutdown. Typically used to turn something on hardware.
- * 
+ *
  * @port: tty port to activate
  * @tty: tty corresponding to the given port
  * @return 0 on success
  */
-static int scm_port_activate(struct tty_port *port, struct tty_struct *tty) 
+static int scm_port_activate(struct tty_port *port, struct tty_struct *tty)
 {
     return 0;
 }
 
 /*
- * Typically used for destroying serial port specific resources and freeing them. Define this function as 
+ * Typically used for destroying serial port specific resources and freeing them. Define this function as
  * we would free port structure our selves later.
- * 
- * Use for debug: printk(KERN_ERR "%pF CALLED %s at tty index : \n", __builtin_return_address(0), __FUNCTION__, tty->index);
+ *
+ * Use for debug: printk(KERN_ERR "%pF CALLED %s at tty index : %d\n", __builtin_return_address(0), __FUNCTION__, tty->index);
  */
-static void scm_port_destruct(struct tty_port *port) 
+static void scm_port_destruct(struct tty_port *port)
 {
 }
 
@@ -1213,7 +1246,7 @@ static void scm_port_destruct(struct tty_port *port)
  * @buf user space buffer that will contain data when this function returns
  * @size number of character returned in buf
  * @ppos offset
- * 
+ *
  * @return number of bytes copied to user buffer on success or negative error code on error
  */
 static ssize_t scmtty_vadapt_proc_read(struct file *file, char __user *buf, size_t size, loff_t *ppos)
@@ -1248,7 +1281,7 @@ static ssize_t scmtty_vadapt_proc_read(struct file *file, char __user *buf, size
 
 /*
  * Extract pin mappings from local to remote tty devices.
- * 
+ *
  * @return: 0 on success or negative error code
  */
 static int extract_mapping(char data[], int x) {
@@ -1275,33 +1308,33 @@ static int extract_mapping(char data[], int x) {
 }
 
 /*
- * This function is equivalent to a typical 'probe' function in linux device driver model for this virtual 
+ * This function is equivalent to a typical 'probe' function in linux device driver model for this virtual
  * adaptor.
  *
  * Standard DB9 pin assignment: 1 - DCD, 2 - RX, 3 - TX, 4 - DTR, 5 - GND, 6 - DSR, 7 - RTS, 8 - CTS, 9 - RI.
- * 
- * Assignment 7-8 means connect local RTS pin to remote CTS pin. Assignment 4-1,6 means connect local DTR to 
- * remote DSR and DCD pins. Assignment 7-x means leave local RTS pin unconnected. The 'y' at last will raise 
- * remote DCD pin when local device is opened. When removing tty device, if the given device is one of the 
+ *
+ * Assignment 7-8 means connect local RTS pin to remote CTS pin. Assignment 4-1,6 means connect local DTR to
+ * remote DSR and DCD pins. Assignment 7-x means leave local RTS pin unconnected. The 'y' at last will raise
+ * remote DCD pin when local device is opened. When removing tty device, if the given device is one of the
  * device in a null modem pair, coupled device will also be deleted automatically.
- * 
+ *
  * 1. Create standard null modem connection:
  * $echo "gennm#vdev1#vdev2#7-8,x,x,x#4-1,6,x,x#7-8,x,x,x#4-1,6,x,x#y#y" > /proc/scmtty_vadaptkm
- * 
+ *
  * 2. Create standard loop back connection:
  * $echo "genlb#vdevt#xxxxx#7-8,x,x,x#4-1,6,x,x#x-x,x,x,x#x-x,x,x,x#y#x" > /proc/scmtty_vadaptkm
- * 
+ *
  * 3. Delete a particular tty device:
  * $echo "del#vdevt#xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" > /proc/scmtty_vadaptkm
- * 
+ *
  * 4. Delete all virtual tty devices in this adaptor:
  * $echo "del#xxxxx#xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" > /proc/scmtty_vadaptkm
- * 
+ *
  * @file file representing scm proc file
  * @buf command supplied by caller
  * @length length of the command
  * @ppos offset in file
- * 
+ *
  * @return number of bytes consumed by this function on success or negative error code on failure
  */
 static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *buf, size_t length, loff_t * ppos)
@@ -1370,7 +1403,7 @@ static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *bu
                 x++;
             }
             ret = kstrtouint(tmp, 10, &vdev1idx);
-            if(ret != 0) 
+            if(ret != 0)
                 return ret;
             if((vdev1idx < 0) || (vdev1idx > 65535))
                 return -EINVAL;
@@ -1512,6 +1545,7 @@ static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *bu
         vttydev1->msr_reg = 0;
         vttydev1->mcr_reg = 0;
         vttydev1->waiting_msr_chg = 0;
+        vttydev1->tx_paused = 0;
         index_manager[i].index = i;
         index_manager[i].vttydev = vttydev1;
         mutex_init(&vttydev1->lock);
@@ -1558,6 +1592,7 @@ static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *bu
             vttydev2->msr_reg = 0;
             vttydev2->mcr_reg = 0;
             vttydev2->waiting_msr_chg = 0;
+            vttydev2->tx_paused = 0;
             index_manager[y].index = y;
             index_manager[y].vttydev = vttydev2;
             mutex_init(&vttydev2->lock);
@@ -1612,10 +1647,10 @@ static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *bu
     else {
         /* Destroy device command sent */
 
-        /* 
-         * An application may forget to close serial port or it might have been crashed resulting in 
-         * unclosed port and hence leaked resources. We handle such scenarios as disconnected event 
-         * as done in case of a plug and play for example usb devices. Application is running, port 
+        /*
+         * An application may forget to close serial port or it might have been crashed resulting in
+         * unclosed port and hence leaked resources. We handle such scenarios as disconnected event
+         * as done in case of a plug and play for example usb devices. Application is running, port
          * is opened and then suddenly user removes device.
          */
 
@@ -1734,23 +1769,23 @@ static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *bu
     return ret;
 }
 
-/* 
- * Invoked when user space process opens /proc/scmtty_vadaptkm file to create/destroy 
+/*
+ * Invoked when user space process opens /proc/scmtty_vadaptkm file to create/destroy
  * virtual tty device(s).
- * 
+ *
  * @return 0 on success.
  */
-static int scmtty_vadapt_proc_open(struct inode *inode, struct  file *file) 
+static int scmtty_vadapt_proc_open(struct inode *inode, struct  file *file)
 {
     return 0;
 }
 
-/* 
+/*
  * Invoked when user space process closes /proc/scmtty_vadaptkm file.
- * 
+ *
  * @return 0 on success.
  */
-static int scmtty_vadapt_proc_close(struct inode *inode, struct file *file) 
+static int scmtty_vadapt_proc_close(struct inode *inode, struct file *file)
 {
     return 0;
 }
@@ -1787,18 +1822,18 @@ static const struct tty_operations scm_serial_ops = {
         .get_icount      = scmtty_get_icount,
 };
 
-/* 
+/*
  * Invoked when this driver is loaded. If the user supplies correct number of virtual devices
  * to be created when this module is loaded, the virtual devices will be made, otherwise they
  * will not be made and have to be created using proc file.
  *
- * For example; if this driver should support upto maximum 20 devices and create 1 null-modem pair 
+ * For example; if this driver should support upto maximum 20 devices and create 1 null-modem pair
  * and 1 loop back device, load this driver module as shown below:
- * 
+ *
  * $insmod ./tty2comKm.ko max_num_vtty_dev=20 init_num_nm_pair=1 init_num_lb_dev=1
  *
- * First all the null modem pair will be created and then loop back device will be created if 
- * creating virtual devices at module load time is specified. For example for above command line 
+ * First all the null modem pair will be created and then loop back device will be created if
+ * creating virtual devices at module load time is specified. For example for above command line
  * 1. null modem pair : /dev/tty2com0 <---> /dev/tty2com1
  * 2. loop back       : /dev/tty2com2
  *
@@ -1810,7 +1845,7 @@ static int __init scm_tty2comKm_init(void)
     int ret = 0;
     struct proc_dir_entry *pde = NULL;
 
-    /* Causes allocation of memory for 'struct tty_port' and 'struct cdev' for all tty devices this 
+    /* Causes allocation of memory for 'struct tty_port' and 'struct cdev' for all tty devices this
      * driver can handle. */
     scmtty_driver = tty_alloc_driver(max_num_vtty_dev, 0);
     if (!scmtty_driver)
@@ -1832,7 +1867,7 @@ static int __init scm_tty2comKm_init(void)
     tty_set_operations(scmtty_driver, &scm_serial_ops);
 
     ret = tty_register_driver(scmtty_driver);
-    if (ret) 
+    if (ret)
         goto failed_register;
 
     index_manager = (struct vtty_info *) kcalloc(max_num_vtty_dev, sizeof(struct vtty_info), GFP_KERNEL);
@@ -1846,7 +1881,7 @@ static int __init scm_tty2comKm_init(void)
         index_manager[x].index = -1;
     }
 
-    /* Application should read/write to this file to create/destroy tty device and query informations associated 
+    /* Application should read/write to this file to create/destroy tty device and query informations associated
      * with them */
     pde = proc_create("scmtty_vadaptkm", 0666, NULL, &scmtty_vadapt_proc_fops);
     if(pde == NULL) {
@@ -1880,10 +1915,10 @@ static int __init scm_tty2comKm_init(void)
     return ret;
 }
 
-/* 
- * Invoked when this driver is unloaded. A tty device may have been registered but application might 
- * not have opened it. This driver follows similar approach as followed in a plug and play device 
- * driver's disconnected logic. For clean exit, kicking out dependents, releasing resources hangup is 
+/*
+ * Invoked when this driver is unloaded. A tty device may have been registered but application might
+ * not have opened it. This driver follows similar approach as followed in a plug and play device
+ * driver's disconnected logic. For clean exit, kicking out dependents, releasing resources hangup is
  * used.
  */
 static void __exit scm_tty2comKm_exit(void)
@@ -1899,7 +1934,7 @@ static void __exit scm_tty2comKm_exit(void)
         if(index_manager[x].index != -1) {
             vttydev = index_manager[x].vttydev;
             if((vttydev->own_tty != NULL) && (vttydev->own_tty->port)) {
-                tty_port_destroy(scmtty_driver->ports[x]);
+                //tty_port_destroy(scmtty_driver->ports[x]);
                 tty = tty_port_tty_get(vttydev->own_tty->port);
                 if (tty) {
                     tty_vhangup(tty);
