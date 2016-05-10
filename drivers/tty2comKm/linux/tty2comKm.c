@@ -1028,39 +1028,38 @@ static int scmtty_tiocmset(struct tty_struct *tty, unsigned int set, unsigned in
  *
  * @return 0 on success otherwise negative error code on failure
  */
-static int scmtty_break_ctl(struct tty_struct *tty, int state)
+static int scmtty_break_ctl(struct tty_struct *tty, int break_state)
 {
     struct tty_struct *tty_to_write = NULL;
     struct vtty_dev *brk_rx_vttydev = NULL;
-    struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
+    struct vtty_dev *brk_tx_vttydev = index_manager[tty->index].vttydev;
 
-    if(tty->index != local_vttydev->peer_index) {
-        tty_to_write = local_vttydev->peer_tty;
-        brk_rx_vttydev = local_vttydev;
+    if(tty->index != brk_tx_vttydev->peer_index) {
+        tty_to_write = brk_tx_vttydev->peer_tty;
+        brk_rx_vttydev = index_manager[brk_tx_vttydev->peer_index].vttydev;
     }
     else {
         tty_to_write = tty;
-        brk_rx_vttydev = index_manager[local_vttydev->peer_index].vttydev;
+        brk_rx_vttydev = brk_tx_vttydev;
     }
 
-    mutex_lock(&local_vttydev->lock);
-    if(state == 1) {
-        if(local_vttydev->is_break_on == 1)
+    mutex_lock(&brk_tx_vttydev->lock);
+
+    if (break_state != 0) {
+        if(brk_tx_vttydev->is_break_on == 1)
             return 0;
-        local_vttydev->is_break_on = 1;
+        brk_tx_vttydev->is_break_on = 1;
         if(tty_to_write != NULL) {
             tty_insert_flip_char(tty_to_write->port, 0, TTY_BREAK);
             tty_flip_buffer_push(tty_to_write->port);
             brk_rx_vttydev->icount.brk++;
         }
-    }else if(state == 0) {
-        local_vttydev->is_break_on = 0;
-    }else {
-        mutex_unlock(&local_vttydev->lock);
-        return -EINVAL;
+    }
+    else {
+        brk_tx_vttydev->is_break_on = 0;
     }
 
-    mutex_unlock(&local_vttydev->lock);
+    mutex_unlock(&brk_tx_vttydev->lock);
     return 0;
 }
 
