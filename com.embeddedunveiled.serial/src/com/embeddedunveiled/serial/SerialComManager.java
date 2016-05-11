@@ -1024,28 +1024,33 @@ public final class SerialComManager {
      * application should try to re-send bytes. The data has been transmitted out of serial port when this 
      * method returns.</p>
      * 
-     * <p>If large amount of data need to be written, consider breaking it into chunks of data of size for example
-     * 2KB each.</p>
+     * <ul>
+     * <li>When using flow control, if the transmission has been stopped because other serial port's buffer 
+     * is getting full, this method may return 0, indicating that no data bytes were sent out of serial port.</li>
      * 
-     * <p>Writing empty buffer i.e. zero length array is not allowed.</p>
+     * <li><p>If large amount of data need to be written, it is advisable to break it into chunks of data of 
+     * size for example 2KB each.</p></li>
      * 
-     * <p>It should be noted that on Linux system reading from the terminal after a disconnect causes 
+     * <li>Writing empty buffer i.e. zero length array is not allowed.</p></li>
+     * 
+     * <li><p>It should be noted that on Linux system reading from the terminal after a disconnect causes 
      * an end-of-file condition, and writing causes an EIO error to be returned. The terminal device must 
-     * be closed and reopened to clear the condition.</p>
+     * be closed and reopened to clear the condition.</p></li>
+     * </ul>
      * 
      * @param handle handle of the opened port on which to write bytes.
      * @param buffer byte type buffer containing bytes to be written to port.
      * @param delay  time gap between transmitting two successive bytes.
-     * @return true on success, false on failure or if empty buffer is passed.
+     * @return number of bytes written.
      * @throws SerialComException if an I/O error occurs.
      * @throws IllegalArgumentException if buffer is null or delay is negative.
      */
-    public boolean writeBytes(long handle, final byte[] buffer, int delay) throws SerialComException {
+    public int writeBytes(long handle, final byte[] buffer, int delay) throws SerialComException {
         if(buffer == null) {
-            throw new IllegalArgumentException("Argumenet buffer can not be null !");
+            throw new IllegalArgumentException("Argument buffer can not be null !");
         }
         if(buffer.length == 0) {
-            return false;
+            return 0;
         }
         if(delay < 0) {
             throw new IllegalArgumentException("Argument delay can not be negative !");
@@ -1055,7 +1060,7 @@ public final class SerialComManager {
         if(ret < 0) {
             throw new SerialComException("Could not write data to serial port. Please retry !");
         }
-        return true;
+        return ret;
     }
 
     /**
@@ -1066,11 +1071,11 @@ public final class SerialComManager {
      * 
      * @param handle handle of the opened port on which to write bytes.
      * @param buffer byte type buffer containing bytes to be written to port.
-     * @return true on success, false on failure or if empty buffer is passed.
+     * @return number of bytes written.
      * @throws SerialComException if an I/O error occurs.
      * @throws IllegalArgumentException if buffer is null.
      */
-    public boolean writeBytes(long handle, byte[] buffer) throws SerialComException {
+    public int writeBytes(long handle, byte[] buffer) throws SerialComException {
         return writeBytes(handle, buffer, 0);
     }
 
@@ -1080,16 +1085,16 @@ public final class SerialComManager {
      * 
      * @param handle handle of the opened port on which to write byte.
      * @param dataByte byte to be written to port.
-     * @return true on success.
+     * @return number of bytes written.
      * @throws SerialComException if an I/O error occurs.
      */
-    public boolean writeSingleByte(long handle, byte dataByte) throws SerialComException {
+    public int writeSingleByte(long handle, byte dataByte) throws SerialComException {
         int ret = mComPortJNIBridge.writeSingleByte(handle, dataByte);
         if(ret < 0) {
             /* extra check */
             throw new SerialComException("Could not write given byte to serial port. Please retry !");
         }
-        return true;
+        return ret;
     }
 
     /**
@@ -1101,13 +1106,19 @@ public final class SerialComManager {
      * @param delay interval between two successive bytes while sending string.
      * @return true on success false otherwise.
      * @throws SerialComException if an I/O error occurs.
-     * @throws IllegalArgumentException if data is null.
+     * @throws IllegalArgumentException if data is null or empty string.
      */
     public boolean writeString(long handle, String data, int delay) throws SerialComException {
-        if(data == null) {
-            throw new IllegalArgumentException("writeString(), " + "Argument data can not be null");
+        int ret = 0;
+        if((data == null) || (data.length() == 0)) {
+            throw new IllegalArgumentException("Argument data can not be null or an empty string !");
         }
-        return writeBytes(handle, data.getBytes(), delay);
+        byte[] dataToBeSent = data.getBytes();
+        ret = writeBytes(handle, dataToBeSent, delay);
+        if(ret != dataToBeSent.length) {
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -1117,16 +1128,23 @@ public final class SerialComManager {
      * @param handle handle of the opened port on which to write byte.
      * @param data the string to be send to port.
      * @param charset the character set into which given string will be encoded.
-     * @param delay  time gap between transmitting two successive bytes in this string.
+     * @param delay time gap between transmitting two successive bytes in this string.
      * @return true on success false otherwise.
      * @throws SerialComException if an I/O error occurs.
-     * @throws IllegalArgumentException if data is null.
+     * @throws IllegalArgumentException if data is null or empty string.
+     * @throws UnsupportedEncodingException if string encoding/decoding fails.
      */
     public boolean writeString(long handle, final String data, Charset charset, int delay) throws UnsupportedEncodingException, SerialComException {
-        if(data == null) {
-            throw new IllegalArgumentException("Argument data can not be null !");
+        int ret = 0;
+        if((data == null) || (data.length() == 0)) {
+            throw new IllegalArgumentException("Argument data can not be null or an empty string !");
         }
-        return writeBytes(handle, data.getBytes(charset), delay);
+        byte[] dataToBeSent = data.getBytes(charset);
+        ret = writeBytes(handle, dataToBeSent, delay);
+        if(ret != dataToBeSent.length) {
+            return false;
+        }
+        return true;
     }
 
     /** 
@@ -1150,11 +1168,11 @@ public final class SerialComManager {
      * @param endianness big or little endian sequence to be followed while sending bytes representing 
      *         this integer.
      * @param numOfBytes number of bytes this integer can be represented in.
-     * @return true on success false otherwise.
+     * @return number of bytes written.
      * @throws SerialComException if an I/O error occurs.
      * @throws IllegalArgumentException if endianness or numOfBytes is null.
      */
-    public boolean writeSingleInt(long handle, int data, int delay, ENDIAN endianness, NUMOFBYTES numOfBytes) throws SerialComException {
+    public int writeSingleInt(long handle, int data, int delay, ENDIAN endianness, NUMOFBYTES numOfBytes) throws SerialComException {
         byte[] buffer = null;
 
         if(endianness == null) {
@@ -1201,11 +1219,11 @@ public final class SerialComManager {
      * @param endianness big or little endian sequence to be followed while sending bytes representing 
      *         this integer.
      * @param numOfBytes number of bytes this integer can be represented in.
-     * @return true on success false otherwise.
+     * @return number of bytes written.
      * @throws SerialComException if an I/O error occurs.
      * @throws IllegalArgumentException if endianness or numOfBytes is null.
      */
-    public boolean writeIntArray(long handle, final int[] buffer, int delay, ENDIAN endianness, NUMOFBYTES numOfBytes) throws SerialComException {
+    public int writeIntArray(long handle, final int[] buffer, int delay, ENDIAN endianness, NUMOFBYTES numOfBytes) throws SerialComException {
         byte[] localBuf = null;
 
         if(endianness == null) {
@@ -1281,7 +1299,7 @@ public final class SerialComManager {
      * @param buffer direct byte buffer containing bytes to be written to port.
      * @param offset location from where to start sending data out of serial port.
      * @param length number of bytes from offset to sent to serial port.
-     * @return number of bytes sent to serial port, 0 if length is 0.
+     * @return number of bytes sent to serial port.
      * @throws SerialComException if an I/O error occurs.
      * @throws IllegalArgumentException if buffer is null, or if position or limit is negative, 
      *          or if given buffer is not direct byte buffer, or if length > (buffer.capacity() - offset).
@@ -1313,17 +1331,32 @@ public final class SerialComManager {
     /**
      * <p>Write bytes from given buffer to the given handle in blocking mode.</p>
      * 
-     * <p>Writing empty buffer i.e. zero length array is not allowed.</p>
+     * <ul>
+     * <li>Writing empty buffer i.e. zero length array is not allowed.</li>
+     * 
+     * <li><p>Same context should not be used for both reading and writing.</p></li>
+     * </ul>
      * 
      * @param handle handle of the opened port on which to write bytes.
      * @param buffer byte type buffer containing bytes to be written to port.
      * @param context context value obtained form call to createBlockingIOContext method.
-     * @return true on success, false on failure or if empty buffer is passed.
+     * @return number of bytes sent to serial port.
      * @throws SerialComException if an I/O error occurs.
      * @throws IllegalArgumentException if buffer is null.
      */
-    public boolean writeBytesBlocking(long handle, byte[] buffer, long context) throws SerialComException {
-        return writeBytes(handle, buffer, 0);
+    public int writeBytesBlocking(long handle, byte[] buffer, long context) throws SerialComException {
+        if(buffer == null) {
+            throw new IllegalArgumentException("Argument buffer can not be null !");
+        }
+        if(buffer.length == 0) {
+            return 0;
+        }
+
+        int ret = mComPortJNIBridge.writeBytesBlocking(handle, buffer, context);
+        if(ret < 0) {
+            throw new SerialComException("Could not write data to serial port. Please retry !");
+        }
+        return ret;
     }
 
     /**
@@ -1440,7 +1473,7 @@ public final class SerialComManager {
      * @param handle of the serial port from which to read bytes.
      * @param byteCount number of bytes to read from serial port.
      * @param context context obtained by a call to createBlockingIOContext method.
-     * @return array of bytes read from port or null.
+     * @return array of bytes read from port if read succeeds or null if read fails.
      * @throws SerialComException if an I/O error occurs or if byteCount is greater than 2048.
      */
     public byte[] readBytesBlocking(long handle, int byteCount, long context) throws SerialComException {

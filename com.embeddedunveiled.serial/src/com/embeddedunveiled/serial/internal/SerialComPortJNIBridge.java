@@ -364,6 +364,7 @@ public final class SerialComPortJNIBridge {
     public native int writeBytes(long handle, byte[] buffer, int delay);
     public native int writeBytesDirect(long handle, ByteBuffer buffer, int offset, int length);
     public native int writeSingleByte(long handle, byte dataByte);
+    public native int writeBytesBlocking(long handle, byte[] buffer, long context);
 
     public native long createBlockingIOContext();
     public native int unblockBlockingIOOperation(long context);
