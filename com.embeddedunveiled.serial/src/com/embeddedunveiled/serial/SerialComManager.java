@@ -351,9 +351,9 @@ public final class SerialComManager {
 
     /** <p>Pre-defined enum constants for defining behavior of byte stream. </p>*/
     public enum SMODE {
-        /** <p>Read will block till data is available. </p>*/
+        /** <p>Read / Write operation will block till data is available. </p>*/
         BLOCKING(1), 
-        /** <p>Read will not block till data is available. </p>*/
+        /** <p>Read / Write operation will not block till data is available. </p>*/
         NONBLOCKING(2);
         private int value;
         private SMODE(int value) {
