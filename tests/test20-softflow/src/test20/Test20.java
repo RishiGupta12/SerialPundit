@@ -49,6 +49,7 @@ class Data1 extends Test20 implements ISerialComDataListener {
 
 /*
  * port will send xoff and xon after buffer limit is reached.
+ * OS will filter the xon/xoff character and application will not receive it.
  */
 public class Test20 {
     
