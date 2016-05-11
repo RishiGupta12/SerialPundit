@@ -20,7 +20,9 @@
 # Run this script as root user.
 
 cd "$(dirname "$0")"
+
 rmmod tty2comKm &>/dev/null
+
 set -e
 
 if [[ $EUID -ne 0 ]]; then
