@@ -106,9 +106,9 @@ public final class FlowControl {
                 System.out.println("3 : " + scm.writeBytes(handle00, buffer));
                 Thread.sleep(100);
                 System.out.println("4 : " + scm.writeBytes(handle00, buffer));
-                Thread.sleep(100);
+                Thread.sleep(5000);
                 System.out.println("5 : " + scm.writeBytes(handle00, buffer));
-                Thread.sleep(100);
+                Thread.sleep(5000);
                 System.out.println("6 : " + scm.writeBytes(handle00, buffer));
                 System.out.println("6 : " + scm.writeBytes(handle00, buffer));
                 Thread.sleep(10000);
