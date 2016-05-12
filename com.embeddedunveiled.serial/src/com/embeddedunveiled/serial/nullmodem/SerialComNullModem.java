@@ -20,10 +20,12 @@ package com.embeddedunveiled.serial.nullmodem;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Map;
 import java.util.TreeMap;
+
 import com.embeddedunveiled.serial.SerialComManager;
 
 /**
@@ -90,7 +92,11 @@ public final class SerialComNullModem {
         this.osType = osType;
         if(osType == SerialComManager.OS_LINUX) {
             try {
-                linuxVadaptOut = new FileOutputStream(new File("/proc/scmtty_vadaptkm"));
+                File f = new File("/proc/scmtty_vadaptkm");
+                if(!f.exists()) {
+                    throw new FileNotFoundException("The /proc/scmtty_vadaptkm not found. Is driver loaded ???");
+                }
+                linuxVadaptOut = new FileOutputStream(f);
             } catch(Exception e) {
                 throw e;
             }
