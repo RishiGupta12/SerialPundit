@@ -26,7 +26,7 @@ import com.embeddedunveiled.serial.SerialComManager.PARITY;
 import com.embeddedunveiled.serial.SerialComManager.STOPBITS;
 
 /* 
- * LOAD module to support large number of devices.
+ * LOAD module to support large number of devices for this test.
  * 
  * $ insmod ./tty2comKm.ko max_num_vtty_dev=5000 
  */
@@ -228,6 +228,7 @@ public final class NullModemTest {
 
             /********* Final clean up (Release operating system specific resources held by null modem class) *********/
             scnm.destroyAllVirtualDevices();
+            Thread.sleep(10000);
             scnm.releaseResources();
             System.out.println("Done !");
         }catch (Exception e) {
