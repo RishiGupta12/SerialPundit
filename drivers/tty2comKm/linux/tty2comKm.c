@@ -246,6 +246,7 @@ static const struct tty_port_operations vttydev_port_ops = {
 static ssize_t evt_store(struct device *dev, struct device_attribute *attr, const char *buf, size_t count)
 {
     int ret = 0;
+    int push = 1;
     struct vtty_dev *local_vttydev = NULL;
     struct tty_struct *tty_to_write = NULL;
 
@@ -257,6 +258,8 @@ static ssize_t evt_store(struct device *dev, struct device_attribute *attr, cons
 
     /* ensure required structure has been allocated, initialized and port has been opened. */
     if((tty_to_write == NULL) || (tty_to_write->port == NULL) || (tty_to_write->port->count <= 0))
+        return -EIO;
+    if(!test_bit(ASYNCB_INITIALIZED, &tty_to_write->port->flags))
         return -EIO;
 
     mutex_lock(&local_vttydev->lock);
@@ -283,10 +286,12 @@ static ssize_t evt_store(struct device *dev, struct device_attribute *attr, cons
     case '4' :
         local_vttydev->msr_reg |= SCM_MSR_RI;
         local_vttydev->icount.rng++;
+        push = -1;
         break;
     case '5' :
         local_vttydev->msr_reg &= ~SCM_MSR_RI;
         local_vttydev->icount.rng++;
+        push = -1;
         break;
     case '6' :
         ret = tty_insert_flip_char(tty_to_write->port, 0, TTY_BREAK);
@@ -298,7 +303,9 @@ static ssize_t evt_store(struct device *dev, struct device_attribute *attr, cons
         mutex_unlock(&local_vttydev->lock);
         return -EINVAL;
     }
-    tty_flip_buffer_push(tty_to_write->port);
+
+    if (push)
+        tty_flip_buffer_push(tty_to_write->port);
 
     mutex_unlock(&local_vttydev->lock);
     return count;
