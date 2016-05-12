@@ -39,18 +39,15 @@ public final class NullModemTest {
         final SerialComNullModem scnm = scm.getSerialComNullModemInstance();
         String a = null;
 
-        // create loopback, writing to it then read, don't configure terminal, it must not block
-        String lbp1 = scnm.createStandardLoopBackDevice(-1);
-        System.out.println("loop back dev : " + lbp1);
-        long lbp1hand1 = scm.openComPort(lbp1, true, true, false);
-        scm.writeString(lbp1hand1, "data", 0);
-        System.out.println("written string data");
-        Thread.sleep(100);
-        System.out.println("read string : " + scm.readString(lbp1hand1));
-        
-        int r = 0;
-        if(r==0)
-            return;
+        //        // create loopback, writing to it then read, don't configure terminal, it should not block
+        //        String lbp1 = scnm.createStandardLoopBackDevice(-1);
+        //        System.out.println("loop back dev : " + lbp1);
+        //        long lbp1hand1 = scm.openComPort(lbp1, true, true, false);
+        //        scm.writeString(lbp1hand1, "data", 0);
+        //        System.out.println("written string data");
+        //        Thread.sleep(100);
+        //        System.out.println("read string : " + scm.readString(lbp1hand1));
+        //        scm.closeComPort(lbp1hand1);
 
         // num bytes in i/o buffer
         try {
@@ -230,7 +227,7 @@ public final class NullModemTest {
             }
 
             /********* Final clean up (Release operating system specific resources held by null modem class) *********/
-            //scnm.destroyAllVirtualDevices();
+            scnm.destroyAllVirtualDevices();
             scnm.releaseResources();
             System.out.println("Done !");
         }catch (Exception e) {

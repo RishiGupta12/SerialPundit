@@ -34,6 +34,29 @@ device and 1 null modem pair, load as shown below:
 $ insmod ./tty2comKm.ko max_num_vtty_dev=1000 init_num_nm_pair=1 init_num_lb_dev=1
 ```
 
+####Create / destroy
+---------------------
+
+- Create standard null modem connection
+```
+$echo "gennm#xxxxx#xxxxx#7-8,x,x,x#4-1,6,x,x#7-8,x,x,x#4-1,6,x,x#y#y" > /proc/scmtty_vadaptkm
+```
+
+- Create standard loop back connection
+```
+$echo "genlb#xxxxx#xxxxx#7-8,x,x,x#4-1,6,x,x#x-x,x,x,x#x-x,x,x,x#y#x" > /proc/scmtty_vadaptkm
+```
+
+- Delete a particular tty2comXX device
+```
+$echo "del#vdevX#xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" > /proc/scmtty_vadaptkm
+```
+
+- Delete all tty2comXX devices
+```
+$echo "del#xxxxx#xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" > /proc/scmtty_vadaptkm
+```
+
 ####Udev rules
 ---------------------
 The udev rules are provided and gets installed automatically when install.sh is executed.
