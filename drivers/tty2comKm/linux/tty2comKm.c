@@ -533,8 +533,8 @@ static void scmtty_close(struct tty_struct *tty, struct file *filp)
         tty_port_close(tty->port, tty, filp);
     }
 
-    if (tty && C_HUPCL(tty))
-        update_modem_lines(tty, TIOCM_DTR | TIOCM_RTS, 0);
+    if (tty && C_HUPCL(tty) && tty->port && (tty->port->count < 1))
+        update_modem_lines(tty, 0, TIOCM_DTR | TIOCM_RTS);
 
     mutex_unlock(&local_vttydev->lock);
 }
@@ -1072,7 +1072,7 @@ static int scmtty_break_ctl(struct tty_struct *tty, int break_state)
 }
 
 /*
- * Invoked by tty layer to inform this driver that it should hangup the tty device (Lower
+ * Invoked by tty layer to inform this driver that it should hangup the tty device (lower
  * modem control lines after last process using tty devices closes the device or exited).
  *
  * Drop DTR/RTS if HUPCL is set. This causes any attached modem to hang up the line.
@@ -1088,12 +1088,10 @@ static void scmtty_hangup(struct tty_struct *tty)
     struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
     mutex_lock(&local_vttydev->lock);
 
-    count = tty->port->count;
-
     tty_port_hangup(tty->port);
 
-    if (tty && C_HUPCL(tty) && (count < 1))
-        index_manager[local_vttydev->peer_index].vttydev->msr_reg &= ~SCM_MSR_DCD;
+    if (tty && C_HUPCL(tty))
+        update_modem_lines(tty, 0, TIOCM_DTR | TIOCM_RTS);
 
     mutex_unlock(&local_vttydev->lock);
 }
@@ -1680,7 +1678,6 @@ static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *bu
                             tty_kref_put(tty);
                         }
                     }
-
                 }
             }
             for(x=0; x < max_num_vtty_dev; x++) {
@@ -1848,6 +1845,9 @@ static const struct tty_operations scm_serial_ops = {
  * creating virtual devices at module load time is specified. For example for above command line
  * 1. null modem pair : /dev/tty2com0 <---> /dev/tty2com1
  * 2. loop back       : /dev/tty2com2
+ * 
+ * By default the CREAD, HUPCL, CLOCAL flags are set. Therefore open will block on DCD signal. Application 
+ * should use O_NONBLOCK flag for non-blocking open.
  *
  * @return: 0 on success or negative error code on failure.
  */
@@ -1946,6 +1946,7 @@ static void __exit scm_tty2comKm_exit(void)
         if(index_manager[x].index != -1) {
             vttydev = index_manager[x].vttydev;
             sysfs_remove_group(&vttydev->device->kobj, &scmvtty_error_events_attr_group);
+            tty_unregister_device(scmtty_driver, index_manager[x].index);
             if(vttydev->own_tty && vttydev->own_tty->port) {
                 tty = tty_port_tty_get(vttydev->own_tty->port);
                 if (tty) {
@@ -1953,7 +1954,6 @@ static void __exit scm_tty2comKm_exit(void)
                     tty_kref_put(tty);
                 }
             }
-            tty_unregister_device(scmtty_driver, index_manager[x].index);
         }
     }
     for(x=0; x < max_num_vtty_dev; x++) {
