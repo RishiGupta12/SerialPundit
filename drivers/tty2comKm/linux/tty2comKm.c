@@ -158,11 +158,12 @@ static int scmtty_vadapt_proc_close(struct inode *inode, struct file *file);
 static ssize_t scmtty_vadapt_proc_read(struct file *file, char __user *buf, size_t size, loff_t *ppos);
 static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *buf, size_t length, loff_t * ppos);
 
-/*static void scm_port_dtr_rts(struct tty_port *port, int raise);*/
+
 static int scm_port_carrier_raised(struct tty_port *port);
 static void scm_port_shutdown(struct tty_port *port);
 static int scm_port_activate(struct tty_port *port, struct tty_struct *tty);
-static void scm_port_destruct(struct tty_port *port);
+/*static void scm_port_destruct(struct tty_port *port);
+static void scm_port_dtr_rts(struct tty_port *port, int raise);*/
 
 /* These values may be overriden if module is loaded with parameters */
 static ushort max_num_vtty_dev = VTTY_DEV_MAX;
@@ -197,8 +198,8 @@ static const struct tty_port_operations vttydev_port_ops = {
         .carrier_raised = scm_port_carrier_raised,
         .shutdown       = scm_port_shutdown,
         .activate       = scm_port_activate,
-        .destruct       = scm_port_destruct,
-        /*.dtr_rts        = scm_port_dtr_rts,*/
+        /*.destruct       = scm_port_destruct,
+        .dtr_rts        = scm_port_dtr_rts,*/
 };
 
 /*
@@ -1236,9 +1237,12 @@ static int scm_port_activate(struct tty_port *port, struct tty_struct *tty)
  *
  * Use for debug: printk(KERN_ERR "%pF CALLED %s at tty index : %d\n", __builtin_return_address(0), __FUNCTION__, tty->index);
  */
+/*
 static void scm_port_destruct(struct tty_port *port)
 {
+ Let kernel release memory as appropriate.
 }
+ */
 
 /*
  * @file file for proc file
@@ -1649,30 +1653,30 @@ static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *bu
         /*
          * An application may forget to close serial port or it might have been crashed resulting in
          * unclosed port and hence leaked resources. We handle such scenarios as disconnected event
-         * as done in case of a plug and play for example usb devices. Application is running, port
-         * is opened and then suddenly user removes device.
+         * as done in case of a plug and play for example usb device. Application is running, port
+         * is opened and then suddenly user removes tty device.
          */
 
         if(data[4] == 'x') {
             mutex_lock(&adaptlock);
             for(x=0; x < max_num_vtty_dev; x++) {
-                if(index_manager[x].index != -1) {
+                if (index_manager[x].index != -1) {
                     vttydev1 = index_manager[x].vttydev;
-                    if((vttydev1->own_tty != NULL) && (vttydev1->own_tty->port)) {
+                    sysfs_remove_group(&vttydev1->device->kobj, &scmvtty_error_events_attr_group);
+                    if (vttydev1->own_tty && vttydev1->own_tty->port) {
                         tty = tty_port_tty_get(vttydev1->own_tty->port);
-                        tty_port_destroy(scmtty_driver->ports[x]);
                         if (tty) {
                             tty_vhangup(tty);
                             tty_kref_put(tty);
                         }
                     }
-                    sysfs_remove_group(&vttydev1->device->kobj, &scmvtty_error_events_attr_group);
                     tty_unregister_device(scmtty_driver, index_manager[x].index);
                 }
             }
             for(x=0; x < max_num_vtty_dev; x++) {
                 if(index_manager[x].index != -1) {
-                    kfree(scmtty_driver->ports[x]);
+                    if (scmtty_driver->ports[x])
+                        tty_port_put(scmtty_driver->ports[x]);
                     kfree(index_manager[x].vttydev);
                     index_manager[x].index = -1;
                 }
@@ -1699,21 +1703,22 @@ static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *bu
 
                 x = index_manager[vdev1idx].index;
                 vttydev1 = index_manager[x].vttydev;
-                tty_port_destroy(scmtty_driver->ports[x]);
-                if((vttydev1->own_tty != NULL) && (vttydev1->own_tty->port != NULL)) {
+                sysfs_remove_group(&vttydev1->device->kobj, &scmvtty_error_events_attr_group);
+                if (vttydev1->own_tty && vttydev1->own_tty->port) {
                     tty = tty_port_tty_get(vttydev1->own_tty->port);
                     if (tty) {
                         tty_vhangup(tty);
                         tty_kref_put(tty);
                     }
                 }
-                sysfs_remove_group(&vttydev1->device->kobj, &scmvtty_error_events_attr_group);
                 tty_unregister_device(scmtty_driver, index_manager[x].index);
+                if (scmtty_driver->ports[x])
+                    tty_port_put(scmtty_driver->ports[x]);
 
-                if(vttydev1->own_index != vttydev1->peer_index) {
+                if (vttydev1->own_index != vttydev1->peer_index) {
                     y = index_manager[vttydev1->peer_index].index;
                     vttydev2 = index_manager[y].vttydev;
-                    tty_port_destroy(scmtty_driver->ports[y]);
+                    sysfs_remove_group(&vttydev2->device->kobj, &scmvtty_error_events_attr_group);
                     if((vttydev2->own_tty != NULL) && (vttydev2->own_tty->port)) {
                         tty = tty_port_tty_get(vttydev2->own_tty->port);
                         if (tty) {
@@ -1722,17 +1727,15 @@ static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *bu
                             tty_kref_put(tty);
                         }
                     }
-                    sysfs_remove_group(&vttydev2->device->kobj, &scmvtty_error_events_attr_group);
+
                     tty_unregister_device(scmtty_driver, index_manager[y].index);
                 }
 
-                if(x != -1) {
-                    kfree(scmtty_driver->ports[x]);
+                if (x != -1) {
                     kfree(index_manager[x].vttydev);
                     index_manager[x].index = -1;
                 }
-                if(y != -1) {
-                    kfree(scmtty_driver->ports[y]);
+                if (y != -1) {
                     kfree(index_manager[y].vttydev);
                     index_manager[y].index = -1;
                 }
@@ -1758,12 +1761,10 @@ static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *bu
     if(vttydev1 != NULL)
         kfree(vttydev1);
     if(port2 != NULL) {
-        tty_port_destroy(port2);
-        kfree(port2);
+        tty_port_put(port2);
     }
     if(port1 != NULL) {
-        tty_port_destroy(port1);
-        kfree(port1);
+        tty_port_put(port1);
     }
     return ret;
 }
@@ -1932,23 +1933,22 @@ static void __exit scm_tty2comKm_exit(void)
     for(x=0; x < max_num_vtty_dev; x++) {
         if(index_manager[x].index != -1) {
             vttydev = index_manager[x].vttydev;
-            if((vttydev->own_tty != NULL) && (vttydev->own_tty->port)) {
-                //tty_port_destroy(scmtty_driver->ports[x]);
+            sysfs_remove_group(&vttydev->device->kobj, &scmvtty_error_events_attr_group);
+            if(vttydev->own_tty && vttydev->own_tty->port) {
                 tty = tty_port_tty_get(vttydev->own_tty->port);
                 if (tty) {
                     tty_vhangup(tty);
                     tty_kref_put(tty);
                 }
             }
-            sysfs_remove_group(&vttydev->device->kobj, &scmvtty_error_events_attr_group);
             tty_unregister_device(scmtty_driver, index_manager[x].index);
         }
     }
     for(x=0; x < max_num_vtty_dev; x++) {
         if(index_manager[x].index != -1) {
-            kfree(scmtty_driver->ports[x]);
+            if (scmtty_driver->ports[x])
+                tty_port_put(scmtty_driver->ports[x]);
             kfree(index_manager[x].vttydev);
-            index_manager[x].index = -1;
         }
     }
 
