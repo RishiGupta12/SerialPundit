@@ -1657,19 +1657,22 @@ static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *bu
     else {
         /* Destroy device command sent */
 
-        /*
-         * An application may forget to close serial port or it might have been crashed resulting in
+        /* An application may forget to close serial port or it might have been crashed resulting in
          * unclosed port and hence leaked resources. We handle such scenarios as disconnected event
          * as done in case of a plug and play for example usb device. Application is running, port
-         * is opened and then suddenly user removes tty device.
-         */
+         * is opened and then suddenly user removes tty device. */
 
         if(data[4] == 'x') {
             mutex_lock(&adaptlock);
             for(x=0; x < max_num_vtty_dev; x++) {
                 if (index_manager[x].index != -1) {
                     vttydev1 = index_manager[x].vttydev;
+
                     sysfs_remove_group(&vttydev1->device->kobj, &scmvtty_error_events_attr_group);
+
+                    /* remove the device from the tty layer (disconnect) */
+                    tty_unregister_device(scmtty_driver, index_manager[x].index);
+
                     if (vttydev1->own_tty && vttydev1->own_tty->port) {
                         tty = tty_port_tty_get(vttydev1->own_tty->port);
                         if (tty) {
@@ -1677,7 +1680,7 @@ static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *bu
                             tty_kref_put(tty);
                         }
                     }
-                    tty_unregister_device(scmtty_driver, index_manager[x].index);
+
                 }
             }
             for(x=0; x < max_num_vtty_dev; x++) {
@@ -1711,6 +1714,7 @@ static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *bu
                 x = index_manager[vdev1idx].index;
                 vttydev1 = index_manager[x].vttydev;
                 sysfs_remove_group(&vttydev1->device->kobj, &scmvtty_error_events_attr_group);
+                tty_unregister_device(scmtty_driver, index_manager[x].index);
                 if (vttydev1->own_tty && vttydev1->own_tty->port) {
                     tty = tty_port_tty_get(vttydev1->own_tty->port);
                     if (tty) {
@@ -1718,7 +1722,8 @@ static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *bu
                         tty_kref_put(tty);
                     }
                 }
-                tty_unregister_device(scmtty_driver, index_manager[x].index);
+
+                /* let the last holder of this object cause it to be cleaned up */
                 if (scmtty_driver->ports[x])
                     tty_port_put(scmtty_driver->ports[x]);
 
@@ -1726,16 +1731,16 @@ static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *bu
                     y = index_manager[vttydev1->peer_index].index;
                     vttydev2 = index_manager[y].vttydev;
                     sysfs_remove_group(&vttydev2->device->kobj, &scmvtty_error_events_attr_group);
+                    tty_unregister_device(scmtty_driver, index_manager[y].index);
                     if((vttydev2->own_tty != NULL) && (vttydev2->own_tty->port)) {
                         tty = tty_port_tty_get(vttydev2->own_tty->port);
                         if (tty) {
-
                             tty_vhangup(tty);
                             tty_kref_put(tty);
                         }
                     }
-
-                    tty_unregister_device(scmtty_driver, index_manager[y].index);
+                    if (scmtty_driver->ports[y])
+                        tty_port_put(scmtty_driver->ports[y]);
                 }
 
                 if (x != -1) {
