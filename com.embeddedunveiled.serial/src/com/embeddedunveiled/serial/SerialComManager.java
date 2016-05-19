@@ -1836,13 +1836,19 @@ public final class SerialComManager {
      * <p>This method assert/de-assert DTR line of serial port. Set "true" for asserting signal, false 
      * otherwise. This changes the state of RTS line electrically.</p>
      * 
-     * <p>RTS and DTR lines can be asserted or de-asserted even when a serial port is configured as 
-     * 'flow control none'.</p>
+     * <ul>
+     * <li>RTS and DTR lines can be asserted or de-asserted even when a serial port is configured as 
+     * 'flow control none'.</li>
      * 
-     * <p>It is possible to establish PPP connections to transmit binary data over a two (or more) wire 
+     * <li><p>It is possible to establish PPP connections to transmit binary data over a two (or more) wire 
      * interface with full handshaking and modem control signaling if the driver is configured for this. 
      * Refer application note from FTDI for details : AN232B-09 Using the Modem Emulation Mode in FTDI's 
-     * VCP Driver.</p>
+     * VCP Driver.</p></li>
+     * 
+     * <li>If the DTR/DSR line is not used DTR can be connected to DSR locally like a loop back connection. 
+     * The vendor written firmware treats change in DSR line as hardware interrupt and executes interrupt 
+     * service routine. The application firmware can lower/raise the DTR line whenever needed.<li>
+     * </ul>
      * 
      * @param handle of the opened port.
      * @param enabled if true DTR will be asserted and vice-versa.
