@@ -1457,18 +1457,20 @@ public final class SerialComManager {
      * <p>2. If there was no data in serial port to read, null is returned. Note that this case is 
      * not possible however for blocking read call.</p>
      * 
-     * <p>The number of bytes to read must be greater than or equal to 1 and less than or equal to 
+     * <ul>
+     * <li>The number of bytes to read must be greater than or equal to 1 and less than or equal to 
      * 2048 (1 <= byteCount <= 2048). This method may return less than the requested number of bytes 
      * due to reasons like, there is less data in operating system buffer (serial port) or operating 
-     * system returned less data which is also legal.</p>
+     * system returned less data which is also legal.</li>
      * 
-     * <p>When no data at serial port has arrived and application wishes to unblock and return the control 
+     * <li><p>When no data at serial port has arrived and application wishes to unblock and return the control 
      * to the caller for example because application now wants to close the serial port, it should 
-     * call unblockBlockingIOOperation() passing the same context to this method.</p>
+     * call unblockBlockingIOOperation() passing the same context to this method.</p></li>
      * 
-     * <p>If using blocking context, it is advised to catch SerialComException exception and check if 
+     * <li>If using blocking context, it is advised to catch SerialComException exception and check if 
      * this contain message SerialComManager.EXP_UNBLOCKIO. This message indicates that  no error occurred 
-     * while waiting/reading data from serial port but application has explicitly asked to return.</p>
+     * while waiting/reading data from serial port but application has explicitly asked to return.</li>
+     * </ul>
      * 
      * @param handle of the serial port from which to read bytes.
      * @param byteCount number of bytes to read from serial port.
@@ -1494,15 +1496,17 @@ public final class SerialComManager {
 
     /** 
      * <p>Read specified number of data bytes from the given serial port.</p>
+     * 
      * <ul>
      * <li>If data is read from serial port, array of bytes containing data is returned.</li>
-     * <li><p>If there was no data at serial port to read, null is returned.</p></li>
-     * </ul>
      * 
-     * <p>The number of bytes to read must be greater than or equal to 1 and less than or equal to 
+     * <li><p>If there was no data at serial port to read, null is returned.</p></li>
+     * 
+     * <li>The number of bytes to read must be greater than or equal to 1 and less than or equal to 
      * 2048 (1 <= byteCount <= 2048). This method may return less than the requested number of bytes 
      * due to reasons like, there is less data in operating system buffer (serial port) or operating 
-     * system returned less data which is also legal.</p>
+     * system returned less data which is also legal.</li>
+     * </ul>
      * 
      * @param handle of the serial port from which to read bytes.
      * @param byteCount number of bytes to read from serial port.
@@ -1587,20 +1591,26 @@ public final class SerialComManager {
     }
 
     /** 
-     * <p>Reads data bytes from serial port into given buffer. This method is mainly intended for use in 
-     * application design which needs to poll serial port continuously for presence of data.</p>
+     * <p>Reads data bytes from serial port into given buffer also providing info about framing, parity etc errors. 
+     * This method is mainly intended for use in application design which needs to poll serial port continuously 
+     * for presence of data.</p>
      * 
-     * <p>This method can be used in blocking mode or non-blocking mode. If context is -1, this method will 
-     * not block. For blocking behavior pass context value obtained by call to createBlockingIOContext method. 
-     * If a valid context is passed, this method will block until there is data to read from serial port.</p>
+     * <ul>
+     * <li>This method can be used in blocking mode or non-blocking mode. If context is -1, this method will 
+     * not block. For blocking behavior pass context value obtained from a call to createBlockingIOContext method. 
+     * If a valid context is passed, this method will block until there is data to read from serial port.</li>
      * 
-     * <p>When no data at serial port has arrived and application wishes to unblock and return the control 
+     * <li><p>When no data at serial port has arrived and application wishes to unblock and return the control 
      * to the caller for example because application now wants to close the serial port, it should 
-     * call unblockBlockingIOOperation() passing the same context to this method.</p>
+     * call unblockBlockingIOOperation() passing the same context which is passed to this method.</p></li>
      * 
-     * <p>If using blocking context, it is advised to catch SerialComException exception and check if 
+     * <li>If using blocking context, it is advised to catch SerialComException exception and check if 
      * this contain message SerialComManager.EXP_UNBLOCKIO. This message indicates that  no error occurred 
-     * while waiting/reading data from serial port but application has explicitly asked to return.</p>
+     * while waiting/reading data from serial port but application has explicitly asked to return.</li>
+     * 
+     * <li><p>To find if a framing or parity errors has happened while receiving data of not, call methods as 
+     * appropriate on lineErr reference.</p></li>
+     * </ul>
      * 
      * @param handle of the port from which to read data bytes.
      * @param buffer data byte buffer in which bytes from serial port will be saved.
@@ -1716,14 +1726,14 @@ public final class SerialComManager {
      * This specifies flow control and actions that will be taken when an error is encountered in 
      * communication.</p>
      * 
-     * <p>Some serial devices does not support some flow controls scheme. Please refer to their manuals.</p>
-     * 
      * <ul>
-     * <li>It is advisable not to use same XON and XOFF character as opertaing system framework or driver 
+     * <li>Some serial devices does not support some flow controls scheme. Please refer to their manuals.</li>
+     * 
+     * <li><p>It is advisable not to use same XON and XOFF character as opertaing system framework or driver 
      * may check for special characters one after the other and will process them. For example while processing 
      * data received at serial port, if driver sees XON it will instruct device to start transmission. But when 
      * moving further in the processing function, it checks for XOFF and sees that XOFF character has been received 
-     * and therefore it will stop the transmission.</li>
+     * and therefore it will stop the transmission.</p></li>
      * </ul>
      * 
      * @param handle of opened port to which need to be configured.
@@ -1804,20 +1814,22 @@ public final class SerialComManager {
      * <p>This method assert/de-assert RTS line of serial port. Set "true" for asserting signal, 
      * false otherwise. This changes the state of RTS line electrically.</p>
      * 
-     * <p>RTS and DTR lines can be asserted or de-asserted even when using no flow control on 
-     * serial port.</p>
+     * <ul>
+     * <li>RTS and DTR lines can be asserted or de-asserted even when using no flow control on 
+     * serial port.</li>
      * 
-     * <p>The RS-232 standard defines the voltage levels that correspond to logical one and logical 
+     * <li><p>The RS-232 standard defines the voltage levels that correspond to logical one and logical 
      * zero levels for the data transmission and the control signal lines. Valid signals are either 
      * in the range of +3 to +15 volts or the range −3 to −15 volts with respect to the ground/common 
-     * pin; consequently, the range between −3 to +3 volts is not a valid RS-232 level.</p>
+     * pin; consequently, the range between −3 to +3 volts is not a valid RS-232 level.</p></li>
      * 
-     * <p>In asserted condition, voltage at pin number 7 (RTS signal) will be greater than 3 volts. 
+     * <li>In asserted condition, voltage at pin number 7 (RTS signal) will be greater than 3 volts. 
      * Voltage 5.0 volts was observed when using USB-UART converter : 
-     * http://www.amazon.in/Bafo-USB-Serial-Converter-DB9/dp/B002SCRCDG.</p>
+     * http://www.amazon.in/Bafo-USB-Serial-Converter-DB9/dp/B002SCRCDG.</li>
      * 
-     * <p>On some hardware IC, signals may be active low and therefore for actual voltage datasheet 
-     * should be consulted. Also please check if the driver supports setting RTS/DTR lines or not.<p>
+     * <li><p>On some hardware IC, signals may be active low and therefore for actual voltage datasheet 
+     * should be consulted. Also please check if the driver supports setting RTS/DTR lines or not.</p></li>
+     * </ul>
      * 
      * @param handle of the opened port.
      * @param enabled if true RTS will be asserted and vice-versa.
@@ -1847,7 +1859,7 @@ public final class SerialComManager {
      * 
      * <li>If the DTR/DSR line is not used DTR can be connected to DSR locally like a loop back connection. 
      * The vendor written firmware treats change in DSR line as hardware interrupt and executes interrupt 
-     * service routine. The application firmware can lower/raise the DTR line whenever needed.<li>
+     * service routine. The application firmware can lower/raise the DTR line whenever needed.</li>
      * </ul>
      * 
      * @param handle of the opened port.
