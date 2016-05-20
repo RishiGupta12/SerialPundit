@@ -1,4 +1,4 @@
-/**
+/*
  * Author : Rishi Gupta
  * 
  * This file is part of 'serial communication manager' library.
@@ -18,59 +18,18 @@
 
 package test22;
 
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import com.embeddedunveiled.serial.ISerialComEventListener;
-import com.embeddedunveiled.serial.SerialComLineEvent;
 import com.embeddedunveiled.serial.SerialComManager;
 import com.embeddedunveiled.serial.SerialComManager.BAUDRATE;
 import com.embeddedunveiled.serial.SerialComManager.DATABITS;
 import com.embeddedunveiled.serial.SerialComManager.FLOWCONTROL;
 import com.embeddedunveiled.serial.SerialComManager.PARITY;
 import com.embeddedunveiled.serial.SerialComManager.STOPBITS;
-import com.embeddedunveiled.serial.ISerialComDataListener;
-import com.embeddedunveiled.serial.SerialComDataEvent;
-
-class Data0 implements ISerialComDataListener{
-	@Override
-	public void onNewSerialDataAvailable(SerialComDataEvent data) {
-		System.out.println("DCE GOT FROM DTE : " + new String(data.getDataBytes()));
-	}
-
-	@Override
-	public void onDataListenerError(int arg0) {
-		System.out.println("onDataListenerError : " + arg0);
-	}
-}
-
-class Data1 implements ISerialComDataListener{
-	@Override
-	public void onNewSerialDataAvailable(SerialComDataEvent data) {
-		System.out.println("DTE GOT FROM DCE : " + new String(data.getDataBytes()));
-	}
-	
-	@Override
-	public void onDataListenerError(int arg0) {
-		System.out.println("onDataListenerError : " + arg0);
-	}
-}
-
-class EventListener extends Test22 implements ISerialComEventListener {
-	@Override
-	public void onNewSerialEvent(SerialComLineEvent lineEvent) {
-		System.out.println("eventCTS : " + lineEvent.getCTS());
-		senddata.set(false);
-	}
-}
 
 public class Test22 {
-
-	protected static AtomicBoolean senddata = new AtomicBoolean(true);
 
 	public static void main(String[] args) {
 		try {
 			SerialComManager scm = new SerialComManager();
-			EventListener eventListener = new EventListener();
 
 			String PORT = null;
 			String PORT1 = null;
@@ -79,8 +38,8 @@ public class Test22 {
 				PORT = "/dev/ttyUSB0";
 				PORT1 = "/dev/ttyUSB1";
 			}else if(osType == SerialComManager.OS_WINDOWS) {
-				PORT = "COM51";
-				PORT1 = "COM52";
+				PORT = "COM5";
+				PORT1 = "COM11";
 			}else if(osType == SerialComManager.OS_MAC_OS_X) {
 				PORT = "/dev/cu.usbserial-A70362A3";
 				PORT1 = "/dev/cu.usbserial-A602RDCH";
@@ -90,60 +49,64 @@ public class Test22 {
 			}else{
 			}
 
-			Data1 DTE1 = new Data1();
-			Data0 DCE1 = new Data0();
+			long receiverHandle = scm.openComPort(PORT, true, true, true);
+			scm.configureComPortData(receiverHandle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
+			scm.configureComPortControl(receiverHandle, FLOWCONTROL.RTS_CTS, (char) 0x11, (char)0x13, false, false);
 
-			// DTE terminal
-			long DTE = scm.openComPort(PORT, true, true, true);
-			scm.configureComPortData(DTE, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B9600, 0);
-			scm.configureComPortControl(DTE, FLOWCONTROL.RTS_CTS, 'x', 'x', false, false);
-			scm.registerDataListener(DTE, DTE1);
-			scm.setRTS(DTE, true);
+			long senderHandle = scm.openComPort(PORT1, true, true, true);
+			scm.configureComPortData(senderHandle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
+			scm.configureComPortControl(senderHandle, FLOWCONTROL.RTS_CTS, (char) 0x11, (char)0x13, false, false);
 
-			Thread.sleep(100);
-
-			// DCE terminal
-			long DCE = scm.openComPort(PORT1, true, true, true);
-			scm.configureComPortData(DCE, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B9600, 0);
-			scm.configureComPortControl(DCE, FLOWCONTROL.RTS_CTS, 'x', 'x', false, false);
-			scm.registerDataListener(DCE, DCE1);
-			scm.registerLineEventListener(DCE, eventListener);
-
-			scm.setDTR(DTE, true);
-			scm.setDTR(DCE, true);
-			Thread.sleep(100);
-			scm.setRTS(DTE, true);
-			scm.setRTS(DCE, true);
-			Thread.sleep(100);
-
-			// Step 1
-			scm.writeString(DTE, "str1", 0);
-			Thread.sleep(100);
-			scm.writeString(DTE, "str1", 0);
-			Thread.sleep(100);
-			scm.writeString(DCE, "str2", 0);
-			Thread.sleep(100);
-			scm.writeString(DCE, "str2", 0);
-			Thread.sleep(100);
-
-			// Step 2 dte says to dce don't send data i am full
-			scm.setRTS(DTE, false);
-			Thread.sleep(1000); // give delay so that send data gets updated
-
-			// Step 3 dce will receive event CTS and will start sending data.
-			if(senddata.get() == true) {
-				scm.writeString(DCE, "str3", 0);
-			}else {
-				System.out.println("seems like DTE is full");
+			byte[] buffer = new byte[1024];
+			for(int x=0; x<1024; x++) {
+				buffer[x] = (byte) 'A';
 			}
 
+			System.out.println("1 write status :" + scm.writeBytes(senderHandle, buffer, 0));
+			Thread.sleep(100);
+			System.out.println("2 write status :" + scm.writeBytes(senderHandle, buffer, 0));
+			Thread.sleep(100);
+			System.out.println("3 write status :" + scm.writeBytes(senderHandle, buffer, 0));
+			Thread.sleep(100);
+			System.out.println("4 write status :" + scm.writeBytes(senderHandle, buffer, 0));
+			Thread.sleep(100);
+			System.out.println("5 write status :" + scm.writeBytes(senderHandle, buffer, 0));
+			System.out.println("6 write status :" + scm.writeBytes(senderHandle, buffer, 0));
+			System.out.println("7 write status :" + scm.writeBytes(senderHandle, buffer, 0));
+			Thread.sleep(100);
+			System.out.println("8 write status :" + scm.writeBytes(senderHandle, buffer, 0));
 			Thread.sleep(1000);
-			scm.unregisterDataListener(DTE1);
-			scm.unregisterDataListener(DCE1);
-			scm.unregisterLineEventListener(DCE, eventListener);
-			Thread.sleep(200);
-			scm.closeComPort(DTE);
-			scm.closeComPort(DCE);
+			System.out.println("9 write status :" + scm.writeBytes(senderHandle, buffer, 0));
+
+			byte[] dataread = scm.readBytes(receiverHandle);
+			if(dataread != null) {
+				System.out.println("\n" + new String(dataread));
+			}
+			dataread = scm.readBytes(receiverHandle);
+			if(dataread != null) {
+				System.out.println("\n" + new String(dataread));
+			}
+			dataread = scm.readBytes(receiverHandle);
+			if(dataread != null) {
+				System.out.println("\n" + new String(dataread));
+			}
+			dataread = scm.readBytes(receiverHandle);
+			if(dataread != null) {
+				System.out.println("\n" + new String(dataread));
+			}
+			dataread = scm.readBytes(receiverHandle);
+			if(dataread != null) {
+				System.out.println("\n" + new String(dataread));
+			}
+			dataread = scm.readBytes(receiverHandle);
+			if(dataread != null) {
+				System.out.println("\n" + new String(dataread));
+			}
+
+			System.out.println("10 write status :" + scm.writeBytes(senderHandle, buffer, 0));
+
+			scm.closeComPort(receiverHandle);
+			scm.closeComPort(senderHandle);
 		}catch (Exception e) {
 			e.printStackTrace();
 		}
