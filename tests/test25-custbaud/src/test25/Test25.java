@@ -25,7 +25,7 @@ import com.embeddedunveiled.serial.SerialComManager.FLOWCONTROL;
 import com.embeddedunveiled.serial.SerialComManager.PARITY;
 import com.embeddedunveiled.serial.SerialComManager.STOPBITS;
 
-// test custom baud rate
+// test custom baud rate, 250000 is typically used by 3d printers
 public class Test25 {
 	public static void main(String[] args) {
 		try {	

@@ -18,100 +18,102 @@
 
 package test20;
 
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import com.embeddedunveiled.serial.SerialComManager;
 import com.embeddedunveiled.serial.SerialComManager.BAUDRATE;
 import com.embeddedunveiled.serial.SerialComManager.DATABITS;
 import com.embeddedunveiled.serial.SerialComManager.FLOWCONTROL;
 import com.embeddedunveiled.serial.SerialComManager.PARITY;
 import com.embeddedunveiled.serial.SerialComManager.STOPBITS;
-import com.embeddedunveiled.serial.ISerialComDataListener;
 
-class Data1 extends Test20 implements ISerialComDataListener {
-    @Override
-    public void onDataListenerError(int arg0) {
-        System.out.println("ERROR : " + arg0);
-    }
-
-    @Override
-    public void onNewSerialDataAvailable(byte[] arg0) {
-        for(int a=0; a < arg0.length; a++) {
-            if(arg0[a] == (byte) '#') {
-                exit.set(true);
-                System.out.println("found xoff : " + arg0[a]);
-            }else if(arg0[a] == (byte) '$') {
-                System.out.println("found xon : " + arg0[a]);
-            }
-        }
-    }
-}
 
 /*
  * port will send xoff and xon after buffer limit is reached.
  * OS will filter the xon/xoff character and application will not receive it.
  */
 public class Test20 {
-    
-    protected static AtomicBoolean exit = new AtomicBoolean(false);
 
-    public static void main(String[] args) {
+	public static void main(String[] args) {
 
-        try {
-            SerialComManager scm = new SerialComManager();
+		try {
+			SerialComManager scm = new SerialComManager();
 
-            String PORT = null;
-            String PORT1 = null;
-            int osType = scm.getOSType();
-            if(osType == SerialComManager.OS_LINUX) {
-                PORT = "/dev/ttyUSB0";
-                PORT1 = "/dev/ttyUSB1";
-            }else if(osType == SerialComManager.OS_WINDOWS) {
-                PORT = "COM51";
-                PORT1 = "COM52";
-            }else if(osType == SerialComManager.OS_MAC_OS_X) {
-                PORT = "/dev/cu.usbserial-A70362A3";
-                PORT1 = "/dev/cu.usbserial-A602RDCH";
-            }else if(osType == SerialComManager.OS_SOLARIS) {
-                PORT = null;
-                PORT1 = null;
-            }else{
-            }
+			String PORT = null;
+			String PORT1 = null;
+			int osType = scm.getOSType();
+			if(osType == SerialComManager.OS_LINUX) {
+				PORT = "/dev/ttyUSB0";
+				PORT1 = "/dev/ttyUSB1";
+			}else if(osType == SerialComManager.OS_WINDOWS) {
+				PORT = "COM11";
+				PORT1 = "COM5";
+			}else if(osType == SerialComManager.OS_MAC_OS_X) {
+				PORT = "/dev/cu.usbserial-A70362A3";
+				PORT1 = "/dev/cu.usbserial-A602RDCH";
+			}else if(osType == SerialComManager.OS_SOLARIS) {
+				PORT = null;
+				PORT1 = null;
+			}else{
+			}
 
-            //			char XON = (char) 17;  replace '$' with XON to  test with CTRL+Q
-            //			char XOFF = (char) 19; replace '#' with XOFF to test with CTRL+S
-            Data1 receiver = new Data1();
+			long receiverHandle = scm.openComPort(PORT, true, true, true);
+			scm.configureComPortData(receiverHandle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
+			scm.configureComPortControl(receiverHandle, FLOWCONTROL.XON_XOFF, (char) 0x11, (char)0x13, false, false);
 
-            long receiverHandle = scm.openComPort(PORT, true, true, true);
-            scm.configureComPortData(receiverHandle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
-            scm.configureComPortControl(receiverHandle, FLOWCONTROL.XON_XOFF, '$', '#', false, false);
+			long senderHandle = scm.openComPort(PORT1, true, true, true);
+			scm.configureComPortData(senderHandle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
+			scm.configureComPortControl(senderHandle, FLOWCONTROL.XON_XOFF, (char) 0x11, (char)0x13, false, false);
 
-            Thread.sleep(90000);
-            scm.closeComPort(receiverHandle);
+			byte[] buffer = new byte[1024];
+			for(int x=0; x<1024; x++) {
+				buffer[x] = (byte) 'A';
+			}
 
-            //			long senderHandle = scm.openComPort(PORT1, true, true, true);
-            //			scm.configureComPortData(senderHandle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
-            //			scm.configureComPortControl(senderHandle, FLOWCONTROL.XON_XOFF, '$', '#', false, false);
-            //
-            //			scm.registerDataListener(receiverHandle, receiver);
-            //
-            //			for(int x=0; x<100; x++) {
-            //				scm.writeString(receiverHandle, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", 0);
-            //				if(exit.get() == true) {
-            //					break;
-            //				}
-            //			}
-            //
-            //			for(int x=0; x<10; x++) {
-            //				scm.readString(senderHandle);
-            //			}
-            //
-            //			Thread.sleep(1000);
-            //			scm.unregisterDataListener(receiverHandle, receiver);
-            //			scm.closeComPort(receiverHandle);
-            //			scm.closeComPort(senderHandle);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+			System.out.println("1 write status :" + scm.writeBytes(senderHandle, buffer, 0));
+			Thread.sleep(100);
+			System.out.println("2 write status :" + scm.writeBytes(senderHandle, buffer, 0));
+			Thread.sleep(100);
+			System.out.println("3 write status :" + scm.writeBytes(senderHandle, buffer, 0));
+			Thread.sleep(100);
+			System.out.println("4 write status :" + scm.writeBytes(senderHandle, buffer, 0));
+			Thread.sleep(100);
+			System.out.println("5 write status :" + scm.writeBytes(senderHandle, buffer, 0));
+			System.out.println("6 write status :" + scm.writeBytes(senderHandle, buffer, 0));
+			System.out.println("7 write status :" + scm.writeBytes(senderHandle, buffer, 0));
+			Thread.sleep(2000);
+			System.out.println("8 write status :" + scm.writeBytes(senderHandle, buffer, 0));
+			System.out.println("9 write status :" + scm.writeBytes(senderHandle, buffer, 0));
+
+			byte[] dataread = scm.readBytes(receiverHandle);
+			if(dataread != null) {
+				System.out.println("\n" + new String(dataread));
+			}
+			dataread = scm.readBytes(receiverHandle);
+			if(dataread != null) {
+				System.out.println("\n" + new String(dataread));
+			}
+			dataread = scm.readBytes(receiverHandle);
+			if(dataread != null) {
+				System.out.println("\n" + new String(dataread));
+			}
+			dataread = scm.readBytes(receiverHandle);
+			if(dataread != null) {
+				System.out.println("\n" + new String(dataread));
+			}
+			dataread = scm.readBytes(receiverHandle);
+			if(dataread != null) {
+				System.out.println("\n" + new String(dataread));
+			}
+			dataread = scm.readBytes(receiverHandle);
+			if(dataread != null) {
+				System.out.println("\n" + new String(dataread));
+			}
+
+			System.out.println("10 write status :" + scm.writeBytes(senderHandle, buffer, 0));
+
+			scm.closeComPort(receiverHandle);
+			scm.closeComPort(senderHandle);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 }
