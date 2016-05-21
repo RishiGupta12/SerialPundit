@@ -68,7 +68,7 @@ public class Test19 implements ISerialComDataListener {
 			scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
 			scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
 
-			byte[] buffer = new byte[1056];
+			byte[] buffer = new byte[2056];
 
 			scm.writeBytes(handle1, buffer, 0);
 			Thread.sleep(2000); // wait for data to be displayed on console
