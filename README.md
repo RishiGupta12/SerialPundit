@@ -136,6 +136,3 @@ public class Example {
 
   See LICENSE file in repository for full license text for AGPL v3.0.
 
-##Feature request
-[Write to me](http://goo.gl/forms/rHbspp5C80g2vKLI3) for feature request, suggetions and feedback etc.
-

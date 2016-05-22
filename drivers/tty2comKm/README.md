@@ -21,6 +21,8 @@ It creates virtual serial ports pair that appears same as the real once to the a
 - Protocol converter engine software
 - Provide serial port where most modern systems does not have physical RS232 ports
 - Capture the output of guest OS running on virtual machine and re-direct it to a terminal program on host
+- Share virtual COM ports data with disk files and named pipes
+- Analyze and reverse-engineer serial protocols
 
 ##Features
 - Create standard, loopback or custom pinout connected serial devices
