@@ -40,6 +40,7 @@ It creates virtual serial ports pair that appears same as the real once to the a
 - Virtual box and VMware virtual machine supported
 - Multithreaded environment supported
 - Mismatched line settings causes garbled data as in real life and appropriate error event generation
+- Leverages OS specific feature and technologies like WDM, WMI, power management, PnP etc.
 - API to control virtual ports directly from your application
 
 ##Demo application
