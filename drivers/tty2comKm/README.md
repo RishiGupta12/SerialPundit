@@ -2,7 +2,7 @@ It is a null modem / loop back kernel mode driver providing full duplex communic
 
 It creates virtual serial ports pair that appears same as the real once to the application software.
 
-##Use cases
+##Applications
 - Fully automate Junit testing and continuous integration
 - Custom protocols development and debugging
 - Serial port based application's scalability and performance testing
@@ -41,6 +41,7 @@ It creates virtual serial ports pair that appears same as the real once to the a
 - Multithreaded environment supported
 - Mismatched line settings causes garbled data as in real life and appropriate error event generation
 - Leverages OS specific feature and technologies like WDM, WMI, power management, PnP etc.
+- Access restriction to created virtual serial ports
 - API to control virtual ports directly from your application
 
 ##Demo application
