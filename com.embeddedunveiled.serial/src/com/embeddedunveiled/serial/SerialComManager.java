@@ -2238,18 +2238,23 @@ public final class SerialComManager {
      * current loop line is indicated by no current flowing, and a very long period of no current flowing is often
      * caused by a break or other fault in the line.</p>
      * 
-     * Recognizing break condition on line is the responsibility of the UART IC, but if for some reason (such as a 
+     * <p>Recognizing break condition on line is the responsibility of the UART IC, but if for some reason (such as a 
      * limited UART that does not implement this functionality) the UART fails to do so, reception of a break will 
-     * manifest itself as a large number of framing errors.
+     * manifest itself as a large number of framing errors.</p>
      * 
-     * <p>All UART devices (or driver) may not support all break timings. For example CP2105 can set break for from 
-     * 1 to 125 ms or for infinite time. Developers should consult data sheet to know device capabilities.</p>
+     * <ul>
+     * <li>If the duration parameter is 0, it will result in fastest way this library can set and unset break 
+     * condition.</li>
      * 
-     * @param handle of the opened port.
+     * <li><p>All UART devices (or driver) may not support all break timings. For example CP2105 can set break for from 
+     * 1 to 125 ms or for infinite time. Developers should consult data sheet to know device capabilities.</p></li>
+     * </ul>
+     * 
+     * @param handle of the opened serial port.
      * @param duration the time in milliseconds for which break will be active.
      * @return true on success.
      * @throws SerialComException if invalid handle is passed or operation can not be successfully completed.
-     * @throws IllegalArgumentException if duration is zero or negative.
+     * @throws IllegalArgumentException if duration is negative.
      */
     public boolean sendBreak(long handle, int duration) throws SerialComException {
 
@@ -2257,11 +2262,14 @@ public final class SerialComManager {
             throw new SerialComException("Given handle does not represent a serial port opened through SCM !");
         }
 
-        if((duration < 0) || (duration == 0)) {
-            throw new IllegalArgumentException("Argument duration can not be negative or zero !");
+        if(duration < 0) {
+            throw new IllegalArgumentException("Argument duration can not be negative !");
         }
 
-        mComPortJNIBridge.sendBreak(handle, duration);
+        int ret = mComPortJNIBridge.sendBreak(handle, duration);
+        if(ret < 0) {
+            throw new SerialComException("Could not set the break condition for given  duration !");
+        }
 
         return true;
     }
