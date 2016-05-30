@@ -20,6 +20,8 @@ package com.embeddedunveiled.serial.internal;
 
 import java.io.File;
 import java.nio.ByteBuffer;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -331,9 +333,15 @@ public final class SerialComPortJNIBridge {
             }
         }
 
-        /* Try loading the dynamic shared library from the local file system finally */
+        /* Try loading the dynamic shared library from the local file system finally as privileged action */
+        final File libFileFinal = libFile;
         try {
-            System.load(libFile.toString());
+            AccessController.doPrivileged(new PrivilegedAction<Boolean>() {
+                public Boolean run() {
+                    System.load(libFileFinal.toString());
+                    return true;
+                }
+            });
         } catch (Exception e) {
             throw (UnsatisfiedLinkError) new UnsatisfiedLinkError("Could not load " + libFile.toString() + " native library !").initCause(e);
         }

@@ -21,6 +21,8 @@ package com.embeddedunveiled.serial.internal;
 import java.io.File;
 import java.io.InputStream;
 import java.io.FileOutputStream;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 
 import com.embeddedunveiled.serial.SerialComLoadException;
 import com.embeddedunveiled.serial.SerialComManager;
@@ -207,12 +209,18 @@ public final class SerialComDBReleaseJNIBridge {
 			}
 		}
 
-		/* Try loading the dynamic shared library from the local file system finally */
-		try {
-			System.load(libFile.toString());
-		} catch (Exception e) {
-			throw (UnsatisfiedLinkError) new UnsatisfiedLinkError("Could not load " + libFile.toString() + " native library !").initCause(e);
-		}
+        /* Try loading the dynamic shared library from the local file system finally as privileged action */
+        final File libFileFinal = libFile;
+        try {
+            AccessController.doPrivileged(new PrivilegedAction<Boolean>() {
+                public Boolean run() {
+                    System.load(libFileFinal.toString());
+                    return true;
+                }
+            });
+        } catch (Exception e) {
+            throw (UnsatisfiedLinkError) new UnsatisfiedLinkError("Could not load " + libFile.toString() + " native library !").initCause(e);
+        }
 
 		return true;
 	}

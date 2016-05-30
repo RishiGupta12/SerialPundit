@@ -22,6 +22,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.FileNotFoundException;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 
 import com.embeddedunveiled.serial.SerialComLoadException;
 import com.embeddedunveiled.serial.SerialComManager;
@@ -139,18 +141,32 @@ public final class SerialComSLabsUSBXpressJNIBridge {
         }
 
         // load libraries in reverse order of dependencies
+
+        /* Try loading the dynamic shared library from the local file system finally as privileged action */
+        final File vlibFileFinal = new File(libDirectory.getAbsolutePath() + fileSeparator + vlibName);
+        final File libFileFinal = libFile;
         try {
-            // vendor supplied shared library
-            vlibFile = new File(libDirectory.getAbsolutePath() + fileSeparator + vlibName);
-            System.load(vlibFile.toString());
+            AccessController.doPrivileged(new PrivilegedAction<Boolean>() {
+                public Boolean run() {
+                    // vendor supplied shared library
+                    System.load(vlibFileFinal.toString());
+                    return true;
+                }
+            });
         } catch (Exception e) {
-            throw (UnsatisfiedLinkError) new UnsatisfiedLinkError("Could not load " + vlibFile.toString() + " native library !").initCause(e);
+            throw (UnsatisfiedLinkError) new UnsatisfiedLinkError("Could not load " + vlibFileFinal.toString() + " native library !").initCause(e);
         }
+
         try {
-            // scm JNI glue shared library
-            System.load(libFile.toString());
+            AccessController.doPrivileged(new PrivilegedAction<Boolean>() {
+                public Boolean run() {
+                    // JNI glue shared library
+                    System.load(libFileFinal.toString());
+                    return true;
+                }
+            });
         } catch (Exception e) {
-            throw (UnsatisfiedLinkError) new UnsatisfiedLinkError("Could not load " + libFile.toString() + " native library !").initCause(e);
+            throw (UnsatisfiedLinkError) new UnsatisfiedLinkError("Could not load " + libFileFinal.toString() + " native library !").initCause(e);
         }
 
         return true;
