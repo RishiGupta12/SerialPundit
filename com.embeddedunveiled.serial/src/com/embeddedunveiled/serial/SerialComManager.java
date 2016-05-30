@@ -2238,23 +2238,32 @@ public final class SerialComManager {
      * If the line is held in the logic low condition (space in UART jargon) for longer than a character 
      * time, this is a break condition that can be detected by the UART.</p>
      * 
-     * <p>A "break condition" occurs when the receiver input is at the "space" level for longer than some duration
+     * <ul>
+     * 
+     * <li>A "break condition" occurs when the receiver input is at the "space" level for longer than some duration
      * of time, typically, for more than a character time. This is not necessarily an error, but appears to the
      * receiver as a character of all zero bits with a framing error. The term "break" derives from current loop
      * Signaling, which was the traditional signaling used for tele-typewriters. The "spacing" condition of a 
      * current loop line is indicated by no current flowing, and a very long period of no current flowing is often
-     * caused by a break or other fault in the line.</p>
+     * caused by a break or other fault in the line.</li>
      * 
-     * <p>Recognizing break condition on line is the responsibility of the UART IC, but if for some reason (such as a 
+     * <li><p>Recognizing break condition on line is the responsibility of the UART IC, but if for some reason (such as a 
      * limited UART that does not implement this functionality) the UART fails to do so, reception of a break will 
-     * manifest itself as a large number of framing errors.</p>
+     * manifest itself as a large number of framing errors.</p></li>
      * 
-     * <ul>
+     * 
      * <li>If the duration parameter is 0, it will result in fastest way this library can set and unset break 
      * condition.</li>
      * 
      * <li><p>All UART devices (or driver) may not support all break timings. For example CP2105 can set break for from 
      * 1 to 125 ms or for infinite time. Developers should consult data sheet to know device capabilities.</p></li>
+     * 
+     * <li>In some application designs break signals can be used for packet synchronization. For example; presence 
+     * of break indicate start of packet or end of packet.</li>
+     * 
+     * <li><p>Dedicated ICs like ELM627 can be used to detect break condition and toggle GPIO lines which may in 
+     * turn be connected to reset pin of micro-controller. Such schemes are used where the hardware can not detect break 
+     * condition on line.</p></li>
      * </ul>
      * 
      * @param handle of the opened serial port.
