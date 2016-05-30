@@ -897,13 +897,20 @@ public final class SerialComManager {
      *
      * <li>This method will clear both input and output buffers of drivers (or operating system).</li>
      * 
-     * <li><p>When the serial port is opened DTR and RTS lines will be raised by default. Sometimes, DTR acts as 
-     * a modem on-hook/off-hook control for other end. Modern modems are highly flexible in their dependency, 
+     * <li><p>When the serial port is opened DTR and RTS lines will be raised by default by this library. Sometimes, 
+     * DTR acts as a modem on-hook/off-hook control for other end. Modern modems are highly flexible in their dependency, 
      * working and configurations. It is best to consult modem manual. If the application design need DTR/RTS 
      * not to be asserted when port is opened custom drivers can be used or hardware can be modified for this 
      * purpose. Alternatively, if the application is to be run on Windows operating system only, then modifying 
      * INF file or registry key may help in not raising DTR/RTS when port is opened. Typically in Windows DTR/RTS 
-     * is raised due to enumeration sequence (serenum).</p></li>
+     * is raised due to enumeration sequence (serenum).</p>
+     * 
+     * <p>In Unix parlance a dial-in TTY device is used for terminals, modems and printers etc. and requires DCD to be 
+     * high for operation. When used with a modem, the port will wait for carrier before sending out the login prompt to 
+     * end user. It is for this reason typically DTR of one end is connected to DSR of other end. When the terminal is 
+     * turned off, any associated jobs are killed, and the user is logged out. Unlike dial-in the dial-out TTY device does 
+     * not require DCD to be high. Once connection is made DCD may go high. Loss of the DCD signal may cause the jobs 
+     * to be killed and the user will be automatically logged off.</p></li>
      * </ul>
      * 
      * <p>This method is thread safe.</p>
