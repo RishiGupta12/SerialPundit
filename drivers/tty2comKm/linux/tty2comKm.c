@@ -178,7 +178,7 @@ static DEFINE_MUTEX(adaptlock);           /*  atomically create/destroy tty devi
 struct vtty_info *index_manager = NULL;   /*  keep track of indexes in use currently */
 
 /* Per device sysfs entries to emulate frame, parity and overrun error events during data reception */
-static DEVICE_ATTR(evt, 0666, NULL, evt_store);
+static DEVICE_ATTR(evt, (S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP), NULL, evt_store);
 
 static struct attribute *scmvtty_error_events_attrs[] = {
         &dev_attr_evt.attr,
