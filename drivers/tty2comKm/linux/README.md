@@ -6,10 +6,7 @@ To clone driver follow steps as given in clone-driver.sh script.
 ####Building
 ---------------------
 
-- Prebuilt driver tty2comKm.ko (x86_64) is provided in repository.
-
 - Build is done using make tool. Run build.sh shell script to build this driver.
-
 
 ####Installing
 ---------------------
@@ -27,11 +24,18 @@ Run uninstall.sh script to uninstall this driver from system.
 
 - Run load.sh script which will load this driver with default parameters.
 
-- To load driver witth parameters for example to support 1000 virtual serial ports and create 1 loop back 
+- To load driver with parameters for example to support 1000 virtual serial ports and create 1 loop back 
 device and 1 null modem pair, load as shown below:
-
 ```
 $ insmod ./tty2comKm.ko max_num_vtty_dev=1000 init_num_nm_pair=1 init_num_lb_dev=1
+```
+- To load the driver automatically at load time execute install.sh script and then copy the tty2comKm.conf file in /etc/modules-load.d folder.
+```sh
+$ sudo cp ./tty2comKm.conf /etc/modules-load.d
+```
+Further if we want to pass parameters to driver at load time during system boot, copy the tty2comKmParam.conf file in /etc/modprobe.d folder.
+```sh
+$ sudo cp ./tty2comKmParam.conf /etc/modprobe.d
 ```
 
 ####Create / destroy
@@ -59,7 +63,11 @@ $echo "del#xxxxx#xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" > /proc/sc
 
 ####Udev rules
 ---------------------
-The udev rules are provided and gets installed automatically when install.sh is executed.
+The udev rules are provided and gets installed automatically when shell script install.sh is executed. 
+The file 99-tty2comKm.rules contains udev rules required by this driver.
+```
+ACTION=="add", SUBSYSTEM=="tty", KERNEL=="tty2com[0-9]*", MODE="0666"
+```
 
 ####Debugging
 ---------------------
