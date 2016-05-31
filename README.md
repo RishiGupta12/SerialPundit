@@ -47,6 +47,8 @@ It eliminates the complexities of serial port programming for different operatin
 - Optimized read and write methods for single byte, multiple byte or string sending/receiving.
 - Application specific parameters tuning for performance with and without modification of drivers.
 - Fast set/unset break condition for DMX512 based devices to control stage lighting and effects.
+- OSGI budles can be created easily for integrating in existing OSGI based application.
+- Two lock concurrent queue algorithm based ring buffer for faster data/event processing.
 
 #####HID (human interface device)
 - HID class API for communicating with composite USB devices like MCP2200, CP2110 etc.
