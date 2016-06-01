@@ -1,9 +1,9 @@
-Serial communication manager (SCM)
+SerialPundit : Serial port communication and much more...
 -----------------------------------
 
 !["serial communication in java"](images/scm.jpg?raw=true "serial communication in java")
 
-The 'serial communication manager (abbreviated as SCM)' is an easy to use java library for communication over serial port. It supports RS-232 control signals handshaking, monitoring and has been ported to Linux, MAC, and Windows operating system for both 32 bit and 64 bit. It is consistent, portable, efficient, reliable, testable, extensible, modifiable, scalable and feature rich library. It has been also ported to ARM platform (Embedded SE Java).
+The SerialPundit is an easy to use java library for communication over serial port. It supports RS-232 control signals handshaking, monitoring and has been ported to Linux, MAC, and Windows operating system for both 32 bit and 64 bit. It is consistent, portable, efficient, reliable, testable, extensible, modifiable, scalable and feature rich library. It has been also ported to ARM platform (Embedded SE Java).
 
 It is powerfully configurable for both poll and event driven application designs be it low volume low frequency data or high volume high frequency data.
 
@@ -119,9 +119,9 @@ public class Example {
 [Several](applications) full applications demonstrating usage of features and API of this library.
 
 ##Support and discussion
-[Google group](https://groups.google.com/d/forum/serial-communication-manager) for feature request, asking questions and raising bugs etc.
+[Google group](https://groups.google.com/d/forum/serialpundit) for feature request, asking questions and raising bugs etc.
 
-##Help the project grow [<img src="https://github.com/RishiGupta12/serial-communication-manager/blob/master/images/help.jpg">](https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=gupt21%40gmail%2ecom&lc=IN&item_name=Serial%20Project&button_subtype=services&currency_code=USD&bn=PP%2dBuyNowBF%3abtn_buynowCC_LG%2egif%3aNonHosted)
+##Help the project grow [<img src="https://github.com/RishiGupta12/SerialPundit/blob/master/images/help.jpg">](https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=gupt21%40gmail%2ecom&lc=IN&item_name=Serial%20Project&button_subtype=services&currency_code=USD&bn=PP%2dBuyNowBF%3abtn_buynowCC_LG%2egif%3aNonHosted)
 
 - Suggest features and enhancements
 - Report bugs and fixes
@@ -131,11 +131,12 @@ public class Example {
 - Provide peer support on mailing lists, forums or newsgroups
 
 ##Author, License and Copyright
-- The 'serial communication manager (SCM)' is designed, developed and maintained by Rishi gupta.              
+- The SerialPundit is designed, developed and maintained by Rishi Gupta. By profession he does Linux driver development, embedded systems design, 
+  firmware development, circuit designing, prototyping, board bring up etc.     
   Linkdin profile : http://in.linkedin.com/pub/rishi-gupta/20/9b8/a10    
   Xing profile:
   
-- This library is DUAL licensed. It is made available under the terms of the GNU Affero General Public License (AGPL) v3.0 for non-commercial use and under the terms of a commercial license for commercial use of this library. Contact author for commercial license.
+- The SerialPundit is DUAL licensed. It is made available under the terms of the GNU Affero General Public License (AGPL) v3.0 for non-commercial use and under the terms of a commercial license for commercial use of this library. Contact author for commercial license.
 
   See LICENSE file in repository for full license text for AGPL v3.0.
 

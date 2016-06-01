@@ -1,19 +1,14 @@
 /*
- * Author : Rishi Gupta
+ * This file is part of SerialPundit project and software.
  * 
- * This file is part of 'serial communication manager' library.
- * Copyright (C) <2014-2016>  <Rishi Gupta>
+ * Copyright (C) 2014-2016, Rishi Gupta. All rights reserved.
  *
- * This 'serial communication manager' is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by the Free Software 
- * Foundation, either version 3 of the License, or (at your option) any later version.
- *
- * The 'serial communication manager' is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR 
- * A PARTICULAR PURPOSE.  See the GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with 'serial communication manager'.  If not, see <http://www.gnu.org/licenses/>.
+ * The SerialPundit software is DUAL licensed. It is made available under the terms of the GNU Affero 
+ * General Public License (AGPL) v3.0 for non-commercial use and under the terms of a commercial 
+ * license for commercial use of this software. 
+ * 
+ * The SerialPundit software is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  */
 
 package com.embeddedunveiled.serial;
@@ -28,14 +23,14 @@ import java.io.IOException;
  */
 public final class SerialComTimeOutException extends IOException {
 
-	private static final long serialVersionUID = -641684462902085593L;
+    private static final long serialVersionUID = -641684462902085593L;
 
-	/**
-	 * <p>Constructs an SerialComTimeOutException object with the specified detail message.</p>
-	 *
-	 * @param exceptionMsg message describing reason for exception.
-	 */
-	public SerialComTimeOutException(String exceptionMsg) {
-		super(exceptionMsg);
-	}
+    /**
+     * <p>Constructs an SerialComTimeOutException object with the specified detail message.</p>
+     *
+     * @param exceptionMsg message describing reason for exception.
+     */
+    public SerialComTimeOutException(String exceptionMsg) {
+        super(exceptionMsg);
+    }
 }

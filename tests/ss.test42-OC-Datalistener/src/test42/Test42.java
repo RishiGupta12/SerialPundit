@@ -1,19 +1,14 @@
-/**
- * Author : Rishi Gupta
+/*
+ * This file is part of SerialPundit project and software.
  * 
- * This file is part of 'serial communication manager' library.
- * Copyright (C) <2014-2016>  <Rishi Gupta>
+ * Copyright (C) 2014-2016, Rishi Gupta. All rights reserved.
  *
- * This 'serial communication manager' is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by the Free Software 
- * Foundation, either version 3 of the License, or (at your option) any later version.
- *
- * The 'serial communication manager' is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR 
- * A PARTICULAR PURPOSE.  See the GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with 'serial communication manager'.  If not, see <http://www.gnu.org/licenses/>.
+ * The SerialPundit software is DUAL licensed. It is made available under the terms of the GNU Affero 
+ * General Public License (AGPL) v3.0 for non-commercial use and under the terms of a commercial 
+ * license for commercial use of this software. 
+ * 
+ * The SerialPundit software is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  */
 
 package test42;
@@ -21,7 +16,6 @@ package test42;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.embeddedunveiled.serial.ISerialComDataListener;
-import com.embeddedunveiled.serial.SerialComDataEvent;
 import com.embeddedunveiled.serial.SerialComManager;
 import com.embeddedunveiled.serial.SerialComManager.BAUDRATE;
 import com.embeddedunveiled.serial.SerialComManager.DATABITS;
@@ -32,13 +26,12 @@ import com.embeddedunveiled.serial.SerialComManager.STOPBITS;
 class DataListener extends Test42 implements ISerialComDataListener{
 
 	int y = 0;
-	
+
 	@Override
-	public void onNewSerialDataAvailable(SerialComDataEvent data) {
-		byte[] buf = data.getDataBytes();
-		System.out.println("DataListener : " + new String(buf));
-		System.out.println("DataListener : " + buf.length);
-		
+	public void onNewSerialDataAvailable(byte[] arg0) {
+		System.out.println("DataListener : " + new String(arg0));
+		System.out.println("DataListener : " + arg0.length);
+
 		y = y + buf.length;
 		if(y >= 20) {
 			exit.set(true);
@@ -52,21 +45,21 @@ class DataListener extends Test42 implements ISerialComDataListener{
 
 // whole cycle create instance of scm, open, configure, write, listener, close repeated many times.
 public class Test42 {
-	
+
 	protected static AtomicBoolean exit = new AtomicBoolean(false);
-	
+
 	public static void main(String[] args) {
-		
+
 		SerialComManager scm = null;
 		DataListener dataListener = null;
-		
+
 		int x = 0;
 		for(x=0; x<5000; x++) {
 			System.out.println("\n" + "Iteration : " + x);
 			try {
 				scm = new SerialComManager();
 				dataListener = new DataListener();
-	
+
 				String PORT = null;
 				String PORT1 = null;
 				int osType = scm.getOSType();
@@ -95,7 +88,7 @@ public class Test42 {
 				System.out.println("main thread register  : " + scm.registerDataListener(handle, dataListener));
 				Thread.sleep(500);
 				scm.writeString(handle1, "22222222222222222222", 0); // length of this string is 20
-				
+
 				// wait till data listener has received all the data
 				while(exit.get() == false) { 
 					if(osType == SerialComManager.OS_LINUX) {
@@ -123,7 +116,7 @@ public class Test42 {
 					Thread.sleep(500);
 				}else{
 				}
-				
+
 				scm.closeComPort(handle);
 				scm.closeComPort(handle1);
 				if(osType == SerialComManager.OS_LINUX) {

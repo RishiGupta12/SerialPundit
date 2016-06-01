@@ -1,19 +1,14 @@
 /*
- * Author : Rishi Gupta
+ * This file is part of SerialPundit project and software.
  * 
- * This file is part of 'serial communication manager' library.
- * Copyright (C) <2014-2016>  <Rishi Gupta>
+ * Copyright (C) 2014-2016, Rishi Gupta. All rights reserved.
  *
- * This 'serial communication manager' is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by the Free Software 
- * Foundation, either version 3 of the License, or (at your option) any later version.
- *
- * The 'serial communication manager' is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR 
- * A PARTICULAR PURPOSE.  See the GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with 'serial communication manager'.  If not, see <http://www.gnu.org/licenses/>.
+ * The SerialPundit software is DUAL licensed. It is made available under the terms of the GNU Affero 
+ * General Public License (AGPL) v3.0 for non-commercial use and under the terms of a commercial 
+ * license for commercial use of this software. 
+ * 
+ * The SerialPundit software is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  */
 
 package test80;
@@ -47,9 +42,9 @@ class Send extends Test80 implements Runnable, ISerialComXmodemProgress {
 
 			done = true;
 
-//			// binary mode
-//			boolean statusb = scm.sendFile(handle1, new File(sndbfilepath), FTPPROTO.XMODEM, FTPVAR.CHKSUM, false, this, null);
-//			System.out.println("\nsent binary status : " + statusb);
+			//			// binary mode
+			//			boolean statusb = scm.sendFile(handle1, new File(sndbfilepath), FTPPROTO.XMODEM, FTPVAR.CHKSUM, false, this, null);
+			//			System.out.println("\nsent binary status : " + statusb);
 
 			scm.closeComPort(handle1);
 			System.out.println("sender done !");
@@ -122,9 +117,9 @@ public class Test80 implements ISerialComXmodemProgress {
 				Thread.sleep(10);
 			}
 
-//			// binary mode
-//			boolean statusa = scm.receiveFile(handle, new File(rcvbfilepath), FTPPROTO.XMODEM, FTPVAR.CHKSUM, false, new Test80(), transferStatec);
-//			System.out.println("\nreceived status binary : " + statusa);
+			//			// binary mode
+			//			boolean statusa = scm.receiveFile(handle, new File(rcvbfilepath), FTPPROTO.XMODEM, FTPVAR.CHKSUM, false, new Test80(), transferStatec);
+			//			System.out.println("\nreceived status binary : " + statusa);
 
 			scm.closeComPort(handle);
 
@@ -140,6 +135,6 @@ public class Test80 implements ISerialComXmodemProgress {
 	}
 	@Override
 	public void onXmodemSentProgressUpdate(long arg0, int percent) {
-	    System.out.println("text block number sent : " + arg0);
+		System.out.println("text block number sent : " + arg0);
 	}
 }

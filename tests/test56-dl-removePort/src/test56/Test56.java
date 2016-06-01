@@ -1,25 +1,20 @@
-/**
- * Author : Rishi Gupta
+/*
+ * This file is part of SerialPundit project and software.
  * 
- * This file is part of 'serial communication manager' library.
- * Copyright (C) <2014-2016>  <Rishi Gupta>
+ * Copyright (C) 2014-2016, Rishi Gupta. All rights reserved.
  *
- * This 'serial communication manager' is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by the Free Software 
- * Foundation, either version 3 of the License, or (at your option) any later version.
- *
- * The 'serial communication manager' is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR 
- * A PARTICULAR PURPOSE.  See the GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with 'serial communication manager'.  If not, see <http://www.gnu.org/licenses/>.
+ * The SerialPundit software is DUAL licensed. It is made available under the terms of the GNU Affero 
+ * General Public License (AGPL) v3.0 for non-commercial use and under the terms of a commercial 
+ * license for commercial use of this software. 
+ * 
+ * The SerialPundit software is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  */
 
 package test56;
 
 import com.embeddedunveiled.serial.ISerialComEventListener;
-import com.embeddedunveiled.serial.ISerialComPortMonitor;
+import com.embeddedunveiled.serial.ISerialComUSBHotPlugListener;
 import com.embeddedunveiled.serial.SerialComException;
 import com.embeddedunveiled.serial.SerialComLineEvent;
 import com.embeddedunveiled.serial.SerialComManager;
@@ -29,13 +24,12 @@ import com.embeddedunveiled.serial.SerialComManager.FLOWCONTROL;
 import com.embeddedunveiled.serial.SerialComManager.PARITY;
 import com.embeddedunveiled.serial.SerialComManager.STOPBITS;
 import com.embeddedunveiled.serial.ISerialComDataListener;
-import com.embeddedunveiled.serial.SerialComDataEvent;
 
-class Data extends Test56 implements ISerialComDataListener{
+class Data extends Test56 implements ISerialComDataListener {
 	@Override
-	public void onNewSerialDataAvailable(SerialComDataEvent data) {
-		System.out.println("Read from serial port : " + new String(data.getDataBytes()));
-		System.out.println("data length : " + data.getDataBytesLength() );
+	public void onNewSerialDataAvailable(byte[] arg0) {
+		System.out.println("Read from serial port : " + new String(arg0));
+		System.out.println("data length : " + arg0.length );
 	}
 	@Override
 	public void onDataListenerError(int arg0) {
@@ -43,7 +37,6 @@ class Data extends Test56 implements ISerialComDataListener{
 		try {
 			scm.unregisterDataListener(handle, dataListener);
 			scm.unregisterLineEventListener(handle, eventListener);
-			scm.unregisterPortMonitorListener(handle);
 			scm.closeComPort(handle);
 		} catch (SerialComException e) {
 			e.printStackTrace();
@@ -59,14 +52,16 @@ class EventListener implements ISerialComEventListener{
 	}
 }
 
-class portWatcher implements ISerialComPortMonitor{
+class portWatcher implements ISerialComUSBHotPlugListener {
+
 	@Override
-	public void onPortMonitorEvent(int event) {
-		System.out.println("==" + event);
+	public void onUSBHotPlugEvent(int arg0, int arg1, int arg2, String arg3) {
+		// TODO Auto-generated method stub
 	}
 }
 
 public class Test56 {
+	
 	protected static long handle = 0;
 	protected static Data dataListener = null;
 	protected static EventListener eventListener = null;
@@ -102,7 +97,7 @@ public class Test56 {
 			portWatcher pw = new portWatcher();
 			scm.registerDataListener(handle, dataListener);
 			scm.registerLineEventListener(handle, eventListener);
-			scm.registerPortMonitorListener(handle, pw);
+			scm.registerUSBHotPlugEventListener(portWatcher, filterVID, filterPID, serialNumber);
 			
 			System.out.println("ready");
 			

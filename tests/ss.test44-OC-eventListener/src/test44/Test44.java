@@ -1,24 +1,21 @@
-/**
- * Author : Rishi Gupta
- * 
- * This file is part of 'serial communication manager' library.
- * Copyright (C) <2014-2016>  <Rishi Gupta>
+/*
+ * This file is part of SerialPundit project and software.
  *
- * This 'serial communication manager' is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by the Free Software 
- * Foundation, either version 3 of the License, or (at your option) any later version.
+ * Copyright (C) 2014-2016, Rishi Gupta. All rights reserved.
  *
- * The 'serial communication manager' is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR 
- * A PARTICULAR PURPOSE.  See the GNU Affero General Public License for more details.
+ * The SerialPundit software is DUAL licensed. It is made available under the terms of the GNU Affero
+ * General Public License (AGPL) v3.0 for non-commercial use and under the terms of a commercial
+ * license for commercial use of this software.
  *
- * You should have received a copy of the GNU Affero General Public License
- * along with 'serial communication manager'.  If not, see <http://www.gnu.org/licenses/>.
+ * The SerialPundit software is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  */
 
 package test44;
 
+import java.io.IOException;
 import java.util.concurrent.atomic.AtomicBoolean;
+
 import com.embeddedunveiled.serial.ISerialComEventListener;
 import com.embeddedunveiled.serial.SerialComLineEvent;
 import com.embeddedunveiled.serial.SerialComManager;
@@ -37,19 +34,19 @@ class EventListener extends Test44 implements ISerialComEventListener{
 
 // whole cycle create instance of scm, open, configure, write, listener, close repeated many times.
 public class Test44 {
-	
+
 	protected static AtomicBoolean exit = new AtomicBoolean(false);
-	
-	public static void main(String[] args) {
-		
+
+	public static void main(String[] args) throws SecurityException, IOException {
+
 		SerialComManager scm = new SerialComManager();
-		
+
 		int x = 0;
 		for(x=0; x<5000; x++) {
 			System.out.println("\n" + "Iteration : " + x);
 			try {
 				EventListener eventListener = new EventListener();
-	
+
 				String PORT = null;
 				String PORT1 = null;
 				int osType = scm.getOSType();
@@ -67,7 +64,7 @@ public class Test44 {
 					PORT1 = null;
 				}else{
 				}
-				
+
 				long handle = scm.openComPort(PORT, true, true, true);
 				scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
 				scm.configureComPortControl(handle, FLOWCONTROL.NONE, 'x', 'x', false, false);
@@ -85,7 +82,7 @@ public class Test44 {
 					scm.setRTS(handle1, false);
 				}
 				exit.set(false); // reset flag
-				
+
 				System.out.println("unregister : " + scm.unregisterLineEventListener(handle, eventListener));
 				scm.closeComPort(handle);
 				scm.closeComPort(handle1);

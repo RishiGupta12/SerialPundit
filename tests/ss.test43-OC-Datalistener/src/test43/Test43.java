@@ -1,19 +1,14 @@
-/**
- * Author : Rishi Gupta
- * 
- * This file is part of 'serial communication manager' library.
- * Copyright (C) <2014-2016>  <Rishi Gupta>
+/*
+ * This file is part of SerialPundit project and software.
  *
- * This 'serial communication manager' is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by the Free Software 
- * Foundation, either version 3 of the License, or (at your option) any later version.
+ * Copyright (C) 2014-2016, Rishi Gupta. All rights reserved.
  *
- * The 'serial communication manager' is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR 
- * A PARTICULAR PURPOSE.  See the GNU Affero General Public License for more details.
+ * The SerialPundit software is DUAL licensed. It is made available under the terms of the GNU Affero
+ * General Public License (AGPL) v3.0 for non-commercial use and under the terms of a commercial
+ * license for commercial use of this software.
  *
- * You should have received a copy of the GNU Affero General Public License
- * along with 'serial communication manager'.  If not, see <http://www.gnu.org/licenses/>.
+ * The SerialPundit software is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  */
 
 package test43;
@@ -24,21 +19,21 @@ import com.embeddedunveiled.serial.SerialComManager.DATABITS;
 import com.embeddedunveiled.serial.SerialComManager.FLOWCONTROL;
 import com.embeddedunveiled.serial.SerialComManager.PARITY;
 import com.embeddedunveiled.serial.SerialComManager.STOPBITS;
-import com.embeddedunveiled.serial.SerialComDataEvent;
 import com.embeddedunveiled.serial.ISerialComDataListener;
+
+import java.io.IOException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 class DataListener extends Test43 implements ISerialComDataListener{
 
 	int y = 0;
-	
-	@Override
-	public void onNewSerialDataAvailable(SerialComDataEvent data) {
 
-		byte[] buf = data.getDataBytes();
-		System.out.println("length : " + buf.length + " data : " + new String(buf));
-		
-		y = y + buf.length;
+	@Override
+	public void onNewSerialDataAvailable(byte[] arg0) {
+
+		System.out.println("length : " + arg0.length + " data : " + new String(arg0));
+
+		y = y + arg0.length;
 		if(y >= 1) {
 			exit.set(true);
 		}
@@ -51,14 +46,14 @@ class DataListener extends Test43 implements ISerialComDataListener{
 
 // whole cycle create instance of scm, open, configure, write, listener, close repeated many times.
 public class Test43 {
-	
+
 	protected static AtomicBoolean exit = new AtomicBoolean(false);
-	
-	public static void main(String[] args) {
-		
+
+	public static void main(String[] args) throws SecurityException, IOException {
+
 		SerialComManager scm = new SerialComManager();
 		DataListener dataListener = new DataListener();
-		
+
 		long x = 0;
 		for(x=0; x<5000; x++) {
 			System.out.println("\n" + "Iteration : " + x);
@@ -80,9 +75,9 @@ public class Test43 {
 					PORT1 = null;
 				}else{
 				}
-				
-//				PORT = "/dev/pts/1";
-//				PORT1 = "/dev/pts/3";
+
+				//				PORT = "/dev/pts/1";
+				//				PORT1 = "/dev/pts/3";
 
 				long handle = scm.openComPort(PORT, true, true, false);
 				scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
@@ -93,13 +88,13 @@ public class Test43 {
 
 				System.out.println("main thread register  : " + scm.registerDataListener(handle, dataListener));
 				scm.writeString(handle1, "HELLO", 0);
-				
+
 				// wait till data listener has received all the data
 				while(exit.get() == false) {
 					scm.writeString(handle1, "L", 0);
 				}
 				exit.set(false);
-				
+
 				System.out.println("main thread unregister : " + scm.unregisterDataListener(handle, dataListener));
 				System.out.println("close handle : " + scm.closeComPort(handle));
 				System.out.println("close handle1 : " + scm.closeComPort(handle1));

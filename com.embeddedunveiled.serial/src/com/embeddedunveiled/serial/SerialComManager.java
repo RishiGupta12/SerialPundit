@@ -1,19 +1,14 @@
 /*
- * Author : Rishi Gupta
+ * This file is part of SerialPundit project and software.
  * 
- * This file is part of 'serial communication manager' library.
- * Copyright (C) <2014-2016>  <Rishi Gupta>
+ * Copyright (C) 2014-2016, Rishi Gupta. All rights reserved.
  *
- * This 'serial communication manager' is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by the Free Software 
- * Foundation, either version 3 of the License, or (at your option) any later version.
- *
- * The 'serial communication manager' is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR 
- * A PARTICULAR PURPOSE.  See the GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with 'serial communication manager'.  If not, see <http://www.gnu.org/licenses/>.
+ * The SerialPundit software is DUAL licensed. It is made available under the terms of the GNU Affero 
+ * General Public License (AGPL) v3.0 for non-commercial use and under the terms of a commercial 
+ * license for commercial use of this software. 
+ * 
+ * The SerialPundit software is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  */
 
 package com.embeddedunveiled.serial;
@@ -165,7 +160,7 @@ import com.embeddedunveiled.serial.comdb.SerialComDBRelease;
  */
 public final class SerialComManager {
 
-    /**<p>Production release version of the serial communication manager library. </p>*/
+    /**<p>Production release version of the SerialPundit. </p>*/
     public static final String JAVA_LIB_VERSION = "1.0.4";
 
     /** <p>Pre-defined enum constants for baud rate values. </p>*/
@@ -364,7 +359,7 @@ public final class SerialComManager {
         }
     }
 
-    /** <p>The value indicating that operating system is unknown to SCM library. Integer constant with 
+    /** <p>The value indicating that operating system is unknown to SerialPundit. Integer constant with 
      * value 0x00. </p>*/
     public static final int OS_UNKNOWN  = 0x00;
 
@@ -398,7 +393,7 @@ public final class SerialComManager {
     /** <p>The value indicating the Android operating system. Integer constant with value 0x0A. </p>*/
     public static final int OS_ANDROID  = 0x0A;
 
-    /** <p>The value indicating that platform architecture is unknown to SCM library. Integer constant with 
+    /** <p>The value indicating that platform architecture is unknown to SerialPundit. Integer constant with 
      * value 0x00. </p>*/
     public static final int ARCH_UNKNOWN = 0x00;
 
@@ -719,7 +714,7 @@ public final class SerialComManager {
      * <p>Gives CPU/Platform architecture as identified by this library. To interpret return integer see 
      * constants defined SerialComManager class.</p>
      * 
-     * @return CPU/Platform architecture as identified by the scm library.
+     * @return CPU/Platform architecture as identified by SerialPundit.
      */
     public int getCPUArchitecture() {
         return cpuArch;
@@ -1889,7 +1884,7 @@ public final class SerialComManager {
      * 
      * <p>Application (listener) should implement ISerialComDataListener and override onNewSerialDataAvailable method.</p>
      * 
-     * <p>The scm library can manage upto 1024 listeners corresponding to 1024 port handles. Application should not register 
+     * <p>The SerialPundit can manage upto 1024 listeners corresponding to 1024 port handles. Application should not register 
      * data listener more than once for the same port otherwise it will lead to inconsistent state.</p>
      * <p>This method is thread safe.</p>
      * 

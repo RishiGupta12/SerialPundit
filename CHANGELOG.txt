@@ -24,6 +24,7 @@ Additions :
     - Added method getCPUArchitecture()
     - Added check for incorrect arguments passing to methods
     - Added API to free COM ports from ComDB database in Windows for factory testing
+    - Added OSGI bundles support
 	
 Bug Fixes :
     - Windows: fixed issue for not returning null in windows in read function

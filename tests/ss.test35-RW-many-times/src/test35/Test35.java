@@ -1,19 +1,14 @@
-/**
- * Author : Rishi Gupta
- * 
- * This file is part of 'serial communication manager' library.
- * Copyright (C) <2014-2016>  <Rishi Gupta>
+/*
+ * This file is part of SerialPundit project and software.
  *
- * This 'serial communication manager' is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by the Free Software 
- * Foundation, either version 3 of the License, or (at your option) any later version.
+ * Copyright (C) 2014-2016, Rishi Gupta. All rights reserved.
  *
- * The 'serial communication manager' is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR 
- * A PARTICULAR PURPOSE.  See the GNU Affero General Public License for more details.
+ * The SerialPundit software is DUAL licensed. It is made available under the terms of the GNU Affero
+ * General Public License (AGPL) v3.0 for non-commercial use and under the terms of a commercial
+ * license for commercial use of this software.
  *
- * You should have received a copy of the GNU Affero General Public License
- * along with 'serial communication manager'.  If not, see <http://www.gnu.org/licenses/>.
+ * The SerialPundit software is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  */
 
 package test35;
@@ -51,39 +46,39 @@ public class Test35 {
 			}else{
 			}
 
-//			// TEST 1
-//			try {
-//				long handle = scm.openComPort(PORT, true, true, true);
-//				scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
-//				scm.configureComPortControl(handle, FLOWCONTROL.NONE, 'x', 'x', false, false);
-//
-//				long handle1 = scm.openComPort(PORT1, true, true, true);
-//				scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
-//				scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
-//
-//				for(int x = 0; x<5000; x++) {
-//					scm.writeString(handle, "HELLO", 0);
-//					if(osType == SerialComManager.OS_LINUX) {
-//						Thread.sleep(100);
-//					}else if(osType == SerialComManager.OS_WINDOWS) {
-//						Thread.sleep(100);
-//					}else if(osType == SerialComManager.OS_MAC_OS_X) {
-//						Thread.sleep(100);
-//					}else if(osType == SerialComManager.OS_SOLARIS) {
-//						Thread.sleep(100);
-//					}else{
-//					}
-//					String data = scm.readString(handle1);
-//					System.out.println("Iteration : " + x + "==" + "data read is : " + data);
-//				}
-//
-//				scm.closeComPort(handle);
-//				scm.closeComPort(handle1);
-//				System.out.println("TEST 1 PASSED !");
-//			} catch (Exception e) {
-//				e.printStackTrace();
-//			}
-			
+			//			// TEST 1
+			//			try {
+			//				long handle = scm.openComPort(PORT, true, true, true);
+			//				scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
+			//				scm.configureComPortControl(handle, FLOWCONTROL.NONE, 'x', 'x', false, false);
+			//
+			//				long handle1 = scm.openComPort(PORT1, true, true, true);
+			//				scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
+			//				scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+			//
+			//				for(int x = 0; x<5000; x++) {
+			//					scm.writeString(handle, "HELLO", 0);
+			//					if(osType == SerialComManager.OS_LINUX) {
+			//						Thread.sleep(100);
+			//					}else if(osType == SerialComManager.OS_WINDOWS) {
+			//						Thread.sleep(100);
+			//					}else if(osType == SerialComManager.OS_MAC_OS_X) {
+			//						Thread.sleep(100);
+			//					}else if(osType == SerialComManager.OS_SOLARIS) {
+			//						Thread.sleep(100);
+			//					}else{
+			//					}
+			//					String data = scm.readString(handle1);
+			//					System.out.println("Iteration : " + x + "==" + "data read is : " + data);
+			//				}
+			//
+			//				scm.closeComPort(handle);
+			//				scm.closeComPort(handle1);
+			//				System.out.println("TEST 1 PASSED !");
+			//			} catch (Exception e) {
+			//				e.printStackTrace();
+			//			}
+
 			PORT = "/dev/pts/1";
 			PORT1 = "/dev/pts/3";
 

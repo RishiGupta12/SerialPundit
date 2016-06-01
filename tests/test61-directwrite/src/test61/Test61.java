@@ -1,19 +1,14 @@
-/**
- * Author : Rishi Gupta
+/*
+ * This file is part of SerialPundit project and software.
  * 
- * This file is part of 'serial communication manager' library.
- * Copyright (C) <2014-2016>  <Rishi Gupta>
+ * Copyright (C) 2014-2016, Rishi Gupta. All rights reserved.
  *
- * This 'serial communication manager' is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by the Free Software 
- * Foundation, either version 3 of the License, or (at your option) any later version.
- *
- * The 'serial communication manager' is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR 
- * A PARTICULAR PURPOSE.  See the GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with 'serial communication manager'.  If not, see <http://www.gnu.org/licenses/>.
+ * The SerialPundit software is DUAL licensed. It is made available under the terms of the GNU Affero 
+ * General Public License (AGPL) v3.0 for non-commercial use and under the terms of a commercial 
+ * license for commercial use of this software. 
+ * 
+ * The SerialPundit software is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  */
 
 package test61;
@@ -48,7 +43,7 @@ public final class Test61 {
 				PORT1 = null;
 			}else{
 			}
-			
+
 			PORT = "/dev/pts/1";
 			PORT1 = "/dev/pts/3";
 			long handle = scm.openComPort(PORT, true, true, false);
@@ -57,29 +52,29 @@ public final class Test61 {
 			long handle1 = scm.openComPort(PORT1, true, true, false);
 			scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
 			scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
-			
+
 			ByteBuffer writeBuffer = ByteBuffer.allocateDirect(10 * 1024);
 			ByteBuffer readBuffer = ByteBuffer.allocateDirect(10 * 1024);
-//			ByteBuffer buffer = ByteBuffer.allocate(10 * 1024); this should throw exception as it is not direct
+			//			ByteBuffer buffer = ByteBuffer.allocate(10 * 1024); this should throw exception as it is not direct
 
 			for(int x=0; x<205; x++) {
 				writeBuffer.put("--Practising-meditation-will-lead-to-Nirvana--".getBytes());
 			}
-			
+
 			System.out.println("Capacity : " + writeBuffer.capacity());
 			System.out.println("Position : " + writeBuffer.position());
 			System.out.println("" + writeBuffer.get(5) + "," + writeBuffer.get(6) + "," + writeBuffer.get(7));
-			
+
 			scm.writeBytesDirect(handle, writeBuffer, 0, 4 * 1023);
 			Thread.sleep(1000);
 			System.out.println(scm.readString(handle1, 2 * 1024));
 			System.out.println(scm.readString(handle1, 2 * 1024));
 			System.out.println(scm.readString(handle1, 2 * 1024));
-			
+
 			System.out.println("Capacity : " + writeBuffer.capacity());
 			System.out.println("Position : " + writeBuffer.position());
 			System.out.println("" + writeBuffer.get(5));
-			
+
 			// read from same locations where data was written
 			System.out.println("\n");
 			writeBuffer.clear();

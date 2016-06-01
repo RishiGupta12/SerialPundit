@@ -1,19 +1,14 @@
-/**
- * Author : Rishi Gupta
+/*
+ * This file is part of SerialPundit project and software.
  * 
- * This file is part of 'serial communication manager' library.
- * Copyright (C) <2014-2016>  <Rishi Gupta>
+ * Copyright (C) 2014-2016, Rishi Gupta. All rights reserved.
  *
- * This 'serial communication manager' is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by the Free Software 
- * Foundation, either version 3 of the License, or (at your option) any later version.
- *
- * The 'serial communication manager' is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR 
- * A PARTICULAR PURPOSE.  See the GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with 'serial communication manager'.  If not, see <http://www.gnu.org/licenses/>.
+ * The SerialPundit software is DUAL licensed. It is made available under the terms of the GNU Affero 
+ * General Public License (AGPL) v3.0 for non-commercial use and under the terms of a commercial 
+ * license for commercial use of this software. 
+ * 
+ * The SerialPundit software is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  */
 
 package test58;
@@ -30,7 +25,7 @@ public class Test58 {
 		}catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 		try {
 			// CP2102
 			String[] vcpNodes = scm.findComPortFromUSBAttributes(0x10C4, 0xEA60, "0001");
@@ -40,7 +35,7 @@ public class Test58 {
 		}catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 		try {
 			// FTDI FT232RL
 			String[] vcpNodes = scm.findComPortFromUSBAttributes(0x0403, 0x6001, null);
@@ -50,7 +45,7 @@ public class Test58 {
 		}catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 		try {
 			// FTDI FT232RL
 			String[] vcpNodes = scm.findComPortFromUSBAttributes(0x0403, 0x6001, "A70362A3");
@@ -60,7 +55,7 @@ public class Test58 {
 		}catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 		try {
 			// FTDI FT232RL
 			String[] vcpNodes = scm.findComPortFromUSBAttributes(0x0403, 0x6001, "A602RDCH");
@@ -70,7 +65,7 @@ public class Test58 {
 		}catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 		try {
 			// Prolific PL2303
 			String[] vcpNodes = scm.findComPortFromUSBAttributes(0x067B, 0x2303, null);
@@ -80,7 +75,7 @@ public class Test58 {
 		}catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 		try {
 			// Microchip 18F4550 (CDC RS-232 Emulation Demo)
 			String[] vcpNodes = scm.findComPortFromUSBAttributes(0x04D8, 0x000A, null);
@@ -90,7 +85,7 @@ public class Test58 {
 		}catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 		try {
 			// Mcp2200
 			String[] vcpNodes = scm.findComPortFromUSBAttributes(0x04D8, 0x00DF, "0000980371");
@@ -100,7 +95,7 @@ public class Test58 {
 		}catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 		try {
 			// Mcp2200
 			String[] vcpNodes = scm.findComPortFromUSBAttributes(0x04D8, 0x00DF, null);
@@ -110,7 +105,7 @@ public class Test58 {
 		}catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 		try {
 			// Chinese CH341
 			String[] vcpNodes = scm.findComPortFromUSBAttributes(0x4348, 0x5523, null);
@@ -120,7 +115,7 @@ public class Test58 {
 		}catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 		System.out.println("\ndone");
 	}
 }

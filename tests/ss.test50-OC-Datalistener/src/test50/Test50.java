@@ -1,19 +1,14 @@
-/**
- * Author : Rishi Gupta
- * 
- * This file is part of 'serial communication manager' library.
- * Copyright (C) <2014-2016>  <Rishi Gupta>
+/*
+ * This file is part of SerialPundit project and software.
  *
- * This 'serial communication manager' is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by the Free Software 
- * Foundation, either version 3 of the License, or (at your option) any later version.
+ * Copyright (C) 2014-2016, Rishi Gupta. All rights reserved.
  *
- * The 'serial communication manager' is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR 
- * A PARTICULAR PURPOSE.  See the GNU Affero General Public License for more details.
+ * The SerialPundit software is DUAL licensed. It is made available under the terms of the GNU Affero
+ * General Public License (AGPL) v3.0 for non-commercial use and under the terms of a commercial
+ * license for commercial use of this software.
  *
- * You should have received a copy of the GNU Affero General Public License
- * along with 'serial communication manager'.  If not, see <http://www.gnu.org/licenses/>.
+ * The SerialPundit software is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  */
 
 package test50;
@@ -21,7 +16,6 @@ package test50;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.embeddedunveiled.serial.ISerialComDataListener;
-import com.embeddedunveiled.serial.SerialComDataEvent;
 import com.embeddedunveiled.serial.SerialComManager;
 import com.embeddedunveiled.serial.SerialComManager.BAUDRATE;
 import com.embeddedunveiled.serial.SerialComManager.DATABITS;
@@ -34,11 +28,10 @@ class DataListener extends Test50 implements ISerialComDataListener{
 	int y = 0;
 
 	@Override
-	public void onNewSerialDataAvailable(SerialComDataEvent data) {
-		byte[] buf = data.getDataBytes();
-		System.out.println("length : " + buf.length + " data : " + new String(buf));
+	public void onNewSerialDataAvailable(byte[] arg0) {
+		System.out.println("length : " + arg0.length + " data : " + new String(arg0));
 
-		y = y + buf.length;
+		y = y + arg0.length;
 		if(y >= 2) {
 			exit.set(true);
 		}
@@ -87,7 +80,7 @@ public class Test50 {
 			int x = 0;
 			for(x=0; x<5000; x++) {
 				System.out.println("\n" + "Iteration : " + x);
-				
+
 				System.out.println("main thread register  : " + scm.registerDataListener(handle, dataListener));
 				System.out.println("main thread register  : " + scm.registerDataListener(handle1, dataListener1));
 

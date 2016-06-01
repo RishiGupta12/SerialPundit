@@ -1,25 +1,19 @@
-/**
- * Author : Rishi Gupta
- * 
- * This file is part of 'serial communication manager' library.
- * Copyright (C) <2014-2016>  <Rishi Gupta>
+/*
+ * This file is part of SerialPundit project and software.
  *
- * This 'serial communication manager' is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by the Free Software 
- * Foundation, either version 3 of the License, or (at your option) any later version.
+ * Copyright (C) 2014-2016, Rishi Gupta. All rights reserved.
  *
- * The 'serial communication manager' is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR 
- * A PARTICULAR PURPOSE.  See the GNU Affero General Public License for more details.
+ * The SerialPundit software is DUAL licensed. It is made available under the terms of the GNU Affero
+ * General Public License (AGPL) v3.0 for non-commercial use and under the terms of a commercial
+ * license for commercial use of this software.
  *
- * You should have received a copy of the GNU Affero General Public License
- * along with 'serial communication manager'.  If not, see <http://www.gnu.org/licenses/>.
+ * The SerialPundit software is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  */
 
 package test39;
 
 import com.embeddedunveiled.serial.ISerialComDataListener;
-import com.embeddedunveiled.serial.SerialComDataEvent;
 import com.embeddedunveiled.serial.SerialComManager;
 import com.embeddedunveiled.serial.SerialComManager.BAUDRATE;
 import com.embeddedunveiled.serial.SerialComManager.DATABITS;
@@ -30,8 +24,8 @@ import com.embeddedunveiled.serial.SerialComManager.STOPBITS;
 class DataListener implements ISerialComDataListener{
 
 	@Override
-	public void onNewSerialDataAvailable(SerialComDataEvent data) {
-		System.out.println(new String(data.getDataBytes()));
+	public void onNewSerialDataAvailable(byte[] arg0) {
+		System.out.println(new String(arg0));
 	}
 
 	@Override
@@ -104,14 +98,14 @@ public class Test39 {
 			scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
 
 			System.out.println("register  : " + scm.registerDataListener(handle, dataListener));
-//
-//			//			while(true) {
+			//
+			//			//			while(true) {
 			scm.writeString(handle1, "a", 0);
-//			//			}
-//
-						System.out.println("unregister : " + scm.unregisterDataListener(handle, dataListener));
-						scm.closeComPort(handle);
-						scm.closeComPort(handle1);
+			//			//			}
+			//
+			System.out.println("unregister : " + scm.unregisterDataListener(handle, dataListener));
+			scm.closeComPort(handle);
+			scm.closeComPort(handle1);
 			while(true);
 		} catch (Exception e) {
 			e.printStackTrace();
