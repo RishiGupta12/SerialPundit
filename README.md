@@ -82,18 +82,17 @@ It eliminates the complexities of serial port programming for different operatin
 
 ##Getting started
 
-The folder prebuilt-release in this repository contains ready-to-use jar file (scm-1.0.4.jar) that can be imported in any project and referenced right away. Simply add scm-1.0.4.jar in your project as an external library. 
+The folder prebuilt-release in this repository contains ready-to-use jar file (sp-tty.jar) that can be imported in any project and referenced right away. Simply add sp-tty.jar in your project as an external library. 
 
-To add a jar in Eclipse, right-click on the Project → Build Path → Configure Build Path. Under Libraries tab, click Add Jars or Add External JARs and give the scm-1.0.4.jar.
+To add a jar in Eclipse, right-click on the Project → Build Path → Configure Build Path. Under Libraries tab, click Add Jars or Add External JARs and give the sp-core.jar and sp-tty.jar.
 
 ```java
-package example;
-import com.embeddedunveiled.serial.SerialComManager;
-import com.embeddedunveiled.serial.SerialComManager.BAUDRATE;
-import com.embeddedunveiled.serial.SerialComManager.DATABITS;
-import com.embeddedunveiled.serial.SerialComManager.FLOWCONTROL;
-import com.embeddedunveiled.serial.SerialComManager.PARITY;
-import com.embeddedunveiled.serial.SerialComManager.STOPBITS;
+import com.serialpundit.serial.SerialComManager;
+import com.serialpundit.serial.SerialComManager.BAUDRATE;
+import com.serialpundit.serial.SerialComManager.DATABITS;
+import com.serialpundit.serial.SerialComManager.FLOWCONTROL;
+import com.serialpundit.serial.SerialComManager.PARITY;
+import com.serialpundit.serial.SerialComManager.STOPBITS;
 
 public class Example {
 	public static void main(String[] args) {
