@@ -15,64 +15,64 @@ package serialterminal;
 
 import javax.swing.JTextField;
 
-import com.embeddedunveiled.serial.SerialComException;
-import com.embeddedunveiled.serial.SerialComManager;
-import com.embeddedunveiled.serial.util.SerialComUtil;
+import com.serialpundit.core.SerialComException;
+import com.serialpundit.serial.SerialComManager;
+import com.serialpundit.core.util.SerialComUtil;
 
 public final class DataPoller implements Runnable {
 
-	private byte[] dataRead;
-	private String dataStr;
-	private boolean displayInHex;
+    private byte[] dataRead;
+    private String dataStr;
+    private boolean displayInHex;
 
-	private final SerialComManager scm;
-	private final JTextField text;
-	private final long comPortHandle;
-	private final JTextField status;
-	private final SignalExit exitTrigger;
+    private final SerialComManager scm;
+    private final JTextField text;
+    private final long comPortHandle;
+    private final JTextField status;
+    private final SignalExit exitTrigger;
 
-	public DataPoller(SerialComManager scm, JTextField text, long comPortHandle, JTextField status, 
-			boolean displayInHex, SignalExit exitTrigger) {
-		this.scm = scm;
-		this.comPortHandle = comPortHandle;
-		this.text = text;
-		this.status = status;
-		this.displayInHex = displayInHex;
-		this.exitTrigger = exitTrigger;
-	}
+    public DataPoller(SerialComManager scm, JTextField text, long comPortHandle, JTextField status, 
+            boolean displayInHex, SignalExit exitTrigger) {
+        this.scm = scm;
+        this.comPortHandle = comPortHandle;
+        this.text = text;
+        this.status = status;
+        this.displayInHex = displayInHex;
+        this.exitTrigger = exitTrigger;
+    }
 
-	public void setDisplayInHex(boolean enabled) {
-		displayInHex = enabled;
-	}
+    public void setDisplayInHex(boolean enabled) {
+        displayInHex = enabled;
+    }
 
-	@Override
-	public void run() {
-		while(exitTrigger.isExitTriggered() == false) {
-			try {
-				Thread.sleep(100);
-			} catch (InterruptedException e1) {
-				if(exitTrigger.isExitTriggered() == true) {
-					return;
-				}
-			}
-			try {
-				dataRead = scm.readBytes(comPortHandle, 10);
-				if(dataRead != null) {
-					text.setText("");
-					if(displayInHex == true) {
-						dataStr = SerialComUtil.byteArrayToHexString(dataRead, " ");
-					}else {
-						dataStr = new String(dataRead);
-					}
-					text.setText(dataStr);
-				}
-			} catch (SerialComException e) {
-				status.setText("");
-				status.setText(e.getExceptionMsg());
-			} catch (Exception e) {
-				status.setText("");
-				status.setText(e.getMessage());
-			}
-		}
-	}
+    @Override
+    public void run() {
+        while(exitTrigger.isExitTriggered() == false) {
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e1) {
+                if(exitTrigger.isExitTriggered() == true) {
+                    return;
+                }
+            }
+            try {
+                dataRead = scm.readBytes(comPortHandle, 10);
+                if(dataRead != null) {
+                    text.setText("");
+                    if(displayInHex == true) {
+                        dataStr = SerialComUtil.byteArrayToHexString(dataRead, " ");
+                    }else {
+                        dataStr = new String(dataRead);
+                    }
+                    text.setText(dataStr);
+                }
+            } catch (SerialComException e) {
+                status.setText("");
+                status.setText(e.getExceptionMsg());
+            } catch (Exception e) {
+                status.setText("");
+                status.setText(e.getMessage());
+            }
+        }
+    }
 }

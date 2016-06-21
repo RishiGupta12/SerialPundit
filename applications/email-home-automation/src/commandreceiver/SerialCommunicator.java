@@ -13,42 +13,42 @@
 
 package commandreceiver;
 
-import com.embeddedunveiled.serial.SerialComException;
-import com.embeddedunveiled.serial.SerialComManager;
+import com.serialpundit.core.SerialComException;
+import com.serialpundit.serial.SerialComManager;
 
 public final class SerialCommunicator {
 
-	private final SerialComManager scmi;
-	private final PortSettingsPanel psPaneli;
-	private final ProgramStatusPanel progStatusPaneli;
+    private final SerialComManager scmi;
+    private final PortSettingsPanel psPaneli;
+    private final ProgramStatusPanel progStatusPaneli;
 
-	public SerialCommunicator(SerialComManager scm, PortSettingsPanel psPanel, ProgramStatusPanel progStatusPanel) {
-		scmi = scm;
-		psPaneli = psPanel;
-		progStatusPaneli = progStatusPanel;
-	}
+    public SerialCommunicator(SerialComManager scm, PortSettingsPanel psPanel, ProgramStatusPanel progStatusPanel) {
+        scmi = scm;
+        psPaneli = psPanel;
+        progStatusPaneli = progStatusPanel;
+    }
 
-	public void executeCommand(String command) {
+    public void executeCommand(String command) {
 
-		long comPortHandle = psPaneli.getComPortHandle();
-		if(comPortHandle == -1) {
-			progStatusPaneli.setExtraInfo("COM port is not opened");
-			return;
-		}
+        long comPortHandle = psPaneli.getComPortHandle();
+        if(comPortHandle == -1) {
+            progStatusPaneli.setExtraInfo("COM port is not opened");
+            return;
+        }
 
-		if(command.equals("CMD1")) {
-			try {
-				scmi.writeString(comPortHandle, "CMD1", 0);
-			} catch (SerialComException e) {
-				progStatusPaneli.setExtraInfo(e.getMessage());
-			}
-		}else if(command.equals("CMD2")) {
-			try {
-				scmi.writeString(comPortHandle, "CMD2", 0);
-			} catch (SerialComException e) {
-				progStatusPaneli.setExtraInfo(e.getMessage());
-			}
-		}else {
-		}
-	}
+        if(command.equals("CMD1")) {
+            try {
+                scmi.writeString(comPortHandle, "CMD1", 0);
+            } catch (SerialComException e) {
+                progStatusPaneli.setExtraInfo(e.getMessage());
+            }
+        }else if(command.equals("CMD2")) {
+            try {
+                scmi.writeString(comPortHandle, "CMD2", 0);
+            } catch (SerialComException e) {
+                progStatusPaneli.setExtraInfo(e.getMessage());
+            }
+        }else {
+        }
+    }
 }

@@ -11,7 +11,13 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  */
  
-import com.embeddedunveiled.serial.SerialComManager;
+import com.serialpundit.serial.SerialComManager;
+import com.serialpundit.serial.SerialComManager.BAUDRATE;
+import com.serialpundit.serial.SerialComManager.DATABITS;
+import com.serialpundit.serial.SerialComManager.FLOWCONTROL;
+import com.serialpundit.serial.SerialComManager.PARITY;
+import com.serialpundit.serial.SerialComManager.STOPBITS;
+import com.serialpundit.core.util.SerialComUtil;
 
 public class FindPorts {
 	public static void main(String[] args) {

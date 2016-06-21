@@ -13,21 +13,20 @@
 
 package test70;
 
-import com.embeddedunveiled.serial.SerialComManager;
-import com.embeddedunveiled.serial.hid.SerialComHID;
-import com.embeddedunveiled.serial.usb.SerialComUSBHID;
+import com.serialpundit.core.SerialComPlatform;
+import com.serialpundit.hid.SerialComRawHID;
 
 public class Test70 {
 
-	public static SerialComManager scm = null;
+	public static SerialComRawHID scrh = null;
+	static SerialComPlatform scp;
 	public static String PORT = null;
 	public static String PORT1 = null;
 
 	public static void main(String[] args) {
 		try {
-			scm = new SerialComManager();
-//			SerialComUSBHID scuh = (SerialComUSBHID) scm.getSerialComHIDInstance(SerialComHID.HID_USB, null, null);
-//			System.out.println(scuh.formatReportToHex("hello".getBytes()));
+			scrh = new SerialComRawHID(null, null);
+			System.out.println(scrh.formatReportToHexR("hello".getBytes(), " : "));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

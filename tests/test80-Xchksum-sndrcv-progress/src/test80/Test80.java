@@ -15,15 +15,20 @@ package test80;
 
 import java.io.File;
 
-import com.embeddedunveiled.serial.SerialComManager;
-import com.embeddedunveiled.serial.SerialComManager.BAUDRATE;
-import com.embeddedunveiled.serial.SerialComManager.DATABITS;
-import com.embeddedunveiled.serial.SerialComManager.FLOWCONTROL;
-import com.embeddedunveiled.serial.SerialComManager.FTPPROTO;
-import com.embeddedunveiled.serial.SerialComManager.FTPVAR;
-import com.embeddedunveiled.serial.SerialComManager.PARITY;
-import com.embeddedunveiled.serial.SerialComManager.STOPBITS;
-import com.embeddedunveiled.serial.ftp.ISerialComXmodemProgress;
+import com.serialpundit.serial.SerialComException;
+import com.serialpundit.core.SerialComPlatform;
+import com.serialpundit.core.SerialComSystemProperty;
+import com.serialpundit.serial.SerialComManager;
+import com.serialpundit.serial.SerialComManager.BAUDRATE;
+import com.serialpundit.serial.SerialComManager.DATABITS;
+import com.serialpundit.serial.SerialComManager.FLOWCONTROL;
+import com.serialpundit.serial.SerialComManager.FTPPROTO;
+import com.serialpundit.serial.SerialComManager.FTPVAR;
+import com.serialpundit.serial.SerialComManager.PARITY;
+import com.serialpundit.serial.SerialComManager.STOPBITS;
+import com.serialpundit.serial.ftp.ISerialComXmodemProgress;
+import com.serialpundit.serial.ftp.ISerialComYmodemProgress;
+import com.serialpundit.serial.ftp.SerialComFTPCMDAbort;
 
 class Send extends Test80 implements Runnable, ISerialComXmodemProgress {
 
@@ -67,6 +72,7 @@ public class Test80 implements ISerialComXmodemProgress {
 
 	private static Thread mThread = null;
 	public static SerialComManager scm = null;
+	public static SerialComPlatform scp = null;
 	public static String PORT = null;
 	public static String PORT1 = null;
 	public static String sndtfilepath = null;
@@ -78,29 +84,30 @@ public class Test80 implements ISerialComXmodemProgress {
 	public static void main(String[] args) {
 		try {
 			scm = new SerialComManager();
+			scp = new SerialComPlatform(new SerialComSystemProperty());
 
-			int osType = scm.getOSType();
-			if(osType == SerialComManager.OS_LINUX) {
+			int osType = scp.getOSType();
+			if(osType == SerialComPlatform.OS_LINUX) {
 				PORT = "/dev/ttyUSB0";
 				PORT1 = "/dev/ttyUSB1";
 				sndtfilepath = "/home/r/ws-host-uart/ftptest/xf2.txt";
 				rcvtfilepath = "/home/r/ws-host-uart/ftptest/xrf2.txt";
-			}else if(osType == SerialComManager.OS_WINDOWS) {
+			}else if(osType == SerialComPlatform.OS_WINDOWS) {
 				PORT = "COM51";
 				PORT1 = "COM52";
 				sndtfilepath = "D:\\atsnd.txt";
 				rcvtfilepath = "D:\\atrcv.txt";
-			}else if(osType == SerialComManager.OS_MAC_OS_X) {
+			}else if(osType == SerialComPlatform.OS_MAC_OS_X) {
 				PORT = "/dev/cu.usbserial-A70362A3";
 				PORT1 = "/dev/cu.usbserial-A602RDCH";
-			}else if(osType == SerialComManager.OS_SOLARIS) {
+			}else if(osType == SerialComPlatform.OS_SOLARIS) {
 				PORT = null;
 				PORT1 = null;
 			}else{
 			}
 
-			PORT = "/dev/pts/3";
-			PORT1 = "/dev/pts/2";
+			PORT = "/dev/pts/18";
+			PORT1 = "/dev/pts/19";
 
 			long handle = scm.openComPort(PORT, true, true, true);
 			scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);

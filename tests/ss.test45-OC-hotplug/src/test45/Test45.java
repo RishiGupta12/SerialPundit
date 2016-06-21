@@ -13,8 +13,8 @@
 
 package test45;
 
-import com.embeddedunveiled.serial.ISerialComUSBHotPlugListener;
-import com.embeddedunveiled.serial.SerialComManager;
+import com.serialpundit.usb.ISerialComUSBHotPlugListener;
+import com.serialpundit.usb.SerialComUSB;
 
 //event 2 indicates port removal, 1 indicates additional of port
 class USBHotPlugEventHandler implements ISerialComUSBHotPlugListener {
@@ -30,7 +30,7 @@ public class Test45 {
 
 		// REGISTER SAME HANDLER
 		try {
-			SerialComManager scm = new SerialComManager();
+			SerialComUSB scusb = new SerialComUSB(null, null);
 			USBHotPlugEventHandler eventhandler = new USBHotPlugEventHandler();
 			int x = 0;
 			int handle;
@@ -39,14 +39,14 @@ public class Test45 {
 			int handle3;
 			for (x=0; x<100; x++) {
 				System.out.println("Iteration :" + x);
-				handle  = scm.registerUSBHotPlugEventListener(eventhandler, 0x0403, 0x6001, null);
-				handle1 = scm.registerUSBHotPlugEventListener(eventhandler, 0x10C4, 0xEA60, "0001");
-				handle2 = scm.registerUSBHotPlugEventListener(eventhandler, 0x04d8, 0x00df, "0000980371");
-				handle3 = scm.registerUSBHotPlugEventListener(eventhandler, 0x0403, 0x6001, "A7036479");
-				scm.unregisterUSBHotPlugEventListener(handle);
-				scm.unregisterUSBHotPlugEventListener(handle1);
-				scm.unregisterUSBHotPlugEventListener(handle2);
-				scm.unregisterUSBHotPlugEventListener(handle3);
+				handle  = scusb.registerUSBHotPlugEventListener(eventhandler, 0x0403, 0x6001, null);
+				handle1 = scusb.registerUSBHotPlugEventListener(eventhandler, 0x10C4, 0xEA60, "0001");
+				handle2 = scusb.registerUSBHotPlugEventListener(eventhandler, 0x04d8, 0x00df, "0000980371");
+				handle3 = scusb.registerUSBHotPlugEventListener(eventhandler, 0x0403, 0x6001, "A7036479");
+				scusb.unregisterUSBHotPlugEventListener(handle);
+				scusb.unregisterUSBHotPlugEventListener(handle1);
+				scusb.unregisterUSBHotPlugEventListener(handle2);
+				scusb.unregisterUSBHotPlugEventListener(handle3);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -56,14 +56,14 @@ public class Test45 {
 
 		// REGISTER/UNREGISTER MANY TIMES
 		try {
-			SerialComManager scm = new SerialComManager();
+			SerialComUSB scusb = new SerialComUSB(null, null);
 			int x = 0;
 			int handle;
 			for (x=0; x<500000; x++) {
 				System.out.println("Iteration :" + x);
 				USBHotPlugEventHandler eventhandler = new USBHotPlugEventHandler();
-				handle = scm.registerUSBHotPlugEventListener(eventhandler, 0x0403, 0x6001, null);
-				scm.unregisterUSBHotPlugEventListener(handle);
+				handle = scusb.registerUSBHotPlugEventListener(eventhandler, 0x0403, 0x6001, null);
+				scusb.unregisterUSBHotPlugEventListener(handle);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

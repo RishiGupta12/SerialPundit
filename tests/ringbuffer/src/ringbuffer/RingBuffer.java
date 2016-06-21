@@ -15,7 +15,7 @@ package ringbuffer;
 
 import java.util.ArrayList;
 
-import com.embeddedunveiled.serial.util.RingArrayBlockingQueue;
+import com.serialpundit.core.util.RingArrayBlockingQueue;
 
 class Test1 implements Runnable {
 

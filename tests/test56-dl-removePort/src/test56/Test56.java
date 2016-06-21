@@ -13,24 +13,29 @@
 
 package test56;
 
-import com.embeddedunveiled.serial.ISerialComEventListener;
-import com.embeddedunveiled.serial.ISerialComUSBHotPlugListener;
-import com.embeddedunveiled.serial.SerialComException;
-import com.embeddedunveiled.serial.SerialComLineEvent;
-import com.embeddedunveiled.serial.SerialComManager;
-import com.embeddedunveiled.serial.SerialComManager.BAUDRATE;
-import com.embeddedunveiled.serial.SerialComManager.DATABITS;
-import com.embeddedunveiled.serial.SerialComManager.FLOWCONTROL;
-import com.embeddedunveiled.serial.SerialComManager.PARITY;
-import com.embeddedunveiled.serial.SerialComManager.STOPBITS;
-import com.embeddedunveiled.serial.ISerialComDataListener;
+import com.serialpundit.core.SerialComPlatform;
+import com.serialpundit.core.SerialComSystemProperty;
+import com.serialpundit.serial.ISerialComEventListener;
+import com.serialpundit.usb.ISerialComUSBHotPlugListener;
+import com.serialpundit.usb.SerialComUSB;
+import com.serialpundit.serial.SerialComException;
+import com.serialpundit.serial.SerialComLineEvent;
+import com.serialpundit.serial.SerialComManager;
+import com.serialpundit.serial.SerialComManager.BAUDRATE;
+import com.serialpundit.serial.SerialComManager.DATABITS;
+import com.serialpundit.serial.SerialComManager.FLOWCONTROL;
+import com.serialpundit.serial.SerialComManager.PARITY;
+import com.serialpundit.serial.SerialComManager.STOPBITS;
+import com.serialpundit.serial.ISerialComDataListener;
 
 class Data extends Test56 implements ISerialComDataListener {
+
 	@Override
 	public void onNewSerialDataAvailable(byte[] arg0) {
 		System.out.println("Read from serial port : " + new String(arg0));
 		System.out.println("data length : " + arg0.length );
 	}
+
 	@Override
 	public void onDataListenerError(int arg0) {
 		System.out.println("onDataListenerError called " + arg0);
@@ -38,7 +43,7 @@ class Data extends Test56 implements ISerialComDataListener {
 			scm.unregisterDataListener(handle, dataListener);
 			scm.unregisterLineEventListener(handle, eventListener);
 			scm.closeComPort(handle);
-		} catch (SerialComException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
@@ -52,7 +57,7 @@ class EventListener implements ISerialComEventListener{
 	}
 }
 
-class portWatcher implements ISerialComUSBHotPlugListener {
+class PortWatcher implements ISerialComUSBHotPlugListener {
 
 	@Override
 	public void onUSBHotPlugEvent(int arg0, int arg1, int arg2, String arg3) {
@@ -61,29 +66,32 @@ class portWatcher implements ISerialComUSBHotPlugListener {
 }
 
 public class Test56 {
-	
+
 	protected static long handle = 0;
 	protected static Data dataListener = null;
 	protected static EventListener eventListener = null;
 	protected static SerialComManager scm = null;
-	
+
 	public static void main(String[] args) {
 		try {
 			scm = new SerialComManager();
-			
+
 			String PORT = null;
 			String PORT1 = null;
-			int osType = scm.getOSType();
-			if(osType == SerialComManager.OS_LINUX) {
+			SerialComPlatform scp = new SerialComPlatform(new SerialComSystemProperty());
+			SerialComUSB scusb = new SerialComUSB(null, null);
+
+			int osType = scp.getOSType();
+			if(osType == SerialComPlatform.OS_LINUX) {
 				PORT = "/dev/ttyUSB0";
 				PORT1 = "/dev/ttyUSB1";
-			}else if(osType == SerialComManager.OS_WINDOWS) {
+			}else if(osType == SerialComPlatform.OS_WINDOWS) {
 				PORT = "COM51";
 				PORT1 = "COM52";
-			}else if(osType == SerialComManager.OS_MAC_OS_X) {
+			}else if(osType == SerialComPlatform.OS_MAC_OS_X) {
 				PORT = "/dev/cu.usbserial-A70362A3";
 				PORT1 = "/dev/cu.usbserial-A602RDCH";
-			}else if(osType == SerialComManager.OS_SOLARIS) {
+			}else if(osType == SerialComPlatform.OS_SOLARIS) {
 				PORT = null;
 				PORT1 = null;
 			}else{
@@ -92,15 +100,17 @@ public class Test56 {
 			handle = scm.openComPort(PORT, true, true, true);
 			scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
 			scm.configureComPortControl(handle, FLOWCONTROL.NONE, 'x', 'x', false, false);
+
 			dataListener = new Data();
 			eventListener = new EventListener();
-			portWatcher pw = new portWatcher();
+			PortWatcher pw = new PortWatcher();
+
 			scm.registerDataListener(handle, dataListener);
 			scm.registerLineEventListener(handle, eventListener);
-			scm.registerUSBHotPlugEventListener(portWatcher, filterVID, filterPID, serialNumber);
-			
+			scusb.registerUSBHotPlugEventListener(pw, 0x0403, 0x6001, null);
+
 			System.out.println("ready");
-			
+
 			// remove usb-uart physically from system and see onDataListenerError(int arg0) will be called
 			// where recovery policy will come into action.
 			while(true);

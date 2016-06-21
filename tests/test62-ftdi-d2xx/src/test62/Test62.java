@@ -13,16 +13,16 @@
 
 package test62;
 
-import com.embeddedunveiled.serial.SerialComManager;
-import com.embeddedunveiled.serial.vendor.FTOpenedDeviceInfo;
-import com.embeddedunveiled.serial.vendor.FTdeviceInfo;
-import com.embeddedunveiled.serial.vendor.FTdevicelistInfoNode;
-import com.embeddedunveiled.serial.vendor.SerialComFTDID2XX;
-import com.embeddedunveiled.serial.vendor.SerialComFTDID2XX.DATABITS;
-import com.embeddedunveiled.serial.vendor.SerialComFTDID2XX.FLOWCTRL;
-import com.embeddedunveiled.serial.vendor.SerialComFTDID2XX.PARITY;
-import com.embeddedunveiled.serial.vendor.SerialComFTDID2XX.STOPBITS;
-import com.embeddedunveiled.serial.vendor.SerialComVendorLib;
+import com.serialpundit.serial.SerialComManager;
+import com.serialpundit.serial.vendor.FTOpenedDeviceInfo;
+import com.serialpundit.serial.vendor.FTdeviceInfo;
+import com.serialpundit.serial.vendor.FTdevicelistInfoNode;
+import com.serialpundit.serial.vendor.SerialComFTDID2XX;
+import com.serialpundit.serial.vendor.SerialComFTDID2XX.DATABITS;
+import com.serialpundit.serial.vendor.SerialComFTDID2XX.FLOWCTRL;
+import com.serialpundit.serial.vendor.SerialComFTDID2XX.PARITY;
+import com.serialpundit.serial.vendor.SerialComFTDID2XX.STOPBITS;
+import com.serialpundit.serial.vendor.SerialComVendorLib;
 
 /* ACTIVATE correct udev rule before executing these tests. 
  * OR tools-and-utilities/udev-ftdi-unload-vcp-driver.sh */

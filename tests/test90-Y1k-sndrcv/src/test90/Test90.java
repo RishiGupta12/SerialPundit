@@ -16,16 +16,18 @@ package test90;
 import java.io.File;
 import java.util.concurrent.Executors;
 
-import com.embeddedunveiled.serial.SerialComManager;
-import com.embeddedunveiled.serial.SerialComManager.BAUDRATE;
-import com.embeddedunveiled.serial.SerialComManager.DATABITS;
-import com.embeddedunveiled.serial.SerialComManager.FLOWCONTROL;
-import com.embeddedunveiled.serial.SerialComManager.FTPPROTO;
-import com.embeddedunveiled.serial.SerialComManager.FTPVAR;
-import com.embeddedunveiled.serial.SerialComManager.PARITY;
-import com.embeddedunveiled.serial.SerialComManager.STOPBITS;
-import com.embeddedunveiled.serial.ftp.ISerialComYmodemProgress;
-import com.embeddedunveiled.serial.ftp.SerialComFTPCMDAbort;
+import com.serialpundit.core.SerialComPlatform;
+import com.serialpundit.core.SerialComSystemProperty;
+import com.serialpundit.serial.SerialComManager;
+import com.serialpundit.serial.SerialComManager.BAUDRATE;
+import com.serialpundit.serial.SerialComManager.DATABITS;
+import com.serialpundit.serial.SerialComManager.FLOWCONTROL;
+import com.serialpundit.serial.SerialComManager.FTPPROTO;
+import com.serialpundit.serial.SerialComManager.FTPVAR;
+import com.serialpundit.serial.SerialComManager.PARITY;
+import com.serialpundit.serial.SerialComManager.STOPBITS;
+import com.serialpundit.serial.ftp.ISerialComYmodemProgress;
+import com.serialpundit.serial.ftp.SerialComFTPCMDAbort;
 
 class AbortTest implements Runnable {
 
@@ -51,6 +53,7 @@ class AbortTest implements Runnable {
 public class Test90 implements ISerialComYmodemProgress {
 
 	public static SerialComManager scm = null;
+	public static SerialComPlatform scp = null;
 	public static String PORT1 = null;
 	public static String PORT2 = null;
 	public static String sndtxt1 = null;
@@ -72,9 +75,10 @@ public class Test90 implements ISerialComYmodemProgress {
 	public static void main(String[] args) {
 		try {
 			scm = new SerialComManager();
+			scp = new SerialComPlatform(new SerialComSystemProperty());
 
-			int osType = scm.getOSType();
-			if(osType == SerialComManager.OS_LINUX) {
+			int osType = scp.getOSType();
+			if(osType == SerialComPlatform.OS_LINUX) {
 				PORT1 = "/dev/ttyUSB0";
 				PORT2 = "/dev/ttyUSB1";
 				sndtxt1 = "/home/r/ws-host-uart/ftptest/f1.txt";
@@ -85,20 +89,17 @@ public class Test90 implements ISerialComYmodemProgress {
 				rcvdiry1 = "/home/r/ws-host-uart/ftptest/rcvdiry1";
 				rcvdiry2 = "/home/r/ws-host-uart/ftptest/rcvdiry2";
 				rcvdiry3 = "/home/r/ws-host-uart/ftptest/rcvdiry3";
-			}else if(osType == SerialComManager.OS_WINDOWS) {
+			}else if(osType == SerialComPlatform.OS_WINDOWS) {
 				PORT1 = "COM51";
 				PORT2 = "COM52";
-			}else if(osType == SerialComManager.OS_MAC_OS_X) {
+			}else if(osType == SerialComPlatform.OS_MAC_OS_X) {
 				PORT1 = "/dev/cu.usbserial-A70362A3";
 				PORT2 = "/dev/cu.usbserial-A602RDCH";
-			}else if(osType == SerialComManager.OS_SOLARIS) {
+			}else if(osType == SerialComPlatform.OS_SOLARIS) {
 				PORT1 = null;
 				PORT2 = null;
 			}else{
 			}
-
-			PORT1 = "/dev/pts/2";
-			PORT2 = "/dev/pts/3";
 
 			Executors.newSingleThreadExecutor().execute(new Runnable() {
 				@Override 

@@ -13,13 +13,15 @@
 
 package test85;
 
-import com.embeddedunveiled.serial.SerialComException;
-import com.embeddedunveiled.serial.SerialComManager;
-import com.embeddedunveiled.serial.SerialComManager.BAUDRATE;
-import com.embeddedunveiled.serial.SerialComManager.DATABITS;
-import com.embeddedunveiled.serial.SerialComManager.FLOWCONTROL;
-import com.embeddedunveiled.serial.SerialComManager.PARITY;
-import com.embeddedunveiled.serial.SerialComManager.STOPBITS;
+import com.serialpundit.serial.SerialComException;
+import com.serialpundit.core.SerialComPlatform;
+import com.serialpundit.core.SerialComSystemProperty;
+import com.serialpundit.serial.SerialComManager;
+import com.serialpundit.serial.SerialComManager.BAUDRATE;
+import com.serialpundit.serial.SerialComManager.DATABITS;
+import com.serialpundit.serial.SerialComManager.FLOWCONTROL;
+import com.serialpundit.serial.SerialComManager.PARITY;
+import com.serialpundit.serial.SerialComManager.STOPBITS;
 
 class UnblockBlocked extends Test85 implements Runnable {
 	@Override
@@ -38,6 +40,7 @@ class UnblockBlocked extends Test85 implements Runnable {
 public class Test85  {
 
 	public static SerialComManager scm = null;
+	public static SerialComPlatform scp = null;
 	public static int osType = 0;
 	public static int ret = 0;
 	public static String PORT = null;
@@ -52,26 +55,30 @@ public class Test85  {
 
 		try {
 			scm = new SerialComManager();
+			scp = new SerialComPlatform(new SerialComSystemProperty());
 		} catch (Exception e) {
 			e.printStackTrace();
 			return;
 		}
 
-		osType = scm.getOSType();
-		if(osType == SerialComManager.OS_LINUX) {
+		osType = scp.getOSType();
+		if(osType == SerialComPlatform.OS_LINUX) {
 			PORT = "/dev/ttyUSB0";
 			PORT1 = "/dev/ttyUSB1";
-		}else if(osType == SerialComManager.OS_WINDOWS) {
+		}else if(osType == SerialComPlatform.OS_WINDOWS) {
 			PORT = "COM51";
 			PORT1 = "COM52";
-		}else if(osType == SerialComManager.OS_MAC_OS_X) {
+		}else if(osType == SerialComPlatform.OS_MAC_OS_X) {
 			PORT = "/dev/cu.usbserial-A70362A3";
 			PORT1 = "/dev/cu.usbserial-A602RDCH";
-		}else if(osType == SerialComManager.OS_SOLARIS) {
+		}else if(osType == SerialComPlatform.OS_SOLARIS) {
 			PORT = null;
 			PORT1 = null;
 		}else{
 		}
+		
+		PORT = "/dev/pts/18";
+		PORT1 = "/dev/pts/19";
 
 		System.out.println("\n~~~~~~~~~~~~~~~~~~~~~~~~~ TEST 1 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ \n");
 
@@ -93,7 +100,7 @@ public class Test85  {
 			scm.writeBytes(handle, "TESTSTRING".getBytes(), 0);
 			Thread.sleep(100);
 			// read : 8469838483848273787100
-			scm.readBytes(handle1, buffer, 0, 11, -1);
+			scm.readBytes(handle1, buffer, 0, 11, -1, null);
 			System.out.println("\nread : " + buffer[0] + buffer[1] + buffer[2] + buffer[3] + buffer[4] + buffer[5] + buffer[6] + 
 					buffer[7] + buffer[8] + buffer[9] + buffer[10] + buffer[11]);
 		} catch (Exception e) {
@@ -131,7 +138,7 @@ public class Test85  {
 			Thread.sleep(100);
 
 			// read : 8469838483848273787100
-			scm.readBytes(handle1, buffer, 0, 11, context);
+			scm.readBytes(handle1, buffer, 0, 11, context, null);
 			System.out.println("\nread : " + buffer[0] + buffer[1] + buffer[2] + buffer[3] + buffer[4] + buffer[5] + buffer[6] + 
 					buffer[7] + buffer[8] + buffer[9] + buffer[10] + buffer[11]);
 			scm.destroyBlockingIOContext(context);
@@ -170,7 +177,7 @@ public class Test85  {
 			System.out.println("Proccedding to call read which will block because of no data !");
 
 			// read : 8469838483848273787100, it will block
-			scm.readBytes(handle1, buffer, 0, 11, context);
+			scm.readBytes(handle1, buffer, 0, 11, context, null);
 			System.out.println("\nread : " + buffer[0] + buffer[1] + buffer[2] + buffer[3] + buffer[4] + buffer[5] + buffer[6] + 
 					buffer[7] + buffer[8] + buffer[9] + buffer[10] + buffer[11]);
 		} catch (Exception e) {

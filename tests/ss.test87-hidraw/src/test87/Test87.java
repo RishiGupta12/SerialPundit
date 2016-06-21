@@ -13,28 +13,39 @@
 
 package test87;
 
-import com.embeddedunveiled.serial.SerialComManager;
-import com.embeddedunveiled.serial.hid.IHIDInputReportListener;
-import com.embeddedunveiled.serial.hid.SerialComHID;
-import com.embeddedunveiled.serial.hid.SerialComRawHID;
+import com.serialpundit.usb.SerialComUSB;
+import com.serialpundit.usb.SerialComUSBHID;
+import com.serialpundit.usb.SerialComUSBHIDdevice;
+import com.serialpundit.core.SerialComPlatform;
+import com.serialpundit.core.SerialComSystemProperty;
+import com.serialpundit.hid.IHIDInputReportListener;
+import com.serialpundit.hid.SerialComRawHID;
 
 //tested with MCP2200 for HID raw mode communication
 public class Test87 implements IHIDInputReportListener {
 
 	public static void main(String[] args) {
-		try {
-			SerialComManager scm = new SerialComManager();
-			SerialComRawHID scrh = (SerialComRawHID) scm.getSerialComHIDInstance(SerialComHID.MODE_RAW, null, null);
 
-			String PORT = null;
-			int osType = scm.getOSType();
-			if(osType == SerialComManager.OS_LINUX) {
+		SerialComRawHID scrh = null;
+		SerialComPlatform scp = null;
+		String PORT = null;
+
+		try {
+			try {
+				scrh = new SerialComRawHID(null, null);
+				scp = new SerialComPlatform(new SerialComSystemProperty());
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+			int osType = scp.getOSType();
+			if(osType == SerialComPlatform.OS_LINUX) {
 				PORT = "/dev/hidraw1";
-			}else if(osType == SerialComManager.OS_WINDOWS) {
-				PORT = "";
-			}else if(osType == SerialComManager.OS_MAC_OS_X) {
-				PORT = "";
-			}else if(osType == SerialComManager.OS_SOLARIS) {
+			}else if(osType == SerialComPlatform.OS_WINDOWS) {
+				PORT = "HID\\VID_04D8&PID_00DF&MI_02\\7&33842c3f&0&0000";
+			}else if(osType == SerialComPlatform.OS_MAC_OS_X) {
+				PORT = null;
+			}else if(osType == SerialComPlatform.OS_SOLARIS) {
 				PORT = null;
 			}else{
 			}
@@ -62,7 +73,7 @@ public class Test87 implements IHIDInputReportListener {
 				e.printStackTrace();
 			}
 
-			if(osType == SerialComManager.OS_LINUX) {
+			if(osType == SerialComPlatform.OS_LINUX) {
 				try {
 					for(int x=0; x<1000; x++) {
 						long handle = scrh.openHidDeviceR(PORT, true);
@@ -134,7 +145,7 @@ public class Test87 implements IHIDInputReportListener {
 				e.printStackTrace();
 			}
 
-			if(osType == SerialComManager.OS_WINDOWS) {
+			if(osType == SerialComPlatform.OS_WINDOWS) {
 				try {
 					for(int x=0; x<1000; x++) {
 						long handle = scrh.openHidDeviceR(PORT, true);

@@ -13,27 +13,28 @@
 
 package test48;
 
-import com.embeddedunveiled.serial.SerialComManager;
+import com.serialpundit.core.SerialComPlatform;
+import com.serialpundit.core.SerialComSystemProperty;
 
 public class Test48 {
+
 	public static void main(String[] args) {
-		SerialComManager scm = null;
-		try {
-			scm = new SerialComManager();
-		} catch (Exception e1) {
-			e1.printStackTrace();
-		} 
+
+		SerialComSystemProperty prop = new SerialComSystemProperty();
+		SerialComPlatform scp = new SerialComPlatform(prop);
+
+		int osType = scp.getOSType();
 
 		try {
-			int osType = scm.getOSType();
+			osType = scp.getOSType();
 			System.out.println("OS : " + osType + "\n");
-			if(osType == SerialComManager.OS_LINUX) {
+			if(osType == SerialComPlatform.OS_LINUX) {
 				System.out.println("OS IS LINUX");
-			}else if(osType == SerialComManager.OS_WINDOWS) {
+			}else if(osType == SerialComPlatform.OS_WINDOWS) {
 				System.out.println("OS IS WINDOWS");
-			}else if(osType == SerialComManager.OS_MAC_OS_X) {
+			}else if(osType == SerialComPlatform.OS_MAC_OS_X) {
 				System.out.println("OS IS MAC");
-			}else if(osType == SerialComManager.OS_SOLARIS) {
+			}else if(osType == SerialComPlatform.OS_SOLARIS) {
 				System.out.println("OS IS SOLARIS");
 			}else{
 			}
@@ -42,15 +43,15 @@ public class Test48 {
 		}
 
 		try {
-			int cpuArch = scm.getCPUArchitecture();
+			int cpuArch = scp.getCPUArch(osType);
 			System.out.println("ARCH : " + cpuArch + "\n");
-			if(cpuArch == SerialComManager.ARCH_X86) {
+			if(cpuArch == SerialComPlatform.ARCH_X86) {
 				System.out.println("i386/i486/i586/i686/i786/i886/i986/IA-32 based architecture");
-			}else if(cpuArch == SerialComManager.ARCH_AMD64) {
+			}else if(cpuArch == SerialComPlatform.ARCH_AMD64) {
 				System.out.println("x86_64/amd64 architecture");
-			}else if(cpuArch == SerialComManager.ARCH_IA64) {
+			}else if(cpuArch == SerialComPlatform.ARCH_IA64) {
 				System.out.println("ARCH_IA64 architecture");
-			}else if(cpuArch == SerialComManager.ARCH_IA64_32) {
+			}else if(cpuArch == SerialComPlatform.ARCH_IA64_32) {
 				System.out.println("ARCH_IA64_32 architectures");
 			}else{
 			}

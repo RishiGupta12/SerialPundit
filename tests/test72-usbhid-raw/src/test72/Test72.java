@@ -13,19 +13,17 @@
 
 package test72;
 
-import com.embeddedunveiled.serial.SerialComException;
-import com.embeddedunveiled.serial.SerialComManager;
-import com.embeddedunveiled.serial.hid.IHIDInputReportListener;
-import com.embeddedunveiled.serial.hid.SerialComHID;
-import com.embeddedunveiled.serial.hid.SerialComRawHID;
-import com.embeddedunveiled.serial.usb.SerialComUSBHID;
+import com.serialpundit.core.SerialComException;
+import com.serialpundit.core.SerialComPlatform;
+import com.serialpundit.core.SerialComSystemProperty;
+import com.serialpundit.hid.IHIDInputReportListener;
+import com.serialpundit.hid.SerialComRawHID;
 
 // tested with MCP2200 for HID raw mode communication
 public class Test72 implements IHIDInputReportListener {
 
-	public static SerialComManager scm = null;
-	public static SerialComUSBHID scuh = null;
 	public static SerialComRawHID scrh = null;
+	static SerialComPlatform scp;
 	public static int osType = 0;
 	public static String PORT = null;
 	public static long handle = 0;
@@ -34,7 +32,6 @@ public class Test72 implements IHIDInputReportListener {
 	public static byte[] outputReportBuffer = new byte[16];
 
 	// callback invoked whenever report is available
-	@Override
 	public void onNewInputReportAvailable(int numBytes, byte[] report) {
 		try {
 			System.out.println("Number of bytes read : " + numBytes + ", Report : " + scrh.formatReportToHexR(report, " "));
@@ -46,21 +43,20 @@ public class Test72 implements IHIDInputReportListener {
 	public static void main(String[] args) {
 
 		try {
-			scm = new SerialComManager();
-			scrh = (SerialComRawHID) scm.getSerialComHIDInstance(SerialComHID.MODE_RAW, null, null);
-			scuh = (SerialComUSBHID) scrh.getHIDTransportInstance(SerialComHID.HID_USB);
+			scrh = new SerialComRawHID(null, null);
+			scp = new SerialComPlatform(new SerialComSystemProperty());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
-		osType = scm.getOSType();
-		if(osType == SerialComManager.OS_LINUX) {
+		osType = scp.getOSType();
+		if(osType == SerialComPlatform.OS_LINUX) {
 			PORT = "/dev/hidraw1";
-		}else if(osType == SerialComManager.OS_WINDOWS) {
+		}else if(osType == SerialComPlatform.OS_WINDOWS) {
 			PORT = "HID\\VID_04D8&PID_00DF&MI_02\\7&33842c3f&0&0000";
-		}else if(osType == SerialComManager.OS_MAC_OS_X) {
+		}else if(osType == SerialComPlatform.OS_MAC_OS_X) {
 			PORT = null;
-		}else if(osType == SerialComManager.OS_SOLARIS) {
+		}else if(osType == SerialComPlatform.OS_SOLARIS) {
 			PORT = null;
 		}else{
 		}

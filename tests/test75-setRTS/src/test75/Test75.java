@@ -13,29 +13,34 @@
 
 package test75;
 
-import com.embeddedunveiled.serial.SerialComManager;
-import com.embeddedunveiled.serial.SerialComManager.BAUDRATE;
-import com.embeddedunveiled.serial.SerialComManager.DATABITS;
-import com.embeddedunveiled.serial.SerialComManager.FLOWCONTROL;
-import com.embeddedunveiled.serial.SerialComManager.PARITY;
-import com.embeddedunveiled.serial.SerialComManager.STOPBITS;
+import com.serialpundit.core.SerialComPlatform;
+import com.serialpundit.core.SerialComSystemProperty;
+import com.serialpundit.serial.SerialComManager;
+import com.serialpundit.serial.SerialComManager.BAUDRATE;
+import com.serialpundit.serial.SerialComManager.DATABITS;
+import com.serialpundit.serial.SerialComManager.FLOWCONTROL;
+import com.serialpundit.serial.SerialComManager.PARITY;
+import com.serialpundit.serial.SerialComManager.STOPBITS;
 
 // use digital multi meter or oscilloscope to test this
 
 public class Test75 {
+
 	public static void main(String[] args) {
 		try {
 			SerialComManager scm = new SerialComManager();
 
+			SerialComPlatform scp = new SerialComPlatform(new SerialComSystemProperty());
+
 			String PORT = null;
-			int osType = scm.getOSType();
-			if(osType == SerialComManager.OS_LINUX) {
+			int osType = scp.getOSType();
+			if(osType == SerialComPlatform.OS_LINUX) {
 				PORT = "/dev/ttyUSB0";
-			}else if(osType == SerialComManager.OS_WINDOWS) {
+			}else if(osType == SerialComPlatform.OS_WINDOWS) {
 				PORT = "COM51";
-			}else if(osType == SerialComManager.OS_MAC_OS_X) {
+			}else if(osType == SerialComPlatform.OS_MAC_OS_X) {
 				PORT = "/dev/cu.usbserial-A70362A3";
-			}else if(osType == SerialComManager.OS_SOLARIS) {
+			}else if(osType == SerialComPlatform.OS_SOLARIS) {
 				PORT = null;
 			}else{
 			}
@@ -43,6 +48,8 @@ public class Test75 {
 			long handle = scm.openComPort(PORT, true, true, true);
 			scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
 			scm.configureComPortControl(handle, FLOWCONTROL.NONE, 'x', 'x', false, false);
+
+			System.out.println("test started");
 
 			int x = 0;
 			for(x=0; x<5; x++) {
@@ -53,6 +60,8 @@ public class Test75 {
 			}
 
 			scm.closeComPort(handle);
+
+			System.out.println("done");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

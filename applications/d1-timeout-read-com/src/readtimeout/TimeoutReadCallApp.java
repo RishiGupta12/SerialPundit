@@ -13,75 +13,77 @@
 
 package readtimeout;
 
-import com.embeddedunveiled.serial.SerialComException;
-import com.embeddedunveiled.serial.SerialComManager;
-import com.embeddedunveiled.serial.SerialComManager.BAUDRATE;
-import com.embeddedunveiled.serial.SerialComManager.DATABITS;
-import com.embeddedunveiled.serial.SerialComManager.FLOWCONTROL;
-import com.embeddedunveiled.serial.SerialComManager.PARITY;
-import com.embeddedunveiled.serial.SerialComManager.STOPBITS;
+import com.serialpundit.core.SerialComException;
+import com.serialpundit.core.SerialComPlatform;
+import com.serialpundit.core.SerialComSystemProperty;
+import com.serialpundit.serial.SerialComManager;
+import com.serialpundit.serial.SerialComManager.BAUDRATE;
+import com.serialpundit.serial.SerialComManager.DATABITS;
+import com.serialpundit.serial.SerialComManager.FLOWCONTROL;
+import com.serialpundit.serial.SerialComManager.PARITY;
+import com.serialpundit.serial.SerialComManager.STOPBITS;
 
 public final class TimeoutReadCallApp {
 
-	public static void main(String[] args) {
+    public static void main(String[] args) {
 
-		String PORT = null;
-		long handle = -1;
-		byte[] dataRead;
+        String PORT = null;
+        long handle = -1;
+        byte[] dataRead;
 
-		// get serial communication manager instance
-		SerialComManager scm;
-		try {
-			scm = new SerialComManager();
-		} catch (Exception e) {
-			e.printStackTrace();
-			return;
-		}
+        SerialComManager scm;
+        SerialComPlatform scp = new SerialComPlatform(new SerialComSystemProperty());
 
-		int osType = scm.getOSType();
-		if(osType == SerialComManager.OS_LINUX) {
-			PORT = "/dev/ttyUSB0";
-		}else if(osType == SerialComManager.OS_WINDOWS) {
-			PORT = "COM51";
-		}else if(osType == SerialComManager.OS_MAC_OS_X) {
-			PORT = "/dev/cu.usbserial-A70362A3";
-		}else if(osType == SerialComManager.OS_SOLARIS) {
-			PORT = null;
-		}else{
-		}
+        // get serial communication manager instance
+        try {
+            scm = new SerialComManager();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return;
+        }
 
-		try {
-			handle = scm.openComPort(PORT, true, true, true);
-			scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B9600, 0);
-			scm.configureComPortControl(handle, FLOWCONTROL.NONE, 'x', 'x', false, false);
+        int osType = scp.getOSType();
+        if(osType == SerialComPlatform.OS_LINUX) {
+            PORT = "/dev/ttyUSB0";
+        }else if(osType == SerialComPlatform.OS_WINDOWS) {
+            PORT = "COM51";
+        }else if(osType == SerialComPlatform.OS_MAC_OS_X) {
+            PORT = "/dev/cu.usbserial-A70362A3";
+        }else{
+        }
 
-			scm.writeString(handle, "test ", 0);
+        try {
+            handle = scm.openComPort(PORT, true, true, true);
+            scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B9600, 0);
+            scm.configureComPortControl(handle, FLOWCONTROL.NONE, 'x', 'x', false, false);
 
-			// Tune read method behaviour (500 milliseconds wait timeout value)
-			if(osType == SerialComManager.OS_WINDOWS) {
-				scm.fineTuneReadBehaviour(handle, 0, 0, 0, 0 , 0);
-			}else {
-				scm.fineTuneReadBehaviour(handle, 0, 5, 0, 0 , 0);
-			}
+            scm.writeString(handle, "test ", 0);
 
-			// This will return only after given timeout has expired
-			dataRead = scm.readBytes(handle);
-			if(dataRead != null) {
-				System.out.println("Data read : " + new String(dataRead));
-			}else {
-				System.out.println("Timed out without reading data");
-			}
+            // Tune read method behaviour (500 milliseconds wait timeout value)
+            if(osType == SerialComPlatform.OS_WINDOWS) {
+                scm.fineTuneReadBehaviour(handle, 0, 0, 0, 0 , 0);
+            }else {
+                scm.fineTuneReadBehaviour(handle, 0, 5, 0, 0 , 0);
+            }
 
-			scm.closeComPort(handle);
-		} catch (SerialComException e) {
-			if(handle == -1) {
-				try {
-					scm.closeComPort(handle);
-				} catch (SerialComException e1) {
-				}
-			}
-			e.printStackTrace();
-		}
-	}
+            // This will return only after given timeout (500 milliseconds) has expired
+            dataRead = scm.readBytes(handle);
+            if(dataRead != null) {
+                System.out.println("Data read : " + new String(dataRead));
+            }else {
+                System.out.println("Timed out without reading data");
+            }
+
+            scm.closeComPort(handle);
+        } catch (SerialComException e) {
+            if(handle == -1) {
+                try {
+                    scm.closeComPort(handle);
+                } catch (SerialComException e1) {
+                }
+            }
+            e.printStackTrace();
+        }
+    }
 }
 

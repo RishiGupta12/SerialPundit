@@ -13,13 +13,13 @@
 
 package test79;
 
-import com.embeddedunveiled.serial.SerialComManager;
-import com.embeddedunveiled.serial.usb.SerialComUSB;
-import com.embeddedunveiled.serial.usb.SerialComUSBPowerInfo;
+import com.serialpundit.core.SerialComPlatform;
+import com.serialpundit.core.SerialComSystemProperty;
+import com.serialpundit.usb.SerialComUSB;
+import com.serialpundit.usb.SerialComUSBPowerInfo;
 
 public class Test79  {
 
-	static SerialComManager scm;
 	static int osType;
 	static String PORT;
 	static String PORT1;
@@ -27,24 +27,24 @@ public class Test79  {
 
 	public static void main(String[] args) {
 		try {
-			scm = new SerialComManager();
-			osType = scm.getOSType();
-			if(osType == SerialComManager.OS_LINUX) {
+			SerialComPlatform scp = new SerialComPlatform(new SerialComSystemProperty());
+			usbsys = new SerialComUSB(null, null);
+
+			osType = scp.getOSType();
+			if(osType == SerialComPlatform.OS_LINUX) {
 				PORT = "/dev/ttyUSB0";
 				PORT1 = "/dev/ttyUSB1";
-			}else if(osType == SerialComManager.OS_WINDOWS) {
+			}else if(osType == SerialComPlatform.OS_WINDOWS) {
 				PORT = "COM51";
 				PORT1 = "COM52";
-			}else if(osType == SerialComManager.OS_MAC_OS_X) {
+			}else if(osType == SerialComPlatform.OS_MAC_OS_X) {
 				PORT = "/dev/cu.usbserial-A70362A3";
 				PORT1 = "/dev/cu.usbserial-A602RDCH";
-			}else if(osType == SerialComManager.OS_SOLARIS) {
+			}else if(osType == SerialComPlatform.OS_SOLARIS) {
 				PORT = null;
 				PORT1 = null;
 			}else{
 			}
-
-			usbsys = scm.getSerialComUSBInstance();
 
 			SerialComUSBPowerInfo info = usbsys.getCDCUSBDevPowerInfo(PORT);
 			info.dumpDevicePowerInfo();

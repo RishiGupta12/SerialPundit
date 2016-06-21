@@ -15,12 +15,14 @@ package test4;
 
 import java.util.Arrays;
 
-import com.embeddedunveiled.serial.SerialComManager;
-import com.embeddedunveiled.serial.SerialComManager.BAUDRATE;
-import com.embeddedunveiled.serial.SerialComManager.DATABITS;
-import com.embeddedunveiled.serial.SerialComManager.FLOWCONTROL;
-import com.embeddedunveiled.serial.SerialComManager.PARITY;
-import com.embeddedunveiled.serial.SerialComManager.STOPBITS;
+import com.serialpundit.core.SerialComPlatform;
+import com.serialpundit.core.SerialComSystemProperty;
+import com.serialpundit.serial.SerialComManager;
+import com.serialpundit.serial.SerialComManager.BAUDRATE;
+import com.serialpundit.serial.SerialComManager.DATABITS;
+import com.serialpundit.serial.SerialComManager.FLOWCONTROL;
+import com.serialpundit.serial.SerialComManager.PARITY;
+import com.serialpundit.serial.SerialComManager.STOPBITS;
 
 public class Test4 {
 	public static void main(String[] args) {
@@ -28,15 +30,22 @@ public class Test4 {
 			SerialComManager scm = new SerialComManager();
 
 			String PORT = null;
-			int osType = scm.getOSType();
-			if(osType == SerialComManager.OS_LINUX) {
+			String PORT1 = null;
+			SerialComPlatform scp = new SerialComPlatform(new SerialComSystemProperty());
+
+			int osType = scp.getOSType();
+			if(osType == SerialComPlatform.OS_LINUX) {
 				PORT = "/dev/ttyUSB0";
-			}else if(osType == SerialComManager.OS_WINDOWS) {
+				PORT1 = "/dev/ttyUSB1";
+			}else if(osType == SerialComPlatform.OS_WINDOWS) {
 				PORT = "COM51";
-			}else if(osType == SerialComManager.OS_MAC_OS_X) {
+				PORT1 = "COM52";
+			}else if(osType == SerialComPlatform.OS_MAC_OS_X) {
 				PORT = "/dev/cu.usbserial-A70362A3";
-			}else if(osType == SerialComManager.OS_SOLARIS) {
+				PORT1 = "/dev/cu.usbserial-A602RDCH";
+			}else if(osType == SerialComPlatform.OS_SOLARIS) {
 				PORT = null;
+				PORT1 = null;
 			}else{
 			}
 

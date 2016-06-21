@@ -13,29 +13,33 @@
 
 package test67;
 
-import com.embeddedunveiled.serial.SerialComManager;
+import com.serialpundit.core.SerialComPlatform;
+import com.serialpundit.core.SerialComSystemProperty;
+import com.serialpundit.serial.SerialComManager;
 
 public class Test67  {
 
 	public static SerialComManager scm = null;
 	public static String PORT = null;
 	public static String PORT1 = null;
+	public static int osType = 0;
 
 	public static void main(String[] args) {
 		try {
 			scm = new SerialComManager();
+			SerialComPlatform scp = new SerialComPlatform(new SerialComSystemProperty());
 
-			int osType = scm.getOSType();
-			if(osType == SerialComManager.OS_LINUX) {
+			osType = scp.getOSType();
+			if(osType == SerialComPlatform.OS_LINUX) {
 				PORT = "/dev/ttyUSB0";
-				PORT1 = "/dev/ttyS1";
-			}else if(osType == SerialComManager.OS_WINDOWS) {
+				PORT1 = "/dev/ttyUSB1";
+			}else if(osType == SerialComPlatform.OS_WINDOWS) {
 				PORT = "COM51";
 				PORT1 = "COM52";
-			}else if(osType == SerialComManager.OS_MAC_OS_X) {
+			}else if(osType == SerialComPlatform.OS_MAC_OS_X) {
 				PORT = "/dev/cu.usbserial-A70362A3";
 				PORT1 = "/dev/cu.usbserial-A602RDCH";
-			}else if(osType == SerialComManager.OS_SOLARIS) {
+			}else if(osType == SerialComPlatform.OS_SOLARIS) {
 				PORT = null;
 				PORT1 = null;
 			}else{

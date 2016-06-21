@@ -13,7 +13,9 @@
 
 package test1;
 
-import com.embeddedunveiled.serial.SerialComManager;
+import com.serialpundit.serial.SerialComManager;
+
+//import com.embeddedunveiled.serial.SerialComManager;
 
 /*
  * Must find :

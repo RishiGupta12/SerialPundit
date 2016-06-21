@@ -13,13 +13,17 @@
 
 package test3;
 
-import com.embeddedunveiled.serial.SerialComManager;
-import com.embeddedunveiled.serial.SerialComManager.BAUDRATE;
-import com.embeddedunveiled.serial.SerialComManager.DATABITS;
-import com.embeddedunveiled.serial.SerialComManager.FLOWCONTROL;
-import com.embeddedunveiled.serial.SerialComManager.PARITY;
-import com.embeddedunveiled.serial.SerialComManager.STOPBITS;
-import com.embeddedunveiled.serial.ISerialComDataListener;
+import com.serialpundit.core.SerialComPlatform;
+import com.serialpundit.core.SerialComSystemProperty;
+import com.serialpundit.serial.SerialComManager;
+import com.serialpundit.serial.SerialComManager.BAUDRATE;
+import com.serialpundit.serial.SerialComManager.DATABITS;
+import com.serialpundit.serial.SerialComManager.FLOWCONTROL;
+import com.serialpundit.serial.SerialComManager.PARITY;
+import com.serialpundit.serial.SerialComManager.STOPBITS;
+import com.serialpundit.serial.ISerialComDataListener;
+import com.serialpundit.serial.ISerialComEventListener;
+import com.serialpundit.serial.SerialComLineEvent;
 
 class Data implements ISerialComDataListener {
 
@@ -43,17 +47,19 @@ public class Test3 {
 
 			String PORT = null;
 			String PORT1 = null;
-			int osType = scm.getOSType();
-			if(osType == SerialComManager.OS_LINUX) {
+			SerialComPlatform scp = new SerialComPlatform(new SerialComSystemProperty());
+
+			int osType = scp.getOSType();
+			if(osType == SerialComPlatform.OS_LINUX) {
 				PORT = "/dev/ttyUSB0";
 				PORT1 = "/dev/ttyUSB1";
-			}else if(osType == SerialComManager.OS_WINDOWS) {
+			}else if(osType == SerialComPlatform.OS_WINDOWS) {
 				PORT = "COM51";
 				PORT1 = "COM52";
-			}else if(osType == SerialComManager.OS_MAC_OS_X) {
+			}else if(osType == SerialComPlatform.OS_MAC_OS_X) {
 				PORT = "/dev/cu.usbserial-A70362A3";
 				PORT1 = "/dev/cu.usbserial-A602RDCH";
-			}else if(osType == SerialComManager.OS_SOLARIS) {
+			}else if(osType == SerialComPlatform.OS_SOLARIS) {
 				PORT = null;
 				PORT1 = null;
 			}else{
@@ -79,7 +85,7 @@ public class Test3 {
 			scm.writeString(handle1, "test string", 0);
 			Thread.sleep(1000); // wait for data to be displayed on console
 
-			if(osType == SerialComManager.OS_LINUX) {
+			if(osType == SerialComPlatform.OS_LINUX) {
 				scm.fineTuneReadBehaviour(handle, 5, 1, 0, 0, 0);
 			}
 

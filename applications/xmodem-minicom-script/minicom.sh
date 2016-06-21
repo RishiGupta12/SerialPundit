@@ -16,7 +16,7 @@
 # sudo apt-get install xdotool
 
 # Run this script as ./minicom.sh RECEIVE_PORT RECEIVE_FILE SEND_PORT SEND_FILE
-# For ex; ./minicom.sh /dev/pts/1 /home/user/xyz/pic.txt /dev/pts/3 /home/user/xyz/pic1.txt
+# For ex; ./minicom.sh /dev/ttyUSB0 /home/user/xyz/pic.txt /dev/ttyUSB1 /home/user/xyz/pic1.txt
 # *_PORT and *_FILE must be absolute names (with path).
 
 set -e
@@ -42,7 +42,7 @@ fi
 
 # compile java source files
 cd "$(dirname "$0")"
-javac -cp ./scm-1.0.4.jar ./Java/com/xmodemftp/XmodemFTPFileReceiver.java
+javac -cp ./sp-tty.jar:sp-core.jar ./Java/com/xmodemftp/XmodemFTPFileReceiver.java
 
 # create application jar
 cd Java
@@ -50,7 +50,7 @@ jar -cfe ../app.jar com.xmodemftp.XmodemFTPFileReceiver com/xmodemftp/XmodemFTPF
 
 # launch receiver
 cd ..
-(sleep 13; java -cp .:scm-1.0.4.jar:app.jar com.xmodemftp.XmodemFTPFileReceiver $1 $2; exit 0)&
+(sleep 13; java -cp .:sp-tty.jar:sp-core.jar:app.jar com.xmodemftp.XmodemFTPFileReceiver $1 $2; exit 0)&
 
 ###### Setup and start file sender SHELL SCRIPT(S)
 

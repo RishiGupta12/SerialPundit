@@ -23,34 +23,34 @@ import javax.swing.KeyStroke;
 
 public final class MenuBar {
 
-	private final SerialTerminalApp sertermapp;
+    private final SerialTerminalApp sertermapp;
 
-	public MenuBar(SerialTerminalApp sertermapp) {
-		this.sertermapp = sertermapp;
-	}
+    public MenuBar(SerialTerminalApp sertermapp) {
+        this.sertermapp = sertermapp;
+    }
 
-	public JMenuBar setUpMenuBar() {
+    public JMenuBar setUpMenuBar() {
 
-		JMenuBar menubar = new JMenuBar();
+        JMenuBar menubar = new JMenuBar();
 
-		// file menu
-		JMenu file = new JMenu("File");
-		file.setMnemonic(KeyEvent.VK_F);
+        // file menu
+        JMenu file = new JMenu("File");
+        file.setMnemonic(KeyEvent.VK_F);
 
-		// exit option
-		JMenuItem fileExit = new JMenuItem("Exit");
-		fileExit.setMnemonic(KeyEvent.VK_C);
-		fileExit.setToolTipText("Exit application");
-		fileExit.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W,ActionEvent.CTRL_MASK));
-		fileExit.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				sertermapp.triggerAppExit();
-			}
-		});
-		file.add(fileExit);
+        // exit option
+        JMenuItem fileExit = new JMenuItem("Exit");
+        fileExit.setMnemonic(KeyEvent.VK_C);
+        fileExit.setToolTipText("Exit application");
+        fileExit.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W,ActionEvent.CTRL_MASK));
+        fileExit.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                sertermapp.triggerAppExit();
+            }
+        });
+        file.add(fileExit);
 
-		menubar.add(file);
+        menubar.add(file);
 
-		return menubar;
-	}
+        return menubar;
+    }
 }

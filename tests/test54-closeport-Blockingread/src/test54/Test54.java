@@ -13,14 +13,16 @@
 
 package test54;
 
-import com.embeddedunveiled.serial.SerialComManager;
-import com.embeddedunveiled.serial.SerialComInByteStream;
-import com.embeddedunveiled.serial.SerialComManager.BAUDRATE;
-import com.embeddedunveiled.serial.SerialComManager.DATABITS;
-import com.embeddedunveiled.serial.SerialComManager.FLOWCONTROL;
-import com.embeddedunveiled.serial.SerialComManager.PARITY;
-import com.embeddedunveiled.serial.SerialComManager.SMODE;
-import com.embeddedunveiled.serial.SerialComManager.STOPBITS;
+import com.serialpundit.core.SerialComPlatform;
+import com.serialpundit.core.SerialComSystemProperty;
+import com.serialpundit.serial.SerialComInByteStream;
+import com.serialpundit.serial.SerialComManager;
+import com.serialpundit.serial.SerialComManager.BAUDRATE;
+import com.serialpundit.serial.SerialComManager.DATABITS;
+import com.serialpundit.serial.SerialComManager.FLOWCONTROL;
+import com.serialpundit.serial.SerialComManager.PARITY;
+import com.serialpundit.serial.SerialComManager.SMODE;
+import com.serialpundit.serial.SerialComManager.STOPBITS;
 
 class ClosePort extends Test54 implements Runnable {
 	@Override
@@ -42,25 +44,28 @@ public class Test54 {
 	private static Thread mThread = null;
 	public static long handle = 0;
 	public static SerialComManager scm = null;
+	public static SerialComPlatform scp = null;
 	public static SerialComInByteStream in = null;
+	public static int osType;
 
 	public static void main(String[] args) {
 		try {
 			scm = new SerialComManager();
+			scp = new SerialComPlatform(new SerialComSystemProperty());
 
 			String PORT = null;
 			String PORT1 = null;
-			int osType = scm.getOSType();
-			if(osType == SerialComManager.OS_LINUX) {
+			osType = scp.getOSType();
+			if(osType == SerialComPlatform.OS_LINUX) {
 				PORT = "/dev/ttyUSB0";
 				PORT1 = "/dev/ttyUSB1";
-			}else if(osType == SerialComManager.OS_WINDOWS) {
+			}else if(osType == SerialComPlatform.OS_WINDOWS) {
 				PORT = "COM51";
 				PORT1 = "COM52";
-			}else if(osType == SerialComManager.OS_MAC_OS_X) {
+			}else if(osType == SerialComPlatform.OS_MAC_OS_X) {
 				PORT = "/dev/cu.usbserial-A70362A3";
 				PORT1 = "/dev/cu.usbserial-A602RDCH";
-			}else if(osType == SerialComManager.OS_SOLARIS) {
+			}else if(osType == SerialComPlatform.OS_SOLARIS) {
 				PORT = null;
 				PORT1 = null;
 			}else{
@@ -71,7 +76,7 @@ public class Test54 {
 			scm.configureComPortControl(handle, FLOWCONTROL.NONE, 'x', 'x', false, false);
 
 			// test 1
-			in = scm.createInputByteStream(handle, SMODE.BLOCKING);
+			in = (SerialComInByteStream) scm.getIOStreamInstance(SerialComManager.InputStream, handle, SMODE.BLOCKING);
 			mThread = new Thread(new ClosePort());
 			mThread.start();
 			System.out.println("1- created input stream, proccedding to call read which will block because of no data !");
@@ -81,7 +86,7 @@ public class Test54 {
 			Thread.sleep(1000); // let the previous stream be closed and removed from information object in SerialComManager class
 
 			// test 2
-			in = scm.createInputByteStream(handle, SMODE.BLOCKING);
+			in = (SerialComInByteStream) scm.getIOStreamInstance(SerialComManager.InputStream, handle, SMODE.BLOCKING);
 			mThread = new Thread(new ClosePort());
 			mThread.start();
 			System.out.println("\n1- created input stream, proccedding to call read which will block because of no data !");

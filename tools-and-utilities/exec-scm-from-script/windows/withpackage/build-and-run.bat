@@ -18,15 +18,15 @@
 
 set CURDIR=%~dp0
 
-if not exist "%CURDIR%scm-1.0.4.jar" goto ERROR
+if not exist "%CURDIR%sp-core.jar:sp-tty.jar" goto ERROR
 if not exist "%CURDIR%test\FindPorts.java" goto ERROR
 
-javac -cp "%CURDIR%scm-1.0.4.jar" %CURDIR%test\FindPorts.java
+javac -cp "%CURDIR%sp-core.jar:sp-tty.jar" %CURDIR%test\FindPorts.java
 
-java -cp ".;%CLASSPATH%;%CURDIR%;%CURDIR%scm-1.0.4.jar" test.FindPorts
+java -cp ".;%CLASSPATH%;%CURDIR%;%CURDIR%sp-core.jar:sp-tty.jar" test.FindPorts
 
 Exit /b
 
 :ERROR
-echo Either scm-1.0.4.jar or test\FindPorts.java file is not present in current directory.
+echo Either sp-core.jar,sp-tty.jar or test\FindPorts.java file is not present in current directory.
 

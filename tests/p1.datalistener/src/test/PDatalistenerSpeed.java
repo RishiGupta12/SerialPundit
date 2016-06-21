@@ -15,14 +15,14 @@ package test;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import com.embeddedunveiled.serial.SerialComException;
-import com.embeddedunveiled.serial.SerialComManager;
-import com.embeddedunveiled.serial.SerialComManager.BAUDRATE;
-import com.embeddedunveiled.serial.SerialComManager.DATABITS;
-import com.embeddedunveiled.serial.SerialComManager.FLOWCONTROL;
-import com.embeddedunveiled.serial.SerialComManager.PARITY;
-import com.embeddedunveiled.serial.SerialComManager.STOPBITS;
-import com.embeddedunveiled.serial.ISerialComDataListener;
+import com.serialpundit.core.SerialComException;
+import com.serialpundit.serial.ISerialComDataListener;
+import com.serialpundit.serial.SerialComManager;
+import com.serialpundit.serial.SerialComManager.BAUDRATE;
+import com.serialpundit.serial.SerialComManager.DATABITS;
+import com.serialpundit.serial.SerialComManager.FLOWCONTROL;
+import com.serialpundit.serial.SerialComManager.PARITY;
+import com.serialpundit.serial.SerialComManager.STOPBITS;
 
 class Reader implements ISerialComDataListener {
 
@@ -69,8 +69,8 @@ public final class PDatalistenerSpeed {
 		try {
 			SerialComManager scm = new SerialComManager();
 
-			String PORT = "/dev/pts/1";
-			String PORT1 = "/dev/pts/3";
+			String PORT = "/dev/ttyUSB0";
+			String PORT1 = "/dev/ttyUSB1";
 
 			// instantiate class which is will implement ISerialComDataListener interface
 			Reader dataListener = new Reader();

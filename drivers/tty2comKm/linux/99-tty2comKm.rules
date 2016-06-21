@@ -11,6 +11,14 @@
 # without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 #################################################################################################
 
+# We can also add user to dialout group if it is not member of dialout group.
+# $groups YOURUSERNAME
+# $sudo gpasswd --add YOURUSERNAME dialout
+# Logout then login and then insert the USB-UART device.
+
+# It may be required to reload udev rules if the udev rule file is added in running system.
+# $ sudo udevadm control --reload-rules
+# $ sudo udevadm trigger --attr-match=subsystem=tty
 
 ACTION=="add", SUBSYSTEM=="tty", KERNEL=="tty2com[0-9]*", MODE="0666"
 

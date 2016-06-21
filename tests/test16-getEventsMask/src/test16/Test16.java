@@ -13,18 +13,34 @@
 
 package test16;
 
-import com.embeddedunveiled.serial.SerialComManager;
-import com.embeddedunveiled.serial.SerialComManager.BAUDRATE;
-import com.embeddedunveiled.serial.SerialComManager.DATABITS;
-import com.embeddedunveiled.serial.SerialComManager.FLOWCONTROL;
-import com.embeddedunveiled.serial.SerialComManager.PARITY;
-import com.embeddedunveiled.serial.SerialComManager.STOPBITS;
-import com.embeddedunveiled.serial.ISerialComEventListener;
-import com.embeddedunveiled.serial.SerialComLineEvent;
+import com.serialpundit.core.SerialComPlatform;
+import com.serialpundit.core.SerialComSystemProperty;
+import com.serialpundit.serial.SerialComManager;
+import com.serialpundit.serial.SerialComManager.BAUDRATE;
+import com.serialpundit.serial.SerialComManager.DATABITS;
+import com.serialpundit.serial.SerialComManager.FLOWCONTROL;
+import com.serialpundit.serial.SerialComManager.PARITY;
+import com.serialpundit.serial.SerialComManager.STOPBITS;
+import com.serialpundit.serial.ISerialComDataListener;
+import com.serialpundit.serial.ISerialComEventListener;
+import com.serialpundit.serial.SerialComLineEvent;
 
-class EventListener implements ISerialComEventListener{
+class EventListener implements ISerialComEventListener {
 	@Override
 	public void onNewSerialEvent(SerialComLineEvent lineEvent) {
+		System.out.println("eventCTS : " + lineEvent.getCTS());
+		System.out.println("eventDSR : " + lineEvent.getDSR());
+	}
+}
+
+class DataListener implements ISerialComDataListener {
+	@Override
+	public void onDataListenerError(int arg0) {
+	}
+
+	@Override
+	public void onNewSerialDataAvailable(byte[] arg0) {
+		System.out.println("Read from serial port : " + new String(arg0));
 	}
 }
 
@@ -32,36 +48,34 @@ public class Test16 {
 	public static void main(String[] args) {
 		try {
 			SerialComManager scm = new SerialComManager();
+			EventListener eventListener = new EventListener();
+			DataListener dataListener = new DataListener();
 
 			String PORT = null;
 			String PORT1 = null;
-			int osType = scm.getOSType();
-			if(osType == SerialComManager.OS_LINUX) {
+			SerialComPlatform scp = new SerialComPlatform(new SerialComSystemProperty());
+
+			int osType = scp.getOSType();
+			if(osType == SerialComPlatform.OS_LINUX) {
 				PORT = "/dev/ttyUSB0";
 				PORT1 = "/dev/ttyUSB1";
-			}else if(osType == SerialComManager.OS_WINDOWS) {
+			}else if(osType == SerialComPlatform.OS_WINDOWS) {
 				PORT = "COM51";
 				PORT1 = "COM52";
-			}else if(osType == SerialComManager.OS_MAC_OS_X) {
+			}else if(osType == SerialComPlatform.OS_MAC_OS_X) {
 				PORT = "/dev/cu.usbserial-A70362A3";
 				PORT1 = "/dev/cu.usbserial-A602RDCH";
-			}else if(osType == SerialComManager.OS_SOLARIS) {
+			}else if(osType == SerialComPlatform.OS_SOLARIS) {
 				PORT = null;
 				PORT1 = null;
 			}else{
 			}
 
-			// instantiate class which is will implement ISerialComEventListener interface
-			EventListener eventListener = new EventListener();
-
 			long handle = scm.openComPort(PORT, true, true, true);
-			scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
-			scm.configureComPortControl(handle, FLOWCONTROL.RTS_CTS, 'x', 'x', false, false);
-			scm.registerLineEventListener(handle, eventListener);
+			scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.BCUSTOM, 512000);
+			scm.configureComPortControl(handle, FLOWCONTROL.NONE, 'x', 'x', false, false);
 
-			long handle1 = scm.openComPort(PORT1, true, true, true);
-			scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
-			scm.configureComPortControl(handle1, FLOWCONTROL.RTS_CTS, 'x', 'x', false, false);
+			scm.registerLineEventListener(handle, eventListener);
 
 			// get current active mask
 			int mask1 = scm.getEventsMask(eventListener);
@@ -74,13 +88,11 @@ public class Test16 {
 			int mask2 = scm.getEventsMask(eventListener);
 			System.out.println("mask after : " + mask2);
 
-			// unregister data listener
+			Thread.sleep(100);
 			scm.unregisterLineEventListener(handle, eventListener);
 
 			// close the port releasing handle
 			scm.closeComPort(handle);
-			scm.closeComPort(handle1);
-
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

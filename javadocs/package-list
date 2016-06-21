@@ -1,0 +1,10 @@
+com.serialpundit.core
+com.serialpundit.core.util
+com.serialpundit.hid
+com.serialpundit.serial
+com.serialpundit.serial.comdb
+com.serialpundit.serial.ftp
+com.serialpundit.serial.mapper
+com.serialpundit.serial.nullmodem
+com.serialpundit.serial.vendor
+com.serialpundit.usb

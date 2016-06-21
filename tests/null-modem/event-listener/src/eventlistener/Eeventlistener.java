@@ -15,17 +15,18 @@ package eventlistener;
 
 import java.io.IOException;
 import java.util.Arrays;
-import com.embeddedunveiled.serial.SerialComManager;
-import com.embeddedunveiled.serial.nullmodem.SerialComNullModem;
-import com.embeddedunveiled.serial.SerialComManager.BAUDRATE;
-import com.embeddedunveiled.serial.SerialComManager.DATABITS;
-import com.embeddedunveiled.serial.SerialComManager.FLOWCONTROL;
-import com.embeddedunveiled.serial.SerialComManager.PARITY;
-import com.embeddedunveiled.serial.SerialComManager.STOPBITS;
-import com.embeddedunveiled.serial.ISerialComEventListener;
-import com.embeddedunveiled.serial.SerialComLineEvent;
 
-class EventListener implements ISerialComEventListener{
+import com.serialpundit.serial.SerialComManager;
+import com.serialpundit.serial.nullmodem.SerialComNullModem;
+import com.serialpundit.serial.ISerialComEventListener;
+import com.serialpundit.serial.SerialComLineEvent;
+import com.serialpundit.serial.SerialComManager.BAUDRATE;
+import com.serialpundit.serial.SerialComManager.DATABITS;
+import com.serialpundit.serial.SerialComManager.FLOWCONTROL;
+import com.serialpundit.serial.SerialComManager.PARITY;
+import com.serialpundit.serial.SerialComManager.STOPBITS;
+
+class EventListener implements ISerialComEventListener {
 	@Override
 	public void onNewSerialEvent(SerialComLineEvent lineEvent) {
 		System.out.println("eventCTS : " + lineEvent.getCTS());

@@ -17,12 +17,12 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import com.embeddedunveiled.serial.SerialComManager;
-import com.embeddedunveiled.serial.SerialComManager.BAUDRATE;
-import com.embeddedunveiled.serial.SerialComManager.DATABITS;
-import com.embeddedunveiled.serial.SerialComManager.FLOWCONTROL;
-import com.embeddedunveiled.serial.SerialComManager.PARITY;
-import com.embeddedunveiled.serial.SerialComManager.STOPBITS;
+import com.serialpundit.serial.SerialComManager;
+import com.serialpundit.serial.SerialComManager.BAUDRATE;
+import com.serialpundit.serial.SerialComManager.DATABITS;
+import com.serialpundit.serial.SerialComManager.FLOWCONTROL;
+import com.serialpundit.serial.SerialComManager.PARITY;
+import com.serialpundit.serial.SerialComManager.STOPBITS;
 
 final class Task implements Runnable {
 
@@ -56,17 +56,20 @@ public final class ScaledPollRead {
 
 		// create service
 		ScheduledExecutorService scheduledExecutor = Executors.newScheduledThreadPool(10);
+		
+		String PORT="/dev/ttyUSB0";
+		String PORT1="/dev/ttyUSB1";
 
 		// create tasks to be executed
 		for(int x=0; x<1000; x++) {
-			long comPortHandle1 = scm.openComPort("/dev/pts/3", true, true, false);
+			long comPortHandle1 = scm.openComPort(PORT, true, true, false);
 			scm.configureComPortData(comPortHandle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
 			scm.configureComPortControl(comPortHandle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
 			Runnable task1 = new Task(scm, comPortHandle1);		
 			scheduledExecutor.scheduleAtFixedRate(task1, 0, 100, TimeUnit.MILLISECONDS);
 		}
 
-		long comPortHandle2 = scm.openComPort("/dev/pts/4", true, true, true);
+		long comPortHandle2 = scm.openComPort(PORT1, true, true, true);
 		scm.configureComPortData(comPortHandle2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
 		scm.configureComPortControl(comPortHandle2, FLOWCONTROL.NONE, 'x', 'x', false, false);
 

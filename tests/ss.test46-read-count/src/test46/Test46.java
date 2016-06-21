@@ -15,15 +15,17 @@ package test46;
 
 import java.io.IOException;
 
-import com.embeddedunveiled.serial.SerialComManager;
-import com.embeddedunveiled.serial.SerialComManager.BAUDRATE;
-import com.embeddedunveiled.serial.SerialComManager.DATABITS;
-import com.embeddedunveiled.serial.SerialComManager.FLOWCONTROL;
-import com.embeddedunveiled.serial.SerialComManager.PARITY;
-import com.embeddedunveiled.serial.SerialComManager.STOPBITS;
+import com.serialpundit.core.SerialComPlatform;
+import com.serialpundit.core.SerialComSystemProperty;
+import com.serialpundit.serial.SerialComManager;
+import com.serialpundit.serial.SerialComManager.BAUDRATE;
+import com.serialpundit.serial.SerialComManager.DATABITS;
+import com.serialpundit.serial.SerialComManager.FLOWCONTROL;
+import com.serialpundit.serial.SerialComManager.PARITY;
+import com.serialpundit.serial.SerialComManager.STOPBITS;
 
-/* return nuber of byts should be same as requested, less number return if less data in buffer
- * req nuber of read 5, got 5
+/* return number of bytes should be same as requested, less number return if less data in buffer
+ * req nubemr of read 5, got 5
 req nuber of read 9, got 9
 req nuber of read 18, got 18
 req nuber of read 25, got 25
@@ -37,17 +39,19 @@ public class Test46 {
 		try {
 			String PORT = null;
 			String PORT1 = null;
-			int osType = scm.getOSType();
-			if(osType == SerialComManager.OS_LINUX) {
+			SerialComPlatform scp = new SerialComPlatform(new SerialComSystemProperty());
+
+			int osType = scp.getOSType();
+			if(osType == SerialComPlatform.OS_LINUX) {
 				PORT = "/dev/ttyUSB0";
 				PORT1 = "/dev/ttyUSB1";
-			}else if(osType == SerialComManager.OS_WINDOWS) {
+			}else if(osType == SerialComPlatform.OS_WINDOWS) {
 				PORT = "COM51";
 				PORT1 = "COM52";
-			}else if(osType == SerialComManager.OS_MAC_OS_X) {
+			}else if(osType == SerialComPlatform.OS_MAC_OS_X) {
 				PORT = "/dev/cu.usbserial-A70362A3";
 				PORT1 = "/dev/cu.usbserial-A602RDCH";
-			}else if(osType == SerialComManager.OS_SOLARIS) {
+			}else if(osType == SerialComPlatform.OS_SOLARIS) {
 				PORT = null;
 				PORT1 = null;
 			}else{
@@ -66,9 +70,13 @@ public class Test46 {
 			}
 
 			Thread.sleep(1000); // let data reach physically to port and OS buffer it
-			byte[] data = null;
-			data = scm.readBytes(handle, 0);
-			System.out.println("req nuber of read 0, " + "got " + data.length);
+			
+			byte[] data = scm.readBytes(handle, 0);
+			if(data != null) { 
+				System.out.println("req nuber of read 0, " + "got " + data.length);
+			}else {
+				System.out.println("req nuber of read 0, " + "got " + "null");	
+			}
 			data = scm.readBytes(handle, 1);
 			System.out.println("req nuber of read 1, " + "got " + data.length);
 			data = scm.readBytes(handle, 2);

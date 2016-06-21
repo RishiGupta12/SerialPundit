@@ -13,13 +13,16 @@
 
 package test77;
 
-import com.embeddedunveiled.serial.SerialComManager;
-import com.embeddedunveiled.serial.vendor.SerialComSLabsCP210xRuntime;
-import com.embeddedunveiled.serial.vendor.SerialComVendorLib;
+import com.serialpundit.core.SerialComPlatform;
+import com.serialpundit.core.SerialComSystemProperty;
+import com.serialpundit.serial.SerialComManager;
+import com.serialpundit.serial.vendor.SerialComSLabsCP210xRuntime;
+import com.serialpundit.serial.vendor.SerialComVendorLib;
 
 public class Test77  {
 
 	static SerialComManager scm;
+	public static SerialComPlatform scp = null;
 	static int osType;
 	static SerialComSLabsCP210xRuntime cprun = null;
 	static long handle;
@@ -31,19 +34,21 @@ public class Test77  {
 	public static void main(String[] args) {
 		try {
 			scm = new SerialComManager();
-			osType = scm.getOSType();
-			if(osType == SerialComManager.OS_LINUX) { 
+			scp = new SerialComPlatform(new SerialComSystemProperty());
+
+			osType = scp.getOSType();
+			if(osType == SerialComPlatform.OS_LINUX) { 
 				libpath = "/home/r/ws-host-uart/tmp";
 				vendorSuppliedLib = "libcp210xmanufacturing.so.1.0";
-			}else if(osType == SerialComManager.OS_WINDOWS) {
+			}else if(osType == SerialComPlatform.OS_WINDOWS) {
 				libpath = "D:\\zz\\srun";
 				vendorSuppliedLib = "CP210xRuntime.dll";
 				PORT = "COM9";
-			}else if(osType == SerialComManager.OS_MAC_OS_X) {
+			}else if(osType == SerialComPlatform.OS_MAC_OS_X) {
 			}else {
 			}
 
-			cprun = (SerialComSLabsCP210xRuntime) scm.getVendorLibInstance(SerialComVendorLib.VLIB_SLABS_CP210XRUNTIME , libpath, vendorSuppliedLib);
+			cprun = (SerialComSLabsCP210xRuntime) scm.getVendorLibFromFactory(SerialComVendorLib.VLIB_SLABS_CP210XRUNTIME , libpath, vendorSuppliedLib);
 
 			handle = scm.openComPort(PORT, true, true, true);
 			System.out.println("handle : " + handle);

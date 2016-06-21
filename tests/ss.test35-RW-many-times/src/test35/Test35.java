@@ -15,12 +15,18 @@ package test35;
 
 import java.io.IOException;
 import java.util.Random;
-import com.embeddedunveiled.serial.SerialComManager;
-import com.embeddedunveiled.serial.SerialComManager.BAUDRATE;
-import com.embeddedunveiled.serial.SerialComManager.DATABITS;
-import com.embeddedunveiled.serial.SerialComManager.FLOWCONTROL;
-import com.embeddedunveiled.serial.SerialComManager.PARITY;
-import com.embeddedunveiled.serial.SerialComManager.STOPBITS;
+
+import com.serialpundit.core.SerialComPlatform;
+import com.serialpundit.core.SerialComSystemProperty;
+import com.serialpundit.serial.SerialComManager;
+import com.serialpundit.serial.SerialComManager.BAUDRATE;
+import com.serialpundit.serial.SerialComManager.DATABITS;
+import com.serialpundit.serial.SerialComManager.FLOWCONTROL;
+import com.serialpundit.serial.SerialComManager.PARITY;
+import com.serialpundit.serial.SerialComManager.STOPBITS;
+import com.serialpundit.serial.ISerialComDataListener;
+import com.serialpundit.serial.ISerialComEventListener;
+import com.serialpundit.serial.SerialComLineEvent;
 
 // how fast and times continuous read - writes
 public class Test35 {
@@ -30,57 +36,56 @@ public class Test35 {
 
 			String PORT = null;
 			String PORT1 = null;
-			int osType = scm.getOSType();
-			if(osType == SerialComManager.OS_LINUX) {
+			SerialComPlatform scp = new SerialComPlatform(new SerialComSystemProperty());
+
+			int osType = scp.getOSType();
+			if(osType == SerialComPlatform.OS_LINUX) {
 				PORT = "/dev/ttyUSB0";
 				PORT1 = "/dev/ttyUSB1";
-			}else if(osType == SerialComManager.OS_WINDOWS) {
+			}else if(osType == SerialComPlatform.OS_WINDOWS) {
 				PORT = "COM51";
 				PORT1 = "COM52";
-			}else if(osType == SerialComManager.OS_MAC_OS_X) {
+			}else if(osType == SerialComPlatform.OS_MAC_OS_X) {
 				PORT = "/dev/cu.usbserial-A70362A3";
 				PORT1 = "/dev/cu.usbserial-A602RDCH";
-			}else if(osType == SerialComManager.OS_SOLARIS) {
+			}else if(osType == SerialComPlatform.OS_SOLARIS) {
 				PORT = null;
 				PORT1 = null;
 			}else{
 			}
 
-			//			// TEST 1
-			//			try {
-			//				long handle = scm.openComPort(PORT, true, true, true);
-			//				scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
-			//				scm.configureComPortControl(handle, FLOWCONTROL.NONE, 'x', 'x', false, false);
-			//
-			//				long handle1 = scm.openComPort(PORT1, true, true, true);
-			//				scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
-			//				scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
-			//
-			//				for(int x = 0; x<5000; x++) {
-			//					scm.writeString(handle, "HELLO", 0);
-			//					if(osType == SerialComManager.OS_LINUX) {
-			//						Thread.sleep(100);
-			//					}else if(osType == SerialComManager.OS_WINDOWS) {
-			//						Thread.sleep(100);
-			//					}else if(osType == SerialComManager.OS_MAC_OS_X) {
-			//						Thread.sleep(100);
-			//					}else if(osType == SerialComManager.OS_SOLARIS) {
-			//						Thread.sleep(100);
-			//					}else{
-			//					}
-			//					String data = scm.readString(handle1);
-			//					System.out.println("Iteration : " + x + "==" + "data read is : " + data);
-			//				}
-			//
-			//				scm.closeComPort(handle);
-			//				scm.closeComPort(handle1);
-			//				System.out.println("TEST 1 PASSED !");
-			//			} catch (Exception e) {
-			//				e.printStackTrace();
-			//			}
+			// TEST 1
+			try {
+				long handle = scm.openComPort(PORT, true, true, true);
+				scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
+				scm.configureComPortControl(handle, FLOWCONTROL.NONE, 'x', 'x', false, false);
 
-			PORT = "/dev/pts/1";
-			PORT1 = "/dev/pts/3";
+				long handle1 = scm.openComPort(PORT1, true, true, true);
+				scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
+				scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+
+				for(int x = 0; x<5000; x++) {
+					scm.writeString(handle, "HELLO", 0);
+					if(osType == SerialComPlatform.OS_LINUX) {
+						Thread.sleep(100);
+					}else if(osType == SerialComPlatform.OS_WINDOWS) {
+						Thread.sleep(100);
+					}else if(osType == SerialComPlatform.OS_MAC_OS_X) {
+						Thread.sleep(100);
+					}else if(osType == SerialComPlatform.OS_SOLARIS) {
+						Thread.sleep(100);
+					}else{
+					}
+					String data = scm.readString(handle1);
+					System.out.println("Iteration : " + x + "==" + "data read is : " + data);
+				}
+
+				scm.closeComPort(handle);
+				scm.closeComPort(handle1);
+				System.out.println("TEST 1 PASSED !");
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 
 			// TEST 2, RANDOM DATA IN SIZE AND VALUE
 			try {
@@ -105,13 +110,13 @@ public class Test35 {
 
 					scm.writeBytes(handle, databufw, 0);
 
-					if(osType == SerialComManager.OS_LINUX) {
+					if(osType == SerialComPlatform.OS_LINUX) {
 						Thread.sleep(100);
-					}else if(osType == SerialComManager.OS_WINDOWS) {
+					}else if(osType == SerialComPlatform.OS_WINDOWS) {
 						Thread.sleep(100);
-					}else if(osType == SerialComManager.OS_MAC_OS_X) {
+					}else if(osType == SerialComPlatform.OS_MAC_OS_X) {
 						Thread.sleep(100);
-					}else if(osType == SerialComManager.OS_SOLARIS) {
+					}else if(osType == SerialComPlatform.OS_SOLARIS) {
 						Thread.sleep(100);
 					}else{
 					}

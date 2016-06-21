@@ -14,5 +14,5 @@
 
 # build and run application using scm from shell script
 cd "$(dirname "$0")"
-javac -cp ./scm-1.0.4.jar test/FindPorts.java
-java -classpath .:scm-1.0.4.jar test/FindPorts
+javac -cp ./sp-tty.jar:sp-core.jar test/FindPorts.java
+java -classpath .:sp-tty.jar:sp-core.jar test/FindPorts

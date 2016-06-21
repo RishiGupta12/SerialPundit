@@ -15,17 +15,17 @@ package example;
 
 public final class BlockingContext {
 
-	private long blockingContext;
+    private long blockingContext;
 
-	public BlockingContext(long blockingContext) {
-		this.blockingContext = blockingContext;
-	}
+    public BlockingContext(long blockingContext) {
+        this.blockingContext = blockingContext;
+    }
 
-	public long getBlockingContext() {
-		return blockingContext;
-	}
+    public long getBlockingContext() {
+        return blockingContext;
+    }
 
-	public void setBlockingContext(long blockingContext) {
-		this.blockingContext = blockingContext;
-	}
+    public void setBlockingContext(long blockingContext) {
+        this.blockingContext = blockingContext;
+    }
 }

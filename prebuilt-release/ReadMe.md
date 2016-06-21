@@ -1,4 +1,12 @@
-Latest development release is scm-1.0.4.jar (last updated on 20-May-2016)
+##Latest releases
+Last updated on 20-June-2016
+
+| Jar file       | Functions/Features                    | Comments     |
+| :------------: |:-------------:                        | :--------:   |
+| sp-core.jar    | Platform identification, utility etc. | Must include |
+| sp-usb.jar     | USB hotplug, dynamic devnode etc.     | Can be used for both tty and HID |
+| sp-tty.jar     | Serial port communication APIs        |              |
+| sp-hid.jar     | HID communication APIs                |              |
 
 ##Platforms supported
 
@@ -58,10 +66,10 @@ libraryDependencies += "com.embeddedunveiled" % "scm" % "1.0.3"
 
 ##Signature verification
 
-For Linux, change directory to where scm-x.x.x.jar file is placed on your system and check as follows :
+For Linux, change directory to where sp-tty.jar file is placed on your system and check as follows :
 ```
-$ gpg --verify scm-1.0.4.jar.asc scm-1.0.4.jar
+$ gpg --verify sp-tty.jar.asc sp-tty.jar
 gpg: Signature made Friday 29 May 2015 11:28:11 AM IST using RSA key ID 2B942F12
-gpg: Good signature from "rishigupta (scm-library) <xxxx@gmail.com>"
+gpg: Good signature from "rishigupta (serialpundit) <xxxx@gmail.com>"
 ```
 

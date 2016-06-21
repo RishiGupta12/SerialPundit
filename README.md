@@ -3,13 +3,13 @@ SerialPundit : Serial port communication and much more...
 
 !["serial communication in java"](images/scm.jpg?raw=true "serial communication in java")
 
-The SerialPundit is an easy to use java library for communication over serial port. It supports RS-232 control signals handshaking, monitoring and has been ported to Linux, MAC, and Windows operating system for both 32 bit and 64 bit. It is consistent, portable, efficient, reliable, testable, extensible, modifiable, scalable and feature rich library. It has been also ported to ARM platform (Embedded SE Java).
+An easy to use Java library for serial port and HID communication. It has been ported to Linux, MAC, Windows and embedded SE Linux platforms for both 64/32 bit architectures.
 
 It is powerfully configurable for both poll and event driven application designs be it low volume low frequency data or high volume high frequency data.
 
 It eliminates the complexities of serial port programming for different operating systems, allowing engineers to concentrate on their application logic, facilitating faster engineering and development, reducing development cost and time to market.
 
-##Features
+##Com port module features
 
 #####Serial over USB
 - Notification on USB Hotplug, calls listener whenever a USB-UART IC is added/removed.
@@ -24,6 +24,7 @@ It eliminates the complexities of serial port programming for different operatin
 - Data and event listeners callbacks.
 - Parity and framing errors reporting supported
 - Break condition send and receive API
+- ARM Primecell AMBA compliant UART supported
 
 #####File transfer protocols
 - X/Y/Z modem FTP API implemented with finite state machine.
@@ -49,17 +50,14 @@ It eliminates the complexities of serial port programming for different operatin
 - Fast set/unset break condition for DMX512 based devices to control stage lighting and effects.
 - OSGI budles can be created easily for integrating in existing OSGI based application.
 - Two lock concurrent queue algorithm based ring buffer for faster data/event processing.
+- Easily integrate into existing application server software like Apache mina for cloud and IoT etc.
 
-#####HID (human interface device)
-- HID class API for communicating with composite USB devices like MCP2200, CP2110 etc.
+##HID (human interface device) module features
+- HID class API for communicating with USB-HID devices like MCP2200, CP2110 etc.
 - Dynamically find HID devices or get hotplug event notifications.
 - Input report listener for asynchronous operations.
 - Feature report, input report and output report in raw format available.
 - Find information like serial number, product name, manufacturer etc.
-
-#####Cloud and IoT ready
-
-- Easily integrate into existing application server software like Apache mina etc.
 
 #####Build for performance and quality
 - Functional, stress, stability, unit tested (Junit for continuous integration).
@@ -68,7 +66,7 @@ It eliminates the complexities of serial port programming for different operatin
 - Fully Optimized for power, performance and memory.
 - Support for fault tolerant and recoverable application design.
 - Extensively documented both Java (online javadocs) and C code.
-- Scripts for quickly building and testing project.
+- Scripts for quick builds, tests, installation etc. 
 
 ##Drivers and Services
 
@@ -131,12 +129,11 @@ public class Example {
 - Provide peer support on mailing lists, forums or newsgroups
 
 ##Author, License and Copyright
-- The SerialPundit is designed, developed and maintained by Rishi Gupta. By profession he does Linux driver development, embedded systems design, 
-  firmware development, circuit designing, prototyping, board bring up etc.     
+- The SerialPundit is designed, developed and maintained by Rishi Gupta. He does Linux driver development, embedded systems design, firmware development, circuit designing, prototyping, board bring up etc.     
   Linkdin profile : http://in.linkedin.com/pub/rishi-gupta/20/9b8/a10    
   Xing profile:
   
-- The SerialPundit is DUAL licensed. It is made available under the terms of the GNU Affero General Public License (AGPL) v3.0 for non-commercial use and under the terms of a commercial license for commercial use of this library. Contact author for commercial license.
+- The SerialPundit is DUAL LICENSED. It is made available under the terms of the GNU Affero General Public License (AGPL) v3.0 for non-commercial use and under the terms of a commercial license for commercial use of this library. Contact author for commercial license.
 
   See LICENSE file in repository for full license text for AGPL v3.0.
 

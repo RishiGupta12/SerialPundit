@@ -13,13 +13,16 @@
 
 package test78;
 
-import com.embeddedunveiled.serial.SerialComManager;
-import com.embeddedunveiled.serial.vendor.SerialComMCHPSimpleIO;
-import com.embeddedunveiled.serial.vendor.SerialComVendorLib;
+import com.serialpundit.core.SerialComPlatform;
+import com.serialpundit.core.SerialComSystemProperty;
+import com.serialpundit.serial.SerialComManager;
+import com.serialpundit.serial.vendor.SerialComMCHPSimpleIO;
+import com.serialpundit.serial.vendor.SerialComVendorLib;
 
 public class Test78  {
 
 	static SerialComManager scm;
+	public static SerialComPlatform scp = null;
 	static int osType;
 	static SerialComMCHPSimpleIO mchpsio = null;
 	static String vendorSuppliedLib;
@@ -28,16 +31,18 @@ public class Test78  {
 	public static void main(String[] args) {
 		try {
 			scm = new SerialComManager();
-			osType = scm.getOSType();
-			if(osType == SerialComManager.OS_LINUX) { 
-			}else if(osType == SerialComManager.OS_WINDOWS) {
+			scp = new SerialComPlatform(new SerialComSystemProperty());
+
+			osType = scp.getOSType();
+			if(osType == SerialComPlatform.OS_LINUX) { 
+			}else if(osType == SerialComPlatform.OS_WINDOWS) {
 				libpath = "D:\\zz\\mchpsio";
 				vendorSuppliedLib = "SimpleIO-UM.dll";
-			}else if(osType == SerialComManager.OS_MAC_OS_X) {
+			}else if(osType == SerialComPlatform.OS_MAC_OS_X) {
 			}else {
 			}
 
-			mchpsio = (SerialComMCHPSimpleIO) scm.getVendorLibInstance(SerialComVendorLib.VLIB_MCHP_SIMPLEIO, libpath, vendorSuppliedLib);
+			mchpsio = (SerialComMCHPSimpleIO) scm.getVendorLibFromFactory(SerialComVendorLib.VLIB_MCHP_SIMPLEIO, libpath, vendorSuppliedLib);
 
 			try {
 				System.out.println("initMCP2200() : " + mchpsio.initMCP2200(0x04d8, 0x00df));

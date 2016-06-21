@@ -1,0 +1,67 @@
+#
+# This file is part of SerialPundit project and software.
+# 
+# Copyright (C) 2014-2016, Rishi Gupta. All rights reserved.
+#
+# The SerialPundit software is DUAL licensed. It is made available under the terms of the GNU Affero 
+# General Public License (AGPL) v3.0 for non-commercial use and under the terms of a commercial 
+# license for commercial use of this software. 
+#
+# The SerialPundit software is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
+# without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+#################################################################################################
+
+# This is a udev rule file for all devices from FTDI with VID 0x0403 (not specific to any
+# FTDI product (USB PID)). Place this file in /etc/udev/rules.d/ for Ubuntu Linux distro.
+
+# These rules will grant read and write access to all users, include non-privileged users, for all 
+# USB devices that have a matching Vendor ID according to the rules below. If required, more 
+# restrictions on access to these devices can be achieved. Please learn more about writing udev 
+# rules for putting more restrctions. It is possible to set up a group or user owner for accessing 
+# a specific device.
+
+# This file can be renamed as per the requirement. After putting it in /etc/udev/rules.d/ directory 
+# udev need not be restarted. Just un-lug or plug the device in USB port again. Also vendor ID and 
+# Product ID may be case sensitive. Please use dmesg to check device information when device is 
+# plugged in system. System supplied default rules are generally placed in /lib/udev/rules.d and gets
+# overridden by rules placed in /etc/udev/rules.d directory.
+
+# We can also add user to dialout group if it is not member of dialout group.
+# $groups YOURUSERNAME
+# $sudo gpasswd --add YOURUSERNAME dialout
+# Logout then login and then insert the USB-UART device.
+
+# It may be required to reload udev rules if the udev rule file is added in running system.
+# $ sudo udevadm control --reload-rules
+# $ sudo udevadm trigger --attr-match=subsystem=tty
+
+ACTION=="remove", GOTO="ftdi_usb_uart_end"
+SUBSYSTEM!="tty", GOTO="ftdi_usb_uart_end"
+
+SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", MODE="0666"
+
+# If we want to load these rules for a specific USB product with product ID, here is how to do it.
+# FT232BM/L/Q, FT245BM/L/Q, FT232RL/Q, FT245RL/Q, VNC1L with VDPS Firmware.
+# SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", MODE="0666"
+
+# FT232H
+# SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6014", MODE="0666"
+
+# FT232B (EESK can change PID from 6001 to 6004)
+# SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", MODE="0666"
+# SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6004", MODE="0666"
+
+# FT230X
+# SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6015", MODE="0666"
+
+# FT2232C/D/L, FT2232HL/Q
+# SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6010", MODE="0666"
+
+# FT4222H
+# SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="601C", MODE="0666"
+
+# FT4232HL/Q
+# SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6011", MODE="0666"
+
+LABEL="ftdi_usb_uart_end"
+

@@ -13,9 +13,8 @@
 
 package test21;
 
-import com.embeddedunveiled.serial.ISerialComUSBHotPlugListener;
-import com.embeddedunveiled.serial.SerialComManager;
-import com.embeddedunveiled.serial.usb.SerialComUSB;
+import com.serialpundit.usb.ISerialComUSBHotPlugListener;
+import com.serialpundit.usb.SerialComUSB;
 
 // event 2 indicates port removal, 1 indicates additional of port
 class USBHotPlugEventHandler implements ISerialComUSBHotPlugListener {
@@ -30,27 +29,29 @@ public class Test21 {
 	public static void main(String[] args) {
 		try {
 			int handle = 0;
-			SerialComManager scm = new SerialComManager();
+			SerialComUSB scusb = new SerialComUSB(null, null);
 			USBHotPlugEventHandler eventhandler = new USBHotPlugEventHandler();
 
 			System.out.println("registering");
 
 			// ALL
-			handle = scm.registerUSBHotPlugEventListener(eventhandler, SerialComUSB.DEV_ANY, SerialComUSB.DEV_ANY, null);
+			handle = scusb.registerUSBHotPlugEventListener(eventhandler, SerialComUSB.DEV_ANY, SerialComUSB.DEV_ANY, null);
 
 			// FT232
-			//			handle = scm.registerUSBHotPlugEventListener(eventhandler, 0x0403, 0x6001, "A7036479");
+						handle = scusb.registerUSBHotPlugEventListener(eventhandler, 0x0403, 0x6001, "A7036479");
+						
+						handle = scusb.registerUSBHotPlugEventListener(eventhandler, 0x0403, 0x6001, null);
 
 			// CP2102
-			//			handle = scm.registerUSBHotPlugEventListener(eventhandler, 0x10C4, 0xEA60, "0001");
+			//			handle = scusb.registerUSBHotPlugEventListener(eventhandler, 0x10C4, 0xEA60, "0001");
 
 			// MCP2200
-			handle = scm.registerUSBHotPlugEventListener(eventhandler, 0x04d8, 0x00df, "0000980371");
+			handle = scusb.registerUSBHotPlugEventListener(eventhandler, 0x04d8, 0x00df, "0000980371");
 
 			System.out.println("sleeping");
 			Thread.sleep(50444400);
 			System.out.println("unregsitering");
-			scm.unregisterUSBHotPlugEventListener(handle);
+			scusb.unregisterUSBHotPlugEventListener(handle);
 
 			System.out.println("unregistered");
 		} catch (Exception e) {

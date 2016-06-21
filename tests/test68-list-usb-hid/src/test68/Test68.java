@@ -13,12 +13,9 @@
 
 package test68;
 
-import com.embeddedunveiled.serial.SerialComManager;
-import com.embeddedunveiled.serial.hid.SerialComHID;
-import com.embeddedunveiled.serial.hid.SerialComHIDdevice;
-import com.embeddedunveiled.serial.hid.SerialComRawHID;
-import com.embeddedunveiled.serial.usb.SerialComUSB;
-import com.embeddedunveiled.serial.usb.SerialComUSBHID;
+import com.serialpundit.usb.SerialComUSB;
+import com.serialpundit.usb.SerialComUSBHID;
+import com.serialpundit.usb.SerialComUSBHIDdevice;
 
 /*  Windows output for MCP2000
 
@@ -46,11 +43,10 @@ public class Test68  {
 	public static void main(String[] args) {
 
 		try {
-			SerialComManager scm = new SerialComManager();
-			SerialComRawHID scrh = (SerialComRawHID) scm.getSerialComHIDInstance(SerialComHID.MODE_RAW, null, null);
-			SerialComUSBHID scuh = (SerialComUSBHID) scrh.getHIDTransportInstance(SerialComHID.HID_USB);
+			SerialComUSB scu = new SerialComUSB(null, null);
+			SerialComUSBHID scuh = scu.getUSBHIDTransportInstance();
+			SerialComUSBHIDdevice[] usbHidDevices = scuh.listUSBHIDdevicesWithInfo(SerialComUSB.V_ALL);
 
-			SerialComHIDdevice[] usbHidDevices = scuh.listUSBHIDdevicesWithInfo(SerialComUSB.V_ALL);
 			for(int x=0; x < usbHidDevices.length; x++) {
 				usbHidDevices[x].dumpDeviceInfo();
 			}
@@ -59,3 +55,23 @@ public class Test68  {
 		}
 	}
 }
+
+/* Linux output
+ * Transport : USB
+Device node : /dev/hidraw1
+Vendor id : 0x04d8
+Product id : 0x00df
+Serial number : 0000980371
+Product : MCP2200 USB Serial Port Emulator
+Manufacturer : Microchip Technology Inc.
+Location : /devices/pci0000:00/0000:00:14.0/usb3/3-3/3-3:1.2/0003:04D8:00DF.0011/hidraw/hidraw1
+Transport : USB
+Device node : /dev/hidraw0
+Vendor id : 0x04ca
+Product id : 0x0061
+Serial number : ---
+Product : USB Optical Mouse
+Manufacturer : PixArt
+Location : /devices/pci0000:00/0000:00:14.0/usb3/3-4/3-4:1.0/0003:04CA:0061.0012/hidraw/hidraw0
+
+ */

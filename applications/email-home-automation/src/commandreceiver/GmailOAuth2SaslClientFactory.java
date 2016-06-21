@@ -20,21 +20,21 @@ import java.util.Map;
 
 public final class GmailOAuth2SaslClientFactory implements SaslClientFactory {
 
-	public static final String OAUTH_TOKEN_PROP = "mail.imaps.sasl.mechanisms.oauth2.oauthToken";
+    public static final String OAUTH_TOKEN_PROP = "mail.imaps.sasl.mechanisms.oauth2.oauthToken";
 
-	public SaslClient createSaslClient(String[] mechanisms, String authorizationId, String protocol, 
-			String serverName, Map<String, ?> props, CallbackHandler callbackHandler) {
+    public SaslClient createSaslClient(String[] mechanisms, String authorizationId, String protocol, 
+            String serverName, Map<String, ?> props, CallbackHandler callbackHandler) {
 
-		for (int x=0; x < mechanisms.length; x++) {
-			if ("XOAUTH2".equalsIgnoreCase(mechanisms[x])) {
-				return new GmailOAuth2SaslClient((String) props.get(OAUTH_TOKEN_PROP), callbackHandler);
-			}
-		}
+        for (int x=0; x < mechanisms.length; x++) {
+            if ("XOAUTH2".equalsIgnoreCase(mechanisms[x])) {
+                return new GmailOAuth2SaslClient((String) props.get(OAUTH_TOKEN_PROP), callbackHandler);
+            }
+        }
 
-		return null;
-	}
+        return null;
+    }
 
-	public String[] getMechanismNames(Map<String, ?> props) {
-		return new String[] {"XOAUTH2"};
-	}
+    public String[] getMechanismNames(Map<String, ?> props) {
+        return new String[] {"XOAUTH2"};
+    }
 }

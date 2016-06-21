@@ -15,17 +15,17 @@ package serialterminal;
 
 public final class SignalExit {
 
-	private volatile boolean exit;
+    private volatile boolean exit;
 
-	public SignalExit(boolean exit) {
-		this.exit = exit;
-	}
+    public SignalExit(boolean exit) {
+        this.exit = exit;
+    }
 
-	public void setExitTrigger(boolean exit) {
-		this.exit = exit;
-	}
+    public void setExitTrigger(boolean exit) {
+        this.exit = exit;
+    }
 
-	public boolean isExitTriggered() {
-		return exit;
-	}
+    public boolean isExitTriggered() {
+        return exit;
+    }
 }

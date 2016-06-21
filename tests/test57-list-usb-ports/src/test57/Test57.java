@@ -13,18 +13,15 @@
 
 package test57;
 
-import com.embeddedunveiled.serial.SerialComManager;
-import com.embeddedunveiled.serial.usb.SerialComUSB;
-import com.embeddedunveiled.serial.usb.SerialComUSBdevice;
+import com.serialpundit.usb.SerialComUSB;
+import com.serialpundit.usb.SerialComUSBdevice;
 
-/*
- */
 public class Test57 {
+
 	public static void main(String[] args) {
 		try {
-			SerialComManager scm = new SerialComManager();
-			SerialComUSBdevice[] usbDevices;
-			usbDevices = scm.listUSBdevicesWithInfo(SerialComUSB.V_ALL);
+			SerialComUSB scusb = new SerialComUSB(null, null);
+			SerialComUSBdevice[] usbDevices = scusb.listUSBdevicesWithInfo(SerialComUSB.V_ALL);
 			for(int x=0; x< usbDevices.length; x++) {
 				usbDevices[x].dumpDeviceInfo();
 			}
@@ -32,36 +29,36 @@ public class Test57 {
 			e.printStackTrace();
 		}
 
-		//		try {
-		//			SerialComManager scm = new SerialComManager();
-		//			SerialComUSBdevice[] usbDevices;
-		//			usbDevices = scm.listUSBdevicesWithInfo(SerialComUSB.V_FTDI);
-		//			for(int x=0; x< usbDevices.length; x++) {
-		//				usbDevices[x].dumpDeviceInfo();
-		//			}
-		//		}catch (Exception e) {
-		//			e.printStackTrace();
-		//		}
-		//		
-		//		try {
-		//			SerialComManager scm = new SerialComManager();
-		//			SerialComUSBdevice[] usbDevices;
-		//			usbDevices = scm.listUSBdevicesWithInfo(SerialComUSB.V_PL);
-		//			for(int x=0; x< usbDevices.length; x++) {
-		//				usbDevices[x].dumpDeviceInfo();
-		//			}
-		//		}catch (Exception e) {
-		//			e.printStackTrace();
-		//		}
-		//		
-		//		try {
-		//			SerialComManager scm = new SerialComManager();
-		//			for(long a=0; a<50000; a++) {
-		//				scm.listUSBdevicesWithInfo(SerialComUSB.V_ALL);
-		//			}
-		//		}catch (Exception e) {
-		//			e.printStackTrace();
-		//		}
+		try {
+			SerialComUSB scusb = new SerialComUSB(null, null);
+			SerialComUSBdevice[] usbDevices;
+			usbDevices = scusb.listUSBdevicesWithInfo(SerialComUSB.V_FTDI);
+			for(int x=0; x< usbDevices.length; x++) {
+				usbDevices[x].dumpDeviceInfo();
+			}
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		try {
+			SerialComUSB scusb = new SerialComUSB(null, null);
+			SerialComUSBdevice[] usbDevices;
+			usbDevices = scusb.listUSBdevicesWithInfo(SerialComUSB.V_PL);
+			for(int x=0; x< usbDevices.length; x++) {
+				usbDevices[x].dumpDeviceInfo();
+			}
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		try {
+			SerialComUSB scusb = new SerialComUSB(null, null);
+			for(long a=0; a<50000; a++) {
+				scusb.listUSBdevicesWithInfo(SerialComUSB.V_ALL);
+			}
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
 
 		System.out.println("done");
 	}
@@ -124,5 +121,45 @@ Serial number : 6&3A94452&0&4
 Product : USB-SER!
 Manufacturer : wch.cn
 Location : PCIROOT(0)#PCI(1400)#USBROOT(0)#USB(3)#USB(4)-Port_#0004.Hub_#0002
+
+ */
+
+/*
+ * 
+Vendor id : 0x174f
+Product id : 0x1474
+Serial number : Lenovo EasyCamera
+Product : Lenovo EasyCamera
+Manufacturer : Lenovo EasyCamera
+Location : /devices/pci0000:00/0000:00:14.0/usb3/3-1
+
+Vendor id : 0x0403
+Product id : 0x6001
+Serial number : A602RDCH
+Product : FT232R USB UART
+Manufacturer : FTDI
+Location : /devices/pci0000:00/0000:00:14.0/usb3/3-2
+
+Vendor id : 0x0403
+Product id : 0x6001
+Serial number : A70362A3
+Product : FT232R USB UART
+Manufacturer : FTDI
+Location : /devices/pci0000:00/0000:00:14.0/usb3/3-3
+
+Vendor id : 0x04ca
+Product id : 0x0061
+Serial number : ---
+Product : USB Optical Mouse
+Manufacturer : PixArt
+Location : /devices/pci0000:00/0000:00:14.0/usb3/3-4
+
+Vendor id : 0x105b
+Product id : 0xe065
+Serial number : 1C3E84E539E2
+Product : BCM43142A0
+Manufacturer : Broadcom Corp
+Location : /devices/pci0000:00/0000:00:14.0/usb3/3-7
+done
 
  */

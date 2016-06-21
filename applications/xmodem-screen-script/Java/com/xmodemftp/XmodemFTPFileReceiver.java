@@ -14,30 +14,30 @@
 package com.xmodemftp;
 
 import java.io.File;
-import com.embeddedunveiled.serial.SerialComManager;
-import com.embeddedunveiled.serial.SerialComManager.BAUDRATE;
-import com.embeddedunveiled.serial.SerialComManager.DATABITS;
-import com.embeddedunveiled.serial.SerialComManager.FLOWCONTROL;
-import com.embeddedunveiled.serial.SerialComManager.FTPPROTO;
-import com.embeddedunveiled.serial.SerialComManager.FTPVAR;
-import com.embeddedunveiled.serial.SerialComManager.PARITY;
-import com.embeddedunveiled.serial.SerialComManager.STOPBITS;
+
+import com.serialpundit.serial.SerialComManager;
+import com.serialpundit.serial.SerialComManager.BAUDRATE;
+import com.serialpundit.serial.SerialComManager.DATABITS;
+import com.serialpundit.serial.SerialComManager.FLOWCONTROL;
+import com.serialpundit.serial.SerialComManager.FTPPROTO;
+import com.serialpundit.serial.SerialComManager.FTPVAR;
+import com.serialpundit.serial.SerialComManager.PARITY;
+import com.serialpundit.serial.SerialComManager.STOPBITS;
 
 public final class XmodemFTPFileReceiver {
+    
     public static void main(String[] args) {
         try {
             System.out.println("Receiver application started !");
-            SerialComManager scm = new SerialComManager();          
+            SerialComManager scm = new SerialComManager();
             long handle = scm.openComPort(args[0], true, true, true);
             scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B9600, 0);
             scm.configureComPortControl(handle, FLOWCONTROL.NONE, 'x', 'x', false, false);
             boolean status = scm.receiveFile(handle, new File(args[1]), FTPPROTO.XMODEM, FTPVAR.CHKSUM, true, null, null);
             System.out.println("File received status : " + status);
             scm.closeComPort(handle);
-            System.exit(0);
         } catch (Exception e) {
             e.printStackTrace();
-            System.exit(0);
         }
     }
 }

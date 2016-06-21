@@ -13,7 +13,7 @@
 
 package test8;
 
-import com.embeddedunveiled.serial.SerialComManager;
+import com.serialpundit.serial.SerialComManager;
 
 public class Test8 {
 	public static void main(String[] args) {

@@ -11,13 +11,13 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  */
  
-import com.embeddedunveiled.serial.SerialComManager;
+import com.serialpundit.serial.SerialComManager;
 
 public class FindPorts {
 	public static void main(String[] args) {
 	 	try {
 			System.out.println("Executing FindPorts application 2");
-			SerialComManager scm = new SerialComManager(System.getProperty("user.home"), "lib2");
+			SerialComManager scm = new SerialComManager("splib2", "/home/r/", false);
 			String[] ports = scm.listAvailableComPorts();
 			for(String port: ports){
 				System.out.println(port);
