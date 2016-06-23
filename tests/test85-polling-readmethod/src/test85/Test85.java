@@ -13,7 +13,7 @@
 
 package test85;
 
-import com.serialpundit.serial.SerialComException;
+import com.serialpundit.core.SerialComException;
 import com.serialpundit.core.SerialComPlatform;
 import com.serialpundit.core.SerialComSystemProperty;
 import com.serialpundit.serial.SerialComManager;
@@ -89,8 +89,8 @@ public class Test85  {
 			System.out.println("opened handle : " + handle);
 
 			handle1 = scm.openComPort(PORT1, true, true, true);
-			scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
-			scm.configureComPortControl(handle, FLOWCONTROL.NONE, 'x', 'x', false, false);
+			scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
+			scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
 			System.out.println("opened handle1 : " + handle1);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -123,8 +123,8 @@ public class Test85  {
 			System.out.println("opened handle : " + handle);
 
 			handle1 = scm.openComPort(PORT1, true, true, true);
-			scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
-			scm.configureComPortControl(handle, FLOWCONTROL.NONE, 'x', 'x', false, false);
+			scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
+			scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
 			System.out.println("opened handle1 : " + handle1);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -162,8 +162,8 @@ public class Test85  {
 			System.out.println("opened handle : " + handle);
 
 			handle1 = scm.openComPort(PORT1, true, true, true);
-			scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
-			scm.configureComPortControl(handle, FLOWCONTROL.NONE, 'x', 'x', false, false);
+			scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
+			scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
 			System.out.println("opened handle1 : " + handle1);
 		} catch (Exception e) {
 			e.printStackTrace();
