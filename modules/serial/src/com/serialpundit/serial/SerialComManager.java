@@ -1876,14 +1876,16 @@ public final class SerialComManager {
      * 
      * <li><p>Recognizing break condition on line is the responsibility of the UART IC, but if for some reason (such as a 
      * limited UART that does not implement this functionality) the UART fails to do so, reception of a break will 
-     * manifest itself as a large number of framing errors.</p></li>
+     * manifest itself as a large number of framing errors. Also sometimes default drivers built into operating system 
+     * may not provide break detection facility.</p></li>
      * 
      * 
      * <li>If the duration parameter is 0, it will result in fastest way this library can set and unset break 
      * condition.</li>
      * 
      * <li><p>All UART devices (or driver) may not support all break timings. For example CP2105 can set break for from 
-     * 1 to 125 ms or for infinite time. Developers should consult data sheet to know device capabilities.</p></li>
+     * 1 to 125 ms or for infinite time. Developers should consult data sheet to know device capabilities. Sometimes 
+     * hardware may also report break as all 0 bits byte data.</p></li>
      * 
      * <li>In some application designs break signals can be used for packet synchronization. For example; presence 
      * of break indicate start of packet or end of packet.</li>
