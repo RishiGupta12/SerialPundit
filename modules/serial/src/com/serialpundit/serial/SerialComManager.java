@@ -538,6 +538,9 @@ public final class SerialComManager {
      * turned off, any associated jobs are killed, and the user is logged out. Unlike dial-in the dial-out TTY device does 
      * not require DCD to be high. Once connection is made DCD may go high. Loss of the DCD signal may cause the jobs 
      * to be killed and the user will be automatically logged off.</p></li>
+     * 
+     * <li>On some hardware when opening a serial port TXD, RXD, RTS or DTR lines may show glitch which may unintentionally 
+     * trigger other end. This may be due to hardware or a driver bug.</li>
      * </ul>
      * 
      * <p>This method is thread safe.</p>

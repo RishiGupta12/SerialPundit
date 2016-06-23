@@ -21,6 +21,7 @@ import com.serialpundit.serial.SerialComManager.DATABITS;
 import com.serialpundit.serial.SerialComManager.FLOWCONTROL;
 import com.serialpundit.serial.SerialComManager.PARITY;
 import com.serialpundit.serial.SerialComManager.STOPBITS;
+import com.serialpundit.serial.SerialComLineErrors;
 
 public class Test9 {
 	public static void main(String[] args) {
@@ -50,20 +51,74 @@ public class Test9 {
 			long handle = scm.openComPort(PORT, true, true, true);
 			scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
 			scm.configureComPortControl(handle, FLOWCONTROL.NONE, 'x', 'x', false, false);
+			long handle1 = scm.openComPort(PORT1, true, true, true);
+			scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
+			scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
 
 			// 2000 milli seconds
 			scm.sendBreak(handle, 0);
 
-			Thread.sleep(1000);
+			Thread.sleep(100);
 
 			scm.sendBreak(handle, 100);
 
-			Thread.sleep(1000);
+			Thread.sleep(100);
 
 			scm.sendBreak(handle, 2000);
 
-			// close the port releasing handle
 			scm.closeComPort(handle);
+			scm.closeComPort(handle1);
+
+			System.out.println("\n~~~~~~~~~~~~~~~~~~~~~~~~~ TEST 1 done ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ \n");
+
+			SerialComLineErrors lineErr = new SerialComLineErrors();
+
+			handle = scm.openComPort(PORT, true, true, true);
+			scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
+			scm.configureComPortControl(handle, FLOWCONTROL.NONE, 'x', 'x', false, false);
+			handle1 = scm.openComPort(PORT1, true, true, true);
+			scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
+			scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+
+			scm.sendBreak(handle, 100);
+			Thread.sleep(100);
+
+			byte[] buffer = new byte[100];
+
+			System.out.println("\nBREAK before : " + lineErr.isBreakReceived());
+			scm.readBytes(handle1, buffer, 0, 50, -1, lineErr);
+			System.out.println("BREAK after : " + lineErr.isBreakReceived());
+
+			scm.closeComPort(handle);
+			scm.closeComPort(handle1);
+
+			System.out.println("\n~~~~~~~~~~~~~~~~~~~~~~~~~ TEST 2 done ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ \n");
+
+			handle = scm.openComPort(PORT, true, true, true);
+			scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
+			scm.configureComPortControl(handle, FLOWCONTROL.NONE, 'x', 'x', false, false);
+			handle1 = scm.openComPort(PORT1, true, true, true);
+			scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
+			scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+
+			long context = scm.createBlockingIOContext();
+			scm.sendBreak(handle, 100);
+			Thread.sleep(100);
+
+			buffer = new byte[100];
+
+			lineErr.resetLineErrors();
+			System.out.println("\nBREAK before : " + lineErr.isBreakReceived());
+			scm.writeBytes(handle, "TESTSTRING".getBytes(), 0);
+			Thread.sleep(1000);
+			scm.readBytes(handle1, buffer, 0, 11, context, lineErr);
+			System.out.println("BREAK after : " + lineErr.isBreakReceived());
+
+			scm.destroyBlockingIOContext(context);
+			scm.closeComPort(handle);
+			scm.closeComPort(handle1);
+
+			System.out.println("\n~~~~~~~~~~~~~~~~~~~~~~~~~ TEST 3 done ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ \n");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

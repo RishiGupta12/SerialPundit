@@ -76,9 +76,6 @@ public class Test85  {
 			PORT1 = null;
 		}else{
 		}
-		
-		PORT = "/dev/pts/18";
-		PORT1 = "/dev/pts/19";
 
 		System.out.println("\n~~~~~~~~~~~~~~~~~~~~~~~~~ TEST 1 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ \n");
 
@@ -135,7 +132,7 @@ public class Test85  {
 
 			context = scm.createBlockingIOContext();
 
-			Thread.sleep(100);
+			Thread.sleep(1000);
 
 			// read : 8469838483848273787100
 			scm.readBytes(handle1, buffer, 0, 11, context, null);
