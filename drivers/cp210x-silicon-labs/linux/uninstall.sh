@@ -23,7 +23,7 @@ fi
 
 KDIR=$(uname -r)
 
-rm /lib/modules/$KDIR/kernel/drivers/usb/serial/scm_cp210x.ko
+rm /lib/modules/$KDIR/kernel/drivers/usb/serial/sp_cp210x.ko
 
 echo "wait removing and cleaning up !"
 depmod

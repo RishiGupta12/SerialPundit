@@ -34,17 +34,17 @@ fi
 cd "$(dirname "$0")"
 
 modprobe -r cp210x
-rmmod scm_cp210x 2>/dev/null
+rmmod sp_cp210x 2>/dev/null
 
-file="$(dirname "$0")/scm_cp210x.ko"
+file="$(dirname "$0")/sp_cp210x.ko"
 
 if [ -f "$file" ]; then
 	modprobe usbserial
-	insmod ./scm_cp210x.ko
+	insmod ./sp_cp210x.ko
 	echo "default cp210x unloaded and custom driver loaded !"
 	exit 0
 fi
 
-echo "File scm_cp210x.ko not found !" 1>&2
+echo "File sp_cp210x.ko not found !" 1>&2
 exit 1
 

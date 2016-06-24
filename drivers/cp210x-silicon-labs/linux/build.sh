@@ -16,7 +16,7 @@
 
 set -e
 
-#touch -c ./scm_cp210x.c
+#touch -c ./sp_cp210x.c
 
 cd "$(dirname "$0")"
 

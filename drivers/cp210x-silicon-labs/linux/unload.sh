@@ -20,5 +20,5 @@ if [[ $EUID -ne 0 ]]; then
    exit 1
 fi
 
-rmmod scm_cp210x 2>/dev/null
+rmmod sp_cp210x 2>/dev/null
 

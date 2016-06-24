@@ -25,7 +25,7 @@ cd "$(dirname "$0")"
 
 KDIR=$(uname -r)
 
-cp ./scm_cp210x.ko /lib/modules/$KDIR/kernel/drivers/usb/serial
+cp ./sp_cp210x.ko /lib/modules/$KDIR/kernel/drivers/usb/serial
 
 echo "wait resolving dependencies !"
 depmod

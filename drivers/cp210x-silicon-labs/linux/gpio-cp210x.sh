@@ -48,7 +48,6 @@ c=$(echo $b | sed 's/\///g')
 node2=$(readlink -f "/sys/class/tty/$c")
 cd $node2/../..
 d=`pwd`
-GPIODIRPATH=$d"/scm_cp210x_gpio"
+GPIODIRPATH=$d"/sp_cp210x_gpio"
 echo $GPIODIRPATH
-
 

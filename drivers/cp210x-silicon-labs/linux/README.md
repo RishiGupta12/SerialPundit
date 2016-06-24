@@ -1,8 +1,6 @@
 ####Building
 ---------------------
 
-- Prebuilt driver scm_cp210x.ko (x86_64) is provided in repository.
-
 - Build is done using make tool. Run build.sh shell script to build this driver.
 
 
@@ -35,7 +33,7 @@ $ dmesg
 [ 2908.067876] usb 3-3: Product: CP2102 USB to UART Bridge Controller  
 [ 2908.067880] usb 3-3: Manufacturer: Silicon Labs  
 [ 2908.067884] usb 3-3: SerialNumber: 0001  
-[ 2908.069042] scm_cp210x 3-3:1.0: CP210X USB Serial Device converter detected  
+[ 2908.069042] sp_cp210x 3-3:1.0: CP210X USB Serial Device converter detected  
 [ 2908.070747] usb 3-3: CP210X USB Serial Device converter now attached to ttyUSB0  
 [ 2908.114399] usbcore: registered new interface driver cp210x  
 [ 2908.114444] usbserial: USB Serial support registered for cp210x  
@@ -43,8 +41,8 @@ $ dmesg
 ``` sh
 $ lsmod | grep cp210x
 ```
-scm_cp210x             13977  0 
-usbserial              44971  1 scm_cp210x
+sp_cp210x             13977  0 
+usbserial              44971  1 sp_cp210x
 
 
 ``` sh
@@ -83,7 +81,7 @@ drwxr-xr-x 2 root root     0 Feb  8 15:17 power
 -r--r--r-- 1 root root  4096 Feb  8 15:09 quirks  
 -r--r--r-- 1 root root  4096 Feb  8 15:08 removable  
 --w------- 1 root root  4096 Feb  8 15:09 remove  
-drwxr-xr-x 2 root root     0 Feb  8 17:16 **scm_cp210x_gpio**  
+drwxr-xr-x 2 root root     0 Feb  8 17:16 **sp_cp210x_gpio**  
 -r--r--r-- 1 root root  4096 Feb  8 15:08 serial  
 -r--r--r-- 1 root root  4096 Feb  8 15:08 speed  
 lrwxrwxrwx 1 root root     0 Feb  8 15:08 subsystem -> ../../../../../bus/usb  
@@ -108,13 +106,13 @@ and the attributes from one single parent device.
   looking at parent device '/devices/pci0000:00/0000:00:14.0/usb3/3-3/3-3:1.0/ttyUSB0':  
     KERNELS=="ttyUSB0"  
     SUBSYSTEMS=="usb-serial"  
-    DRIVERS=="scm_cp210x"  
+    DRIVERS=="sp_cp210x"  
     ATTRS{port_number}=="0"  
 
   looking at parent device '/devices/pci0000:00/0000:00:14.0/usb3/3-3/3-3:1.0':  
     KERNELS=="3-3:1.0"  
     SUBSYSTEMS=="usb"  
-    DRIVERS=="scm_cp210x"  
+    DRIVERS=="sp_cp210x"  
     ATTRS{bInterfaceClass}=="ff"  
     ATTRS{bInterfaceSubClass}=="00"  
     ATTRS{bInterfaceProtocol}=="00"  

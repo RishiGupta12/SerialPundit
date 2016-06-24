@@ -30,17 +30,16 @@ import com.serialpundit.serial.comdb.SerialComDBRelease;
  * assigned by Windows operating system automatically when the DUT testing has finished.
  */
 
-// event 2 indicates port removal, 1 indicates additional of port
 class HotPlugEventWatcher implements ISerialComUSBHotPlugListener {
 
-    int deviceTested = 0;
+    private int deviceTested = 0;
     final Object obj = new Object();
 
     @Override
     public void onUSBHotPlugEvent(int event, int usbvid, int usbpid, String serialNumber) {
 
         if(event == SerialComUSB.DEV_ADDED) {
-            System.out.println("DUT added, running tests !");
+            System.out.println("DUT added, running automated tests for this device !");
 
             // If 1000 devices has been tested, unregister hotplug listener otherwise wait for next DUT unit (device under test).
             if(deviceTested == 1000) {

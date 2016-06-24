@@ -17,7 +17,7 @@ EXTRA_CFLAGS += $(DEBFLAGS) -I..
 
 ifneq ($(KERNELRELEASE),)
 # building when compiling kernel
-obj-m	:= scm_cp210x.o
+obj-m	:= sp_cp210x.o
 
 else
 # building from command line
