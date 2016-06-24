@@ -13,36 +13,39 @@
 
 package example;
 
+import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import com.embeddedunveiled.serial.SerialComException;
-import com.embeddedunveiled.serial.SerialComManager;
-import com.embeddedunveiled.serial.usb.SerialComUSB;
-import com.embeddedunveiled.serial.SerialComIOCTLExecutor;
-import com.embeddedunveiled.serial.SerialComManager.BAUDRATE;
-import com.embeddedunveiled.serial.SerialComManager.DATABITS;
-import com.embeddedunveiled.serial.SerialComManager.FLOWCONTROL;
-import com.embeddedunveiled.serial.SerialComManager.PARITY;
-import com.embeddedunveiled.serial.SerialComManager.STOPBITS;
+import com.serialpundit.usb.SerialComUSB;
+import com.serialpundit.core.SerialComException;
+import com.serialpundit.ioctl.SerialComIOCTLExecutor;
+import com.serialpundit.serial.SerialComManager;
+import com.serialpundit.serial.SerialComManager.BAUDRATE;
+import com.serialpundit.serial.SerialComManager.DATABITS;
+import com.serialpundit.serial.SerialComManager.FLOWCONTROL;
+import com.serialpundit.serial.SerialComManager.PARITY;
+import com.serialpundit.serial.SerialComManager.STOPBITS;
 
 class CommonFunctionality implements Runnable {
 
     protected final SerialComManager scm;
     protected boolean turnOnLED = false;
+    protected SerialComIOCTLExecutor mIOCTLExecutor;
 
-    private final int PRODUCT_VID;
-    private final int PRODUCT_PID;
+    private final SerialComUSB scusb;
+    private final int product_vid;
+    private final int product_pid;
+    private final AtomicBoolean exitThread;
     private String[] comPorts;
-    private AtomicBoolean exitThread;
     private long comPortHandle = -1;
-    private SerialComIOCTLExecutor ioctl;
 
-    public CommonFunctionality(SerialComManager scm, AtomicBoolean exitThread, int PRODUCT_VID, int PRODUCT_PID) {
+    public CommonFunctionality(SerialComManager scm, SerialComUSB scusb, AtomicBoolean exitThread, int PRODUCT_VID, int PRODUCT_PID) {
         this.scm = scm;
         this.exitThread = exitThread;
-        this.PRODUCT_VID = PRODUCT_VID;
-        this.PRODUCT_PID = PRODUCT_PID;
+        this.product_vid = PRODUCT_VID;
+        this.product_pid = PRODUCT_PID;
+        this.scusb = scusb;
     }
 
     @Override
@@ -50,7 +53,7 @@ class CommonFunctionality implements Runnable {
 
         while(exitThread.get() == false) {
             try {
-                comPorts = scm.findComPortFromUSBAttributes(PRODUCT_VID, PRODUCT_PID, null);
+                comPorts = scusb.findComPortFromUSBAttributes(product_vid, product_pid, null);
                 if(comPorts.length > 0) {
                     comPortHandle = scm.openComPort(comPorts[0], true, true, true);
                     scm.configureComPortData(comPortHandle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B9600, 0);
@@ -60,9 +63,8 @@ class CommonFunctionality implements Runnable {
                     // turn on LED to inform user that device is ready for end use case.
                     if(turnOnLED == true) {
                         try {
-                            ioctl = scm.getIOCTLExecutor(comPortHandle);
                             // set GPIO.0 high.
-                            ioctl.ioctlSetValue(comPortHandle, 0x8001, 0x00010001);
+                            mIOCTLExecutor.ioctlSetValue(comPortHandle, 0x8001, 0x00010001);
                         } catch (SerialComException e) {
                             System.out.println("IOCTL status : " + e.getExceptionMsg());
                         }
@@ -76,7 +78,11 @@ class CommonFunctionality implements Runnable {
                     }
                 }
             } catch (Exception e) {
-                //				e.printStackTrace();
+                e.printStackTrace();
+                try {
+                    Thread.sleep(3000);
+                } catch (Exception e1) {
+                }
             }
         }
 
@@ -90,11 +96,11 @@ class CommonFunctionality implements Runnable {
     }
 }
 
-// Bar code reader without LED indicator.
+// Bar code reader WITHOUT LED indicator.
 class OldBarCodeReader extends CommonFunctionality {
 
-    public OldBarCodeReader(SerialComManager scm, AtomicBoolean exitThread, int PRODUCT_VID, int PRODUCT_PID) {
-        super(scm, exitThread, PRODUCT_VID, PRODUCT_PID);
+    public OldBarCodeReader(SerialComManager scm, SerialComUSB scusb, AtomicBoolean exitThread, int PRODUCT_VID, int PRODUCT_PID) {
+        super(scm, scusb, exitThread, PRODUCT_VID, PRODUCT_PID);
     }
 
     public void setup() {
@@ -102,14 +108,15 @@ class OldBarCodeReader extends CommonFunctionality {
     }
 }
 
-// Bar code reader with LED indicator.
+// Bar code reader WITH LED indicator.
 class NewBarCodeReader extends CommonFunctionality {
 
-    public NewBarCodeReader(SerialComManager scm, AtomicBoolean exitThread, int PRODUCT_VID, int PRODUCT_PID) {
-        super(scm, exitThread, PRODUCT_VID, PRODUCT_PID);
+    public NewBarCodeReader(SerialComManager scm, SerialComUSB scusb, AtomicBoolean exitThread, int PRODUCT_VID, int PRODUCT_PID) {
+        super(scm, scusb, exitThread, PRODUCT_VID, PRODUCT_PID);
     }
 
-    public void setup() {
+    public void setup() throws SecurityException, IOException {
+        mIOCTLExecutor = new SerialComIOCTLExecutor(null, null);
         turnOnLED = true;
     }
 }
@@ -133,9 +140,9 @@ public final class FirmwareAdaptableApplication {
     private void begin() throws Exception {
 
         scm = new SerialComManager();
-        scusb = scm.getSerialComUSBInstance();
+        scusb = new SerialComUSB(null, null);
 
-        if(scm.isUSBDevConnected(PRODUCT_VID, PRODUCT_PID, null)) {
+        if(scusb.isUSBDevConnected(PRODUCT_VID, PRODUCT_PID, null)) {
             String[] fwver = scusb.getFirmwareRevisionNumber(PRODUCT_VID, PRODUCT_PID, null);
             if(fwver.length > 0) {
                 fwversion = fwver[0];
@@ -143,11 +150,11 @@ public final class FirmwareAdaptableApplication {
             }
 
             if(fwversion.equals("1.00")) {
-                newReader = new NewBarCodeReader(scm, exitThread, PRODUCT_VID, PRODUCT_PID);
+                newReader = new NewBarCodeReader(scm, scusb, exitThread, PRODUCT_VID, PRODUCT_PID);
                 newReader.setup();
                 workerThread = new Thread(newReader);
             }else {
-                oldReader = new OldBarCodeReader(scm, exitThread, PRODUCT_VID, PRODUCT_PID);
+                oldReader = new OldBarCodeReader(scm, scusb, exitThread, PRODUCT_VID, PRODUCT_PID);
                 oldReader.setup();
                 workerThread = new Thread(oldReader);
             }

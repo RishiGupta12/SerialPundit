@@ -24,9 +24,6 @@ import com.serialpundit.serial.SerialComManager.DATABITS;
 import com.serialpundit.serial.SerialComManager.FLOWCONTROL;
 import com.serialpundit.serial.SerialComManager.PARITY;
 import com.serialpundit.serial.SerialComManager.STOPBITS;
-import com.serialpundit.serial.ISerialComDataListener;
-import com.serialpundit.serial.ISerialComEventListener;
-import com.serialpundit.serial.SerialComLineEvent;
 
 public final class Test2 {
 	public static void main(String[] args) {
@@ -92,7 +89,7 @@ public final class Test2 {
 			if(scm.writeString(handle, "22", 0) == true) {
 				System.out.println("write success 2 byte");
 			}
-			Thread.sleep(200);
+			Thread.sleep(2000);
 			data = scm.readString(handle1);
 			System.out.println("data read for 2 byte is : " + data);
 
