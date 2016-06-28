@@ -47,6 +47,17 @@ public class Test66  {
 
 			System.out.println("driver : " + scm.findDriverServingComPort(PORT));
 			System.out.println("driver : " + scm.findDriverServingComPort(PORT1));
+			System.out.println("driver : " + scm.findDriverServingComPort("/dev/ttyS0"));
+			System.out.println("driver : " + scm.findDriverServingComPort("/dev/pts/6"));
+			System.out.println("driver : " + scm.findDriverServingComPort("/dev/tty2com0"));
+			System.out.println("driver : " + scm.findDriverServingComPort("/home/r/xyz1")); // symlink to ttyUSB0
+
+			// /home/r/xyz2 -> /home/r/xyz1 -> /dev/ttyUSB0
+			System.out.println("driver : " + scm.findDriverServingComPort("/home/r/xyz2")); // ultimate symlink to ttyUSB0
+			System.out.println("driver : " + scm.findDriverServingComPort("/dev/pts/3"));   // present
+			System.out.println("driver : " + scm.findDriverServingComPort("/dev/pts/100")); // not present
+			System.out.println("driver : " + scm.findDriverServingComPort("/dev/tty2com0"));
+			System.out.println("driver : " + scm.findDriverServingComPort("/dev/tty2com102"));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
