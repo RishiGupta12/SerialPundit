@@ -255,6 +255,19 @@ public final class SerialComPortJNIBridge {
             default :
             }
         }
+        else if(cpuArch == SerialComPlatform.ARCH_ARMV8) {
+            if(osType == SerialComPlatform.OS_LINUX) {
+                libExtension = ".so";
+                if(abiType == SerialComPlatform.ABI_ARMHF) {
+                    libToExtractFromJar = "spcomlnxarmv8hf.so";
+                }else if(abiType == SerialComPlatform.ABI_ARMEL) {
+                    libToExtractFromJar = "spcomlnxarmv8el.so";
+                }else {
+                }
+            }else {
+                throw new SerialComException("Please report us your platform !");
+            }
+        }
         else if(cpuArch == SerialComPlatform.ARCH_ARMV7) {
             if(osType == SerialComPlatform.OS_LINUX) {
                 libExtension = ".so";

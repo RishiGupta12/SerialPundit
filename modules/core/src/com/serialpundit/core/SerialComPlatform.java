@@ -125,13 +125,17 @@ public final class SerialComPlatform {
      * constant with value 0x0D. </p>*/
     public static final int ARCH_ARMV5 = 0x0D;
 
-    /** <p>The value indicating that the library is running on a ARMv6 soft float based JVM. Integer 
+    /** <p>The value indicating that the library is running on a ARMv6 based platform. Integer 
      * constant with value 0x0E. </p>*/
     public static final int ARCH_ARMV6 = 0x0E;
 
-    /** <p>The value indicating that the library is running on a ARMv7 soft float based JVM. Integer 
+    /** <p>The value indicating that the library is running on a ARMv7 based platform. Integer 
      * constant with value 0x10. </p>*/
     public static final int ARCH_ARMV7 = 0x0F;
+
+    /** <p>The value indicating that the library is running on a ARMv8 based platform. Integer 
+     * constant with value 0x10. </p>*/
+    public static final int ARCH_ARMV8 = 0x10;
 
     /** <p>The value indicating that ABI type is unknown as of now. Integer constant with value 0x00. </p>*/
     public static final int ABI_UNKNOWN = 0x00;
@@ -267,7 +271,11 @@ public final class SerialComPlatform {
                 while((line = cpuProperties.readLine()) != null) {
                     property = line.toLowerCase(Locale.ENGLISH);
 
-                    if(property.contains("armv7")) {
+                    if(property.contains("armv8") || property.contains("aarch64")) {
+                        cpuArch = SerialComPlatform.ARCH_ARMV8;
+                        break;
+                    }
+                    else if(property.contains("armv7")) {
                         cpuArch = SerialComPlatform.ARCH_ARMV7;
                         break;
                     }
@@ -280,6 +288,8 @@ public final class SerialComPlatform {
                         break;
                     }
                     else {
+                        cpuProperties.close();
+                        return SerialComPlatform.ARCH_UNKNOWN;
                     }
                 }
 
@@ -376,13 +386,6 @@ public final class SerialComPlatform {
 
             public Integer run() {
 
-                // Decision based on system properties
-                if (SerialComUtil.contains(System.getProperty("sun.boot.library.path").toLowerCase(), gnueabihf) || 
-                        SerialComUtil.contains(System.getProperty("java.library.path").toLowerCase(), gnueabihf) ||
-                        SerialComUtil.contains(System.getProperty("java.home").toLowerCase(), gnueabihf)) {
-                    return SerialComPlatform.ABI_ARMHF;
-                }
-
                 // Decision based on ABI type of shell executable. Output may have string :
                 // GNU bash, version 4.2.37(1)-release (arm-unknown-linux-gnueabihf)
                 try {
@@ -395,6 +398,13 @@ public final class SerialComPlatform {
                         }
                     }
                 }catch (Exception e) {
+                }
+
+                // Decision based on system properties
+                if (SerialComUtil.contains(System.getProperty("sun.boot.library.path").toLowerCase(), gnueabihf) || 
+                        SerialComUtil.contains(System.getProperty("java.library.path").toLowerCase(), gnueabihf) ||
+                        SerialComUtil.contains(System.getProperty("java.home").toLowerCase(), gnueabihf)) {
+                    return SerialComPlatform.ABI_ARMHF;
                 }
 
                 // Decision based on ABI type of shell executable. Output may have string :
