@@ -263,7 +263,7 @@ public final class SerialComPlatform {
             throw new NullPointerException("The os.arch java system property is null in the system !");
         }
 
-        if(osArch.startsWith("arm")) {
+        if(osArch.startsWith("arm") || osArch.startsWith("aarch")) {
             if(osType == SerialComPlatform.OS_LINUX) {
 
                 cpuProperties = new BufferedReader(new FileReader("/proc/cpuinfo"));
