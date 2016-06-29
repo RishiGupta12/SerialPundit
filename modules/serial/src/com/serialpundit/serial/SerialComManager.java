@@ -1975,13 +1975,26 @@ public final class SerialComManager {
     }
 
     /**
-     * <p>Gives the name of the driver who is driving the given serial port. This API can be used where legacy serial ports 
-     * have to be found. For example in Windows suppose there is a permanent RS232 port on mother board and a FT232 USB-UART 
-     * is also attached. Let us say FT232 is COM1 and the one on mother board is COM2. Now calling this method by passing 
-     * COM1 and then COM2 can easily tell that COM2 is the port we need.</p>
+     * <p>Gives the name of the driver who is driving the given serial port. The use case scenarios are: </p>
      * 
-     * <p>This can also be used where two end products based on same USB-UART IC are connected to system and they use different 
-     * drivers.</p>
+     * <ul>
+     * <li>Suppose exactly same two temperature sensors are connected to system via usb-uart converters. For 
+     * example 1st sensor senses ambient temperature and is connected to computer via FT232. Second temperature 
+     * sensor is connected via CP2102 to computer. Now when ft232 and cp2102 is plugged into computer we do not know 
+     * which /dev/ttyUSBxx belong to which sensor (usb-uart). In this case use this API to find which device node 
+     * belongs to which converter. For cp2102 driver will be cp210x where as for ft232 it will be ftdi_sio.</li>
+     * 
+     * <li><p>If exactly same usb-uart devices are used to connected two sensors then use findComPortFromUSBAttributes 
+     * API in USB module giving unique serial numbers of ft232. This will tell which device node belongs to which 
+     * sensor.</p></li>
+     * 
+     * <li>It can be used where legacy serial ports have to be found. For example in Windows suppose there is a permanent 
+     * RS232 port on mother board and a FT232 USB-UART is also attached. Let us say FT232 is COM1 and the one on mother 
+     * board is COM2. Now calling this method by passing COM1 and then COM2 can easily tell that COM2 is the port we need.</li>
+     * 
+     * <li><p>This can also be used where two end products based on same usb-uart converter are connected to the compueter 
+     * and they use different drivers.</p></li>
+     * </ul>
      * 
      * @param comPortName name only for windows (for ex; COM52), full path for unix-like os (for ex; /dev/ttyUSB0).
      * @return name of driver serving given serial port.
