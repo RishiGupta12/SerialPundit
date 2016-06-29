@@ -1207,7 +1207,7 @@ static void scm_port_dtr_rts(struct tty_port *port, int raise)
 /*
  * Checks if the given port has received its carrier detect line raised.
  *
- * @port serial port whose carrier detect line is to be checked.
+ * @port: serial port whose carrier detect line is to be checked.
  *
  * @return 1 if the carrier is raised otherwise 0
  */
@@ -1252,10 +1252,10 @@ static void scm_port_destruct(struct tty_port *port)
  */
 
 /*
- * @file file for proc file
- * @buf user space buffer that will contain data when this function returns
- * @size number of character returned in buf
- * @ppos offset
+ * @file: file for proc file
+ * @buf: user space buffer that will contain data when this function returns
+ * @size: number of character returned in buf
+ * @ppos: offset
  *
  * @return number of bytes copied to user buffer on success or negative error code on error
  */
@@ -1292,7 +1292,9 @@ static ssize_t scmtty_vadapt_proc_read(struct file *file, char __user *buf, size
 /*
  * Extract pin mappings from local to remote tty devices.
  *
- * @return: 0 on success or negative error code
+ * @data: dat to be parsed
+ * @x: starting index in array for parsing
+ * @return 0 on success or negative error code on failure.
  */
 static int extract_pin_mapping(char data[], int x) {
     int i = 0;
@@ -1340,12 +1342,12 @@ static int extract_pin_mapping(char data[], int x) {
  * 4. Delete all virtual tty devices in this adaptor:
  * $echo "del#xxxxx#xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" > /proc/scmtty_vadaptkm
  *
- * @file file representing scm proc file
- * @buf command supplied by caller
- * @length length of the command
- * @ppos offset in file
+ * @file: file representing scm proc file
+ * @buf: command supplied by caller
+ * @length: length of the command
+ * @ppos: offset in file
  *
- * @return number of bytes consumed by this function on success or negative error code on failure
+ * @return number of bytes consumed by this function on success or negative error code on failure.
  */
 static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *buf, size_t length, loff_t * ppos)
 {
@@ -1777,6 +1779,9 @@ static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *bu
  * Invoked when user space process opens /proc/scmtty_vadaptkm file to create/destroy
  * virtual tty device(s).
  *
+ * @inode: inode in file system corresponding to this file
+ * @file: file representing scm proc file
+ *
  * @return 0 on success.
  */
 static int scmtty_vadapt_proc_open(struct inode *inode, struct  file *file)
@@ -1786,6 +1791,9 @@ static int scmtty_vadapt_proc_open(struct inode *inode, struct  file *file)
 
 /*
  * Invoked when user space process closes /proc/scmtty_vadaptkm file.
+ *
+ * @inode: inode in file system corresponding to this file
+ * @file: file representing scm proc file
  *
  * @return 0 on success.
  */
