@@ -51,6 +51,8 @@ public final class Test2 {
 			}else{
 			}
 
+			/* Test 1 */
+
 			// try opening serial port for read and write without exclusive ownership
 			long handle = scm.openComPort(PORT, true, true, false);
 			// configure data communication related parameters
@@ -141,6 +143,24 @@ public final class Test2 {
 
 			scm.closeComPort(handle);
 			scm.closeComPort(handle1);
+
+			/* Test 2 what happens if port is closed then read is issued */
+			// com.serialpundit.core.SerialComException: Bad file descriptor
+			handle = scm.openComPort(PORT, true, true, false);
+			scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
+			scm.configureComPortControl(handle, FLOWCONTROL.NONE, 'x', 'x', false, false);
+			handle1 = scm.openComPort(PORT1, true, true, false);
+			scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
+			scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+			scm.closeComPort(handle);
+			scm.closeComPort(handle1);
+			try {
+				datares = scm.readBytes(handle);
+				System.out.println("Response read : " + SerialComUtil.byteArrayToHexString(datares, ","));
+			}catch (Exception e) {
+				e.printStackTrace();
+			}
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
