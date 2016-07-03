@@ -34,6 +34,7 @@ import com.serialpundit.serial.ftp.SerialComXModem1K;
 import com.serialpundit.serial.ftp.SerialComXModemCRC;
 import com.serialpundit.serial.ftp.SerialComYModem1K;
 import com.serialpundit.serial.ftp.SerialComYModemCRC;
+import com.serialpundit.serial.ftp.SerialComYModemG;
 import com.serialpundit.serial.mapper.SerialComPortMapper;
 import com.serialpundit.serial.nullmodem.SerialComNullModem;
 import com.serialpundit.serial.vendor.SerialComVendorLib;
@@ -236,7 +237,9 @@ public final class SerialComManager {
         /** <p>2 bytes CRC with 128 byte data block variant for X/Y modem protocols. </p>*/
         CRC(2),
         /** <p>2 byte CRC with 128/1024 bytes data block variant for X/Y modem protocols. </p>*/
-        VAR1K(3);
+        VAR1K(3),
+        /** <p>2 byte CRC with 128/1024 bytes data block Ymodem-G variant of Y modem protocol. </p>*/
+        VARG(4);
         private int value;
         private FTPVAR(int value) {
             this.value = value;	
@@ -2092,6 +2095,10 @@ public final class SerialComManager {
      * <p>For Ymodem transfer, the fileToSend array should contain all the files to be transffered to 
      * receiver end where all the elements in fileToSend array represent regular files.</p>
      * 
+     * <p>Xmodem protocol is widely used for flashing executable images in microcontroller via UART. For 
+     * example the secondary bootloader in LPC2000 can update the user application code in on chip flash 
+     * via UART with 1K XMODEM protocol. Xmodem protocol is also used for taling to network routers.</p>
+     * 
      * @param handle of the port on which file is to be sent.
      * @param fileToSend File instance representing file to be sent.
      * @param ftpProto file transfer protocol to use for communication over serial port.
@@ -2165,12 +2172,14 @@ public final class SerialComManager {
             case 3:
                 SerialComYModem1K ymodemk = new SerialComYModem1K(this, handle, fileToSend, textMode, (ISerialComYmodemProgress)progressListener, transferState, osType);
                 return ymodemk.sendFileY();
+            case 4:
+                SerialComYModemG ymodemg = new SerialComYModemG(this, handle, fileToSend, textMode, (ISerialComYmodemProgress)progressListener, transferState, osType);
+                return ymodemg.sendFileY();
             default:
                 throw new IllegalArgumentException("This variant is not applicable for Ymodem transfer !");
             }
         }
         else if(protocol == 3) {
-
         }
         else {
         }
@@ -2209,8 +2218,6 @@ public final class SerialComManager {
     public boolean receiveFile(long handle, final File fileToReceive, FTPPROTO ftpProto, FTPVAR ftpVariant, 
             boolean textMode, ISerialComFTPProgress progressListener, SerialComFTPCMDAbort transferState) throws IOException {
 
-        boolean result = false;
-
         if(fileToReceive == null) {
             throw new IllegalArgumentException("Argument fileToReceive can not be null !");
         }
@@ -2237,37 +2244,45 @@ public final class SerialComManager {
                     throw new IllegalArgumentException("Implement ISerialComXmodemProgress for non-null progressListener !");
                 }
             }
-            if(variant == 1) {
+            switch(variant) {
+            case 1:
                 SerialComXModem xmodem = new SerialComXModem(this, handle, fileToReceive, textMode, (ISerialComXmodemProgress)progressListener, transferState, osType);
-                result = xmodem.receiveFileX();
-            }else if(variant == 2) {
+                return xmodem.receiveFileX();
+            case 2:
                 SerialComXModemCRC xmodemc = new SerialComXModemCRC(this, handle, fileToReceive, textMode, (ISerialComXmodemProgress)progressListener, transferState, osType);
-                result = xmodemc.receiveFileX();
-            }else if(variant == 3) {
+                return xmodemc.receiveFileX();
+            case 3:
                 SerialComXModem1K xmodemk = new SerialComXModem1K(this, handle, fileToReceive, textMode, (ISerialComXmodemProgress)progressListener, transferState, osType);
-                result = xmodemk.receiveFileX();
-            }else {
-                throw new IllegalArgumentException("This variant is not applicable for for Xmodem transfer !");
+                return xmodemk.receiveFileX();
+            default:
+                throw new IllegalArgumentException("This variant is not applicable for Xmodem transfer !");
             }
-        }else if(protocol == 2) {
+        }
+        else if(protocol == 2) {
             if(!fileToReceive.isDirectory() || !fileToReceive.canWrite()) {
                 throw new IllegalArgumentException("The fileToReceive must be a writable directory for Ymodem transfer !");
-            }
-            if(variant == 2) {
+            }            
+            switch(variant) {
+            case 2:
                 SerialComYModemCRC ymodemc = new SerialComYModemCRC(this, handle, fileToReceive, textMode, (ISerialComYmodemProgress)progressListener, transferState, osType);
-                result = ymodemc.receiveFileY();
-            }else if(variant == 3) {
+                return ymodemc.receiveFileY();
+            case 3:
                 SerialComYModem1K ymodemk = new SerialComYModem1K(this, handle, fileToReceive, textMode, (ISerialComYmodemProgress)progressListener, transferState, osType);
-                result = ymodemk.receiveFileY();
-            }else {
-                throw new IllegalArgumentException("This variant is not applicable for for Ymodem transfer !");
+                return ymodemk.receiveFileY();
+            case 4:
+                SerialComYModemG ymodemg = new SerialComYModemG(this, handle, fileToReceive, textMode, (ISerialComYmodemProgress)progressListener, transferState, osType);
+                return ymodemg.receiveFileY();
+            default:
+                throw new IllegalArgumentException("This variant is not applicable for Ymodem transfer !");
             }
-        }else if(protocol == 3) {
+        }
+        else if(protocol == 3) {
 
-        }else {
+        }
+        else {
         }
 
-        return result;
+        return false;
     }
 
     /**
