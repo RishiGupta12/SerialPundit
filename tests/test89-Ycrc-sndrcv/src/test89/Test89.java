@@ -59,6 +59,7 @@ public class Test89 implements ISerialComYmodemProgress {
 	public static String sndtxt1 = null;
 	public static String sndtxt2 = null;
 	public static String sndtxt3 = null;
+	public static String sndtxt4 = null;
 	public static String rcvtxt1 = null;
 	public static String rcvtxt2 = null;
 	public static String rcvtxt3 = null;
@@ -84,6 +85,7 @@ public class Test89 implements ISerialComYmodemProgress {
 				sndtxt1 = "/home/r/ws-host-uart/ftptest/f1.txt";
 				sndtxt2 = "/home/r/ws-host-uart/ftptest/f2.txt";
 				sndtxt3 = "/home/r/ws-host-uart/ftptest/f3.txt";
+				sndtxt4 = "/home/r/ws-host-uart/ftptest/f4.txt";
 				sndjpg1 = "/home/r/ws-host-uart/ftptest/f1.jpg";
 				sndjpg2 = "/home/r/ws-host-uart/ftptest/f2.jpg";
 				rcvdiry1 = "/home/r/ws-host-uart/ftptest/rcvdiry1";
@@ -101,6 +103,9 @@ public class Test89 implements ISerialComYmodemProgress {
 			}else{
 			}
 
+			PORT1 = "/dev/pts/6";
+			PORT2 = "/dev/pts/8";
+
 			Executors.newSingleThreadExecutor().execute(new Runnable() {
 				@Override 
 				public void run() {
@@ -108,9 +113,10 @@ public class Test89 implements ISerialComYmodemProgress {
 						long handle1 = scm.openComPort(PORT1, true, true, true);
 						scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
 						scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
-						File[] f = new File[2];
+						File[] f = new File[3];
 						f[0] = new File(sndtxt1);
 						f[1] = new File(sndtxt2);
+						f[2] = new File(sndtxt4);
 						Thread.sleep(1000);
 						boolean status1 = scm.sendFile(handle1, f, FTPPROTO.YMODEM, FTPVAR.CRC, true, test89, null);
 						System.out.println("ASCII MODE sent txt status : " + status1);
@@ -144,9 +150,10 @@ public class Test89 implements ISerialComYmodemProgress {
 						long handle3 = scm.openComPort(PORT1, true, true, true);
 						scm.configureComPortData(handle3, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
 						scm.configureComPortControl(handle3, FLOWCONTROL.NONE, 'x', 'x', false, false);
-						File[] f = new File[2];
+						File[] f = new File[3];
 						f[0] = new File(sndtxt1);
 						f[1] = new File(sndtxt2);
+						f[2] = new File(sndtxt4);
 						Thread.sleep(1000);
 						boolean status3 = scm.sendFile(handle3, f, FTPPROTO.YMODEM, FTPVAR.CRC, false, test89, null);
 						System.out.println("BINARY MODE sent txt status : " + status3);
