@@ -1091,9 +1091,13 @@ public final class SerialComYModemCRC {
 
             case CONNECT:
 
-                blockNumber = 1;                       // reset
-                numberOfBlocksReceived = 0;            // reset
-                totalNumberOfDataBytesReadTillNow = 0; // reset
+                // reset some globals
+                blockNumber = 1;
+                numberOfBlocksReceived = 0;
+                totalNumberOfDataBytesReadTillNow = 0;
+                lastCharacterReceivedWasLF = false;
+                lastCharacterReceivedWasCR = false;
+                unprocessedByteInReceivedDataExist = false;
 
                 for(x=0; x < 3; x++) {
                     try {
@@ -1136,23 +1140,47 @@ public final class SerialComYModemCRC {
 
             case BLOCK0RCV:
 
-                if(data[0] == SOH) {
-                    block0 = block;
-                    spaceLeftInBlock0 = 133;
-                    crcl = 131;
-                }else if(data[0] == STX) {
-                    block0 = block1029;
-                    spaceLeftInBlock0 = 1029;
-                    crcl = 1027;
-                }else {
-                    //TODO CAN expt = new SerialComException("Invalid character received !");
-                    state = ABORT;
-                    break;
+                for(x=0; x < 3; x++) {
+                    if(data != null && data.length > 0) {
+                        if(data[0] == SOH) {
+                            block0 = block;
+                            spaceLeftInBlock0 = 133;
+                            crcl = 131;
+                            break;
+                        }else if(data[0] == STX) {
+                            block0 = block1029;
+                            spaceLeftInBlock0 = 1029;
+                            crcl = 1027;
+                            break;
+                        }else {
+                            // the sender might forget to flush his serial port buffers and therefore initial
+                            // data may be garbage + block0.
+                            try {
+                                scm.writeSingleByte(handle, NAK);
+                            } catch (IOException e) {
+                                throw e;
+                            }
+                            try {
+                                Thread.sleep(300);
+                            } catch (InterruptedException e) {
+                            }
+                            try {
+                                data = scm.readBytes(handle, 133);
+                            } catch (IOException e) {
+                                throw e;
+                            }
+                        }
+                    }
                 }
+                if(x >= 3) {
+                    throw new SerialComTimeOutException("Timed out while waiting for block 0 from file sender !");
+                }
+
                 for(x=0; x < data.length; x++) {
                     block0[x] = data[x];
                     spaceLeftInBlock0--;
                 }
+
                 if(spaceLeftInBlock0 > 0) {
                     block0Index = block0.length - spaceLeftInBlock0;
                     for(i = 0; i < 20; i++) {

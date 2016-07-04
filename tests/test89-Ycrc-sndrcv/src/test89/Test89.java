@@ -103,9 +103,6 @@ public class Test89 implements ISerialComYmodemProgress {
 			}else{
 			}
 
-			PORT1 = "/dev/pts/6";
-			PORT2 = "/dev/pts/8";
-
 			Executors.newSingleThreadExecutor().execute(new Runnable() {
 				@Override 
 				public void run() {
