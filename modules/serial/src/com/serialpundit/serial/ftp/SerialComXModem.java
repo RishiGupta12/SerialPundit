@@ -27,7 +27,7 @@ import com.serialpundit.core.SerialComException;
 import com.serialpundit.serial.SerialComManager;
 
 /**
- * <p>Implements state machine based file transfer based on XMODEM-128 file transfer protocol.</p>
+ * <p>Implements XMODEM-128/XMODEM-CHECKSUM file transfer protocol state machine in Java.</p>
  * 
  * @author Rishi Gupta
  */
@@ -270,7 +270,7 @@ public final class SerialComXModem {
                     }
                 }
 
-                if((state != ABORT) && (state != ENDTX)) {
+                if(state == WAITACK) {
                     if(noMoreData != true) {					
                         if(data[0] == ACK) {
                             if(lastCharacterReceivedWasCAN == true) {
@@ -403,7 +403,7 @@ public final class SerialComXModem {
      * will be sent. This method handles text/ascii mode in operating system independent
      * way. 
      * 
-     * Algorithm for processing assumes that a text file may contain following combinations
+     * This algorithm for processing assumes that a text file may contain following combinations
      * of character sequence with the corresponding data bytes sent to receiving end. The X
      * is a data byte other than CR and LF.
      * 
@@ -417,15 +417,16 @@ public final class SerialComXModem {
      * X  LF (send X CR LF)
      * X  CR (send X CR LF)
      * 
-     * Algorithm takes 2 bytes at a time into consideration and check it against above combination.
-     * Based on cases above it will add/remove CR and LF etc characters.
+     * This algorithm algorithm takes 2 bytes at a time into consideration and check it against the 
+     * above combination. Based on cases above, it will add/remove CR and LF etc characters if 
+     * required.
      * 
-     * For text mode data is first read into tmpSendBuffer and then parsed. The mark points to 
-     * current byte which needs to be sent to other end. The limit refers to number of bytes 
-     * currently available in tmpSendBuffer.
+     * For text mode data is first read into tmpSendBuffer and then parsed. 
+     * mark  - points to current byte which needs to be sent to other end
+     * limit - refers to number of bytes currently available in tmpSendBuffer
      * 
      * If we need to add extra LF or CR characters, it may be added in current block if there
-     * is space or will be added in next block if current block is full.
+     * is space or it will be added in next block if current block is full.
      * 
      * @throws IOException if any I/O error occurs.
      */
@@ -583,9 +584,11 @@ public final class SerialComXModem {
                     }
                 }
 
-                // when control reached here, both data0 and data1 will have valid values.
-                // so algorithm will work with 2 given bytes.
-                if(data0 < 0) {
+                // When control reached here, both data0 and data1 will have valid values.
+                // so algorithm will work with 2 given bytes. The data0/data1 may contain
+                // a printable character which can have negative value therefore allow data0 
+                // and data1 to contain anything other than -1.
+                if(data0 == -1) {
                     // indicates EOF reached.
                     if(alreadySentEOFchar == true) {
                         // EOF have been sent already in last block.
@@ -599,7 +602,7 @@ public final class SerialComXModem {
                         }
                         alreadySentEOFchar = true;
                     }
-                }else if((data0 >= 0) && (data1 < 0)) {
+                }else if((data0 != -1) && (data1 == -1)) {
                     // indicates last byte of data in file.
                     if((data0 == LF) || (data0 == CR)) {
                         block[x] = CR;
@@ -1145,9 +1148,7 @@ public final class SerialComXModem {
                         tmpReceiveBuffer[q] = CR;
                         tmpReceiveBuffer[q + 1] = LF;
                         q = q + 2;
-                    }else if((osType == SerialComPlatform.OS_MAC_OS_X) || (osType == SerialComPlatform.OS_LINUX) || (osType == SerialComPlatform.OS_SOLARIS)
-                            || (osType == SerialComPlatform.OS_FREEBSD) || (osType == SerialComPlatform.OS_NETBSD) || (osType == SerialComPlatform.OS_OPENBSD)
-                            || (osType == SerialComPlatform.OS_ANDROID)) {
+                    }else if((osType == SerialComPlatform.OS_MAC_OS_X) || (osType == SerialComPlatform.OS_LINUX)) {
                         tmpReceiveBuffer[q] = LF;
                         q = q + 1;
                     }else {
@@ -1160,9 +1161,7 @@ public final class SerialComXModem {
                         tmpReceiveBuffer[q + 2] = CR;
                         tmpReceiveBuffer[q + 3] = LF;
                         q = q + 4;
-                    }else if((osType == SerialComPlatform.OS_MAC_OS_X) || (osType == SerialComPlatform.OS_LINUX) || (osType == SerialComPlatform.OS_SOLARIS)
-                            || (osType == SerialComPlatform.OS_FREEBSD) || (osType == SerialComPlatform.OS_NETBSD) || (osType == SerialComPlatform.OS_OPENBSD)
-                            || (osType == SerialComPlatform.OS_ANDROID)) {
+                    }else if((osType == SerialComPlatform.OS_MAC_OS_X) || (osType == SerialComPlatform.OS_LINUX)) {
                         tmpReceiveBuffer[q] = LF;
                         tmpReceiveBuffer[q + 1] = LF;
                         q = q + 2;
@@ -1174,9 +1173,7 @@ public final class SerialComXModem {
                         tmpReceiveBuffer[q] = CR;
                         tmpReceiveBuffer[q + 1] = LF;
                         q = q + 2;
-                    }else if((osType == SerialComPlatform.OS_MAC_OS_X) || (osType == SerialComPlatform.OS_LINUX) || (osType == SerialComPlatform.OS_SOLARIS)
-                            || (osType == SerialComPlatform.OS_FREEBSD) || (osType == SerialComPlatform.OS_NETBSD) || (osType == SerialComPlatform.OS_OPENBSD)
-                            || (osType == SerialComPlatform.OS_ANDROID)) {
+                    }else if((osType == SerialComPlatform.OS_MAC_OS_X) || (osType == SerialComPlatform.OS_LINUX)) {
                         tmpReceiveBuffer[q] = LF;
                         q = q + 1;
                     }else {
@@ -1188,9 +1185,7 @@ public final class SerialComXModem {
                         tmpReceiveBuffer[q + 1] = LF;
                         tmpReceiveBuffer[q + 2] = data1;
                         q = q + 3;
-                    }else if((osType == SerialComPlatform.OS_MAC_OS_X) || (osType == SerialComPlatform.OS_LINUX) || (osType == SerialComPlatform.OS_SOLARIS)
-                            || (osType == SerialComPlatform.OS_FREEBSD) || (osType == SerialComPlatform.OS_NETBSD) || (osType == SerialComPlatform.OS_OPENBSD)
-                            || (osType == SerialComPlatform.OS_ANDROID)) {
+                    }else if((osType == SerialComPlatform.OS_MAC_OS_X) || (osType == SerialComPlatform.OS_LINUX)) {
                         tmpReceiveBuffer[q] = LF;
                         tmpReceiveBuffer[q + 1] = data1;
                         q = q + 2;
@@ -1206,9 +1201,7 @@ public final class SerialComXModem {
                         tmpReceiveBuffer[q + 2] = CR;
                         tmpReceiveBuffer[q + 3] = LF;
                         q = q + 4;
-                    }else if((osType == SerialComPlatform.OS_MAC_OS_X) || (osType == SerialComPlatform.OS_LINUX) || (osType == SerialComPlatform.OS_SOLARIS)
-                            || (osType == SerialComPlatform.OS_FREEBSD) || (osType == SerialComPlatform.OS_NETBSD) || (osType == SerialComPlatform.OS_OPENBSD)
-                            || (osType == SerialComPlatform.OS_ANDROID)) {
+                    }else if((osType == SerialComPlatform.OS_MAC_OS_X) || (osType == SerialComPlatform.OS_LINUX)) {
                         tmpReceiveBuffer[q] = LF;
                         tmpReceiveBuffer[q + 1] = LF;
                         q = q + 2;
@@ -1220,9 +1213,7 @@ public final class SerialComXModem {
                         tmpReceiveBuffer[q] = CR;
                         tmpReceiveBuffer[q + 1] = LF;
                         q = q + 2;
-                    }else if((osType == SerialComPlatform.OS_MAC_OS_X) || (osType == SerialComPlatform.OS_LINUX) || (osType == SerialComPlatform.OS_SOLARIS)
-                            || (osType == SerialComPlatform.OS_FREEBSD) || (osType == SerialComPlatform.OS_NETBSD) || (osType == SerialComPlatform.OS_OPENBSD)
-                            || (osType == SerialComPlatform.OS_ANDROID)) {
+                    }else if((osType == SerialComPlatform.OS_MAC_OS_X) || (osType == SerialComPlatform.OS_LINUX)) {
                         tmpReceiveBuffer[q] = LF;
                         q = q + 1;
                     }else {
@@ -1233,9 +1224,7 @@ public final class SerialComXModem {
                         tmpReceiveBuffer[q] = CR;
                         tmpReceiveBuffer[q + 1] = LF;
                         q = q + 2;
-                    }else if((osType == SerialComPlatform.OS_MAC_OS_X) || (osType == SerialComPlatform.OS_LINUX) || (osType == SerialComPlatform.OS_SOLARIS)
-                            || (osType == SerialComPlatform.OS_FREEBSD) || (osType == SerialComPlatform.OS_NETBSD) || (osType == SerialComPlatform.OS_OPENBSD)
-                            || (osType == SerialComPlatform.OS_ANDROID)) {
+                    }else if((osType == SerialComPlatform.OS_MAC_OS_X) || (osType == SerialComPlatform.OS_LINUX)) {
                         tmpReceiveBuffer[q] = LF;
                         q = q + 1;
                     }else {
@@ -1247,9 +1236,7 @@ public final class SerialComXModem {
                         tmpReceiveBuffer[q + 1] = LF;
                         tmpReceiveBuffer[q + 2] = data1;
                         q = q + 3;
-                    }else if((osType == SerialComPlatform.OS_MAC_OS_X) || (osType == SerialComPlatform.OS_LINUX) || (osType == SerialComPlatform.OS_SOLARIS)
-                            || (osType == SerialComPlatform.OS_FREEBSD) || (osType == SerialComPlatform.OS_NETBSD) || (osType == SerialComPlatform.OS_OPENBSD)
-                            || (osType == SerialComPlatform.OS_ANDROID)) {
+                    }else if((osType == SerialComPlatform.OS_MAC_OS_X) || (osType == SerialComPlatform.OS_LINUX)) {
                         tmpReceiveBuffer[q] = LF;
                         tmpReceiveBuffer[q + 1] = data1;
                         q = q + 2;
