@@ -17,6 +17,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
@@ -27,7 +28,7 @@ import com.serialpundit.core.SerialComException;
 import com.serialpundit.serial.SerialComManager;
 
 /**
- * <p>Implements state machine based file transfer based on YMODEM-CRC file transfer protocol.</p>
+ * <p>Implements YMODEM-CRC file transfer protocol state machine in Java.</p>
  * 
  * @author Rishi Gupta
  */
@@ -59,7 +60,7 @@ public final class SerialComYModemCRC {
 
     private int blockNumber;
     private byte[] block = new byte[133];     // 133  bytes ymodem info or data block/packet
-    private byte[] block0 = null;
+    private byte[] block0 = null;             // can be 133 or 1029 depending upon size of file info
     private BufferedInputStream inStream;    // sent file from local to remote system
     private BufferedOutputStream outStream;  // received file from remote to local system
     private boolean noMoreData;
@@ -226,7 +227,6 @@ public final class SerialComYModemCRC {
                             break;
                         }
                     }
-
                     // check if application (file sender) wish to cancel sending file.
                     if((transferState != null) && (transferState.isTransferToBeAborted() == true)) {
                         inStream.close();
@@ -345,7 +345,7 @@ public final class SerialComYModemCRC {
                     }
                 }
 
-                if((state != ABORT) && (state != ENDTX)) {
+                if(state == WAITACK) {
                     if(noMoreData != true) {	
                         if(data[0] == ACK) {
                             if(lastCharacterReceivedWasCAN == true) {
@@ -553,7 +553,7 @@ public final class SerialComYModemCRC {
                  * have been already thrown. This state is entered explicitly to abort executing 
                  * actions in state machine. */
                 inStream.close();
-                throw new SerialComTimeOutException(errMsg);
+                throw new SerialComException(errMsg);
 
             default:
                 break;
@@ -680,7 +680,7 @@ public final class SerialComYModemCRC {
      * will be sent. This method handles text/ascii mode in operating system independent
      * way. 
      * 
-     * Algorithm for processing assumes that a text file may contain following combinations
+     * This algorithm for processing assumes that a text file may contain following combinations
      * of character sequence with the corresponding data bytes sent to receiving end. The X
      * is a data byte other than CR and LF.
      * 
@@ -694,15 +694,16 @@ public final class SerialComYModemCRC {
      * X  LF (send X CR LF)
      * X  CR (send X CR LF)
      * 
-     * Algorithm takes 2 bytes at a time into consideration and check it against above combination.
-     * Based on cases above it will add/remove CR and LF etc characters.
+     * This algorithm algorithm takes 2 bytes at a time into consideration and check it against the 
+     * above combination. Based on cases above, it will add/remove CR and LF etc characters if 
+     * required.
      * 
-     * For text mode data is first read into tmpSendBuffer and then parsed. The mark points to 
-     * current byte which needs to be sent to other end. The limit refers to number of bytes 
-     * currently available in tmpSendBuffer.
+     * For text mode data is first read into tmpSendBuffer and then parsed. 
+     * mark  - points to current byte which needs to be sent to other end
+     * limit - refers to number of bytes currently available in tmpSendBuffer
      * 
      * If we need to add extra LF or CR characters, it may be added in current block if there
-     * is space or will be added in next block if current block is full.
+     * is space or it will be added in next block if current block is full.
      * 
      * @throws IOException if any I/O error occurs.
      */
@@ -861,9 +862,11 @@ public final class SerialComYModemCRC {
                     }
                 }
 
-                // when control reached here, both data0 and data1 will have valid values.
-                // so algorithm will work with 2 given bytes.
-                if(data0 < 0) {
+                // When control reached here, both data0 and data1 will have valid values.
+                // so algorithm will work with 2 given bytes. The data0/data1 may contain
+                // a printable character which can have negative value therefore allow data0 
+                // and data1 to contain anything other than -1.
+                if(data0 == -1) {
                     // indicates EOF reached.
                     if(alreadySentEOFchar == true) {
                         // EOF have been sent already in last block.
@@ -877,7 +880,7 @@ public final class SerialComYModemCRC {
                         }
                         alreadySentEOFchar = true;
                     }
-                }else if((data0 >= 0) && (data1 < 0)) {
+                }else if((data0 != -1) && (data1 == -1)) {
                     // indicates last byte of data in file.
                     if((data0 == LF) || (data0 == CR)) {
                         block[x] = CR;
@@ -1040,44 +1043,39 @@ public final class SerialComYModemCRC {
     public boolean receiveFileY() throws IOException {
 
         // Finite state machine's states.
-        final int CONNECT   = 0x01;
-        final int BLOCKRCV  = 0x02;
-        final int VERIFY    = 0x03;
-        final int REPLY     = 0x04;
-        final int ABORT     = 0x05;
+        final int CONNECT       = 0x01;
+        final int BLOCK0RCV     = 0x02;
+        final int PBLOCK0       = 0x03;
+        final int BEGINRCV      = 0x04;
+        final int DATABLOCKRCV  = 0x05;
+        final int VERIFY        = 0x06;
+        final int REPLY         = 0x07;
+        final int ABORT         = 0x08;
 
         int i = 0;
         int x = 0;
-        int z = 0;
         int crcl = 0;
-        int block0CharReceivedIndex = 0;
-        int delayVal = 250;
-        int retryCount = 0;
-        int duplicateBlockRetryCount = 0;
         int state = -1;
         int blockNumber = 1;
         int blockCRCval = 0;
-        int bufferIndex = 0;
-        long connectTimeOut = 0;
-        long nextDataRecvTimeOut = 0;
-        boolean rxDone = false;
-        boolean firstBlock = false;
-        boolean isCorrupted = false;
-        boolean isDuplicateBlock = false;
-        boolean partialReadInProgress = false;
+        int block0Index = 0;
+        int dataBlockIndex = 0;
         byte[] data = null;
         String errMsg = null;
-        int percentOfBlocksReceived = 0;
-        boolean receiveBlock0OrFinalBlock = true;
-        byte[] block0 = new byte[1029];
+        int spaceLeftInBlock0 = 0;
+        int spaceLeftInDataBlock = 0;
+        byte[] block1029 = new byte[1029];
         long currentlyProcessingFileLength = 0;
         long currentlyProcessingFileModifyInfo = 0;
         long currentlyProcessingFileMode = 0;
         boolean isFileOpen = false;
-        boolean eotACKHasBeenSent = false;
-        long totalNumberOfDataBytesReadTillNow = 0;
         String nameOfFileBeingReceived = null;
         final String receiverDirAbsolutePath = filesToReceive.getAbsolutePath();
+        boolean isCorrupted = false;
+        boolean isDuplicateBlock = false;
+        int duplicateBlockRetryCount = 0;
+        long totalNumberOfDataBytesReadTillNow = 0;
+        int percentOfBlocksReceived = 0;
 
         // Clear receive buffer before start. Ymodem is fully receiver driven by design.
         try {
@@ -1092,316 +1090,273 @@ public final class SerialComYModemCRC {
             switch(state) {
 
             case CONNECT:
-                if(retryCount < 3) {
+
+                blockNumber = 1;                       // reset
+                numberOfBlocksReceived = 0;            // reset
+                totalNumberOfDataBytesReadTillNow = 0; // reset
+
+                for(x=0; x < 3; x++) {
                     try {
                         scm.writeSingleByte(handle, C);
-                        firstBlock = true;
-                        connectTimeOut = System.currentTimeMillis() + 3000; // update timeout, 3 seconds.
-                        state = BLOCKRCV;
-                    } catch (SerialComException exp) {
-                        outStream.close();
-                        throw exp;
+                    } catch (SerialComException e) {
+                        throw e;
                     }
-                }else {
-                    // ymodem has no option to fall back to checksum mode like xmodem, so abort.
-                    errMsg = "Abort command received from file sender's end !";
-                    state = ABORT;
+                    try {
+                        Thread.sleep(300);
+                    } catch (InterruptedException e) {
+                    }
+                    try {
+                        data = scm.readBytes(handle, 133);
+                    } catch (IOException e) {
+                        throw e;
+                    }
+                    if(data != null && data.length > 0) {
+                        if(data[0] == EOT) {
+                            // sender sent EOT again because he missed (noise) our acknowledgement of EOT previously sent.
+                            try {
+                                scm.writeSingleByte(handle, ACK);
+                                continue;
+                            } catch (IOException e) {
+                                throw e;
+                            }
+                        }
+                        break;
+                    }
+                    if((transferState != null) && (transferState.isTransferToBeAborted() == true)) {
+                        outStream.close();
+                        scm.writeBytes(handle, ABORT_CMD, 0);
+                        return false;
+                    }
                 }
+                if(x >= 3) {
+                    throw new SerialComTimeOutException("Timed out while connecting with file sender !");
+                }
+                state = BLOCK0RCV;
                 break;
 
-            case BLOCKRCV:        
-                // when the receiver is waiting for a block of data following conditions might occur :
-                // case 1: sender sent data block only (133 length block).
-                // case 2: sender sent abort command only (consecutive CAN characters or may have BACK 
-                //         SPACE totaling 2 to 16 characters).
-                // case 3: sender sent data block followed immediately by abort command (135 to 149(133+16) total).
-                // case 4: sender sent abort command in between data block.
-                // case 5: sender can send block0 (133/1029), file data block(133) or final null block(133).
-                while(true) {
+            case BLOCK0RCV:
+
+                if(data[0] == SOH) {
+                    block0 = block;
+                    spaceLeftInBlock0 = 133;
+                    crcl = 131;
+                }else if(data[0] == STX) {
+                    block0 = block1029;
+                    spaceLeftInBlock0 = 1029;
+                    crcl = 1027;
+                }else {
+                    //TODO CAN expt = new SerialComException("Invalid character received !");
+                    state = ABORT;
+                    break;
+                }
+                for(x=0; x < data.length; x++) {
+                    block0[x] = data[x];
+                    spaceLeftInBlock0--;
+                }
+                if(spaceLeftInBlock0 > 0) {
+                    block0Index = block0.length - spaceLeftInBlock0;
+                    for(i = 0; i < 20; i++) {
+                        // check if application (file receiver) wish to cancel receiving file.
+                        if((transferState != null) && (transferState.isTransferToBeAborted() == true)) {
+                            outStream.close();
+                            scm.writeBytes(handle, ABORT_CMD, 0);
+                            return false;
+                        }
+                        // let the data arrive from other end, also minimize JNI transitions.
+                        try {
+                            Thread.sleep(100);
+                        } catch (InterruptedException e) {
+                        }
+                        try {
+                            data = scm.readBytes(handle, spaceLeftInBlock0);
+                        } catch (IOException e) {
+                            throw e;
+                        }
+                        if((data != null) && (data.length > 0)) {
+                            for(x=0; x < data.length; x++) {
+                                block0[block0Index] = data[x];
+                                block0Index++;
+                                spaceLeftInBlock0--;
+                            }
+                        }
+                        if(spaceLeftInBlock0 <= 0) {
+                            break;
+                        }
+                    }
+                }
+                if(i >= 20) {
+                    throw new SerialComTimeOutException("Timed out while receiving block 0 from file sender !");
+                }
+                state = PBLOCK0;
+                break;
+
+            case PBLOCK0:
+
+                if((block0[1] != (byte)0x00) || (block0[2] != (byte)0xFF)) {
+                    throw new SerialComException("Invalid information block 0 received !");
+                }
+
+                blockCRCval = crcCalculator.getCRC16CCITTValue(block0, 3, (crcl - 1));
+                if((block0[crcl] != (byte)(blockCRCval >>> 8)) || (block0[crcl + 1] != (byte)blockCRCval)) {
+                    throw new SerialComException("Invalid CRC (corrupted block 0 or final block received) !");
+                }
+
+                // While we were expecting block 0 file information block, sender might indicate end of session 
+                // as there are no more files to be sent, so check it.
+                if((block0[crcl] == (byte)0x00) && (block0[crcl + 1] == (byte)0x00)) {
+                    for(i=3; i < block0.length; i++) {
+                        if(block0[i] != (byte)0x00) {
+                            break;
+                        }
+                    }
+                    if(i >= block0.length) {
+                        // All file shave been received, let's go back home happily.
+                        scm.writeSingleByte(handle, ACK);
+                        return true;
+                    }
+                }
+
+                // file name:
+                // The data bytes get flushed automatically to file system physically whenever 
+                // BufferedOutputStream's internal buffer gets full and request to write more 
+                // bytes have arrived.
+                for(x=3; x < block0.length; x++) {
+                    if(block0[x] == '\0') {
+                        break;
+                    }
+                }
+                nameOfFileBeingReceived = new String(block0, 3, x-3);
+                if((nameOfFileBeingReceived == null) || (nameOfFileBeingReceived.length() == 0)) {
+                    throw new SerialComException("Sender did not sent file name !");
+                }
+                File namefile = new File(receiverDirAbsolutePath, nameOfFileBeingReceived);
+                if(!namefile.exists()) {
+                    namefile.createNewFile();
+                }
+                try {
+                    outStream = new BufferedOutputStream(new FileOutputStream(namefile));
+                } catch (FileNotFoundException e) {
+                    throw e;
+                }
+                isFileOpen = true;
+
+                // file length (number of data bytes):
+                x++;
+                for(i=x; i < block0.length; i++) {
+                    if(block0[i] == SPACE) {
+                        break;
+                    }
+                }
+                currentlyProcessingFileLength = Long.valueOf(new String(block0, x, i - x)).longValue();
+
+                // file modification info:
+                i++;
+                for(x=i; x < block0.length; x++) {
+                    if(block0[x] == SPACE) {
+                        break;
+                    }
+                }
+                currentlyProcessingFileModifyInfo = Long.valueOf(new String(block0, i, x - i), 8);
+                if(currentlyProcessingFileModifyInfo != 0) {
+                    namefile.setLastModified(currentlyProcessingFileModifyInfo);
+                }
+
+                // file mode:
+                x++;
+                for(i=x; i < block0.length; i++) {
+                    if(block0[i] == SPACE) {
+                        break;
+                    }
+                }
+                currentlyProcessingFileMode = Long.valueOf(new String(block0, x, i - x), 8);
+                if(currentlyProcessingFileMode != 0) {
+                    // our translation decision is based on text or binary mode.
+                }
+
+                scm.writeSingleByte(handle, ACK);
+                state = BEGINRCV;
+                break;
+
+            case BEGINRCV:
+
+                try {
+                    scm.writeSingleByte(handle, C);  
+                    state = DATABLOCKRCV;
+                } catch (SerialComException e) {
+                    throw e;
+                }
+                state = DATABLOCKRCV;
+                break;
+
+            case DATABLOCKRCV:
+
+                spaceLeftInDataBlock = 133; // reset
+                dataBlockIndex = 0;         // reset
+                state = VERIFY;
+
+                for(i = 0; i < 10; i++) {
                     // check if application (file receiver) wish to cancel receiving file.
                     if((transferState != null) && (transferState.isTransferToBeAborted() == true)) {
                         outStream.close();
                         scm.writeBytes(handle, ABORT_CMD, 0);
                         return false;
                     }
-
                     // let the data arrive from other end, also minimize JNI transitions.
                     try {
-                        Thread.sleep(delayVal);
+                        Thread.sleep(100);
                     } catch (InterruptedException e) {
                     }
-
                     try {
-                        data = scm.readBytes(handle, 133);
-                    } catch (SerialComException exp) {
-                        outStream.close();
-                        throw exp;
+                        data = scm.readBytes(handle, spaceLeftInDataBlock);
+                    } catch (IOException e) {
+                        throw e;
                     }
-
                     if((data != null) && (data.length > 0)) {
-
-                        if(receiveBlock0OrFinalBlock != true) {
-                            firstBlock = false;
+                        for(x=0; x < data.length; x++) {
+                            block[dataBlockIndex] = data[x];
+                            dataBlockIndex++;
+                            spaceLeftInDataBlock--;
                         }
-
-                        if(data[0] == CAN) {
-                            if(lastCharacterReceivedWasCAN == true) {
-                                // received 2nd consecutive CAN means sender wish to abort file transfer.
-                                try {
-                                    scm.writeSingleByte(handle, ACK);
-                                } catch (Exception e) {
-                                }
-                                errMsg = "Abort command received from file sending application !";
-                                state = ABORT;
-                                break;
-                            }
-                            if(data.length >= 2) {
-                                if(data[1] == CAN) {
-                                    // received 2 consecutive CAN means sender wish to abort file transfer.
-                                    try {
-                                        scm.writeSingleByte(handle, ACK);
-                                    } catch (Exception e) {
-                                    }
-                                    errMsg = "Abort command received from file sending application !";
-                                    state = ABORT;
-                                    break;
-                                }else {
-                                    // this is not valid block as 1st character is CAN instead of SOH/STX.
-                                    // probably it is noise, so send NAK.
-                                    isCorrupted = true;
-                                    state = REPLY;
-                                    break;
-                                }
-                            }else {
-                                // this is 1st CAN character, wait to check next character; whether it is CAN or not.
-                                lastCharacterReceivedWasCAN = true;
-                            }
-                        }else if(data[0] == EOT) {
-                            if(eotACKHasBeenSent == true) {
-                                // line may have noise or sender missed EOT sent, resent ACK to acknowledge EOT.
+                        // sender might indicate end of transmission instead of sending next data block
+                        if(block[0] == EOT) {
+                            try {
                                 scm.writeSingleByte(handle, ACK);
-                                try {
-                                    Thread.sleep(50);
-                                } catch (Exception e) {
+                                if(isFileOpen == true) {
+                                    outStream.flush();
+                                    outStream.close();
                                 }
+                                isFileOpen = false;
                                 state = CONNECT;
-                                break;
-                            }
-                            if(lastCharacterReceivedWasCAN == true) {
-                                // EOT after CAN was not expected, probably line has noise; abort transfer.
-                                errMsg = "Unexpected data sequence (<CAN> <EOT>) received from file sender !";
+                            } catch (IOException e) {
                                 state = ABORT;
-                                break;
+                                errMsg = e.getMessage();
                             }
-
-                            // indicates that sender has sent the complete file.
-                            isCorrupted = false;
-                            rxDone = true;
-                            state = REPLY;
                             break;
-                        }else {
-                            eotACKHasBeenSent = false; // reset
-                            if(receiveBlock0OrFinalBlock != true) {
-                                // processing file data block
-                                if((partialReadInProgress == false) && (data.length == 133)) {
-                                    // complete block read in one go.
-                                    for(i=0; i < 133; i++) {
-                                        block[i] = data[i];
-                                    }
-                                    state = VERIFY;
-                                    break;
-                                }else {
-                                    // partial block read.
-                                    partialReadInProgress = true;
-                                    for(z=0; z < data.length; z++) {
-                                        if(bufferIndex >= 133) {
-                                            // this indicates either file sender has sent abort command immediately
-                                            // after sending data block or line has noise; extraneous characters.
-                                            if((data.length - z) >= 2) {
-                                                // check if we received 2 consecutive CAN characters, if yes then abort.
-                                                if((data[z] == CAN) && (data[z+1] == CAN)) {
-                                                    try {
-                                                        scm.writeSingleByte(handle, ACK);
-                                                    } catch (Exception e) {
-                                                    }
-                                                    errMsg = "Abort command received from file sending application !";
-                                                    state = ABORT;
-                                                    break;
-                                                }else {
-                                                    // extraneous characters; line has noise. go to verification
-                                                    // state as we have received full data block thereby
-                                                    // discarding extraneous characters.
-                                                    delayVal = 250;  // reset.
-                                                    bufferIndex = 0; // reset.
-                                                    partialReadInProgress = false; // reset.
-                                                    state = VERIFY;
-                                                    break;
-                                                }
-                                            }else {
-                                                // there is only 1 byte which may be CAN or unwanted noise character.
-                                                // process data block received and 
-                                                if(data[z] == CAN) {
-                                                    // this is 1st CAN character, wait to check next character;
-                                                    // whether it is CAN or not. this will be processed in next
-                                                    // iteration of state machine loop.
-                                                    lastCharacterReceivedWasCAN = true;
-                                                }else {
-                                                    // extraneous characters; line has noise. go to verification
-                                                    // state as we have received full data block thereby
-                                                    // discarding this extraneous character.
-                                                    delayVal = 250;  // reset.
-                                                    bufferIndex = 0; // reset.
-                                                    partialReadInProgress = false; // reset.
-                                                    state = VERIFY;
-                                                    break;
-                                                }
-                                            }
-                                        }
-                                        block[bufferIndex] = data[z];
-                                        bufferIndex++;
-                                    }
-                                    if(bufferIndex >= 133) {
-                                        delayVal = 220;  // reset delay.
-                                        bufferIndex = 0; // reset index.
-                                        partialReadInProgress = false; // reset.
-                                        state = VERIFY;
-                                        break;
-                                    }else {
-                                        // next remaining data bytes should arrive early, 
-                                        // go back to read more data from port.
-                                        delayVal = 80;
-                                    }   
-                                }
-                            }else {
-                                // processing file information block 0 or final full null block
-                                for(int q=0; q < data.length; q++) {
-                                    block0[block0CharReceivedIndex] = data[q];
-                                    block0CharReceivedIndex++;
-                                }
-                                delayVal = 50;
-                                if(block0[0] == SOH) {
-                                    crcl = 131;
-                                    if(block0CharReceivedIndex >= 133) {
-                                        block0CharReceivedIndex = 0; // reset
-                                        break;
-                                    }
-                                }else if(block0[0] == STX) {
-                                    crcl = 1027;
-                                    if(block0CharReceivedIndex >= 1029) {
-                                        block0CharReceivedIndex = 0; // reset
-                                        break;
-                                    }
-                                }else {
-                                    isCorrupted = true;
-                                    state = REPLY;
+                        }
+                        // sender might send transfer abort command instead of next data block
+                        if(block[dataBlockIndex - 1] == CAN) {
+                            if(dataBlockIndex > 1) {
+                                if(block[dataBlockIndex - 2] == CAN) {
+                                    state = ABORT;
+                                    errMsg = "Abort command received from file sending application !";
                                     break;
                                 }
                             }
                         }
-                    }else {
-                        if(firstBlock == false) {
-                            // reaching here means that we are waiting for receiving next block from file sender.
-                            if(System.currentTimeMillis() > nextDataRecvTimeOut) {
-                                errMsg = "Timedout while trying to receive next data byte from file sender !";
-                                state = ABORT;
-                                break;
-                            }
-                        }else {
-                            // reaching here means that we are still waiting for 1st block from file sender.
-                            if(System.currentTimeMillis() > connectTimeOut) {
-                                retryCount++;
-                                state = CONNECT;
-                                break;
-                            }
-                        }
-                    }					
+                    }
+                    if(spaceLeftInDataBlock <= 0) {
+                        break;
+                    }
                 }
-
-                if(receiveBlock0OrFinalBlock == true) {
-                    blockCRCval = crcCalculator.getCRC16CCITTValue(block0, 3, (crcl - 1));
-                    if((block0[crcl] != (byte)(blockCRCval >>> 8)) || (block0[crcl + 1] != (byte)blockCRCval)) {
-                        isCorrupted = true;
-                        state = REPLY;
-                        break;
-                    }
-
-                    // if this is final block, all files have been received successfully. 
-                    for(i=3; i < crcl; i++) {
-                        if(block0[i] != (byte) 0x00) {
-                            break;
-                        }
-                    }
-                    if(i >= crcl) {
-                        // let's go back home happily.
-                        scm.writeSingleByte(handle, ACK);
-                        return true;
-                    }
-
-                    // file name:
-                    // The data bytes get flushed automatically to file system physically whenever 
-                    // BufferedOutputStream's internal buffer gets full and request to write more 
-                    // bytes have arrived.
-                    for(x=3; x < block0.length; x++) {
-                        if(block0[x] == '\0') {
-                            break;
-                        }
-                    }
-                    nameOfFileBeingReceived = new String(block0, 3, x-3);
-                    if((nameOfFileBeingReceived == null) || (nameOfFileBeingReceived.length() == 0)) {
-                        errMsg = "Sender did not sent file name !";
-                        state = ABORT;
-                        break;
-                    }
-                    File namefile = new File(receiverDirAbsolutePath, nameOfFileBeingReceived);
-                    if(!namefile.exists()) {
-                        namefile.createNewFile();
-                    }
-                    outStream = new BufferedOutputStream(new FileOutputStream(namefile));
-                    isFileOpen = true;
-
-                    // file length (number of data bytes):
-                    x++;
-                    for(i=x; i < block0.length; i++) {
-                        if(block0[i] == SPACE) {
-                            break;
-                        }
-                    }
-                    currentlyProcessingFileLength = Long.valueOf(new String(block0, x, i - x)).longValue();
-
-                    // file modification info:
-                    i++;
-                    for(x=i; x < block0.length; x++) {
-                        if(block0[x] == SPACE) {
-                            break;
-                        }
-                    }
-                    currentlyProcessingFileModifyInfo = Long.valueOf(new String(block0, i, x - i), 8);
-                    if(currentlyProcessingFileModifyInfo != 0) {
-                        namefile.setLastModified(currentlyProcessingFileModifyInfo);
-                    }
-
-                    // file mode:
-                    x++;
-                    for(i=x; i < block0.length; i++) {
-                        if(block0[i] == SPACE) {
-                            break;
-                        }
-                    }
-                    currentlyProcessingFileMode = Long.valueOf(new String(block0, x, i - x), 8);
-                    if(currentlyProcessingFileMode != 0) {
-                        // our translation decision is based on text or binary mode.
-                    }
-
-                    retryCount = 0; // reset
-                    receiveBlock0OrFinalBlock = false; // reset
-                    scm.writeSingleByte(handle, ACK);
-                    state = CONNECT;
+                if((state == DATABLOCKRCV) && (i >= 10)) {
+                    throw new SerialComTimeOutException("Timed out while receiving data block from file sender !"); 
                 }
                 break;
 
             case VERIFY:
-                isCorrupted = false;      // reset.
-                isDuplicateBlock = false; // reset.
+
+                isCorrupted = false;      // reset
+                isDuplicateBlock = false; // reset
                 state = REPLY;
 
                 // verify block start.
@@ -1410,7 +1365,7 @@ public final class SerialComYModemCRC {
                     break;
                 }
                 // check duplicate block.
-                if(block[1] == ((blockNumber - 1) & 0xFF)){
+                if(block[1] == (byte)(blockNumber - 1)){
                     isDuplicateBlock = true;
                     duplicateBlockRetryCount++;
                     if(duplicateBlockRetryCount > 10) {
@@ -1432,92 +1387,67 @@ public final class SerialComYModemCRC {
                 break;
 
             case REPLY:
+
                 try {
-                    if(rxDone == false) {
-                        if(isCorrupted == false) {
-                            scm.writeSingleByte(handle, ACK);
-                            totalNumberOfDataBytesReadTillNow = totalNumberOfDataBytesReadTillNow + 128;
-                            if(textMode == true) {
-                                // for ASCII mode, parse and then flush.
-                                processAndWrite(block);
-                            }else {
-                                // for binary mode, just flush data as is to file physically.
-                                if(currentlyProcessingFileLength != 0) {
-                                    if(totalNumberOfDataBytesReadTillNow <= currentlyProcessingFileLength) {
-                                        outStream.write(block, 3, 128);
-                                    }else {
-                                        outStream.write(block, 3, (int)(128 - (totalNumberOfDataBytesReadTillNow - currentlyProcessingFileLength)));
-                                    }
-                                }else {
-                                    outStream.write(block, 3, 128);
-                                }
-                            }
-
-                            // update GUI that a block has been received if application has provided 
-                            // a listener for this purpose.
-                            if(progressListener != null) {
-                                numberOfBlocksReceived++;
-                                if(currentlyProcessingFileLength > 0) {
-                                    percentOfBlocksReceived = (int) ((12800 * numberOfBlocksReceived) / currentlyProcessingFileLength);
-                                }else {
-                                    percentOfBlocksReceived = 100;
-                                }
-                                if(percentOfBlocksReceived >= 100) {
-                                    percentOfBlocksReceived = 100;
-                                }
-                                progressListener.onYmodemReceiveProgressUpdate(nameOfFileBeingReceived, numberOfBlocksReceived, percentOfBlocksReceived);
-                            }
-
-                            if(isDuplicateBlock == false) {
-                                blockNumber++;
-                                if(blockNumber > 0xFF) {
-                                    blockNumber = 0x00;
-                                }
-                                duplicateBlockRetryCount = 0; // reset
-                            }
-                        }else {
-                            scm.writeSingleByte(handle, NAK);
-                        }
-                        state = BLOCKRCV;
-                    }else {
-                        // sender might send EOT more than 1 time for any reason, so release resources only once.
+                    if(isCorrupted == false) {
                         scm.writeSingleByte(handle, ACK);
-                        eotACKHasBeenSent = true;
-                        if(isFileOpen == true) {
-                            outStream.flush();
-                            outStream.close();
-                            isFileOpen = false;
+                        totalNumberOfDataBytesReadTillNow = totalNumberOfDataBytesReadTillNow + 128;
+                        if(textMode == true) {
+                            // for ASCII mode, parse and then flush.
+                            processAndWrite(block);
+                        }else {
+                            // for binary mode, just flush data as is to file physically.
+                            if(currentlyProcessingFileLength != 0) {
+                                if(totalNumberOfDataBytesReadTillNow <= currentlyProcessingFileLength) {
+                                    outStream.write(block, 3, 128);
+                                }else {
+                                    outStream.write(block, 3, (int)(128 - (totalNumberOfDataBytesReadTillNow - currentlyProcessingFileLength)));
+                                }
+                            }else {
+                                outStream.write(block, 3, 128);
+                            }
                         }
-                        // reset and wait to receive block0 or final block.
-                        rxDone = false;
-                        receiveBlock0OrFinalBlock = true;
-                        blockNumber = 1; // reset
-                        numberOfBlocksReceived = 0; // reset
-                        totalNumberOfDataBytesReadTillNow = 0; // reset
-                        state = CONNECT;
-                        break;
+
+                        // update GUI that a block has been received if application has provided 
+                        // a listener for this purpose.
+                        if(progressListener != null) {
+                            numberOfBlocksReceived++;
+                            if(currentlyProcessingFileLength > 0) {
+                                percentOfBlocksReceived = (int) ((12800 * numberOfBlocksReceived) / currentlyProcessingFileLength);
+                            }else {
+                                percentOfBlocksReceived = 100;
+                            }
+                            if(percentOfBlocksReceived >= 100) {
+                                percentOfBlocksReceived = 100;
+                            }
+                            progressListener.onYmodemReceiveProgressUpdate(nameOfFileBeingReceived, numberOfBlocksReceived, percentOfBlocksReceived);
+                        }
+
+                        if(isDuplicateBlock == false) {
+                            blockNumber++;
+                            if(blockNumber > 0xFF) {
+                                blockNumber = 0x00;
+                            }
+                            duplicateBlockRetryCount = 0; // reset
+                        }
+                    }else {
+                        scm.writeSingleByte(handle, NAK);
                     }
-                } catch (SerialComException exp) {
-                    outStream.close();
-                    throw exp;
-                } catch (IOException exp) {
-                    outStream.close();
-                    throw exp;
+                    state = DATABLOCKRCV;
+                } catch (IOException e) {
+                    throw e;
                 }
-                nextDataRecvTimeOut = System.currentTimeMillis() + 1000; // update timeout for next byte 1 second.
                 break;
 
             case ABORT:
-                /* if an IOexception occurs, control will not reach here instead exception would have been
-                 * thrown already. */
-                if(outStream != null) {
+                if(isFileOpen == true) {
                     outStream.flush();
                     outStream.close();
                 }
-                throw new SerialComTimeOutException(errMsg);
+                throw new SerialComException(errMsg);
 
             default:
-                break;
+                // never reached
             }
         }
     }
@@ -1584,9 +1514,7 @@ public final class SerialComYModemCRC {
                         tmpReceiveBuffer[q] = CR;
                         tmpReceiveBuffer[q + 1] = LF;
                         q = q + 2;
-                    }else if((osType == SerialComPlatform.OS_MAC_OS_X) || (osType == SerialComPlatform.OS_LINUX) || (osType == SerialComPlatform.OS_SOLARIS)
-                            || (osType == SerialComPlatform.OS_FREEBSD) || (osType == SerialComPlatform.OS_NETBSD) || (osType == SerialComPlatform.OS_OPENBSD)
-                            || (osType == SerialComPlatform.OS_ANDROID)) {
+                    }else if((osType == SerialComPlatform.OS_MAC_OS_X) || (osType == SerialComPlatform.OS_LINUX)) {
                         tmpReceiveBuffer[q] = LF;
                         q = q + 1;
                     }else {
@@ -1599,9 +1527,7 @@ public final class SerialComYModemCRC {
                         tmpReceiveBuffer[q + 2] = CR;
                         tmpReceiveBuffer[q + 3] = LF;
                         q = q + 4;
-                    }else if((osType == SerialComPlatform.OS_MAC_OS_X) || (osType == SerialComPlatform.OS_LINUX) || (osType == SerialComPlatform.OS_SOLARIS)
-                            || (osType == SerialComPlatform.OS_FREEBSD) || (osType == SerialComPlatform.OS_NETBSD) || (osType == SerialComPlatform.OS_OPENBSD)
-                            || (osType == SerialComPlatform.OS_ANDROID)) {
+                    }else if((osType == SerialComPlatform.OS_MAC_OS_X) || (osType == SerialComPlatform.OS_LINUX)) {
                         tmpReceiveBuffer[q] = LF;
                         tmpReceiveBuffer[q + 1] = LF;
                         q = q + 2;
@@ -1613,9 +1539,7 @@ public final class SerialComYModemCRC {
                         tmpReceiveBuffer[q] = CR;
                         tmpReceiveBuffer[q + 1] = LF;
                         q = q + 2;
-                    }else if((osType == SerialComPlatform.OS_MAC_OS_X) || (osType == SerialComPlatform.OS_LINUX) || (osType == SerialComPlatform.OS_SOLARIS)
-                            || (osType == SerialComPlatform.OS_FREEBSD) || (osType == SerialComPlatform.OS_NETBSD) || (osType == SerialComPlatform.OS_OPENBSD)
-                            || (osType == SerialComPlatform.OS_ANDROID)) {
+                    }else if((osType == SerialComPlatform.OS_MAC_OS_X) || (osType == SerialComPlatform.OS_LINUX)) {
                         tmpReceiveBuffer[q] = LF;
                         q = q + 1;
                     }else {
@@ -1627,9 +1551,7 @@ public final class SerialComYModemCRC {
                         tmpReceiveBuffer[q + 1] = LF;
                         tmpReceiveBuffer[q + 2] = data1;
                         q = q + 3;
-                    }else if((osType == SerialComPlatform.OS_MAC_OS_X) || (osType == SerialComPlatform.OS_LINUX) || (osType == SerialComPlatform.OS_SOLARIS)
-                            || (osType == SerialComPlatform.OS_FREEBSD) || (osType == SerialComPlatform.OS_NETBSD) || (osType == SerialComPlatform.OS_OPENBSD)
-                            || (osType == SerialComPlatform.OS_ANDROID)) {
+                    }else if((osType == SerialComPlatform.OS_MAC_OS_X) || (osType == SerialComPlatform.OS_LINUX)) {
                         tmpReceiveBuffer[q] = LF;
                         tmpReceiveBuffer[q + 1] = data1;
                         q = q + 2;
@@ -1645,9 +1567,7 @@ public final class SerialComYModemCRC {
                         tmpReceiveBuffer[q + 2] = CR;
                         tmpReceiveBuffer[q + 3] = LF;
                         q = q + 4;
-                    }else if((osType == SerialComPlatform.OS_MAC_OS_X) || (osType == SerialComPlatform.OS_LINUX) || (osType == SerialComPlatform.OS_SOLARIS)
-                            || (osType == SerialComPlatform.OS_FREEBSD) || (osType == SerialComPlatform.OS_NETBSD) || (osType == SerialComPlatform.OS_OPENBSD)
-                            || (osType == SerialComPlatform.OS_ANDROID)) {
+                    }else if((osType == SerialComPlatform.OS_MAC_OS_X) || (osType == SerialComPlatform.OS_LINUX)) {
                         tmpReceiveBuffer[q] = LF;
                         tmpReceiveBuffer[q + 1] = LF;
                         q = q + 2;
@@ -1659,9 +1579,7 @@ public final class SerialComYModemCRC {
                         tmpReceiveBuffer[q] = CR;
                         tmpReceiveBuffer[q + 1] = LF;
                         q = q + 2;
-                    }else if((osType == SerialComPlatform.OS_MAC_OS_X) || (osType == SerialComPlatform.OS_LINUX) || (osType == SerialComPlatform.OS_SOLARIS)
-                            || (osType == SerialComPlatform.OS_FREEBSD) || (osType == SerialComPlatform.OS_NETBSD) || (osType == SerialComPlatform.OS_OPENBSD)
-                            || (osType == SerialComPlatform.OS_ANDROID)) {
+                    }else if((osType == SerialComPlatform.OS_MAC_OS_X) || (osType == SerialComPlatform.OS_LINUX)) {
                         tmpReceiveBuffer[q] = LF;
                         q = q + 1;
                     }else {
@@ -1672,9 +1590,7 @@ public final class SerialComYModemCRC {
                         tmpReceiveBuffer[q] = CR;
                         tmpReceiveBuffer[q + 1] = LF;
                         q = q + 2;
-                    }else if((osType == SerialComPlatform.OS_MAC_OS_X) || (osType == SerialComPlatform.OS_LINUX) || (osType == SerialComPlatform.OS_SOLARIS)
-                            || (osType == SerialComPlatform.OS_FREEBSD) || (osType == SerialComPlatform.OS_NETBSD) || (osType == SerialComPlatform.OS_OPENBSD)
-                            || (osType == SerialComPlatform.OS_ANDROID)) {
+                    }else if((osType == SerialComPlatform.OS_MAC_OS_X) || (osType == SerialComPlatform.OS_LINUX)) {
                         tmpReceiveBuffer[q] = LF;
                         q = q + 1;
                     }else {
@@ -1686,9 +1602,7 @@ public final class SerialComYModemCRC {
                         tmpReceiveBuffer[q + 1] = LF;
                         tmpReceiveBuffer[q + 2] = data1;
                         q = q + 3;
-                    }else if((osType == SerialComPlatform.OS_MAC_OS_X) || (osType == SerialComPlatform.OS_LINUX) || (osType == SerialComPlatform.OS_SOLARIS)
-                            || (osType == SerialComPlatform.OS_FREEBSD) || (osType == SerialComPlatform.OS_NETBSD) || (osType == SerialComPlatform.OS_OPENBSD)
-                            || (osType == SerialComPlatform.OS_ANDROID)) {
+                    }else if((osType == SerialComPlatform.OS_MAC_OS_X) || (osType == SerialComPlatform.OS_LINUX)) {
                         tmpReceiveBuffer[q] = LF;
                         tmpReceiveBuffer[q + 1] = data1;
                         q = q + 2;
