@@ -26,7 +26,7 @@ import com.serialpundit.core.SerialComSystemProperty;
 
 /**
  * <p>This class is an interface between java and native shared library. The native library is found 
- * in the root of 'sp-tty.jar' file.</p>
+ * in the root of 'sp-tty.jar' file. Microchip provides only windows dll.</p>
  * 
  * @author Rishi Gupta
  */
