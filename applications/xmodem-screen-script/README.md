@@ -1,7 +1,8 @@
 This application demonstrates how to establish communication between a shell script and 
-Java application to send/receive a file using Xmodem file transfer protocol.
+Java application to send/receive a file using Xmodem file transfer protocol. It uses screen 
+utility (in detached session) in Linux.
 
-It uses screen utility (in detached session) in Linux.
+!["serial communication in java"](output.jpg?raw=true "serial communication in java")
 
 #####Running this application
 - Copy scm-1.0.4.jar in xmodem-screen-script folder. Do not change the directory structure.

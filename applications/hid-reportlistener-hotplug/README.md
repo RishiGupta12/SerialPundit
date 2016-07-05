@@ -1,6 +1,8 @@
 This application example demonstrates how an application can detect HID device dynamically,
 find its device node and start communication with it using input report listener.
 
+!["serial communication in java"](output.jpg?raw=true "serial communication in java")
+
 #####Running this application
    
 - Connect MCP2200 and launch this application. It will send command 0x80 to MCP and will

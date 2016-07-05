@@ -1,6 +1,8 @@
 This example demonstrates a basic serial port terminal application that can be developed using 
 Java Swing and AWT GUI widgets.
 
+!["serial communication in java"](serial-terminal-in-java.jpg?raw=true "serial communication in java")
+
 #####Running this application
 
 Launch this application. Select serial port from list and configure all the parameters. To send 

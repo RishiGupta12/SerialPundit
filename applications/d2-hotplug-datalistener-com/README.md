@@ -1,6 +1,8 @@
 This example demonstrates how to read data from serial port using data listener and buffer 
 it locally until a particular number of data bytes have been received from serial port.
 
+!["serial communication in java"](output.jpg?raw=true "serial communication in java")
+
 #####Running this application
    
 Open and configure minicom/teraterm for 9600 8N1 settings and start it. Launch this 

@@ -1,5 +1,7 @@
 This example demonstrates how to read data from serial port and block until data bytes are available 
-at serial port. 
+at serial port.
+
+!["serial communication in java"](output.jpg?raw=true "serial communication in java")
 
 #####Running this application
    

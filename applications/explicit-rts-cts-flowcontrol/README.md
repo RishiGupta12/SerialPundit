@@ -1,6 +1,8 @@
 This example demonstrates how to use RTS and DTR lines to control flow of data under
 9600 8N1 no flow control configuration. It does not uses data or event listeners.
 
+!["serial communication in java"](output.jpg?raw=true "serial communication in java")
+
 #####Running this application
    
 Open and configure minicom/teraterm for 9600 8N1 settings and start it. Launch this 

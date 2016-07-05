@@ -1,6 +1,8 @@
 This example demonstrates a fully automatic application which will dynamically find 
 serial device and start communicating with it.
 
+!["serial communication in java"](output.jpg?raw=true "serial communication in java")
+
 #####Running this application
    
 Open and configure minicom/teraterm for 9600 8N1 settings and start it. Launch this 
