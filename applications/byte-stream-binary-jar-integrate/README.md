@@ -2,6 +2,8 @@ This application example demonstrates how to use InputStream/OutputStream for ex
 serial port. It also shows how this library can be integrated into existing binary-only 3rd party
 jar using standard InputStream/OutputStream via interface.
 
+!["serial communication in java"](applications/byte-stream-binary-jar-integrate/output.jpg?raw=true "serial communication in java")
+
 #####Running this application
 Open and configure minicom/teraterm for 115200 8N1 settings and start it. Start this program. Type 
 any character in minicom and value typed will be shown in GUI window in graphical form. 
