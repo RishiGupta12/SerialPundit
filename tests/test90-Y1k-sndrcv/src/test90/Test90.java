@@ -59,9 +59,11 @@ public class Test90 implements ISerialComYmodemProgress {
 	public static String sndtxt1 = null;
 	public static String sndtxt2 = null;
 	public static String sndtxt3 = null;
+	public static String sndtxt4 = null;
 	public static String rcvtxt1 = null;
 	public static String rcvtxt2 = null;
 	public static String rcvtxt3 = null;
+	public static String rcvtxt4 = null;
 	public static String sndjpg1 = null;
 	public static String sndjpg2 = null;
 	public static String rcvjpg1 = null;
@@ -84,6 +86,7 @@ public class Test90 implements ISerialComYmodemProgress {
 				sndtxt1 = "/home/r/ws-host-uart/ftptest/f1.txt";
 				sndtxt2 = "/home/r/ws-host-uart/ftptest/f2.txt";
 				sndtxt3 = "/home/r/ws-host-uart/ftptest/f3.txt";
+				sndtxt4 = "/home/r/ws-host-uart/ftptest/f4.txt";
 				sndjpg1 = "/home/r/ws-host-uart/ftptest/f1.jpg";
 				sndjpg2 = "/home/r/ws-host-uart/ftptest/f2.jpg";
 				rcvdiry1 = "/home/r/ws-host-uart/ftptest/rcvdiry1";
@@ -108,10 +111,11 @@ public class Test90 implements ISerialComYmodemProgress {
 						long handle1 = scm.openComPort(PORT1, true, true, true);
 						scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
 						scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
-						File[] f = new File[2];
+						File[] f = new File[3];
 						f[0] = new File(sndtxt1);
 						f[1] = new File(sndtxt2);
-						Thread.sleep(1000);
+						f[2] = new File(sndtxt4);
+						Thread.sleep(500);
 						boolean status1 = scm.sendFile(handle1, f, FTPPROTO.YMODEM, FTPVAR.VAR1K, true, test90, null);
 						System.out.println("ASCII MODE sent txt status : " + status1);
 						done = true;
@@ -132,10 +136,9 @@ public class Test90 implements ISerialComYmodemProgress {
 			while(done == false) { 
 				Thread.sleep(10);
 			}
+			done = false;
 
 			System.out.println("\n-------- Test1 done --------\n");
-
-			done = false;
 
 			Executors.newSingleThreadExecutor().execute(new Runnable() {
 				@Override 
@@ -144,10 +147,11 @@ public class Test90 implements ISerialComYmodemProgress {
 						long handle3 = scm.openComPort(PORT1, true, true, true);
 						scm.configureComPortData(handle3, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
 						scm.configureComPortControl(handle3, FLOWCONTROL.NONE, 'x', 'x', false, false);
-						File[] f = new File[2];
+						File[] f = new File[3];
 						f[0] = new File(sndtxt1);
 						f[1] = new File(sndtxt2);
-						Thread.sleep(1000);
+						f[2] = new File(sndtxt4);
+						Thread.sleep(500);
 						boolean status3 = scm.sendFile(handle3, f, FTPPROTO.YMODEM, FTPVAR.VAR1K, false, test90, null);
 						System.out.println("BINARY MODE sent txt status : " + status3);
 						done = true;
@@ -183,7 +187,7 @@ public class Test90 implements ISerialComYmodemProgress {
 						File[] f = new File[2];
 						f[0] = new File(sndjpg1);
 						f[1] = new File(sndjpg2);
-						Thread.sleep(1000);
+						Thread.sleep(500);
 						boolean status5 = scm.sendFile(handle5, f, FTPPROTO.YMODEM, FTPVAR.VAR1K, false, test90, null);
 						System.out.println("BINARY MODE sent jpg status : " + status5);
 						done = true;
@@ -214,7 +218,7 @@ public class Test90 implements ISerialComYmodemProgress {
 
 	@Override
 	public void onYmodemReceiveProgressUpdate(String name, long arg0, int arg1) {
-		System.out.println("app receive : " + name + " : number : " + arg0 + " : percent " + arg1);
+		System.out.println("app recv : " + name + " : number : " + arg0 + " : percent " + arg1);
 	}
 	@Override
 	public void onYmodemSentProgressUpdate(String name, long arg0, int arg1) {
