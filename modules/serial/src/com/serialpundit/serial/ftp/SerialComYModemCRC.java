@@ -1418,8 +1418,10 @@ public final class SerialComYModemCRC {
 
                 try {
                     if(isCorrupted == false) {
+
                         scm.writeSingleByte(handle, ACK);
                         totalNumberOfDataBytesReadTillNow = totalNumberOfDataBytesReadTillNow + 128;
+
                         if(textMode == true) {
                             // for ASCII mode, parse and then flush.
                             processAndWrite(block);
