@@ -20,7 +20,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 
 /**
- * <p>Provides common utility functions for serial port communication related projects.</p>
+ * <p>Provides common utility functions.</p>
  * 
  * @author Rishi Gupta
  */
@@ -310,6 +310,7 @@ public final class SerialComUtil {
      */
     public static byte[] concat(byte[] dataA, byte[] dataB) {
         byte[] result = new byte[dataA.length + dataB.length];
+        // System.arraycopy may be VM intrinsic and therefore may not need to go through JNI transitions.
         System.arraycopy(dataA, 0, result, 0, dataA.length);
         System.arraycopy(dataB, 0, result, dataA.length, dataB.length);
         return result;

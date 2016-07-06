@@ -334,6 +334,10 @@ public final class SerialComManager {
      * <p>The native shared library will be extracted in folder named 'sp_tuartx1' inside system/user 'temp' 
      * folder or user home folder if access to 'temp' folder is denied.</p>
      * 
+     * <p>On ARM Linux embedded platform it is possible to run entire 32 bit user space on a 64 bit ARMv8 processor. 
+     * In such scenarios, the 32 bit and 64 bit shared libraries must not be mixed. Consider either full 32 bit user 
+     * space root file system or entire root file system to be 64 bit.</p>
+     * 
      * @throws SecurityException if java system properties can not be accessed.
      * @throws UnsatisfiedLinkError if loading/linking shared library fails.
      * @throws FileNotFoundException if file "/proc/cpuinfo" can not be found for Linux on ARM platform.
@@ -356,7 +360,8 @@ public final class SerialComManager {
                 throw new SerialComException("Could not identify CPU architecture. Please report your environemnt to us so that we can add support for it !");
             }
         }
-        if((cpuArch == SerialComPlatform.ARCH_ARMV7) || (cpuArch == SerialComPlatform.ARCH_ARMV6) || (cpuArch == SerialComPlatform.ARCH_ARMV5)) {
+        if((cpuArch == SerialComPlatform.ARCH_ARMV8) || (cpuArch == SerialComPlatform.ARCH_ARMV7) || (cpuArch == SerialComPlatform.ARCH_ARMV6) || 
+                (cpuArch == SerialComPlatform.ARCH_ARMV5)) {
             if(osType == SerialComPlatform.OS_LINUX) {
                 abiType = mSerialComPlatform.getABIType();
             }else {
@@ -445,7 +450,8 @@ public final class SerialComManager {
                 throw new SerialComException("Could not identify CPU architecture. Please report your environemnt to us so that we can add support for it !");
             }
         }
-        if((cpuArch == SerialComPlatform.ARCH_ARMV7) || (cpuArch == SerialComPlatform.ARCH_ARMV6) || (cpuArch == SerialComPlatform.ARCH_ARMV5)) {
+        if((cpuArch == SerialComPlatform.ARCH_ARMV8) || (cpuArch == SerialComPlatform.ARCH_ARMV7) || (cpuArch == SerialComPlatform.ARCH_ARMV6) || 
+                (cpuArch == SerialComPlatform.ARCH_ARMV5)) {
             if(osType == SerialComPlatform.OS_LINUX) {
                 abiType = mSerialComPlatform.getABIType();
             }else {

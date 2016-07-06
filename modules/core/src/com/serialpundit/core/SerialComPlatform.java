@@ -241,7 +241,7 @@ public final class SerialComPlatform {
      * with amd64 architecture.</p>
      * 
      * @return SerialComPlatform.ARCH_UNKNOWN if platform is unknown to SCM otherwise one of the 
-     *          SerialComPlatform.ARCH_XXXX constant.
+     *         SerialComPlatform.ARCH_XXXX constant.
      * @throws SecurityException if java system properties can not be  accessed.
      * @throws NullPointerException if the "os.arch" java system property is null.
      * @throws FileNotFoundException if file "/proc/cpuinfo" can not be found for Linux on ARM platform.
@@ -263,19 +263,19 @@ public final class SerialComPlatform {
             throw new NullPointerException("The os.arch java system property is null in the system !");
         }
 
+        // AArch64 provides user-space compatibility with ARMv7-A ISA, the 32-bit architecture a.k.a. 
+        // "AArch32" and the old 32-bit instruction set, now named "A32". This means it may be possible 
+        // to run 32 bit user space executables on ARMv8 platform.
         if(osArch.startsWith("arm") || osArch.startsWith("aarch")) {
             if(osType == SerialComPlatform.OS_LINUX) {
-
                 cpuProperties = new BufferedReader(new FileReader("/proc/cpuinfo"));
-
                 while((line = cpuProperties.readLine()) != null) {
                     property = line.toLowerCase(Locale.ENGLISH);
-
-                    if(property.contains("armv8") || property.contains("aarch64")) {
+                    if(property.contains("aarch64") || property.contains("armv8")) {
                         cpuArch = SerialComPlatform.ARCH_ARMV8;
                         break;
                     }
-                    else if(property.contains("armv7")) {
+                    else if(property.contains("armv7") || property.contains("aarch32")) {
                         cpuArch = SerialComPlatform.ARCH_ARMV7;
                         break;
                     }
@@ -288,11 +288,8 @@ public final class SerialComPlatform {
                         break;
                     }
                     else {
-                        cpuProperties.close();
-                        return SerialComPlatform.ARCH_UNKNOWN;
                     }
                 }
-
                 cpuProperties.close();
             }
         }
