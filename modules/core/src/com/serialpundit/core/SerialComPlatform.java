@@ -65,8 +65,8 @@ public final class SerialComPlatform {
     /** <p>The value indicating the Android operating system. Integer constant with value 0x0A. </p>*/
     public static final int OS_ANDROID  = 0x0A;
 
-    /** <p>The value indicating that platform architecture is unknown to SerialPundit. Integer constant with 
-     * value 0x00. </p>*/
+    /** <p>The value indicating that the platform architecture is unknown to SerialPundit. Integer 
+     * constant with value 0x00. </p>*/
     public static final int ARCH_UNKNOWN = 0x00;
 
     /** <p>The common value indicating that the library is running on a 32 bit Intel 
@@ -183,11 +183,10 @@ public final class SerialComPlatform {
      */    
     public final int getOSType() throws SecurityException {
 
-        if(this.osType != SerialComPlatform.OS_UNKNOWN) {
-            return this.osType;
+        // return cached copy if available
+        if(osType != SerialComPlatform.OS_UNKNOWN) {
+            return osType;
         }
-
-        int osType = SerialComPlatform.OS_UNKNOWN;
 
         String osName = mSerialComSystemProperty.getOSName();
         if(osName == null || osName.length() == 0) {
@@ -228,7 +227,6 @@ public final class SerialComPlatform {
         else {
         }
 
-        this.osType = osType;
         return osType;
     }
 
@@ -249,11 +247,11 @@ public final class SerialComPlatform {
      */
     public final int getCPUArch(int osType) throws SecurityException, IOException {
 
-        if(this.cpuArch != SerialComPlatform.ARCH_UNKNOWN) {
-            return this.cpuArch;
+        // return cached copy if available
+        if(cpuArch != SerialComPlatform.ARCH_UNKNOWN) {
+            return cpuArch;
         }
 
-        int cpuArch = SerialComPlatform.ARCH_UNKNOWN;
         BufferedReader cpuProperties = null;
         String line = null;
         String property = null;
@@ -336,7 +334,6 @@ public final class SerialComPlatform {
         else {
         }
 
-        this.cpuArch = cpuArch;
         return cpuArch;
     }
 
@@ -372,12 +369,12 @@ public final class SerialComPlatform {
      */
     public final int getABIType() throws IOException {
 
-        if(this.abiType != ABI_UNKNOWN) {
-            return this.abiType;
+        if(abiType != ABI_UNKNOWN) {
+            return abiType;
         }
 
 
-        this.abiType = AccessController.doPrivileged(new PrivilegedAction<Integer>() {
+        abiType = AccessController.doPrivileged(new PrivilegedAction<Integer>() {
 
             private final String[] gnueabihf = new String[] { "gnueabihf", "armhf" };
 
@@ -422,6 +419,6 @@ public final class SerialComPlatform {
                 return SerialComPlatform.ABI_ARMEL;
             } } );
 
-        return this.abiType;
+        return abiType;
     }
 }
