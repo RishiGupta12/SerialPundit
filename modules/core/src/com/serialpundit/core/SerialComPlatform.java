@@ -13,6 +13,8 @@
 
 package com.serialpundit.core;
 
+import com.serialpundit.core.util.SerialComUtil;
+
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -20,8 +22,6 @@ import java.io.IOException;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Locale;
-
-import com.serialpundit.core.util.SerialComUtil;
 
 /**
  * <p>Identifies various hardware and software platform attributes 
@@ -287,13 +287,7 @@ public final class SerialComPlatform {
                         cpuArch = SerialComPlatform.ARCH_ARMV5;
                         break;
                     }
-                    else {
-                        cpuProperties.close();
-                        return SerialComPlatform.ARCH_UNKNOWN;
-                    }
                 }
-
-                cpuProperties.close();
             }
         }
         else if(osArch.equals("x86") || osArch.equals("i386") || osArch.equals("i486") || osArch.equals("i586") || osArch.equals("i686") 
