@@ -338,6 +338,9 @@ public final class SerialComManager {
      * In such scenarios, the 32 bit and 64 bit shared libraries must not be mixed. Consider either full 32 bit user 
      * space root file system or entire root file system to be 64 bit.</p>
      * 
+     * <p>Please contact author of this library if you want to use CPU optimized native shared libraries in your 
+     * embedded product for achieving maximum performance.</p>
+     * 
      * @throws SecurityException if java system properties can not be accessed.
      * @throws UnsatisfiedLinkError if loading/linking shared library fails.
      * @throws FileNotFoundException if file "/proc/cpuinfo" can not be found for Linux on ARM platform.
@@ -372,7 +375,7 @@ public final class SerialComManager {
         synchronized(SerialComManager.lockA) {
             mComPortJNIBridge = new SerialComPortJNIBridge();
             if(nativeLibLoadAndInitAlready == false) {
-                SerialComPortJNIBridge.loadNativeLibrary(null, null, mSerialComSystemProperty, osType, cpuArch, abiType);
+                SerialComPortJNIBridge.loadNativeLibrary(null, null, mSerialComSystemProperty, osType, cpuArch, abiType, false);
                 mComPortJNIBridge.initNativeLib();
                 nativeLibLoadAndInitAlready = true;
             }
@@ -393,9 +396,9 @@ public final class SerialComManager {
      * exist before calling this constructor.</p>
      *
      * <ul>
-     * <li><p>Sometimes system administrator may have put some restriction on tmp/temp folder or the there may some 
+     * <li>Sometimes system administrator may have put some restriction on tmp/temp folder or the there may some 
      * other inevitable situations like anti-virus program causing trouble when using temp folder. This constructor
-     * will help in handling such situations.</p></li>
+     * will help in handling such situations.</li>
      * 
      * <li><p>Two or more absolutely independent vendors may package this library into their product's jar file. Now 
      * when using default constructor both will extract and use the same folder and library name resulting in inconsistent
@@ -404,10 +407,17 @@ public final class SerialComManager {
      * <li><p>This may also increase security as the folder may be given specific user permissions. To extract library in 
      * directory "/home/xxx/yyy", name it lib2 and create directory yyy an example is given below.</p>
      * SerialComManager scm = new SerialComManager("lib2", "/home/xxx/yyy", true);</li>
+     * 
+     * <li>If hotDeploy is true than a different strategy is used to load the shared native libraries. This option can be 
+     * true if this software is used on tomcat server for hot deployment purpose or may be during development. If two or 
+     * more web applications use this library and both do the hot deployment, than loadedLibName should be different 
+     * for both the applications. This will prevent unnecessary conflicts or unforeseen side effects.</li>
      * </ul>
      * 
-     * @param directoryPath absolute path of directory to be used for purpose of extraction.
      * @param loadedLibName library name without extension (do not append .so, .dll or .dylib etc.).
+     * @param directoryPath absolute path of directory to be used for purpose of extraction.
+     * @param createDirectory true if directory is to be created otherwise false if given directory already exist.
+     * @param hotDeploy true if hot deployment is to be supported otherwise false.
      * @throws SecurityException if java system properties can not be accessed.
      * @throws UnsatisfiedLinkError if loading/linking shared library fails.
      * @throws FileNotFoundException if file "/proc/cpuinfo" can not be found for Linux on ARM platform.
@@ -415,7 +425,8 @@ public final class SerialComManager {
      * @throws IllegalArgumentException if directoryPath is null, directoryPath is empty, loadedLibName is null 
      *         or empty.
      */
-    public SerialComManager(String loadedLibName, String directoryPath, final boolean createDirectory) throws SecurityException, IOException {
+    public SerialComManager(String loadedLibName, String directoryPath, final boolean createDirectory, 
+            boolean hotDeploy) throws SecurityException, IOException {
 
         if(directoryPath == null) {
             throw new IllegalArgumentException("Argument directoryPath can not be null !");
@@ -441,13 +452,13 @@ public final class SerialComManager {
         if(osType == SerialComPlatform.OS_UNKNOWN) {
             osType = mSerialComPlatform.getOSType();
             if(osType == SerialComPlatform.OS_UNKNOWN) {
-                throw new SerialComException("Could not identify operating system. Please report your environemnt to us so that we can add support for it !");
+                throw new SerialComException("Could not identify operating system. Please report your environment to us !");
             }
         }
         if(cpuArch == SerialComPlatform.ARCH_UNKNOWN) {
             cpuArch = mSerialComPlatform.getCPUArch(osType);
             if(cpuArch == SerialComPlatform.ARCH_UNKNOWN) {
-                throw new SerialComException("Could not identify CPU architecture. Please report your environemnt to us so that we can add support for it !");
+                throw new SerialComException("Could not identify CPU architecture. Please report your environment to us !");
             }
         }
         if((cpuArch == SerialComPlatform.ARCH_ARMV8) || (cpuArch == SerialComPlatform.ARCH_ARMV7) || (cpuArch == SerialComPlatform.ARCH_ARMV6) || 
@@ -455,14 +466,14 @@ public final class SerialComManager {
             if(osType == SerialComPlatform.OS_LINUX) {
                 abiType = mSerialComPlatform.getABIType();
             }else {
-                throw new SerialComException("Please report to us your environemnt to us !");
+                throw new SerialComException("Please report to us your environment to us !");
             }
         }
 
         synchronized(SerialComManager.lockA) {
             mComPortJNIBridge = new SerialComPortJNIBridge();
             if(nativeLibLoadAndInitAlready == false) {
-                SerialComPortJNIBridge.loadNativeLibrary(directoryPath, loadedLibName, mSerialComSystemProperty, osType, cpuArch, abiType);
+                SerialComPortJNIBridge.loadNativeLibrary(directoryPath, loadedLibName, mSerialComSystemProperty, osType, cpuArch, abiType, hotDeploy);
                 mComPortJNIBridge.initNativeLib();
                 nativeLibLoadAndInitAlready = true;
             }

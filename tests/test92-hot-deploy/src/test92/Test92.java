@@ -11,24 +11,15 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  */
 
-package test1;
+package test92;
 
 import com.serialpundit.serial.SerialComManager;
 
-/*
- * Must find :
- * - hw/sw virtual ports
- * - bluetooth dongle and 3G dongle
- * - port server
- * - USB-UART converter
- * - regular ports
- * - ports connected through USB hub/expander
- */
-public class Test1 {
-	static long a = 0;
+public class Test92 {
+
 	public static void main(String[] args) {
 		try {
-			SerialComManager scm = new SerialComManager();
+			SerialComManager scm = new SerialComManager("qq", "/home/r/rr1", true, true);
 			String[] ports = scm.listAvailableComPorts();
 			for(String port: ports){
 				System.out.println(port);

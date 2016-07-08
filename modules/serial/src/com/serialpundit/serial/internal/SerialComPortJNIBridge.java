@@ -18,9 +18,11 @@ import java.nio.ByteBuffer;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Comparator;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.FileOutputStream;
 
+import com.serialpundit.core.NativeLibLoader;
 import com.serialpundit.core.SerialComException;
 import com.serialpundit.core.SerialComPlatform;
 import com.serialpundit.core.SerialComSystemProperty;
@@ -135,12 +137,13 @@ public final class SerialComPortJNIBridge {
      * @param cpuArch architecture of CPU this library is running on.
      * @param osType operating system this library is running on.
      * @param abiType binary application interface type to correctly link.
-     * @throws SerialComException if java system properties can not be is null, if any file system related issue occurs.
+     * @param hotDeploy true if tomcat hot deployment is needed otherwise false.
+     * @throws IOException 
      * @throws SecurityException if java system properties can not be  accessed or required files can not be accessed.
      * @throws UnsatisfiedLinkError if loading/linking shared library fails.
      */
     public static boolean loadNativeLibrary(String directoryPath, String loadedLibName, SerialComSystemProperty serialComSystemProperty,
-            int osType, int cpuArch, int abiType) throws SerialComException {
+            int osType, int cpuArch, int abiType, boolean hotDeploy) throws IOException {
 
         String javaTmpDir = null;
         String userHomeDir = null;
@@ -304,7 +307,18 @@ public final class SerialComPortJNIBridge {
             throw new SerialComException("This architecture is unknown to this library. Please contact us !");
         }
 
-        /* Extract shared library from jar into working directory */
+        // For hot deployment if the library is already extracted, loaded/linked return without going further.
+        // For desktop applications, the static variable 'nativeLibLoadAndInitAlready' would prevent extraction 
+        // and loading if it has been already done previously.
+        if(hotDeploy == true) {
+            try {
+                Class.forName("com.serialpundit.serial.internal.NativeLoaderUART");
+                return true;
+            } catch (ClassNotFoundException e) {
+            }
+        }
+
+        // Extraction required, extract native shared library from jar into working directory 
         try {
             if(loadedLibName == null) {
                 libFile = new File(workingDir.getAbsolutePath() + fileSeparator + libToExtractFromJar);
@@ -325,7 +339,7 @@ public final class SerialComPortJNIBridge {
                 output = null;
 
                 if((libFile != null) && libFile.exists() && libFile.isFile()) {
-                    // congratulations successfully extracted
+                    // congratulations successfully extracted native shared library
                 }else {
                     throw new SerialComException("Can not extract native shared library " + libToExtractFromJar + " from sp-tty.jar file !");
                 }
@@ -351,17 +365,28 @@ public final class SerialComPortJNIBridge {
             }
         }
 
-        /* Try loading the dynamic shared library from the local file system finally as privileged action */
-        final File libFileFinal = libFile;
-        try {
-            AccessController.doPrivileged(new PrivilegedAction<Boolean>() {
-                public Boolean run() {
-                    System.load(libFileFinal.toString());
-                    return true;
-                }
-            });
-        } catch (Exception e) {
-            throw (UnsatisfiedLinkError) new UnsatisfiedLinkError("Could not load " + libFile.toString() + " native library !").initCause(e);
+        if(hotDeploy != true) {
+            // Try loading the dynamic shared library from the local file system finally as privileged action
+            final File libFileFinal = libFile;
+            try {
+                AccessController.doPrivileged(new PrivilegedAction<Boolean>() {
+                    public Boolean run() {
+                        System.load(libFileFinal.toString());
+                        return true;
+                    }
+                });
+            } catch (Exception e) {
+                throw (UnsatisfiedLinkError) new UnsatisfiedLinkError("Could not load " + libFile.toString()).initCause(e);
+            }
+        }
+        else {
+            InputStream cin = SerialComPortJNIBridge.class.getResourceAsStream("NativeLoaderUART.class");
+            if(cin == null) {
+                throw new SerialComException("NativeLoaderUART.class not found in jar file !");
+            }
+            NativeLibLoader nll = new NativeLibLoader("com.serialpundit.serial.internal.NativeLoaderUART", cin);
+            nll.load(libFile.toString());
+            cin.close();
         }
 
         return true;
