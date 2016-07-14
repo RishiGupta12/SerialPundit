@@ -2116,6 +2116,10 @@ public final class SerialComManager {
      * example the secondary bootloader in LPC2000 can update the user application code in on chip flash 
      * via UART with 1K XMODEM protocol. Xmodem protocol is also used for taling to network routers.</p>
      * 
+     * <p>If you want to make user defined firmware, consider creating an IDE where end user can place widget, 
+     * define layout etc. graphically and then when he clicks on save button a firmware hex file gets generated. 
+     * This file is then flashed into end product as firmware.</p>
+     * 
      * @param handle of the port on which file is to be sent.
      * @param fileToSend File instance representing file to be sent.
      * @param ftpProto file transfer protocol to use for communication over serial port.
