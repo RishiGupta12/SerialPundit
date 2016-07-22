@@ -4,7 +4,7 @@ It creates virtual serial ports pair that appears same as the real once to the a
 
 ##Applications
 - Fully automate Junit testing and continuous integration
-- Custom protocols development and debugging
+- Serial communication protocols development, simulation and analysis
 - Serial port based application's scalability and performance testing
 - Can be used as a medium for inter/intra-process communication
 - Serial port communication sniffer or test sniffer application itself
