@@ -58,14 +58,10 @@ Or
 ```
 - **Timedout data**; consecutive data packets will always have a minimum time gap between them.
 ```java
-  int osType = scm.getOSType();
   // Tune read method behaviour (500 milliseconds wait timeout value)
-  if(osType == SerialComManager.OS_WINDOWS) {
-      scm.fineTuneReadBehaviour(handle, 0, 0, 0, 0 , 0);
-  }else {
-      scm.fineTuneReadBehaviour(handle, 0, 5, 0, 0 , 0);
-  }
-  // The readBytes will return only after given timeout has expired
+  scm.fineTuneReadBehaviour(handle, 0, 5, 100, 5, 200);
+
+  // The readBytes will return only after 500 millisecond if there was no data to read
   data = scm.readBytes(handle);
   if(data != null) {
       System.out.println("Data read : " + new String(dataRead));
