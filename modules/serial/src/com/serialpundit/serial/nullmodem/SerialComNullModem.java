@@ -80,9 +80,9 @@ public final class SerialComNullModem {
      * <p>Create an instance of SerialComNullModem with given details.</p>
      *  
      * @param osType operating system this library is running on.
-     * @throws Exception if any exception occurs when handling null modem files.
+     * @throws IOException if any exception occurs while preparing for null modem communication.
      */
-    public SerialComNullModem(int osType) throws Exception {
+    public SerialComNullModem(int osType) throws IOException {
 
         this.osType = osType;
         if(osType == SerialComPlatform.OS_LINUX) {

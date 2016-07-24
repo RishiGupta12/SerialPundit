@@ -341,12 +341,14 @@ public final class SerialComManager {
      * <p>Please contact author of this library if you want to use CPU optimized native shared libraries in your 
      * embedded product for achieving maximum performance.</p>
      * 
-     * @throws SecurityException if java system properties can not be accessed.
-     * @throws UnsatisfiedLinkError if loading/linking shared library fails.
-     * @throws FileNotFoundException if file "/proc/cpuinfo" can not be found for Linux on ARM platform.
-     * @throws IOException if file operations on "/proc/cpuinfo" fails for Linux on ARM platform.
+     * @throws IOException if file operations on "/proc/cpuinfo" fails for Linux on ARM platform, if java system 
+     *         properties can not be accessed, if file "/proc/cpuinfo" can not be found for Linux on ARM platform, 
+     *         if native libraries are not found or can not be loaded/linked and initialized. If appropriate 
+     *         files/directories can not be read or written.
+     * @throws IllegalArgumentException if directoryPath is null, directoryPath is empty, loadedLibName is null 
+     *         or empty.
      */
-    public SerialComManager() throws SecurityException, IOException {
+    public SerialComManager() throws IOException {
 
         mSerialComSystemProperty = new SerialComSystemProperty();
         mSerialComPlatform = new SerialComPlatform(mSerialComSystemProperty);
@@ -418,15 +420,15 @@ public final class SerialComManager {
      * @param directoryPath absolute path of directory to be used for purpose of extraction.
      * @param createDirectory true if directory is to be created otherwise false if given directory already exist.
      * @param hotDeploy true if hot deployment is to be supported otherwise false.
-     * @throws SecurityException if java system properties can not be accessed.
-     * @throws UnsatisfiedLinkError if loading/linking shared library fails.
-     * @throws FileNotFoundException if file "/proc/cpuinfo" can not be found for Linux on ARM platform.
-     * @throws IOException if file operations on "/proc/cpuinfo" fails for Linux on ARM platform.
+     * @throws IOException if file operations on "/proc/cpuinfo" fails for Linux on ARM platform, if java system 
+     *         properties can not be accessed, if file "/proc/cpuinfo" can not be found for Linux on ARM platform, 
+     *         if native libraries are not found or can not be loaded/linked and initialized. If appropriate 
+     *         files/directories can not be read or written.
      * @throws IllegalArgumentException if directoryPath is null, directoryPath is empty, loadedLibName is null 
      *         or empty.
      */
     public SerialComManager(String loadedLibName, String directoryPath, final boolean createDirectory, 
-            boolean hotDeploy) throws SecurityException, IOException {
+            boolean hotDeploy) throws IOException {
 
         if(directoryPath == null) {
             throw new IllegalArgumentException("Argument directoryPath can not be null !");
@@ -2378,13 +2380,12 @@ public final class SerialComManager {
      * @param libDirectory absolute directory path where vendor library is placed.
      * @param vlibName full name of the vendor library (for ex. libftd2xx.so.1.1.12).
      * @return an object of SerialComVendorLib class on which vendor specific API calls can be made otherwise null.
-     * @throws SerialComException if java system properties can not be is null, if any file system related issue 
-     *         occurs, if invalid vendorLibIdentifier is passed.
-     * @throws SecurityException if java system properties can not be  accessed or required files can not be accessed.
-     * @throws UnsatisfiedLinkError if loading/linking shared library fails.
-     * @throws FileNotFoundException if the vendor library file is not found.
+     * @throws IOException if java system properties can not be accessed, if invalid vendorLibIdentifier is passed. 
+     *         if native libraries are not found or can not be loaded/linked, if libDirectory does not exist, or is not 
+     *         a regular directory or is not writtable, If native library can not be initialized.
+     * @throws IllegalArgumentException if vlibName is null or empty string.
      */
-    public SerialComVendorLib getVendorLibFromFactory(int vendorLibIdentifier, String libDirectory, String vlibName) throws SerialComException {
+    public SerialComVendorLib getVendorLibFromFactory(int vendorLibIdentifier, String libDirectory, String vlibName) throws IOException {
 
         File baseDir = new File(libDirectory.trim());
         if(!baseDir.exists()) {
@@ -2415,18 +2416,19 @@ public final class SerialComManager {
      * <p>Allocate, initialize and return an instance of SerialComPortMapper class on whom APIs can 
      * be called to map or unmap a serial port alias.</p>
      * 
-     * <p>This method will extract native library in directory as specified by directoryPath 
-     * argument or default directory will be used if directoryPath is null. The native library 
-     * loaded will be given name as specified by loadedLibName argument or default name will be 
-     * used if loadedLibName is null.</p>
+     * <p>This method will extract native library in directory as specified by directoryPath argument 
+     * or default directory will be used if directoryPath is null. The native library loaded will be given 
+     * name as specified by loadedLibName argument or default name will be used if loadedLibName is null.</p>
      * 
      * @param directoryPath absolute path of directory to be used for extraction.
      * @param loadedLibName library name without extension (do not append .so, .dll or .dylib etc.).
      * @return instance of SerialComPortMapper class on which various methods can be invoked.
-     * @throws SerialComException if java system properties can not be is null, if any file system related issue occurs.
-     * @throws SecurityException if java system properties can not be  accessed or required files can not be accessed.
-     * @throws UnsatisfiedLinkError if loading/linking shared library fails.
-     * @throws FileNotFoundException if file "/proc/cpuinfo" can not be found for Linux on ARM platform.
+     * @throws IOException if file operations on "/proc/cpuinfo" fails for Linux on ARM platform, if java system 
+     *         properties can not be accessed, if file "/proc/cpuinfo" can not be found for Linux on ARM platform, 
+     *         if native libraries are not found or can not be loaded/linked. If appropriate files/directories can 
+     *         not be read or written, If native library can not be initialized.
+     * @throws IllegalArgumentException if directoryPath is null, directoryPath is empty, loadedLibName is null 
+     *         or empty.
      */
     public SerialComPortMapper getSerialComPortMapperInstance(String directoryPath, String loadedLibName) throws SerialComException {
 
@@ -2456,17 +2458,14 @@ public final class SerialComManager {
      * @param directoryPath absolute path of directory to be used for extraction.
      * @param loadedLibName library name without extension (do not append .so, .dll or .dylib etc.).
      * @return instance of SerialComDBRelease on which various methods can be invoked. 
-     * @throws com.serialpundit.core.SerialComException 
-     * @throws SerialComException if could not instantiate class due to some reason.
-     * @throws SecurityException if java system properties can not be  accessed.
-     * @throws SerialComUnexpectedException if java system property is null.
-     * @throws SerialComLoadException if any file system related issue occurs.
-     * @throws UnsatisfiedLinkError if loading/linking shared library fails.
-     * @throws FileNotFoundException if file "/proc/cpuinfo" can not be found for Linux on ARM platform.
-     * @throws IOException if file operations on "/proc/cpuinfo" fails for Linux on ARM platform.
-     * @throws SerialComException if initializing native library fails.
+     * @throws IOException if file operations on "/proc/cpuinfo" fails for Linux on ARM platform, if java system 
+     *         properties can not be accessed, if file "/proc/cpuinfo" can not be found for Linux on ARM platform, 
+     *         if native libraries are not found or can not be loaded/linked. If appropriate files/directories can 
+     *         not be read or written, If native library can not be initialized.
+     * @throws IllegalArgumentException if directoryPath is null, directoryPath is empty, loadedLibName is null 
+     *         or empty.
      */
-    public SerialComDBRelease getSerialComDBReleaseInstance(String directoryPath, String loadedLibName) throws SerialComException {
+    public SerialComDBRelease getSerialComDBReleaseInstance(String directoryPath, String loadedLibName) throws IOException {
 
         if(mSerialComDBReleaseJNIBridge == null) {
             mSerialComDBReleaseJNIBridge = new SerialComDBReleaseJNIBridge();
@@ -2480,10 +2479,10 @@ public final class SerialComManager {
      * <p>Provides an instance of SerialComNullModem class for managing virtual serial device, null modem,
      * loop back and custom pinout connected virtual serial devices.</p>
      * 
-     * @return an instance of SerialComNullModem.
-     * @throws Exception if any error occurs while handling null modem driver specific files.
+     * @return an instance of SerialComNullModem class.
+     * @throws IOException if any error occurs while handling null modem driver specific files.
      */
-    public SerialComNullModem getSerialComNullModemInstance() throws Exception {
+    public SerialComNullModem getSerialComNullModemInstance() throws IOException {
 
         if(mSerialComNullModem == null) {
             mSerialComNullModem = new SerialComNullModem(osType);

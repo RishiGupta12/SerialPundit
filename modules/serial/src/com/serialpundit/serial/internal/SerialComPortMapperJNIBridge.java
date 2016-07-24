@@ -47,13 +47,13 @@ public final class SerialComPortMapperJNIBridge {
      * @param cpuArch architecture of CPU this library is running on.
      * @param osType operating system this library is running on.
      * @param abiType binary application interface type to correctly link.
-     * @throws SerialComException if java system properties can not be is null, if any file system related issue occurs.
-     * @throws SecurityException if java system properties can not be  accessed or required files can not be accessed.
-     * @throws UnsatisfiedLinkError if loading/linking shared library fails.
+     * @return true on success.
+     * @throws SerialComException if java system properties can not be  accessed or required files can not be 
+     *         accessed, if shared library is not found, it can not be loaded, linked and initialized etc.
      */
     public static boolean loadNativeLibrary(String directoryPath, String loadedLibName, SerialComSystemProperty serialComSystemProperty,
             int osType, int cpuArch, int abiType) throws SerialComException {
-        
+
         String javaTmpDir = null;
         String userHomeDir = null;
         String fileSeparator = null;
@@ -259,7 +259,9 @@ public final class SerialComPortMapperJNIBridge {
                 }
             });
         } catch (Exception e) {
-            throw (UnsatisfiedLinkError) new UnsatisfiedLinkError("Could not load " + libFile.toString() + " native library !").initCause(e);
+            throw (SerialComException) new SerialComException("Could not load " + libFile.toString() + " native library !").initCause(e);
+        } catch (UnsatisfiedLinkError e) {
+            throw (SerialComException) new SerialComException(e.getMessage()).initCause(e);
         }
 
         return true;

@@ -16,7 +16,6 @@ package com.serialpundit.serial.internal;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
-import java.io.FileNotFoundException;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 
@@ -48,10 +47,9 @@ public final class SerialComSLabsUSBXpressJNIBridge {
      * @param cpuArch architecture of CPU this library is running on.
      * @param osType operating system this library is running on.
      * @param serialComSystemProperty instance of SerialComSystemProperty to get required java properties.
-     * @throws SerialComException if java system properties can not be is null, if any file system related issue occurs.
-     * @throws SecurityException if java system properties can not be  accessed or required files can not be accessed.
-     * @throws UnsatisfiedLinkError if loading/linking shared library fails.
-     * @throws FileNotFoundException if the vendor library file is not found.
+     * @return true on success.
+     * @throws SerialComException if java system properties can not be  accessed or required files can not be 
+     *         accessed, if shared library is not found, it can not be loaded, linked and initialized etc.
      */
     public static boolean loadNativeLibrary(File libDirectory, String vlibName, int cpuArch, int osType, 
             SerialComSystemProperty serialComSystemProperty) throws SerialComException {
@@ -154,7 +152,9 @@ public final class SerialComSLabsUSBXpressJNIBridge {
                 }
             });
         } catch (Exception e) {
-            throw (UnsatisfiedLinkError) new UnsatisfiedLinkError("Could not load " + vlibFileFinal.toString() + " native library !").initCause(e);
+            throw (SerialComException) new SerialComException("Could not load " + vlibFileFinal.toString() + " native library !").initCause(e);
+        } catch (UnsatisfiedLinkError e) {
+            throw (SerialComException) new SerialComException(e.getMessage()).initCause(e);
         }
 
         try {
@@ -166,7 +166,9 @@ public final class SerialComSLabsUSBXpressJNIBridge {
                 }
             });
         } catch (Exception e) {
-            throw (UnsatisfiedLinkError) new UnsatisfiedLinkError("Could not load " + libFileFinal.toString() + " native library !").initCause(e);
+            throw (SerialComException) new SerialComException("Could not load " + libFileFinal.toString() + " native library !").initCause(e);
+        } catch (UnsatisfiedLinkError e) {
+            throw (SerialComException) new SerialComException(e.getMessage()).initCause(e);
         }
 
         return true;

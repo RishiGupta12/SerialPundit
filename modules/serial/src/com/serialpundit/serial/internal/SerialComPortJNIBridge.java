@@ -18,7 +18,6 @@ import java.nio.ByteBuffer;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Comparator;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.FileOutputStream;
 
@@ -138,12 +137,12 @@ public final class SerialComPortJNIBridge {
      * @param osType operating system this library is running on.
      * @param abiType binary application interface type to correctly link.
      * @param hotDeploy true if tomcat hot deployment is needed otherwise false.
-     * @throws IOException 
-     * @throws SecurityException if java system properties can not be  accessed or required files can not be accessed.
-     * @throws UnsatisfiedLinkError if loading/linking shared library fails.
+     * @return true on success.
+     * @throws SerialComException if java system properties can not be  accessed or required files can not be 
+     *         accessed, if shared library is not found, it can not be loaded, linked and initialized etc.
      */
     public static boolean loadNativeLibrary(String directoryPath, String loadedLibName, SerialComSystemProperty serialComSystemProperty,
-            int osType, int cpuArch, int abiType, boolean hotDeploy) throws IOException {
+            int osType, int cpuArch, int abiType, boolean hotDeploy) throws SerialComException {
 
         String javaTmpDir = null;
         String userHomeDir = null;
@@ -163,64 +162,68 @@ public final class SerialComPortJNIBridge {
             throw new SerialComException("The file.separator java system property is either null or empty !");
         }
 
-        /* Prepare directory in which native shared library will be extracted from jar */
-        if(directoryPath == null) {
-            // user did not supplied any directory path so try tmp and user home
-            javaTmpDir = serialComSystemProperty.getJavaIOTmpDir();
-            if((javaTmpDir == null) || (javaTmpDir.length() == 0)) {
-                throw new SerialComException("The java.io.tmpdir java system property is either null or empty !");
-            }
+        try {
+            /* Prepare directory in which native shared library will be extracted from jar */
+            if(directoryPath == null) {
+                // user did not supplied any directory path so try tmp and user home
+                javaTmpDir = serialComSystemProperty.getJavaIOTmpDir();
+                if((javaTmpDir == null) || (javaTmpDir.length() == 0)) {
+                    throw new SerialComException("The java.io.tmpdir java system property is either null or empty !");
+                }
 
-            baseDir = new File(javaTmpDir);
-            if(baseDir.exists() && baseDir.isDirectory() && baseDir.canWrite()) {
-                isTmpDir = true;
-                // temp directory will be used
-            }else {
-                // access to temp directory failed, let us try access to user's home directory
-                userHomeDir = serialComSystemProperty.getUserHome();
-                if((userHomeDir == null) || (userHomeDir.length() == 0)) {
-                    throw new SerialComException("The user.home java system property is either null or empty !");
+                baseDir = new File(javaTmpDir);
+                if(baseDir.exists() && baseDir.isDirectory() && baseDir.canWrite()) {
+                    isTmpDir = true;
+                    // temp directory will be used
+                }else {
+                    // access to temp directory failed, let us try access to user's home directory
+                    userHomeDir = serialComSystemProperty.getUserHome();
+                    if((userHomeDir == null) || (userHomeDir.length() == 0)) {
+                        throw new SerialComException("The user.home java system property is either null or empty !");
+                    }
+                    baseDir = new File(userHomeDir);
+                    if(!baseDir.exists()) {
+                        throw new SerialComException("User home directory does not exist. Also unable to access tmp/temp directory !");
+                    }
+                    if(!baseDir.isDirectory()) {
+                        throw new SerialComException("User home directory is not a directory. Also unable to access tmp/temp directory !");
+                    }
+                    if(!baseDir.canWrite()) {
+                        throw new SerialComException("User home directory is not writeable (permissions ??). Also unable to access tmp/temp directory !");
+                    }
+                    isUserHomeDir = true;
                 }
-                baseDir = new File(userHomeDir);
-                if(!baseDir.exists()) {
-                    throw new SerialComException("User home directory does not exist. Also unable to access tmp/temp directory !");
-                }
-                if(!baseDir.isDirectory()) {
-                    throw new SerialComException("User home directory is not a directory. Also unable to access tmp/temp directory !");
-                }
-                if(!baseDir.canWrite()) {
-                    throw new SerialComException("User home directory is not writeable (permissions ??). Also unable to access tmp/temp directory !");
-                }
-                isUserHomeDir = true;
-            }
 
-            // for tmp or user home create unique directory inside them for our use only
-            workingDir = new File(baseDir.toString() + fileSeparator + "sp_tuartx1");
-            if(!workingDir.exists()) {
-                if(!workingDir.mkdir()) {
-                    if(isTmpDir == true) {
-                        throw new SerialComException("Can not create sp_tuartx1 unique directory in tmp/temp directory !");
-                    }else if(isUserHomeDir == true) {
-                        throw new SerialComException("Can not create sp_tuartx1 unique directory in user's home directory !");
-                    }else {
+                // for tmp or user home create unique directory inside them for our use only
+                workingDir = new File(baseDir.toString() + fileSeparator + "sp_tuartx1");
+                if(!workingDir.exists()) {
+                    if(!workingDir.mkdir()) {
+                        if(isTmpDir == true) {
+                            throw new SerialComException("Can not create sp_tuartx1 unique directory in tmp/temp directory !");
+                        }else if(isUserHomeDir == true) {
+                            throw new SerialComException("Can not create sp_tuartx1 unique directory in user's home directory !");
+                        }else {
+                        }
                     }
                 }
-            }
-        }else {
-            // user specified directory, so try it
-            baseDir = new File(directoryPath);
-            if(!baseDir.exists()) {
-                throw new SerialComException("Given " + directoryPath + " directory does not exist !");
-            }
-            if(!baseDir.isDirectory()) {
-                throw new SerialComException("Given " + directoryPath + " is not a directory !");
-            }
-            if(!baseDir.canWrite()) {
-                throw new SerialComException("Given " + directoryPath + " directory is not writeable !");
-            }
+            }else {
+                // user specified directory, so try it
+                baseDir = new File(directoryPath);
+                if(!baseDir.exists()) {
+                    throw new SerialComException("Given " + directoryPath + " directory does not exist !");
+                }
+                if(!baseDir.isDirectory()) {
+                    throw new SerialComException("Given " + directoryPath + " is not a directory !");
+                }
+                if(!baseDir.canWrite()) {
+                    throw new SerialComException("Given " + directoryPath + " directory is not writeable !");
+                }
 
-            // for user specified directory base itself will be working directory
-            workingDir = baseDir;
+                // for user specified directory base itself will be working directory
+                workingDir = baseDir;
+            }
+        } catch (Exception e) {
+            throw (SerialComException) new SerialComException(e.getMessage()).initCause(e);
         }
 
         /* Find the native library that will be extracted based on arch and os type */
@@ -307,86 +310,88 @@ public final class SerialComPortJNIBridge {
             throw new SerialComException("This architecture is unknown to this library. Please contact us !");
         }
 
-        // For hot deployment if the library is already extracted, loaded/linked return without going further.
-        // For desktop applications, the static variable 'nativeLibLoadAndInitAlready' would prevent extraction 
-        // and loading if it has been already done previously.
-        if(hotDeploy == true) {
-            try {
-                Class.forName("com.serialpundit.serial.internal.NativeLoaderUART");
-                return true;
-            } catch (ClassNotFoundException e) {
-            }
-        }
-
-        // Extraction required, extract native shared library from jar into working directory 
         try {
-            if(loadedLibName == null) {
-                libFile = new File(workingDir.getAbsolutePath() + fileSeparator + libToExtractFromJar);
-            }else {
-                libFile = new File(workingDir.getAbsolutePath() + fileSeparator + loadedLibName.trim() + libExtension);
+            // For hot deployment if the library is already extracted, loaded/linked return without going further.
+            // For desktop applications, the static variable 'nativeLibLoadAndInitAlready' would prevent extraction 
+            // and loading if it has been already done previously.
+            if(hotDeploy == true) {
+                try {
+                    Class.forName("com.serialpundit.serial.internal.NativeLoaderUART");
+                    return true;
+                } catch (ClassNotFoundException e) {
+                }
             }
 
-            input = SerialComPortJNIBridge.class.getResourceAsStream("/" + libToExtractFromJar);
-            output = new FileOutputStream(libFile);
-            if(input != null) {
-                int read;
-                byte[] buffer = new byte[4096];
-                while((read = input.read(buffer)) != -1){
-                    output.write(buffer, 0, read);
-                }
-                output.flush();
-                output.close();
-                output = null;
-
-                if((libFile != null) && libFile.exists() && libFile.isFile()) {
-                    // congratulations successfully extracted native shared library
+            // Extraction required, extract native shared library from jar into working directory 
+            try {
+                if(loadedLibName == null) {
+                    libFile = new File(workingDir.getAbsolutePath() + fileSeparator + libToExtractFromJar);
                 }else {
-                    throw new SerialComException("Can not extract native shared library " + libToExtractFromJar + " from sp-tty.jar file !");
+                    libFile = new File(workingDir.getAbsolutePath() + fileSeparator + loadedLibName.trim() + libExtension);
                 }
-            }else {
-                throw new SerialComException("Can not get shared library " + libToExtractFromJar + " resource as stream from sp-tty.jar file !");
-            }
-        } catch (Exception e) {
-            throw (SerialComException) new SerialComException(libFile.toString()).initCause(e);
-        } finally {
-            try {
-                if(output != null) {
-                    output.close();
-                }
-            } catch (Exception e) {
-                // ignore
-            }
-            try {
-                if(input != null) {
-                    input.close();
-                }
-            } catch (Exception e) {
-                // ignore
-            }
-        }
 
-        if(hotDeploy != true) {
-            // Try loading the dynamic shared library from the local file system finally as privileged action
-            final File libFileFinal = libFile;
-            try {
+                input = SerialComPortJNIBridge.class.getResourceAsStream("/" + libToExtractFromJar);
+                output = new FileOutputStream(libFile);
+                if(input != null) {
+                    int read;
+                    byte[] buffer = new byte[4096];
+                    while((read = input.read(buffer)) != -1){
+                        output.write(buffer, 0, read);
+                    }
+                    output.flush();
+                    output.close();
+                    output = null;
+
+                    if((libFile != null) && libFile.exists() && libFile.isFile()) {
+                        // congratulations successfully extracted native shared library
+                    }else {
+                        throw new SerialComException("Can not extract native shared library " + libToExtractFromJar + " from sp-tty.jar file !");
+                    }
+                }else {
+                    throw new SerialComException("Can not get shared library " + libToExtractFromJar + " resource as stream from sp-tty.jar file !");
+                }
+            } catch (Exception e) {
+                throw (SerialComException) new SerialComException(libFile.toString()).initCause(e);
+            } finally {
+                try {
+                    if(output != null) {
+                        output.close();
+                    }
+                } catch (Exception e) {
+                    // ignore
+                }
+                try {
+                    if(input != null) {
+                        input.close();
+                    }
+                } catch (Exception e) {
+                    // ignore
+                }
+            }
+
+            if(hotDeploy != true) {
+                // Try loading the dynamic shared library from the local file system finally as privileged action
+                final File libFileFinal = libFile;
                 AccessController.doPrivileged(new PrivilegedAction<Boolean>() {
                     public Boolean run() {
                         System.load(libFileFinal.toString());
                         return true;
                     }
                 });
-            } catch (Exception e) {
-                throw (UnsatisfiedLinkError) new UnsatisfiedLinkError("Could not load " + libFile.toString()).initCause(e);
             }
-        }
-        else {
-            InputStream cin = SerialComPortJNIBridge.class.getResourceAsStream("NativeLoaderUART.class");
-            if(cin == null) {
-                throw new SerialComException("NativeLoaderUART.class not found in jar file !");
+            else {
+                InputStream cin = SerialComPortJNIBridge.class.getResourceAsStream("NativeLoaderUART.class");
+                if(cin == null) {
+                    throw new SerialComException("NativeLoaderUART.class not found in jar file !");
+                }
+                NativeLibLoader nll = new NativeLibLoader("com.serialpundit.serial.internal.NativeLoaderUART", cin);
+                nll.load(libFile.toString());
+                cin.close();
             }
-            NativeLibLoader nll = new NativeLibLoader("com.serialpundit.serial.internal.NativeLoaderUART", cin);
-            nll.load(libFile.toString());
-            cin.close();
+        } catch (Exception e) {
+            throw (SerialComException) new SerialComException(e.getMessage()).initCause(e);
+        } catch (UnsatisfiedLinkError e) {
+            throw (SerialComException) new SerialComException(e.getMessage()).initCause(e);
         }
 
         return true;

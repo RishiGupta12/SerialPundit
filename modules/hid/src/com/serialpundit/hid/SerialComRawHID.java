@@ -136,11 +136,10 @@ public final class SerialComRawHID extends SerialComHID {
 	 * 
 	 * @param libDirectory absolute path of directory to be used for native library extraction.
 	 * @param loadedLibName library name without extension (do not append .so, .dll or .dylib etc.).
-	 * @throws IOException if loading/linking native library fails.
-	 * @throws SecurityException if any of the java property can not be accessed.
-	 * @throws UnsatisfiedLinkError if loading/linking shared library fails.
+	 * @throws IOException if libDirectory does not exist, or is not a regular directory or is not 
+	 * writable, if native libraries are not found or can not be loaded/linked or initialized etc.
 	 */
-	public SerialComRawHID(String libDirectory, String loadedLibName) throws SecurityException, IOException {
+	public SerialComRawHID(String libDirectory, String loadedLibName) throws IOException {
 
 		mSerialComSystemProperty = new SerialComSystemProperty();
 
