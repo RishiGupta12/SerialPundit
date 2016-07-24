@@ -1,6 +1,6 @@
-It is a null modem / loop back kernel mode driver providing full duplex communication and handshaking signals.
+!["serial communication in java"](images/tty2com.png?raw=true "serial port null modem emulation")
 
-It creates virtual serial ports pair that appears same as the real once to the application software.
+It is a null modem / loop back kernel mode driver providing full duplex communication and handshaking signals. It creates virtual serial ports pair that appears same as the real once to the application software.
 
 ##Applications
 - Fully automate Junit testing and continuous integration
