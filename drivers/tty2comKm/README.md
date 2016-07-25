@@ -57,12 +57,12 @@ There are three connection configurations supported by this driver.
 ####Standard nulll modem
 ```
  tty2com0            tty2com1
-     RXD -------------- TXD
      TXD -------------- RXD
+     RXD -------------- TXD
      DTR -------------- DSR,DCD
  DSR,DCD -------------- DTR
-     CTS -------------- RTS
      RTS -------------- CTS
+     CTS -------------- RTS
      GND -------------- GND
 ```
 - TX of local port is connected to RX of remote port and vice-versa
@@ -92,8 +92,8 @@ The local pins RTS, DTR, DCD, DSR and RI can be connected to local/remote pins a
 *Custom null modem :*   
 ```
  tty2com0            tty2com1
-     RXD -------------- TXD
      TXD -------------- RXD
+     RXD -------------- TXD
      RTS -------------- DSR,DCD
  DSR,DCD -------------- DTR
      CTS -------------- RTS
