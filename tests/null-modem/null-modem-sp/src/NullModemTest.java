@@ -186,19 +186,19 @@ public final class NullModemTest {
 			}
 
 			try {
-				scnm.createCustomLoopBackDevice(-1, SerialComNullModem.SCM_CON_CTS, SerialComNullModem.SCM_CON_DCD | SerialComNullModem.SCM_CON_DSR);
+				scnm.createCustomLoopBackDevice(-1, SerialComNullModem.SP_CON_CTS, SerialComNullModem.SP_CON_DCD | SerialComNullModem.SP_CON_DSR);
 			}catch (Exception e) {
 				e.printStackTrace();
 			}
 
 			try {
-				scnm.createCustomLoopBackDevice(65, 0, SerialComNullModem.SCM_CON_CTS | SerialComNullModem.SCM_CON_DCD | SerialComNullModem.SCM_CON_DSR);
+				scnm.createCustomLoopBackDevice(65, 0, SerialComNullModem.SP_CON_CTS | SerialComNullModem.SP_CON_DCD | SerialComNullModem.SP_CON_DSR);
 			}catch (Exception e) {
 				e.printStackTrace();
 			}
 
 			try {
-				scnm.createCustomLoopBackDevice(29, SerialComNullModem.SCM_CON_CTS | SerialComNullModem.SCM_CON_DCD | SerialComNullModem.SCM_CON_DSR, 0);
+				scnm.createCustomLoopBackDevice(29, SerialComNullModem.SP_CON_CTS | SerialComNullModem.SP_CON_DCD | SerialComNullModem.SP_CON_DSR, 0);
 			}catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -211,8 +211,8 @@ public final class NullModemTest {
 			}
 
 			try {
-				scnm.createCustomNullModemPair(-1, SerialComNullModem.SCM_CON_CTS, SerialComNullModem.SCM_CON_DCD | SerialComNullModem.SCM_CON_DSR, 
-						-1, SerialComNullModem.SCM_CON_CTS, SerialComNullModem.SCM_CON_DCD | SerialComNullModem.SCM_CON_DSR);
+				scnm.createCustomNullModemPair(-1, SerialComNullModem.SP_CON_CTS, SerialComNullModem.SP_CON_DCD | SerialComNullModem.SP_CON_DSR, 
+						-1, SerialComNullModem.SP_CON_CTS, SerialComNullModem.SP_CON_DCD | SerialComNullModem.SP_CON_DSR);
 			}catch (Exception e) {
 				e.printStackTrace();
 			}

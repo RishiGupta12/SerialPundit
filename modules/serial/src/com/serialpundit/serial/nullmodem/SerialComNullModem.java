@@ -33,23 +33,23 @@ public final class SerialComNullModem {
 
     /**<p> Bit mask bit specifying that the given pin should be left unconnected.</p> 
      * Constant with value 0x0000. </p>*/
-    public static final int SCM_CON_NONE = 0x0000;
+    public static final int SP_CON_NONE = 0x0000;
 
     /**<p> Bit mask bit specifying that the given pin should be connected to CTS pin of other end. 
      * Constant with value 0x0001. </p>*/
-    public static final int SCM_CON_CTS = 0x0001;
+    public static final int SP_CON_CTS = 0x0001;
 
     /**<p> Bit mask bit specifying that the given pin should be connected to DCD pin of other end. 
      * Constant with value 0x0002. </p>*/
-    public static final int SCM_CON_DCD = 0x0002;
+    public static final int SP_CON_DCD = 0x0002;
 
     /**<p> Bit mask bit specifying that the given pin should be connected to DSR pin of other end. 
      * Constant with value 0x0004. </p>*/
-    public static final int SCM_CON_DSR = 0x0004;
+    public static final int SP_CON_DSR = 0x0004;
 
     /**<p> Bit mask bit specifying that the given pin should be connected to RI pin of other end. 
      * Constant with value 0x0008. </p>*/
-    public static final int SCM_CON_RI  = 0x0008;
+    public static final int SP_CON_RI  = 0x0008;
 
     /**<p> Bit mask bit specifying that a framing error should be emulated.</p> 
      * Constant with value 0x0010. </p>*/
@@ -221,9 +221,9 @@ public final class SerialComNullModem {
     /**
      * <p>Creates a virtual loop back device with given pin mappings.</p>
      * 
-     * <p>To connect RTS pin to CTS pin use rtsMap = SerialComNullModem.SCM_CON_CTS. A pin can be 
+     * <p>To connect RTS pin to CTS pin use rtsMap = SerialComNullModem.SP_CON_CTS. A pin can be 
      * connected to one or more pins using bit mask. For example to connect RTS pin to CTS and DSR use 
-     * rtsMap = SerialComNullModem.SCM_CON_CTS | SerialComNullModem.SCM_CON_DSR.</p>
+     * rtsMap = SerialComNullModem.SP_CON_CTS | SerialComNullModem.SP_CON_DSR.</p>
      * 
      * @param deviceIndex -1 or valid device number (0 <= deviceIndex =< 65535).
      * @param rtsMap Bit mask of SerialComNullModem.SCM_CON_XXX constants as per the desired pin mappings 
@@ -252,28 +252,28 @@ public final class SerialComNullModem {
                 sb.append("#xxxxx#7-");
             }
 
-            if(rtsMap == SCM_CON_NONE) {
+            if(rtsMap == SP_CON_NONE) {
                 sb.append("x,x,x,x#4-");
             }else {
-                if((rtsMap & SCM_CON_CTS) == SCM_CON_CTS) {
+                if((rtsMap & SP_CON_CTS) == SP_CON_CTS) {
                     sb.append(8);
                 }else {
                     sb.append("x");
                 }
                 sb.append(",");
-                if((rtsMap & SCM_CON_DCD) == SCM_CON_DCD) {
+                if((rtsMap & SP_CON_DCD) == SP_CON_DCD) {
                     sb.append(1);
                 }else {
                     sb.append("x");
                 }
                 sb.append(",");
-                if((rtsMap & SCM_CON_DSR) == SCM_CON_DSR) {
+                if((rtsMap & SP_CON_DSR) == SP_CON_DSR) {
                     sb.append(6);
                 }else {
                     sb.append("x");
                 }
                 sb.append(",");
-                if((rtsMap & SCM_CON_RI) == SCM_CON_RI) {
+                if((rtsMap & SP_CON_RI) == SP_CON_RI) {
                     sb.append(9);
                 }else {
                     sb.append("x");
@@ -281,28 +281,28 @@ public final class SerialComNullModem {
                 sb.append("#4-");
             }
 
-            if(dtrMap == SCM_CON_NONE) {
+            if(dtrMap == SP_CON_NONE) {
                 sb.append("x,x,x,x");
             }else {
-                if((dtrMap & SCM_CON_CTS) == SCM_CON_CTS) {
+                if((dtrMap & SP_CON_CTS) == SP_CON_CTS) {
                     sb.append(8);
                 }else {
                     sb.append("x");
                 }
                 sb.append(",");
-                if((dtrMap & SCM_CON_DCD) == SCM_CON_DCD) {
+                if((dtrMap & SP_CON_DCD) == SP_CON_DCD) {
                     sb.append(1);
                 }else {
                     sb.append("x");
                 }
                 sb.append(",");
-                if((dtrMap & SCM_CON_DSR) == SCM_CON_DSR) {
+                if((dtrMap & SP_CON_DSR) == SP_CON_DSR) {
                     sb.append(6);
                 }else {
                     sb.append("x");
                 }
                 sb.append(",");
-                if((dtrMap & SCM_CON_RI) == SCM_CON_RI) {
+                if((dtrMap & SP_CON_RI) == SP_CON_RI) {
                     sb.append(9);
                 }else {
                     sb.append("x");
@@ -370,28 +370,28 @@ public final class SerialComNullModem {
             }
             sb.append("#7-");
 
-            if(rtsMap1 == SCM_CON_NONE) {
+            if(rtsMap1 == SP_CON_NONE) {
                 sb.append("x,x,x,x#4-");
             }else {
-                if((rtsMap1 & SCM_CON_CTS) == SCM_CON_CTS) {
+                if((rtsMap1 & SP_CON_CTS) == SP_CON_CTS) {
                     sb.append(8);
                 }else {
                     sb.append("x");
                 }
                 sb.append(",");
-                if((rtsMap1 & SCM_CON_DCD) == SCM_CON_DCD) {
+                if((rtsMap1 & SP_CON_DCD) == SP_CON_DCD) {
                     sb.append(1);
                 }else {
                     sb.append("x");
                 }
                 sb.append(",");
-                if((rtsMap1 & SCM_CON_DSR) == SCM_CON_DSR) {
+                if((rtsMap1 & SP_CON_DSR) == SP_CON_DSR) {
                     sb.append(6);
                 }else {
                     sb.append("x");
                 }
                 sb.append(",");
-                if((rtsMap1 & SCM_CON_RI) == SCM_CON_RI) {
+                if((rtsMap1 & SP_CON_RI) == SP_CON_RI) {
                     sb.append(9);
                 }else {
                     sb.append("x");
@@ -399,28 +399,28 @@ public final class SerialComNullModem {
                 sb.append("#4-");
             }
 
-            if(dtrMap1 == SCM_CON_NONE) {
+            if(dtrMap1 == SP_CON_NONE) {
                 sb.append("x,x,x,x#7-");
             }else {
-                if((dtrMap1 & SCM_CON_CTS) == SCM_CON_CTS) {
+                if((dtrMap1 & SP_CON_CTS) == SP_CON_CTS) {
                     sb.append(8);
                 }else {
                     sb.append("x");
                 }
                 sb.append(",");
-                if((dtrMap1 & SCM_CON_DCD) == SCM_CON_DCD) {
+                if((dtrMap1 & SP_CON_DCD) == SP_CON_DCD) {
                     sb.append(1);
                 }else {
                     sb.append("x");
                 }
                 sb.append(",");
-                if((dtrMap1 & SCM_CON_DSR) == SCM_CON_DSR) {
+                if((dtrMap1 & SP_CON_DSR) == SP_CON_DSR) {
                     sb.append(6);
                 }else {
                     sb.append("x");
                 }
                 sb.append(",");
-                if((dtrMap1 & SCM_CON_RI) == SCM_CON_RI) {
+                if((dtrMap1 & SP_CON_RI) == SP_CON_RI) {
                     sb.append(9);
                 }else {
                     sb.append("x");
@@ -428,28 +428,28 @@ public final class SerialComNullModem {
                 sb.append("#7-");
             }
 
-            if(rtsMap2 == SCM_CON_NONE) {
+            if(rtsMap2 == SP_CON_NONE) {
                 sb.append("x,x,x,x#4-");
             }else {
-                if((rtsMap2 & SCM_CON_CTS) == SCM_CON_CTS) {
+                if((rtsMap2 & SP_CON_CTS) == SP_CON_CTS) {
                     sb.append(8);
                 }else {
                     sb.append("x");
                 }
                 sb.append(",");
-                if((rtsMap2 & SCM_CON_DCD) == SCM_CON_DCD) {
+                if((rtsMap2 & SP_CON_DCD) == SP_CON_DCD) {
                     sb.append(1);
                 }else {
                     sb.append("x");
                 }
                 sb.append(",");
-                if((rtsMap2 & SCM_CON_DSR) == SCM_CON_DSR) {
+                if((rtsMap2 & SP_CON_DSR) == SP_CON_DSR) {
                     sb.append(6);
                 }else {
                     sb.append("x");
                 }
                 sb.append(",");
-                if((rtsMap2 & SCM_CON_RI) == SCM_CON_RI) {
+                if((rtsMap2 & SP_CON_RI) == SP_CON_RI) {
                     sb.append(9);
                 }else {
                     sb.append("x");
@@ -457,28 +457,28 @@ public final class SerialComNullModem {
                 sb.append("#4-");
             }
 
-            if(dtrMap2 == SCM_CON_NONE) {
+            if(dtrMap2 == SP_CON_NONE) {
                 sb.append("x,x,x,x#y#y");
             }else {
-                if((dtrMap2 & SCM_CON_CTS) == SCM_CON_CTS) {
+                if((dtrMap2 & SP_CON_CTS) == SP_CON_CTS) {
                     sb.append(8);
                 }else {
                     sb.append("x");
                 }
                 sb.append(",");
-                if((dtrMap2 & SCM_CON_DCD) == SCM_CON_DCD) {
+                if((dtrMap2 & SP_CON_DCD) == SP_CON_DCD) {
                     sb.append(1);
                 }else {
                     sb.append("x");
                 }
                 sb.append(",");
-                if((dtrMap2 & SCM_CON_DSR) == SCM_CON_DSR) {
+                if((dtrMap2 & SP_CON_DSR) == SP_CON_DSR) {
                     sb.append(6);
                 }else {
                     sb.append("x");
                 }
                 sb.append(",");
-                if((dtrMap2 & SCM_CON_RI) == SCM_CON_RI) {
+                if((dtrMap2 & SP_CON_RI) == SP_CON_RI) {
                     sb.append(9);
                 }else {
                     sb.append("x");
