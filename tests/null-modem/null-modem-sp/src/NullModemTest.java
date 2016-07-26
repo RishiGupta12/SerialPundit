@@ -25,7 +25,7 @@ import com.serialpundit.serial.SerialComManager.STOPBITS;
 /* 
  * LOAD module to support large number of devices for this test.
  * 
- * $ insmod ./tty2comKm.ko max_num_vtty_dev=5000 
+ * $ insmod ./tty2comKm.ko max_num_vtty_dev=5000
  */
 
 public final class NullModemTest {
@@ -36,15 +36,28 @@ public final class NullModemTest {
 		final SerialComNullModem scnm = scm.getSerialComNullModemInstance();
 		String a = null;
 
-		//        // create loopback, writing to it then read, don't configure terminal, it should not block
-		//        String lbp1 = scnm.createStandardLoopBackDevice(-1);
-		//        System.out.println("loop back dev : " + lbp1);
-		//        long lbp1hand1 = scm.openComPort(lbp1, true, true, false);
-		//        scm.writeString(lbp1hand1, "data", 0);
-		//        System.out.println("written string data");
-		//        Thread.sleep(100);
-		//        System.out.println("read string : " + scm.readString(lbp1hand1));
-		//        scm.closeComPort(lbp1hand1);
+		try {
+			String[] ports = scnm.getNextAvailableComPorts();
+			System.out.println("before: " + ports[0] + " : " + ports[1]);
+
+			String[] ports1 = scnm.createStandardNullModemPair(-1, -1);
+
+			String[] portsa = scnm.getNextAvailableComPorts();
+			System.out.println("after: " + portsa[0] + " : " + portsa[1]);
+		}catch (Exception e) {
+			e.printStackTrace();
+			scnm.destroyAllVirtualDevices();
+		}
+
+//		// create loopback, writing to it then read, don't configure terminal, it should not block
+//		String lbp1 = scnm.createStandardLoopBackDevice(-1);
+//		System.out.println("loop back dev : " + lbp1);
+//		long lbp1hand1 = scm.openComPort(lbp1, true, true, false);
+//		scm.writeString(lbp1hand1, "data", 0);
+//		System.out.println("written string data");
+//		Thread.sleep(100);
+//		System.out.println("read string : " + scm.readString(lbp1hand1));
+//		scm.closeComPort(lbp1hand1);
 
 		// num bytes in i/o buffer
 		try {

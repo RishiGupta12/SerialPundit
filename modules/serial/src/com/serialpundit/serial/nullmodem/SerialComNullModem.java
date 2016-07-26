@@ -595,14 +595,14 @@ public final class SerialComNullModem {
 
         if(osType == SerialComPlatform.OS_LINUX) {
 
-            // 00002#00009-00016#00005-00006
-            linuxVadaptIn.read(data);
+            // 00002#00000-00001#00003-00004
+            linuxVadaptIn.read(data, 0, 32);
 
             for(int q=18; q<23; q++) {
                 tmp1[q - 18] = data[q];
             }
-            for(int q=25; q<30; q++) {
-                tmp2[q - 25] = data[q];
+            for(int q=24; q<29; q++) {
+                tmp2[q - 24] = data[q];
             }
             int nodeNum1 = Integer.parseInt(new String(tmp1), 10);
             int nodeNum2 = Integer.parseInt(new String(tmp2), 10);
@@ -634,7 +634,7 @@ public final class SerialComNullModem {
         byte tmp[] = new byte[5];
 
         if(osType == SerialComPlatform.OS_LINUX) {
-            linuxVadaptIn.read(data); // 00002#00009-00016#00005-00006
+            linuxVadaptIn.read(data, 0, 32); // 00002#00000-00001#00003-00004
             for(int q=0; q<5; q++) {
                 tmp[q] = data[q];
             }
@@ -659,7 +659,7 @@ public final class SerialComNullModem {
         byte tmp2[] = new byte[5];
 
         if(osType == SerialComPlatform.OS_LINUX) {
-            linuxVadaptIn.read(data);
+            linuxVadaptIn.read(data, 0, 32);
             for(int q=0; q<5; q++) {
                 tmp1[q] = data[q + 6];
             }

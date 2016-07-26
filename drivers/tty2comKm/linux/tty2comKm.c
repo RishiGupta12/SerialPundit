@@ -1290,13 +1290,13 @@ static ssize_t scmtty_vadapt_proc_read(struct file *file, char __user *buf, size
 
     if(last_lbdev_idx == -1) {
         if(last_nmdev1_idx == -1) {
-            snprintf(data, 64, "%s#%05d-%05d\r\n", "xxxxx#xxxxx-xxxxx", first_avail_idx, second_avail_idx);
+            snprintf(data, 64, "xxxxx#xxxxx-xxxxx#%05d-%05d\r\n", first_avail_idx, second_avail_idx);
         }else {
-            snprintf(data, 64, "%s#%05d-%05d#%05d-%05d\r\n", "xxxxx", last_nmdev1_idx, last_nmdev2_idx, first_avail_idx, second_avail_idx);
+            snprintf(data, 64, "xxxxx#%05d-%05d#%05d-%05d\r\n", last_nmdev1_idx, last_nmdev2_idx, first_avail_idx, second_avail_idx);
         }
     }else {
         if(last_nmdev1_idx == -1) {
-            snprintf(data, 64, "%05d#%s#%05d-%05d\r\n", last_lbdev_idx, "xxxxx-xxxxx", first_avail_idx, second_avail_idx);
+            snprintf(data, 64, "%05d#xxxxx-xxxxx#%05d-%05d\r\n", last_lbdev_idx, first_avail_idx, second_avail_idx);
         }else {
             snprintf(data, 64, "%05d#%05d-%05d#%05d-%05d\r\n", last_lbdev_idx, last_nmdev1_idx, last_nmdev2_idx, first_avail_idx, second_avail_idx);
         }
