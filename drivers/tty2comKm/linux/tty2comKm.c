@@ -1256,9 +1256,9 @@ static void scm_port_destruct(struct tty_port *port)
  * $ head -c 32 /proc/scmtty_vadaptkm
  * 
  * @file: file for proc file
- * @buf: user space buffer that will contain data when this function returns.
+ * @buf: user space buffer that will contain data when this function returns
  * @size: number of character returned in buf
- * @ppos: offset
+ * @ppos: offset position from where to read data
  *
  * @return number of bytes copied to user buffer on success or negative error code on error
  */
@@ -1315,6 +1315,7 @@ static ssize_t scmtty_vadapt_proc_read(struct file *file, char __user *buf, size
  *
  * @data: dat to be parsed
  * @x: starting index in array for parsing
+ * 
  * @return 0 on success or negative error code on failure.
  */
 static int extract_pin_mapping(char data[], int x) {

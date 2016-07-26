@@ -583,6 +583,47 @@ public final class SerialComNullModem {
     }
 
     /**
+     * <p>Returns the device node names that can be used for next virtual serial port.</p>
+     * 
+     * @return device node names that can be used for next virtual serial port.
+     * @throws IOException if the operation can not be completed for some reason.
+     */
+    public String[] getNextAvailableComPorts() throws IOException {
+        byte data[] = new byte[64];
+        byte tmp1[] = new byte[5];
+        byte tmp2[] = new byte[5];
+
+        if(osType == SerialComPlatform.OS_LINUX) {
+
+            // 00002#00009-00016#00005-00006
+            linuxVadaptIn.read(data);
+
+            for(int q=18; q<23; q++) {
+                tmp1[q - 18] = data[q];
+            }
+            for(int q=25; q<30; q++) {
+                tmp2[q - 25] = data[q];
+            }
+            int nodeNum1 = Integer.parseInt(new String(tmp1), 10);
+            int nodeNum2 = Integer.parseInt(new String(tmp2), 10);
+
+            String[] nodes = new String[2];
+
+            StringBuilder sb = new StringBuilder();
+            sb.append("/dev/tty2com");
+            sb.append(nodeNum1);
+            nodes[0] = sb.toString();
+
+            sb.delete(0, sb.length());
+            sb.append("/dev/tty2com");
+            sb.append(nodeNum2);
+            nodes[1] = sb.toString();
+            return nodes;
+        }
+        return null;
+    }
+
+    /**
      * <p>Returns the device node of last created loop back device.</p>
      * 
      * @return Device node on success otherwise null.
@@ -593,7 +634,7 @@ public final class SerialComNullModem {
         byte tmp[] = new byte[5];
 
         if(osType == SerialComPlatform.OS_LINUX) {
-            linuxVadaptIn.read(data); // 00002#00009-00016
+            linuxVadaptIn.read(data); // 00002#00009-00016#00005-00006
             for(int q=0; q<5; q++) {
                 tmp[q] = data[q];
             }

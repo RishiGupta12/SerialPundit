@@ -61,6 +61,11 @@ $echo "del#vdevX#xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" > /proc/sc
 $echo "del#xxxxx#xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" > /proc/scmtty_vadaptkm
 ```
 
+####Meta information
+```sh
+$ head -c 32 /proc/scmtty_vadaptkm
+```
+
 ####Udev rules
 ---------------------
 The udev rules are provided and gets installed automatically when shell script install.sh is executed. 
