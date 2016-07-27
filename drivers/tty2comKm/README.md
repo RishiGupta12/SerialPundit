@@ -44,7 +44,9 @@ It is a null modem / loop back kernel mode driver providing full duplex communic
 - Access restriction to created virtual serial ports
 - API to control virtual ports directly from your application
 
-##Demo application
+##Application
+
+A GUI application is provided to manage virtual ports graphically.
 
 
 ##Build and Run
