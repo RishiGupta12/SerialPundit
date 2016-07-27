@@ -18,8 +18,6 @@
  * can have from 0 to N number of virtual serial ports (tty devices). The virtual tty devices created 
  * by this adaptor are used in exactly the same way using termios and Linux/Posix APIs as the real tty 
  * devices.
- * 
- * Tested with 3.11.0-26-generic linux kernel.
  */
 
 #include <linux/kernel.h>
@@ -160,10 +158,16 @@ static int scm_port_activate(struct tty_port *port, struct tty_struct *tty);
 /*static void scm_port_destruct(struct tty_port *port);
 static void scm_port_dtr_rts(struct tty_port *port, int raise);*/
 
-/* These values may be overriden if module is loaded with parameters */
+/* These values may be overriden if this driver is loaded with parameters provided */
 static ushort max_num_vtty_dev = VTTY_DEV_MAX;
 static ushort init_num_nm_pair = 0;
 static ushort init_num_lb_dev = 0;
+
+static ushort total_nm_pair = 0;
+static ushort total_lb_devs = 0;
+static int last_lbdev_idx  = -1;
+static int last_nmdev1_idx = -1;
+static int last_nmdev2_idx = -1;
 
 /* Describes this driver kernel module */
 static struct tty_driver *scmtty_driver;
@@ -184,10 +188,6 @@ static const struct attribute_group scmvtty_error_events_attr_group = {
         .name = "scmvtty_errevt",
         .attrs = scmvtty_error_events_attrs,
 };
-
-static int last_lbdev_idx  = -1;
-static int last_nmdev1_idx = -1;
-static int last_nmdev2_idx = -1;
 
 static const struct tty_port_operations vttydev_port_ops = {
         .carrier_raised = scm_port_carrier_raised,
@@ -1318,9 +1318,11 @@ static ssize_t scmtty_vadapt_proc_read(struct file *file, char __user *buf, size
  * 
  * @return 0 on success or negative error code on failure.
  */
-static int extract_pin_mapping(char data[], int x) {
+static int extract_pin_mapping(char data[], int x) 
+{
     int i = 0;
     int mapping = 0;
+
     for(i=0; i<8; i++) {
         if(data[x] == '8') {
             mapping |= SP_CON_CTS;
@@ -1338,6 +1340,7 @@ static int extract_pin_mapping(char data[], int x) {
         }
         x++;
     }
+
     return mapping;
 }
 
@@ -1672,8 +1675,10 @@ static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *bu
 
             last_nmdev1_idx = i;
             last_nmdev2_idx = y;
+            ++total_nm_pair;
         }else {
             last_lbdev_idx = i;
+            ++total_lb_devs;
         }
 
         mutex_unlock(&adaptlock);
@@ -1687,6 +1692,9 @@ static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *bu
          * is opened and then suddenly user removes tty device. */
 
         if(data[4] == 'x') {
+
+            /* Delete all virtual devices */
+
             mutex_lock(&adaptlock);
 
             for(x=0; x < max_num_vtty_dev; x++) {
@@ -1704,11 +1712,18 @@ static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *bu
                             tty_port_put(scmtty_driver->ports[x]);
                         kfree(index_manager[x].vttydev);
                     }
+                    index_manager[x].index = -1;
                 }
             }
 
+            total_nm_pair = 0;
+            total_lb_devs = 0;
             mutex_unlock(&adaptlock);
-        }else {
+        }
+        else {
+
+            /* Delete a specific virtual device */
+
             x = 4;
             memset(tmp, '\0', sizeof(tmp));
             i = 0;
@@ -1766,6 +1781,9 @@ static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *bu
                         tty_port_put(scmtty_driver->ports[y]);
                     kfree(index_manager[y].vttydev);
                     index_manager[y].index = -1;
+                    --total_nm_pair;
+                }else {
+                    --total_lb_devs;
                 }
 
                 mutex_unlock(&adaptlock);
