@@ -50,7 +50,7 @@
  * to support 5000 virtual devices :
  * insmod ./tty2comKm.ko max_num_vtty_dev=5000
  */
-#define VTTY_DEV_MAX 128
+#define VTTY_DEV_DEFAULT_MAX 128
 
 /* Experimental range (major number of devices) */
 #define SP_VTTY_MAJOR 240
@@ -91,8 +91,8 @@
 /* Represent a virtual tty device in this virtual adaptor. The peer_index will contain own 
  * index if this device is loop back configured device (peer_index == own_index). */
 struct vtty_dev {
-    int own_index;
-    int peer_index;
+    unsigned int own_index;
+    unsigned int peer_index;
     int msr_reg; /* shadow modem status register */
     int mcr_reg; /* shadow modem control register */
     int rts_mappings;
@@ -111,6 +111,8 @@ struct vtty_dev {
     struct device *device;
 };
 
+/* Current driver design is such that the vtty_info for a device with index x will be placed at
+ * index x in array index_manager. */
 struct vtty_info {
     int index;
     struct vtty_dev *vttydev;
@@ -146,11 +148,17 @@ static int wait_msr_change(struct tty_struct *tty, unsigned long mask);
 static int check_msr_delta(struct tty_struct *tty, struct vtty_dev *local_vttydev, unsigned long mask, struct async_icount *prev);
 
 static ssize_t evt_store(struct device *dev, struct device_attribute *attr, const char *buf, size_t count);
+static ssize_t ownidx_show(struct device *dev, struct device_attribute *attr, char *buf);
+static ssize_t peeridx_show(struct device *dev, struct device_attribute *attr, char *buf);
+static ssize_t ortsmap_show(struct device *dev, struct device_attribute *attr, char *buf);
+static ssize_t odtrmap_show(struct device *dev, struct device_attribute *attr, char *buf);
+static ssize_t prtsmap_show(struct device *dev, struct device_attribute *attr, char *buf);
+static ssize_t pdtrmap_show(struct device *dev, struct device_attribute *attr, char *buf);
+
 static int scmtty_vadapt_proc_open(struct inode *inode, struct  file *file);
 static int scmtty_vadapt_proc_close(struct inode *inode, struct file *file);
 static ssize_t scmtty_vadapt_proc_read(struct file *file, char __user *buf, size_t size, loff_t *ppos);
 static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *buf, size_t length, loff_t * ppos);
-
 
 static int scm_port_carrier_raised(struct tty_port *port);
 static void scm_port_shutdown(struct tty_port *port);
@@ -158,8 +166,8 @@ static int scm_port_activate(struct tty_port *port, struct tty_struct *tty);
 /*static void scm_port_destruct(struct tty_port *port);
 static void scm_port_dtr_rts(struct tty_port *port, int raise);*/
 
-/* These values may be overriden if this driver is loaded with parameters provided */
-static ushort max_num_vtty_dev = VTTY_DEV_MAX;
+/* These 3 values can be overriden if this driver is loaded with parameters provided */
+static ushort max_num_vtty_dev = VTTY_DEV_DEFAULT_MAX;
 static ushort init_num_nm_pair = 0;
 static ushort init_num_lb_dev = 0;
 
@@ -176,17 +184,34 @@ static struct tty_driver *scmtty_driver;
 static DEFINE_MUTEX(adaptlock);           /*  atomically create/destroy tty devices  */
 struct vtty_info *index_manager = NULL;   /*  keep track of indexes in use currently */
 
-/* Per device sysfs entries to emulate frame, parity and overrun error events during data reception */
-static DEVICE_ATTR(evt, (S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP), NULL, evt_store);
+/* Per device sysfs entries to emulate frame, parity and overrun error events during data
+ * reception and providing some informations about device. The proc entries are used to
+ * interact with driver state as a whole while sysfs enteries are used to interact with
+ * individual device's state. Use 99-tty2comKm.rules file to correctly set permissions on
+ * sysfs entries. To align with sysfs spirit 'one-value-per-file' approach is followed so
+ * that user space does not have to know data format and their offsets in returned buffer. */
+static DEVICE_ATTR(evt, S_IRUGO, NULL, evt_store);
+static DEVICE_ATTR(ownidx, S_IRUGO, ownidx_show, NULL);
+static DEVICE_ATTR(peeridx, S_IRUGO, peeridx_show, NULL);
+static DEVICE_ATTR(ortsmap, S_IRUGO, ortsmap_show, NULL);
+static DEVICE_ATTR(odtrmap, S_IRUGO, odtrmap_show, NULL);
+static DEVICE_ATTR(prtsmap, S_IRUGO, prtsmap_show, NULL);
+static DEVICE_ATTR(pdtrmap, S_IRUGO, pdtrmap_show, NULL);
 
-static struct attribute *scmvtty_error_events_attrs[] = {
+static struct attribute *spvtty_info_attrs[] = {
         &dev_attr_evt.attr,
+        &dev_attr_ownidx.attr,
+        &dev_attr_peeridx.attr,
+        &dev_attr_ortsmap.attr,
+        &dev_attr_odtrmap.attr,
+        &dev_attr_prtsmap.attr,
+        &dev_attr_pdtrmap.attr,
         NULL,
 };
 
-static const struct attribute_group scmvtty_error_events_attr_group = {
-        .name = "scmvtty_errevt",
-        .attrs = scmvtty_error_events_attrs,
+static const struct attribute_group sp_info_attr_group = {
+        /*.name = "spvtty_info",*/
+        .attrs = spvtty_info_attrs,
 };
 
 static const struct tty_port_operations vttydev_port_ops = {
@@ -208,22 +233,22 @@ static const struct tty_port_operations vttydev_port_ops = {
  * be able to differentiate.
  * 
  * 1. Emulate framing error:
- * $ echo "1" > /sys/devices/virtual/tty/tty2com0/scmvtty_errevt/evt
+ * $ echo "1" > /sys/devices/virtual/tty/tty2com0/spvtty_info/evt
  * 
  * 2. Emulate parity error:
- * $ echo "2" > /sys/devices/virtual/tty/tty2com0/scmvtty_errevt/evt
+ * $ echo "2" > /sys/devices/virtual/tty/tty2com0/spvtty_info/evt
  * 
  * 3. Emulate overrun error:
- * $ echo "3" > /sys/devices/virtual/tty/tty2com0/scmvtty_errevt/evt
+ * $ echo "3" > /sys/devices/virtual/tty/tty2com0/spvtty_info/evt
  * 
  * 4. Emulate ring indicator (set RI signal):
- * $ echo "4" > /sys/devices/virtual/tty/tty2com0/scmvtty_errevt/evt
+ * $ echo "4" > /sys/devices/virtual/tty/tty2com0/spvtty_info/evt
  * 
  * 5. Emulate ring indicator (un-set RI signal):
- * $ echo "5" > /sys/devices/virtual/tty/tty2com0/scmvtty_errevt/evt
+ * $ echo "5" > /sys/devices/virtual/tty/tty2com0/spvtty_info/evt
  * 
  * 6. Emulate break received:
- * $ echo "6" > /sys/devices/virtual/tty/tty2com0/scmvtty_errevt/evt
+ * $ echo "6" > /sys/devices/virtual/tty/tty2com0/spvtty_info/evt
  *
  * A "framing error" occurs when the designated "start" and "stop" bits are not found. A Parity Error occurs
  * when the parity of the number of 1 bits disagrees with that specified by the parity bit. A "break condition"
@@ -308,6 +333,137 @@ static ssize_t evt_store(struct device *dev, struct device_attribute *attr, cons
     fail:
     mutex_unlock(&local_vttydev->lock);
     return ret;
+}
+
+/*
+ * Gives index of tty device to which this sysfs attribute belongs.
+ *
+ * $ cat /sys/devices/virtual/tty/tty2com0/spvtty_info/ownidx
+ *
+ * @dev: tty device
+ * @attr: sysfs attributes
+ * @buf: memory where result of invoking this function will be returned to caller.
+ *
+ * @return index of tty device on success otherwise negative error code.
+ */
+static ssize_t ownidx_show(struct device *dev, struct device_attribute *attr, char *buf)
+{
+    struct vtty_dev *local_vttydev = (struct vtty_dev *) dev_get_drvdata(dev);
+
+    if(!buf)
+        return -EINVAL;
+
+    /* Capacity of buf is typically 4096 (PAGE_SIZE) as passed by the kernel. */
+    return sprintf(buf, "%u\n", local_vttydev->own_index);
+}
+
+/*
+ * Gives index of tty device to which given tty device is paired.
+ *
+ * $ cat /sys/devices/virtual/tty/tty2com0/spvtty_info/peeridx
+ *
+ * @dev: tty device
+ * @attr: sysfs attributes
+ * @buf: memory where result of invoking this function will be returned to caller.
+ *
+ * @return index of paired tty device on success otherwise negative error code.
+ */
+static ssize_t peeridx_show(struct device *dev, struct device_attribute *attr, char *buf)
+{
+    struct vtty_dev *local_vttydev = (struct vtty_dev *) dev_get_drvdata(dev);
+
+    if(!buf)
+        return -EINVAL;
+
+    return sprintf(buf, "%u\n", local_vttydev->peer_index);
+}
+
+/*
+ * Gives mapping of RTS line of the given tty device to which this sysfs attribute belongs.
+ *
+ * $ cat /sys/devices/virtual/tty/tty2com0/spvtty_info/ortsmap
+ *
+ * @dev: tty device
+ * @attr: sysfs attributes
+ * @buf: memory where result of invoking this function will be returned to caller.
+ *
+ * @return mapping of RTS line of the given tty device on success otherwise negative error code.
+ */
+static ssize_t ortsmap_show(struct device *dev, struct device_attribute *attr, char *buf)
+{
+    struct vtty_dev *local_vttydev = (struct vtty_dev *) dev_get_drvdata(dev);
+
+    if(!buf)
+        return -EINVAL;
+
+    return sprintf(buf, "%u\n", local_vttydev->rts_mappings);
+}
+
+/*
+ * Gives mapping of DTR line of the given tty device to which this sysfs attribute belongs.
+ *
+ * $ cat /sys/devices/virtual/tty/tty2com0/spvtty_info/odtrmap
+ *
+ * @dev: tty device
+ * @attr: sysfs attributes
+ * @buf: memory where result of invoking this function will be returned to caller.
+ *
+ * @return mapping of DTR line of the given tty device on success otherwise negative error code.
+ */
+static ssize_t odtrmap_show(struct device *dev, struct device_attribute *attr, char *buf)
+{
+    struct vtty_dev *local_vttydev = (struct vtty_dev *) dev_get_drvdata(dev);
+
+    if(!buf)
+        return -EINVAL;
+
+    return sprintf(buf, "%u\n", local_vttydev->dtr_mappings);
+}
+
+/*
+ * Gives mapping of RTS line of the paired tty device.
+ *
+ * $ cat /sys/devices/virtual/tty/tty2com0/spvtty_info/prtsmap
+ *
+ * @dev: tty device
+ * @attr: sysfs attributes
+ * @buf: memory where result of invoking this function will be returned to caller.
+ *
+ * @return mapping of RTS line of the paired tty device on success otherwise negative error code.
+ */
+static ssize_t prtsmap_show(struct device *dev, struct device_attribute *attr, char *buf)
+{
+    struct vtty_dev *remote_vttydev = NULL;
+    struct vtty_dev *local_vttydev = (struct vtty_dev *) dev_get_drvdata(dev);
+
+    if((local_vttydev->own_index == local_vttydev->peer_index) || (!buf))
+        return -EINVAL;
+
+    remote_vttydev = index_manager[local_vttydev->peer_index].vttydev;
+    return sprintf(buf, "%u\n", remote_vttydev->rts_mappings);
+}
+
+/*
+ * Gives mapping of DTR line of the paired tty device.
+ *
+ * $ cat /sys/devices/virtual/tty/tty2com0/spvtty_info/pdtrmap
+ *
+ * @dev: tty device
+ * @attr: sysfs attributes
+ * @buf: memory where result of invoking this function will be returned to caller.
+ *
+ * @return mapping of DTR line of the paired tty device on success otherwise negative error code.
+ */
+static ssize_t pdtrmap_show(struct device *dev, struct device_attribute *attr, char *buf)
+{
+    struct vtty_dev *remote_vttydev = NULL;
+    struct vtty_dev *local_vttydev = (struct vtty_dev *) dev_get_drvdata(dev);
+
+    if((local_vttydev->own_index == local_vttydev->peer_index) || (!buf))
+        return -EINVAL;
+
+    remote_vttydev = index_manager[local_vttydev->peer_index].vttydev;
+    return sprintf(buf, "%u\n", remote_vttydev->dtr_mappings);
 }
 
 /* 
@@ -1253,7 +1409,7 @@ static void scm_port_destruct(struct tty_port *port)
 
 /*
  * Gives next available index and last used index for virtual tty devices created. Invoke as shown below:
- * $ head -c 32 /proc/scmtty_vadaptkm
+ * $ head -c 46 /proc/scmtty_vadaptkm
  * 
  * @file: file for proc file
  * @buf: user space buffer that will contain data when this function returns
@@ -1266,12 +1422,17 @@ static ssize_t scmtty_vadapt_proc_read(struct file *file, char __user *buf, size
 {
     int x = 0;
     int ret = 0;
+    int val = 0;
     char data[64];
     int first_avail_idx = -1;
-    int second_avail_idx = -2;
+    int second_avail_idx = -1;
+    struct vtty_dev *lbvttydev = NULL;
+    struct vtty_dev *nm1vttydev = NULL;
+    struct vtty_dev *nm2vttydev = NULL;
+
     memset(data, '\0', 64);
 
-    if(size != 32)
+    if(size != 46)
         return -EINVAL;
 
     mutex_lock(&adaptlock);
@@ -1288,26 +1449,47 @@ static ssize_t scmtty_vadapt_proc_read(struct file *file, char __user *buf, size
         }
     }
 
+    if((first_avail_idx != -1) && (second_avail_idx != -1)) {
+        val = 2;
+    }else if((first_avail_idx != -1) && (second_avail_idx == -1)) {
+        val = 1;
+    }else if((first_avail_idx == -1) && (second_avail_idx == -1)) {
+        val = 0;
+    }else {
+        /* will not happen */
+    }
+
     if(last_lbdev_idx == -1) {
         if(last_nmdev1_idx == -1) {
-            snprintf(data, 64, "xxxxx#xxxxx-xxxxx#%05d-%05d\r\n", first_avail_idx, second_avail_idx);
+            snprintf(data, 64, "xxxxx#xxxxx-xxxxx#%05d-%05d#%d#x-x#x-x#x-x\r\n", first_avail_idx, second_avail_idx, val);
         }else {
-            snprintf(data, 64, "xxxxx#%05d-%05d#%05d-%05d\r\n", last_nmdev1_idx, last_nmdev2_idx, first_avail_idx, second_avail_idx);
+            nm1vttydev = index_manager[last_nmdev1_idx].vttydev;
+            nm2vttydev = index_manager[last_nmdev2_idx].vttydev;
+            snprintf(data, 64, "xxxxx#%05d-%05d#%05d-%05d#%d#x-x#%d-%d#%d-%d\r\n", last_nmdev1_idx, last_nmdev2_idx,
+                    first_avail_idx, second_avail_idx, val, nm1vttydev->rts_mappings, nm1vttydev->dtr_mappings,
+                    nm2vttydev->rts_mappings, nm2vttydev->dtr_mappings);
         }
     }else {
         if(last_nmdev1_idx == -1) {
-            snprintf(data, 64, "%05d#xxxxx-xxxxx#%05d-%05d\r\n", last_lbdev_idx, first_avail_idx, second_avail_idx);
+            lbvttydev = index_manager[last_lbdev_idx].vttydev;
+            snprintf(data, 64, "%05d#xxxxx-xxxxx#%05d-%05d#%d#%d-%d#x-x#x-x\r\n", last_lbdev_idx, first_avail_idx,
+                    second_avail_idx, val, lbvttydev->rts_mappings, lbvttydev->dtr_mappings);
         }else {
-            snprintf(data, 64, "%05d#%05d-%05d#%05d-%05d\r\n", last_lbdev_idx, last_nmdev1_idx, last_nmdev2_idx, first_avail_idx, second_avail_idx);
+            lbvttydev = index_manager[last_lbdev_idx].vttydev;
+            nm1vttydev = index_manager[last_nmdev1_idx].vttydev;
+            nm2vttydev = index_manager[last_nmdev2_idx].vttydev;
+            snprintf(data, 64, "%05d#%05d-%05d#%05d-%05d#%d#%d-%d#%d-%d#%d-%d\r\n", last_lbdev_idx, last_nmdev1_idx,
+                    last_nmdev2_idx, first_avail_idx, second_avail_idx, val, lbvttydev->rts_mappings, lbvttydev->dtr_mappings,
+                    nm1vttydev->rts_mappings, nm1vttydev->dtr_mappings, nm2vttydev->rts_mappings, nm2vttydev->dtr_mappings);
         }
     }
 
     mutex_unlock(&adaptlock);
 
-    ret = copy_to_user(buf, &data, 32);
+    ret = copy_to_user(buf, &data, 46);
     if(ret)
         return -EFAULT;
-    return 32;
+    return 46;
 }
 
 /*
@@ -1353,7 +1535,8 @@ static int extract_pin_mapping(char data[], int x)
  * Assignment 7-8 means connect local RTS pin to remote CTS pin. Assignment 4-1,6 means connect local DTR to
  * remote DSR and DCD pins. Assignment 7-x means leave local RTS pin unconnected. The 'y' at last will raise
  * remote DCD pin when local device is opened. When removing tty device, if the given device is one of the
- * device in a null modem pair, coupled device will also be deleted automatically.
+ * device in a null modem pair, coupled device will also be deleted automatically. The command string is case
+ * sensitive. The last and second last x/y defines if DTR should be raised or not when port is opened.
  *
  * 1. Create standard null modem connection:
  * $echo "gennm#vdev1#vdev2#7-8,x,x,x#4-1,6,x,x#7-8,x,x,x#4-1,6,x,x#y#y" > /proc/scmtty_vadaptkm
@@ -1647,7 +1830,7 @@ static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *bu
         vttydev1->device = device1;
         dev_set_drvdata(device1, vttydev1);
 
-        x = sysfs_create_group(&device1->kobj, &scmvtty_error_events_attr_group);
+        x = sysfs_create_group(&device1->kobj, &sp_info_attr_group);
         if(x < 0) {
             tty_unregister_device(scmtty_driver, i);
             mutex_unlock(&adaptlock);
@@ -1665,7 +1848,7 @@ static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *bu
             vttydev2->device = device2;
             dev_set_drvdata(device2, vttydev2);
 
-            x = sysfs_create_group(&device2->kobj, &scmvtty_error_events_attr_group);
+            x = sysfs_create_group(&device2->kobj, &sp_info_attr_group);
             if(x < 0) {
                 tty_unregister_device(scmtty_driver, y);
                 index_manager[y].index = -1;
@@ -1686,12 +1869,15 @@ static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *bu
     else {
         /* Destroy device command sent */
 
+        if((total_nm_pair <= 0) && (total_lb_devs <= 0))
+            return length;
+
         /* An application may forget to close serial port or it might have been crashed resulting in
          * unclosed port and hence leaked resources. We handle such scenarios as disconnected event
          * as done in case of a plug and play for example usb device. Application is running, port
          * is opened and then suddenly user removes tty device. */
 
-        if(data[4] == 'x') {
+        if(data[8] == 'x') {
 
             /* Delete all virtual devices */
 
@@ -1700,7 +1886,7 @@ static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *bu
             for(x=0; x < max_num_vtty_dev; x++) {
                 if (index_manager[x].index != -1) {
                     vttydev1 = index_manager[x].vttydev;
-                    sysfs_remove_group(&vttydev1->device->kobj, &scmvtty_error_events_attr_group);
+                    sysfs_remove_group(&vttydev1->device->kobj, &sp_info_attr_group);
                     tty_unregister_device(scmtty_driver, index_manager[x].index);
                     if (vttydev1 && vttydev1->own_tty && vttydev1->own_tty->port) {
                         tty = tty_port_tty_get(vttydev1->own_tty->port);
@@ -1718,6 +1904,9 @@ static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *bu
 
             total_nm_pair = 0;
             total_lb_devs = 0;
+            last_lbdev_idx  = -1;
+            last_nmdev1_idx = -1;
+            last_nmdev2_idx = -1;
             mutex_unlock(&adaptlock);
         }
         else {
@@ -1744,7 +1933,7 @@ static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *bu
 
                 x = index_manager[vdev1idx].index;
                 vttydev1 = index_manager[x].vttydev;
-                sysfs_remove_group(&vttydev1->device->kobj, &scmvtty_error_events_attr_group);
+                sysfs_remove_group(&vttydev1->device->kobj, &sp_info_attr_group);
                 tty_unregister_device(scmtty_driver, index_manager[x].index);
                 if (vttydev1 && vttydev1->own_tty && vttydev1->own_tty->port) {
                     tty = tty_port_tty_get(vttydev1->own_tty->port);
@@ -1758,7 +1947,7 @@ static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *bu
                 if (vttydev1->own_index != vttydev1->peer_index) {
                     y = index_manager[vttydev1->peer_index].index;
                     vttydev2 = index_manager[y].vttydev;
-                    sysfs_remove_group(&vttydev2->device->kobj, &scmvtty_error_events_attr_group);
+                    sysfs_remove_group(&vttydev2->device->kobj, &sp_info_attr_group);
                     tty_unregister_device(scmtty_driver, index_manager[y].index);
                     if (vttydev2 && vttydev2->own_tty && vttydev2->own_tty->port) {
                         tty = tty_port_tty_get(vttydev2->own_tty->port);
@@ -1797,7 +1986,7 @@ static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *bu
     return length;
 
     fail_register:
-    sysfs_remove_group(&device1->kobj, &scmvtty_error_events_attr_group);
+    sysfs_remove_group(&device1->kobj, &sp_info_attr_group);
     tty_unregister_device(scmtty_driver, i);
 
     fail_arg:
@@ -1987,7 +2176,7 @@ static void __exit scm_tty2comKm_exit(void)
     for(x=0; x < max_num_vtty_dev; x++) {
         if (index_manager[x].index != -1) {
             vttydev = index_manager[x].vttydev;
-            sysfs_remove_group(&vttydev->device->kobj, &scmvtty_error_events_attr_group);
+            sysfs_remove_group(&vttydev->device->kobj, &sp_info_attr_group);
             tty_unregister_device(scmtty_driver, index_manager[x].index);
             if (vttydev && vttydev->own_tty && vttydev->own_tty->port) {
                 tty = tty_port_tty_get(vttydev->own_tty->port);
