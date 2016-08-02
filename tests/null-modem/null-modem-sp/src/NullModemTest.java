@@ -34,38 +34,41 @@ public final class NullModemTest {
 
 		SerialComManager scm = new SerialComManager();
 		final SerialComNullModem scnm = scm.getSerialComNullModemInstance();
-		String a = null;
+		scnm.initialize();
+		String[] a = null;
 
 		try {
-			String[] ports = scnm.getNextAvailableComPorts();
+			String[] ports = scnm.listNextAvailablePorts();
 			System.out.println("before: " + ports[0] + " : " + ports[1]);
 
 			String[] ports1 = scnm.createStandardNullModemPair(-1, -1);
+			Thread.sleep(100);
 
-			String[] portsa = scnm.getNextAvailableComPorts();
+			String[] portsa = scnm.listNextAvailablePorts();
 			System.out.println("after: " + portsa[0] + " : " + portsa[1]);
 		}catch (Exception e) {
 			e.printStackTrace();
-			scnm.destroyAllVirtualDevices();
+			scnm.destroyAllCreatedVirtualDevices();
 		}
 
-//		// create loopback, writing to it then read, don't configure terminal, it should not block
-//		String lbp1 = scnm.createStandardLoopBackDevice(-1);
-//		System.out.println("loop back dev : " + lbp1);
-//		long lbp1hand1 = scm.openComPort(lbp1, true, true, false);
-//		scm.writeString(lbp1hand1, "data", 0);
-//		System.out.println("written string data");
-//		Thread.sleep(100);
-//		System.out.println("read string : " + scm.readString(lbp1hand1));
-//		scm.closeComPort(lbp1hand1);
+		//		// create loopback, writing to it then read, don't configure terminal, it should not block
+		//		String lbp1 = scnm.createStandardLoopBackDevice(-1);
+		//		System.out.println("loop back dev : " + lbp1);
+		//		long lbp1hand1 = scm.openComPort(lbp1, true, true, false);
+		//		scm.writeString(lbp1hand1, "data", 0);
+		//		System.out.println("written string data");
+		//		Thread.sleep(100);
+		//		System.out.println("read string : " + scm.readString(lbp1hand1));
+		//		scm.closeComPort(lbp1hand1);
 
 		// num bytes in i/o buffer
 		try {
 			String[] ports = scnm.createStandardNullModemPair(-1, -1);
+			Thread.sleep(100);
 			long hand1 = scm.openComPort(ports[0], true, true, false);
 			scm.configureComPortData(hand1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B115200, 0);
 			scm.configureComPortControl(hand1, FLOWCONTROL.NONE, 'x', 'x', true, true);
-			long hand2 = scm.openComPort(ports[1], true, true, false);
+			long hand2 = scm.openComPort(ports[3], true, true, false);
 			scm.configureComPortData(hand2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B115200, 0);
 			scm.configureComPortControl(hand2, FLOWCONTROL.NONE, 'x', 'x', true, true);
 
@@ -78,7 +81,7 @@ public final class NullModemTest {
 			scm.closeComPort(hand1);
 			scm.closeComPort(hand2);
 		}catch (Exception e) {
-			scnm.destroyAllVirtualDevices();
+			scnm.destroyAllCreatedVirtualDevices();
 			e.printStackTrace();
 		}
 
@@ -126,7 +129,7 @@ public final class NullModemTest {
 			});
 
 			try {
-				scnm.destroyAllVirtualDevices();
+				scnm.destroyAllCreatedVirtualDevices();
 			}catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -168,26 +171,21 @@ public final class NullModemTest {
 			}
 
 			try {
-				System.out.println("last loopback node : " + scnm.getLastLoopBackDeviceNode());
+				String[] abc = scnm.getLastLoopBackDeviceNode();
+				System.out.println("last loopback node : " + abc[0]);
 			}catch (Exception e) {
 				e.printStackTrace();
 			}
 
 			try {
-				String[] str = scnm.getLastNullModemDevicePairNodes();
-				System.out.println("last null modem node : " + str[0] + "--" + str[1]);
+				String[] str = scnm.getLastNullModemPairNodes();
+				System.out.println("last null modem node : " + str[0] + " <--> " + str[3]);
 			}catch (Exception e) {
 				e.printStackTrace();
 			}
 
 			try {
-				scnm.destroyVirtualLoopBackDevice(a);
-			}catch (Exception e) {
-				e.printStackTrace();
-			}
-
-			try {
-				scnm.destroyAllVirtualDevices();
+				scnm.destroyAllCreatedVirtualDevices();
 			}catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -218,7 +216,7 @@ public final class NullModemTest {
 
 
 			try {
-				scnm.destroyAllVirtualDevices();
+				scnm.destroyAllCreatedVirtualDevices();
 			}catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -231,15 +229,15 @@ public final class NullModemTest {
 			}
 
 			try {
-				scnm.destroyAllVirtualDevices();
+				scnm.destroyAllCreatedVirtualDevices();
 			}catch (Exception e) {
 				e.printStackTrace();
 			}
 
 			/********* Final clean up (Release operating system specific resources held by null modem class) *********/
-			scnm.destroyAllVirtualDevices();
-			Thread.sleep(10000);
-			scnm.releaseResources();
+			Thread.sleep(15000); // run after executor threads have created all the ports
+			scnm.destroyAllCreatedVirtualDevices();
+			scnm.deinitialize();
 			System.out.println("Done !");
 		}catch (Exception e) {
 			e.printStackTrace();
