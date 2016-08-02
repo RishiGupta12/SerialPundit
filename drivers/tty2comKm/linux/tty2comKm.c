@@ -210,7 +210,6 @@ static struct attribute *spvtty_info_attrs[] = {
 };
 
 static const struct attribute_group sp_info_attr_group = {
-        /*.name = "spvtty_info",*/
         .attrs = spvtty_info_attrs,
 };
 
@@ -233,22 +232,22 @@ static const struct tty_port_operations vttydev_port_ops = {
  * be able to differentiate.
  * 
  * 1. Emulate framing error:
- * $ echo "1" > /sys/devices/virtual/tty/tty2com0/spvtty_info/evt
+ * $ echo "1" > /sys/devices/virtual/tty/tty2com0/evt
  * 
  * 2. Emulate parity error:
- * $ echo "2" > /sys/devices/virtual/tty/tty2com0/spvtty_info/evt
+ * $ echo "2" > /sys/devices/virtual/tty/tty2com0/evt
  * 
  * 3. Emulate overrun error:
- * $ echo "3" > /sys/devices/virtual/tty/tty2com0/spvtty_info/evt
+ * $ echo "3" > /sys/devices/virtual/tty/tty2com0/evt
  * 
  * 4. Emulate ring indicator (set RI signal):
- * $ echo "4" > /sys/devices/virtual/tty/tty2com0/spvtty_info/evt
+ * $ echo "4" > /sys/devices/virtual/tty/tty2com0/evt
  * 
  * 5. Emulate ring indicator (un-set RI signal):
- * $ echo "5" > /sys/devices/virtual/tty/tty2com0/spvtty_info/evt
+ * $ echo "5" > /sys/devices/virtual/tty/tty2com0/evt
  * 
  * 6. Emulate break received:
- * $ echo "6" > /sys/devices/virtual/tty/tty2com0/spvtty_info/evt
+ * $ echo "6" > /sys/devices/virtual/tty/tty2com0/evt
  *
  * A "framing error" occurs when the designated "start" and "stop" bits are not found. A Parity Error occurs
  * when the parity of the number of 1 bits disagrees with that specified by the parity bit. A "break condition"
@@ -338,7 +337,7 @@ static ssize_t evt_store(struct device *dev, struct device_attribute *attr, cons
 /*
  * Gives index of tty device to which this sysfs attribute belongs.
  *
- * $ cat /sys/devices/virtual/tty/tty2com0/spvtty_info/ownidx
+ * $ cat /sys/devices/virtual/tty/tty2com0/ownidx
  *
  * @dev: tty device
  * @attr: sysfs attributes
@@ -360,7 +359,7 @@ static ssize_t ownidx_show(struct device *dev, struct device_attribute *attr, ch
 /*
  * Gives index of tty device to which given tty device is paired.
  *
- * $ cat /sys/devices/virtual/tty/tty2com0/spvtty_info/peeridx
+ * $ cat /sys/devices/virtual/tty/tty2com0/peeridx
  *
  * @dev: tty device
  * @attr: sysfs attributes
@@ -381,7 +380,7 @@ static ssize_t peeridx_show(struct device *dev, struct device_attribute *attr, c
 /*
  * Gives mapping of RTS line of the given tty device to which this sysfs attribute belongs.
  *
- * $ cat /sys/devices/virtual/tty/tty2com0/spvtty_info/ortsmap
+ * $ cat /sys/devices/virtual/tty/tty2com0/ortsmap
  *
  * @dev: tty device
  * @attr: sysfs attributes
@@ -402,7 +401,7 @@ static ssize_t ortsmap_show(struct device *dev, struct device_attribute *attr, c
 /*
  * Gives mapping of DTR line of the given tty device to which this sysfs attribute belongs.
  *
- * $ cat /sys/devices/virtual/tty/tty2com0/spvtty_info/odtrmap
+ * $ cat /sys/devices/virtual/tty/tty2com0/odtrmap
  *
  * @dev: tty device
  * @attr: sysfs attributes
@@ -423,7 +422,7 @@ static ssize_t odtrmap_show(struct device *dev, struct device_attribute *attr, c
 /*
  * Gives mapping of RTS line of the paired tty device.
  *
- * $ cat /sys/devices/virtual/tty/tty2com0/spvtty_info/prtsmap
+ * $ cat /sys/devices/virtual/tty/tty2com0/prtsmap
  *
  * @dev: tty device
  * @attr: sysfs attributes
@@ -446,7 +445,7 @@ static ssize_t prtsmap_show(struct device *dev, struct device_attribute *attr, c
 /*
  * Gives mapping of DTR line of the paired tty device.
  *
- * $ cat /sys/devices/virtual/tty/tty2com0/spvtty_info/pdtrmap
+ * $ cat /sys/devices/virtual/tty/tty2com0/pdtrmap
  *
  * @dev: tty device
  * @attr: sysfs attributes
