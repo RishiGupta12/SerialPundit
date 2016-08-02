@@ -47,11 +47,13 @@ public final class FlowControl {
 
 		SerialComManager scm = new SerialComManager();
 		final SerialComNullModem scnm = scm.getSerialComNullModemInstance();
+		scnm.initialize();
 		Thread t = null;
 
 		try {
 			scnm.createStandardNullModemPair(-1, -1);
-			String[] ports = scnm.getLastNullModemDevicePairNodes();
+			Thread.sleep(100);
+			String[] ports = scnm.getLastNullModemPairNodes();
 			Thread.sleep(200);
 
 			// READ AND WRITE
@@ -59,7 +61,7 @@ public final class FlowControl {
 			scm.configureComPortData(handle0, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B115200, 0);
 			scm.configureComPortControl(handle0, FLOWCONTROL.NONE, 'x', 'x', true, true);
 
-			long handle1 = scm.openComPort(ports[1], true, true, true);
+			long handle1 = scm.openComPort(ports[3], true, true, true);
 			scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B115200, 0);
 			scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', true, true);
 
@@ -81,7 +83,7 @@ public final class FlowControl {
 			scm.configureComPortData(handle00, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
 			scm.configureComPortControl(handle00, FLOWCONTROL.XON_XOFF, (char)50, (char)51, false, false);
 
-			long handle11 = scm.openComPort(ports[1], true, true, false);
+			long handle11 = scm.openComPort(ports[3], true, true, false);
 			scm.configureComPortData(handle11, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
 			scm.configureComPortControl(handle11, FLOWCONTROL.XON_XOFF, (char)50, (char)51, false, false);
 
@@ -141,7 +143,7 @@ public final class FlowControl {
 			scm.configureComPortData(handle02, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
 			scm.configureComPortControl(handle02, FLOWCONTROL.RTS_CTS, 'x', 'x', false, false);
 
-			long handle12 = scm.openComPort(ports[1], true, true, true);
+			long handle12 = scm.openComPort(ports[3], true, true, true);
 			scm.configureComPortData(handle12, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
 			scm.configureComPortControl(handle12, FLOWCONTROL.RTS_CTS, 'x', 'x', false, false);
 
@@ -176,7 +178,8 @@ public final class FlowControl {
 			System.out.println("\nTEST 3 DONE !\n");
 
 			//scnm.destroyAllVirtualDevices();
-			scnm.releaseResources(); 
+			scnm.destroyAllCreatedVirtualDevices();
+			scnm.deinitialize(); 
 			System.out.println("Done !");
 		}catch (Exception e) {
 			e.printStackTrace();
