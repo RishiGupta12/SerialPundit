@@ -13,15 +13,10 @@
 
 package com.serialpundit.serial.nullmodem;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Map;
-import java.util.TreeMap;
 
-import com.serialpundit.core.SerialComPlatform;
+import com.serialpundit.core.SerialComException;
+import com.serialpundit.serial.internal.SerialComPortJNIBridge;
 
 /**
  * <p>Provides APIs to create and destroy virtual serial ports using the tty2comKm null modem emulation 
@@ -67,705 +62,458 @@ public final class SerialComNullModem {
      * Constant with value 0x0080. </p>*/
     public static final int RCV_BREAK = 0x0080;
 
-    private final int osType;
-    private FileOutputStream linuxVadaptOut;
-    private FileInputStream linuxVadaptIn;
+    //    private final int osType;
+    private final SerialComPortJNIBridge mComPortJNIBridge;
     private final Object lock = new Object();
-
-    // creation of devices, removal of devices and modification to these maps is synchronized.
-    private final TreeMap<Integer, String> loopBackDevList;
-    private final TreeMap<Integer, String> nullModemDevList;
 
     /**
      * <p>Create an instance of SerialComNullModem with given details.</p>
-     *  
+     * 
+     * @param mComPortJNIBridge native interface.
      * @param osType operating system this library is running on.
-     * @throws IOException if any exception occurs while preparing for null modem communication.
+     * @throws SerialComException if any exception occurs while preparing for null modem communication.
      */
-    public SerialComNullModem(int osType) throws IOException {
-
-        this.osType = osType;
-        if(osType == SerialComPlatform.OS_LINUX) {
-            try {
-                File f = new File("/proc/scmtty_vadaptkm");
-                if(!f.exists()) {
-                    throw new FileNotFoundException("The /proc/scmtty_vadaptkm not found. Is driver loaded ???");
-                }
-                linuxVadaptOut = new FileOutputStream(f);
-            } catch(Exception e) {
-                throw e;
-            }
-            try {
-                linuxVadaptIn = new FileInputStream(new File("/proc/scmtty_vadaptkm"));
-            } catch(IOException e) {
-                try {
-                    linuxVadaptOut.close();
-                } catch (IOException e1) {
-                    throw e1;
-                }
-                throw e;
-            }
-        }
-        loopBackDevList = new TreeMap<Integer, String>();
-        nullModemDevList = new TreeMap<Integer, String>();
+    public SerialComNullModem(SerialComPortJNIBridge mComPortJNIBridge, int osType) throws SerialComException {
+        //        this.osType = osType;
+        this.mComPortJNIBridge = mComPortJNIBridge;
     }
 
     /**
-     * <p>Creates a standard loop back connected virtual serial port device. If deviceIndex is -1, the 
-     * next available index will be used by driver. If deviceIndex is a valid number, the given index 
-     * will be used to create device node.</p>
+     * <p>Allocate resources and initialize as required.</p>
      * 
-     * <p>For example; createStandardLoopBackDevice(2) will create /dev/tty2com2 device node in Linux or 
-     * will throw exception if that number is already in use. Similarly createStandardLoopBackDevice(-1) 
-     * will create /dev/tty2comXX where XX is the next free number managed by the driver internally.</p>
-     * 
-     * @param deviceIndex -1 or valid device number (0 <= deviceIndex =< 65535).
-     * @return Created virtual loop back device's node on success.
-     * @throws IOException if virtual loop back device can not be created,
-     *          IllegalArgumentException if deviceIndex is invalid.
+     * @throws SerialComException if driver is not loaded or initialization fails.
      */
-    public String createStandardLoopBackDevice(int deviceIndex) throws IOException {
-        byte[] cmd = null;
-        String lbdev = null;
-        if(osType == SerialComPlatform.OS_LINUX) {
-            if(deviceIndex == -1) {
-                cmd = "genlb#xxxxx#xxxxx#7-8,x,x,x#4-1,6,x,x#x-x,x,x,x#x-x,x,x,x#y#y".getBytes();
-            }else {
-                if((deviceIndex < 0) || (deviceIndex > 65535)) {
-                    throw new IllegalArgumentException("deviceIndex should be -1 <= deviceIndex =< 65535 !");
-                }
-                String cmdd = "genlb#".concat(String.format("%05d", deviceIndex));
-                cmdd = cmdd.concat("#xxxxx#7-8,x,x,x#4-1,6,x,x#x-x,x,x,x#x-x,x,x,x#y#y");
-                cmd = cmdd.getBytes();
-            }
-            synchronized(lock) {
-                linuxVadaptOut.write(cmd);
-                lbdev = getLastLoopBackDeviceNode();
-                if(deviceIndex == -1) {
-                    int idx = Integer.parseInt(lbdev.substring(12), 10);
-                    loopBackDevList.put(idx, lbdev);
-                }else {
-                    loopBackDevList.put(deviceIndex, lbdev);
-                }
-            }
-        }
-
-        return lbdev;
+    public void initialize() throws SerialComException {
+        mComPortJNIBridge.setuptty2com();
     }
 
     /**
-     * <p>Creates a standard null modem connected virtual serial port device pair. If deviceIndex is -1, the 
-     * next available index will be used by driver. If deviceIndex is a valid number, the given index 
+     * <p>Release resources if any was acquired and perform clean up tasks as required. After calling 
+     * this method if the null modem facilities is to be used again than call initialize method again.</p>
+     * 
+     * @throws SerialComException if the task fails.
+     */
+    public void deinitialize() throws SerialComException {
+        mComPortJNIBridge.unsetuptty2com();
+    }
+
+    /**
+     * <p>Gives the device node names that can be used to create next virtual serial port.</p>
+     * 
+     * @return device node names that can be used for next virtual serial port.
+     * @throws IOException if the operation can not be completed for some reason.
+     */
+    public String[] listNextAvailablePorts() throws SerialComException {
+        return mComPortJNIBridge.listNextAvailablePorts();
+    }
+
+    /**
+     * <p>Gives all existing ports which are connected in standard null modem fashion. In returned array, 
+     * the port at even index is connected to the port at next odd index. For example :<br>
+     * String[] list = scnm.listExistingStandardNullModemPorts();<br>
+     * list[0] <-----> list[1]</p>
+     * 
+     * @return existing ports which are connected in standard null modem fashion.
+     * @throws IOException if the operation can not be completed for some reason.
+     */
+    public String[] listExistingStandardNullModemPorts() throws SerialComException {
+        return mComPortJNIBridge.listExistingStandardNullModemPorts();
+    }
+
+    /**
+     * <p>Gives all existing ports which are connected in standard null modem fashion. In returned 
+     * array, the port at even index is connected to the port at next odd index. For example :<br>
+     * String[] list = scnm.listExistingStandardNullModemPorts();<br>
+     * list[0] <-----> list[3]</p>
+     * 
+     * <p>The sequence of information returned is shown below. The RTS and DTR mappings are returned 
+     * in string form. The caller has to convert them into int data type and then constant bit mask 
+     * SerialComNullModem.SP_CON_XXX can be used.<br>
+     * x + 0: 1st port's name/path <br>
+     * x + 1: 1st port's RTS mappings <br>
+     * x + 2: 1st port's DTR mappings <br>
+     * x + 3: 2nd port's name/path <br>
+     * x + 4: 2nd port's RTS mappings <br>
+     * x + 5: 2nd port's DTR mappings <br></p>
+     * 
+     * @return existing ports which are connected in custom null modem fashion.
+     * @throws IOException if the operation can not be completed for some reason.
+     */
+    public String[] listExistingCustomNullModemPorts() throws SerialComException {
+        return mComPortJNIBridge.listExistingCustomNullModemPorts();
+    }
+
+    /**
+     * <p>Gives all existing ports which are connected in standard loopback fashion.</p>
+     * 
+     * @return existing ports which are connected in standard loopback fashion.
+     * @throws IOException if the operation can not be completed for some reason.
+     */
+    public String[] listExistingStandardLoopbackPorts() throws SerialComException {
+        return mComPortJNIBridge.listExistingStandardLoopbackPorts();
+    }
+
+    /**
+     * <p>Gives all existing ports which are connected in standard loopback fashion.</p>
+     * 
+     * <p>The sequence of information returned is shown below. The RTS and DTR mappings are returned 
+     * in string form. The caller has to convert them into int data type and then constant bit mask 
+     * SerialComNullModem.SP_CON_XXX can be used.<br>
+     * x + 0: port's name <br>
+     * x + 1: port's RTS mappings <br>
+     * x + 2: port's DTR mappings <br></p>
+     * 
+     * @return existing ports which are connected in custom null modem fashion.
+     * @throws IOException if the operation can not be completed for some reason.
+     */
+    public String[] listExistingCustomLoopbackPorts() throws SerialComException {
+        return mComPortJNIBridge.listExistingCustomLoopbackPorts();
+    }
+
+    /**
+     * <p>Gives names of all existing virtual ports created by driver.</p>
+     * 
+     * @return names of all existing virtual ports created by driver.
+     * @throws IOException if the operation can not be completed for some reason.
+     */
+    public String[] listAllExistingPorts() throws SerialComException {
+        return mComPortJNIBridge.listAllExistingPorts();
+    }
+
+    /**
+     * <p>Gives all existing ports created by driver.</p>
+     * 
+     * <p>The sequence of information returned is shown below. The RTS and DTR mappings are returned 
+     * in string form. The caller has to convert them into int data type and then constant bit mask 
+     * SerialComNullModem.SP_CON_XXX can be used.<br>
+     * x + 0: port's name <br>
+     * x + 1: port's RTS mappings <br>
+     * x + 2: port's DTR mappings <br></p>
+     * 
+     * @return names of all existing virtual ports created by driver with their mappings.
+     * @throws IOException if the operation can not be completed for some reason.
+     */
+    public String[] listAllExistingPortsWithInfo() throws SerialComException {
+        return mComPortJNIBridge.listAllExistingPortsWithInfo();
+    }
+
+    /**
+     * <p>Creates two virtual ports/devices connected in standard null modem fashion. If deviceIndex is -1, 
+     * the next available index will be used by driver. If deviceIndex is a valid number, the given index 
      * will be used to create device nodes.</p>
      * 
-     * <p>For example; createStandardNullModemDevices(2, 3) will create /dev/tty2com2 and /dev/tty2com3 device 
-     * nodes in Linux or will throw exception if any of the given number is already in use. Similarly 
-     * createStandardNullModemDevices(-1, -1) will create /dev/tty2comXX and /dev/tty2comYY where XX/YY are the 
+     * <p>For example; createStandardNullModemPair(2, 3) will create /dev/tty2com2 and /dev/tty2com3 device 
+     * nodes in Linux or will throw exception if any of the given number is already in use. Similarly the 
+     * createStandardNullModemPair(-1, -1) will create /dev/tty2comXX and /dev/tty2comYY where XX/YY are the 
      * next free numbers managed by the driver internally.</p>
      * 
-     * <P>After calling this method it is advised to call getLastNullModemDevicePairNodes() method to get operating 
-     * system specific device node name.</p>
+     * <p>The sequence of information returned is shown below. The RTS and DTR mappings are returned 
+     * in string form. The caller has to convert them into int data type and then constant bit mask 
+     * SerialComNullModem.SP_CON_XXX can be used. The x is 0 or multiple of 6.<br>
+     * x + 0: 1st port's name/path <br>
+     * x + 1: 1st port's RTS mappings <br>
+     * x + 2: 1st port's DTR mappings <br>
+     * x + 3: 2nd port's name/path <br>
+     * x + 4: 2nd port's RTS mappings <br>
+     * x + 5: 2nd port's DTR mappings <br></p>
      * 
      * @param deviceIndex1 -1 or valid device number (0 <= deviceIndex1 =< 65535).
-     * @param deviceIndex2 -1 or valid device number (0 <= deviceIndex1 =< 65535).
+     * @param deviceIndex2 -1 or valid device number (0 <= deviceIndex2 =< 65535).
      * @return Created virtual null modem pair device's node on success.
-     * @throws IOException if virtual null modem device pair can not be created,
-     *          IllegalArgumentException if deviceIndex1/2 is invalid.
+     * @throws SerialComException if virtual null modem device pair can not be created,
+     *         IllegalArgumentException if deviceIndex1/2 is invalid.
      */
-    public String[] createStandardNullModemPair(int deviceIndex1, int deviceIndex2) throws IOException {
-        byte[] cmd = null;
-        String[] nmdevs = null;
-        if(osType == SerialComPlatform.OS_LINUX) {
-            if(deviceIndex1 == -1) {
-                if(deviceIndex2 == -1) {
-                    cmd = "gennm#xxxxx#xxxxx#7-8,x,x,x#4-1,6,x,x#7-8,x,x,x#4-1,6,x,x#y#y".getBytes();
-                }else {
-                    if((deviceIndex2 < 0) || (deviceIndex2 > 65535)) {
-                        throw new IllegalArgumentException("deviceIndex2 should be -1 <= deviceIndex2 =< 65535 !");
-                    }
-                    String cmdd = "gennm#xxxxx#".concat(String.format("%05d", deviceIndex2));
-                    cmdd = cmdd.concat("#7-8,x,x,x#4-1,6,x,x#7-8,x,x,x#4-1,6,x,x#y#y");
+    public String[] createStandardNullModemPair(int deviceIndex1, int deviceIndex2) throws SerialComException {
 
-                }
-            }else {
-                if(deviceIndex2 == -1) {
-                    String cmdd = "gennm#".concat(String.format("%05d", deviceIndex1));
-                    cmdd = cmdd.concat("#xxxxx#7-8,x,x,x#4-1,6,x,x#7-8,x,x,x#4-1,6,x,x#y#y");
-                    cmd = cmdd.getBytes();
-                }else {
-                    if((deviceIndex1 < 0) || (deviceIndex1 > 65535)) {
-                        throw new IllegalArgumentException("deviceIndex1 should be -1 <= deviceIndex1 =< 65535 !");
-                    }
-                    String cmdd = "gennm#".concat(String.format("%05d", deviceIndex1));
-                    cmdd = cmdd.concat("#");
-                    cmdd = cmdd.concat(String.format("%05d", deviceIndex2));
-                    cmdd = cmdd.concat("#7-8,x,x,x#4-1,6,x,x#7-8,x,x,x#4-1,6,x,x#y#y");
-                    cmd = cmdd.getBytes();
-                }
-            }
-            synchronized(lock) {
-                linuxVadaptOut.write(cmd);
-                nmdevs = getLastNullModemDevicePairNodes();
-                int idx = Integer.parseInt(nmdevs[0].substring(12), 10);
-                StringBuilder sb = new StringBuilder();
-                sb.append(nmdevs[0]);
-                sb.append(" <=> ");
-                sb.append(nmdevs[1]);
-                nullModemDevList.put(idx, sb.toString());
-            }
+        String[] result = null;
+
+        if((deviceIndex1 < -1) || (deviceIndex1 > 65535)) {
+            throw new IllegalArgumentException("deviceIndex1 should be -1 <= deviceIndex1 =< 65535 !");
+        }
+        if((deviceIndex2 < -1) || (deviceIndex2 > 65535)) {
+            throw new IllegalArgumentException("deviceIndex2 should be -1 <= deviceIndex1 =< 65535 !");
+        }
+        if((deviceIndex1 != -1) && (deviceIndex2 != -1) && (deviceIndex1 == deviceIndex2)) {
+            throw new IllegalArgumentException("Both deviceIndex1 and deviceIndex2 can not be same !");
         }
 
-        return nmdevs;
+        synchronized (lock) {
+            result = mComPortJNIBridge.createStandardNullModemPair(deviceIndex1, deviceIndex2);
+        }
+
+        return result;
     }
 
     /**
-     * <p>Creates a virtual loop back device with given pin mappings.</p>
+     * <p>Creates two virtual ports/devices connected in null modem fashion with given signal mappings. 
+     * If idxYY is -1, the next available index will be used by driver. If idxYY is a valid number, the 
+     * given index will be used to create device nodes.</p>
+     * 
+     * <p>For example; createCustomNullModemPair(2, 0, 0, 3, 0, 0) will create /dev/tty2com2 and the 
+     * /dev/tty2com3 device nodes in Linux or will throw exception if any of the given number is already 
+     * in use. Similarly the createCustomNullModemPair(-1, 0, 0, -1, 0, 0) will create /dev/tty2comXX and 
+     * /dev/tty2comYY where XX/YY are the next free numbers managed by the driver internally.</p>
      * 
      * <p>To connect RTS pin to CTS pin use rtsMap = SerialComNullModem.SP_CON_CTS. A pin can be 
      * connected to one or more pins using bit mask. For example to connect RTS pin to CTS and DSR use 
      * rtsMap = SerialComNullModem.SP_CON_CTS | SerialComNullModem.SP_CON_DSR.</p>
      * 
-     * @param deviceIndex -1 or valid device number (0 <= deviceIndex =< 65535).
-     * @param rtsMap Bit mask of SerialComNullModem.SCM_CON_XXX constants as per the desired pin mappings 
-     *         or 0 if RTS pin should be left unconnected.
-     * @param dtrMap Bit mask of SerialComNullModem.SCM_CON_XXX constants as per the desired pin mappings 
-     *         or 0 if DTR pin should be left unconnected.
-     * @return Created virtual loop back device's node on success.
-     * @throws IOException if the operation can not be completed successfully,
-     *          IllegalArgumentException if invalid deviceIndex is supplied.
+     * <p>The sequence of information returned is shown below. The RTS and DTR mappings are returned 
+     * in string form. The caller has to convert them into int data type and then constant bit mask 
+     * SerialComNullModem.SP_CON_XXX can be used. The x is 0 or multiple of 6.<br>
+     * x + 0: 1st port's name/path <br>
+     * x + 1: 1st port's RTS mappings <br>
+     * x + 2: 1st port's DTR mappings <br>
+     * x + 3: 2nd port's name/path <br>
+     * x + 4: 2nd port's RTS mappings <br>
+     * x + 5: 2nd port's DTR mappings <br></p>
+     * 
+     * @param idx1 -1 or valid device number (0 <= idx1 =< 65535).
+     * @param rtsMap1 Bit mask of SerialComNullModem.SCM_CON_XXX constants as per the desired pin mappings 
+     *        or 0 if RTS pin should be left unconnected.
+     * @param dtrMap1 Bit mask of SerialComNullModem.SCM_CON_XXX constants as per the desired pin mappings 
+     *        or 0 if DTR pin should be left unconnected.
+     * @param idx2 -1 or valid device number (0 <= idx2 =< 65535).
+     * @param rtsMap2 Bit mask of SerialComNullModem.SCM_CON_XXX constants as per the desired pin mappings 
+     *        or 0 if RTS pin should be left unconnected.
+     * @param dtrMap2 Bit mask of SerialComNullModem.SCM_CON_XXX constants as per the desired pin mappings 
+     *        or 0 if DTR pin should be left unconnected.
+     * @return Created virtual null modem pair device's node on success.
+     * @throws SerialComException if virtual null modem device pair can not be created,
+     *         IllegalArgumentException if idx1/2 is invalid.
      */
-    public String createCustomLoopBackDevice(int deviceIndex, int rtsMap, int dtrMap) throws IOException {
-        String lbdev = null;
-        StringBuilder sb = new StringBuilder();
-        if(osType == SerialComPlatform.OS_LINUX) {
-            sb.append("genlb#");
-            if(deviceIndex < 0) {
-                if(deviceIndex != -1) {
-                    throw new IllegalArgumentException("Argument deviceIndex should be -1 <= deviceIndex =< 65535 !");
-                }
-                sb.append("xxxxx#xxxxx#7-");
-            }else {
-                if(deviceIndex > 65535) {
-                    throw new IllegalArgumentException("Argument deviceIndex should be -1 <= deviceIndex =< 65535 !");
-                }
-                sb.append(String.format("%05d", deviceIndex));
-                sb.append("#xxxxx#7-");
-            }
+    public String[] createCustomNullModemPair(int idx1, int rtsMap1, int dtrMap1, int idx2, int rtsMap2, int dtrMap2) throws SerialComException {
 
-            if(rtsMap == SP_CON_NONE) {
-                sb.append("x,x,x,x#4-");
-            }else {
-                if((rtsMap & SP_CON_CTS) == SP_CON_CTS) {
-                    sb.append(8);
-                }else {
-                    sb.append("x");
-                }
-                sb.append(",");
-                if((rtsMap & SP_CON_DCD) == SP_CON_DCD) {
-                    sb.append(1);
-                }else {
-                    sb.append("x");
-                }
-                sb.append(",");
-                if((rtsMap & SP_CON_DSR) == SP_CON_DSR) {
-                    sb.append(6);
-                }else {
-                    sb.append("x");
-                }
-                sb.append(",");
-                if((rtsMap & SP_CON_RI) == SP_CON_RI) {
-                    sb.append(9);
-                }else {
-                    sb.append("x");
-                }
-                sb.append("#4-");
-            }
+        String[] result = null;
 
-            if(dtrMap == SP_CON_NONE) {
-                sb.append("x,x,x,x");
-            }else {
-                if((dtrMap & SP_CON_CTS) == SP_CON_CTS) {
-                    sb.append(8);
-                }else {
-                    sb.append("x");
-                }
-                sb.append(",");
-                if((dtrMap & SP_CON_DCD) == SP_CON_DCD) {
-                    sb.append(1);
-                }else {
-                    sb.append("x");
-                }
-                sb.append(",");
-                if((dtrMap & SP_CON_DSR) == SP_CON_DSR) {
-                    sb.append(6);
-                }else {
-                    sb.append("x");
-                }
-                sb.append(",");
-                if((dtrMap & SP_CON_RI) == SP_CON_RI) {
-                    sb.append(9);
-                }else {
-                    sb.append("x");
-                }
-            }
-
-            sb.append("#x-x,x,x,x#x-x,x,x,x#y#y");
-
-            synchronized(lock) {
-                linuxVadaptOut.write(sb.toString().getBytes());
-                lbdev = getLastLoopBackDeviceNode();
-                if(deviceIndex == -1) {
-                    int idx = Integer.parseInt(lbdev.substring(12), 10);
-                    loopBackDevList.put(idx, lbdev);
-                }else {
-                    loopBackDevList.put(deviceIndex, lbdev);
-                }
-            }
+        if((idx1 < -1) || (idx1 > 65535)) {
+            throw new IllegalArgumentException("idx1 should be -1 <= idx1 =< 65535 !");
+        }
+        if((idx2 < -1) || (idx2 > 65535)) {
+            throw new IllegalArgumentException("idx2 should be -1 <= idx2 =< 65535 !");
+        }
+        if((idx1 != -1) && (idx2 != -1) && (idx1 == idx2)) {
+            throw new IllegalArgumentException("Both device indexs idx1 and idx2 can not be same !");
         }
 
-        return lbdev;
+        synchronized (lock) {
+            result = mComPortJNIBridge.createCustomNullModemPair(idx1, rtsMap1, dtrMap1, idx2, rtsMap2, dtrMap2);
+        }
+
+        return result; 
     }
 
     /**
-     * <p>Creates a null modem device pair with given pin mappings.</p>
+     * <p>Creates a virtual port/device connected in standard loopback fashion. If deviceIndex is -1, 
+     * the next available index will be used by driver. If deviceIndex is a valid number, the given index 
+     * will be used to create device nodes.</p>
      * 
-     * @param idx1 index of 1st virtual serial port to be created.
-     * @param rtsMap1 pin mappings definition (define how RTS pin of idx1 device should be connected to pins of idx2 device).
-     * @param dtrMap1 pin mappings definition (define how DTR pin of idx1 device should be connected to pins of idx2 device).
-     * @param idx2 index of 2nd virtual serial port to be created.
-     * @param rtsMap2 pin mappings definition (define how RTS pin of idx2 device should be connected to pins of idx1 device).
-     * @param dtrMap2 pin mappings definition (define how DTR pin of idx2 device should be connected to pins of idx1 device).
-     * @return Created virtual null modem pair device's node on success.
-     * @throws IOException if the null modem device node pair can not be created, 
-     *          IllegalArgumentException if invalid idx1/2 is supplied.
+     * <p>For example; createStandardLoopBackDevice(2) will create /dev/tty2com2 device node in Linux or 
+     * will throw exception if that number is already in use. Similarly createStandardLoopBackDevice(-1) 
+     * will create /dev/tty2comXX where XX is the next free number managed by the driver internally.</p>
+     * 
+     * <p>The sequence of information returned is shown below. The RTS and DTR mappings are returned 
+     * in string form. The caller has to convert them into int data type and then constant bit mask 
+     * SerialComNullModem.SP_CON_XXX can be used. The x is 0 or multiple of 3.<br>
+     * x + 0: port's name/path <br>
+     * x + 1: port's RTS mappings <br>
+     * x + 2: port's DTR mappings <br></p>
+     * 
+     * @param deviceIndex -1 or valid device number (0 <= deviceIndex =< 65535).
+     * @return Created virtual loop back device's node on success.
+     * @throws SerialComException if virtual loop back device can not be created,
+     *         IllegalArgumentException if deviceIndex is invalid.
      */
-    public String[] createCustomNullModemPair(int idx1, int rtsMap1, int dtrMap1, int idx2, int rtsMap2, int dtrMap2) throws IOException {
-        String[] nmdevs = null;
-        StringBuilder sb = new StringBuilder();
+    public String[] createStandardLoopBackDevice(int deviceIndex) throws SerialComException {
 
-        if(osType == SerialComPlatform.OS_LINUX) {
-            sb.append("gennm#");
-            if(idx1 < 0) {
-                if(idx1 != -1) {
-                    throw new IllegalArgumentException("Argument idx1 should be -1 <= idx1 =< 65535 !");
-                }
-                sb.append("xxxxx");
-            }else {
-                if(idx1 > 65535) {
-                    throw new IllegalArgumentException("Argument idx1 should be -1 <= idx1 =< 65535 !");
-                }
-                sb.append(String.format("%05d", idx1));
-            }
-            sb.append("#");
-            if(idx2 < 0) {
-                if(idx2 != -1) {
-                    throw new IllegalArgumentException("Argument idx2 should be -1 <= idx2 =< 65535 !");
-                }
-                sb.append("xxxxx");
-            }else {
-                if(idx2 > 65535) {
-                    throw new IllegalArgumentException("Argument idx2 should be -1 <= idx2 =< 65535 !");
-                }
-                sb.append(String.format("%05d", idx2));
-            }
-            sb.append("#7-");
+        String[] result = null;
 
-            if(rtsMap1 == SP_CON_NONE) {
-                sb.append("x,x,x,x#4-");
-            }else {
-                if((rtsMap1 & SP_CON_CTS) == SP_CON_CTS) {
-                    sb.append(8);
-                }else {
-                    sb.append("x");
-                }
-                sb.append(",");
-                if((rtsMap1 & SP_CON_DCD) == SP_CON_DCD) {
-                    sb.append(1);
-                }else {
-                    sb.append("x");
-                }
-                sb.append(",");
-                if((rtsMap1 & SP_CON_DSR) == SP_CON_DSR) {
-                    sb.append(6);
-                }else {
-                    sb.append("x");
-                }
-                sb.append(",");
-                if((rtsMap1 & SP_CON_RI) == SP_CON_RI) {
-                    sb.append(9);
-                }else {
-                    sb.append("x");
-                }
-                sb.append("#4-");
-            }
-
-            if(dtrMap1 == SP_CON_NONE) {
-                sb.append("x,x,x,x#7-");
-            }else {
-                if((dtrMap1 & SP_CON_CTS) == SP_CON_CTS) {
-                    sb.append(8);
-                }else {
-                    sb.append("x");
-                }
-                sb.append(",");
-                if((dtrMap1 & SP_CON_DCD) == SP_CON_DCD) {
-                    sb.append(1);
-                }else {
-                    sb.append("x");
-                }
-                sb.append(",");
-                if((dtrMap1 & SP_CON_DSR) == SP_CON_DSR) {
-                    sb.append(6);
-                }else {
-                    sb.append("x");
-                }
-                sb.append(",");
-                if((dtrMap1 & SP_CON_RI) == SP_CON_RI) {
-                    sb.append(9);
-                }else {
-                    sb.append("x");
-                }
-                sb.append("#7-");
-            }
-
-            if(rtsMap2 == SP_CON_NONE) {
-                sb.append("x,x,x,x#4-");
-            }else {
-                if((rtsMap2 & SP_CON_CTS) == SP_CON_CTS) {
-                    sb.append(8);
-                }else {
-                    sb.append("x");
-                }
-                sb.append(",");
-                if((rtsMap2 & SP_CON_DCD) == SP_CON_DCD) {
-                    sb.append(1);
-                }else {
-                    sb.append("x");
-                }
-                sb.append(",");
-                if((rtsMap2 & SP_CON_DSR) == SP_CON_DSR) {
-                    sb.append(6);
-                }else {
-                    sb.append("x");
-                }
-                sb.append(",");
-                if((rtsMap2 & SP_CON_RI) == SP_CON_RI) {
-                    sb.append(9);
-                }else {
-                    sb.append("x");
-                }
-                sb.append("#4-");
-            }
-
-            if(dtrMap2 == SP_CON_NONE) {
-                sb.append("x,x,x,x#y#y");
-            }else {
-                if((dtrMap2 & SP_CON_CTS) == SP_CON_CTS) {
-                    sb.append(8);
-                }else {
-                    sb.append("x");
-                }
-                sb.append(",");
-                if((dtrMap2 & SP_CON_DCD) == SP_CON_DCD) {
-                    sb.append(1);
-                }else {
-                    sb.append("x");
-                }
-                sb.append(",");
-                if((dtrMap2 & SP_CON_DSR) == SP_CON_DSR) {
-                    sb.append(6);
-                }else {
-                    sb.append("x");
-                }
-                sb.append(",");
-                if((dtrMap2 & SP_CON_RI) == SP_CON_RI) {
-                    sb.append(9);
-                }else {
-                    sb.append("x");
-                }
-                sb.append("#y#y");
-            }
-
-            synchronized(lock) {
-                linuxVadaptOut.write(sb.toString().getBytes());
-                nmdevs = getLastNullModemDevicePairNodes();
-                int idx = Integer.parseInt(nmdevs[0].substring(12), 10);
-                StringBuilder sb1 = new StringBuilder();
-                sb1.append(nmdevs[0]);
-                sb1.append(" <=> ");
-                sb1.append(nmdevs[1]);
-                nullModemDevList.put(idx, sb1.toString());
-            }
+        if((deviceIndex < -1) || (deviceIndex > 65535)) {
+            throw new IllegalArgumentException("deviceIndex should be -1 <= deviceIndex =< 65535 !");
         }
 
-        return nmdevs;
+        synchronized (lock) {
+            result = mComPortJNIBridge.createStandardLoopBackDevice(deviceIndex);
+        }
+
+        return result;
+    }
+
+    /**
+     * <p>Creates a virtual port/device connected in standard loopback fashion. If deviceIndex is -1, 
+     * the next available index will be used by driver. If deviceIndex is a valid number, the given index 
+     * will be used to create device nodes.</p>
+     * 
+     * <p>For example; createCustomLoopBackDevice(2, SerialComNullModem.SP_CON_CTS, SerialComNullModem.SP_CON_DTR) 
+     * will create /dev/tty2com2 device node in Linux or will throw exception if that number is already in use. 
+     * Similarly createCustomLoopBackDevice(-1, SerialComNullModem.SP_CON_CTS, SerialComNullModem.SP_CON_DTR) 
+     * will create /dev/tty2comXX where XX is the next free number managed by the driver internally.</p>
+     * 
+     * <p>To connect RTS pin to CTS pin use rtsMap = SerialComNullModem.SP_CON_CTS. A pin can be 
+     * connected to one or more pins using bit mask. For example to connect RTS pin to CTS and DSR use 
+     * rtsMap = SerialComNullModem.SP_CON_CTS | SerialComNullModem.SP_CON_DSR.</p>
+     * 
+     * <p>The sequence of information returned is shown below. The RTS and DTR mappings are returned 
+     * in string form. The caller has to convert them into int data type and then constant bit mask 
+     * SerialComNullModem.SP_CON_XXX can be used. The x is 0 or multiple of 3.<br>
+     * x + 0: port's name/path <br>
+     * x + 1: port's RTS mappings <br>
+     * x + 2: port's DTR mappings <br></p>
+     * 
+     * @param deviceIndex -1 or valid device number (0 <= deviceIndex =< 65535).
+     * @param rtsMap Bit mask of SerialComNullModem.SCM_CON_XXX constants as per the desired pin mappings 
+     *        or 0 if RTS pin should be left unconnected.
+     * @param dtrMap Bit mask of SerialComNullModem.SCM_CON_XXX constants as per the desired pin mappings 
+     *        or 0 if DTR pin should be left unconnected.
+     * @return Created virtual loop back device's node on success.
+     * @throws SerialComException if virtual loop back device can not be created,
+     *         IllegalArgumentException if deviceIndex is invalid.
+     */
+    public String[] createCustomLoopBackDevice(int deviceIndex, int rtsMap, int dtrMap) throws SerialComException {
+
+        String[] result = null;
+
+        if((deviceIndex < -1) || (deviceIndex > 65535)) {
+            throw new IllegalArgumentException("deviceIndex should be -1 <= deviceIndex =< 65535 !");
+        }
+
+        synchronized (lock) {
+            result = mComPortJNIBridge.createCustomLoopBackDevice(deviceIndex, rtsMap, dtrMap);
+        }
+
+        return result;
     }
 
     /**
      * <p>Removes all virtual serial devices created by tty2comKm driver.</p>
      * 
      * @return true on success.
-     * @throws IOException if the operation can not be completed due to some reason.
+     * @throws SerialComException if the operation can not be completed due to some reason.
      */
-    public boolean destroyAllVirtualDevices() throws IOException {
-        if(osType == SerialComPlatform.OS_LINUX) {
-            synchronized(lock) {
-                linuxVadaptOut.write("del#xxxxx#xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx".getBytes());
-                loopBackDevList.clear();
-                nullModemDevList.clear();
+    public boolean destroyAllCreatedVirtualDevices() throws SerialComException {
+
+        synchronized (lock) {
+            int ret = mComPortJNIBridge.destroyAllCreatedVirtualDevices();
+            if(ret < 0) {
+                throw new SerialComException("Can not destroy created virtual devices !");
             }
         }
         return true;
     }
 
     /**
-     * <p>Removes the virtual loop back device created using tty2comKm driver.</p>
+     * <p>Removes all null modem virtual serial devices created by tty2comKm driver.</p>
      * 
-     * @param deviceNode virtual serial port to be destroyed.
      * @return true on success.
-     * @throws IOException if the given device can not be deleted due to some reason,
-     *          IllegalArgumentException if invalid deviceNode is supplied or deviceNode is null.
+     * @throws SerialComException if the operation can not be completed due to some reason.
      */
-    public boolean destroyVirtualLoopBackDevice(final String deviceNode) throws IOException {
-        if((deviceNode == null) || (deviceNode.length() == 0)) {
-            throw new IllegalArgumentException("The deviceNode can not be null or 0 length !");
-        }
-        if(osType == SerialComPlatform.OS_LINUX) {
-            int nodeNum = Integer.parseInt(deviceNode.substring(12), 10);
-            synchronized(lock) {
-                if(loopBackDevList.containsKey(nodeNum)) {
-                    String cmd = "del#".concat(String.format("%05d", nodeNum));
-                    cmd = cmd.concat("#xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
-                    linuxVadaptOut.write(cmd.getBytes());
-                    loopBackDevList.remove(nodeNum);
-                    return true;
-                }
+    public boolean destroyAllCreatedNullModemPairs() throws SerialComException {
+
+        synchronized (lock) {
+            int ret = mComPortJNIBridge.destroyAllCreatedNullModemPairs();
+            if(ret < 0) {
+                throw new SerialComException("Can not destroy created null modem pairs/devices !");
             }
-            throw new IllegalArgumentException("Given device node is not found in our records !");
         }
-        return false;
+        return true;
     }
 
     /**
-     * <p>Removes the virtual null modem device pair created using tty2comKm driver. The devNode1 must be 
-     * 1st device node as returned by createStandardNullModemPair() or createCustomNullModemPair() methods.</p>
+     * <p>Removes the given virtual serial devices created by tty2comKm driver. If the given device 
+     * is one of the device in a null modem pair, the other paired device will be removed automatically.</p>
      * 
-     * @param devNode1 one of the device node of null modem pair to be destroyed.
-     * @param devNode2 one of the device node of null modem pair to be destroyed.
-     * @return true on success.
-     * @throws IOException if the given device can not be deleted due to some reason, 
-     *          IllegalArgumentException if invalid deviceNode is supplied or devNode1/2 is null.
+     * @return true if device gets deleted.
+     * @throws SerialComException if the operation can not be completed due to some reason.
      */
-    public boolean destroyVirtualNullModemPair(final String devNode1, final String devNode2) throws IOException {
-        if((devNode1 == null) || (devNode1.length() == 0) || (devNode2 == null) || (devNode2.length() == 0)) {
-            throw new IllegalArgumentException("The devNode1/2 can not be null or 0 length string !");
-        }
-        if(devNode1.equals(devNode2)) {
-            throw new IllegalArgumentException("The devNode1 can not be equal to devNode2 !");
-        }
-        if(osType == SerialComPlatform.OS_LINUX) {
-            int idx = Integer.parseInt(devNode1.substring(12), 10);
-            String pair = nullModemDevList.get(idx);
-            if(pair == null) {
-                throw new IllegalArgumentException("Given device nodes are not found in our records !");
-            }
-            if(pair.contains(devNode2)) {
-                String cmd = "del#".concat(String.format("%05d", idx));
-                cmd = cmd.concat("#xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
-                linuxVadaptOut.write(cmd.getBytes());
-                nullModemDevList.remove(idx);
-                return true;
-            }
-            throw new IllegalArgumentException("Given devNode1 and devNode2 seems not to be a null modem pair !");
-        }
+    public boolean destroyAllCreatedLoopbackDevices() throws SerialComException {
 
-        return false;
+        synchronized (lock) {
+            int ret = mComPortJNIBridge.destroyAllCreatedLoopbackDevices();
+            if(ret < 0) {
+                throw new SerialComException("Can not destroy created loopback devices !");
+            }
+        }
+        return true;
     }
 
-    /**
-     * <p>Returns the device node names that can be used for next virtual serial port.</p>
-     * 
-     * @return device node names that can be used for next virtual serial port.
-     * @throws IOException if the operation can not be completed for some reason.
-     */
-    public String[] getNextAvailableComPorts() throws IOException {
-        byte data[] = new byte[64];
-        byte tmp1[] = new byte[5];
-        byte tmp2[] = new byte[5];
+    public boolean destroyGivenVirtualDevice(String device) throws SerialComException {
 
-        if(osType == SerialComPlatform.OS_LINUX) {
-
-            // 00002#00000-00001#00003-00004
-            linuxVadaptIn.read(data, 0, 32);
-
-            for(int q=18; q<23; q++) {
-                tmp1[q - 18] = data[q];
+        synchronized (lock) {
+            int ret = mComPortJNIBridge.destroyGivenVirtualDevice(device);
+            if(ret < 0) {
+                throw new SerialComException("Can not destroy given virtual device !");
             }
-            for(int q=24; q<29; q++) {
-                tmp2[q - 24] = data[q];
-            }
-            int nodeNum1 = Integer.parseInt(new String(tmp1), 10);
-            int nodeNum2 = Integer.parseInt(new String(tmp2), 10);
-
-            String[] nodes = new String[2];
-
-            StringBuilder sb = new StringBuilder();
-            sb.append("/dev/tty2com");
-            sb.append(nodeNum1);
-            nodes[0] = sb.toString();
-
-            sb.delete(0, sb.length());
-            sb.append("/dev/tty2com");
-            sb.append(nodeNum2);
-            nodes[1] = sb.toString();
-            return nodes;
         }
-        return null;
+        return true;
     }
 
     /**
      * <p>Returns the device node of last created loop back device.</p>
      * 
+     * <p>The sequence of information returned is shown below. The RTS and DTR mappings are returned 
+     * in string form. The caller has to convert them into int data type and then constant bit mask 
+     * SerialComNullModem.SP_CON_XXX can be used. The x is 0 or multiple of 3.<br>
+     * x + 0: port's name/path <br>
+     * x + 1: port's RTS mappings <br>
+     * x + 2: port's DTR mappings <br></p>
+     * 
      * @return Device node on success otherwise null.
-     * @throws IOException if the operation can not be completed for some reason.
+     * @throws SerialComException if the operation can not be completed for some reason.
      */
-    public String getLastLoopBackDeviceNode() throws IOException {
-        byte data[] = new byte[64];
-        byte tmp[] = new byte[5];
+    public String[] getLastLoopBackDeviceNode() throws SerialComException {
 
-        if(osType == SerialComPlatform.OS_LINUX) {
-            linuxVadaptIn.read(data, 0, 32); // 00002#00000-00001#00003-00004
-            for(int q=0; q<5; q++) {
-                tmp[q] = data[q];
-            }
-            int nodeNum = Integer.parseInt(new String(tmp), 10);
-            StringBuilder sb = new StringBuilder();
-            sb.append("/dev/tty2com");
-            sb.append(nodeNum);
-            return sb.toString();
+        String[] result = null;
+        synchronized (lock) {
+            result = mComPortJNIBridge.getLastLoopBackDeviceNode();
         }
-        return null;
+        return result;
     }
 
     /**
      * <p>Returns the device nodes of last created null modem pair.</p>
      * 
+     * <p>The sequence of information returned is shown below. The RTS and DTR mappings are returned 
+     * in string form. The caller has to convert them into int data type and then constant bit mask 
+     * SerialComNullModem.SP_CON_XXX can be used. The x is 0 or multiple of 6.<br>
+     * x + 0: 1st port's name/path <br>
+     * x + 1: 1st port's RTS mappings <br>
+     * x + 2: 1st port's DTR mappings <br>
+     * x + 3: 2nd port's name/path <br>
+     * x + 4: 2nd port's RTS mappings <br>
+     * x + 5: 2nd port's DTR mappings <br></p>
+     * 
      * @return Device nodes of null modem pair on success otherwise null.
-     * @throws IOException if the operation can not be completed for some reason.
+     * @throws SerialComException if the operation can not be completed for some reason.
      */
-    public String[] getLastNullModemDevicePairNodes() throws IOException {
-        byte data[] = new byte[64];
-        byte tmp1[] = new byte[5];
-        byte tmp2[] = new byte[5];
+    public String[] getLastNullModemPairNodes() throws SerialComException {
 
-        if(osType == SerialComPlatform.OS_LINUX) {
-            linuxVadaptIn.read(data, 0, 32);
-            for(int q=0; q<5; q++) {
-                tmp1[q] = data[q + 6];
-            }
-            for(int q=0; q<5; q++) {
-                tmp2[q] = data[q + 12];
-            }
-            int nodeNum1 = Integer.parseInt(new String(tmp1), 10);
-            int nodeNum2 = Integer.parseInt(new String(tmp2), 10);
-            StringBuilder sb = new StringBuilder();
-            sb.append("/dev/tty2com");
-            sb.append(nodeNum1);
-            String[] nodes = new String[2];
-            nodes[0] = sb.toString();
-            sb.delete(0, sb.length());
-            sb.append("/dev/tty2com");
-            sb.append(nodeNum2);
-            nodes[1] = sb.toString();
-            return nodes;
+        String[] result = null;
+        synchronized (lock) {
+            result = mComPortJNIBridge.getLastNullModemPairNodes();
         }
-        return null;
+        return result;
     }
 
     /**
-     * <p>Returns list of virtual loop back devices created by tty2comKm driver and currently present in system.</p>
-     * 
-     * @return list of virtual loop back devices created by tty2comKm driver and currently present in system or 
-     *          null if no loop back device is created.
-     */
-    public String[] listLoopBackDevices() {
-        int x = 0;
-        String[] list = null;
-        synchronized(lock) {
-            int msize = loopBackDevList.size();
-            if(msize == 0) {
-                return null;
-            }
-            list = new String[msize];
-            for (Map.Entry<Integer, String> entry : loopBackDevList.entrySet()) {
-                list[x] = entry.getValue();
-                x++;
-            }
-        }
-        return list;
-    }
-
-    /**
-     * <p>Returns list of virtual null modem device pairs created by tty2comKm driver and currently present 
-     * in system.</p>
-     * 
-     * @return list of virtual null modem devices created by tty2comKm driver and currently present in system 
-     *          or null if no null modem pair is created.
-     */
-    public String[] listNullModemDevicePairs() {
-        int x = 0;
-        String[] list = null;
-        synchronized(lock) {
-            int msize = nullModemDevList.size();
-            if(msize == 0) {
-                return null;
-            }
-            list = new String[msize];
-            for (Map.Entry<Integer, String> entry : nullModemDevList.entrySet()) {
-                list[x] = entry.getValue();
-                x++;
-            }
-        }
-        return list;
-    }
-
-    /**
-     * <p>Emulate the given line error (frame, parity or overrun) on given device.</p>
+     * <p>Emulates the given line error/event (frame, parity, overrun or break) on given virtual device.</p>
      * 
      * @param devNode virtual serial port which will receive this error event.
-     * @param error one of the constants SerialComNullModem.ERR_XXX.
-     * @return true if the given error has been emulated on given virtual serial port otherwise
-     *          false.
-     * @throws IOException if the operating system specific file is not found, writing to it fails 
-     *          or operation can not be completed due to some reason.
+     * @param error one of the constants SerialComNullModem.ERR_XXX or SerialComNullModem.RCV_BREAK.
+     * @return true if the given error has been emulated on given virtual serial port otherwise false.
+     * @throws SerialComException if the operating system specific file is not found, writing to it fails 
+     *         or operation can not be completed due to some reason for example if driver is not loaded, 
+     *         port has not been opened.
      */
-    public boolean emulateLineError(final String devNode, int error) throws IOException {
+    public boolean emulateSerialEvent(final String devNode, int error) throws SerialComException {
+
         if((devNode == null) || (devNode.length() == 0)) {
-            throw new IllegalArgumentException("The devNode can not be null or 0 length !");
-        }
-        if(osType == SerialComPlatform.OS_LINUX) {
-            // /sys/devices/virtual/tty/tty2com0/scmvtty_errevt/evt
-            StringBuilder sb = new StringBuilder();
-            sb.append("/sys/devices/virtual/tty/");
-            sb.append(devNode.substring(5));
-            sb.append("/scmvtty_errevt/evt");
-            try (FileOutputStream fout = new FileOutputStream(sb.toString())) {
-                if((error & ERR_FRAME) == ERR_FRAME) {
-                    fout.write("1".getBytes());
-                }else if((error & ERR_PARITY) == ERR_PARITY) {
-                    fout.write("2".getBytes());
-                }else if((error & ERR_OVERRUN) == ERR_OVERRUN) {
-                    fout.write("3".getBytes());
-                }else if((error & RCV_BREAK) == RCV_BREAK) {
-                    fout.write("6".getBytes());
-                }else {
-                    return false;
-                }
-            } catch (IOException e) {
-                throw e;
-            }
+            throw new IllegalArgumentException("The devNode can not be null or empty string !");
         }
 
+        int ret = mComPortJNIBridge.emulateSerialEvent(devNode, error);
+        if(ret < 0) {
+            throw new SerialComException("Can not emulate specified event on given device !");
+        }
         return true;
     }
 
@@ -775,57 +523,19 @@ public final class SerialComNullModem {
      * @param devNode device node which will observe ringing conditions.
      * @param state true if ringing event should be asserted or false for de-assertion.
      * @return true on success.
-     * @throws IOException if the operating system specific file is not found, writing to it fails 
-     *          or operation can not be completed due to some reason.
+     * @throws SerialComException if the operating system specific file is not found, writing to it fails 
+     *         or operation can not be completed due to some reason for example if driver is not loaded, 
+     *         port has not been opened.
      */
-    public boolean emulateLineRingingEvent(final String devNode, boolean state) throws IOException {
+    public boolean emulateLineRingingEvent(final String devNode, boolean state) throws SerialComException {
+
         if((devNode == null) || (devNode.length() == 0)) {
-            throw new IllegalArgumentException("The devNode can not be null or 0 length !");
-        }
-        if(osType == SerialComPlatform.OS_LINUX) {
-            // /sys/devices/virtual/tty/tty2com0/scmvtty_errevt/evt
-            StringBuilder sb = new StringBuilder();
-            sb.append("/sys/devices/virtual/tty/");
-            sb.append(devNode.substring(5));
-            sb.append("/scmvtty_errevt/evt");
-            try (FileOutputStream fout = new FileOutputStream(sb.toString())) {
-                if(state == true) {
-                    fout.write("4".getBytes());
-                }else {
-                    fout.write("5".getBytes());
-                }
-            } catch (IOException e) {
-                throw e;
-            }
+            throw new IllegalArgumentException("The devNode can not be null or empty string !");
         }
 
-        return true;
-    }
-
-    /**
-     * <p>Releases operating system specific resources acquired to carry out virtual device related
-     * operations. Applications must call this method when this class is no longer required.</p>
-     * 
-     * @return true on success.
-     * @throws IOException if the resources can not be released.
-     */
-    public boolean releaseResources() throws IOException {
-        if(osType == SerialComPlatform.OS_LINUX) {
-            try {
-                linuxVadaptOut.close();
-            } catch (IOException e) {
-                try {
-                    linuxVadaptIn.close();
-                } catch (IOException e1) {
-                    throw e1;
-                }
-                throw e;
-            }
-            try {
-                linuxVadaptIn.close();
-            } catch (IOException e) {
-                throw e;
-            }
+        int ret = mComPortJNIBridge.emulateLineRingingEvent(devNode, state);
+        if(ret < 0) {
+            throw new SerialComException("Can not emulate ringing event on given device !");
         }
         return true;
     }
