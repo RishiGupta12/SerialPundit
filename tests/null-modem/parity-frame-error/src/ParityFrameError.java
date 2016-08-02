@@ -26,17 +26,19 @@ public final class ParityFrameError {
 
 		SerialComManager scm = new SerialComManager();
 		final SerialComNullModem scnm = scm.getSerialComNullModemInstance();
+		scnm.initialize();
 
 		try {
 			scnm.createStandardNullModemPair(-1, -1);
+			Thread.sleep(100);
 
-			String[] ports = scnm.getLastNullModemDevicePairNodes();
+			String[] ports = scnm.getLastNullModemPairNodes();
 
 			long handle0 = scm.openComPort(ports[0], true, true, true);
 			scm.configureComPortData(handle0, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B115200, 0);
 			scm.configureComPortControl(handle0, FLOWCONTROL.NONE, 'x', 'x', true, true);
 
-			long handle1 = scm.openComPort(ports[1], true, true, true);
+			long handle1 = scm.openComPort(ports[3], true, true, true);
 			scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B115200, 0);
 			scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', true, true);
 
@@ -46,11 +48,12 @@ public final class ParityFrameError {
 
 			// PARITY 
 			System.out.println("PARITY  before : " + lineErr.hasParityErrorOccurred());
-			scnm.emulateLineError(ports[1], SerialComNullModem.ERR_PARITY);
+			scnm.emulateSerialEvent(ports[3], SerialComNullModem.ERR_PARITY);
 
 			int ret = scm.readBytes(handle1, buffer, 0, 50, -1, lineErr);
 			System.out.println("PARITY  after : " + lineErr.hasParityErrorOccurred());
 
+			// -7 expected on linux
 			for(int x=0; x<ret; x++) {
 				System.out.println("PARITY  after data : " + buffer[x]);
 			}
@@ -58,7 +61,7 @@ public final class ParityFrameError {
 			// OVERRUN
 			lineErr.resetLineErrors();
 			System.out.println("\nOVERRUN before : " + lineErr.hasOverrunErrorOccurred());
-			scnm.emulateLineError(ports[1], SerialComNullModem.ERR_OVERRUN);
+			scnm.emulateSerialEvent(ports[3], SerialComNullModem.ERR_OVERRUN);
 
 			int ret1 = scm.readBytes(handle1, buffer, 0, 50, -1, lineErr);
 			System.out.println("OVERRUN after : " + lineErr.hasOverrunErrorOccurred());
@@ -70,7 +73,7 @@ public final class ParityFrameError {
 			// FRAME
 			lineErr.resetLineErrors();
 			System.out.println("\nFRAME before : " + lineErr.hasFramingErrorOccurred());
-			scnm.emulateLineError(ports[1], SerialComNullModem.ERR_FRAME);
+			scnm.emulateSerialEvent(ports[3], SerialComNullModem.ERR_FRAME);
 
 			int ret2 = scm.readBytes(handle1, buffer, 0, 50, -1, lineErr);
 			System.out.println("FRAME after : " + lineErr.hasFramingErrorOccurred());
@@ -82,7 +85,7 @@ public final class ParityFrameError {
 			// BREAK
 			lineErr.resetLineErrors();
 			System.out.println("\nBREAK before : " + lineErr.isBreakReceived());
-			scnm.emulateLineError(ports[1], SerialComNullModem.RCV_BREAK);
+			scnm.emulateSerialEvent(ports[3], SerialComNullModem.RCV_BREAK);
 
 			int ret3 = scm.readBytes(handle1, buffer, 0, 50, -1, lineErr);
 			System.out.println("BREAK after : " + lineErr.isBreakReceived());
@@ -107,7 +110,7 @@ public final class ParityFrameError {
 			scm.closeComPort(handle1);
 
 			//scnm.destroyAllVirtualDevices();
-			scnm.releaseResources(); 
+			scnm.deinitialize();
 
 			System.out.println("Done !");
 		}catch (Exception e) {
