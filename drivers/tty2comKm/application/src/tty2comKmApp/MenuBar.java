@@ -15,31 +15,26 @@ package tty2comKmApp;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
-import java.io.IOException;
 
-import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 
-import com.serialpundit.serial.SerialComManager;
-import com.serialpundit.serial.nullmodem.SerialComNullModem;
-
 public final class MenuBar {
 
-    private final SerialComManager scm;
-    private final int osType;
-    private final SerialComNullModem scnm;
+    private final JFrame mainFrame;
+    private final TaskExecutor taskExecutor;
+    private final JTextField statusInfo;
 
-    public MenuBar(SerialComManager scm, int osType, SerialComNullModem scnm) {
-        this.scm = scm;
-        this.osType = osType;
-        this.scnm = scnm;
+    public MenuBar(JFrame mainFrame, TaskExecutor taskExecutor, JTextField statusInfo) {
+        this.mainFrame = mainFrame;
+        this.taskExecutor = taskExecutor;
+        this.statusInfo = statusInfo;
     }
 
     public JMenuBar init() {
@@ -56,17 +51,38 @@ public final class MenuBar {
         fileExit.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W,ActionEvent.CTRL_MASK));
         fileExit.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                //TODO
+                taskExecutor.deinit();
+                System.exit(0);
             }
         });
-
         file.add(fileExit);
-        menubar.add(file);
+
+        JMenuItem ulExit = new JMenuItem("Unload & exit");
+        ulExit.setToolTipText("Unload driver & exit application");
+        ulExit.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                taskExecutor.loadTTY2COMDriver();
+                taskExecutor.deinit();
+                System.exit(0);
+            }
+        });
+        file.add(ulExit);
 
         /* Driver menu */
         JMenu drvm = new JMenu("Driver");
 
-        menubar.add(drvm);
+        JMenuItem drvStatus = new JMenuItem("Driver status");
+        drvStatus.setToolTipText("Info about driver loading");
+        drvStatus.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                if(taskExecutor.istty2comDriverLoaded() == true) {
+                    JOptionPane.showMessageDialog(mainFrame, "Driver has been already loaded !", "", JOptionPane.PLAIN_MESSAGE);
+                }else {
+                    taskExecutor.loadTTY2COMDriver();
+                }
+            }
+        });
+        drvm.add(drvStatus);
 
         /* Devices menu */
         JMenu devm = new JMenu("Devices");
@@ -75,35 +91,20 @@ public final class MenuBar {
         delAllDevs.setToolTipText("Deletes all virtual devices created by tty2comKm driver");
         delAllDevs.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                try {
-                    scnm.destroyAllVirtualDevices();
-                } catch (IOException e1) {
-                    // TODO Auto-generated catch block
-                    e1.printStackTrace();
-                } //TODO call from non-ui thread
+                taskExecutor.destroyAlltty2comDevices();
             }
         });
         devm.add(delAllDevs);
 
-        menubar.add(devm);
-
         /* Help menu */
         JMenu hlpm = new JMenu("Help");
+        //TODO
 
+        menubar.add(file);
+        menubar.add(drvm);
+        menubar.add(devm);
         menubar.add(hlpm);
 
         return menubar;
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-

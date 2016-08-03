@@ -46,8 +46,9 @@ It is a null modem / loop back kernel mode driver providing full duplex communic
 
 ##Application
 
-A GUI application is provided to manage virtual ports graphically.
+!["serial communication in java"](/drivers/tty2comKm/application/tty2com1.png?raw=true "serial port null modem emulation")
 
+A GUI application is provided to manage virtual ports graphically. Virtual ports can also be managed from shell terminal.
 
 ##Build and Run
 See instructions in operating system specific directory for build scripts, udev rules, steps to install etc.

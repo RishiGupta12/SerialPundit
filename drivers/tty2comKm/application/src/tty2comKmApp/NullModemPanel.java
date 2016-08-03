@@ -23,328 +23,20 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.geom.Ellipse2D;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Random;
 
 import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JComboBox;
-import javax.swing.JButton;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 
-import com.serialpundit.core.SerialComException;
-import com.serialpundit.core.SerialComPlatform;
-import com.serialpundit.serial.SerialComManager;
 import com.serialpundit.serial.nullmodem.SerialComNullModem;
 
-public final class NullModemPanel extends JPanel {
+final class PinMappings extends JPanel {
 
-    private final SerialComManager scm;
-    private final int osType;
-    private final SerialComNullModem scnm;
-    private final JTextField statusInfo;
-
-    // Create
-    private JPanel cPanel;
-    private JComboBox<String> createDevSelection1;
-    private JComboBox<String> createDevSelection2;
-    private String suggestedDevNode1;
-    private String suggestedDevNode2;
-    private String[] nextAvailableDevName1 = { suggestedDevNode1 }; //TODO make OS specific
-    private String[] nextAvailableDevName2 = { suggestedDevNode2 };
-    private JButton createDevButton;
-    String[] nextDev;
-
-    // Destroy
-    private JPanel lPanel;
-    private PinMappings pm;
-    private JComboBox<String> destroyDevSelection;
-    private String[] existingDevices = {" Select device pair to be deleted  "};
-    private String devPairToBeDeleted;
-    private JButton deleteDevButton;
-    private JComboBox<String> listDevSelection;
-    private String[] existingDevicesList = { " tty2comXX  <--->  tty2comYY  " };
-    private JButton refreshDevListButton;
-
-    // Event
-    private JPanel evtPanel;
-    private JButton emulateEventButton;
-    private JComboBox<String> exstDevSelection;
-    private String[] exstDevices = { "" };
-    private String devSelectForErrorEvt;
-    private ArrayList<String> extDlist = new ArrayList<String>();
-    private int errEvtMask = 0;
-    private boolean setRingingState = false;
-    private final String[] defaultList = { " ---------------------- " };
-
-    public NullModemPanel(SerialComManager scm, int osType, SerialComNullModem scnm, JTextField statusInfo) {
-        this.scm = scm;
-        this.osType = osType;
-        this.scnm = scnm;
-        this.statusInfo = statusInfo;
-    }
-
-    public void init() {
-
-        if(osType == SerialComPlatform.OS_LINUX) {
-            //TODO
-        }
-
-        this.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 20));
-        //        this.setLayout (new BoxLayout (this, BoxLayout.Y_AXIS));
-
-        /* Device pair to be created --------------------------------------------------------------- */
-
-        cPanel = new JPanel();
-        cPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 10));
-        cPanel.setBorder(BorderFactory.createTitledBorder("Create"));
-
-        try {
-            nextDev = scnm.getNextAvailableComPorts();
-        } catch (IOException e) {
-            statusInfo.setText(e.getMessage());
-        }
-        nextAvailableDevName1[0] = nextDev[0];
-        nextAvailableDevName2[0] = nextDev[1];
-
-        createDevSelection1 = new JComboBox<String>(nextAvailableDevName1);
-        createDevSelection1.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                @SuppressWarnings("unchecked")
-                JComboBox<String> combo = (JComboBox<String>) e.getSource();
-                devPairToBeDeleted = (String) combo.getSelectedItem();
-            }
-        });
-        createDevSelection1.setEditable(true);
-        cPanel.add(createDevSelection1);
-
-        cPanel.add(new JLabel(" <----> ", null, JLabel.LEFT));
-
-        createDevSelection2 = new JComboBox<String>(nextAvailableDevName2);
-        createDevSelection2.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                @SuppressWarnings("unchecked")
-                JComboBox<String> combo = (JComboBox<String>) e.getSource();
-                devPairToBeDeleted = (String) combo.getSelectedItem();
-            }
-        });
-        createDevSelection2.setEditable(true);
-        cPanel.add(createDevSelection2);
-
-        createDevButton = new JButton("Create devices");
-        createDevButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                if ("Create devices".equals((String) e.getActionCommand())) {
-                }
-                else {
-                }
-            }
-        });
-        createDevButton.setEnabled(true);
-        cPanel.add(createDevButton);
-
-        // make horizontal size of all group same (internal border of all will be aligned)
-        Dimension d = cPanel.getPreferredSize();
-
-        /* Listing/Destroy existing devices --------------------------------------------------------------- */
-
-        lPanel = new JPanel();
-        lPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
-        lPanel.setBorder(BorderFactory.createTitledBorder("List"));
-
-        pm = new PinMappings();
-        pm.setPreferredSize(new Dimension((int)d.getWidth() - 10, 150));
-        lPanel.add(pm);
-
-        JPanel lstPanel = new JPanel();
-        lstPanel.setLayout(new FlowLayout(FlowLayout.RIGHT, 10, 10));
-        lstPanel.setPreferredSize(new Dimension((int)d.getWidth() - 10, (int)d.getHeight() - 30));
-
-        listDevSelection = new JComboBox<String>(existingDevicesList);
-        listDevSelection.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                @SuppressWarnings("unchecked")
-                JComboBox<String> combo = (JComboBox<String>) e.getSource();
-                devPairToBeDeleted = (String) combo.getSelectedItem();//TODO SHOW PIN MAPPING
-            }
-        });
-        lstPanel.add(listDevSelection);
-
-        refreshDevListButton = new JButton("Refresh");
-        refreshDevListButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                //TODO
-            }
-        });
-        lstPanel.add(refreshDevListButton);
-
-        deleteDevButton = new JButton("Delete devices");
-        deleteDevButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                if ("Delete devices".equals((String) e.getActionCommand())) {
-                }
-                else {
-                }
-            }
-        });
-        deleteDevButton.setEnabled(true);
-        lstPanel.add(deleteDevButton);
-
-        lPanel.add(pm);
-        lPanel.add(lstPanel);
-        lPanel.setPreferredSize(new Dimension((int)d.getWidth(), 210));
-
-        /* Event emulation --------------------------------------------------------------- */
-
-        evtPanel = new JPanel();
-        evtPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 10));
-        evtPanel.setBorder(BorderFactory.createTitledBorder("Events"));
-
-        JRadioButton frameButton = new JRadioButton("Frame ");
-        frameButton.addItemListener(new ItemListener() {
-            @Override
-            public void itemStateChanged(ItemEvent ie) {
-                if(ie.getStateChange() == ItemEvent.SELECTED) {
-                    try {
-                        if((devSelectForErrorEvt == null) || (devSelectForErrorEvt.length() == 0) || (devSelectForErrorEvt.equals(defaultList[0]))) {
-                            statusInfo.setText("Please select correct port first !");
-                            return;
-                        }
-                        scnm.emulateLineError(devSelectForErrorEvt, SerialComNullModem.ERR_FRAME);
-                    } catch (Exception e) {
-                        statusInfo.setText(e.getMessage());
-                    }
-                }
-            }
-        });
-
-        JRadioButton parityButton = new JRadioButton("Parity ");
-        parityButton.addItemListener(new ItemListener() {
-            @Override
-            public void itemStateChanged(ItemEvent ie) {
-                if(ie.getStateChange() == ItemEvent.SELECTED) {
-                    try {
-                        if((devSelectForErrorEvt == null) || (devSelectForErrorEvt.length() == 0) || (devSelectForErrorEvt.equals(defaultList[0]))) {
-                            statusInfo.setText("Please select correct port first !");
-                            return;
-                        }
-                        scnm.emulateLineError(devSelectForErrorEvt, SerialComNullModem.ERR_PARITY);
-                    } catch (Exception e) {
-                        statusInfo.setText(e.getMessage());
-                    }
-                }
-            }
-        });
-
-        JRadioButton overrunButton = new JRadioButton("Overrun ");
-        overrunButton.addItemListener(new ItemListener() {
-            @Override
-            public void itemStateChanged(ItemEvent ie) {
-                if(ie.getStateChange() == ItemEvent.SELECTED) {
-                    try {
-                        if((devSelectForErrorEvt == null) || (devSelectForErrorEvt.length() == 0) || (devSelectForErrorEvt.equals(defaultList[0]))) {
-                            statusInfo.setText("Please select correct port first !");
-                            return;
-                        }
-                        scnm.emulateLineError(devSelectForErrorEvt, SerialComNullModem.ERR_OVERRUN);
-                    } catch (Exception e) {
-                        statusInfo.setText(e.getMessage());
-                    }
-                }
-            }
-        });
-
-        JRadioButton ringButton = new JRadioButton("Ring ");
-        ringButton.addItemListener(new ItemListener() {
-            @Override
-            public void itemStateChanged(ItemEvent ie) {
-                try {
-                    if((devSelectForErrorEvt == null) || (devSelectForErrorEvt.length() == 0) || (devSelectForErrorEvt.equals(defaultList[0]))) {
-                        statusInfo.setText("Please select correct port first !");
-                        return;
-                    }
-                    if(ie.getStateChange() == ItemEvent.SELECTED) {
-                        scnm.emulateLineRingingEvent(devSelectForErrorEvt, true); //TODO CALL FROM NON-UI THREAD
-                    }else {
-                        scnm.emulateLineRingingEvent(devSelectForErrorEvt, false);
-                    }
-                } catch (Exception e) {
-                    statusInfo.setText(e.getMessage());
-                }
-            }
-        });
-
-        JRadioButton breakButton = new JRadioButton("Break                    ");
-        breakButton.addItemListener(new ItemListener() {
-            @Override
-            public void itemStateChanged(ItemEvent ie) {
-                if((devSelectForErrorEvt == null) || (devSelectForErrorEvt.length() == 0) || (devSelectForErrorEvt.equals(defaultList[0]))) {
-                    statusInfo.setText("Please select correct port first !");
-                    return;
-                }
-                if(ie.getStateChange() == ItemEvent.SELECTED) {
-                    try {
-                        scnm.emulateLineError(devSelectForErrorEvt, SerialComNullModem.RCV_BREAK);
-                    } catch (Exception e) {
-                        statusInfo.setText(e.getMessage());
-                    }
-                }
-            }
-        });
-
-        // at any instant any one event should be specified by user
-        evtPanel.add(frameButton);
-        evtPanel.add(parityButton);
-        evtPanel.add(overrunButton);
-        evtPanel.add(ringButton);
-        evtPanel.add(breakButton);
-
-        String[] extdevl = null;
-        try {
-            extdevl = scm.listAvailableComPorts();
-        } catch (Exception e) {
-            statusInfo.setText(e.getMessage());
-        }
-
-        if(osType == SerialComPlatform.OS_LINUX) {
-            for(int x=0; x < extdevl.length; x++) {
-                if(extdevl[x].contains("tty2com")) {
-                    extDlist.add(" " + extdevl[x] + " ");
-                }
-            }
-        }
-        if(extDlist.size() == 0) {
-            existingDevicesList = defaultList;
-        }else {
-            existingDevicesList = extDlist.toArray(new String[extDlist.size()]);
-        }
-
-        exstDevSelection = new JComboBox<String>(existingDevicesList);
-        exstDevSelection.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                @SuppressWarnings("unchecked")
-                JComboBox<String> combo = (JComboBox<String>) e.getSource();
-                devSelectForErrorEvt = (String) combo.getSelectedItem();
-                devSelectForErrorEvt = devSelectForErrorEvt.trim();
-            }
-        });
-        evtPanel.add(exstDevSelection);
-
-        Dimension de = evtPanel.getPreferredSize();
-        evtPanel.setPreferredSize(new Dimension((int)d.getWidth(), (int)de.getHeight() + 30));
-
-        this.add(cPanel);
-        this.add(lPanel);
-        this.add(evtPanel);
-    }
-}
-
-class PinMappings extends JPanel {
-
-    private static final long serialVersionUID = 2570934611544922289L;
+    private static final long serialVersionUID = -2649197754209337360L;
 
     public void paintComponent(Graphics g) {
 
@@ -421,5 +113,265 @@ class PinMappings extends JPanel {
         g2d.fill(dcd2);
         Ellipse2D.Double dsr2 = new Ellipse2D.Double(140, 139, 5, 5);
         g2d.fill(dsr2);
+    }
+}
+
+public final class NullModemPanel extends JPanel {
+
+    private static final long serialVersionUID = 7503221282817835163L;
+
+    private final TaskExecutor taskExecutor;
+    private final JTextField statusInfo;
+
+    // create
+    String[] nextDev = null;
+    private String[] nextAvailableDevName1;
+    private String[] nextAvailableDevName2;
+    private String firstDevToBeCreated;
+    private String secondDevToBeCreated;
+
+    //destroy
+    private String devPairToBeDeleted;
+    private String[] existingDevicesPairs;
+
+    // Event
+    private String devSelectForErrorEvt;
+    private String[] existingNullModemDevicesList;
+
+    public NullModemPanel(TaskExecutor taskExecutor, JTextField statusInfo) {
+        this.taskExecutor = taskExecutor;
+        this.statusInfo = statusInfo;
+    }
+
+    public void init() {
+
+        this.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 20));
+
+        /* Device pair to be created --------------------------------------------------------------- */
+
+        final JPanel cPanel = new JPanel();
+        cPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 10));
+        cPanel.setBorder(BorderFactory.createTitledBorder("Create"));
+
+        nextDev = taskExecutor.getNextAvailableTTY2COMports();
+        if(nextDev[0].length() == 0) {
+            nextAvailableDevName1[0] = TTY2COMApp.NPAVAL;
+            firstDevToBeCreated = TTY2COMApp.DASH;
+        }else {
+            nextAvailableDevName1[0] = nextDev[0];
+            firstDevToBeCreated = nextAvailableDevName1[0];
+        }
+        if(nextDev[0].length() == 0) {
+            nextAvailableDevName2[0] = TTY2COMApp.NPAVAL;
+            secondDevToBeCreated = TTY2COMApp.DASH;
+        }else {
+            nextAvailableDevName2[0] = nextDev[1];
+            secondDevToBeCreated = nextAvailableDevName2[0];
+        }
+
+        final JComboBox<String> createDevSelection1 = new JComboBox<String>(nextAvailableDevName1);
+        createDevSelection1.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                @SuppressWarnings("unchecked")
+                JComboBox<String> combo = (JComboBox<String>) e.getSource();
+                firstDevToBeCreated = (String) combo.getSelectedItem();
+            }
+        });
+        createDevSelection1.setEditable(true);
+        cPanel.add(createDevSelection1);
+
+        cPanel.add(new JLabel(" <----> ", null, JLabel.LEFT));
+
+        final JComboBox<String> createDevSelection2 = new JComboBox<String>(nextAvailableDevName2);
+        createDevSelection2.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                @SuppressWarnings("unchecked")
+                JComboBox<String> combo = (JComboBox<String>) e.getSource();
+                secondDevToBeCreated = (String) combo.getSelectedItem();
+            }
+        });
+        createDevSelection2.setEditable(true);
+        cPanel.add(createDevSelection2);
+
+        final JButton createDevButton = new JButton("Create devices");
+        createDevButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                createDevButton.setEnabled(false);
+                taskExecutor.createStandardNullModemPair(firstDevToBeCreated, secondDevToBeCreated);
+                createDevButton.setEnabled(true);
+            }
+        });
+        cPanel.add(createDevButton);
+
+        // make horizontal size of all group same (internal border of all will be aligned)
+        Dimension d = cPanel.getPreferredSize();
+
+        /* Listing/Destroy existing devices --------------------------------------------------------------- */
+
+        final JPanel lPanel = new JPanel();
+        lPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        lPanel.setBorder(BorderFactory.createTitledBorder("List"));
+
+        final PinMappings pm = new PinMappings();
+        pm.setPreferredSize(new Dimension((int)d.getWidth() - 10, 150));
+        lPanel.add(pm);
+
+        JPanel lstPanel = new JPanel();
+        lstPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 10));
+        lstPanel.setPreferredSize(new Dimension((int)d.getWidth() - 10, (int)d.getHeight() - 30));
+
+        existingDevicesPairs = taskExecutor.listExistingStandardNullModemPairs();
+        devPairToBeDeleted = existingDevicesPairs[0];
+
+        final JComboBox<String> listDevSelection = new JComboBox<String>(existingDevicesPairs);
+        listDevSelection.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                @SuppressWarnings("unchecked")
+                JComboBox<String> combo = (JComboBox<String>) e.getSource();
+                devPairToBeDeleted = (String) combo.getSelectedItem();
+            }
+        });
+        lstPanel.add(listDevSelection);
+
+        final JButton deleteDevButton = new JButton("Delete devices");
+        deleteDevButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                taskExecutor.deleteStandardNullModemPair(devPairToBeDeleted);
+            }
+        });
+        deleteDevButton.setEnabled(true);
+        lstPanel.add(deleteDevButton);
+
+        lPanel.add(pm);
+        lPanel.add(lstPanel);
+        lPanel.setPreferredSize(new Dimension((int)d.getWidth(), 210));
+
+        /* Event emulation --------------------------------------------------------------- */
+
+        final JPanel evtPanel = new JPanel();
+        evtPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 10));
+        evtPanel.setBorder(BorderFactory.createTitledBorder("Events"));
+
+        JRadioButton frameButton = new JRadioButton("Frame ");
+        frameButton.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent ie) {
+                if(ie.getStateChange() == ItemEvent.SELECTED) {
+                    try {
+                        if(devSelectForErrorEvt.equalsIgnoreCase(TTY2COMApp.DASH)) {
+                            statusInfo.setText("Please select correct port first !");
+                            return;
+                        }
+                        taskExecutor.emulateLineError(devSelectForErrorEvt, SerialComNullModem.ERR_FRAME);
+                    } catch (Exception e) {
+                        statusInfo.setText(e.getMessage());
+                    }
+                }
+            }
+        });
+
+        JRadioButton parityButton = new JRadioButton("Parity ");
+        parityButton.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent ie) {
+                if(ie.getStateChange() == ItemEvent.SELECTED) {
+                    try {
+                        if(devSelectForErrorEvt.equalsIgnoreCase(TTY2COMApp.DASH)) {
+                            statusInfo.setText("Please select correct port first !");
+                            return;
+                        }
+                        taskExecutor.emulateLineError(devSelectForErrorEvt, SerialComNullModem.ERR_PARITY);
+                    } catch (Exception e) {
+                        statusInfo.setText(e.getMessage());
+                    }
+                }
+            }
+        });
+
+        JRadioButton overrunButton = new JRadioButton("Overrun ");
+        overrunButton.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent ie) {
+                if(ie.getStateChange() == ItemEvent.SELECTED) {
+                    try {
+                        if(devSelectForErrorEvt.equalsIgnoreCase(TTY2COMApp.DASH)) {
+                            statusInfo.setText("Please select correct port first !");
+                            return;
+                        }
+                        taskExecutor.emulateLineError(devSelectForErrorEvt, SerialComNullModem.ERR_OVERRUN);
+                    } catch (Exception e) {
+                        statusInfo.setText(e.getMessage());
+                    }
+                }
+            }
+        });
+
+        JRadioButton ringButton = new JRadioButton("Ring ");
+        ringButton.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent ie) {
+                try {
+                    if(devSelectForErrorEvt.equalsIgnoreCase(TTY2COMApp.DASH)) {
+                        statusInfo.setText("Please select correct port first !");
+                        return;
+                    }
+                    if(ie.getStateChange() == ItemEvent.SELECTED) {
+                        taskExecutor.emulateLineRingingEvent(devSelectForErrorEvt, true);
+                    }else {
+                        taskExecutor.emulateLineRingingEvent(devSelectForErrorEvt, false);
+                    }
+                } catch (Exception e) {
+                    statusInfo.setText(e.getMessage());
+                }
+            }
+        });
+
+        JRadioButton breakButton = new JRadioButton("Break                    ");
+        breakButton.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent ie) {
+                if(ie.getStateChange() == ItemEvent.SELECTED) {
+                    try {
+                        if(devSelectForErrorEvt.equalsIgnoreCase(TTY2COMApp.DASH)) {
+                            statusInfo.setText("Please select correct port first !");
+                            return;
+                        }
+                        taskExecutor.emulateLineError(devSelectForErrorEvt, SerialComNullModem.RCV_BREAK);
+                    } catch (Exception e) {
+                        statusInfo.setText(e.getMessage());
+                    }
+                }
+            }
+        });
+
+        // at any instant any one event should be specified by user
+        evtPanel.add(frameButton);
+        evtPanel.add(parityButton);
+        evtPanel.add(overrunButton);
+        evtPanel.add(ringButton);
+        evtPanel.add(breakButton);
+
+        existingNullModemDevicesList = taskExecutor.listExistingStandardNullModemPairsList();
+        if(existingNullModemDevicesList[0].equalsIgnoreCase(TTY2COMApp.NONMDEV)) {
+            devSelectForErrorEvt = TTY2COMApp.DASH;
+        }
+
+        final JComboBox<String> exstDevSelection = new JComboBox<String>(existingNullModemDevicesList);
+        exstDevSelection.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                @SuppressWarnings("unchecked")
+                JComboBox<String> combo = (JComboBox<String>) e.getSource();
+                devSelectForErrorEvt = (String) combo.getSelectedItem();
+                devSelectForErrorEvt = devSelectForErrorEvt.trim();
+            }
+        });
+        evtPanel.add(exstDevSelection);
+
+        Dimension de = evtPanel.getPreferredSize();
+        evtPanel.setPreferredSize(new Dimension((int)d.getWidth(), (int)de.getHeight() + 30));
+
+        this.add(cPanel);
+        this.add(lPanel);
+        this.add(evtPanel);
     }
 }

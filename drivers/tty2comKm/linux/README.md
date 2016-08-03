@@ -71,7 +71,7 @@ $ head -c 32 /proc/scmtty_vadaptkm
 The udev rules are provided and gets installed automatically when shell script install.sh is executed. 
 The file 99-tty2comKm.rules contains udev rules required by this driver.
 ```
-ACTION=="add", SUBSYSTEM=="tty", KERNEL=="tty2com[0-9]*", MODE="0666"
+ACTION=="add", SUBSYSTEM=="tty", KERNEL=="tty2com[0-9]*", MODE="0666", RUN+="/bin/chmod 0666 %S/%p/evt"
 ```
 
 ####Debugging
