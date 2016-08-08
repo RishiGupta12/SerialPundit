@@ -25,7 +25,7 @@ $ sudo make install
 
 - Run executable reset_usb_device as root user as shown below :  
   ```sh
-  reset_usb_device /dev/bus/usb/003/025
+  spusbrst /dev/bus/usb/003/025
   ```
   This will reset CP2102 prgrammatically as can be verified from dmesg log :  
 
