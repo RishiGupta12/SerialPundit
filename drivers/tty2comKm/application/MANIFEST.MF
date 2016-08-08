@@ -1,0 +1,1 @@
+SplashScreen-Image: splash.gif

@@ -1,7 +1,5 @@
-#!/bin/bash
-#
 # This file is part of SerialPundit project and software.
-# 
+#
 # Copyright (C) 2014-2016, Rishi Gupta. All rights reserved.
 #
 # The SerialPundit software is DUAL licensed. It is made available under the terms of the GNU Affero 
@@ -10,15 +8,8 @@
 #
 # The SerialPundit software is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
 # without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-#################################################################################################
 
-# Build executable to programmatically reset usb device from user space.
+ACLOCAL_AMFLAGS = -I m4
 
-set -e
-
-cd "$(dirname "$0")"
-
-gcc -o reset_usb_device reset_usb_device.c
-
-chmod 0777 reset_usb_device
+SUBDIRS = src
 
