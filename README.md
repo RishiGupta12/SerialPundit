@@ -70,15 +70,9 @@ It eliminates the complexities of serial port programming for different operatin
 
 ##Drivers and Services
 
-#####Null modem emulator
-- [Feature](drivers) rich null modem emulation driver supporting null modem, loopback, custom pinout and dynamic virtual serial port creation. Corresponding Java API provided to control virtual serial devices from Java application.
+- **Null modem emulator** : [tty2comKm](drivers/tty2comKm) is a feature rich null modem emulation driver supporting null modem, loopback, custom pinout and dynamic virtual serial port creation. Corresponding Java API provided to control virtual serial devices from Java application.
 
-#####Usb-uart
-- [Driver](drivers) for cp210x IC and products based on it with access to GPIO, IOCTL support, configuration scripts etc.
-
-#####ComDBFree
-
-- [ComDBFree](services) is a service for OEM/ODM to fully automate factory testing by managing COM ports assignment in windows dynamically from test application/setup itself.
+- **CP210x** : [driver](drivers/cp210x-silicon-labs) for usb-serial cp210x IC and products based on it with access to GPIO pins, IOCTL operations support, configuration and installations scripts, udev rules etc.
 
 ##Getting started
 
