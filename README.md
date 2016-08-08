@@ -70,9 +70,9 @@ It eliminates the complexities of serial port programming for different operatin
 
 ##Drivers and Services
 
-- **Null modem emulator** : [tty2comKm](drivers/tty2comKm) is a feature rich null modem emulation driver supporting null modem, loopback, custom pinout and dynamic virtual serial port creation. Corresponding Java API provided to control virtual serial devices from Java application.
+- [Null modem emulator](drivers/tty2comKm); tty2comKm is a feature rich null modem emulation driver supporting null modem, loopback, custom pinout and dynamic virtual serial port creation. Corresponding Java API provided to control virtual serial devices from Java application.
 
-- **CP210x** : [driver](drivers/cp210x-silicon-labs) for usb-serial cp210x IC and products based on it with access to GPIO pins, IOCTL operations support, configuration and installations scripts, udev rules etc.
+- [CP210x driver](drivers/cp210x-silicon-labs); kernel mode driver for usb-serial cp210x IC and products based on it with access to GPIO pins, IOCTL operations support, configuration and installations scripts, udev rules etc.
 
 ##Getting started
 
@@ -106,11 +106,10 @@ public class Example {
 }
 ```
 
-##API usage
-[Several](applications) full applications demonstrating usage of features and API of this library.
-
-##Support and discussion
-[Google group](https://groups.google.com/d/forum/serialpundit) for feature request, asking questions and raising bugs etc.
+##Resources
+- [Several applications](applications) demonstrating API usage and features of serialpundit.
+- [Support and discussion group](https://groups.google.com/d/forum/serialpundit) for feature request, asking questions and raising bugs etc.
+- [Tools and utilities](tools-and-utilities) various scripts, configuration files, tools and udev rules etc.
 
 ##Help the project grow [<img src="https://github.com/RishiGupta12/SerialPundit/blob/master/images/help.jpg">](https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=gupt21%40gmail%2ecom&lc=IN&item_name=Serial%20Project&button_subtype=services&currency_code=USD&bn=PP%2dBuyNowBF%3abtn_buynowCC_LG%2egif%3aNonHosted)
 
