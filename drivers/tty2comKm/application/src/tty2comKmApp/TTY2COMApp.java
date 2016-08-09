@@ -69,36 +69,39 @@ public final class TTY2COMApp extends JFrame {
             }
         });
     }
-    
+
     static void renderSplashFrame(Graphics2D g, String info) {
         g.setComposite(AlphaComposite.Clear);
-        g.fillRect(120,140,200,40);
+        g.setColor(Color.WHITE);
         g.setPaintMode();
-        g.setColor(Color.BLACK);
-        g.drawString(info, 120, 150);
+        g.drawString(info, 100, 150);
     }
 
     protected void begin() throws Exception {
-        
+
         final SplashScreen splash = SplashScreen.getSplashScreen();
         if (splash == null) {
-            System.out.println("SplashScreen.getSplashScreen() returned null");
+            System.out.println("Unable to get splash screen. Exiting !");
             return;
         }
         Graphics2D g = splash.createGraphics();
         if (g == null) {
-            System.out.println("g is null");
+            System.out.println("Unable to create graphics. Exiting !");
             return;
         }
-        
-        renderSplashFrame(g, "Loading serialpundit jar !");
-        splash.update();
-        
-        Thread.sleep(1000);
-        splash.close();
 
-        taskExecutor = new TaskExecutor();
-        taskExecutor.init();
+        renderSplashFrame(g, "Loading serialpundit jar...");
+        splash.update();
+
+        try{
+            taskExecutor = new TaskExecutor(statusInfo);
+            taskExecutor.init();
+        }catch (Exception e) {
+            renderSplashFrame(g, "Err: " + e.getMessage());
+            splash.update();
+            taskExecutor.deinit();
+            System.exit(0);
+        }
 
         JFrame.setDefaultLookAndFeelDecorated(true);
         try{
@@ -107,7 +110,7 @@ public final class TTY2COMApp extends JFrame {
             MetalLookAndFeel.setCurrentTheme(new DefaultMetalTheme());
             UIManager.put("swing.boldMetal", Boolean.FALSE);
         }catch (Exception e) {
-            System.out.println("UIManager.setLookAndFeel : " + e.getMessage());
+            // ignore
         }
 
         // init main frame and place it little above the center of desktop screen
@@ -121,7 +124,7 @@ public final class TTY2COMApp extends JFrame {
                     taskExecutor.deinit();
                     System.exit(0);
                 } catch (Exception e) {
-                    e.printStackTrace(); //TODO
+                    // ignore
                 }
             }        
         });
@@ -173,6 +176,8 @@ public final class TTY2COMApp extends JFrame {
 
         mainFrame.add(mainPanel, gbcm);
         mainFrame.add(statusPanel, gbcs);
+
+        splash.close();
 
         mainFrame.setVisible(true);
     }

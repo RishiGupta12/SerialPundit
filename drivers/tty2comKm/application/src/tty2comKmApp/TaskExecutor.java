@@ -36,42 +36,66 @@ public final class TaskExecutor {
     private int osType;
     private SerialComNullModem scnm;
     private JTextField statusInfo;
+    private boolean isDriverLoaded;
 
-    public TaskExecutor() {
-        // TODO Auto-generated constructor stub
+    // application wide lock
+    private final Object lock = new Object();
+
+    public TaskExecutor(JTextField statusInfo) {
+        this.statusInfo = statusInfo;
     }
 
-    public void init() {
+    public void init() throws Exception {
+
+        scm = new SerialComManager();
+        scp = new SerialComPlatform(new SerialComSystemProperty());
+        osType = scp.getOSType();
+        scnm = scm.getSerialComNullModemInstance();
+
+        isDriverLoaded = false;
         try {
-            scm = new SerialComManager();
-            scp = new SerialComPlatform(new SerialComSystemProperty());
-            osType = scp.getOSType();
-            scnm = scm.getSerialComNullModemInstance();
             scnm.initialize();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+        } catch (SerialComException e) {
+            if(osType == SerialComPlatform.OS_LINUX) {
+                if(e.getMessage().contains("No such file")) {
+                    isDriverLoaded = false;
+                }else {
+                    throw new IOException("tty2comKm driver not exist !");
+                }
+            }
+        } catch (Exception e) {
+            throw e;
         }
+
+        isDriverLoaded = true;
     }
 
     public void deinit() {
         try {
             scnm.deinitialize();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+        } catch (Exception e) {
+            // ignore as of now until we have specific scenarios to be handled.
         }
-        System.exit(0);
     }
 
     public String[] getNextAvailableTTY2COMports() {
+
         String[] nxtp = null;
-        try {
-            nxtp = scnm.listNextAvailablePorts();
-        } catch (SerialComException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+
+        if(isDriverLoaded == false) {
+            nxtp = new String[2];
+            nxtp[0] = "";
+            nxtp[1] = "";
         }
+        else {
+            try {
+                nxtp = scnm.listNextAvailablePorts();
+            } catch (SerialComException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+
         return nxtp;
     }
 

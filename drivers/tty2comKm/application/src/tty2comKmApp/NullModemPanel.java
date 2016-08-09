@@ -161,7 +161,7 @@ public final class NullModemPanel extends JPanel {
             nextAvailableDevName1[0] = nextDev[0];
             firstDevToBeCreated = nextAvailableDevName1[0];
         }
-        if(nextDev[0].length() == 0) {
+        if(nextDev[1].length() == 0) {
             nextAvailableDevName2[0] = TTY2COMApp.NPAVAL;
             secondDevToBeCreated = TTY2COMApp.DASH;
         }else {

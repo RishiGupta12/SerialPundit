@@ -23,6 +23,7 @@ It is a null modem / loop back kernel mode driver providing full duplex communic
 - Capture the output of guest OS running on virtual machine and re-direct it to a terminal program on host
 - Share virtual COM ports data with disk files and named pipes
 - Analyze and reverse-engineer serial protocols
+- Cases where socat utility does not meet requirements for unix-like OS
 
 ##Features
 - Create standard, loopback or custom pinout connected serial devices
