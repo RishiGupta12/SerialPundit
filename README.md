@@ -110,6 +110,8 @@ public class Example {
 - [Several applications](applications) demonstrating API usage and features of serialpundit.
 - [Support and discussion group](https://groups.google.com/d/forum/serialpundit) for feature request, asking questions and raising bugs etc.
 - [Tools and utilities](tools-and-utilities) various scripts, configuration files, tools and udev rules etc.
+- [Documentaion](javadocs) updated javadocs for API references.
+
 
 ##Help the project grow [<img src="https://github.com/RishiGupta12/SerialPundit/blob/master/images/help.jpg">](https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=gupt21%40gmail%2ecom&lc=IN&item_name=Serial%20Project&button_subtype=services&currency_code=USD&bn=PP%2dBuyNowBF%3abtn_buynowCC_LG%2egif%3aNonHosted)
 
