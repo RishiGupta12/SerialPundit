@@ -1,3 +1,0 @@
-Manifest-Version: 1.0
-Main-Class: tty2comKmApp.TTY2COMApp
-SplashScreen-Image: splash.png

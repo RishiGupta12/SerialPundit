@@ -25,7 +25,8 @@ import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * <p>An expandable blocking/non-blocking FIFO queue backed by a ring buffer. It implements two lock 
- * concurrent queue algorithm.</p>
+ * concurrent queue algorithm. Inserting and removing elements can happen in parallel but two threads 
+ * trying to insert or remove at the same time will be given synchronized access to the queue.</p>
  * 
  * <p>Inserting null elements is not allowed.</p>
  * 

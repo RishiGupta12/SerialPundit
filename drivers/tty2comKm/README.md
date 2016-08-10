@@ -2,6 +2,8 @@
 
 It is a null modem / loop back kernel mode driver providing full duplex communication and handshaking signals. It creates virtual serial ports pair that appears same as the real once to the application software.
 
+Desktop application, Eclipse IDE plugin and command line interface is provided to manage virtual ports.
+
 ##Applications
 - Fully automate Junit testing and continuous integration
 - Serial communication protocols development, simulation and analysis
@@ -45,11 +47,17 @@ It is a null modem / loop back kernel mode driver providing full duplex communic
 - Access restriction to created virtual serial ports
 - API to control virtual ports directly from your application
 
-##Application
+##Desktop application
 
 !["serial communication in java"](/drivers/tty2comKm/application/tty2com1.png?raw=true "serial port null modem emulation")
 
 A GUI application is provided to manage virtual ports graphically. Virtual ports can also be managed from shell terminal.
+
+##Eclipse IDE plugin
+
+
+##Command line interface
+
 
 ##Build and Run
 See instructions in operating system specific directory for build scripts, udev rules, steps to install etc.
