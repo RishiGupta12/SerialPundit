@@ -57,7 +57,7 @@ A GUI application is provided to manage virtual ports graphically. Virtual ports
 
 
 ##Command line interface
-
+See instructions in operating system specific directory for CLI commands.
 
 ##Build and Run
 See instructions in operating system specific directory for build scripts, udev rules, steps to install etc.
