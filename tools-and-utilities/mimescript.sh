@@ -13,50 +13,50 @@
 #################################################################################################
 
 echo "Running the MIME Script..."
-APP=SCMLOG
-INSTALL_DIR="/usr/SCMLOG"
+APP=SPLOG
+INSTALL_DIR="/usr/SPLOG"
 
 mkdir -p ~/.local/share/mime/packages
-#cp .application-x-SCMLOG.xml ~/.local/share/mime/packages/application-x-SCMLOG.xml
+#cp .application-x-SPLOG.xml ~/.local/share/mime/packages/application-x-SPLOG.xml
 cd ~/.local/share/mime/packages
-touch application-x-SCMLOG.xml
+touch application-x-SPLOG.xml
 
 # Create mime xml 
 echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
 <mime-info xmlns=\"http://www.freedesktop.org/standards/shared-mime-info\">
-    <mime-type type=\"application/x-SCMLOG\">
-        <comment>SCMLOG File</comment>
-        <icon name=\"application-x-SCMLOG\"/>
-        <glob pattern=\"*.scmlog\"/>
+    <mime-type type=\"application/x-SPLOG\">
+        <comment>SPLOG File</comment>
+        <icon name=\"application-x-SPLOG\"/>
+        <glob pattern=\"*.splog\"/>
     </mime-type>
-</mime-info>" > ~/.local/share/mime/packages/application-x-SCMLOG.xml
+</mime-info>" > ~/.local/share/mime/packages/application-x-SPLOG.xml
 
 # Create application desktop
 mkdir -p ~/.local/share/applications
-#cp .SCMLOG.desktop ~/.local/share/applications/SCMLOG.desktop
+#cp .SPLOG.desktop ~/.local/share/applications/SPLOG.desktop
 echo "[Desktop Entry]
 Type=Application
-Exec=$INSTALL_DIR/SCMLOG
+Exec=$INSTALL_DIR/SPLOG
 Path=$INSTALL_DIR
-MimeType=application/x-SCMLOG
-Name=SCMLOG
-GenericName=SCMLOG
-Icon=$INSTALL_DIR/scmlog.png
+MimeType=application/x-SPLOG
+Name=SPLOG
+GenericName=SPLOG
+Icon=$INSTALL_DIR/splog.png
 Terminal=false
-Categories=SCMLOG;
-"> ~/.local/share/applications/SCMLOG.desktop
+Categories=SPLOG;
+"> ~/.local/share/applications/SPLOG.desktop
 
 # copy images to pixmaps
 mkdir -p ~/.local/share/pixmaps
-cp $INSTALL_DIR/scmlog.png ~/.local/share/pixmaps/scmlog.png
-cp $INSTALL_DIR/application-x-SCMLOG.png ~/.local/share/pixmaps/application-x-SCMLOG.png
+cp $INSTALL_DIR/splog.png ~/.local/share/pixmaps/splog.png
+cp $INSTALL_DIR/application-x-SPLOG.png ~/.local/share/pixmaps/application-x-SPLOG.png
 
 #update the desktop and mime database
 update-desktop-database ~/.local/share/applications
 update-mime-database    ~/.local/share/mime
 
-#now register the icon so all the .ISF files will be shown with SCMLOG icon
-xdg-icon-resource install --context mimetypes --size 48 $INSTALL_DIR/scmlog.png application-x-SCMLOG
+#now register the icon so all the .ISF files will be shown with SPLOG icon
+xdg-icon-resource install --context mimetypes --size 48 $INSTALL_DIR/splog.png application-x-SPLOG
 
-echo "Default application for *.scmlog files installed successfully !"
+echo "Default application for *.splog files installed successfully !"
 

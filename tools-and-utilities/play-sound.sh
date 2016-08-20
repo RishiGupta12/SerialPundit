@@ -14,7 +14,8 @@
 
 # Script to execute with the help of udev rule. It plays given sound file whenever a USB-serial
 # device is added or removed. Two different sounds can be played for connect and disconnect events. 
-# When installing your software, copy event.wav audio file in /usr/share/scm directory.
+# When installing your software, copy event.wav audio file in /usr/share/sp directory. This script 
+# should be installed in /usr/bin directory.
 
 # This script can also be executed from within Java code as shown below to indicate events to user.
 
@@ -27,5 +28,5 @@
 # Process p = pb.start();
 # p.waitFor();
 
-aplay /usr/share/scm/event.wav
+aplay /usr/share/sp/event.wav
 

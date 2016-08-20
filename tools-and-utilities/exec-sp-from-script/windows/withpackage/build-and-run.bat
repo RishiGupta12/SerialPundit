@@ -13,7 +13,7 @@
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 
-:: build and run application using scm from shell script
+:: build and run application using sp from shell script
 @Echo OFF
 
 set CURDIR=%~dp0

@@ -23,10 +23,10 @@
 # of udev rule is given below based on bus number and device number.
 
 # ACTION=="add",    SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTRS{idVendor}=="10c4", \
-# RUN+="/bin/bash /usr/bin/scm-udev-notify.sh -a add    -p '%p' -b '$attr{busnum}' -d '$attr{devnum}'"
+# RUN+="/bin/bash /usr/bin/sp-udev-notify.sh -a add    -p '%p' -b '$attr{busnum}' -d '$attr{devnum}'"
 
 # ACTION=="remove", SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTRS{idVendor}=="10c4", \
-# RUN+="/bin/bash /usr/bin/scm-udev-notify.sh -a remove -p '%p' -b '$attr{busnum}' -d '$attr{devnum}'"
+# RUN+="/bin/bash /usr/bin/sp-udev-notify.sh -a remove -p '%p' -b '$attr{busnum}' -d '$attr{devnum}'"
 
 set -e
 

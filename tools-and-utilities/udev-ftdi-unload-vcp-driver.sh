@@ -24,12 +24,12 @@
 
 # This has a side effect also that now other programs can not use default FTDI VCP driver, this is due to
 # how the FTDI has designed their drivers. It is possible to just unbind default driver for a particular
-# device using udev rules (see tools-and-utilities/99-scm-extra-udev.rules for unbinding with the help of script).
+# device using udev rules (see tools-and-utilities/99-sp-extra-udev.rules for unbinding with the help of script).
 
 # It seems like FTDI D2XX uses user space USB drivers and depends upon libusb for its working. If any error
 # is encountered like permission denied place the following udev rules in in /etc/udev/rules.d/ for Ubuntu 
 # Linux distribution.
-# <github repository>/tools-and-utilities/99-scm-ftdi-d2xx.rules
+# <github repository>/tools-and-utilities/99-sp-ftdi-d2xx.rules
 
 # Run below shell command to know ftdi vcp driver module is loaded or not.
 # lsmod | grep ftdi

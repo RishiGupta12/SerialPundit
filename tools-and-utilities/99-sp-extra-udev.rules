@@ -39,7 +39,7 @@
 # When a USB-UART matching VID, PID and serial number is added to the system create a symlink to it.
 # This will save time to find the device node assigned to the device.
 
-SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", ATTRS{serial}=="A7036479", SYMLINK+="scm_custom_link"
+SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", ATTRS{serial}=="A7036479", SYMLINK+="sp_custom_link"
 
 
 ### Create symlink based on physical location of USB device in tree
@@ -47,9 +47,9 @@ SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", ATTRS{seria
 
 # If a USB device is connected at 3rd port of 3rd embedded root hub in system, for its 1st configuration
 # and interaface 0, create a symlink to it. For example connecting a FT232 will create a symlink
-# scm_location_link -> ttyUSB0 in /dev directory.
+# sp_location_link -> ttyUSB0 in /dev directory.
 
-SUBSYSTEMS=="usb", KERNELS=="3-3:1.0", SYMLINK+="scm_location_link"
+SUBSYSTEMS=="usb", KERNELS=="3-3:1.0", SYMLINK+="sp_location_link"
 
 
 ### Remove default driver

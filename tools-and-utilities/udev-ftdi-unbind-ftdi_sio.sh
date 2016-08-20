@@ -15,7 +15,7 @@
 
 # When a FTDI device is connected to system linux kernel with udev tries to load appropriate VCP 
 # driver for connected device. It is possible to just unbind default driver for a particular
-# device using udev rules (see tools-and-utilities/99-scm-extra-udev.rules for unbinding with the 
+# device using udev rules (see tools-and-utilities/99-sp-extra-udev.rules for unbinding with the 
 # help of script).
 
 # Input argument to this script is devpath for the device (udev rule %p).

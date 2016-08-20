@@ -60,7 +60,8 @@ It eliminates the complexities of serial port programming for different operatin
 - Feature report, input report and output report in raw format available.
 - Find information like serial number, product name, manufacturer etc.
 
-###And we don't stop here...
+The project is :   
+
 - Functional, stress, stability, unit tested (Junit for continuous integration).
 - Maven repository release for maven integration.
 - Extensive error detection and handling for reliable operations.

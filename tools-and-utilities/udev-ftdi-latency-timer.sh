@@ -24,9 +24,9 @@
 # An example sysfs file for latency timer is :
 # /sys/devices/pci0000:00/0000:00:14.0/usb3/3-3/3-3:1.0/ttyUSB0/tty/ttyUSB0/device/latency_timer
 
-# To see what are the environment variables set by udev redirect 'env' value and open scmudevenv.txt 
+# To see what are the environment variables set by udev redirect 'env' value and open spudevenv.txt 
 # file in text editor to see list of variables and their values.
-# env >> /tmp/scmudevenv.txt
+# env >> /tmp/spudevenv.txt
 
 # Input argument ($1) to this script is devpath for the device (udev rule %p).
 

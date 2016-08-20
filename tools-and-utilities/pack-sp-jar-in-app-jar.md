@@ -1,4 +1,4 @@
-##Packing scm-x.x.x.jar in an application jar
+##Packing sp-x.x.x.jar in an application jar
 
 This note describes how to pack any sp-xxx.jar file into an application jar file for an easy deployment or distribution purpose.
 
