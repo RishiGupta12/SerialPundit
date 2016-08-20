@@ -1,22 +1,22 @@
 /************************************************************************************************
- * This file is part of SerialPundit project and software.
+ * This file is part of SerialPundit.
  * 
  * Copyright (C) 2014-2016, Rishi Gupta. All rights reserved.
  *
- * The SerialPundit software is DUAL licensed. It is made available under the terms of the GNU Affero 
+ * The SerialPundit is DUAL LICENSED. It is made available under the terms of the GNU Affero 
  * General Public License (AGPL) v3.0 for non-commercial use and under the terms of a commercial 
  * license for commercial use of this software. 
  * 
- * The SerialPundit software is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
+ * The SerialPundit is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  ************************************************************************************************/
 
 /* 
- * Virtual multi-port serial adaptor :
+ * Virtual multi-port serial card :
  *
- * This driver implements a virtual multiport serial adaptor in such a way that the virtual adaptor 
+ * This driver implements a virtual multiport serial card in such a way that the virtual card 
  * can have from 0 to N number of virtual serial ports (tty devices). The virtual tty devices created 
- * by this adaptor are used in exactly the same way using termios and Linux/Posix APIs as the real tty 
+ * by this card are used in exactly the same way using termios and Linux/Posix APIs as the real tty 
  * devices.
  */
 
@@ -88,7 +88,7 @@
 #define SP_STOP_1        0x1000
 #define SP_STOP_2        0x2000
 
-/* Represent a virtual tty device in this virtual adaptor. The peer_index will contain own 
+/* Represent a virtual tty device in this virtual card. The peer_index will contain own 
  * index if this device is loop back configured device (peer_index == own_index). */
 struct vtty_dev {
     unsigned int own_index;
@@ -118,53 +118,55 @@ struct vtty_info {
     struct vtty_dev *vttydev;
 };
 
-static int scmtty_open(struct tty_struct *tty, struct file *filp);
-static int scmtty_write(struct tty_struct *tty, const unsigned char *buf, int count);
-static int scmtty_put_char(struct tty_struct *tty, unsigned char ch);
-static int scmtty_break_ctl(struct tty_struct *tty, int state);
-static int scmtty_write_room(struct tty_struct *tty);
-static int scmtty_chars_in_buffer(struct tty_struct *tty);
-static int scmtty_ioctl(struct tty_struct *tty, unsigned int cmd, unsigned long arg);
-static int scmtty_tiocmget(struct tty_struct *tty);
-static int scmtty_tiocmset(struct tty_struct *tty, unsigned int set, unsigned int clear);
-static int scmtty_get_icount(struct tty_struct *tty, struct serial_icounter_struct *icount);
+static int sp_install(struct tty_driver *driver, struct tty_struct *tty);
+static int sp_open(struct tty_struct *tty, struct file *filp);
+static int sp_write(struct tty_struct *tty, const unsigned char *buf, int count);
+static int sp_put_char(struct tty_struct *tty, unsigned char ch);
+static int sp_break_ctl(struct tty_struct *tty, int state);
+static int sp_write_room(struct tty_struct *tty);
+static int sp_chars_in_buffer(struct tty_struct *tty);
+static int sp_ioctl(struct tty_struct *tty, unsigned int cmd, unsigned long arg);
+static int sp_tiocmget(struct tty_struct *tty);
+static int sp_tiocmset(struct tty_struct *tty, unsigned int set, unsigned int clear);
+static int sp_get_icount(struct tty_struct *tty, struct serial_icounter_struct *icount);
 
-static void scmtty_set_termios(struct tty_struct *tty, struct ktermios *old);
-static void scmtty_throttle(struct tty_struct *tty);
-static void scmtty_unthrottle(struct tty_struct *tty);
-static void scmtty_stop(struct tty_struct *tty);
-static void scmtty_start(struct tty_struct *tty);
-static void scmtty_hangup(struct tty_struct *tty);
-static void scmtty_flush_chars(struct tty_struct *tty);
-static void scmtty_flush_buffer(struct tty_struct *tty);
-static void scmtty_wait_until_sent(struct tty_struct *tty, int timeout);
-static void scmtty_send_xchar(struct tty_struct *tty, char ch);
-static void scmtty_close(struct tty_struct *tty, struct file *filp);
+static void sp_cleanup(struct tty_struct *tty);
+static void sp_set_termios(struct tty_struct *tty, struct ktermios *old);
+static void sp_throttle(struct tty_struct *tty);
+static void sp_unthrottle(struct tty_struct *tty);
+static void sp_stop(struct tty_struct *tty);
+static void sp_start(struct tty_struct *tty);
+static void sp_hangup(struct tty_struct *tty);
+static void sp_flush_chars(struct tty_struct *tty);
+static void sp_flush_buffer(struct tty_struct *tty);
+static void sp_wait_until_sent(struct tty_struct *tty, int timeout);
+static void sp_send_xchar(struct tty_struct *tty, char ch);
+static void sp_close(struct tty_struct *tty, struct file *filp);
 
-static int extract_pin_mapping(char data[], int x);
-static int update_modem_lines(struct tty_struct *tty, unsigned int set, unsigned int clear);
-static int get_serial_info(struct tty_struct *tty, unsigned long arg);
-static int wait_msr_change(struct tty_struct *tty, unsigned long mask);
-static int check_msr_delta(struct tty_struct *tty, struct vtty_dev *local_vttydev, unsigned long mask, struct async_icount *prev);
+static int sp_extract_pin_mapping(char data[], int x);
+static int sp_update_modem_lines(struct tty_struct *tty, unsigned int set, unsigned int clear);
+static int sp_get_serial_info(struct tty_struct *tty, unsigned long arg);
+static int sp_wait_msr_change(struct tty_struct *tty, unsigned long mask);
+static int sp_check_msr_delta(struct tty_struct *tty, struct vtty_dev *local_vttydev, unsigned long mask, struct async_icount *prev);
 
-static ssize_t evt_store(struct device *dev, struct device_attribute *attr, const char *buf, size_t count);
-static ssize_t ownidx_show(struct device *dev, struct device_attribute *attr, char *buf);
-static ssize_t peeridx_show(struct device *dev, struct device_attribute *attr, char *buf);
-static ssize_t ortsmap_show(struct device *dev, struct device_attribute *attr, char *buf);
-static ssize_t odtrmap_show(struct device *dev, struct device_attribute *attr, char *buf);
-static ssize_t prtsmap_show(struct device *dev, struct device_attribute *attr, char *buf);
-static ssize_t pdtrmap_show(struct device *dev, struct device_attribute *attr, char *buf);
+static ssize_t sp_evt_store(struct device *dev, struct device_attribute *attr, const char *buf, size_t count);
+static ssize_t sp_ownidx_show(struct device *dev, struct device_attribute *attr, char *buf);
+static ssize_t sp_peeridx_show(struct device *dev, struct device_attribute *attr, char *buf);
+static ssize_t sp_ortsmap_show(struct device *dev, struct device_attribute *attr, char *buf);
+static ssize_t sp_odtrmap_show(struct device *dev, struct device_attribute *attr, char *buf);
+static ssize_t sp_prtsmap_show(struct device *dev, struct device_attribute *attr, char *buf);
+static ssize_t sp_pdtrmap_show(struct device *dev, struct device_attribute *attr, char *buf);
 
-static int scmtty_vadapt_proc_open(struct inode *inode, struct  file *file);
-static int scmtty_vadapt_proc_close(struct inode *inode, struct file *file);
-static ssize_t scmtty_vadapt_proc_read(struct file *file, char __user *buf, size_t size, loff_t *ppos);
-static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *buf, size_t length, loff_t * ppos);
+static int sp_vcard_proc_open(struct inode *inode, struct  file *file);
+static int sp_vcard_proc_close(struct inode *inode, struct file *file);
+static ssize_t sp_vcard_proc_read(struct file *file, char __user *buf, size_t size, loff_t *ppos);
+static ssize_t sp_vcard_proc_write(struct file *file, const char __user *buf, size_t length, loff_t * ppos);
 
-static int scm_port_carrier_raised(struct tty_port *port);
-static void scm_port_shutdown(struct tty_port *port);
-static int scm_port_activate(struct tty_port *port, struct tty_struct *tty);
-/*static void scm_port_destruct(struct tty_port *port);
-static void scm_port_dtr_rts(struct tty_port *port, int raise);*/
+static int sp_port_carrier_raised(struct tty_port *port);
+static void sp_port_shutdown(struct tty_port *port);
+static int sp_port_activate(struct tty_port *port, struct tty_struct *tty);
+static void sp_port_destruct(struct tty_port *port);
+/*static void sp_port_dtr_rts(struct tty_port *port, int raise);*/
 
 /* These 3 values can be overriden if this driver is loaded with parameters provided */
 static ushort max_num_vtty_dev = VTTY_DEV_DEFAULT_MAX;
@@ -178,25 +180,25 @@ static int last_nmdev1_idx = -1;
 static int last_nmdev2_idx = -1;
 
 /* Describes this driver kernel module */
-static struct tty_driver *scmtty_driver;
+static struct tty_driver *spvtty_driver;
 
 /* Used when creating or destroying virtual tty devices */
 static DEFINE_MUTEX(adaptlock);           /*  atomically create/destroy tty devices  */
 struct vtty_info *index_manager = NULL;   /*  keep track of indexes in use currently */
 
 /* Per device sysfs entries to emulate frame, parity and overrun error events during data
- * reception and providing some informations about device. The proc entries are used to
- * interact with driver state as a whole while sysfs enteries are used to interact with
+ * reception and providing some informations about device. The 'proc entries' are used to
+ * interact with driver state as a whole while 'sysfs enteries' are used to interact with
  * individual device's state. Use 99-tty2comKm.rules file to correctly set permissions on
  * sysfs entries. To align with sysfs spirit 'one-value-per-file' approach is followed so
  * that user space does not have to know data format and their offsets in returned buffer. */
-static DEVICE_ATTR(evt, S_IRUGO, NULL, evt_store);
-static DEVICE_ATTR(ownidx, S_IRUGO, ownidx_show, NULL);
-static DEVICE_ATTR(peeridx, S_IRUGO, peeridx_show, NULL);
-static DEVICE_ATTR(ortsmap, S_IRUGO, ortsmap_show, NULL);
-static DEVICE_ATTR(odtrmap, S_IRUGO, odtrmap_show, NULL);
-static DEVICE_ATTR(prtsmap, S_IRUGO, prtsmap_show, NULL);
-static DEVICE_ATTR(pdtrmap, S_IRUGO, pdtrmap_show, NULL);
+static DEVICE_ATTR(evt, (S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP), NULL, sp_evt_store);
+static DEVICE_ATTR(ownidx, S_IRUGO, sp_ownidx_show, NULL);
+static DEVICE_ATTR(peeridx, S_IRUGO, sp_peeridx_show, NULL);
+static DEVICE_ATTR(ortsmap, S_IRUGO, sp_ortsmap_show, NULL);
+static DEVICE_ATTR(odtrmap, S_IRUGO, sp_odtrmap_show, NULL);
+static DEVICE_ATTR(prtsmap, S_IRUGO, sp_prtsmap_show, NULL);
+static DEVICE_ATTR(pdtrmap, S_IRUGO, sp_pdtrmap_show, NULL);
 
 static struct attribute *spvtty_info_attrs[] = {
         &dev_attr_evt.attr,
@@ -213,12 +215,12 @@ static const struct attribute_group sp_info_attr_group = {
         .attrs = spvtty_info_attrs,
 };
 
-static const struct tty_port_operations vttydev_port_ops = {
-        .carrier_raised = scm_port_carrier_raised,
-        .shutdown       = scm_port_shutdown,
-        .activate       = scm_port_activate,
-        /* .destruct       = scm_port_destruct,
-        .dtr_rts        = scm_port_dtr_rts,  */
+static const struct tty_port_operations spvtty_port_ops = {
+        .carrier_raised = sp_port_carrier_raised,
+        .shutdown       = sp_port_shutdown,
+        .activate       = sp_port_activate,
+        .destruct       = sp_port_destruct,
+        /*.dtr_rts        = sp_port_dtr_rts,  */
 };
 
 /*
@@ -262,7 +264,7 @@ static const struct tty_port_operations vttydev_port_ops = {
  * 
  * @return number of bytes consumed from buf on success or negative error code on error
  */
-static ssize_t evt_store(struct device *dev, struct device_attribute *attr, const char *buf, size_t count)
+static ssize_t sp_evt_store(struct device *dev, struct device_attribute *attr, const char *buf, size_t count)
 {
     int ret = 0;
     int push = 1;
@@ -276,7 +278,7 @@ static ssize_t evt_store(struct device *dev, struct device_attribute *attr, cons
     tty_to_write = local_vttydev->own_tty;
 
     /* Ensure required structure has been allocated, initialized and port has been opened. */
-    if((tty_to_write == NULL) || (tty_to_write->port == NULL) || (tty_to_write->port->count <= 0))
+    if((!tty_to_write) || (tty_to_write->port == NULL) || (tty_to_write->port->count <= 0))
         return -EIO;
     if(!test_bit(ASYNCB_INITIALIZED, &tty_to_write->port->flags))
         return -EIO;
@@ -345,7 +347,7 @@ static ssize_t evt_store(struct device *dev, struct device_attribute *attr, cons
  *
  * @return index of tty device on success otherwise negative error code.
  */
-static ssize_t ownidx_show(struct device *dev, struct device_attribute *attr, char *buf)
+static ssize_t sp_ownidx_show(struct device *dev, struct device_attribute *attr, char *buf)
 {
     struct vtty_dev *local_vttydev = (struct vtty_dev *) dev_get_drvdata(dev);
 
@@ -367,7 +369,7 @@ static ssize_t ownidx_show(struct device *dev, struct device_attribute *attr, ch
  *
  * @return index of paired tty device on success otherwise negative error code.
  */
-static ssize_t peeridx_show(struct device *dev, struct device_attribute *attr, char *buf)
+static ssize_t sp_peeridx_show(struct device *dev, struct device_attribute *attr, char *buf)
 {
     struct vtty_dev *local_vttydev = (struct vtty_dev *) dev_get_drvdata(dev);
 
@@ -388,7 +390,7 @@ static ssize_t peeridx_show(struct device *dev, struct device_attribute *attr, c
  *
  * @return mapping of RTS line of the given tty device on success otherwise negative error code.
  */
-static ssize_t ortsmap_show(struct device *dev, struct device_attribute *attr, char *buf)
+static ssize_t sp_ortsmap_show(struct device *dev, struct device_attribute *attr, char *buf)
 {
     struct vtty_dev *local_vttydev = (struct vtty_dev *) dev_get_drvdata(dev);
 
@@ -409,7 +411,7 @@ static ssize_t ortsmap_show(struct device *dev, struct device_attribute *attr, c
  *
  * @return mapping of DTR line of the given tty device on success otherwise negative error code.
  */
-static ssize_t odtrmap_show(struct device *dev, struct device_attribute *attr, char *buf)
+static ssize_t sp_odtrmap_show(struct device *dev, struct device_attribute *attr, char *buf)
 {
     struct vtty_dev *local_vttydev = (struct vtty_dev *) dev_get_drvdata(dev);
 
@@ -430,7 +432,7 @@ static ssize_t odtrmap_show(struct device *dev, struct device_attribute *attr, c
  *
  * @return mapping of RTS line of the paired tty device on success otherwise negative error code.
  */
-static ssize_t prtsmap_show(struct device *dev, struct device_attribute *attr, char *buf)
+static ssize_t sp_prtsmap_show(struct device *dev, struct device_attribute *attr, char *buf)
 {
     struct vtty_dev *remote_vttydev = NULL;
     struct vtty_dev *local_vttydev = (struct vtty_dev *) dev_get_drvdata(dev);
@@ -453,7 +455,7 @@ static ssize_t prtsmap_show(struct device *dev, struct device_attribute *attr, c
  *
  * @return mapping of DTR line of the paired tty device on success otherwise negative error code.
  */
-static ssize_t pdtrmap_show(struct device *dev, struct device_attribute *attr, char *buf)
+static ssize_t sp_pdtrmap_show(struct device *dev, struct device_attribute *attr, char *buf)
 {
     struct vtty_dev *remote_vttydev = NULL;
     struct vtty_dev *local_vttydev = (struct vtty_dev *) dev_get_drvdata(dev);
@@ -478,7 +480,7 @@ static ssize_t pdtrmap_show(struct device *dev, struct device_attribute *attr, c
  * 
  * @return 0 on success otherwise negative error code on failure
  */
-static int update_modem_lines(struct tty_struct *tty, unsigned int set, unsigned int clear)
+static int sp_update_modem_lines(struct tty_struct *tty, unsigned int set, unsigned int clear)
 {
     int ctsint = 0;
     int dcdint = 0;
@@ -499,7 +501,7 @@ static int update_modem_lines(struct tty_struct *tty, unsigned int set, unsigned
         remote_vttydev = index_manager[local_vttydev->peer_index].vttydev;
 
     /* Read modify write MSR register */
-    if (remote_vttydev != NULL) {
+    if(remote_vttydev != NULL) {
         msr_state_reg = remote_vttydev->msr_reg;
         vttydev = remote_vttydev;
     }
@@ -511,7 +513,7 @@ static int update_modem_lines(struct tty_struct *tty, unsigned int set, unsigned
     rts_mappings = local_vttydev->rts_mappings;
     dtr_mappings = local_vttydev->dtr_mappings;
 
-    if (set & TIOCM_RTS) {
+    if(set & TIOCM_RTS) {
         mcr_ctrl_reg |= SP_MCR_RTS;
         if((rts_mappings & SP_CON_CTS) == SP_CON_CTS) {
             msr_state_reg |= SP_MSR_CTS;
@@ -532,7 +534,7 @@ static int update_modem_lines(struct tty_struct *tty, unsigned int set, unsigned
         }
     }
 
-    if (set & TIOCM_DTR) {
+    if(set & TIOCM_DTR) {
         mcr_ctrl_reg |= SP_MCR_DTR;
         if((dtr_mappings & SP_CON_CTS) == SP_CON_CTS) {
             msr_state_reg |= SP_MSR_CTS;
@@ -553,7 +555,7 @@ static int update_modem_lines(struct tty_struct *tty, unsigned int set, unsigned
         }
     }
 
-    if (clear & TIOCM_RTS) {
+    if(clear & TIOCM_RTS) {
         mcr_ctrl_reg &= ~SP_MCR_RTS;
         if((rts_mappings & SP_CON_CTS) == SP_CON_CTS) {
             msr_state_reg &= ~SP_MSR_CTS;
@@ -602,18 +604,59 @@ static int update_modem_lines(struct tty_struct *tty, unsigned int set, unsigned
     evicount->dcd += dcdint;
     evicount->rng += rngint;
 
-    if (vttydev->own_tty && vttydev->own_tty->port) {
+    if(vttydev->own_tty && vttydev->own_tty->port) {
 
         /* Wake up process blocked on TIOCMIWAIT ioctl */
-        if ((vttydev->waiting_msr_chg == 1) && (vttydev->own_tty->port->count > 0))
+        if((vttydev->waiting_msr_chg == 1) && (vttydev->own_tty->port->count > 0))
             wake_up_interruptible(&vttydev->own_tty->port->delta_msr_wait);
 
         /* Wake up application blocked on carrier detect signal */
-        if ((wakeup_blocked_open == 1) && (vttydev->own_tty->port->blocked_open > 0))
+        if((wakeup_blocked_open == 1) && (vttydev->own_tty->port->blocked_open > 0))
             wake_up_interruptible(&vttydev->own_tty->port->open_wait);
     }
 
     return 0;
+}
+
+/*
+ * Invoked when user space process opens a serial port. Tty core calls this to install tty and
+ * initialize the required resources.
+ *
+ * @driver: this driver.
+ * @tty: the tty being created.
+ *
+ * @return 0 on success otherwise negative error code on failure.
+ */
+static int sp_install(struct tty_driver *driver, struct tty_struct *tty)
+{
+    int ret = 0;
+    struct tty_port *port = NULL;
+
+    port = (struct tty_port *) kcalloc(1, sizeof(struct tty_port), GFP_KERNEL);
+    if(port == NULL)
+        return -ENOMEM;
+
+    /* First initialize and then set port operations */
+    tty_port_init(port);
+    port->ops = &spvtty_port_ops;
+
+    ret = tty_port_install(port, driver, tty);
+    if (ret) {
+        kfree(port);
+        return ret;
+    }
+
+    return 0;
+}
+
+/*
+ * Invoked when there exist no user process or tty is to be released explicitly for whatever reason.
+ *
+ * @tty: the tty being destroyed.
+ */
+static void sp_cleanup(struct tty_struct *tty)
+{
+    tty_port_put(tty->port);
 }
 
 /*
@@ -634,7 +677,7 @@ static int update_modem_lines(struct tty_struct *tty, unsigned int set, unsigned
  * 
  * @return 0 on success or negative error code on failure.
  */
-static int scmtty_open(struct tty_struct *tty, struct file *filp)
+static int sp_open(struct tty_struct *tty, struct file *filp)
 {    
     int ret = 0;
     struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
@@ -643,7 +686,7 @@ static int scmtty_open(struct tty_struct *tty, struct file *filp)
     local_vttydev->own_tty = tty;
 
     /* If this device is one end of a null modem connection, provide its address to remote end */
-    if(tty->index != local_vttydev->peer_index) {
+    if (tty->index != local_vttydev->peer_index) {
         remote_vttydev = index_manager[local_vttydev->peer_index].vttydev;
         remote_vttydev->peer_tty = tty;
     }
@@ -661,10 +704,11 @@ static int scmtty_open(struct tty_struct *tty, struct file *filp)
 
     mutex_lock(&local_vttydev->lock);
 
-    /* Handle DTR raising logic our selves instead of tty_port helpers doing it. */
+    /* Handle DTR raising logic ourselve instead of tty_port helpers doing it. */
     if (local_vttydev->set_dtr_atopen == 1)
-        update_modem_lines(tty, TIOCM_DTR | TIOCM_RTS, 0);
+        sp_update_modem_lines(tty, TIOCM_DTR | TIOCM_RTS, 0);
 
+    /* Associate tty with port and do port level opening. */
     ret = tty_port_open(tty->port, tty, filp);
     if (ret < 0) {
         mutex_unlock(&local_vttydev->lock);
@@ -684,11 +728,11 @@ static int scmtty_open(struct tty_struct *tty, struct file *filp)
  * 
  * @return 0 on success or negative error code on failure.
  */
-static void scmtty_close(struct tty_struct *tty, struct file *filp)
+static void sp_close(struct tty_struct *tty, struct file *filp)
 {
     struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
 
-    if (test_bit(TTY_IO_ERROR, &tty->flags))
+    if(test_bit(TTY_IO_ERROR, &tty->flags))
         return;
 
     mutex_lock(&local_vttydev->lock);
@@ -696,8 +740,8 @@ static void scmtty_close(struct tty_struct *tty, struct file *filp)
     if(tty && filp && tty->port && (tty->port->count > 0))
         tty_port_close(tty->port, tty, filp);
 
-    if (tty && C_HUPCL(tty) && tty->port && (tty->port->count < 1))
-        update_modem_lines(tty, 0, TIOCM_DTR | TIOCM_RTS);
+    if(tty && C_HUPCL(tty) && tty->port && (tty->port->count < 1))
+        sp_update_modem_lines(tty, 0, TIOCM_DTR | TIOCM_RTS);
 
     mutex_unlock(&local_vttydev->lock);
 }
@@ -712,7 +756,7 @@ static void scmtty_close(struct tty_struct *tty, struct file *filp)
  * 
  * @return number of characters sent or negative error code on failure
  */
-static int scmtty_write(struct tty_struct *tty, const unsigned char *buf, int count)
+static int sp_write(struct tty_struct *tty, const unsigned char *buf, int count)
 {
     struct tty_struct *tty_to_write = NULL;
     struct vtty_dev *rx_vttydev = NULL;
@@ -721,8 +765,10 @@ static int scmtty_write(struct tty_struct *tty, const unsigned char *buf, int co
     if (tx_vttydev->tx_paused || !tty || tty->stopped || (count < 1) || !buf || tty->hw_stopped)
         return 0;
 
-    if (tx_vttydev->is_break_on == 1)
+    if (tx_vttydev->is_break_on == 1) {
+        dev_dbg(tty->dev, "break condition is on !");
         return -EIO;
+    }
 
     if (tty->index != tx_vttydev->peer_index) {
         /* null modem */
@@ -763,19 +809,19 @@ static int scmtty_write(struct tty_struct *tty, const unsigned char *buf, int co
  *
  * @return number of characters sent or negative error code on failure
  */
-static int scmtty_put_char(struct tty_struct *tty, unsigned char ch)
+static int sp_put_char(struct tty_struct *tty, unsigned char ch)
 {
     struct tty_struct *tty_to_write = NULL;
     struct vtty_dev *rx_vttydev = NULL;
     struct vtty_dev *tx_vttydev = index_manager[tty->index].vttydev;
 
-    if(tx_vttydev->tx_paused || !tty || tty->stopped || tty->hw_stopped)
+    if (tx_vttydev->tx_paused || !tty || tty->stopped || tty->hw_stopped)
         return 0;
 
-    if(tx_vttydev->is_break_on == 1)
+    if (tx_vttydev->is_break_on == 1)
         return -EIO;
 
-    if(tty->index != tx_vttydev->peer_index) {
+    if (tty->index != tx_vttydev->peer_index) {
         tty_to_write = tx_vttydev->peer_tty;
         rx_vttydev = index_manager[tx_vttydev->peer_index].vttydev;
         if((tx_vttydev->baud != rx_vttydev->baud) || (tx_vttydev->uart_frame != rx_vttydev->uart_frame)) {
@@ -806,7 +852,7 @@ static int scmtty_put_char(struct tty_struct *tty, unsigned char ch)
  *
  * @tty: tty device who should start transmission
  */
-static void scmtty_flush_chars(struct tty_struct *tty)
+static void sp_flush_chars(struct tty_struct *tty)
 {
 }
 
@@ -819,7 +865,7 @@ static void scmtty_flush_chars(struct tty_struct *tty)
  *
  * @return 0 on success otherwise a negative error code on failure
  */
-static int get_serial_info(struct tty_struct *tty, unsigned long arg)
+static int sp_get_serial_info(struct tty_struct *tty, unsigned long arg)
 {
     struct serial_struct info;
     struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
@@ -855,7 +901,7 @@ static int get_serial_info(struct tty_struct *tty, unsigned long arg)
  *
  * @return number of bytes that can be queued to this device at the present time
  */
-static int scmtty_write_room(struct tty_struct *tty)
+static int sp_write_room(struct tty_struct *tty)
 {
     struct vtty_dev *tx_vttydev = index_manager[tty->index].vttydev;
 
@@ -872,7 +918,7 @@ static int scmtty_write_room(struct tty_struct *tty)
  * @tty: tty device whose line settings is to be updated
  * @old_termios: currently applied serial line settings
  */
-static void scmtty_set_termios(struct tty_struct *tty, struct ktermios *old_termios)
+static void sp_set_termios(struct tty_struct *tty, struct ktermios *old_termios)
 {
     u32 baud = 0;
     int uart_frame_settings = 0;
@@ -892,7 +938,7 @@ static void scmtty_set_termios(struct tty_struct *tty, struct ktermios *old_term
 
     /* Typically B0 is used to terminate the connection. Drop RTS and DTR. */
     if ((tty->termios.c_cflag & CBAUD) == B0 ) {
-        update_modem_lines(tty, 0, TIOCM_DTR | TIOCM_RTS);
+        sp_update_modem_lines(tty, 0, TIOCM_DTR | TIOCM_RTS);
         mutex_unlock(&local_vttydev->lock);
         return;
     }
@@ -902,7 +948,7 @@ static void scmtty_set_termios(struct tty_struct *tty, struct ktermios *old_term
     if (!old_termios || (old_termios->c_cflag & CBAUD) == B0) {
         if (!(tty->termios.c_cflag & CRTSCTS) || !test_bit(TTY_THROTTLED, &tty->flags)) {
             mask |= TIOCM_RTS;
-            update_modem_lines(tty, mask, 0);
+            sp_update_modem_lines(tty, mask, 0);
         }
     }
 
@@ -961,7 +1007,7 @@ static void scmtty_set_termios(struct tty_struct *tty, struct ktermios *old_term
  *
  * @return number of bytes of data in the device private output queue
  */
-static int scmtty_chars_in_buffer(struct tty_struct *tty)
+static int sp_chars_in_buffer(struct tty_struct *tty)
 {
     return 0;
 }
@@ -975,7 +1021,7 @@ static int scmtty_chars_in_buffer(struct tty_struct *tty)
  *
  * @return 1 if changed otherwise 0 if unchanged
  */
-static int check_msr_delta(struct tty_struct *tty, struct vtty_dev *local_vttydev, unsigned long mask, struct async_icount *prev)
+static int sp_check_msr_delta(struct tty_struct *tty, struct vtty_dev *local_vttydev, unsigned long mask, struct async_icount *prev)
 {
     struct async_icount now;
     int delta = 0;
@@ -1003,7 +1049,7 @@ static int check_msr_delta(struct tty_struct *tty, struct vtty_dev *local_vttyde
  *
  * @return -ERESTARTSYS if it was interrupted by a signal and 0 if modem line changed
  */
-static int wait_msr_change(struct tty_struct *tty, unsigned long mask)
+static int sp_wait_msr_change(struct tty_struct *tty, unsigned long mask)
 {
     int ret = 0;
     struct async_icount prev;
@@ -1014,12 +1060,13 @@ static int wait_msr_change(struct tty_struct *tty, unsigned long mask)
     prev = local_vttydev->icount;
     mutex_unlock(&local_vttydev->lock);
 
-    ret = wait_event_interruptible(tty->port->delta_msr_wait, check_msr_delta(tty, local_vttydev, mask, &prev));
+    ret = wait_event_interruptible(tty->port->delta_msr_wait, sp_check_msr_delta(tty, local_vttydev, mask, &prev));
 
     local_vttydev->waiting_msr_chg = 0;
 
     if (!ret && !test_bit(ASYNCB_INITIALIZED, &tty->port->flags))
         ret = -EIO;
+
     return ret;
 }
 
@@ -1035,14 +1082,15 @@ static int wait_msr_change(struct tty_struct *tty, unsigned long mask)
  *
  * @return 0 on success otherwise a negative error code on failures
  */
-static int scmtty_ioctl(struct tty_struct *tty, unsigned int cmd, unsigned long arg)
+static int sp_ioctl(struct tty_struct *tty, unsigned int cmd, unsigned long arg)
 {
     switch (cmd) {
     case TIOCGSERIAL:
-        return get_serial_info(tty, arg);
+        return sp_get_serial_info(tty, arg);
     case TIOCMIWAIT:
-        return wait_msr_change(tty, arg);
+        return sp_wait_msr_change(tty, arg);
     }
+
     return -ENOIOCTLCMD;
 }
 
@@ -1055,7 +1103,7 @@ static int scmtty_ioctl(struct tty_struct *tty, unsigned int cmd, unsigned long 
  *
  * @tty: tty device whose buffers are about to get full
  */
-static void scmtty_throttle(struct tty_struct *tty)
+static void sp_throttle(struct tty_struct *tty)
 {
     struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
     struct vtty_dev *remote_vttydev = index_manager[local_vttydev->peer_index].vttydev;
@@ -1063,11 +1111,11 @@ static void scmtty_throttle(struct tty_struct *tty)
     if (tty->termios.c_cflag & CRTSCTS) {
         mutex_lock(&local_vttydev->lock);
         remote_vttydev->tx_paused = 1;
-        update_modem_lines(tty, 0, TIOCM_RTS);
+        sp_update_modem_lines(tty, 0, TIOCM_RTS);
         mutex_unlock(&local_vttydev->lock);
     }
     else if((tty->termios.c_iflag & IXON) || (tty->termios.c_iflag & IXOFF)) {
-        scmtty_put_char(tty, STOP_CHAR(tty));
+        sp_put_char(tty, STOP_CHAR(tty));
     }
     else {
     }
@@ -1083,7 +1131,7 @@ static void scmtty_throttle(struct tty_struct *tty)
  *
  * @tty: tty device which is ready to receive data
  */
-static void scmtty_unthrottle(struct tty_struct *tty)
+static void sp_unthrottle(struct tty_struct *tty)
 {
     struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
     struct vtty_dev *remote_vttydev = index_manager[local_vttydev->peer_index].vttydev;
@@ -1092,7 +1140,7 @@ static void scmtty_unthrottle(struct tty_struct *tty)
         /* hardware (RTS/CTS) flow control */
         mutex_lock(&local_vttydev->lock);
         remote_vttydev->tx_paused = 0;
-        update_modem_lines(tty, TIOCM_RTS, 0);
+        sp_update_modem_lines(tty, TIOCM_RTS, 0);
         mutex_unlock(&local_vttydev->lock);
 
         if (remote_vttydev->own_tty && remote_vttydev->own_tty->port)
@@ -1100,7 +1148,7 @@ static void scmtty_unthrottle(struct tty_struct *tty)
     }
     else if((tty->termios.c_iflag & IXON) || (tty->termios.c_iflag & IXOFF)) {
         /* software flow control */
-        scmtty_put_char(tty, START_CHAR(tty));
+        sp_put_char(tty, START_CHAR(tty));
     }
     else {
         /* do nothing */
@@ -1115,7 +1163,7 @@ static void scmtty_unthrottle(struct tty_struct *tty)
  *
  * @tty: tty device who should stop sending data to other end
  */
-static void scmtty_stop(struct tty_struct *tty)
+static void sp_stop(struct tty_struct *tty)
 {
     struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
     mutex_lock(&local_vttydev->lock);
@@ -1131,7 +1179,7 @@ static void scmtty_stop(struct tty_struct *tty)
  *
  * @tty: tty device who should start sending data to other end
  */
-static void scmtty_start(struct tty_struct *tty)
+static void sp_start(struct tty_struct *tty)
 {
     struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
     mutex_lock(&local_vttydev->lock);
@@ -1150,7 +1198,7 @@ static void scmtty_start(struct tty_struct *tty)
  *
  * @return bit mask (TIOCM_XXX) of modem control and modem status registers
  */
-static int scmtty_tiocmget(struct tty_struct *tty)
+static int sp_tiocmget(struct tty_struct *tty)
 {
     int status = 0;
     int msr_reg = 0;
@@ -1182,12 +1230,12 @@ static int scmtty_tiocmget(struct tty_struct *tty)
  *
  * @return 0 on success otherwise negative error code on failure
  */
-static int scmtty_tiocmset(struct tty_struct *tty, unsigned int set, unsigned int clear)
+static int sp_tiocmset(struct tty_struct *tty, unsigned int set, unsigned int clear)
 {
     int ret = 0;
     struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
     mutex_lock(&local_vttydev->lock);
-    ret = update_modem_lines(tty, set, clear);
+    ret = sp_update_modem_lines(tty, set, clear);
     mutex_unlock(&local_vttydev->lock);
     return ret;
 }
@@ -1200,7 +1248,7 @@ static int scmtty_tiocmset(struct tty_struct *tty, unsigned int set, unsigned in
  *
  * @return 0 on success otherwise negative error code on failure
  */
-static int scmtty_break_ctl(struct tty_struct *tty, int break_state)
+static int sp_break_ctl(struct tty_struct *tty, int break_state)
 {
     struct tty_struct *tty_to_write = NULL;
     struct vtty_dev *brk_rx_vttydev = NULL;
@@ -1220,6 +1268,7 @@ static int scmtty_break_ctl(struct tty_struct *tty, int break_state)
     if (break_state != 0) {
         if(brk_tx_vttydev->is_break_on == 1)
             return 0;
+
         brk_tx_vttydev->is_break_on = 1;
         if(tty_to_write != NULL) {
             tty_insert_flip_char(tty_to_write->port, 0, TTY_BREAK);
@@ -1246,17 +1295,21 @@ static int scmtty_break_ctl(struct tty_struct *tty, int break_state)
  *
  * @tty: tty device that has hung up
  */
-static void scmtty_hangup(struct tty_struct *tty)
+static void sp_hangup(struct tty_struct *tty)
 {
     struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
+
     mutex_lock(&local_vttydev->lock);
 
+    /* Drops reference to tty */
     tty_port_hangup(tty->port);
 
     if (tty && C_HUPCL(tty))
-        update_modem_lines(tty, 0, TIOCM_DTR | TIOCM_RTS);
+        sp_update_modem_lines(tty, 0, TIOCM_DTR | TIOCM_RTS);
 
     mutex_unlock(&local_vttydev->lock);
+
+    dev_dbg(tty->dev, "hanged up !");
 }
 
 /*
@@ -1268,7 +1321,7 @@ static void scmtty_hangup(struct tty_struct *tty)
  *
  * @return 0 on success otherwise negative error code on failure
  */
-static int scmtty_get_icount(struct tty_struct *tty, struct serial_icounter_struct *icount)
+static int sp_get_icount(struct tty_struct *tty, struct serial_icounter_struct *icount)
 {
     struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
     struct async_icount cnow;
@@ -1305,7 +1358,7 @@ static int scmtty_get_icount(struct tty_struct *tty, struct serial_icounter_stru
  *
  * @tty: tty device whose buffer should be flushed
  */
-static void scmtty_flush_buffer(struct tty_struct *tty)
+static void sp_flush_buffer(struct tty_struct *tty)
 {
 }
 
@@ -1321,14 +1374,16 @@ static void scmtty_flush_buffer(struct tty_struct *tty)
  * @tty: tty device who is sending this character
  * @ch: character to be sent (typically it is XOFF or XON)
  */
-static void scmtty_send_xchar(struct tty_struct *tty, char ch)
+static void sp_send_xchar(struct tty_struct *tty, char ch)
 {
     int was_paused = 0;
     struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
+
     was_paused = local_vttydev->tx_paused;
     if(was_paused)
         local_vttydev->tx_paused = 0;
-    scmtty_put_char(tty, ch);
+
+    sp_put_char(tty, ch);
     if(was_paused)
         local_vttydev->tx_paused = 1;
 }
@@ -1339,23 +1394,23 @@ static void scmtty_send_xchar(struct tty_struct *tty, char ch)
  * @tty: tty device who should try to empty its output buffer
  * @timeout: timeout value
  */
-static void scmtty_wait_until_sent(struct tty_struct *tty, int timeout)
+static void sp_wait_until_sent(struct tty_struct *tty, int timeout)
 {
 }
 
 /*
- * Asserts or de-asserts serial lines as specified by raise argument.
- * It is handled by this driver exlicitly as of now because this will eventually become
- * entirely internal to the tty port as per linux kernel development plan.
+ * Asserts or de-asserts serial lines as specified by raise argument. It is handled by 
+ * this driver exlicitly as of now because this will eventually become entirely internal 
+ * to the tty port as per linux kernel development plan.
  *
  * @port serial port whose lines is to be updated
  * @raise 1 if line should be asserted, 0 if line should be de-asserted
-static void scm_port_dtr_rts(struct tty_port *port, int raise) 
+static void sp_port_dtr_rts(struct tty_port *port, int raise) 
 {
     if(raise == 1)
-        update_modem_lines(port->tty, TIOCM_DTR | TIOCM_RTS, 0);
+        sp_update_modem_lines(port->tty, TIOCM_DTR | TIOCM_RTS, 0);
     else
-        update_modem_lines(port->tty, 0, TIOCM_DTR | TIOCM_RTS);
+        sp_update_modem_lines(port->tty, 0, TIOCM_DTR | TIOCM_RTS);
 }
  */
 
@@ -1366,7 +1421,7 @@ static void scm_port_dtr_rts(struct tty_port *port, int raise)
  *
  * @return 1 if the carrier is raised otherwise 0
  */
-static int scm_port_carrier_raised(struct tty_port *port)
+static int sp_port_carrier_raised(struct tty_port *port)
 {
     struct vtty_dev *local_vttydev = index_manager[port->tty->index].vttydev;
     return (local_vttydev->msr_reg & SP_MSR_DCD) ? 1 : 0;
@@ -1377,7 +1432,7 @@ static int scm_port_carrier_raised(struct tty_port *port)
  *
  * @port: tty port to shut down
  */
-static void scm_port_shutdown(struct tty_port *port)
+static void sp_port_shutdown(struct tty_port *port)
 {
 }
 
@@ -1388,27 +1443,24 @@ static void scm_port_shutdown(struct tty_port *port)
  * @tty: tty corresponding to the given port
  * @return 0 on success
  */
-static int scm_port_activate(struct tty_port *port, struct tty_struct *tty)
+static int sp_port_activate(struct tty_port *port, struct tty_struct *tty)
 {
     return 0;
 }
 
 /*
- * Typically used for destroying serial port specific resources and freeing them. Define this function as
- * we would free port structure our selves later.
+ * Invoked when tty is going to be destroyed and driver should release resources.
  *
- * Use for debug: printk(KERN_ERR "%pF CALLED %s at tty index : %d\n", __builtin_return_address(0), __FUNCTION__, tty->index);
+ * @port: port which is going to be freed.
  */
-/*
-static void scm_port_destruct(struct tty_port *port)
+static void sp_port_destruct(struct tty_port *port)
 {
- Let kernel release memory as appropriate.
+    kfree(port);
 }
- */
 
 /*
  * Gives next available index and last used index for virtual tty devices created. Invoke as shown below:
- * $ head -c 46 /proc/scmtty_vadaptkm
+ * $ head -c 46 /proc/sp_vmpscrdk
  * 
  * @file: file for proc file
  * @buf: user space buffer that will contain data when this function returns
@@ -1417,7 +1469,7 @@ static void scm_port_destruct(struct tty_port *port)
  *
  * @return number of bytes copied to user buffer on success or negative error code on error
  */
-static ssize_t scmtty_vadapt_proc_read(struct file *file, char __user *buf, size_t size, loff_t *ppos)
+static ssize_t sp_vcard_proc_read(struct file *file, char __user *buf, size_t size, loff_t *ppos)
 {
     int x = 0;
     int ret = 0;
@@ -1488,6 +1540,7 @@ static ssize_t scmtty_vadapt_proc_read(struct file *file, char __user *buf, size
     ret = copy_to_user(buf, &data, 46);
     if(ret)
         return -EFAULT;
+
     return 46;
 }
 
@@ -1499,7 +1552,7 @@ static ssize_t scmtty_vadapt_proc_read(struct file *file, char __user *buf, size
  * 
  * @return 0 on success or negative error code on failure.
  */
-static int extract_pin_mapping(char data[], int x) 
+static int sp_extract_pin_mapping(char data[], int x) 
 {
     int i = 0;
     int mapping = 0;
@@ -1527,7 +1580,7 @@ static int extract_pin_mapping(char data[], int x)
 
 /*
  * This function is equivalent to a typical 'probe' function in linux device driver model for this virtual
- * adaptor.
+ * card.
  *
  * Standard DB9 pin assignment: 1 - DCD, 2 - RX, 3 - TX, 4 - DTR, 5 - GND, 6 - DSR, 7 - RTS, 8 - CTS, 9 - RI.
  *
@@ -1538,25 +1591,25 @@ static int extract_pin_mapping(char data[], int x)
  * sensitive. The last and second last x/y defines if DTR should be raised or not when port is opened.
  *
  * 1. Create standard null modem connection:
- * $echo "gennm#vdev1#vdev2#7-8,x,x,x#4-1,6,x,x#7-8,x,x,x#4-1,6,x,x#y#y" > /proc/scmtty_vadaptkm
+ * $echo "gennm#vdev1#vdev2#7-8,x,x,x#4-1,6,x,x#7-8,x,x,x#4-1,6,x,x#y#y" > /proc/sp_vmpscrdk
  *
  * 2. Create standard loop back connection:
- * $echo "genlb#vdevt#xxxxx#7-8,x,x,x#4-1,6,x,x#x-x,x,x,x#x-x,x,x,x#y#x" > /proc/scmtty_vadaptkm
+ * $echo "genlb#vdevt#xxxxx#7-8,x,x,x#4-1,6,x,x#x-x,x,x,x#x-x,x,x,x#y#x" > /proc/sp_vmpscrdk
  *
  * 3. Delete a particular tty device:
- * $echo "del#vdevt#xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" > /proc/scmtty_vadaptkm
+ * $echo "del#vdevt#xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" > /proc/sp_vmpscrdk
  *
- * 4. Delete all virtual tty devices in this adaptor:
- * $echo "del#xxxxx#xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" > /proc/scmtty_vadaptkm
+ * 4. Delete all virtual tty devices in this card:
+ * $echo "del#xxxxx#xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" > /proc/sp_vmpscrdk
  *
- * @file: file representing scm proc file
+ * @file: file representing sp proc file
  * @buf: command supplied by caller
  * @length: length of the command
  * @ppos: offset in file
  *
  * @return number of bytes consumed by this function on success or negative error code on failure.
  */
-static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *buf, size_t length, loff_t * ppos)
+static ssize_t sp_vcard_proc_write(struct file *file, const char __user *buf, size_t length, loff_t * ppos)
 {
     int x = -1;
     int y = -1;
@@ -1576,8 +1629,6 @@ static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *bu
 
     struct vtty_dev *vttydev1 = NULL;
     struct vtty_dev *vttydev2 = NULL;
-    struct tty_port *port1 = NULL;
-    struct tty_port *port2 = NULL;
     struct device *device1 = NULL;
     struct device *device2 = NULL;
     struct tty_struct *tty;
@@ -1613,7 +1664,7 @@ static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *bu
     if(create == 1) {
         /* Create device(s) command sent */
 
-        /* Extract 1st device index */
+        /* Extract 1st device index (for both null modem and loop back) */
         x = 6;
         if(data[6] != 'x') {
             memset(tmp, '\0', sizeof(tmp));
@@ -1631,16 +1682,6 @@ static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *bu
         vttydev1 = (struct vtty_dev *) kcalloc(1, sizeof(struct vtty_dev), GFP_KERNEL);
         if(vttydev1 == NULL)
             return -ENOMEM;
-
-        port1 = (struct tty_port *) kcalloc(1, sizeof(struct tty_port), GFP_KERNEL);
-        if(port1 == NULL) {
-            ret = -ENOMEM;
-            goto fail_arg;
-        }
-
-        /* First initialize and then set port operations */
-        tty_port_init(port1);
-        port1->ops = &vttydev_port_ops;
 
         /* Extract 2nd device index if null modem pair is to be created */
         if(is_loopback != 1) {
@@ -1667,14 +1708,6 @@ static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *bu
                 ret = -ENOMEM;
                 goto fail_arg;
             }
-
-            port2 = (struct tty_port *) kcalloc(1, sizeof(struct tty_port), GFP_KERNEL);
-            if(port2 == NULL) {
-                ret = -ENOMEM;
-                goto fail_arg;
-            }
-            tty_port_init(port2);
-            port2->ops = &vttydev_port_ops;
         }
 
         /* rts mappings (dev1) */
@@ -1682,7 +1715,7 @@ static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *bu
             ret = -EINVAL;
             goto fail_arg;
         }
-        ret = extract_pin_mapping(data, 20);
+        ret = sp_extract_pin_mapping(data, 20);
         if(ret < 0)
             goto fail_arg;
         vdev1rts = ret;
@@ -1691,7 +1724,7 @@ static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *bu
             goto fail_arg;
 
         /* dtr mapping (dev1) */
-        ret = extract_pin_mapping(data, 30);
+        ret = sp_extract_pin_mapping(data, 30);
         if(ret < 0)
             goto fail_arg;
         vdev1dtr = ret;
@@ -1705,7 +1738,7 @@ static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *bu
                 ret = -EINVAL;
                 goto fail_arg;
             }
-            ret = extract_pin_mapping(data, 40);
+            ret = sp_extract_pin_mapping(data, 40);
             if(ret < 0)
                 goto fail_arg;
             vdev2rts = ret;
@@ -1714,7 +1747,7 @@ static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *bu
             if((data[47] != '#') || (data[48] != '4') || (data[49] != '-'))
                 goto fail_arg;
 
-            ret = extract_pin_mapping(data, 50);
+            ret = sp_extract_pin_mapping(data, 50);
             if(ret < 0)
                 goto fail_arg;
             vdev2dtr = ret;
@@ -1769,8 +1802,6 @@ static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *bu
         index_manager[i].vttydev = vttydev1;
         mutex_init(&vttydev1->lock);
 
-        tty_port_link_device(port1, scmtty_driver, i);
-
         if(is_loopback != 1) {
             y = -1;
             if(vdev2idx == -1) {
@@ -1815,11 +1846,9 @@ static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *bu
             index_manager[y].index = y;
             index_manager[y].vttydev = vttydev2;
             mutex_init(&vttydev2->lock);
-
-            tty_port_link_device(port2, scmtty_driver, y);
         }
 
-        device1 = tty_register_device(scmtty_driver, i, NULL);
+        device1 = tty_register_device(spvtty_driver, i, NULL);
         if(device1 == NULL) {
             ret = -ENOMEM;
             mutex_unlock(&adaptlock);
@@ -1831,13 +1860,13 @@ static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *bu
 
         x = sysfs_create_group(&device1->kobj, &sp_info_attr_group);
         if(x < 0) {
-            tty_unregister_device(scmtty_driver, i);
+            tty_unregister_device(spvtty_driver, i);
             mutex_unlock(&adaptlock);
             goto fail_arg;
         }
 
         if(is_loopback != 1) {
-            device2 = tty_register_device(scmtty_driver, y, NULL);
+            device2 = tty_register_device(spvtty_driver, y, NULL);
             if(device2 == NULL) {
                 ret = -ENOMEM;
                 mutex_unlock(&adaptlock);
@@ -1849,7 +1878,7 @@ static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *bu
 
             x = sysfs_create_group(&device2->kobj, &sp_info_attr_group);
             if(x < 0) {
-                tty_unregister_device(scmtty_driver, y);
+                tty_unregister_device(spvtty_driver, y);
                 index_manager[y].index = -1;
                 mutex_unlock(&adaptlock);
                 goto fail_register;
@@ -1882,19 +1911,23 @@ static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *bu
 
             mutex_lock(&adaptlock);
 
+            /* First tty must be released and than port. */
             for(x=0; x < max_num_vtty_dev; x++) {
                 if (index_manager[x].index != -1) {
+
                     vttydev1 = index_manager[x].vttydev;
-                    sysfs_remove_group(&vttydev1->device->kobj, &sp_info_attr_group);
-                    tty_unregister_device(scmtty_driver, index_manager[x].index);
-                    if (vttydev1 && vttydev1->own_tty && vttydev1->own_tty->port) {
-                        tty = tty_port_tty_get(vttydev1->own_tty->port);
-                        if (tty) {
-                            tty_vhangup(tty);
-                            tty_kref_put(tty);
+                    if (vttydev1 != NULL) {
+
+                        sysfs_remove_group(&vttydev1->device->kobj, &sp_info_attr_group);
+                        tty_unregister_device(spvtty_driver, index_manager[x].index);
+
+                        if (vttydev1->own_tty && vttydev1->own_tty->port) {
+                            tty = tty_port_tty_get(vttydev1->own_tty->port);
+                            if (tty) {
+                                tty_vhangup(tty);
+                                tty_kref_put(tty);
+                            }
                         }
-                        if (scmtty_driver->ports[x])
-                            tty_port_put(scmtty_driver->ports[x]);
                         kfree(index_manager[x].vttydev);
                     }
                     index_manager[x].index = -1;
@@ -1906,6 +1939,7 @@ static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *bu
             last_lbdev_idx  = -1;
             last_nmdev1_idx = -1;
             last_nmdev2_idx = -1;
+
             mutex_unlock(&adaptlock);
         }
         else {
@@ -1933,21 +1967,20 @@ static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *bu
                 x = index_manager[vdev1idx].index;
                 vttydev1 = index_manager[x].vttydev;
                 sysfs_remove_group(&vttydev1->device->kobj, &sp_info_attr_group);
-                tty_unregister_device(scmtty_driver, index_manager[x].index);
+                tty_unregister_device(spvtty_driver, index_manager[x].index);
                 if (vttydev1 && vttydev1->own_tty && vttydev1->own_tty->port) {
                     tty = tty_port_tty_get(vttydev1->own_tty->port);
                     if (tty) {
                         tty_vhangup(tty);
                         tty_kref_put(tty);
                     }
-
                 }
 
                 if (vttydev1->own_index != vttydev1->peer_index) {
                     y = index_manager[vttydev1->peer_index].index;
                     vttydev2 = index_manager[y].vttydev;
                     sysfs_remove_group(&vttydev2->device->kobj, &sp_info_attr_group);
-                    tty_unregister_device(scmtty_driver, index_manager[y].index);
+                    tty_unregister_device(spvtty_driver, index_manager[y].index);
                     if (vttydev2 && vttydev2->own_tty && vttydev2->own_tty->port) {
                         tty = tty_port_tty_get(vttydev2->own_tty->port);
                         if (tty) {
@@ -1958,15 +1991,10 @@ static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *bu
                 }
 
                 if (x != -1) {
-                    /* let the last holder of this object cause it to be cleaned up */
-                    if (scmtty_driver->ports[x])
-                        tty_port_put(scmtty_driver->ports[x]);
                     kfree(index_manager[x].vttydev);
                     index_manager[x].index = -1;
                 }
                 if (y != -1) {
-                    if (scmtty_driver->ports[y])
-                        tty_port_put(scmtty_driver->ports[y]);
                     kfree(index_manager[y].vttydev);
                     index_manager[y].index = -1;
                     --total_nm_pair;
@@ -1986,82 +2014,80 @@ static ssize_t scmtty_vadapt_proc_write(struct file *file, const char __user *bu
 
     fail_register:
     sysfs_remove_group(&device1->kobj, &sp_info_attr_group);
-    tty_unregister_device(scmtty_driver, i);
+    tty_unregister_device(spvtty_driver, i);
 
     fail_arg:
     index_manager[i].index = -1;
+
     if(vttydev2 != NULL)
         kfree(vttydev2);
+
     if(vttydev1 != NULL)
         kfree(vttydev1);
-    if(port2 != NULL) {
-        tty_port_put(port2);
-    }
-    if(port1 != NULL) {
-        tty_port_put(port1);
-    }
+
     return ret;
 }
 
 /*
- * Invoked when user space process opens /proc/scmtty_vadaptkm file to create/destroy
+ * Invoked when user space process opens /proc/sp_vmpscrdk file to create/destroy
  * virtual tty device(s).
  *
  * @inode: inode in file system corresponding to this file
- * @file: file representing scm proc file
+ * @file: file representing sp proc file
  *
  * @return 0 on success.
  */
-static int scmtty_vadapt_proc_open(struct inode *inode, struct  file *file)
+static int sp_vcard_proc_open(struct inode *inode, struct  file *file)
 {
     return 0;
 }
 
 /*
- * Invoked when user space process closes /proc/scmtty_vadaptkm file.
+ * Invoked when user space process closes /proc/sp_vmpscrdk file.
  *
- * @inode: inode in file system corresponding to this file
- * @file: file representing scm proc file
+ * @inode: inode in file system corresponding to this file.
+ * @file: file representing sp proc file.
  *
  * @return 0 on success.
  */
-static int scmtty_vadapt_proc_close(struct inode *inode, struct file *file)
+static int sp_vcard_proc_close(struct inode *inode, struct file *file)
 {
     return 0;
 }
 
-static const struct file_operations scmtty_vadapt_proc_fops = {
+static const struct file_operations sp_vcard_proc_fops = {
         .owner = THIS_MODULE,
-        .open = scmtty_vadapt_proc_open,
-        .read = scmtty_vadapt_proc_read,
-        .write = scmtty_vadapt_proc_write,
-        .release = scmtty_vadapt_proc_close,
+        .open = sp_vcard_proc_open,
+        .read = sp_vcard_proc_read,
+        .write = sp_vcard_proc_write,
+        .release = sp_vcard_proc_close,
 };
 
-static const struct tty_operations scm_serial_ops = {
-        .open            = scmtty_open,
-        .close           = scmtty_close,
-        .write           = scmtty_write,
-        .put_char        = scmtty_put_char,
-        .flush_chars     = scmtty_flush_chars,
-        .write_room      = scmtty_write_room,
-        .chars_in_buffer = scmtty_chars_in_buffer,
-        .ioctl           = scmtty_ioctl,
-        .set_termios     = scmtty_set_termios,
-        .throttle        = scmtty_throttle,
-        .unthrottle      = scmtty_unthrottle,
-        .stop            = scmtty_stop,
-        .start           = scmtty_start,
-        .hangup          = scmtty_hangup,
-        .break_ctl       = scmtty_break_ctl,
-        .flush_buffer    = scmtty_flush_buffer,
-        .wait_until_sent = scmtty_wait_until_sent,
-        .send_xchar      = scmtty_send_xchar,
-        .tiocmget        = scmtty_tiocmget,
-        .tiocmset        = scmtty_tiocmset,
-        .get_icount      = scmtty_get_icount,
+static const struct tty_operations sp_serial_ops = {
+        .install         = sp_install,
+        .cleanup         = sp_cleanup,
+        .open            = sp_open,
+        .close           = sp_close,
+        .write           = sp_write,
+        .put_char        = sp_put_char,
+        .flush_chars     = sp_flush_chars,
+        .write_room      = sp_write_room,
+        .chars_in_buffer = sp_chars_in_buffer,
+        .ioctl           = sp_ioctl,
+        .set_termios     = sp_set_termios,
+        .throttle        = sp_throttle,
+        .unthrottle      = sp_unthrottle,
+        .stop            = sp_stop,
+        .start           = sp_start,
+        .hangup          = sp_hangup,
+        .break_ctl       = sp_break_ctl,
+        .flush_buffer    = sp_flush_buffer,
+        .wait_until_sent = sp_wait_until_sent,
+        .send_xchar      = sp_send_xchar,
+        .tiocmget        = sp_tiocmget,
+        .tiocmset        = sp_tiocmset,
+        .get_icount      = sp_get_icount,
 };
-
 /*
  * Invoked when this driver is loaded. If the user supplies correct number of virtual devices
  * to be created when this module is loaded, the virtual devices will be made, otherwise they
@@ -2073,7 +2099,7 @@ static const struct tty_operations scm_serial_ops = {
  * $insmod ./tty2comKm.ko max_num_vtty_dev=20 init_num_nm_pair=1 init_num_lb_dev=1
  *
  * First all the null modem pair will be created and then loop back device will be created if
- * creating virtual devices at module load time is specified. For example for above command line
+ * creating virtual devices at module load time is specified. For example for above command line:
  * 1. null modem pair : /dev/tty2com0 <---> /dev/tty2com1
  * 2. loop back       : /dev/tty2com2
  * 
@@ -2083,7 +2109,7 @@ static const struct tty_operations scm_serial_ops = {
  *
  * @return: 0 on success or negative error code on failure.
  */
-static int __init scm_tty2comKm_init(void)
+static int __init sp_tty2comKm_init(void)
 {
     int x = 0;
     int ret = 0;
@@ -2091,25 +2117,25 @@ static int __init scm_tty2comKm_init(void)
 
     /* Causes allocation of memory for 'struct tty_port' and 'struct cdev' for all tty devices this
      * driver can handle. */
-    scmtty_driver = tty_alloc_driver(max_num_vtty_dev, 0);
-    if (!scmtty_driver)
+    spvtty_driver = tty_alloc_driver(max_num_vtty_dev, 0);
+    if (!spvtty_driver)
         return -ENOMEM;
 
-    scmtty_driver->owner = THIS_MODULE;
-    scmtty_driver->driver_name = "tty2comKm";
-    scmtty_driver->name = "tty2com";
-    scmtty_driver->minor_start = 0;
-    scmtty_driver->major = SP_VTTY_MAJOR;
-    scmtty_driver->type = TTY_DRIVER_TYPE_SERIAL;
-    scmtty_driver->subtype = SERIAL_TYPE_NORMAL;
-    scmtty_driver->flags = TTY_DRIVER_REAL_RAW | TTY_DRIVER_RESET_TERMIOS | TTY_DRIVER_DYNAMIC_DEV;
-    scmtty_driver->init_termios = tty_std_termios;
-    scmtty_driver->init_termios.c_cflag = B9600 | CS8 | CREAD | HUPCL;
-    scmtty_driver->init_termios.c_ispeed = scmtty_driver->init_termios.c_ospeed = 9600;
+    spvtty_driver->owner = THIS_MODULE;
+    spvtty_driver->driver_name = "tty2comKm";
+    spvtty_driver->name = "tty2com";
+    spvtty_driver->minor_start = 0;
+    spvtty_driver->major = SP_VTTY_MAJOR;
+    spvtty_driver->type = TTY_DRIVER_TYPE_SERIAL;
+    spvtty_driver->subtype = SERIAL_TYPE_NORMAL;
+    spvtty_driver->flags = TTY_DRIVER_REAL_RAW | TTY_DRIVER_RESET_TERMIOS | TTY_DRIVER_DYNAMIC_DEV;
+    spvtty_driver->init_termios = tty_std_termios;
+    spvtty_driver->init_termios.c_cflag = B9600 | CS8 | CREAD | HUPCL;
+    spvtty_driver->init_termios.c_ispeed = spvtty_driver->init_termios.c_ospeed = 9600;
 
-    tty_set_operations(scmtty_driver, &scm_serial_ops);
+    tty_set_operations(spvtty_driver, &sp_serial_ops);
 
-    ret = tty_register_driver(scmtty_driver);
+    ret = tty_register_driver(spvtty_driver);
     if (ret)
         goto failed_register;
 
@@ -2126,7 +2152,7 @@ static int __init scm_tty2comKm_init(void)
 
     /* Application should read/write to this file to create/destroy tty device and query informations associated
      * with them */
-    pde = proc_create("scmtty_vadaptkm", 0666, NULL, &scmtty_vadapt_proc_fops);
+    pde = proc_create("sp_vmpscrdk", (S_IRUGO | S_IWUGO), NULL, &sp_vcard_proc_fops);
     if(pde == NULL) {
         ret = -ENOMEM;
         goto failed_proc;
@@ -2135,14 +2161,14 @@ static int __init scm_tty2comKm_init(void)
     /* If module was supplied parameters create null-modem and loopback virtual tty devices */
     if (((2 * init_num_nm_pair) + init_num_lb_dev) <= max_num_vtty_dev) {
         for(x=0; x < init_num_nm_pair; x++) {
-            ret = scmtty_vadapt_proc_write(NULL, NULL, 2, NULL);
+            ret = sp_vcard_proc_write(NULL, NULL, 2, NULL);
             if(ret < 0)
-                printk(KERN_INFO "tty2comKm: failed to create null modem pair at index %d with error code %d\n", x, ret);
+                printk(KERN_WARNING "tty2comKm: failed to create null modem pair at index %d with error code %d\n", x, ret);
         }
         for(x=0; x < init_num_lb_dev; x++) {
-            ret = scmtty_vadapt_proc_write(NULL, NULL, 3, NULL);
+            ret = sp_vcard_proc_write(NULL, NULL, 3, NULL);
             if(ret < 0)
-                printk(KERN_INFO "tty2comKm: failed to create loop back device at index %d with error code %d\n", x, ret);
+                printk(KERN_WARNING "tty2comKm: failed to create loop back device at index %d with error code %d\n", x, ret);
         }
     }
 
@@ -2152,9 +2178,9 @@ static int __init scm_tty2comKm_init(void)
     failed_proc:
     kfree(index_manager);
     failed_alloc:
-    tty_unregister_driver(scmtty_driver);
+    tty_unregister_driver(spvtty_driver);
     failed_register:
-    put_tty_driver(scmtty_driver);
+    put_tty_driver(spvtty_driver);
     return ret;
 }
 
@@ -2164,27 +2190,30 @@ static int __init scm_tty2comKm_init(void)
  * driver's disconnected logic. For clean exit, kicking out dependents, releasing resources hangup is
  * used.
  */
-static void __exit scm_tty2comKm_exit(void)
+static void __exit sp_tty2comKm_exit(void)
 {
     int x = 0;
     struct vtty_dev *vttydev = NULL;
     struct tty_struct *tty;
 
-    remove_proc_entry("scmtty_vadaptkm", NULL);
+    remove_proc_entry("sp_vmpscrdk", NULL);
 
     for(x=0; x < max_num_vtty_dev; x++) {
         if (index_manager[x].index != -1) {
+
             vttydev = index_manager[x].vttydev;
             sysfs_remove_group(&vttydev->device->kobj, &sp_info_attr_group);
-            tty_unregister_device(scmtty_driver, index_manager[x].index);
+
+            tty_unregister_device(spvtty_driver, index_manager[x].index);
+
             if (vttydev && vttydev->own_tty && vttydev->own_tty->port) {
                 tty = tty_port_tty_get(vttydev->own_tty->port);
                 if (tty) {
                     tty_vhangup(tty);
                     tty_kref_put(tty);
                 }
-                if (scmtty_driver->ports[x])
-                    tty_port_put(scmtty_driver->ports[x]);
+                if (spvtty_driver->ports[x])
+                    tty_port_put(spvtty_driver->ports[x]);
                 kfree(index_manager[x].vttydev);
             }
         }
@@ -2192,12 +2221,12 @@ static void __exit scm_tty2comKm_exit(void)
 
     kfree(index_manager);
 
-    tty_unregister_driver(scmtty_driver);
-    put_tty_driver(scmtty_driver);
+    tty_unregister_driver(spvtty_driver);
+    put_tty_driver(spvtty_driver);
 }
 
-module_init(scm_tty2comKm_init);
-module_exit(scm_tty2comKm_exit);
+module_init(sp_tty2comKm_init);
+module_exit(sp_tty2comKm_exit);
 
 module_param(max_num_vtty_dev, ushort, 0);
 MODULE_PARM_DESC(max_num_vtty_dev, "Maximum number of virtual tty devices this driver can create.");
