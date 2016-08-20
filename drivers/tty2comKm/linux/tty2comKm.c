@@ -45,10 +45,10 @@
 #define DRIVER_DESC "Serial port null modem emulation driver (kernel mode)"
 
 /* 
- * Default number of virtual tty ports this driver is going to support.
- * TTY devices are created on demand. Users can override this value at module load time for example 
- * to support 5000 virtual devices :
- * insmod ./tty2comKm.ko max_num_vtty_dev=5000
+ * Default number of virtual tty ports this driver is going to support. TTY devices are created 
+ * on demand. Users can override this value at module load time for example to support 5000 tty 
+ * virtual devices :
+ * $ insmod ./tty2comKm.ko max_num_vtty_dev=5000
  */
 #define VTTY_DEV_DEFAULT_MAX 128
 
@@ -168,16 +168,17 @@ static int sp_port_activate(struct tty_port *port, struct tty_struct *tty);
 static void sp_port_destruct(struct tty_port *port);
 /*static void sp_port_dtr_rts(struct tty_port *port, int raise);*/
 
-/* These 3 values can be overriden if this driver is loaded with parameters provided */
+/* These 4 values can be overriden if this driver is loaded with parameters provided */
+static int minor_begin = 0;
 static ushort max_num_vtty_dev = VTTY_DEV_DEFAULT_MAX;
 static ushort init_num_nm_pair = 0;
-static ushort init_num_lb_dev = 0;
+static ushort init_num_lb_dev  = 0;
 
 static ushort total_nm_pair = 0;
 static ushort total_lb_devs = 0;
-static int last_lbdev_idx  = -1;
-static int last_nmdev1_idx = -1;
-static int last_nmdev2_idx = -1;
+static int last_lbdev_idx   = -1;
+static int last_nmdev1_idx  = -1;
+static int last_nmdev2_idx  = -1;
 
 /* Describes this driver kernel module */
 static struct tty_driver *spvtty_driver;
@@ -2056,10 +2057,10 @@ static int sp_vcard_proc_close(struct inode *inode, struct file *file)
 }
 
 static const struct file_operations sp_vcard_proc_fops = {
-        .owner = THIS_MODULE,
-        .open = sp_vcard_proc_open,
-        .read = sp_vcard_proc_read,
-        .write = sp_vcard_proc_write,
+        .owner   = THIS_MODULE,
+        .open    = sp_vcard_proc_open,
+        .read    = sp_vcard_proc_read,
+        .write   = sp_vcard_proc_write,
         .release = sp_vcard_proc_close,
 };
 
@@ -2088,6 +2089,7 @@ static const struct tty_operations sp_serial_ops = {
         .tiocmset        = sp_tiocmset,
         .get_icount      = sp_get_icount,
 };
+
 /*
  * Invoked when this driver is loaded. If the user supplies correct number of virtual devices
  * to be created when this module is loaded, the virtual devices will be made, otherwise they
@@ -2096,12 +2098,17 @@ static const struct tty_operations sp_serial_ops = {
  * For example; if this driver should support upto maximum 20 devices and create 1 null-modem pair
  * and 1 loop back device, load this driver module as shown below:
  *
- * $insmod ./tty2comKm.ko max_num_vtty_dev=20 init_num_nm_pair=1 init_num_lb_dev=1
+ * $ insmod ./tty2comKm.ko max_num_vtty_dev=20 init_num_nm_pair=1 init_num_lb_dev=1
  *
  * First all the null modem pair will be created and then loop back device will be created if
  * creating virtual devices at module load time is specified. For example for above command line:
  * 1. null modem pair : /dev/tty2com0 <---> /dev/tty2com1
  * 2. loop back       : /dev/tty2com2
+ *
+ * Further if the minor number used by this driver conflicts with an existing other driver, specifying 
+ * a different minor number can be done as shown below :
+ *
+ * $ insmod ./tty2comKm.ko max_num_vtty_dev=5000 init_num_nm_pair=1 init_num_lb_dev=1 minor_begin=20
  * 
  * This driver does not set CLOCAL by default. This means that the open() system call will block
  * until it find its carrier detect line raised. Application should use O_NONBLOCK/O_NDELAY flag
@@ -2124,7 +2131,7 @@ static int __init sp_tty2comKm_init(void)
     spvtty_driver->owner = THIS_MODULE;
     spvtty_driver->driver_name = "tty2comKm";
     spvtty_driver->name = "tty2com";
-    spvtty_driver->minor_start = 0;
+    spvtty_driver->minor_start = minor_begin;
     spvtty_driver->major = SP_VTTY_MAJOR;
     spvtty_driver->type = TTY_DRIVER_TYPE_SERIAL;
     spvtty_driver->subtype = SERIAL_TYPE_NORMAL;
@@ -2158,7 +2165,7 @@ static int __init sp_tty2comKm_init(void)
         goto failed_proc;
     }
 
-    /* If module was supplied parameters create null-modem and loopback virtual tty devices */
+    /* If module was supplied parameters, create null-modem and loopback virtual tty devices */
     if (((2 * init_num_nm_pair) + init_num_lb_dev) <= max_num_vtty_dev) {
         for(x=0; x < init_num_nm_pair; x++) {
             ret = sp_vcard_proc_write(NULL, NULL, 2, NULL);
@@ -2170,6 +2177,8 @@ static int __init sp_tty2comKm_init(void)
             if(ret < 0)
                 printk(KERN_WARNING "tty2comKm: failed to create loop back device at index %d with error code %d\n", x, ret);
         }
+    }else {
+        printk(KERN_WARNING "tty2comKm: not creating specified devices use to invalid total !\n");
     }
 
     printk(KERN_INFO "%s %s %s\n", "tty2comKm:", DRIVER_DESC, DRIVER_VERSION);
@@ -2203,7 +2212,6 @@ static void __exit sp_tty2comKm_exit(void)
 
             vttydev = index_manager[x].vttydev;
             sysfs_remove_group(&vttydev->device->kobj, &sp_info_attr_group);
-
             tty_unregister_device(spvtty_driver, index_manager[x].index);
 
             if (vttydev && vttydev->own_tty && vttydev->own_tty->port) {
@@ -2212,8 +2220,6 @@ static void __exit sp_tty2comKm_exit(void)
                     tty_vhangup(tty);
                     tty_kref_put(tty);
                 }
-                if (spvtty_driver->ports[x])
-                    tty_port_put(spvtty_driver->ports[x]);
                 kfree(index_manager[x].vttydev);
             }
         }
@@ -2236,6 +2242,9 @@ MODULE_PARM_DESC(init_num_nm_pair, "Number of standard null modem pairs to be cr
 
 module_param(init_num_lb_dev, ushort, 0);
 MODULE_PARM_DESC(init_num_lb_dev, "Number of standard loopback tty devices to be created at load time.");
+
+module_param(minor_begin, int, 0);
+MODULE_PARM_DESC(init_num_lb_dev, "Minor number of device nodes i.e. starting index of device nodes.");
 
 MODULE_AUTHOR( DRIVER_AUTHOR );
 MODULE_DESCRIPTION( DRIVER_DESC );
