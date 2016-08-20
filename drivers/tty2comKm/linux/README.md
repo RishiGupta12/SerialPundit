@@ -74,8 +74,34 @@ The file 99-tty2comKm.rules contains udev rules required by this driver.
 ACTION=="add", SUBSYSTEM=="tty", KERNEL=="tty2com[0-9]*", MODE="0666", RUN+="/bin/chmod 0666 %S/%p/evt"
 ```
 
-####Debugging
+##Getting information
 ---------------------
+
+- Dynamic debugging
+If the kernel is compiled with CONFIG_DYNAMIC_DEBUG=y and debug log level for printk is set, this driver will print extra 
+debugging information at runtime. To set printk log level to debug and enable extra logs from this driver, run following 
+command.
+```sh
+echo 8 > /proc/sys/kernel/printk
+echo -n "module tty2comKm +p" > /sys/kernel/debug/dynamic_debug/control
+```
+
+- Information about running module
+```
+# modinfo tty2comKm.ko
+filename:       /home/rishi/tty2comKm.ko
+version:        v1.0
+license:        GPL v2
+description:    Serial port null modem emulation driver (kernel mode)
+author:         Rishi Gupta
+srcversion:     99B3ABD56D2DE085A736F67
+depends:        
+vermagic:       4.4.0-34-generic SMP mod_unload modversions 
+parm:           max_num_vtty_dev:Maximum number of virtual tty devices this driver can create. (ushort)
+parm:           init_num_nm_pair:Number of standard null modem pairs to be created at load time. (ushort)
+parm:           minor_begin:int
+parm:           init_num_lb_dev:Number of standard loopback tty devices to be created at load time. (ushort)
+```
 
 - Kernel logs  
 ```
@@ -87,22 +113,5 @@ tty2comKm: Serial port null modem emulation driver (kernel mode) v1.0
 ```
 $ lsmod | grep tty2comKm
 tty2comKm              22833  0
-```
-
-- Module information from sysfs  
-```
-$ ls -l /sys/module/tty2comKm/
-total 0
--r--r--r-- 1 root root 4096 Apr 13 17:55 coresize
-drwxr-xr-x 2 root root    0 Apr 13 17:55 holders
--r--r--r-- 1 root root 4096 Apr 13 17:55 initsize
--r--r--r-- 1 root root 4096 Apr 13 17:55 initstate
-drwxr-xr-x 2 root root    0 Apr 13 17:55 notes
--r--r--r-- 1 root root 4096 Apr 13 17:55 refcnt
-drwxr-xr-x 2 root root    0 Apr 13 17:55 sections
--r--r--r-- 1 root root 4096 Apr 13 17:55 srcversion
--r--r--r-- 1 root root 4096 Apr 13 17:55 taint
---w------- 1 root root 4096 Apr 13 17:54 uevent
--r--r--r-- 1 root root 4096 Apr 13 17:55 version
 ```
 
