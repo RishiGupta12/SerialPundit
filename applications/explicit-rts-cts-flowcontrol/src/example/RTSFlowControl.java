@@ -1,13 +1,13 @@
 /*
- * This file is part of SerialPundit project and software.
+ * This file is part of SerialPundit.
  * 
  * Copyright (C) 2014-2016, Rishi Gupta. All rights reserved.
  *
- * The SerialPundit software is DUAL licensed. It is made available under the terms of the GNU Affero 
+ * The SerialPundit is DUAL LICENSED. It is made available under the terms of the GNU Affero 
  * General Public License (AGPL) v3.0 for non-commercial use and under the terms of a commercial 
  * license for commercial use of this software. 
  * 
- * The SerialPundit software is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
+ * The SerialPundit is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  */
 
@@ -47,7 +47,7 @@ final class DataHandler implements Runnable {
             scm.configureComPortControl(handle, FLOWCONTROL.NONE, 'x', 'x', false, false);
             context = scm.createBlockingIOContext();
 
-            // When a serial port is opened using this library, by default DTR and RTS line will be asserted.
+            // When a serial port is opened using serialpundit, by default DTR and RTS line will be asserted.
             // This may make serial device think that application running on host computer is ready for 
             // communication. So, reset these lines until application has finished all initialization. Use 
             // a keyword ("start") to sync application and firmware at startup.

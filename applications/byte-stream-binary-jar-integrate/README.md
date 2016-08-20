@@ -1,5 +1,5 @@
 This application example demonstrates how to use InputStream/OutputStream for exchanging data with 
-serial port. It also shows how this library can be integrated into existing binary-only 3rd party
+serial port. It also shows how serialpundit can be integrated into existing binary-only 3rd party
 jar using standard InputStream/OutputStream via interface.
 
 !["serial communication in java"](output.png?raw=true "serial communication in java")

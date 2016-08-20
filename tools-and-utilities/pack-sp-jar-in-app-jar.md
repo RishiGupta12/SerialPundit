@@ -1,6 +1,6 @@
 ##Packing scm-x.x.x.jar in an application jar
 
-This note describes how to pack any sp-xxx.jar library into an application jar file for an easy deployment or distribution purpose.
+This note describes how to pack any sp-xxx.jar file into an application jar file for an easy deployment or distribution purpose.
 
 - Download latest sp-xxx.jar from repository.
   https://github.com/RishiGupta12/serial-communication-manager/tree/master/prebuilt-release
@@ -22,4 +22,3 @@ This note describes how to pack any sp-xxx.jar library into an application jar f
 $ java -jar MyApplication.jar
 ```
   
-

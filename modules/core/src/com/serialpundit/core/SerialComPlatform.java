@@ -1,13 +1,13 @@
 /*
- * This file is part of SerialPundit project and software.
+ * This file is part of SerialPundit.
  * 
  * Copyright (C) 2014-2016, Rishi Gupta. All rights reserved.
  *
- * The SerialPundit software is DUAL licensed. It is made available under the terms of the GNU Affero 
+ * The SerialPundit is DUAL LICENSED. It is made available under the terms of the GNU Affero 
  * General Public License (AGPL) v3.0 for non-commercial use and under the terms of a commercial 
  * license for commercial use of this software. 
  * 
- * The SerialPundit software is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
+ * The SerialPundit is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  */
 
@@ -69,71 +69,71 @@ public final class SerialComPlatform {
      * constant with value 0x00. </p>*/
     public static final int ARCH_UNKNOWN = 0x00;
 
-    /** <p>The common value indicating that the library is running on a 32 bit Intel 
+    /** <p>The common value indicating that this software is running on a 32 bit Intel 
      * i386/i486/i586/i686/i786/i886/i986/IA-32 based architecture. Integer constant with value 0x01. </p>*/
     public static final int ARCH_X86 = 0x01;
 
-    /** <p>The common value indicating that the library is running on a 64 bit Intel x86_64 (x86-64/x64/Intel 64) 
+    /** <p>The common value indicating that this software is running on a 64 bit Intel x86_64 (x86-64/x64/Intel 64) 
      * and AMD amd64 based architecture. Integer constant with value 0x02. </p>*/
     public static final int ARCH_AMD64 = 0x02;
 
-    /** <p>The value indicating that the library is running on a 64 bit Intel/HP Itanium based architecture. 
+    /** <p>The value indicating that this software is running on a 64 bit Intel/HP Itanium based architecture. 
      * Integer constant with value 0x03. </p>*/
     public static final int ARCH_IA64 = 0x03;
 
-    /** <p>The value indicating that the library is running on an IA64 32 bit based architecture. Integer 
+    /** <p>The value indicating that this software is running on an IA64 32 bit based architecture. Integer 
      * constant with value 0x04. </p>*/
     public static final int ARCH_IA64_32 = 0x04;
 
-    /** <p>The value indicating that the library is running on a 32 bit PowerPC based architecture from 
+    /** <p>The value indicating that this software is running on a 32 bit PowerPC based architecture from 
      * Apple–IBM–Motorola. Integer constant with value 0x05. </p>*/
     public static final int ARCH_PPC32 = 0x05;
 
-    /** <p>The value indicating that the library is running on a 64 bit PowerPC based architecture from 
+    /** <p>The value indicating that this software is running on a 64 bit PowerPC based architecture from 
      * Apple–IBM–Motorola. Integer constant with value 0x06. </p>*/
     public static final int ARCH_PPC64 = 0x06;
 
-    /** <p>The value indicating that the library is running on a 64 bit PowerPC based architecture in 
+    /** <p>The value indicating that this software is running on a 64 bit PowerPC based architecture in 
      * little endian mode from Apple–IBM–Motorola. Integer constant with value 0x06. </p>*/
     public static final int ARCH_PPC64LE = 0x06;
 
-    /** <p>The value indicating that the library is running on a 32 bit Sparc based architecture from 
+    /** <p>The value indicating that this software is running on a 32 bit Sparc based architecture from 
      * Sun Microsystems. Integer constant with value 0x07. </p>*/
     public static final int ARCH_SPARC32 = 0x07;
 
-    /** <p>The value indicating that the library is running on a 64 bit Sparc based architecture from 
+    /** <p>The value indicating that this software is running on a 64 bit Sparc based architecture from 
      * Sun Microsystems. Integer constant with value 0x08. </p>*/
     public static final int ARCH_SPARC64 = 0x08;
 
-    /** <p>The value indicating that the library is running on a 32 bit PA-RISC based architecture. 
+    /** <p>The value indicating that this software is running on a 32 bit PA-RISC based architecture. 
      * Integer constant with value 0x09. </p>*/
     public static final int ARCH_PA_RISC32 = 0x09;
 
-    /** <p>The value indicating that the library is running on a 64 bit PA-RISC based architecture. 
+    /** <p>The value indicating that this software is running on a 64 bit PA-RISC based architecture. 
      * Integer constant with value 0x0A. </p>*/
     public static final int ARCH_PA_RISC64 = 0x0A;
 
-    /** <p>The value indicating that the library is running on a 32 bit IBM S/390 system. Integer 
+    /** <p>The value indicating that this software is running on a 32 bit IBM S/390 system. Integer 
      * constant with value 0x0B. </p>*/
     public static final int ARCH_S390 = 0x0B;
 
-    /** <p>The value indicating that the library is running on a 64 bit IBM S/390 system. Integer 
+    /** <p>The value indicating that this software is running on a 64 bit IBM S/390 system. Integer 
      * constant with value 0x0C. </p>*/
     public static final int ARCH_S390X = 0x0C;
 
-    /** <p>The value indicating that the library is running on a ARMv5 based architecture CPU. Integer 
+    /** <p>The value indicating that this software is running on a ARMv5 based architecture CPU. Integer 
      * constant with value 0x0D. </p>*/
     public static final int ARCH_ARMV5 = 0x0D;
 
-    /** <p>The value indicating that the library is running on a ARMv6 based platform. Integer 
+    /** <p>The value indicating that this software is running on a ARMv6 based platform. Integer 
      * constant with value 0x0E. </p>*/
     public static final int ARCH_ARMV6 = 0x0E;
 
-    /** <p>The value indicating that the library is running on a ARMv7 based platform. Integer 
+    /** <p>The value indicating that this software is running on a ARMv7 based platform. Integer 
      * constant with value 0x10. </p>*/
     public static final int ARCH_ARMV7 = 0x0F;
 
-    /** <p>The value indicating that the library is running on a ARMv8 based platform. Integer 
+    /** <p>The value indicating that this software is running on a ARMv8 based platform. Integer 
      * constant with value 0x10. </p>*/
     public static final int ARCH_ARMV8 = 0x10;
 
@@ -161,7 +161,7 @@ public final class SerialComPlatform {
     }
 
     /**
-     * <p>Gives operating system type as identified by this library. To interpret returned integer value see 
+     * <p>Gives operating system type as identified by serialpundit. To interpret returned integer value see 
      * the OS_xxxxx constants defined in SerialComPlatform class.</p>
      * 
      * <p>This method may be used to develop application with consistent behavior across different operating systems.
@@ -338,7 +338,7 @@ public final class SerialComPlatform {
     }
 
     /** 
-     * <p>Identifies whether library is running on an android platform.</p>
+     * <p>Identifies whether thsi software is running on an android platform.</p>
      * 
      * @return true if platform is android false otherwise.
      * @throws NullPointerException if "java.vm.vendor" java system property is null.

@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project default="javadoc">
-    <target name="javadoc">
-        <javadoc access="public" author="true" classpath="/home/r/Desktop/sp-jar/sp-core.jar" destdir="/home/r/ws-host-uart/sp-project/javadocs" nodeprecated="false" nodeprecatedlist="false" noindex="false" nonavbar="false" notree="false" packagenames="com.serialpundit.core,com.serialpundit.hid,com.serialpundit.core.util,com.serialpundit.serial.comdb,com.serialpundit.usb,com.serialpundit.serial.ftp,com.serialpundit.serial,com.serialpundit.serial.nullmodem,com.serialpundit.serial.mapper,com.serialpundit.serial.vendor" source="1.7" sourcepath="/home/r/ws-host-uart/sp-project/modules/usb/src:/home/r/ws-host-uart/sp-project/modules/serial/src:/home/r/ws-host-uart/sp-project/modules/hid/src:/home/r/ws-host-uart/sp-project/modules/core/src" splitindex="true" use="true" version="true"/>
-    </target>
-</project>

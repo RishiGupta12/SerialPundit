@@ -21,7 +21,7 @@ which will block until serial device sends some data. Upon reception of data fro
 it prints this data on console, terminates worker thread and notifies application to exit.
      
 #####Going further
-- There are many different versions of read methods provided by this library and an application 
+- There are many different versions of read methods provided by serialpundit and an application 
 can use the method that is best fit for application requirement. Other variant of read are :
      ```java
      Non-blocking

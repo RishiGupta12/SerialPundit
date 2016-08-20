@@ -22,7 +22,7 @@ destroy the blocking context (scm.destroyBlockingIOContext(context)) and close s
 
 #####Going further
    
-- There are many different versions of read methods provided by this library and an application 
+- There are many different versions of read methods provided by serialpundit and an application 
 can use the method that is best fit for application requirement. Other variant of read are :
      ```java
      Non-blocking

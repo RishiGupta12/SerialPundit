@@ -3,28 +3,30 @@ SerialPundit : Serial port communication and much more...
 
 !["serial communication in java"](images/scm.jpg?raw=true "serial communication in java")
 
-An easy to use Java library for serial port and HID communication. It has been ported to Linux, MAC, Windows and embedded SE Linux platforms for both 64/32 bit architectures.
+SerialPundit is a Software Developer Kit (SDK) for serial port and HID communication. It has been ported to Linux, MAC, Windows and embedded SE Linux platforms for both 64/32 bit architectures.
 
 It is powerfully configurable for both poll and event driven application designs be it low volume low frequency data or high volume high frequency data.
 
 It eliminates the complexities of serial port programming for different operating systems, allowing engineers to concentrate on their application logic, facilitating faster engineering and development, reducing development cost and time to market.
 
-##Com port module features
-
-#####Serial over USB
-- Notification on USB Hotplug, calls listener whenever a USB-UART IC is added/removed.
+##USB module features
+- USB Hotplug notification; calls listener whenever a USB-UART/HID device is added/removed.
 - Find COM port assigned to a USB device dynamically from USB-IF VID, PID and serial number.
 - Find information about all USB devices connected to system.
 - Custom baud rate setting and high baud rates (3 Mbps) settings supported.
 - USB power related information reporting like selective suspend or auto suspend.
+- Adapt application behavior based on firmware identified on USB device.
+- Statically find if a particular USB device is connected to system or not.
+- List all USB-HID devices connected to system.
 
-#####Legacy
+##Com port module features
 - Access to EIA232 standard DTR, CD, CTS, RTS and DSR signals.
 - Hardware and software flow-control options.
-- Data and event listeners callbacks.
-- Parity and framing errors reporting supported
-- Break condition send and receive API
-- ARM Primecell AMBA compliant UART supported
+- Both polling based and event listener based data/event read supported.
+- Parity and framing errors reporting supported.
+- Break condition send and receive API.
+- ARM Primecell AMBA compliant UART supported.
+- Standard and custom baud rates support.
 
 #####File transfer protocols
 - X/Y/Z modem FTP API implemented with finite state machine.
@@ -36,9 +38,9 @@ It eliminates the complexities of serial port programming for different operatin
 #####Vendor libraries integration
 - Vendor libraries like D2XX from ftdi, SimpleIO from microchip, USBXpress from silicon labs etc supported.
 
-#####Feature rich
+#####Others
+- Application specific parameters tuning for performance with and without modification of drivers.
 - Java NIO direct byte buffer API for faster data transfer.
-- Both polling based and event listener based data/event read supported.
 - IOCTL calls for GPIO control and power management.
 - Find which driver is driving a particular serial port.
 - Completely port re-entrant, allowing it to be time-sliced.
@@ -46,20 +48,19 @@ It eliminates the complexities of serial port programming for different operatin
 - Input and Output byte stream (blocking and non-blocking) for serial port communication.
 - CRC and other utility class for common functions for quick application development.
 - Optimized read and write methods for single byte, multiple byte or string sending/receiving.
-- Application specific parameters tuning for performance with and without modification of drivers.
 - Fast set/unset break condition for DMX512 based devices to control stage lighting and effects.
 - OSGI budles can be created easily for integrating in existing OSGI based application.
 - Two lock concurrent queue algorithm based ring buffer for faster data/event processing.
 - Easily integrate into existing application server software like Apache mina for cloud and IoT etc.
 
-##HID (human interface device) module features
+##HID module features
 - HID class API for communicating with USB-HID devices like MCP2200, CP2110 etc.
 - Dynamically find HID devices or get hotplug event notifications.
 - Input report listener for asynchronous operations.
 - Feature report, input report and output report in raw format available.
 - Find information like serial number, product name, manufacturer etc.
 
-#####Build for performance and quality
+###And we don't stop here...
 - Functional, stress, stability, unit tested (Junit for continuous integration).
 - Maven repository release for maven integration.
 - Extensive error detection and handling for reliable operations.
@@ -78,7 +79,7 @@ It eliminates the complexities of serial port programming for different operatin
 
 The folder prebuilt-release in this repository contains ready-to-use jar file (sp-tty.jar) that can be imported in any project and referenced right away. Simply add sp-tty.jar in your project as an external library. 
 
-To add a jar in Eclipse, right-click on the Project → Build Path → Configure Build Path. Under Libraries tab, click Add Jars or Add External JARs and give the sp-core.jar and sp-tty.jar.
+To add a jar in Eclipse, right-click on the Project &#8594; Build Path &#8594; Configure Build Path. Under Libraries tab, click Add Jars or Add External JARs and give the sp-core.jar and sp-tty.jar.
 
 ```java
 import com.serialpundit.serial.SerialComManager;
@@ -113,7 +114,7 @@ public class Example {
 - [Documentaion](javadocs) updated javadocs for API references.
 
 
-##Help the project grow [<img src="https://github.com/RishiGupta12/SerialPundit/blob/master/images/help.jpg">](https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=gupt21%40gmail%2ecom&lc=IN&item_name=Serial%20Project&button_subtype=services&currency_code=USD&bn=PP%2dBuyNowBF%3abtn_buynowCC_LG%2egif%3aNonHosted)
+##Help the project grow [<img src="https://github.com/RishiGupta12/SerialPundit/blob/master/images/help.jpg">](https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=gupt21@gmail.com&lc=IN&item_name=Serial Project&button_subtype=services&currency_code=USD&bn=PP-BuyNowBF:btn_buynowCC_LG.gif:NonHosted)
 
 - Suggest features and enhancements
 - Report bugs and fixes
@@ -123,11 +124,10 @@ public class Example {
 - Provide peer support on mailing lists, forums or newsgroups
 
 ##Author, License and Copyright
-- The SerialPundit is designed, developed and maintained by Rishi Gupta. He does Linux driver development, embedded systems design, firmware development, circuit designing, prototyping, board bring up etc.     
+- SerialPundit is designed, developed and maintained by Rishi Gupta. He does Linux driver development, embedded systems design, firmware development, circuit designing, prototyping, board bring up etc.     
   Linkdin profile : http://in.linkedin.com/pub/rishi-gupta/20/9b8/a10    
   Xing profile:
   
-- The SerialPundit is DUAL LICENSED. It is made available under the terms of the GNU Affero General Public License (AGPL) v3.0 for non-commercial use and under the terms of a commercial license for commercial use of this library. Contact author for commercial license.
+- SerialPundit is DUAL LICENSED. It is made available under the terms of the GNU Affero General Public License (AGPL) v3.0 for non-commercial use and under the terms of a commercial license for commercial use of this library. Contact author for commercial license.
 
   See LICENSE file in repository for full license text for AGPL v3.0.
-

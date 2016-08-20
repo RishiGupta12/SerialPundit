@@ -39,7 +39,7 @@ is plugged into system, application dynamically find its device node and opens i
      
 #####Going further
    
-- There are many different versions of read/write methods provided by this library and an 
+- There are many different versions of read/write methods provided by serialpundit and an 
 application can use the method that is best fit for application requirement. Other variant 
 of read/write are given below.
 

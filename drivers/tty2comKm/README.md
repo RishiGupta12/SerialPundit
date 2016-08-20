@@ -28,24 +28,25 @@ Desktop application, Eclipse IDE plugin and command line interface is provided t
 - Cases where socat utility does not meet requirements for unix-like OS
 
 ##Features
-- Create standard, loopback or custom pinout connected serial devices
-- Software, hardware and no flow controls emulation
-- Parity, frame, overrun and line break events emulation
-- Control signals (RTS,DTR,CTS,DCD,RI,LOOP,DSR) and all serial port settings
-- Ring indicator line signal emulation
-- Create/destroy virtual serial ports dynamically directly from your application without reboot
-- Operating system specific serial port APIs and IOCTL supported
-- Serial ports can be deleted even when opened by an application (useful in automated testing)
-- Plug and play device emulated
-- Ports can be created automatically at system boots
-- Create large number of serial ports
-- Speed is directly proportional to your software/hardware configuration
-- Virtual box and VMware virtual machine supported
-- Multithreaded environment supported
-- Mismatched line settings causes garbled data as in real life and appropriate error event generation
+- Create standard, loopback or custom pinout connected serial devices.
+- Software, hardware and no flow controls emulation.
+- Parity, frame, overrun and line break events emulation.
+- Control signals (RTS,DTR,CTS,DCD,RI,LOOP,DSR) and all serial port settings.
+- Ring indicator line signal emulation.
+- Create/destroy virtual serial ports dynamically directly from your application without reboot.
+- Operating system specific serial port APIs and IOCTL supported.
+- Serial ports can be deleted even when left opened by an application (useful in automated testing).
+- Plug and play device emulated.
+- Ports can be created automatically at system boots.
+- Create large number of serial ports.
+- Speed is directly proportional to your software/hardware configuration.
+- Virtual box and VMware virtual machine supported.
+- Multithreaded environment supported.
+- Mismatched line settings causes garbled data as in real life and appropriate error event generation.
 - Leverages OS specific feature and technologies like WDM, WMI, power management, PnP etc.
-- Access restriction to created virtual serial ports
-- API to control virtual ports directly from your application
+- Access restriction to created virtual serial ports.
+- API to control virtual ports directly from your application.
+- Dynamically specify minor number of device nodes for Linux OS.
 
 ##Desktop application
 

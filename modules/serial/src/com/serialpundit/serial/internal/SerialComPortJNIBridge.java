@@ -1,13 +1,13 @@
 /*
- * This file is part of SerialPundit project and software.
+ * This file is part of SerialPundit.
  * 
  * Copyright (C) 2014-2016, Rishi Gupta. All rights reserved.
  *
- * The SerialPundit software is DUAL licensed. It is made available under the terms of the GNU Affero 
+ * The SerialPundit is DUAL LICENSED. It is made available under the terms of the GNU Affero 
  * General Public License (AGPL) v3.0 for non-commercial use and under the terms of a commercial 
  * license for commercial use of this software. 
  * 
- * The SerialPundit software is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
+ * The SerialPundit is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  */
 
@@ -34,7 +34,7 @@ import com.serialpundit.serial.internal.SerialComLooper;
  * 
  * <p>In Linux/Windows/Solaris it is possible to run 32 bit JVM on 64 bit OS, while perhaps in mac os x 
  * JVM must match with underlying OS architecture. Whether 32 or 64 bit sp-dll/so file is to be loaded, 
- * is decided by arch of JVM this process is running on. This library included both 32 and 64 bit dll/so 
+ * is decided by arch of JVM this process is running on. SerialPundit includes both 32 and 64 bit dll/so 
  * and therefore 32 bit application using this library with 32 JVM can be run on a 64 bit OS system.</p>
  * 
  * @author Rishi Gupta
@@ -307,7 +307,7 @@ public final class SerialComPortJNIBridge {
             }
         }
         else {
-            throw new SerialComException("This architecture is unknown to this library. Please contact us !");
+            throw new SerialComException("This architecture is unknown to serialpundit. Please contact us !");
         }
 
         try {

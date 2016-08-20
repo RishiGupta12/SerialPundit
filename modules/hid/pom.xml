@@ -5,7 +5,7 @@
   <version>1.0.4</version>
   <packaging>jar</packaging>
   <name>Serial Pundit</name>
-  <description>APIs for HID communication using SerialPundit library</description>
+  <description>HID communication APIs of SerialPundit</description>
   <url>http://serialpundit.com</url>
   <issueManagement>
     <system>GitHub Issues</system>

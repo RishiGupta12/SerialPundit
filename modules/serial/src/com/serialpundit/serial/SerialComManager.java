@@ -1,13 +1,13 @@
 /*
- * This file is part of SerialPundit project and software.
+ * This file is part of SerialPundit.
  * 
  * Copyright (C) 2014-2016, Rishi Gupta. All rights reserved.
  *
- * The SerialPundit software is DUAL licensed. It is made available under the terms of the GNU Affero 
+ * The SerialPundit is DUAL LICENSED. It is made available under the terms of the GNU Affero 
  * General Public License (AGPL) v3.0 for non-commercial use and under the terms of a commercial 
  * license for commercial use of this software. 
  * 
- * The SerialPundit software is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
+ * The SerialPundit is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  */
 
@@ -50,7 +50,7 @@ import com.serialpundit.serial.internal.ISerialComFTPProgress;
 
 
 /**
- * <p>Root of this library.</p>
+ * <p>Root of SerialPundit.</p>
  * 
  * <ul><li><p>Native layer if fails to throw exception when an error occurs would log error message to STDERR file. 
  *     It is assumed that Java application running on production systems will deploy a Java logger which will 

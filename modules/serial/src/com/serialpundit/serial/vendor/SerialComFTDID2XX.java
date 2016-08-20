@@ -1,13 +1,13 @@
 /*
- * This file is part of SerialPundit project and software.
+ * This file is part of SerialPundit.
  * 
  * Copyright (C) 2014-2016, Rishi Gupta. All rights reserved.
  *
- * The SerialPundit software is DUAL licensed. It is made available under the terms of the GNU Affero 
+ * The SerialPundit is DUAL LICENSED. It is made available under the terms of the GNU Affero 
  * General Public License (AGPL) v3.0 for non-commercial use and under the terms of a commercial 
  * license for commercial use of this software. 
  * 
- * The SerialPundit software is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
+ * The SerialPundit is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  */
 
@@ -34,7 +34,7 @@ import com.serialpundit.serial.internal.SerialComFTDID2XXJNIBridge;
  * <ul>
  * <li>The data types used in java layer may be bigger in size than the native layer. For example; 
  * if native function returns 16 bit signed integer, than java method will return 32 bit integer. This 
- * is done to make sure that no data loss occur. This library take care of sign and their applicability 
+ * is done to make sure that no data loss occur. SerialPundit takes care of sign and their applicability 
  * internally.</li>
  * 
  * <li><p>Developers are requested to check with vendor library documentation if a particular function 

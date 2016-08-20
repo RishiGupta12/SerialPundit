@@ -1,6 +1,6 @@
 ####Saving power in embedded systems
 
-If this library is used for serial communication in battery powered embedded systems then a 
+If SerialPundit is used for serial communication in battery powered embedded systems then a 
 power saving can be achieved by calculating delay between transmitter and receive end.
 
 Suppose a tx end send 128 byte frame at 9600 baudrate. Now it will take ~106 milli seconds to 

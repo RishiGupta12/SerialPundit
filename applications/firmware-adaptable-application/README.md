@@ -1,6 +1,6 @@
 This example demonstrates how to write an application that remains compatible with previous
 product/firmware and also provides features of new product/firmware. It also demonstrates
-how to invoke IOCTL operations using this library and use writeString method with specified
+how to invoke IOCTL operations using serialpundit and use writeString method with specified
 character set.
 
 #####Running this application
@@ -20,15 +20,15 @@ Suppose bar code reader does not contain indicator LED to indicate that it is co
 port. After 6 months company adds an LED indicator and the new bar code reader toggles this LED
 using GPIO (general purpose I/O) pins. Now the new application is written in such a way if old
 bar code reader is connected to system, it will not access LED, however if new bar code reader
-is connected to system it will use API provided by this library to toggle LED.
+is connected to system it will use API provided by serialpundit to toggle LED.
      
 #####Going further
 - This program uses only firmware version to differentiate USB devices. Modern USB devices often
-provides user accessible EEPROM for application use. This library contain API to read/write to 
+provides user accessible EEPROM for application use. The serialpundit contain API to read/write to 
 such EEPROMs. Consider using these APIs in your application.
      
 - Typically, default drivers provided by operating system may not contain code to access GPIO or
-EEPROM. Custom or user space drivers need to be used in such cases. This library provide support
+EEPROM. Custom or user space drivers need to be used in such cases. Serialpundit provide support
 for both kernel and user space drivers along with direct use of vendor provided libraries like
 d2xx or usbxpress etc.
 
