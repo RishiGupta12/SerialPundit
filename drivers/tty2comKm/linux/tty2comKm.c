@@ -194,7 +194,7 @@ struct vtty_info *index_manager = NULL;   /*  keep track of indexes in use curre
  * sysfs entries. To align with sysfs spirit 'one-value-per-file' approach is followed so
  * that user space does not have to know data format and their offsets in returned buffer. */
 static DEVICE_ATTR(evt, (S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP), NULL, sp_evt_store);
-static DEVICE_ATTR(ownidx, S_IRUGO, sp_ownidx_show, NULL);
+static DEVICE_ATTR(ownidx,  S_IRUGO, sp_ownidx_show,  NULL);
 static DEVICE_ATTR(peeridx, S_IRUGO, sp_peeridx_show, NULL);
 static DEVICE_ATTR(ortsmap, S_IRUGO, sp_ortsmap_show, NULL);
 static DEVICE_ATTR(odtrmap, S_IRUGO, sp_odtrmap_show, NULL);
@@ -671,10 +671,10 @@ static void sp_cleanup(struct tty_struct *tty)
  * allocation happens otherwise a re-open happens.
  * 
  * If the same serial port is opened more than once, the tty structure passed to this function will 
- * be same but filp structure will be different every time.
+ * be same but filp structure will be different every time. Caller holds tty lock.
  * 
- * @tty: tty structure corresponding to filp file
- * @filp: file pointer for handle to tty
+ * @tty: tty structure corresponding to filp file.
+ * @filp: file pointer for handle to tty.
  * 
  * @return 0 on success or negative error code on failure.
  */
@@ -695,28 +695,22 @@ static int sp_open(struct tty_struct *tty, struct file *filp)
     memset(&local_vttydev->serial, 0, sizeof(struct serial_struct));
     memset(&local_vttydev->icount, 0, sizeof(struct async_icount));
 
-    /* Set low latency so that our tty_push actually pushes data to line discipline immediately 
-       instead of scheduling it. */
-    tty->port->low_latency  = 1;
-
-    tty->port->close_delay  = 0;
-    tty->port->closing_wait = 0;
-    tty->port->drain_delay  = 0;
-
-    mutex_lock(&local_vttydev->lock);
-
     /* Handle DTR raising logic ourselve instead of tty_port helpers doing it. */
     if (local_vttydev->set_dtr_atopen == 1)
         sp_update_modem_lines(tty, TIOCM_DTR | TIOCM_RTS, 0);
 
     /* Associate tty with port and do port level opening. */
     ret = tty_port_open(tty->port, tty, filp);
-    if (ret < 0) {
-        mutex_unlock(&local_vttydev->lock);
+    if (ret < 0) 
         return ret;
-    }
+    
+    /* Set low latency so that our tty_push actually pushes data to line discipline immediately 
+       instead of scheduling it. */
+    tty->port->low_latency  = 1;
+    tty->port->close_delay  = 0;
+    tty->port->closing_wait = 0;
+    tty->port->drain_delay  = 0;
 
-    mutex_unlock(&local_vttydev->lock);
     return ret; 
 }
 
@@ -724,27 +718,21 @@ static int sp_open(struct tty_struct *tty, struct file *filp)
  * Invoked by tty layer when release() is called on the file pointer that was previously created with a 
  * call to open().
  * 
- * @tty: tty structure corresponding to filp file
- * @filp: file pointer for handle to tty
+ * @tty: tty structure corresponding to filp file.
+ * @filp: file pointer for handle to tty.
  * 
  * @return 0 on success or negative error code on failure.
  */
 static void sp_close(struct tty_struct *tty, struct file *filp)
 {
-    struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
-
     if(test_bit(TTY_IO_ERROR, &tty->flags))
         return;
-
-    mutex_lock(&local_vttydev->lock);
 
     if(tty && filp && tty->port && (tty->port->count > 0))
         tty_port_close(tty->port, tty, filp);
 
     if(tty && C_HUPCL(tty) && tty->port && (tty->port->count < 1))
         sp_update_modem_lines(tty, 0, TIOCM_DTR | TIOCM_RTS);
-
-    mutex_unlock(&local_vttydev->lock);
 }
 
 /* 
@@ -776,6 +764,8 @@ static int sp_write(struct tty_struct *tty, const unsigned char *buf, int count)
         tty_to_write = tx_vttydev->peer_tty;
         rx_vttydev = index_manager[tx_vttydev->peer_index].vttydev;
         if((tx_vttydev->baud != rx_vttydev->baud) || (tx_vttydev->uart_frame != rx_vttydev->uart_frame)) {
+            /* Emulate data sent but not received */
+            dev_dbg(tty->dev, "mismatched serial port settings !");
             tx_vttydev->icount.tx++;
             return count;
         }
@@ -804,11 +794,11 @@ static int sp_write(struct tty_struct *tty, const unsigned char *buf, int count)
  * Invoked by tty layer when a single character is to be sent to the tty device. This character may be
  * ignored if there is no room in the device for the character to be sent.
  *
- * @tty: tty device who will send given data
- * @buf: data to be sent
- * @count: number of data bytes in buf
+ * @tty: tty device who will send given data.
+ * @buf: data to be sent.
+ * @count: number of data bytes in buf.
  *
- * @return number of characters sent or negative error code on failure
+ * @return number of characters sent or negative error code on failure.
  */
 static int sp_put_char(struct tty_struct *tty, unsigned char ch)
 {
@@ -851,7 +841,7 @@ static int sp_put_char(struct tty_struct *tty, unsigned char ch)
  * Invoked by tty layer indicating that the driver should inform tty device to start transmitting data out
  * of serial port physically. This tty device already transmit data as soon as it receive it.
  *
- * @tty: tty device who should start transmission
+ * @tty: tty device who should start transmission.
  */
 static void sp_flush_chars(struct tty_struct *tty)
 {
@@ -861,10 +851,10 @@ static void sp_flush_chars(struct tty_struct *tty)
  * Provides port specific information to the caller as a result of executing  TIOCGSERIAL
  * ioctl command.
  *
- * @tty: tty device associated with port in question
- * @arg: user space buffer for returning information
+ * @tty: tty device associated with port in question.
+ * @arg: user space buffer for returning information.
  *
- * @return 0 on success otherwise a negative error code on failure
+ * @return 0 on success otherwise a negative error code on failure.
  */
 static int sp_get_serial_info(struct tty_struct *tty, unsigned long arg)
 {
@@ -898,9 +888,9 @@ static int sp_get_serial_info(struct tty_struct *tty, unsigned long arg)
  * treated as a guarantee and the driver cannot offer a value it later shrinks by more than the number of
  * bytes written.
  *
- * @tty: tty device enquired
+ * @tty: tty device enquired.
  *
- * @return number of bytes that can be queued to this device at the present time
+ * @return number of bytes that can be queued to this device at the present time.
  */
 static int sp_write_room(struct tty_struct *tty)
 {
@@ -916,8 +906,8 @@ static int sp_write_room(struct tty_struct *tty)
  * Invoked when the termios structure (terminal settings) for this tty device is changed. The old_termios
  * contains currently active settings and tty->termios contains new settings to be applied.
  *
- * @tty: tty device whose line settings is to be updated
- * @old_termios: currently applied serial line settings
+ * @tty: tty device whose line settings is to be updated.
+ * @old_termios: currently applied serial line settings.
  */
 static void sp_set_termios(struct tty_struct *tty, struct ktermios *old_termios)
 {
@@ -996,6 +986,8 @@ static void sp_set_termios(struct tty_struct *tty, struct ktermios *old_termios)
     }else {
         uart_frame_settings |= SP_PARITY_NONE;
     }
+    
+    local_vttydev->uart_frame = uart_frame_settings;
 
     mutex_unlock(&local_vttydev->lock);
 }
@@ -1004,9 +996,9 @@ static void sp_set_termios(struct tty_struct *tty, struct ktermios *old_termios)
  * Return the number of bytes of data in the device private output queue to be sent out. Invoked 
  * when ioctl command TIOCOUTQ is executed or by tty layer as and when required (tty_wait_until_sent()).
  *
- * @tty: tty device enquired
+ * @tty: tty device enquired.
  *
- * @return number of bytes of data in the device private output queue
+ * @return number of bytes of data in the device private output queue.
  */
 static int sp_chars_in_buffer(struct tty_struct *tty)
 {
@@ -1016,11 +1008,11 @@ static int sp_chars_in_buffer(struct tty_struct *tty)
 /*
  * Checks if any of the given signal line has changed based on interrupts.
  *
- * @local_vttydev: vtty device for which check has to be made
- * @mask: bit mask of TIOCM_RNG, TIOCM_DSR, TIOCM_CAR and TIOCM_CTS
+ * @local_vttydev: vtty device for which check has to be made.
+ * @mask: bit mask of TIOCM_RNG, TIOCM_DSR, TIOCM_CAR and TIOCM_CTS.
  * @prev: values of previous interrupts
- *
- * @return 1 if changed otherwise 0 if unchanged
+ *.
+ * @return 1 if changed otherwise 0 if unchanged.
  */
 static int sp_check_msr_delta(struct tty_struct *tty, struct vtty_dev *local_vttydev, unsigned long mask, struct async_icount *prev)
 {
@@ -1045,10 +1037,10 @@ static int sp_check_msr_delta(struct tty_struct *tty, struct vtty_dev *local_vtt
 /*
  * Sleeps until at-least one of the modem lines changes.
  *
- * @tty: tty device whose modem lines is to be monitored
- * @mask: bit mask of TIOCM_RNG, TIOCM_DSR, TIOCM_CAR and TIOCM_CTS
+ * @tty: tty device whose modem lines is to be monitored.
+ * @mask: bit mask of TIOCM_RNG, TIOCM_DSR, TIOCM_CAR and TIOCM_CTS.
  *
- * @return -ERESTARTSYS if it was interrupted by a signal and 0 if modem line changed
+ * @return -ERESTARTSYS if it was interrupted by a signal and 0 if modem line changed.
  */
 static int sp_wait_msr_change(struct tty_struct *tty, unsigned long mask)
 {
@@ -1077,11 +1069,11 @@ static int sp_wait_msr_change(struct tty_struct *tty, unsigned long mask)
  * If the requested command is not supported, this driver will return -ENOIOCTLCMD so that the tty layer
  * can invoke generic version of the givwn ioctl command if possible.
  *
- * @tty: tty device for whom given ioctl command is to be executed
- * @cmd: ioctl command to execute
- * @arg: arguments accompanying the command
+ * @tty: tty device for whom given ioctl command is to be executed.
+ * @cmd: ioctl command to execute.
+ * @arg: arguments accompanying the command.
  *
- * @return 0 on success otherwise a negative error code on failures
+ * @return 0 on success otherwise a negative error code on failures.
  */
 static int sp_ioctl(struct tty_struct *tty, unsigned int cmd, unsigned long arg)
 {
@@ -1102,7 +1094,7 @@ static int sp_ioctl(struct tty_struct *tty, unsigned int cmd, unsigned long arg)
  * in hardware. The interrupt handler will raise a flag to indicate transmission should be stopped. 
  * This is achieved in this driver through tx_paused variable.
  *
- * @tty: tty device whose buffers are about to get full
+ * @tty: tty device whose buffers are about to get full.
  */
 static void sp_throttle(struct tty_struct *tty)
 {
@@ -1130,7 +1122,7 @@ static void sp_throttle(struct tty_struct *tty)
  * Start/stop is about what action to take at local end itself to start or stop data as per the flow
  * control.
  *
- * @tty: tty device which is ready to receive data
+ * @tty: tty device which is ready to receive data.
  */
 static void sp_unthrottle(struct tty_struct *tty)
 {
@@ -1162,7 +1154,7 @@ static void sp_unthrottle(struct tty_struct *tty)
  * Line discipline n_tty calls this function if this device uses software flow control and an XOFF
  * character is received from other end.
  *
- * @tty: tty device who should stop sending data to other end
+ * @tty: tty device who should stop sending data to other end.
  */
 static void sp_stop(struct tty_struct *tty)
 {
@@ -1178,7 +1170,7 @@ static void sp_stop(struct tty_struct *tty)
  * Line discipline n_tty calls this function if this device uses software flow control and an XON
  * character is received from other end.
  *
- * @tty: tty device who should start sending data to other end
+ * @tty: tty device who should start sending data to other end.
  */
 static void sp_start(struct tty_struct *tty)
 {
@@ -1195,9 +1187,9 @@ static void sp_start(struct tty_struct *tty)
  * Obtain the modem status bits for the given tty device. Invoked typically when ioctl command TIOCMGET
  * is executed on this tty device.
  *
- * @tty: tty device whose status is enquired
+ * @tty: tty device whose status is enquired.
  *
- * @return bit mask (TIOCM_XXX) of modem control and modem status registers
+ * @return bit mask (TIOCM_XXX) of modem control and modem status registers.
  */
 static int sp_tiocmget(struct tty_struct *tty)
 {
@@ -1225,11 +1217,11 @@ static int sp_tiocmget(struct tty_struct *tty)
  * Set the modem status bits. Invoked typically when ioctl command TIOCMSET is executed on this tty
  * device.
  *
- * @tty: tty device whose modem control register is to be updated with given value
- * @set: bit mask of signals which should be asserted
- * @clear: bit mask of signals which should be de-asserted
+ * @tty: tty device whose modem control register is to be updated with given value.
+ * @set: bit mask of signals which should be asserted.
+ * @clear: bit mask of signals which should be de-asserted.
  *
- * @return 0 on success otherwise negative error code on failure
+ * @return 0 on success otherwise negative error code on failure.
  */
 static int sp_tiocmset(struct tty_struct *tty, unsigned int set, unsigned int clear)
 {
@@ -1244,10 +1236,10 @@ static int sp_tiocmset(struct tty_struct *tty, unsigned int set, unsigned int cl
 /*
  * Invoked by tty layer to turn break condition on and off for a tty device unconditionally.
  *
- * @tty: tty device who should set or reset given break condition on its output line
- * @state: 1 if break is to be asserted or 0 for de-assertion
+ * @tty: tty device who should set or reset given break condition on its output line.
+ * @state: 1 if break is to be asserted or 0 for de-assertion.
  *
- * @return 0 on success otherwise negative error code on failure
+ * @return 0 on success otherwise negative error code on failure.
  */
 static int sp_break_ctl(struct tty_struct *tty, int break_state)
 {
@@ -1294,7 +1286,7 @@ static int sp_break_ctl(struct tty_struct *tty, int break_state)
  * On the receiving end, if CLOCAL bit is set, DCD will be ignored otherwise SIGHUP may be
  * generated to indicate a line disconnect event.
  *
- * @tty: tty device that has hung up
+ * @tty: tty device that has hung up.
  */
 static void sp_hangup(struct tty_struct *tty)
 {
@@ -1317,10 +1309,10 @@ static void sp_hangup(struct tty_struct *tty)
  * Invoked to execute ioctl command TIOCGICOUNT to get the number of interrupts. Both 1->0 and
  * 0->1 transitions are counted, except for RI, where only 0->1 transitions are counted.
  *
- * @tty: tty device whose interrupts information is to be collected
- * @icount: memory location from which tty core will copy data to user space buffer
+ * @tty: tty device whose interrupts information is to be collected.
+ * @icount: memory location from which tty core will copy data to user space buffer.
  *
- * @return 0 on success otherwise negative error code on failure
+ * @return 0 on success otherwise negative error code on failure.
  */
 static int sp_get_icount(struct tty_struct *tty, struct serial_icounter_struct *icount)
 {
@@ -1357,7 +1349,7 @@ static int sp_get_icount(struct tty_struct *tty, struct serial_icounter_struct *
  *
  * The virtual tty device created by this driver does not have any local buffer.
  *
- * @tty: tty device whose buffer should be flushed
+ * @tty: tty device whose buffer should be flushed.
  */
 static void sp_flush_buffer(struct tty_struct *tty)
 {
@@ -1372,8 +1364,8 @@ static void sp_flush_buffer(struct tty_struct *tty)
  * and then invoke write() of this driver passing character to be written and then it will call stop()
  * function of this driver.
  *
- * @tty: tty device who is sending this character
- * @ch: character to be sent (typically it is XOFF or XON)
+ * @tty: tty device who is sending this character.
+ * @ch: character to be sent (typically it is XOFF or XON).
  */
 static void sp_send_xchar(struct tty_struct *tty, char ch)
 {
@@ -1392,8 +1384,8 @@ static void sp_send_xchar(struct tty_struct *tty, char ch)
 /*
  * Invoked by tty layer in response to tcdrain() call.
  *
- * @tty: tty device who should try to empty its output buffer
- * @timeout: timeout value
+ * @tty: tty device who should try to empty its output buffer.
+ * @timeout: timeout value.
  */
 static void sp_wait_until_sent(struct tty_struct *tty, int timeout)
 {
@@ -1420,7 +1412,7 @@ static void sp_port_dtr_rts(struct tty_port *port, int raise)
  *
  * @port: serial port whose carrier detect line is to be checked.
  *
- * @return 1 if the carrier is raised otherwise 0
+ * @return 1 if the carrier is raised otherwise 0.
  */
 static int sp_port_carrier_raised(struct tty_port *port)
 {
@@ -1431,7 +1423,7 @@ static int sp_port_carrier_raised(struct tty_port *port)
 /*
  * Shutdowns the given serial port, typically it is used to shutdown hardware.
  *
- * @port: tty port to shut down
+ * @port: tty port to shut down.
  */
 static void sp_port_shutdown(struct tty_port *port)
 {
@@ -1440,9 +1432,9 @@ static void sp_port_shutdown(struct tty_port *port)
 /*
  * Activate the given serial port as opposed to shutdown. Typically used to turn something on hardware.
  *
- * @port: tty port to activate
- * @tty: tty corresponding to the given port
- * @return 0 on success
+ * @port: tty port to activate.
+ * @tty: tty corresponding to the given port.
+ * @return 0 on success.
  */
 static int sp_port_activate(struct tty_port *port, struct tty_struct *tty)
 {
@@ -1463,12 +1455,12 @@ static void sp_port_destruct(struct tty_port *port)
  * Gives next available index and last used index for virtual tty devices created. Invoke as shown below:
  * $ head -c 46 /proc/sp_vmpscrdk
  * 
- * @file: file for proc file
- * @buf: user space buffer that will contain data when this function returns
- * @size: number of character returned in buf
- * @ppos: offset position from where to read data
+ * @file: file for proc file.
+ * @buf: user space buffer that will contain data when this function returns.
+ * @size: number of character returned in buf.
+ * @ppos: offset position from where to read data.
  *
- * @return number of bytes copied to user buffer on success or negative error code on error
+ * @return number of bytes copied to user buffer on success or negative error code on error.
  */
 static ssize_t sp_vcard_proc_read(struct file *file, char __user *buf, size_t size, loff_t *ppos)
 {
@@ -1548,8 +1540,8 @@ static ssize_t sp_vcard_proc_read(struct file *file, char __user *buf, size_t si
 /*
  * Extract pin mappings from local to remote tty devices.
  *
- * @data: dat to be parsed
- * @x: starting index in array for parsing
+ * @data: dat to be parsed.
+ * @x: starting index in array for parsing.
  * 
  * @return 0 on success or negative error code on failure.
  */
@@ -1603,10 +1595,10 @@ static int sp_extract_pin_mapping(char data[], int x)
  * 4. Delete all virtual tty devices in this card:
  * $echo "del#xxxxx#xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" > /proc/sp_vmpscrdk
  *
- * @file: file representing sp proc file
- * @buf: command supplied by caller
- * @length: length of the command
- * @ppos: offset in file
+ * @file: file representing sp proc file.
+ * @buf: command supplied by caller.
+ * @length: length of the command.
+ * @ppos: offset in file.
  *
  * @return number of bytes consumed by this function on success or negative error code on failure.
  */

@@ -75,7 +75,6 @@ ACTION=="add", SUBSYSTEM=="tty", KERNEL=="tty2com[0-9]*", MODE="0666", RUN+="/bi
 ```
 
 ##Getting information
----------------------
 
 - Dynamic debugging
 If the kernel is compiled with CONFIG_DYNAMIC_DEBUG=y and debug log level for printk is set, this driver will print extra 
