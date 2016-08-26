@@ -739,11 +739,11 @@ static void sp_close(struct tty_struct *tty, struct file *filp)
  * Invoked by tty layer via the line discipline when data is to be sent to tty device may be 
  * as a response to write() call in user space.
  * 
- * @tty: tty device who will send given data
- * @buf: data to be sent
- * @count: number of data bytes in buf
+ * @tty: tty device who will send given data.
+ * @buf: data to be sent.
+ * @count: number of data bytes in buf.
  * 
- * @return number of characters sent or negative error code on failure
+ * @return number of characters sent or negative error code on failure.
  */
 static int sp_write(struct tty_struct *tty, const unsigned char *buf, int count)
 {
