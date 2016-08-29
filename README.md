@@ -110,7 +110,7 @@ public class Example {
 ```
 
 ##Resources
-- [Several applications](applications) demonstrating API usage and features of serialpundit.
+- [Several applications](applications) demonstrating serialpundit API usage, application notes and design ideas etc.
 - [Support and discussion group](https://groups.google.com/d/forum/serialpundit) for feature request, asking questions and raising bugs etc.
 - [Tools and utilities](tools-and-utilities) various scripts, configuration files, tools and udev rules etc.
 - [Documentaion](javadocs) updated javadocs for API references.

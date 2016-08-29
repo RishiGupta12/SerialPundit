@@ -100,6 +100,8 @@ public final class SerialComNullModem {
     /**
      * <p>Gives the device node names that can be used to create next virtual serial port.</p>
      * 
+     * <p>Returned array contains empty string if no more ports are free to be created.</p>
+     * 
      * @return device node names that can be used for next virtual serial port.
      * @throws IOException if the operation can not be completed for some reason.
      */
@@ -112,6 +114,8 @@ public final class SerialComNullModem {
      * the port at even index is connected to the port at next odd index. For example :<br>
      * String[] list = scnm.listExistingStandardNullModemPorts();<br>
      * list[0] <-----> list[1]</p>
+     * 
+     * <p>Empty array is returned if no standard null modem pair is found.</p>
      * 
      * @return existing ports which are connected in standard null modem fashion.
      * @throws IOException if the operation can not be completed for some reason.
@@ -135,6 +139,8 @@ public final class SerialComNullModem {
      * x + 3: 2nd port's name/path <br>
      * x + 4: 2nd port's RTS mappings <br>
      * x + 5: 2nd port's DTR mappings <br></p>
+     * 
+     * <p>Empty array is returned if no custom null modem pair is found.</p>
      * 
      * @return existing ports which are connected in custom null modem fashion.
      * @throws IOException if the operation can not be completed for some reason.
@@ -163,6 +169,8 @@ public final class SerialComNullModem {
      * x + 1: port's RTS mappings <br>
      * x + 2: port's DTR mappings <br></p>
      * 
+     * <p>Empty array is returned if no custom loop back device is found.</p>
+     * 
      * @return existing ports which are connected in custom null modem fashion.
      * @throws IOException if the operation can not be completed for some reason.
      */
@@ -189,6 +197,8 @@ public final class SerialComNullModem {
      * x + 0: port's name <br>
      * x + 1: port's RTS mappings <br>
      * x + 2: port's DTR mappings <br></p>
+     * 
+     * <p>Empty array is returned if no devices are found.</p>
      * 
      * @return names of all existing virtual ports created by driver with their mappings.
      * @throws IOException if the operation can not be completed for some reason.

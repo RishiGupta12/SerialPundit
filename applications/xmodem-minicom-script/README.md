@@ -8,8 +8,9 @@ lrzsz etc tools.
 - Copy scm-1.0.4.jar in xmodem-minicom-script folder. Do not change the directory structure.
 - Run the script as minicom.sh giving ports and file names as shown below. Transfer will occur 
 at 9600 baudrate 8N1 settings.
-
+  ```sh
   ./minicom.sh RECEIVE_PORT RECEIVE_FILE SEND_PORT SEND_FILE
+  ```
   
   See the output.jpg to see output of this program.
    
