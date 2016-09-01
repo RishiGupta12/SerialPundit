@@ -429,8 +429,7 @@ public final class SerialComNullModem {
     }
 
     /**
-     * <p>Removes the given virtual serial devices created by tty2comKm driver. If the given device 
-     * is one of the device in a null modem pair, the other paired device will be removed automatically.</p>
+     * <p>Removes all loop back virtual serial devices created by tty2comKm driver.</p>
      * 
      * @return true if device gets deleted.
      * @throws SerialComException if the operation can not be completed due to some reason.
@@ -446,8 +445,20 @@ public final class SerialComNullModem {
         return true;
     }
 
+    /**
+     * <p>Removes the given virtual serial device created by tty2comKm driver. If the given device 
+     * is one of the device in a null modem pair, the other paired device will be automatically 
+     * removed.</p>
+     * 
+     * @return true if device gets deleted.
+     * @throws SerialComException if the operation can not be completed due to some reason, device is null 
+     *         or invalid string.
+     */
     public boolean destroyGivenVirtualDevice(String device) throws SerialComException {
 
+        if((device == null) || (device.length() == 0)) {
+            throw new SerialComException("Invalid virtual device !");
+        }
         synchronized (lock) {
             int ret = mComPortJNIBridge.destroyGivenVirtualDevice(device);
             if(ret < 0) {
