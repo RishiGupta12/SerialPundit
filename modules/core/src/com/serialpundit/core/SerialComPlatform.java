@@ -291,11 +291,13 @@ public final class SerialComPlatform {
                 cpuProperties.close();
             }
         }
-        else if(osArch.equals("x86") || osArch.equals("i386") || osArch.equals("i486") || osArch.equals("i586") || osArch.equals("i686") 
-                || osArch.equals("i786") || osArch.equals("i886") || osArch.equals("i986") || osArch.equals("pentium") || osArch.equals("i86pc")) {
+        else if(osArch.equals("x86") || osArch.equals("i386") || osArch.equals("i486") || osArch.equals("i586") || 
+                osArch.equals("i686") || osArch.equals("i786") || osArch.equals("i886") || osArch.equals("i986") || 
+                osArch.equals("pentium") || osArch.equals("i86pc")) {
             cpuArch = SerialComPlatform.ARCH_X86;
         }
-        else if(osArch.equals("amd64") || osArch.equals("x86_64") || osArch.equals("em64t") || osArch.equals("x86-64") || osArch.equals("universal")) {
+        else if(osArch.equals("amd64") || osArch.equals("x86_64") || osArch.equals("em64t") || osArch.equals("x86-64") || 
+                osArch.equals("ia-32e") || osArch.equals("universal")) {
             cpuArch = SerialComPlatform.ARCH_AMD64; // universal may be needed for openjdk7 in Mac.
         }
         else if(osArch.equals("ia64") || osArch.equals("ia64w")) {
@@ -304,10 +306,12 @@ public final class SerialComPlatform {
         else if(osArch.equals("ia64_32") || osArch.equals("ia64n")) {
             cpuArch = SerialComPlatform.ARCH_IA64_32;
         }
-        else if(osArch.equals("ppc") || osArch.equals("power") || osArch.equals("powerpc") || osArch.equals("power_pc") || osArch.equals("power_rs")) {
+        else if(osArch.equals("ppc") || osArch.equals("power") || osArch.equals("powerpc") || osArch.equals("power_pc") || 
+                osArch.equals("power_rs")) {
             cpuArch = SerialComPlatform.ARCH_PPC32;
         }
-        else if(osArch.equals("ppc64") || osArch.equals("power64") || osArch.equals("powerpc64") || osArch.equals("power_pc64") || osArch.equals("power_rs64")) {
+        else if(osArch.equals("ppc64") || osArch.equals("power64") || osArch.equals("powerpc64") || osArch.equals("power_pc64") || 
+                osArch.equals("power_rs64")) {
             cpuArch = SerialComPlatform.ARCH_PPC64;
         }
         else if(osArch.equals("powerpc64le")) {
