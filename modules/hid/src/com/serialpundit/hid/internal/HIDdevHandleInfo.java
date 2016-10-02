@@ -22,49 +22,67 @@ import com.serialpundit.hid.IHIDInputReportListener;
  */
 public final class HIDdevHandleInfo {
 
-	private IHIDInputReportListener mInputReportListener = null;
-	private long context;
+    private InputReportListenerState irls;
+    private IHIDInputReportListener mInputReportListener = null;
+    private long context;
 
-	/**
-	 * <p>Allocates and create new HIDdevHandleInfo object with given details.</p>
-	 * 
-	 * @param mInputReportListener instance of input report listener.
-	 */
-	public HIDdevHandleInfo(IHIDInputReportListener mInputReportListener) {
-		this.mInputReportListener = mInputReportListener;
-	}
+    /**
+     * <p>Allocates and create new HIDdevHandleInfo object with given details.</p>
+     * 
+     * @param mInputReportListener instance of input report listener.
+     */
+    public HIDdevHandleInfo(IHIDInputReportListener mInputReportListener) {
+        this.mInputReportListener = mInputReportListener;
+    }
 
-	/** 
-	 * <p>Gives input report listener associated with given HID device handle.</p>
-	 * 
-	 * @return input report listener who will get input reports for given handle.
-	 */	
-	public IHIDInputReportListener getInputReportListener() {
-		return mInputReportListener;
-	}
+    /** 
+     * <p>Gives input report listener associated with given HID device handle.</p>
+     * 
+     * @return input report listener who will get input reports for given handle.
+     */	
+    public IHIDInputReportListener getInputReportListener() {
+        return mInputReportListener;
+    }
 
-	/** <p>Set the input report listener who will get input reports for given handle.</p>
-	 * 
-	 * @param mInputReportListener input report listener who will get input reports for given handle.
-	 */
-	public void setInputReportListener(IHIDInputReportListener mInputReportListener) {
-		this.mInputReportListener = mInputReportListener;
-	}
+    /** <p>Set the input report listener who will get input reports for given handle.</p>
+     * 
+     * @param mInputReportListener input report listener who will get input reports for given handle.
+     */
+    public void setInputReportListener(IHIDInputReportListener mInputReportListener) {
+        this.mInputReportListener = mInputReportListener;
+    }
 
-	/** 
-	 * <p>Gives the context associated with this input report listener.</p>
-	 * 
-	 * @return context associated with this input report listener.
-	 */	
-	public long getListenerContext() {
-		return context;
-	}
+    /** 
+     * <p>Gives the context associated with this input report listener.</p>
+     * 
+     * @return context associated with this input report listener.
+     */	
+    public long getListenerContext() {
+        return context;
+    }
 
-	/** <p>Set the context associated with this input report listener.</p>
-	 * 
-	 * @param context context associated with this input report listener.
-	 */
-	public void setListenerContext(long context) {
-		this.context = context;
-	}
+    /** <p>Set the context associated with this input report listener.</p>
+     * 
+     * @param context context associated with this input report listener.
+     */
+    public void setListenerContext(long context) {
+        this.context = context;
+    }
+
+    /** <p>Set the state of worker thread's state instance associated with this input report listener.</p>
+     * 
+     * @param irls instance of InputReportListenerState tied to this listener.
+     */
+    public void setInputReportListenerStateInstance(InputReportListenerState irls) {
+        this.irls = irls;
+    }
+
+    /** 
+     * <p>Gives worker thread's state instance associated with this input report listener.</p>
+     * 
+     * @return worker thread's state instance.
+     */ 
+    public InputReportListenerState getInputReportListenerStateInstance() {
+        return irls;
+    }
 }

@@ -458,9 +458,9 @@ public final class SerialComPortJNIBridge {
     public native String[] listAllExistingPorts();
     public native String[] listAllExistingPortsWithInfo();
     public native String[] createStandardNullModemPair(int deviceIndex1, int deviceIndex2);
-    public native String[] createCustomNullModemPair(int idx1, int rtsMap1, int dtrMap1, int idx2, int rtsMap2, int dtrMap2);
+    public native String[] createCustomNullModemPair(int idx1, int rtsMap1, int dtrMap1, boolean setDTRatOpen1, int idx2, int rtsMap2, int dtrMap2, boolean setDTRatOpen2);
     public native String[] createStandardLoopBackDevice(int deviceIndex);
-    public native String[] createCustomLoopBackDevice(int deviceIndex, int rtsMap, int dtrMap);
+    public native String[] createCustomLoopBackDevice(int deviceIndex, int rtsMap, int dtrMap, boolean setDTRatOpen);
     public native int destroyAllCreatedVirtualDevices();
     public native int destroyAllCreatedNullModemPairs();
     public native int destroyAllCreatedLoopbackDevices();

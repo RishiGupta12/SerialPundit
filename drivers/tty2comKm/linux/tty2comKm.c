@@ -88,6 +88,12 @@
 #define SP_STOP_1        0x1000
 #define SP_STOP_2        0x2000
 
+/* Constants values for device type (odevtyp) */
+#define SNM 0x0001
+#define CNM 0x0002
+#define SLB 0x0003
+#define CLB 0x0004
+
 /* Represent a virtual tty device in this virtual card. The peer_index will contain own 
  * index if this device is loop back configured device (peer_index == own_index). */
 struct vtty_dev {
@@ -97,7 +103,9 @@ struct vtty_dev {
     int mcr_reg; /* shadow modem control register */
     int rts_mappings;
     int dtr_mappings;
-    int set_dtr_atopen;
+    int set_odtr_at_open;
+    int set_pdtr_at_open;
+    int odevtyp;
     struct mutex lock;
     int is_break_on;
     int baud;
@@ -156,6 +164,9 @@ static ssize_t sp_ortsmap_show(struct device *dev, struct device_attribute *attr
 static ssize_t sp_odtrmap_show(struct device *dev, struct device_attribute *attr, char *buf);
 static ssize_t sp_prtsmap_show(struct device *dev, struct device_attribute *attr, char *buf);
 static ssize_t sp_pdtrmap_show(struct device *dev, struct device_attribute *attr, char *buf);
+static ssize_t sp_odevtyp_show(struct device *dev, struct device_attribute *attr, char *buf);
+static ssize_t sp_odtropn_show(struct device *dev, struct device_attribute *attr, char *buf);
+static ssize_t sp_pdtropn_show(struct device *dev, struct device_attribute *attr, char *buf);
 
 static int sp_vcard_proc_open(struct inode *inode, struct  file *file);
 static int sp_vcard_proc_close(struct inode *inode, struct file *file);
@@ -192,7 +203,8 @@ struct vtty_info *index_manager = NULL;   /*  keep track of indexes in use curre
  * interact with driver state as a whole while 'sysfs enteries' are used to interact with
  * individual device's state. Use 99-tty2comKm.rules file to correctly set permissions on
  * sysfs entries. To align with sysfs spirit 'one-value-per-file' approach is followed so
- * that user space does not have to know data format and their offsets in returned buffer. */
+ * that user space does not have to know data format and their offsets in returned result
+ * buffer. */
 static DEVICE_ATTR(evt, (S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP), NULL, sp_evt_store);
 static DEVICE_ATTR(ownidx,  S_IRUGO, sp_ownidx_show,  NULL);
 static DEVICE_ATTR(peeridx, S_IRUGO, sp_peeridx_show, NULL);
@@ -200,6 +212,9 @@ static DEVICE_ATTR(ortsmap, S_IRUGO, sp_ortsmap_show, NULL);
 static DEVICE_ATTR(odtrmap, S_IRUGO, sp_odtrmap_show, NULL);
 static DEVICE_ATTR(prtsmap, S_IRUGO, sp_prtsmap_show, NULL);
 static DEVICE_ATTR(pdtrmap, S_IRUGO, sp_pdtrmap_show, NULL);
+static DEVICE_ATTR(odevtyp, S_IRUGO, sp_odevtyp_show, NULL);
+static DEVICE_ATTR(odtropn, S_IRUGO, sp_odtropn_show, NULL);
+static DEVICE_ATTR(pdtropn, S_IRUGO, sp_pdtropn_show, NULL);
 
 static struct attribute *spvtty_info_attrs[] = {
         &dev_attr_evt.attr,
@@ -209,6 +224,9 @@ static struct attribute *spvtty_info_attrs[] = {
         &dev_attr_odtrmap.attr,
         &dev_attr_prtsmap.attr,
         &dev_attr_pdtrmap.attr,
+        &dev_attr_odevtyp.attr,
+        &dev_attr_odtropn.attr,
+        &dev_attr_pdtropn.attr,
         NULL,
 };
 
@@ -468,6 +486,71 @@ static ssize_t sp_pdtrmap_show(struct device *dev, struct device_attribute *attr
     return sprintf(buf, "%u\n", remote_vttydev->dtr_mappings);
 }
 
+/*
+ * Gives device type based on pin mappings.
+ *
+ * $ cat /sys/devices/virtual/tty/tty2com0/odevtyp
+ *
+ * @dev: tty device
+ * @attr: sysfs attributes
+ * @buf: memory where result of invoking this function will be returned to caller.
+ *
+ * @return device type based on pin mappings on success otherwise negative error code.
+ */
+static ssize_t sp_odevtyp_show(struct device *dev, struct device_attribute *attr, char *buf)
+{
+    struct vtty_dev *local_vttydev = (struct vtty_dev *) dev_get_drvdata(dev);
+
+    if(!buf)
+        return -EINVAL;
+
+    return sprintf(buf, "%u\n", local_vttydev->odevtyp);
+}
+
+/*
+ * Tells whether DTR will be raised when this serial port is opened or not. 1 means DTR will be
+ * raised at open and 0 means it will not be raised.
+ *
+ * $ cat /sys/devices/virtual/tty/tty2com0/odtropn
+ *
+ * @dev: tty device
+ * @attr: sysfs attributes
+ * @buf: memory where result of invoking this function will be returned to caller.
+ *
+ * @return DTR state when serial port is opened on success otherwise negative error code.
+ */
+static ssize_t sp_odtropn_show(struct device *dev, struct device_attribute *attr, char *buf)
+{
+    struct vtty_dev *local_vttydev = (struct vtty_dev *) dev_get_drvdata(dev);
+
+    if(!buf)
+        return -EINVAL;
+
+    return sprintf(buf, "%u\n", local_vttydev->set_odtr_at_open);
+}
+
+/*
+ * Tells whether DTR pin of peer device will be raised if that device is opened or not. 1 means DTR will be
+ * raised at open and 0 means it will not be raised.
+ *
+ * $ cat /sys/devices/virtual/tty/tty2com0/pdtropn
+ *
+ * @dev: tty device
+ * @attr: sysfs attributes
+ * @buf: memory where result of invoking this function will be returned to caller.
+ *
+ * @return DTR state when serial port is opened on success otherwise negative error code.
+ */
+static ssize_t sp_pdtropn_show(struct device *dev, struct device_attribute *attr, char *buf)
+{
+    struct vtty_dev *local_vttydev = (struct vtty_dev *) dev_get_drvdata(dev);
+
+    if(!buf)
+        return -EINVAL;
+
+    return sprintf(buf, "%u\n", local_vttydev->set_pdtr_at_open);
+}
+
 /* 
  * Update modem control and modem status registers according to the bit mask(s) provided. The 
  * DTR and RTS values can be set only if the current handshaking state of the tty device allows 
@@ -605,15 +688,25 @@ static int sp_update_modem_lines(struct tty_struct *tty, unsigned int set, unsig
     evicount->dcd += dcdint;
     evicount->rng += rngint;
 
+    printk(KERN_WARNING "tty2comKm: 6 !\n");
+
     if(vttydev->own_tty && vttydev->own_tty->port) {
 
+        printk(KERN_WARNING "tty2comKm: 7 !\n");
+
         /* Wake up process blocked on TIOCMIWAIT ioctl */
-        if((vttydev->waiting_msr_chg == 1) && (vttydev->own_tty->port->count > 0))
+        if((vttydev->waiting_msr_chg == 1) && (vttydev->own_tty->port->count > 0)) {
+            printk(KERN_WARNING "tty2comKm: 8 !\n");
             wake_up_interruptible(&vttydev->own_tty->port->delta_msr_wait);
+            printk(KERN_WARNING "tty2comKm: 9!\n");
+        }
 
         /* Wake up application blocked on carrier detect signal */
-        if((wakeup_blocked_open == 1) && (vttydev->own_tty->port->blocked_open > 0))
+        if((wakeup_blocked_open == 1) && (vttydev->own_tty->port->blocked_open > 0)) {
+            printk(KERN_WARNING "tty2comKm: 10 !\n");
             wake_up_interruptible(&vttydev->own_tty->port->open_wait);
+            printk(KERN_WARNING "tty2comKm: 11 !\n");
+        }
     }
 
     return 0;
@@ -684,26 +777,37 @@ static int sp_open(struct tty_struct *tty, struct file *filp)
     struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
     struct vtty_dev *remote_vttydev = NULL;
 
+    printk(KERN_WARNING "tty2comKm: 1 !\n");
+
     local_vttydev->own_tty = tty;
 
     /* If this device is one end of a null modem connection, provide its address to remote end */
     if (tty->index != local_vttydev->peer_index) {
         remote_vttydev = index_manager[local_vttydev->peer_index].vttydev;
         remote_vttydev->peer_tty = tty;
+        printk(KERN_WARNING "tty2comKm: 2 !\n");
     }
+
+    printk(KERN_WARNING "tty2comKm: 3 !\n");
 
     memset(&local_vttydev->serial, 0, sizeof(struct serial_struct));
     memset(&local_vttydev->icount, 0, sizeof(struct async_icount));
 
+    printk(KERN_WARNING "tty2comKm: 4 !\n");
+
     /* Handle DTR raising logic ourselve instead of tty_port helpers doing it. */
-    if (local_vttydev->set_dtr_atopen == 1)
+    if (local_vttydev->set_odtr_at_open == 1) {
         sp_update_modem_lines(tty, TIOCM_DTR | TIOCM_RTS, 0);
+        printk(KERN_WARNING "tty2comKm: 5 !\n");
+    }
 
     /* Associate tty with port and do port level opening. */
     ret = tty_port_open(tty->port, tty, filp);
     if (ret < 0) 
         return ret;
-    
+
+    printk(KERN_WARNING "tty2comKm: 6 !\n");
+
     /* Set low latency so that our tty_push actually pushes data to line discipline immediately 
        instead of scheduling it. */
     tty->port->low_latency  = 1;
@@ -986,7 +1090,7 @@ static void sp_set_termios(struct tty_struct *tty, struct ktermios *old_termios)
     }else {
         uart_frame_settings |= SP_PARITY_NONE;
     }
-    
+
     local_vttydev->uart_frame = uart_frame_settings;
 
     mutex_unlock(&local_vttydev->lock);
@@ -1778,9 +1882,9 @@ static ssize_t sp_vcard_proc_write(struct file *file, const char __user *buf, si
 
         /* Initialize meta information and create 1st serial port */
         if(data[58] == 'y')
-            vttydev1->set_dtr_atopen = 1;
+            vttydev1->set_odtr_at_open = 1;
         else
-            vttydev1->set_dtr_atopen = 0;
+            vttydev1->set_odtr_at_open = 0;
         vttydev1->own_tty = NULL;
         vttydev1->peer_tty = NULL;
         vttydev1->own_index = i;
@@ -1821,9 +1925,11 @@ static ssize_t sp_vcard_proc_write(struct file *file, const char __user *buf, si
 
             /* Initialize meta information and create 2nd serial port */
             if(data[60] == 'y')
-                vttydev2->set_dtr_atopen = 1;
+                vttydev2->set_odtr_at_open = 1;
             else
-                vttydev2->set_dtr_atopen = 0;
+                vttydev2->set_odtr_at_open = 0;
+            vttydev2->set_pdtr_at_open = vttydev1->set_odtr_at_open;
+            vttydev1->set_pdtr_at_open = vttydev2->set_odtr_at_open;
             vttydev1->own_index = i;
             vttydev1->peer_index = y;
             vttydev2->own_index = y;
@@ -1880,9 +1986,27 @@ static ssize_t sp_vcard_proc_write(struct file *file, const char __user *buf, si
             last_nmdev1_idx = i;
             last_nmdev2_idx = y;
             ++total_nm_pair;
+
+            if((vttydev1->dtr_mappings != (SP_CON_DSR | SP_CON_DCD)) || (vttydev1->rts_mappings != SP_CON_CTS)
+                    || (vttydev1->set_odtr_at_open != 1) || (vttydev2->dtr_mappings != (SP_CON_DSR | SP_CON_DCD))
+                    || (vttydev2->rts_mappings != SP_CON_CTS) || (vttydev2->set_odtr_at_open != 1)) {
+                vttydev1->odevtyp = CNM;
+                vttydev2->odevtyp = CNM;
+            }else {
+                vttydev1->odevtyp = SNM;
+                vttydev2->odevtyp = SNM;
+            }            
         }else {
             last_lbdev_idx = i;
             ++total_lb_devs;
+
+            /* device type */
+            if((vttydev1->dtr_mappings != (SP_CON_DSR | SP_CON_DCD)) || (vttydev1->rts_mappings != SP_CON_CTS)
+                    || (vttydev1->set_odtr_at_open != 1)) {
+                vttydev1->odevtyp = CLB;
+            }else {
+                vttydev1->odevtyp = SLB;
+            }
         }
 
         mutex_unlock(&adaptlock);

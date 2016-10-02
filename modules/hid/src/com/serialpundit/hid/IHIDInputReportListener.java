@@ -36,4 +36,12 @@ public interface IHIDInputReportListener {
      * @param reportBuffer byte array that will contain data read from HID device.
      */
     public abstract void onNewInputReportAvailable(int numOfBytesRead, byte[] reportBuffer);
+
+    /***
+     * <p>If any exception occurs while worker thread was waiting for new input report or while reading it, worker 
+     * thread calls this method passing the error information.</p>
+     * 
+     * @param e exception instance.
+     */
+    public abstract void onNewInputReportAvailableError(Exception e);
 }

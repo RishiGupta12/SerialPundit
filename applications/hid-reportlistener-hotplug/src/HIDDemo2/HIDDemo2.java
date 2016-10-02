@@ -187,6 +187,11 @@ final class InputReportAndHotplugHandler implements Runnable, ISerialComUSBHotPl
             System.out.println("Exception in onNewInputReportAvailable : " + e.getMessage());
         }
     }
+    
+    @Override
+    public void onNewInputReportAvailableError(Exception e) {
+        System.out.println("onNewInputReportAvailableError : " + e.getMessage());
+    }
 }
 
 /** 

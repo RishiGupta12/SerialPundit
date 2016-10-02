@@ -71,7 +71,7 @@ public final class SerialComNullModem {
      * 
      * @param mComPortJNIBridge native interface.
      * @param osType operating system this library is running on.
-     * @throws SerialComException if any exception occurs while preparing for null modem communication.
+     * @throws SerialComException if any exception occurs while preparing for communication using virtual device.
      */
     public SerialComNullModem(SerialComPortJNIBridge mComPortJNIBridge, int osType) throws SerialComException {
         //        this.osType = osType;
@@ -136,9 +136,11 @@ public final class SerialComNullModem {
      * x + 0: 1st port's name/path <br>
      * x + 1: 1st port's RTS mappings <br>
      * x + 2: 1st port's DTR mappings <br>
-     * x + 3: 2nd port's name/path <br>
-     * x + 4: 2nd port's RTS mappings <br>
-     * x + 5: 2nd port's DTR mappings <br></p>
+     * x + 3: 1st port's DTR state when opening port <br>
+     * x + 4: 2nd port's name/path <br>
+     * x + 5: 2nd port's RTS mappings <br>
+     * x + 6: 2nd port's DTR mappings <br>
+     * x + 7: 2nd port's DTR state when opening port <br></p>
      * 
      * <p>Empty array is returned if no custom null modem pair is found.</p>
      * 
@@ -167,7 +169,8 @@ public final class SerialComNullModem {
      * SerialComNullModem.SP_CON_XXX can be used.<br>
      * x + 0: port's name <br>
      * x + 1: port's RTS mappings <br>
-     * x + 2: port's DTR mappings <br></p>
+     * x + 2: port's DTR mappings <br>
+     * x + 3: port's DTR state when opening port <br></p>
      * 
      * <p>Empty array is returned if no custom loop back device is found.</p>
      * 
@@ -196,7 +199,8 @@ public final class SerialComNullModem {
      * SerialComNullModem.SP_CON_XXX can be used.<br>
      * x + 0: port's name <br>
      * x + 1: port's RTS mappings <br>
-     * x + 2: port's DTR mappings <br></p>
+     * x + 2: port's DTR mappings <br>
+     * x + 3: port's DTR state when opening port <br></p>
      * 
      * <p>Empty array is returned if no devices are found.</p>
      * 
@@ -216,16 +220,6 @@ public final class SerialComNullModem {
      * nodes in Linux or will throw exception if any of the given number is already in use. Similarly the 
      * createStandardNullModemPair(-1, -1) will create /dev/tty2comXX and /dev/tty2comYY where XX/YY are the 
      * next free numbers managed by the driver internally.</p>
-     * 
-     * <p>The sequence of information returned is shown below. The RTS and DTR mappings are returned 
-     * in string form. The caller has to convert them into int data type and then constant bit mask 
-     * SerialComNullModem.SP_CON_XXX can be used. The x is 0 or multiple of 6.<br>
-     * x + 0: 1st port's name/path <br>
-     * x + 1: 1st port's RTS mappings <br>
-     * x + 2: 1st port's DTR mappings <br>
-     * x + 3: 2nd port's name/path <br>
-     * x + 4: 2nd port's RTS mappings <br>
-     * x + 5: 2nd port's DTR mappings <br></p>
      * 
      * @param deviceIndex1 -1 or valid device number (0 <= deviceIndex1 =< 65535).
      * @param deviceIndex2 -1 or valid device number (0 <= deviceIndex2 =< 65535).
@@ -268,31 +262,24 @@ public final class SerialComNullModem {
      * connected to one or more pins using bit mask. For example to connect RTS pin to CTS and DSR use 
      * rtsMap = SerialComNullModem.SP_CON_CTS | SerialComNullModem.SP_CON_DSR.</p>
      * 
-     * <p>The sequence of information returned is shown below. The RTS and DTR mappings are returned 
-     * in string form. The caller has to convert them into int data type and then constant bit mask 
-     * SerialComNullModem.SP_CON_XXX can be used. The x is 0 or multiple of 6.<br>
-     * x + 0: 1st port's name/path <br>
-     * x + 1: 1st port's RTS mappings <br>
-     * x + 2: 1st port's DTR mappings <br>
-     * x + 3: 2nd port's name/path <br>
-     * x + 4: 2nd port's RTS mappings <br>
-     * x + 5: 2nd port's DTR mappings <br></p>
-     * 
      * @param idx1 -1 or valid device number (0 <= idx1 =< 65535).
      * @param rtsMap1 Bit mask of SerialComNullModem.SCM_CON_XXX constants as per the desired pin mappings 
      *        or 0 if RTS pin should be left unconnected.
      * @param dtrMap1 Bit mask of SerialComNullModem.SCM_CON_XXX constants as per the desired pin mappings 
      *        or 0 if DTR pin should be left unconnected.
+     * @param setDTRatOpen1 if true DTR will be asserted when serial port is opened otherwise it will not be raised.
      * @param idx2 -1 or valid device number (0 <= idx2 =< 65535).
      * @param rtsMap2 Bit mask of SerialComNullModem.SCM_CON_XXX constants as per the desired pin mappings 
      *        or 0 if RTS pin should be left unconnected.
      * @param dtrMap2 Bit mask of SerialComNullModem.SCM_CON_XXX constants as per the desired pin mappings 
      *        or 0 if DTR pin should be left unconnected.
+     * @param setDTRatOpen2 if true DTR will be asserted when serial port is opened otherwise it will not be raised.
      * @return Created virtual null modem pair device's node on success.
      * @throws SerialComException if virtual null modem device pair can not be created,
      *         IllegalArgumentException if idx1/2 is invalid.
      */
-    public String[] createCustomNullModemPair(int idx1, int rtsMap1, int dtrMap1, int idx2, int rtsMap2, int dtrMap2) throws SerialComException {
+    public String[] createCustomNullModemPair(int idx1, int rtsMap1, int dtrMap1, boolean setDTRatOpen1, int idx2, 
+            int rtsMap2, int dtrMap2, boolean setDTRatOpen2) throws SerialComException {
 
         String[] result = null;
 
@@ -307,7 +294,7 @@ public final class SerialComNullModem {
         }
 
         synchronized (lock) {
-            result = mComPortJNIBridge.createCustomNullModemPair(idx1, rtsMap1, dtrMap1, idx2, rtsMap2, dtrMap2);
+            result = mComPortJNIBridge.createCustomNullModemPair(idx1, rtsMap1, dtrMap1, setDTRatOpen1, idx2, rtsMap2, dtrMap2, setDTRatOpen2);
         }
 
         return result; 
@@ -321,13 +308,6 @@ public final class SerialComNullModem {
      * <p>For example; createStandardLoopBackDevice(2) will create /dev/tty2com2 device node in Linux or 
      * will throw exception if that number is already in use. Similarly createStandardLoopBackDevice(-1) 
      * will create /dev/tty2comXX where XX is the next free number managed by the driver internally.</p>
-     * 
-     * <p>The sequence of information returned is shown below. The RTS and DTR mappings are returned 
-     * in string form. The caller has to convert them into int data type and then constant bit mask 
-     * SerialComNullModem.SP_CON_XXX can be used. The x is 0 or multiple of 3.<br>
-     * x + 0: port's name/path <br>
-     * x + 1: port's RTS mappings <br>
-     * x + 2: port's DTR mappings <br></p>
      * 
      * @param deviceIndex -1 or valid device number (0 <= deviceIndex =< 65535).
      * @return Created virtual loop back device's node on success.
@@ -363,23 +343,17 @@ public final class SerialComNullModem {
      * connected to one or more pins using bit mask. For example to connect RTS pin to CTS and DSR use 
      * rtsMap = SerialComNullModem.SP_CON_CTS | SerialComNullModem.SP_CON_DSR.</p>
      * 
-     * <p>The sequence of information returned is shown below. The RTS and DTR mappings are returned 
-     * in string form. The caller has to convert them into int data type and then constant bit mask 
-     * SerialComNullModem.SP_CON_XXX can be used. The x is 0 or multiple of 3.<br>
-     * x + 0: port's name/path <br>
-     * x + 1: port's RTS mappings <br>
-     * x + 2: port's DTR mappings <br></p>
-     * 
      * @param deviceIndex -1 or valid device number (0 <= deviceIndex =< 65535).
      * @param rtsMap Bit mask of SerialComNullModem.SCM_CON_XXX constants as per the desired pin mappings 
      *        or 0 if RTS pin should be left unconnected.
      * @param dtrMap Bit mask of SerialComNullModem.SCM_CON_XXX constants as per the desired pin mappings 
      *        or 0 if DTR pin should be left unconnected.
+     * @param setDTRatOpen if true DTR will be asserted when serial port is opened otherwise it will not be raised.
      * @return Created virtual loop back device's node on success.
      * @throws SerialComException if virtual loop back device can not be created,
      *         IllegalArgumentException if deviceIndex is invalid.
      */
-    public String[] createCustomLoopBackDevice(int deviceIndex, int rtsMap, int dtrMap) throws SerialComException {
+    public String[] createCustomLoopBackDevice(int deviceIndex, int rtsMap, int dtrMap, boolean setDTRatOpen) throws SerialComException {
 
         String[] result = null;
 
@@ -388,7 +362,7 @@ public final class SerialComNullModem {
         }
 
         synchronized (lock) {
-            result = mComPortJNIBridge.createCustomLoopBackDevice(deviceIndex, rtsMap, dtrMap);
+            result = mComPortJNIBridge.createCustomLoopBackDevice(deviceIndex, rtsMap, dtrMap, setDTRatOpen);
         }
 
         return result;

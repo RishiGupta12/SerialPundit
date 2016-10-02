@@ -31,36 +31,36 @@ package com.serialpundit.hid;
  */
 public class SerialComHID {
 
-	/**<p>The value indicating instance of SerialComRawHID class. Integer constant with value 0x01.</p>*/
-	public static final int MODE_RAW = 0x01;
+    /**<p>The value indicating instance of SerialComRawHID class. Integer constant with value 0x01.</p>*/
+    public static final int MODE_RAW = 0x01;
 
-	/**<p>The value indicating instance of SerialComParsedHID class. Integer constant with value 0x02.</p>*/
-	public static final int MODE_PARSED = 0x02;
+    /**<p>The value indicating instance of SerialComParsedHID class. Integer constant with value 0x02.</p>*/
+    public static final int MODE_PARSED = 0x02;
 
-	/**<p>The value indicating instance of SerialComHID class (HID transport neutral). Integer constant with 
-	 * value 0x03.</p>*/
-	public static final int HID_GENERIC = 0x03;
+    /**<p>The value indicating instance of SerialComHID class (HID transport neutral). Integer constant with 
+     * value 0x03.</p>*/
+    public static final int HID_GENERIC = 0x03;
 
-	/**<p>The value indicating instance of SerialComUSBHID class (HID over USB). Integer constant 
-	 * with value 0x04.</p>*/
-	public static final int HID_USB = 0x04;
+    /**<p>The value indicating instance of SerialComUSBHID class (HID over USB). Integer constant 
+     * with value 0x04.</p>*/
+    public static final int HID_USB = 0x04;
 
-	/**<p>The value indicating instance of SerialComBluetoothHID class (HID over Bluetooth). Integer 
-	 * constant with value 0x05.</p>*/
-	public static final int HID_BLUETOOTH = 0x05;
+    /**<p>The value indicating instance of SerialComBluetoothHID class (HID over Bluetooth). Integer 
+     * constant with value 0x05.</p>*/
+    public static final int HID_BLUETOOTH = 0x05;
 
-	/**<p>The value indicating instance of SerialComI2CHID class (HID over I2C). Integer constant with 
-	 * value 0x06.</p>*/
-	public static final int HID_I2C = 0x06;
+    /**<p>The value indicating instance of SerialComI2CHID class (HID over I2C). Integer constant with 
+     * value 0x06.</p>*/
+    public static final int HID_I2C = 0x06;
 
-	/** <p>The exception message indicating that a blocked read method has been unblocked 
-	 * and made to return to caller explicitly (irrespective there was data to read or not). </p>*/
-	public static final String EXP_UNBLOCK_HIDIO  = "I/O operation unblocked !";
+    /** <p>The exception message indicating that a blocked read method has been unblocked 
+     * and made to return to caller explicitly (irrespective there was data to read or not). </p>*/
+    public static final String EXP_UNBLOCK_HIDIO  = "I/O operation unblocked !";
 
-	/**
-	 * <p>Allocates a new SerialComHID object.</p>
-	 * 
-	 */
-	public SerialComHID() {
-	}
+    /**
+     * <p>Allocates a new SerialComHID object.</p>
+     * 
+     */
+    public SerialComHID() {
+    }
 }
