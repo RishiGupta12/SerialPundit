@@ -2,7 +2,7 @@
 
 It is a null modem / loop back kernel mode driver providing full duplex communication and handshaking signals. It creates virtual serial ports pair that appears same as the real once to the application software.
 
-Desktop application, Eclipse IDE plugin and command line interface is provided to manage virtual ports.
+Desktop application, Eclipse IDE plugin, command line interface and Java/Python APIs are provided to manage virtual ports.
 
 ##Applications
 - Fully automate Junit testing and continuous integration
