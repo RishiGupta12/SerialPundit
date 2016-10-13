@@ -3,7 +3,7 @@
 This note describes how to pack any sp-xxx.jar file into an application jar file for an easy deployment or distribution purpose.
 
 - Download latest sp-xxx.jar from repository.
-  https://github.com/RishiGupta12/serial-communication-manager/tree/master/prebuilt-release
+  https://github.com/RishiGupta12/SerialPundit/tree/master/prebuilt-release
   
 - Build you application in Eclipse IDE including sp-xxx.jar as an external jar dependency.
   Java Build Path -> Libraries -> Add External JARs..
