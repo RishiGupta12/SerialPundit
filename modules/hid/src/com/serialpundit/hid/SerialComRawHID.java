@@ -406,11 +406,8 @@ public final class SerialComRawHID extends SerialComHID {
      * @throws IllegalArgumentException if report is null or empty array. 
      */
     public int writeOutputReportR(long handle, byte reportId, final byte[] report) throws SerialComException {
-        if(report == null) {
-            throw new IllegalArgumentException("Argumenet report can not be null !");
-        }
-        if(report.length == 0) {
-            throw new IllegalArgumentException("Argumenet report can not be of zero length !");
+        if((report == null) || (report.length == 0)) {
+            throw new IllegalArgumentException("Argument report can not be null or of zero length!");
         }
 
         int ret = mHIDJNIBridge.writeOutputReportR(handle, reportId, report, report.length);
@@ -448,8 +445,8 @@ public final class SerialComRawHID extends SerialComHID {
      * @throws IllegalArgumentException if reportBuffer is null or if length is negative.
      */
     public int readInputReportR(long handle, byte[] reportBuffer, long context) throws SerialComException {
-        if(reportBuffer == null) {
-            throw new IllegalArgumentException("Argumenet reportBuffer can not be null !");
+        if((reportBuffer == null) || (reportBuffer.length == 0)) {
+            throw new IllegalArgumentException("Argument reportBuffer can not be null or of zero length!");
         }
 
         int ret = mHIDJNIBridge.readInputReportR(handle, reportBuffer, reportBuffer.length, context);
