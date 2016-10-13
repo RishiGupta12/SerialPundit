@@ -12,7 +12,7 @@
 # without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 #################################################################################################
 
-# Run this script as root user. This script has been tested with Ubuntu 12.04.
+# Run this script as root user. This script has been tested with Ubuntu 16.04.
 
 if [[ $EUID -ne 0 ]]; then
    echo "This script must be run as root user !" 1>&2
