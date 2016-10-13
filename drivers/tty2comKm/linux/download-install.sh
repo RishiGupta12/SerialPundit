@@ -109,6 +109,24 @@ if [ $? != '0' ]; then
     exit -1
 fi
 
+wget -r -q https://github.com/RishiGupta12/SerialPundit/tree/master/drivers/tty2comKm/resources/icon.png
+if [ $? != '0' ]; then
+    echo "Can not download icon.png. Aborting installation !!"
+    exit -1
+fi
+
+wget -r -q https://github.com/RishiGupta12/SerialPundit/tree/master/drivers/tty2comKm/resources/splash.png
+if [ $? != '0' ]; then
+    echo "Can not download splash.png. Aborting installation !!"
+    exit -1
+fi
+
+wget -r -q https://github.com/RishiGupta12/SerialPundit/tree/master/drivers/tty2comKm/resources/tty2com.desktop
+if [ $? != '0' ]; then
+    echo "Can not download tty2com.desktop. Aborting installation !!"
+    exit -1
+fi
+
 echo "Building driver..."
 
 # Build the null modem driver
