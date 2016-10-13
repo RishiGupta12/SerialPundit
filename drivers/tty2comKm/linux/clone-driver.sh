@@ -18,7 +18,7 @@ cd "$(dirname "$0")"
 mkdir drv
 cd drv
 git init
-git remote add -f origin https://github.com/RishiGupta12/serial-communication-manager.git
+git remote add -f origin https://github.com/RishiGupta12/SerialPundit.git
 git config core.sparseCheckout true
 echo "drivers/tty2comKm" >> .git/info/sparse-checkout
 git pull origin master
