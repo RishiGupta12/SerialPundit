@@ -17,13 +17,13 @@ EXTRA_CFLAGS += $(DEBFLAGS) -I..
 
 ifneq ($(KERNELRELEASE),)
 # building when compiling kernel
-obj-m	:= tty2comKm.o 
+obj-m := tty2comKm.o 
 
 else
 # building from command line
 KERNELDIR ?= /lib/modules/$(shell uname -r)/build
 
-PWD       := $(shell pwd)
+PWD := $(shell pwd)
 
 default:
 	$(MAKE) -C $(KERNELDIR) M=$(PWD) modules
