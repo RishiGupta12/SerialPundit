@@ -29,7 +29,7 @@ device and 1 null modem pair, load as shown below:
 ```
 $ insmod ./tty2comKm.ko max_num_vtty_dev=1000 init_num_nm_pair=1 init_num_lb_dev=1
 ```
-- To load the driver automatically at load time execute install.sh script and then copy the tty2comKm.conf file in /etc/modules-load.d folder.
+- To load the driver automatically at boot time execute install.sh script and then copy the tty2comKm.conf file in /etc/modules-load.d folder.
 ```sh
 $ sudo cp ./tty2comKm.conf /etc/modules-load.d
 ```
