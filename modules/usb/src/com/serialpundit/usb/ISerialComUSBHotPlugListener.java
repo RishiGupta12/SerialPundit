@@ -42,8 +42,7 @@ public interface ISerialComUSBHotPlugListener {
      * for filterPID and serialNumber will be empty string if null was passed to registerUSBHotPlugEventListener
      * for serialNumber argument.</p>
      * 
-     * @param event integer value indicating whether a USB device was plugged or un-plugged from 
-     *         system.
+     * @param event integer value indicating whether a USB device was plugged or un-plugged from system.
      * @param USBVID USB-IF vendor id of USB device for which this method is invoked.
      * @param USBPID Product id of USB device for which this method is invoked.
      * @param serialNumber serial number of USB device for which this method is invoked.

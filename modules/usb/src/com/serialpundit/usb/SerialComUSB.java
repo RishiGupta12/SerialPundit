@@ -190,8 +190,8 @@ public final class SerialComUSB {
     /**
      * <p>This registers a listener who will be invoked whenever a USB device has been plugged or 
      * un-plugged in system. This method can be used to write auto discovery applications for example 
-     * when a hardware USB device is added to system, application can automatically detect and identify 
-     * it and launch appropriate service.</p>
+     * when a hardware USB device is added to system, application can automatically detect, identify 
+     * it and launches an appropriate service.</p>
      * 
      * <p>This API can be used for detecting both USB-HID and USB-CDC devices. Essentially this API is 
      * USB interface agnostic; meaning it would invoke listener for matching USB device irresepective of 
