@@ -25,15 +25,15 @@ package com.serialpundit.serial.nullmodem;
  */
 public interface Itty2comHotPlugListener {
 
-	/** 
-	 * <p>Whenever a virtual serial device is plugged into system or unplugged from system,onTTY2COMHotPlugEvent() 
-	 * method will be called by native layer.</p>
-	 * 
-	 * <p>The event value SerialComNullModem.DEV_ADDED indicates virtual serial device has been added to the system. 
-	 * The event value SerialComNullModem.DEV_REMOVED indicates virtual serial device has been removed from system.</p>
-	 * 
-	 * @param event integer value indicating whether a virtual serial device was plugged or un-plugged from system.
-	 * @param comPort device node of virtual serial device for which this method is invoked.
-	 */
-	public abstract void onTTY2COMHotPlugEvent(int event, final String comPort);
+    /** 
+     * <p>Whenever a virtual serial device is plugged into system or unplugged from system,onTTY2COMHotPlugEvent() 
+     * method will be called by native layer.</p>
+     * 
+     * <p>The event value SerialComNullModem.DEV_ADDED indicates virtual serial device has been added to the system. 
+     * The event value SerialComNullModem.DEV_REMOVED indicates virtual serial device has been removed from system.</p>
+     * 
+     * @param event integer value indicating whether a virtual serial device was plugged or un-plugged from system.
+     * @param comPort device node of virtual serial device for which this method is invoked.
+     */
+    public abstract void onTTY2COMHotPlugEvent(int event, final String comPort);
 }

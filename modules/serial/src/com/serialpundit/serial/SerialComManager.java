@@ -2485,7 +2485,7 @@ public final class SerialComManager {
     public SerialComNullModem getSerialComNullModemInstance() throws IOException {
 
         if(mSerialComNullModem == null) {
-            mSerialComNullModem = new SerialComNullModem(mComPortJNIBridge, osType);
+            mSerialComNullModem = new SerialComNullModem(mComPortJNIBridge);
         }
 
         return mSerialComNullModem;
