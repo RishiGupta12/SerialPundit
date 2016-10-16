@@ -63,7 +63,7 @@ $echo "del#xxxxx#xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" > /proc/sp
 
 ####Meta information
 ```sh
-$ head -c 32 /proc/sp_vmpscrdk
+$ head -c 46 /proc/sp_vmpscrdk
 ```
 
 ####Udev rules
