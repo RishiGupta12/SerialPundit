@@ -688,24 +688,16 @@ static int sp_update_modem_lines(struct tty_struct *tty, unsigned int set, unsig
     evicount->dcd += dcdint;
     evicount->rng += rngint;
 
-    printk(KERN_WARNING "tty2comKm: 6 !\n");
-
     if(vttydev->own_tty && vttydev->own_tty->port) {
-
-        printk(KERN_WARNING "tty2comKm: 7 !\n");
 
         /* Wake up process blocked on TIOCMIWAIT ioctl */
         if((vttydev->waiting_msr_chg == 1) && (vttydev->own_tty->port->count > 0)) {
-            printk(KERN_WARNING "tty2comKm: 8 !\n");
             wake_up_interruptible(&vttydev->own_tty->port->delta_msr_wait);
-            printk(KERN_WARNING "tty2comKm: 9!\n");
         }
 
         /* Wake up application blocked on carrier detect signal */
         if((wakeup_blocked_open == 1) && (vttydev->own_tty->port->blocked_open > 0)) {
-            printk(KERN_WARNING "tty2comKm: 10 !\n");
             wake_up_interruptible(&vttydev->own_tty->port->open_wait);
-            printk(KERN_WARNING "tty2comKm: 11 !\n");
         }
     }
 
@@ -1557,7 +1549,7 @@ static void sp_port_destruct(struct tty_port *port)
 
 /*
  * Gives next available index and last used index for virtual tty devices created. Invoke as shown below:
- * $ head -c 46 /proc/sp_vmpscrdk
+ * $ head -c 52 /proc/sp_vmpscrdk
  * 
  * @file: file for proc file.
  * @buf: user space buffer that will contain data when this function returns.
@@ -1580,7 +1572,7 @@ static ssize_t sp_vcard_proc_read(struct file *file, char __user *buf, size_t si
 
     memset(data, '\0', 64);
 
-    if(size != 46)
+    if(size != 52)
         return -EINVAL;
 
     mutex_lock(&adaptlock);
@@ -1609,36 +1601,37 @@ static ssize_t sp_vcard_proc_read(struct file *file, char __user *buf, size_t si
 
     if(last_lbdev_idx == -1) {
         if(last_nmdev1_idx == -1) {
-            snprintf(data, 64, "xxxxx#xxxxx-xxxxx#%05d-%05d#%d#x-x#x-x#x-x\r\n", first_avail_idx, second_avail_idx, val);
+            snprintf(data, 64, "xxxxx#xxxxx-xxxxx#%05d-%05d#%d#x-x#x-x#x-x#x#x#x\r\n", first_avail_idx, second_avail_idx, val);
         }else {
             nm1vttydev = index_manager[last_nmdev1_idx].vttydev;
             nm2vttydev = index_manager[last_nmdev2_idx].vttydev;
-            snprintf(data, 64, "xxxxx#%05d-%05d#%05d-%05d#%d#x-x#%d-%d#%d-%d\r\n", last_nmdev1_idx, last_nmdev2_idx,
+            snprintf(data, 64, "xxxxx#%05d-%05d#%05d-%05d#%d#x-x#%d-%d#%d-%d#x#%d#%d\r\n", last_nmdev1_idx, last_nmdev2_idx,
                     first_avail_idx, second_avail_idx, val, nm1vttydev->rts_mappings, nm1vttydev->dtr_mappings,
-                    nm2vttydev->rts_mappings, nm2vttydev->dtr_mappings);
+                    nm2vttydev->rts_mappings, nm2vttydev->dtr_mappings, nm1vttydev->set_odtr_at_open, nm2vttydev->set_odtr_at_open);
         }
     }else {
         if(last_nmdev1_idx == -1) {
             lbvttydev = index_manager[last_lbdev_idx].vttydev;
-            snprintf(data, 64, "%05d#xxxxx-xxxxx#%05d-%05d#%d#%d-%d#x-x#x-x\r\n", last_lbdev_idx, first_avail_idx,
-                    second_avail_idx, val, lbvttydev->rts_mappings, lbvttydev->dtr_mappings);
+            snprintf(data, 64, "%05d#xxxxx-xxxxx#%05d-%05d#%d#%d-%d#x-x#x-x#%d#x#x\r\n", last_lbdev_idx, first_avail_idx,
+                    second_avail_idx, val, lbvttydev->rts_mappings, lbvttydev->dtr_mappings, lbvttydev->set_odtr_at_open);
         }else {
             lbvttydev = index_manager[last_lbdev_idx].vttydev;
             nm1vttydev = index_manager[last_nmdev1_idx].vttydev;
             nm2vttydev = index_manager[last_nmdev2_idx].vttydev;
-            snprintf(data, 64, "%05d#%05d-%05d#%05d-%05d#%d#%d-%d#%d-%d#%d-%d\r\n", last_lbdev_idx, last_nmdev1_idx,
+            snprintf(data, 64, "%05d#%05d-%05d#%05d-%05d#%d#%d-%d#%d-%d#%d-%d#%d#%d#%d\r\n", last_lbdev_idx, last_nmdev1_idx,
                     last_nmdev2_idx, first_avail_idx, second_avail_idx, val, lbvttydev->rts_mappings, lbvttydev->dtr_mappings,
-                    nm1vttydev->rts_mappings, nm1vttydev->dtr_mappings, nm2vttydev->rts_mappings, nm2vttydev->dtr_mappings);
+                    nm1vttydev->rts_mappings, nm1vttydev->dtr_mappings, nm2vttydev->rts_mappings, nm2vttydev->dtr_mappings, 
+                    lbvttydev->set_odtr_at_open, nm1vttydev->set_odtr_at_open, nm2vttydev->set_odtr_at_open);
         }
     }
 
     mutex_unlock(&adaptlock);
 
-    ret = copy_to_user(buf, &data, 46);
+    ret = copy_to_user(buf, &data, 52);
     if(ret)
         return -EFAULT;
 
-    return 46;
+    return 52;
 }
 
 /*
@@ -1700,7 +1693,7 @@ static int sp_extract_pin_mapping(char data[], int x)
  * $echo "del#xxxxx#xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" > /proc/sp_vmpscrdk
  *
  * @file: file representing sp proc file.
- * @buf: command supplied by caller.
+ * @buf: command supplied by the caller.
  * @length: length of the command.
  * @ppos: offset in file.
  *
@@ -2286,15 +2279,15 @@ static int __init sp_tty2comKm_init(void)
         for(x=0; x < init_num_nm_pair; x++) {
             ret = sp_vcard_proc_write(NULL, NULL, 2, NULL);
             if(ret < 0)
-                printk(KERN_WARNING "tty2comKm: failed to create null modem pair at index %d with error code %d\n", x, ret);
+                printk(KERN_WARNING "tty2comKm: can't create null modem pair at index %d,  error code: %d\n", x, ret);
         }
         for(x=0; x < init_num_lb_dev; x++) {
             ret = sp_vcard_proc_write(NULL, NULL, 3, NULL);
             if(ret < 0)
-                printk(KERN_WARNING "tty2comKm: failed to create loop back device at index %d with error code %d\n", x, ret);
+                printk(KERN_WARNING "tty2comKm: can't create loop back device at index %d, error code: %d\n", x, ret);
         }
     }else {
-        printk(KERN_WARNING "tty2comKm: not creating specified devices use to invalid total !\n");
+        printk(KERN_WARNING "tty2comKm: not creating specified devices due to invalid total !\n");
     }
 
     printk(KERN_INFO "%s %s %s\n", "tty2comKm:", DRIVER_DESC, DRIVER_VERSION);
