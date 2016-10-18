@@ -11,7 +11,7 @@ Desktop application, Eclipse IDE plugin, command line interface, Java APIs and P
 - Can be used as a medium for inter/intra-process communication
 - Serial port communication sniffer or test sniffer application itself
 - GPS coordinates and robotics emulator/simulator
-- Application development when hardware is still not available
+- Application development when hardware is still not available (test driven development)
 - Test/debug different serial port device emulators like modem and faxes etc
 - Testing high level user space drivers
 - Segregate hardware issues from software bugs quickly during product development
@@ -26,6 +26,7 @@ Desktop application, Eclipse IDE plugin, command line interface, Java APIs and P
 - Share virtual COM ports data with disk files and named pipes
 - Analyze and reverse-engineer serial protocols
 - Cases where socat utility does not meet requirements for unix-like OS
+- Cases where available physical serial ports do not meet the current requirements
 
 ##Features
 - Create standard, loopback or custom pinout connected serial devices.
@@ -47,6 +48,7 @@ Desktop application, Eclipse IDE plugin, command line interface, Java APIs and P
 - Access restriction to created virtual serial ports.
 - API to control virtual ports directly from your application.
 - Dynamically specify minor number of device nodes for Linux OS.
+- Emulate noises like electromagnetic interference, drop/add data char, modify data due to line transient etc.
 
 ##Desktop application
 
