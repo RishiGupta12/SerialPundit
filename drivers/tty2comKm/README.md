@@ -1,4 +1,4 @@
-!["serial communication in java"](/images/tty2com.png?raw=true "serial port null modem emulation")
+<image align="right" width="256" heigth="265" src="images/tty2com.png">
 
 It is a null modem / loop back kernel mode driver providing full duplex communication and handshaking signals. It creates virtual serial ports pair that appears same as the real once to the application software.
 
