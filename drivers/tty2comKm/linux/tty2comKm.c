@@ -167,6 +167,7 @@ static ssize_t sp_pdtrmap_show(struct device *dev, struct device_attribute *attr
 static ssize_t sp_odevtyp_show(struct device *dev, struct device_attribute *attr, char *buf);
 static ssize_t sp_odtropn_show(struct device *dev, struct device_attribute *attr, char *buf);
 static ssize_t sp_pdtropn_show(struct device *dev, struct device_attribute *attr, char *buf);
+static ssize_t sp_ostats_show(struct device *dev, struct device_attribute *attr, char *buf);
 
 static int sp_vcard_proc_open(struct inode *inode, struct  file *file);
 static int sp_vcard_proc_close(struct inode *inode, struct file *file);
@@ -215,6 +216,7 @@ static DEVICE_ATTR(pdtrmap, S_IRUGO, sp_pdtrmap_show, NULL);
 static DEVICE_ATTR(odevtyp, S_IRUGO, sp_odevtyp_show, NULL);
 static DEVICE_ATTR(odtropn, S_IRUGO, sp_odtropn_show, NULL);
 static DEVICE_ATTR(pdtropn, S_IRUGO, sp_pdtropn_show, NULL);
+static DEVICE_ATTR(ostats,  S_IRUGO, sp_ostats_show, NULL);
 
 static struct attribute *spvtty_info_attrs[] = {
         &dev_attr_evt.attr,
@@ -227,6 +229,7 @@ static struct attribute *spvtty_info_attrs[] = {
         &dev_attr_odevtyp.attr,
         &dev_attr_odtropn.attr,
         &dev_attr_pdtropn.attr,
+        &dev_attr_ostats.attr,
         NULL,
 };
 
@@ -353,6 +356,29 @@ static ssize_t sp_evt_store(struct device *dev, struct device_attribute *attr, c
     fail:
     mutex_unlock(&local_vttydev->lock);
     return ret;
+}
+
+/*
+ * Gives serial port stats.
+ *
+ * $ cat /sys/devices/virtual/tty/tty2com0/ostats
+ *
+ * @dev: tty device
+ * @attr: sysfs attributes
+ * @buf: memory where result of invoking this function will be returned to caller.
+ *
+ * @return serial port stats on success otherwise negative error code.
+ */
+static ssize_t sp_ostats_show(struct device *dev, struct device_attribute *attr, char *buf)
+{
+    struct vtty_dev *local_vttydev = (struct vtty_dev *) dev_get_drvdata(dev);
+
+    if(!buf)
+        return -EINVAL;
+
+    return sprintf(buf, "%u#%u#%u#%u#%u#%u#%u#%u#%u#%u#%u#\n", local_vttydev->icount.tx, local_vttydev->icount.rx, local_vttydev->icount.cts, 
+            local_vttydev->icount.dcd, local_vttydev->icount.dsr, local_vttydev->icount.brk, local_vttydev->icount.rng, local_vttydev->icount.frame, 
+            local_vttydev->icount.parity, local_vttydev->icount.overrun, local_vttydev->icount.buf_overrun);
 }
 
 /*
@@ -769,36 +795,26 @@ static int sp_open(struct tty_struct *tty, struct file *filp)
     struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
     struct vtty_dev *remote_vttydev = NULL;
 
-    printk(KERN_WARNING "tty2comKm: 1 !\n");
-
     local_vttydev->own_tty = tty;
 
     /* If this device is one end of a null modem connection, provide its address to remote end */
     if (tty->index != local_vttydev->peer_index) {
         remote_vttydev = index_manager[local_vttydev->peer_index].vttydev;
         remote_vttydev->peer_tty = tty;
-        printk(KERN_WARNING "tty2comKm: 2 !\n");
     }
-
-    printk(KERN_WARNING "tty2comKm: 3 !\n");
 
     memset(&local_vttydev->serial, 0, sizeof(struct serial_struct));
     memset(&local_vttydev->icount, 0, sizeof(struct async_icount));
 
-    printk(KERN_WARNING "tty2comKm: 4 !\n");
-
     /* Handle DTR raising logic ourselve instead of tty_port helpers doing it. */
     if (local_vttydev->set_odtr_at_open == 1) {
         sp_update_modem_lines(tty, TIOCM_DTR | TIOCM_RTS, 0);
-        printk(KERN_WARNING "tty2comKm: 5 !\n");
     }
 
     /* Associate tty with port and do port level opening. */
     ret = tty_port_open(tty->port, tty, filp);
     if (ret < 0) 
         return ret;
-
-    printk(KERN_WARNING "tty2comKm: 6 !\n");
 
     /* Set low latency so that our tty_push actually pushes data to line discipline immediately 
        instead of scheduling it. */
@@ -833,7 +849,8 @@ static void sp_close(struct tty_struct *tty, struct file *filp)
 
 /* 
  * Invoked by tty layer via the line discipline when data is to be sent to tty device may be 
- * as a response to write() call in user space.
+ * as a response to write() call in user space. The data bytes are inserted in tty buffers and 
+ * will be available to app after some time as per the cpu load and kernel thread schedules etc.
  * 
  * @tty: tty device who will send given data.
  * @buf: data to be sent.
