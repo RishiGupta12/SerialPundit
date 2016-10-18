@@ -121,8 +121,8 @@ public class Example {
 
 - Suggest features and enhancements
 - Report bugs and fixes
-- Help with missing documentation
-- Suggest more test cases
+- Help with missing documentation or improvements
+- Suggest more test cases and scenarios
 - Publish an article on your blog to educate others about this project
 - Provide peer support on mailing lists, forums or newsgroups
 
