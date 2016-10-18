@@ -12,7 +12,10 @@
 # without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 #################################################################################################
 
-# build and run application using scm from shell script
+# build and run application from shell
+
 cd "$(dirname "$0")"
-javac -cp ./scm-1.0.4.jar eventlistener/Eeventlistener.java
-java -classpath .:scm-1.0.4.jar eventlistener/Eeventlistener
+
+javac -cp ./sp-tty.jar:sp-core.jar eventlistener/Eeventlistener.java
+java -classpath .:sp-tty.jar:sp-core.jar eventlistener/Eeventlistener
+

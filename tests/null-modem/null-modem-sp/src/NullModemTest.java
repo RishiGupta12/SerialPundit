@@ -36,13 +36,17 @@ public final class NullModemTest {
 		final SerialComNullModem scnm = scm.getSerialComNullModemInstance();
 		scnm.initialize();
 		String[] a = null;
+		
+		int uu = 1;
+		
+		scnm.destroyAllCreatedVirtualDevices();
 
 		try {
 			String[] ports = scnm.listNextAvailablePorts();
 			System.out.println("before: " + ports[0] + " : " + ports[1]);
 
 			String[] ports1 = scnm.createStandardNullModemPair(-1, -1);
-			Thread.sleep(100);
+			Thread.sleep(1000);
 
 			String[] portsa = scnm.listNextAvailablePorts();
 			System.out.println("after: " + portsa[0] + " : " + portsa[1]);
@@ -64,25 +68,32 @@ public final class NullModemTest {
 		// num bytes in i/o buffer
 		try {
 			String[] ports = scnm.createStandardNullModemPair(-1, -1);
-			Thread.sleep(100);
+			Thread.sleep(500);
 			long hand1 = scm.openComPort(ports[0], true, true, false);
 			scm.configureComPortData(hand1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B115200, 0);
 			scm.configureComPortControl(hand1, FLOWCONTROL.NONE, 'x', 'x', true, true);
-			long hand2 = scm.openComPort(ports[3], true, true, false);
+			long hand2 = scm.openComPort(ports[4], true, true, false);
 			scm.configureComPortData(hand2, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B115200, 0);
 			scm.configureComPortControl(hand2, FLOWCONTROL.NONE, 'x', 'x', true, true);
 
 			int[] b = scm.getByteCountInPortIOBuffer(hand1);
-			System.out.println("before: " + b[0] + " : " + b[1]);
-			scm.writeString(hand2, "test", 0);
+			System.out.println("before bytes: " + b[0] + " : " + b[1]);
+			
+			scm.writeString(hand2, "tewwwwwwwwwwwwwst", 0);
+			Thread.sleep(10);
+			
 			int[] c = scm.getByteCountInPortIOBuffer(hand1);
-			System.out.println("after: " + c[0] + " : " + c[1]);
+			System.out.println("after bytes: " + c[0] + " : " + c[1]);
 
 			scm.closeComPort(hand1);
 			scm.closeComPort(hand2);
 		}catch (Exception e) {
 			scnm.destroyAllCreatedVirtualDevices();
 			e.printStackTrace();
+		}
+		
+		if(uu == 1) {
+			return;
 		}
 
 		try {
@@ -191,25 +202,25 @@ public final class NullModemTest {
 			}
 
 			try {
-				scnm.createCustomLoopBackDevice(25, 0, 0);
+				scnm.createCustomLoopBackDevice(25, 0, 0, false);
 			}catch (Exception e) {
 				e.printStackTrace();
 			}
 
 			try {
-				scnm.createCustomLoopBackDevice(-1, SerialComNullModem.SP_CON_CTS, SerialComNullModem.SP_CON_DCD | SerialComNullModem.SP_CON_DSR);
+				scnm.createCustomLoopBackDevice(-1, SerialComNullModem.SP_CON_CTS, SerialComNullModem.SP_CON_DCD | SerialComNullModem.SP_CON_DSR, false);
 			}catch (Exception e) {
 				e.printStackTrace();
 			}
 
 			try {
-				scnm.createCustomLoopBackDevice(65, 0, SerialComNullModem.SP_CON_CTS | SerialComNullModem.SP_CON_DCD | SerialComNullModem.SP_CON_DSR);
+				scnm.createCustomLoopBackDevice(65, 0, SerialComNullModem.SP_CON_CTS | SerialComNullModem.SP_CON_DCD | SerialComNullModem.SP_CON_DSR, false);
 			}catch (Exception e) {
 				e.printStackTrace();
 			}
 
 			try {
-				scnm.createCustomLoopBackDevice(29, SerialComNullModem.SP_CON_CTS | SerialComNullModem.SP_CON_DCD | SerialComNullModem.SP_CON_DSR, 0);
+				scnm.createCustomLoopBackDevice(29, SerialComNullModem.SP_CON_CTS | SerialComNullModem.SP_CON_DCD | SerialComNullModem.SP_CON_DSR, 0, false);
 			}catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -223,7 +234,7 @@ public final class NullModemTest {
 
 			try {
 				scnm.createCustomNullModemPair(-1, SerialComNullModem.SP_CON_CTS, SerialComNullModem.SP_CON_DCD | SerialComNullModem.SP_CON_DSR, 
-						-1, SerialComNullModem.SP_CON_CTS, SerialComNullModem.SP_CON_DCD | SerialComNullModem.SP_CON_DSR);
+						false, -1, SerialComNullModem.SP_CON_CTS, SerialComNullModem.SP_CON_DCD | SerialComNullModem.SP_CON_DSR, false);
 			}catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -239,6 +250,7 @@ public final class NullModemTest {
 			scnm.destroyAllCreatedVirtualDevices();
 			scnm.deinitialize();
 			System.out.println("Done !");
+			System.exit(0);
 		}catch (Exception e) {
 			e.printStackTrace();
 		}

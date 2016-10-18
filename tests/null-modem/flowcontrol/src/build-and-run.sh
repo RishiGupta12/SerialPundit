@@ -12,7 +12,10 @@
 # without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 #################################################################################################
 
-# build and run application using scm from shell script
+# build and run application from shell
+
 cd "$(dirname "$0")"
-javac -cp ./scm-1.0.4.jar FlowControl/FlowControl.java
-java -classpath .:scm-1.0.4.jar FlowControl/FlowControl
+
+javac -cp ./sp-tty.jar:sp-core.jar FlowControl/FlowControl.java
+java -classpath .:sp-tty.jar:sp-core.jar FlowControl/FlowControl
+

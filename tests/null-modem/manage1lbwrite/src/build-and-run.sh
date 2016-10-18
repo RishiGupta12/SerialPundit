@@ -16,6 +16,6 @@
 
 cd "$(dirname "$0")"
 
-javac -cp ./sp-tty.jar:sp-core.jar NullModemTest.java
-java -classpath .:sp-tty.jar:sp-core.jar NullModemTest
+javac -cp ./sp-tty.jar:sp-core.jar Manage1lbwrite.java
+java -classpath .:sp-tty.jar:sp-core.jar Manage1lbwrite
 
