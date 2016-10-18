@@ -1,4 +1,4 @@
-<image align="right" width="256" heigth="265" src="images/tty2com.png">
+<image align="right" width="256" heigth="265" src="https://github.com/RishiGupta12/SerialPundit/blob/master/images/tty2com.png">
 
 It is a null modem / loop back kernel mode driver providing full duplex communication and handshaking signals. It creates virtual serial ports pair that appears same as the real once to the application software.
 
