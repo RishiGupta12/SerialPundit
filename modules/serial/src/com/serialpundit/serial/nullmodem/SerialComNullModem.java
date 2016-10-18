@@ -599,4 +599,22 @@ public final class SerialComNullModem {
 
         return true;
     }
+
+    /**
+     * <p>Gives operating system specific device stats at the instant this method is called like number of bytes transmitted, 
+     * number of bytes received etc.</p>
+     * 
+     * <p>For Linux the following information is returned in the given order starting at index 0 in returned string array: 
+     * number of bytes transmitted, number if bytes received, number of times CTS was raised, number of times DCD was raised, 
+     * number of times DSR was raised, number of times BREAK signal was received, number of times RING signal was detected, 
+     * number of times framing error has occurred, number of times parity error has occurred, number of times overrun error has 
+     * occurred and number of times buffer overrun error has occurred.</p>
+     * 
+     * @param deviceNode name of the virtual serial port whose stats are to be fetched from driver.
+     * @return operating system specific device stats for given serial port.
+     * @throws SerialComException if the operation can not be completed for some reason.
+     */
+    public String[] getStatsForGivenDevice(String deviceNode) throws SerialComException {
+        return mComPortJNIBridge.getStatsForGivenDevice(deviceNode);
+    }
 }
