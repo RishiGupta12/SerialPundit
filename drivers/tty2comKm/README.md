@@ -1,8 +1,8 @@
 <image align="right" width="256" heigth="265" src="https://github.com/RishiGupta12/SerialPundit/blob/master/images/tty2com.png">
 
-It is a null modem / loop back kernel mode driver providing full duplex communication and handshaking signals. It creates virtual serial ports pair that appears same as the real once to the application software.
+The tty2comKm is a null modem / loop back kernel mode driver providing full duplex communication and handshaking signals. It creates virtual serial ports that appears same as the real once to the application software.
 
-Desktop application, Eclipse IDE plugin, command line interface and Java/Python APIs are provided to manage virtual ports.
+Desktop application, Eclipse IDE plugin, command line interface, Java APIs and Python APIs are provided to manage virtual ports.
 
 ##Applications
 - Fully automate Junit testing and continuous integration

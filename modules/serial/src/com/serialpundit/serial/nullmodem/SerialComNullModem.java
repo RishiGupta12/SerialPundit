@@ -548,6 +548,8 @@ public final class SerialComNullModem {
      * <p>Application must implement Itty2comHotPlugListener interface and override onTTY2COMHotPlugEvent method. 
      * The event value SerialComNullModem.DEV_ADDED indicates virtual serial device has been added to the system. 
      * The event value SerialComNullModem.DEV_REMOVED indicates virtual serial device has been removed from system.</p>
+     *
+     * <p>This can also be used to detect situations like broken serial cable.</p>
      * 
      * @param hotPlugListener object of class which implements Itty2comHotPlugListener interface.
      * @param deviceNode serial port name or null.
