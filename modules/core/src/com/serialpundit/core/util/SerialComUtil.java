@@ -389,7 +389,7 @@ public final class SerialComUtil {
      * obtained as a result of executing the given command and return it to caller.</p>
      * 
      * @param command command to execute.
-     * @param byte[] inputToCommand data that is sent to command at its stdin input.
+     * @param inputToCommand data that is sent to command at its stdin input.
      * @return result of executing this command.
      * @throws SecurityException If a security manager exists and its checkExec method doesn't allow creation 
      *         of the subprocess.
