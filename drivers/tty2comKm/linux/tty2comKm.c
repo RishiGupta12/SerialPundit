@@ -1132,6 +1132,7 @@ static void sp_set_termios(struct tty_struct *tty, struct ktermios *old_termios)
     case CS7: uart_frame_settings |= SP_DATA_7;
     case CS6: uart_frame_settings |= SP_DATA_6;
     case CS5: uart_frame_settings |= SP_DATA_5;
+    default:  uart_frame_settings |= SP_DATA_8;
     }
 
     if (tty->termios.c_cflag & CSTOPB)
