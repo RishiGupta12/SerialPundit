@@ -1,7 +1,7 @@
 ##Applications and design ideas
 
-This folder contains demo applications and design ideas demonstrating how to integrate and call 
-various APIs of serialpundit modules.
+This folder contains demo applications **source**, application **notes** and design ideas demonstrating how to integrate 
+various serialpundit modules.
 
 #### USB hot plug and applications
 - d2-hotplug-datalistener-com
@@ -19,9 +19,12 @@ various APIs of serialpundit modules.
 - d1-timeout-read-com
 - byte-stream-binary-jar-integrate
 - free-comport-windows
+
+*notes*:
 - Concurrent-sensor-read.md
 - Power-save-baudrate.md
 - Read-method-designs.md
+- Emulate-space-parity.md
 
 #### File transfer (X/Y modem)
 - xmodem-minicom-script
@@ -31,6 +34,8 @@ various APIs of serialpundit modules.
 #### HID communication
 - hid-reportlistener-hotplug
 - hid-reportthread-hotplug
+
+*notes*:
 - USB-HID-descriptor.pdf
 
 #### Others
