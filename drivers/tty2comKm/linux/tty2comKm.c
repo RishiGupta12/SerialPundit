@@ -851,6 +851,7 @@ static void sp_close(struct tty_struct *tty, struct file *filp)
  * Invoked by tty layer via the line discipline when data is to be sent to tty device may be 
  * as a response to write() call in user space. The data bytes are inserted in tty buffers and 
  * will be available to app after some time as per the cpu load and kernel thread schedules etc.
+ * It will construct correct UART Frame before sending.
  * 
  * @tty: tty device who will send given data.
  * @buf: data to be sent.
@@ -860,6 +861,8 @@ static void sp_close(struct tty_struct *tty, struct file *filp)
  */
 static int sp_write(struct tty_struct *tty, const unsigned char *buf, int count)
 {
+    int x = 0;
+    unsigned char *data = NULL;
     struct tty_struct *tty_to_write = NULL;
     struct vtty_dev *rx_vttydev = NULL;
     struct vtty_dev *tx_vttydev = index_manager[tty->index].vttydev;
@@ -890,10 +893,45 @@ static int sp_write(struct tty_struct *tty, const unsigned char *buf, int count)
     }
 
     if (tty_to_write != NULL) {
-        tty_insert_flip_string(tty_to_write->port, buf, count);
+
+        /* The UART hardware receiver samples received electrical signals at the middle of a bit in uart frame.
+         * Emulate correct number/size of data bits and hence uart frame. */
+        if((tty_to_write->termios.c_cflag & CSIZE) == CS8) {
+            data = (unsigned char *)buf;
+        }
+        else {
+            data = (unsigned char *) kcalloc(count, sizeof(unsigned char), GFP_KERNEL);
+            if(data == NULL)
+                return -ENOMEM;
+
+            switch (tty_to_write->termios.c_cflag & CSIZE) {
+            case CS7:
+                for(x=0; x < count; x++) {
+                    data[x] = buf[x] & 0x7F;
+                }
+                break;
+            case CS6:
+                for(x=0; x < count; x++) {
+                    data[x] = buf[x] & 0x3F;
+                }
+                break;
+            case CS5:
+                for(x=0; x < count; x++) {
+                    data[x] = buf[x] & 0x1F;
+                }
+                break;
+            default:
+                data = (unsigned char *)buf;
+            }
+        }
+
+        tty_insert_flip_string(tty_to_write->port, data, count);
         tty_flip_buffer_push(tty_to_write->port);
         tx_vttydev->icount.tx++;
         rx_vttydev->icount.rx++;
+
+        if(data != buf)
+            kfree(data);
     }else {
         /* other end is still not opened, emulate transmission from local end
            but don't make other end receive it as is the case in real world */
@@ -915,6 +953,7 @@ static int sp_write(struct tty_struct *tty, const unsigned char *buf, int count)
  */
 static int sp_put_char(struct tty_struct *tty, unsigned char ch)
 {
+    unsigned char data;
     struct tty_struct *tty_to_write = NULL;
     struct vtty_dev *rx_vttydev = NULL;
     struct vtty_dev *tx_vttydev = index_manager[tty->index].vttydev;
@@ -939,7 +978,23 @@ static int sp_put_char(struct tty_struct *tty, unsigned char ch)
     }
 
     if(tty_to_write != NULL) {
-        tty_insert_flip_string(tty_to_write->port, &ch, 1);
+        switch (tty_to_write->termios.c_cflag & CSIZE) {
+        case CS8:
+            data = ch;
+            break;
+        case CS7:
+            data = ch & 0x7F;
+            break;
+        case CS6:
+            data = ch & 0x3F;
+            break;
+        case CS5:
+            data = ch & 0x1F;
+            break;
+        default:
+            data = ch;
+        }
+        tty_insert_flip_string(tty_to_write->port, &data, 1);
         tty_flip_buffer_push(tty_to_write->port);
         tx_vttydev->icount.tx++;
         rx_vttydev->icount.rx++;
@@ -1073,10 +1128,10 @@ static void sp_set_termios(struct tty_struct *tty, struct ktermios *old_termios)
     }
 
     switch (tty->termios.c_cflag & CSIZE) {
-    case CS5: uart_frame_settings |= SP_DATA_5;
-    case CS6: uart_frame_settings |= SP_DATA_6;
-    case CS7: uart_frame_settings |= SP_DATA_7;
     case CS8: uart_frame_settings |= SP_DATA_8;
+    case CS7: uart_frame_settings |= SP_DATA_7;
+    case CS6: uart_frame_settings |= SP_DATA_6;
+    case CS5: uart_frame_settings |= SP_DATA_5;
     }
 
     if (tty->termios.c_cflag & CSTOPB)
