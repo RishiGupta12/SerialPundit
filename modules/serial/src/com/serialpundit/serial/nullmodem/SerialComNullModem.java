@@ -312,6 +312,8 @@ public final class SerialComNullModem {
      * <p>For example; createStandardLoopBackDevice(2) will create /dev/tty2com2 device node in Linux or 
      * will throw exception if that number is already in use. Similarly createStandardLoopBackDevice(-1) 
      * will create /dev/tty2comXX where XX is the next free number managed by the driver internally.</p>
+     *
+     * <p>Typically loopback mode is used to detect communication link failures.</p>
      * 
      * @param deviceIndex -1 or valid device number (0 <= deviceIndex =< 65535).
      * @return Created virtual loop back device's node on success.
