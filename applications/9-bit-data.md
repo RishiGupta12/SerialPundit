@@ -1,4 +1,4 @@
-This application note explains how to achieve 9 bit data communication and parity bit emulation.
+This application note explains how to achieve actual 9 bit data communication and mark/space parity bit emulation.
 
 ##9-bit data width communication
 
@@ -6,14 +6,19 @@ In serial port communication, the uart frame consist of a start bit, data bits a
 
 The MDB uses this additional bit to differentiate between address and data byte. Custom protocols uses this bit to indicate that the given data byte is actual data or control information. Some rare custom protocols defines that this bit must always be 0 or 1 in uart frame, some define a particular sequence for example; in the transmitted packet, 3rd uart frame must have this bit set to 1 with all other frames having this bit set to 0.
 
-There are two ways in which this additional bit can be added in transmitted uart frame:
+There are three ways in which this additional bit can be added in transmitted uart frame:
 
-- *Use uart hardware* that supports 9-bit data width with no parity configuration for example; OX16C950 for host computer and dsPIC33E families microcontroller from microchip for embedded system etc. Most of the host computer hardware, driver and operating system does not support 9-bit mode and therefore custom drivers and libraries have to be developed and used. UART hardware itself may be little more expensive also.
+- *Use uart hardware* that supports 9-bit data width configuration for example; OX16C950 for host computer and ATmega328, MAX3109, dsPIC33E families microcontroller from microchip for embedded system etc. Most of the host computer hardware, driver and operating system does not support 9-bit mode and therefore custom drivers and libraries have to be developed and used. UART hardware itself may be little more expensive also.
 
+  This method has some variance and implementation specific complexity. Some hardware provide 9 bit wide FIFO for ex; dsPIC30F3012, while some uses a bit in another register as 9th data bit for ex; ATmega328. This increases the need to complete things in a timely manner and a more complicated driver etc. Most hardware does not support 9 bit data with parity bit also available.
 
 - *Emulate 9th bit* while using the standard supported uart configuration on available hardware and software resources. This involves enabling the parity bit in uart frame and explicitly dynamically setting this bit. If the 9th bit is to be set to 0, count the number of 1's from 0th to 8th data bit. If this number is even then configure the uart controller for 8-E-1 communication otherwise 8-O-1 (8 data bits, odd parity and 1 stop bit). This has to be done for every uart frame to be transmitted.
-
-Similarly, If the 9th bit is to be set to 1, count the number of 1's from 0th to 8th data bit. If this number is even then configure the uart controller for 8-O-1 communication otherwise 8-E-1.
+  
+  Similarly, If the 9th bit is to be set to 1, count the number of 1's from 0th to 8th data bit. If this number is even then configure the uart controller for 8-O-1 communication otherwise 8-E-1. An important point to note is that the parity setting is common for both tx and rx part of uart hardware and therefore we can not simultaneously transmit and receive data. For a master/slave configuration, however this is not an issue.
+  
+  Special attention must be paid to the timing as if a byte is transmitted or received while the parity setting is changed, inconsistent result may be observed. Further this trick may not be applied if parity bit is also used in addition to 9 bit data.
+  
+- *Bit bang the GPIO* if available. This is mainly applicable to embedded system microcontroller where firmware manually constructs uart frame and send it over the same GPIO pin physically.
 
 
 ##Emulating Mark and Space parity bit
