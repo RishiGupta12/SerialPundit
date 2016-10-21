@@ -31,9 +31,9 @@ Desktop application, Eclipse IDE plugin, command line interface, Java APIs and P
 ##Features
 - Create standard, loopback or custom pinout connected serial devices.
 - Software, hardware and no flow controls emulation.
-- Parity, frame, overrun and line break events emulation.
+- Parity, frame, overrun, line break and ring indicator events emulation.
 - Control signals (RTS,DTR,CTS,DCD,RI,LOOP,DSR) and all serial port settings.
-- Ring indicator line signal emulation.
+- 5,6,7,8 data bits, 1,1.5,2 stop bits and 1 start bit configurations supported.
 - Create/destroy virtual serial ports dynamically directly from your application without reboot.
 - Operating system specific serial port APIs and IOCTL supported.
 - Serial ports can be deleted even when left opened by an application (useful in automated testing).
