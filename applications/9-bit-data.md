@@ -4,7 +4,7 @@ This application note explains how to achieve actual 9 bit data communication an
 
 In serial port communication, the uart frame consist of a start bit, data bits and stop bits. Typically the length of data bits varies from 5 to 8 bits with most of the application using 8-N-1 configuration. Some custom protocols and multidrop bus (MDB) uses and additional bit to carry extra information. This additional bit appears after last data bit but before stop bit in given uart frame.
 
-The MDB uses this additional bit to differentiate between address and data byte. Custom protocols uses this bit to indicate that the given data byte is actual data or control information. Some rare custom protocols defines that this bit must always be 0 or 1 in uart frame, some define a particular sequence for example; in the transmitted packet, 3rd uart frame must have this bit set to 1 with all other frames having this bit set to 0.
+The MDB uses this additional bit to differentiate between address and data byte. Custom protocols uses this bit to indicate that the given data byte is actual data or control information. Some rare custom protocols defines that this bit must always be 0 or 1 in uart frame, some define a particular sequence for example; in the transmitted packet, 3rd uart frame must have this bit set to 1 with all other frames having this bit set to 0. Another such sequence can be 9th bit is 1 in 1st frame to represent address, than all other frmaes will have this bit as 0 and then the last frame will have this bit again as 1 to indicate end of message.
 
 There are three ways in which this additional bit can be added in transmitted uart frame:
 
@@ -16,7 +16,7 @@ There are three ways in which this additional bit can be added in transmitted ua
   
   Similarly, If the 9th bit is to be set to 1, count the number of 1's from 0th to 8th data bit. If this number is even then configure the uart controller for 8-O-1 communication otherwise 8-E-1. An important point to note is that the parity setting is common for both tx and rx part of uart hardware and therefore we can not simultaneously transmit and receive data. For a master/slave configuration, however this is not an issue.
   
-  Special attention must be paid to the timing as if a byte is transmitted or received while the parity setting is changed, inconsistent result may be observed. Further this trick may not be applied if parity bit is also used in addition to 9 bit data.
+  Special attention must be paid to the timing as if a byte is transmitted or received while the parity setting is changed, inconsistent result may be observed. The tx buffer must be emptied physically  by uart hardware for each byte to make sure that desired parity settings come in effect as set for each byte i.e. setting parity, uart frame construction and physically transmitting the frame must be an atomic operation. The protocol itself may have defined a time window and we need to make sure that it is met. Further this trick may not be applied if parity bit is also used in addition to 9 bit data.
   
 - *Bit bang the GPIO* if available. This is mainly applicable to embedded system microcontroller where firmware manually constructs uart frame and send it over the same GPIO pin physically.
 
