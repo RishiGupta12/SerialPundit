@@ -1318,7 +1318,10 @@ public final class SerialComManager {
      * per second), stop bits, data bits etc. Please consult hardware and software manuals as appropriate.</li>
      * 
      * <li><p>If parity is enabled, the parity bit will be removed from UART frame before passing it to this library. 
-     * All hardware/driver/operating systems does not support all parity. Please check your manual.</p></li>
+     * All hardware/driver/operating systems does not support all parity. Please check your manual. Note that the datasheet 
+     * of some uart devices does not mention that mark/space parity is supported, however they properly support it as 
+     * mentioned in their register setting details. If a parity error is detected in received data, the error is not cleared 
+     * until LSR/LCR registers are read by driver. So if parity detection is used application should enquire its status.</p></li>
      * 
      * <li>Some USB-UART devices supports non-standard baudrates. How to set these baudrate is device/driver and operating
      * system specific.</li>

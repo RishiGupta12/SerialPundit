@@ -8,17 +8,17 @@ The MDB uses this additional bit to differentiate between address and data byte.
 
 There are three ways in which this additional bit can be added in transmitted uart frame:
 
-- *Use uart hardware* that supports 9-bit data width configuration for example; OX16C950 for host computer and ATmega328, MAX3109, dsPIC33E families microcontroller from microchip for embedded system etc. Most of the host computer hardware, driver and operating system does not support 9-bit mode and therefore custom drivers and libraries have to be developed and used. UART hardware itself may be little more expensive also.
+- **Use uart hardware** that supports 9-bit data width configuration for example; OX16C950 for host computer and ATmega328, MAX3109, dsPIC33E families microcontroller from microchip for embedded system etc. Most of the host computer hardware, driver and operating system does not support 9-bit mode and therefore custom drivers and libraries have to be developed and used. UART hardware itself may be little more expensive also.
 
   This method has some variance and implementation specific complexity. Some hardware provide 9 bit wide FIFO for ex; dsPIC30F3012, while some uses a bit in another register as 9th data bit for ex; ATmega328. This increases the need to complete things in a timely manner and a more complicated driver etc. Most hardware does not support 9 bit data with parity bit also available.
 
-- *Emulate 9th bit* while using the standard supported uart configuration on available hardware and software resources. This involves enabling the parity bit in uart frame and explicitly dynamically setting this bit. If the 9th bit is to be set to 0, count the number of 1's from 0th to 8th data bit. If this number is even then configure the uart controller for 8-E-1 communication otherwise 8-O-1 (8 data bits, odd parity and 1 stop bit). This has to be done for every uart frame to be transmitted.
+- **Emulate 9th bit** while using the standard supported uart configuration on available hardware and software resources. This involves enabling the parity bit in uart frame and explicitly dynamically setting this bit. If the 9th bit is to be set to 0, count the number of 1's from 0th to 8th data bit. If this number is even then configure the uart controller for 8-E-1 communication otherwise 8-O-1 (8 data bits, odd parity and 1 stop bit). This has to be done for every uart frame to be transmitted.
   
   Similarly, If the 9th bit is to be set to 1, count the number of 1's from 0th to 8th data bit. If this number is even then configure the uart controller for 8-O-1 communication otherwise 8-E-1. An important point to note is that the parity setting is common for both tx and rx part of uart hardware and therefore we can not simultaneously transmit and receive data. For a master/slave configuration, however this is not an issue.
   
   Special attention must be paid to the timing as if a byte is transmitted or received while the parity setting is changed, inconsistent result may be observed. The tx buffer must be emptied physically  by uart hardware for each byte to make sure that desired parity settings come in effect as set for each byte i.e. setting parity, uart frame construction and physically transmitting the frame must be an atomic operation. The protocol itself may have defined a time window and we need to make sure that it is met. Further this trick may not be applied if parity bit is also used in addition to 9 bit data.
   
-- *Bit bang the GPIO* if available. This is mainly applicable to embedded system microcontroller where firmware manually constructs uart frame and send it over the same GPIO pin physically.
+- **Bit bang the GPIO** if available. This is mainly applicable to embedded system microcontroller where firmware manually constructs uart frame and send it over the same GPIO pin physically.
 
 
 ##Emulating Mark and Space parity bit
