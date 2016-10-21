@@ -818,7 +818,6 @@ static int sp_open(struct tty_struct *tty, struct file *filp)
 
     /* Set low latency so that our tty_push actually pushes data to line discipline immediately 
        instead of scheduling it. */
-    tty->port->low_latency  = 1;
     tty->port->close_delay  = 0;
     tty->port->closing_wait = 0;
     tty->port->drain_delay  = 0;
