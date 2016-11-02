@@ -4,7 +4,7 @@ lrzsz etc tools.
 
 !["serial communication in java"](output.jpg?raw=true "serial communication in java")
 
-#####Running this application
+####Running this application
 - Copy scm-1.0.4.jar in xmodem-minicom-script folder. Do not change the directory structure.
 - Run the script as minicom.sh giving ports and file names as shown below. Transfer will occur 
 at 9600 baudrate 8N1 settings.
@@ -14,7 +14,7 @@ at 9600 baudrate 8N1 settings.
   
   See the output.jpg to see output of this program.
    
-#####What this application does and how it does
+####What this application does and how it does
 - Extract and validate parameters supplied to minicom.sh script.
 - Compile Java source files and create app.jar representing Java application that will 
 receive the file.
@@ -25,6 +25,6 @@ file transfer takes time.
 actually do the file transfer.
 - Initiate exit after 20 seconds.
      
-#####Going further
+####Going further
 - The shell script will self terminate after 20 seconds. This can be made interactive.
 

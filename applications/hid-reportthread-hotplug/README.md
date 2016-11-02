@@ -3,7 +3,7 @@ find its device node and start communication with it witjhout using input report
 
 !["serial communication in java"](output.jpg?raw=true "serial communication in java")
 
-#####Running this application
+####Running this application
    
 - Connect MCP2200 and then launch this application. It will send command 0x80 to MCP2200 and will
 read input report from MCP2200.
@@ -14,7 +14,7 @@ application.
 
   See the output.jpg to see output of this program.
    
-#####What this application does and how it does
+####What this application does and how it does
 
 On application entry :
 
@@ -43,7 +43,7 @@ is received, print it on console.
 - The operation is same as for HID device already connected into system except that the
 USB hot plug thread does not insert 'add' event in queue manually when it starts.
 	  
-#####Going further
+####Going further
    
 - Consider where operations need to be atomic or requires different levels of granularity.
 For example consider if thread need to be synchronized explicitly or implicitly.

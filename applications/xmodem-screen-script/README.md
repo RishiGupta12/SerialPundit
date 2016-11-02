@@ -4,7 +4,7 @@ utility (in detached session) in Linux.
 
 !["serial communication in java"](output.jpg?raw=true "serial communication in java")
 
-#####Running this application
+####Running this application
 - Copy scm-1.0.4.jar in xmodem-screen-script folder. Do not change the directory structure.
 - Run the script as screen.sh giving ports and file names as shown below. 
   ```sh
@@ -12,7 +12,7 @@ utility (in detached session) in Linux.
   ```
   See the output.jpg to see output of this program.
    
-#####What this application does and how it does
+####What this application does and how it does
 - Extract and validate parameters supplied to screen.sh script.
 - Compile Java source files and create app.jar representing Java application that will 
 receive the file.
@@ -21,6 +21,6 @@ receive the file.
 - Issue command to start sending file.
 - Exit after 10 seconds.
      
-#####Going further
+####Going further
 - The shell script will self terminate after 10 seconds. This can be made interactive.
 

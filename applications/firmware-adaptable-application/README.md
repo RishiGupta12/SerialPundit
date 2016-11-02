@@ -3,14 +3,14 @@ product/firmware and also provides features of new product/firmware. It also dem
 how to invoke IOCTL operations using serialpundit and use writeString method with specified
 character set.
 
-#####Running this application
+####Running this application
    
 Connect USB device of interest in computer. Unload default drivers for CP2012 and then load 
 custom driver for CP2102. Now run this program so that CP2102 uses our custom driver. 
    
 See the output.jpg to see output of this program.
    
-#####What this application does and how it does
+####What this application does and how it does
 
 When this application starts, it setup classes which are required to find firmware version of
 the USB device of interest. It reads the firmware version (bcdDevice) and according to this
@@ -22,7 +22,7 @@ using GPIO (general purpose I/O) pins. Now the new application is written in suc
 bar code reader is connected to system, it will not access LED, however if new bar code reader
 is connected to system it will use API provided by serialpundit to toggle LED.
      
-#####Going further
+####Going further
 - This program uses only firmware version to differentiate USB devices. Modern USB devices often
 provides user accessible EEPROM for application use. The serialpundit contain API to read/write to 
 such EEPROMs. Consider using these APIs in your application.

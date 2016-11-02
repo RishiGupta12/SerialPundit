@@ -1,7 +1,7 @@
 This firmware example demonstrates how to interface GPS receiver and GSM modem with 
 PIC18F4550 microcontroller for making a vehicle tracking system.
 
-#####Running this firmware
+###Running this firmware
    
 Build this firmware using C18 compiler and flash it using ICD tool. Connect GSM modem 
 and GPS receiver (may require clear area) and power on board.
@@ -9,7 +9,7 @@ and GPS receiver (may require clear area) and power on board.
 Send a SMS to VTS board containing LOC? string. The board will find the location and send 
 it to the mobile who sent LOC? string.
    
-#####What this firmware does and how it does
+###What this firmware does and how it does
 
 - Turn features of microcontroller not needed to save power.
 - Configure UART port to communicate with GSM Modem.
@@ -27,13 +27,12 @@ data loss.
 - Loop back to wait for next SMS message after configuring PIC18F4550 to communicate with 
 GSM Modem.
 
-#####Hardware prerequisites
+###Hardware prerequisites
 
-GSM modem    &#8594; BENQ MOD 9001 GSM/GPRS MODEM
+- GSM modem    &#8594; BENQ MOD 9001 GSM/GPRS MODEM
+- GPS receiver &#8594; ALTINA SIRF III G-mouse GGM 309 GPS receiver
 
-GPS receiver &#8594; ALTINA SIRF III G-mouse GGM 309 GPS receiver
-
-#####Interfacing GSM MODEM with PIC 18F4550 microcontroller 
+###Interfacing GSM MODEM with PIC 18F4550 microcontroller 
 - The PIC microcontroller was interfaced to GSM MODEM using hardware EUASRT builtin in 18F4550. 
 The EUSART was configured to operate in 115200 8N1 configuration using interrupts. An ISR was 
 written at high interrupt vector and the EUSART receive interrupt was set as a high priority 
@@ -52,7 +51,7 @@ helped in switching between GPS and GSM modem. A virtual handshaking was also im
 pin 4 & 7 of DB9 Connecter was tied to +5 volt supply. These pins represent RTS and DTE in RS232 
 interface. A +5 volt supply represent valid RS232 logic level (voltage level).
 
-#####Interfacing GPS receiver with PIC 18F4550 microcontroller 
+###Interfacing GPS receiver with PIC 18F4550 microcontroller 
 - The PIC microcontroller was interfaced to GPS receiver using hardware EUASRT builtin in 18F4550. 
 The EUSART was configured to operate in 4800 8N1 configuration using interrupts. An ISR was 
 written at high interrupt vector and the EUSART receive interrupt was set as a high  priority 
@@ -65,7 +64,7 @@ are extracted & saved in another buffer.
 - At hardware level a voltage level converter IC MAX232 was used from MAXIM. Finally a 2x1 multiplexer 
 helped in switching between GPS and GSM modem.
 
-#####NMEA Format
+###NMEA Format
 GPS receivers require different signals in order to function. These variables are broadcast after position 
 and time have been successfully calculated and determined. To ensure that the different types of appliances 
 are portable there are either international standards for data exchange (NMEA and RTCM), or the manufacturer 
@@ -125,7 +124,7 @@ $GPGSA,A,3,13,20,11,29,01,25,07,04,,,,,1.63,0.94,1.33*04<CR><LF>
 $GPGSV,2,1,8,13,15,208,36,20,80,358,39,11,52,139,43,29,13,044,36*42<CR><LF>
 $GPGSV,2,2,8,01,52,187,43,25,25,074,39,07,37,286,40,04,09,306,33*44<CR><LF>
 
-#####GPGGA String
+###GPGGA String
 For this project, we are mainly concerned with the geographical location, that is, latitude, longitude 
 and altitude. Therefore, we only need to look out for sentences beginning with $GPGGA. The GPGGA data set 
 (GPS Fix Data) contain information on time, longitude and latitude, the quality of the system, the number 
@@ -152,7 +151,7 @@ $GPGGA,130305.0,4717.115,N,00833.912,E,1,08,0.94,00499,M,047,M,,*58<CR><LF>
 | <CR> <LF>              |                |            |                                   |
 
 
-#####Going further
+###Going further
 - This example demonstrates communication with a mobile phone to send and receive location 
 information. A dedicated GSM modem can be interfaced to computer at central server location 
 all all the vehicle can be tracked globally from this center.

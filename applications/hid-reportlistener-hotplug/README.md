@@ -3,7 +3,7 @@ find its device node and start communication with it using input report listener
 
 !["serial communication in java"](output.jpg?raw=true "serial communication in java")
 
-#####Running this application
+####Running this application
    
 - Connect MCP2200 and launch this application. It will send command 0x80 to MCP and will
 read input report from MCP2200.
@@ -14,7 +14,7 @@ read by this application.
    
   See the output.jpg to see output of this program.
    
-#####What this application does and how it does
+####What this application does and how it does
 
 On application entry :
 
@@ -38,7 +38,7 @@ for it.
 - The operation is same as for HID device already connected into system except that the
 USB hot plug thread does not insert 'add' event in queue manually when it starts.
      
-#####Going further
+####Going further
 - The onNewInputReportAvailable method is invoked by a dedicated Java worker thread whose
 job is to read input report from HID device and deliver it registered input report
 listener. Therefore application may do job that may take time from within onNewInputReportAvailable
