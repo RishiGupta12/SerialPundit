@@ -697,8 +697,13 @@ public final class SerialComManager {
      * <li><p>It should be noted that on Linux system reading from the terminal after a disconnect causes 
      * an end-of-file condition, and writing causes an EIO error to be returned. The terminal device must 
      * be closed and reopened to clear the condition.</p></li>
+     *
+     * <li>The delay parameter may be used where explicit flow control is not implemented and the firmware
+     * is not fast enough to accommodate large and fast data sent to serial device. To control speed and amount 
+     * of data sent to serial device either add delay between successive bytes or add delay after host has sent 
+     * some particular number of bytes.</li>
      * </ul>
-     * 
+     *
      * @param handle handle of the opened port on which to write bytes.
      * @param buffer byte type buffer containing bytes to be written to port.
      * @param delay  time gap between transmitting two successive bytes.
