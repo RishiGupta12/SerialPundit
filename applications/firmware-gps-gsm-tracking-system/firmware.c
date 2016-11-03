@@ -15,6 +15,10 @@
  * 1. Compiler     --> C18 compiler 
  * 2. GSM modem    --> BENQ MOD 9001 GSM/GPRS MODEM
  * 3. GPS receiver --> ALTINA SIRF III G-mouse GGM 309 GPS receiver
+ *
+ * Data at UART is received using interrupts. When communicating with GPS receiver, we use ISR to 
+ * save data bytes in array. When a required number of bytes (747) have been received we disable 
+ * the generation of UART RX interrupt.
  */
 #include <p18f4550.h>   
 
