@@ -706,7 +706,7 @@ public final class SerialComManager {
      *
      * @param handle handle of the opened port on which to write bytes.
      * @param buffer byte type buffer containing bytes to be written to port.
-     * @param delay  time gap between transmitting two successive bytes.
+     * @param delay  time gap (in milliseconds) between transmitting two successive bytes.
      * @return number of bytes written.
      * @throws SerialComException if an I/O error occurs.
      * @throws IllegalArgumentException if buffer is null or delay is negative.
