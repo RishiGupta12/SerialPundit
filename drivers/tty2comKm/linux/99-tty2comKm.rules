@@ -23,5 +23,5 @@
 # $ sudo udevadm trigger --attr-match=subsystem=tty
 
 # %S is sysfs mount point and %p is DEVPATH (/devices/virtual/tty/tty2comxx)
-ACTION=="add", SUBSYSTEM=="tty", KERNEL=="tty2com[0-9]*", MODE="0666", RUN+="/bin/chmod 0666 %S%p/evt"
+ACTION=="add", SUBSYSTEM=="tty", KERNEL=="tty2com[0-9]*", MODE="0666", RUN+="/bin/chmod 0666 %S%p/evt %S%p/faultycable"
 
