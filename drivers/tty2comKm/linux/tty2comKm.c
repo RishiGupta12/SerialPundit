@@ -112,6 +112,7 @@ struct vtty_dev {
     int uart_frame;
     int waiting_msr_chg;
     int tx_paused;
+    int faulty_cable;
     struct tty_struct *own_tty;
     struct tty_struct *peer_tty;
     struct serial_struct serial;
@@ -158,6 +159,7 @@ static int sp_wait_msr_change(struct tty_struct *tty, unsigned long mask);
 static int sp_check_msr_delta(struct tty_struct *tty, struct vtty_dev *local_vttydev, unsigned long mask, struct async_icount *prev);
 
 static ssize_t sp_evt_store(struct device *dev, struct device_attribute *attr, const char *buf, size_t count);
+static ssize_t sp_faultycable_store(struct device *dev, struct device_attribute *attr, const char *buf, size_t count);
 static ssize_t sp_ownidx_show(struct device *dev, struct device_attribute *attr, char *buf);
 static ssize_t sp_peeridx_show(struct device *dev, struct device_attribute *attr, char *buf);
 static ssize_t sp_ortsmap_show(struct device *dev, struct device_attribute *attr, char *buf);
@@ -207,6 +209,7 @@ struct vtty_info *index_manager = NULL;   /*  keep track of indexes in use curre
  * that user space does not have to know data format and their offsets in returned result
  * buffer. */
 static DEVICE_ATTR(evt, (S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP), NULL, sp_evt_store);
+static DEVICE_ATTR(faultycable, (S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP), NULL, sp_faultycable_store);
 static DEVICE_ATTR(ownidx,  S_IRUGO, sp_ownidx_show,  NULL);
 static DEVICE_ATTR(peeridx, S_IRUGO, sp_peeridx_show, NULL);
 static DEVICE_ATTR(ortsmap, S_IRUGO, sp_ortsmap_show, NULL);
@@ -220,6 +223,7 @@ static DEVICE_ATTR(ostats,  S_IRUGO, sp_ostats_show, NULL);
 
 static struct attribute *spvtty_info_attrs[] = {
         &dev_attr_evt.attr,
+        &dev_attr_faultycable.attr,
         &dev_attr_ownidx.attr,
         &dev_attr_peeridx.attr,
         &dev_attr_ortsmap.attr,
@@ -356,6 +360,39 @@ static ssize_t sp_evt_store(struct device *dev, struct device_attribute *attr, c
     fail:
     mutex_unlock(&local_vttydev->lock);
     return ret;
+}
+
+/*
+ * Emulate a faulty cable condition.
+ * 
+ * @dev: device associated with given sysfs entry
+ * @attr: sysfs attribute corresponding to this function
+ * @buf: cable state passed from user space to kernel via this sysfs attribute
+ * @count: number of characters in buf
+ * 
+ * @return number of bytes consumed from buf on success or negative error code on error
+ */
+static ssize_t sp_faultycable_store(struct device *dev, struct device_attribute *attr, const char *buf, size_t count)
+{
+    struct vtty_dev *local_vttydev = NULL;
+
+    if(!buf || (count <= 0))
+        return -EINVAL;
+
+    local_vttydev = (struct vtty_dev *) dev_get_drvdata(dev);
+
+    switch(buf[0]) {
+    case '0' :
+        local_vttydev->faulty_cable = 0;
+        break;
+    case '1' :
+        local_vttydev->faulty_cable = 1;
+        break;
+    default :
+        return -EINVAL;
+    }
+
+    return count;
 }
 
 /*
@@ -816,13 +853,11 @@ static int sp_open(struct tty_struct *tty, struct file *filp)
     if (ret < 0) 
         return ret;
 
-    /* Set low latency so that our tty_push actually pushes data to line discipline immediately 
-       instead of scheduling it. */
     tty->port->close_delay  = 0;
-    tty->port->closing_wait = 0;
+    tty->port->closing_wait = ASYNC_CLOSING_WAIT_NONE;
     tty->port->drain_delay  = 0;
 
-    return ret; 
+    return ret;
 }
 
 /*
@@ -848,9 +883,8 @@ static void sp_close(struct tty_struct *tty, struct file *filp)
 
 /* 
  * Invoked by tty layer via the line discipline when data is to be sent to tty device may be 
- * as a response to write() call in user space. The data bytes are inserted in tty buffers and 
- * will be available to app after some time as per the cpu load and kernel thread schedules etc.
- * It will construct correct UART Frame before sending.
+ * as a response to write() call in user space. The data bytes are inserted into the tty buffer and get
+ * scheduled to be sent to receiver. This function will construct correct UART frame before sending.
  * 
  * @tty: tty device who will send given data.
  * @buf: data to be sent.
@@ -873,6 +907,9 @@ static int sp_write(struct tty_struct *tty, const unsigned char *buf, int count)
         dev_dbg(tty->dev, "break condition is on !");
         return -EIO;
     }
+
+    if(tx_vttydev->faulty_cable == 1)
+        return count;
 
     if (tty->index != tx_vttydev->peer_index) {
         /* null modem */
@@ -962,6 +999,9 @@ static int sp_put_char(struct tty_struct *tty, unsigned char ch)
 
     if (tx_vttydev->is_break_on == 1)
         return -EIO;
+
+    if(tx_vttydev->faulty_cable == 1)
+        return 1;
 
     if (tty->index != tx_vttydev->peer_index) {
         tty_to_write = tx_vttydev->peer_tty;
@@ -1616,7 +1656,7 @@ static int sp_port_activate(struct tty_port *port, struct tty_struct *tty)
  */
 static void sp_port_destruct(struct tty_port *port)
 {
-    kfree(port);
+    //kfree(port);
 }
 
 /*
@@ -1960,6 +2000,7 @@ static ssize_t sp_vcard_proc_write(struct file *file, const char __user *buf, si
         vttydev1->mcr_reg = 0;
         vttydev1->waiting_msr_chg = 0;
         vttydev1->tx_paused = 0;
+        vttydev1->faulty_cable = 0;
         index_manager[i].index = i;
         index_manager[i].vttydev = vttydev1;
         mutex_init(&vttydev1->lock);
@@ -2007,6 +2048,7 @@ static ssize_t sp_vcard_proc_write(struct file *file, const char __user *buf, si
             vttydev2->mcr_reg = 0;
             vttydev2->waiting_msr_chg = 0;
             vttydev2->tx_paused = 0;
+            vttydev2->faulty_cable = 0;
             index_manager[y].index = y;
             index_manager[y].vttydev = vttydev2;
             mutex_init(&vttydev2->lock);
@@ -2096,20 +2138,30 @@ static ssize_t sp_vcard_proc_write(struct file *file, const char __user *buf, si
             /* First tty must be released and than port. */
             for(x=0; x < max_num_vtty_dev; x++) {
                 if (index_manager[x].index != -1) {
+                    printk(KERN_INFO "REMOVE IDX: %d\n", index_manager[x].index);
 
                     vttydev1 = index_manager[x].vttydev;
                     if (vttydev1 != NULL) {
 
                         sysfs_remove_group(&vttydev1->device->kobj, &sp_info_attr_group);
-                        tty_unregister_device(spvtty_driver, index_manager[x].index);
+
+
+                        printk(KERN_INFO "1 REMOVE IDX: %d\n", index_manager[x].index);
 
                         if (vttydev1->own_tty && vttydev1->own_tty->port) {
+                            printk(KERN_INFO "2 REMOVE IDX: %d\n", index_manager[x].index);
+
                             tty = tty_port_tty_get(vttydev1->own_tty->port);
+
+                            printk(KERN_INFO "3 REMOVE IDX: %d\n", index_manager[x].index);
                             if (tty) {
+                                printk(KERN_INFO "REMOVE IDX1: %p\n", vttydev1->own_tty->port);
                                 tty_vhangup(tty);
                                 tty_kref_put(tty);
                             }
+                            printk(KERN_INFO "4 REMOVE IDX: %d\n", index_manager[x].index);
                         }
+                        tty_unregister_device(spvtty_driver, index_manager[x].index);
                         kfree(index_manager[x].vttydev);
                     }
                     index_manager[x].index = -1;
