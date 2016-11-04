@@ -159,7 +159,7 @@ public final class CardReaderApp extends JFrame {
 		mainFrame.getContentPane().setLayout(new BoxLayout(mainFrame.getContentPane(), BoxLayout.Y_AXIS));
 		mainFrame.setSize(250, 150);
 		mainFrame.setResizable(false);
-		mainFrame.setTitle("tty2comKm null modem emulator");
+		mainFrame.setTitle("demo app");
 		mainFrame.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent windowEvent) {
 				exitApplication();

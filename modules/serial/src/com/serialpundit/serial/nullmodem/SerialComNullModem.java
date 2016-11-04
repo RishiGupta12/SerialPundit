@@ -621,4 +621,25 @@ public final class SerialComNullModem {
     public String[] getStatsForGivenDevice(String deviceNode) throws SerialComException {
         return mComPortJNIBridge.getStatsForGivenDevice(deviceNode);
     }
+
+    /**
+     * <p>Set/Unset faulty cable condition. If the state is true, faulty cable condition is emulated by driver i.e. the data 
+     * will not be sent by device however it will reported by driver to application that data has been sent. If the state is 
+     * false, driver will emulate a good cable condition i.e. all data integrity will be maintained and data will be sent to 
+     * intended receiver.</p>
+     * 
+     * @param deviceNode name of the virtual serial port (virtual cable is attached to this port).
+     * @param state true for faulty cable otherwise false.
+     * @throws SerialComException if the operation can not be completed for some reason.
+     */
+    public void emulateFaultyCable(String deviceNode, boolean state) throws SerialComException {
+        mComPortJNIBridge.emulateFaultyCable(deviceNode, state);
+    }
+    
+    
+    
+    
+    
+    
+    
 }

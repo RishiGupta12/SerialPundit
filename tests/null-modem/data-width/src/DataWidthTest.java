@@ -31,7 +31,7 @@ public final class DataWidthTest {
 		try {
 			String[] ports = scnm.createStandardNullModemPair(-1, -1);
 			System.out.println("PORTS:" + ports[0] + "," + ports[4]);
-			Thread.sleep(1000);
+			Thread.sleep(700);
 
 			long hand1 = scm.openComPort(ports[0], true, true, true);
 			scm.configureComPortData(hand1, DATABITS.DB_5, STOPBITS.SB_1, PARITY.P_ODD, BAUDRATE.B115200, 0);
@@ -50,7 +50,7 @@ public final class DataWidthTest {
 
 			scm.writeBytes(hand1, data);
 
-			Thread.sleep(1000);
+			Thread.sleep(50);
 
 			System.out.println("Sent ------------");
 			for(int x=0; x < data.length; x++) {
@@ -62,15 +62,11 @@ public final class DataWidthTest {
 			for(int x=0; x < datarcv.length; x++) {
 				System.out.println(datarcv[x]);
 			}
-
-			scm.closeComPort(hand1);
+			
 			scm.closeComPort(hand2);
-
-			Thread.sleep(100);
+			scm.closeComPort(hand1);
 
 			scnm.destroyAllCreatedVirtualDevices();
-
-			Thread.sleep(100);
 
 			scnm.deinitialize();
 			System.out.println("Done !");

@@ -1255,8 +1255,7 @@ public final class SerialComManager {
 
     /** 
      * <p>Reads data bytes from serial port into given buffer also providing info about framing, parity etc errors. 
-     * This method is mainly intended for use in application design which needs to poll serial port continuously 
-     * for presence of data.</p>
+     * This method may be used in application design which needs to poll serial port continuously for presence of data.</p>
      * 
      * <ul>
      * <li>This method can be used in blocking mode or non-blocking mode. If context is -1, this method will 
@@ -1271,7 +1270,7 @@ public final class SerialComManager {
      * this contain message SerialComManager.EXP_UNBLOCKIO. This message indicates that  no error occurred 
      * while waiting/reading data from serial port but application has explicitly asked to return.</li>
      * 
-     * <li><p>To find if a framing or parity errors has happened while receiving data of not, call methods as 
+     * <li><p>To find if a framing or parity errors has happened while receiving data or not, call methods as 
      * appropriate on lineErr reference.</p></li>
      * </ul>
      * 

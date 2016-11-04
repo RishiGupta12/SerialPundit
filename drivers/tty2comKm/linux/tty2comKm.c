@@ -915,6 +915,7 @@ static int sp_write(struct tty_struct *tty, const unsigned char *buf, int count)
         /* null modem */
         tty_to_write = tx_vttydev->peer_tty;
         rx_vttydev = index_manager[tx_vttydev->peer_index].vttydev;
+
         if((tx_vttydev->baud != rx_vttydev->baud) || (tx_vttydev->uart_frame != rx_vttydev->uart_frame)) {
             /* Emulate data sent but not received */
             dev_dbg(tty->dev, "mismatched serial port settings !");
@@ -969,8 +970,8 @@ static int sp_write(struct tty_struct *tty, const unsigned char *buf, int count)
         if(data != buf)
             kfree(data);
     }else {
-        /* other end is still not opened, emulate transmission from local end
-           but don't make other end receive it as is the case in real world */
+        /* Other end is still not opened, emulate transmission from local end
+           but don't make other end receive it as is the case in real world. */
         tx_vttydev->icount.tx++;
     }
 

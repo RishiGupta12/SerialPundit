@@ -473,4 +473,5 @@ public final class SerialComPortJNIBridge {
     public native int registerTTY2COMHotPlugEventListener(Itty2comHotPlugListener hotPlugListener, String deviceNode);
     public native int unregisterTTY2COMHotPlugEventListener(int opaqueHandle);
     public native String[] getStatsForGivenDevice(String deviceNode);
+    public native Object emulateFaultyCable(String deviceNode, boolean state);
 }
