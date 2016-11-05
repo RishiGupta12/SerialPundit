@@ -161,6 +161,22 @@ public final class Test2 {
 				e.printStackTrace();
 			}
 
+			// Test 3, send some data with special char
+			handle = scm.openComPort(PORT, true, true, false);
+			scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
+			scm.configureComPortControl(handle, FLOWCONTROL.NONE, 'x', 'x', false, false);
+			handle1 = scm.openComPort(PORT1, true, true, false);
+			scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
+			scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
+
+			scm.writeBytes(handle, "!F".getBytes());
+			Thread.sleep(200);
+			byte[] datares1 = scm.readBytes(handle1);
+			System.out.println("Special char read  : " + SerialComUtil.byteArrayToHexString(datares1, ":"));
+
+			scm.closeComPort(handle);
+			scm.closeComPort(handle1);			
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
