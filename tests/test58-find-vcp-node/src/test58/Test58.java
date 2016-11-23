@@ -67,6 +67,26 @@ public class Test58 {
 		}
 
 		try {
+			// FTDI FT2232
+			String[] vcpNodes = scusb.findComPortFromUSBAttributes(0x0403, 0x6010, null);
+			for(int x=0; x< vcpNodes.length; x++) {
+				System.out.println("FT2232 null " + vcpNodes[x]);
+			}
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		try {
+			// FTDI FT4232RL
+			String[] vcpNodes = scusb.findComPortFromUSBAttributes(0x0403, 0x6011, null);
+			for(int x=0; x< vcpNodes.length; x++) {
+				System.out.println("FT4232 null " + vcpNodes[x]);
+			}
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		try {
 			// Prolific PL2303
 			String[] vcpNodes = scusb.findComPortFromUSBAttributes(0x067B, 0x2303, null);
 			for(int x=0; x< vcpNodes.length; x++) {
