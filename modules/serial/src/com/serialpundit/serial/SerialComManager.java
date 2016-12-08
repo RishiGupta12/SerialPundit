@@ -1919,8 +1919,8 @@ public final class SerialComManager {
      * hardware may also report break as all 0 bits byte data.</p></li>
      * 
      * <li>In some application designs break signals can be used for packet synchronization. For example; presence 
-     * of break indicate start of packet or end of packet. Some UART hardware uses break condition to wake up host 
-     * processor.</li>
+     * of break indicate start of packet or end of packet. If the host processor is in sleep mode, some UART hardware 
+     * may wake the host processor when they detect a break condition or start bit.</li>
      * 
      * <li><p>Dedicated ICs like ELM627 can be used to detect break condition and toggle GPIO lines which may in 
      * turn be connected to reset pin of micro-controller. Such schemes are used where the hardware can not detect break 

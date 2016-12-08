@@ -636,7 +636,9 @@ public final class SerialComNullModem {
         mComPortJNIBridge.emulateFaultyCable(deviceNode, state);
     }
     
-    
+    public void emulateOverflowError(String deviceNode, ) throws SerialComException {
+        mComPortJNIBridge.emulateFaultyCable(deviceNode, );
+    }
     
     
     

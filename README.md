@@ -129,7 +129,6 @@ public class Example {
 ##Author, License and Copyright
 - SerialPundit is designed, developed and maintained by Rishi Gupta. He does Linux driver development, embedded systems design, firmware development, circuit designing, prototyping, board bring up etc.     
   Linkdin profile : http://in.linkedin.com/pub/rishi-gupta/20/9b8/a10    
-  Xing profile:
   
 - SerialPundit is DUAL LICENSED. It is made available under the terms of the GNU Affero General Public License (AGPL) v3.0 for non-commercial use and under the terms of a commercial license for commercial use of this library. Contact author for commercial license.
 
