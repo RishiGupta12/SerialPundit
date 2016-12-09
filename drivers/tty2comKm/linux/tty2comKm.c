@@ -19,6 +19,8 @@
  * by this card are used in exactly the same way using termios and Linux/Posix APIs as the real tty 
  * devices.
  */
+ 
+#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 
 #include <linux/kernel.h>
 #include <linux/errno.h>
@@ -2404,18 +2406,18 @@ static int __init sp_tty2comKm_init(void)
         for(x=0; x < init_num_nm_pair; x++) {
             ret = sp_vcard_proc_write(NULL, NULL, 2, NULL);
             if(ret < 0)
-                printk(KERN_WARNING "tty2comKm: can't create null modem pair at index %d,  error code: %d\n", x, ret);
+                pr_warning("Can't create null modem pair at index %d,  error code: %d\n", x, ret);
         }
         for(x=0; x < init_num_lb_dev; x++) {
             ret = sp_vcard_proc_write(NULL, NULL, 3, NULL);
             if(ret < 0)
-                printk(KERN_WARNING "tty2comKm: can't create loop back device at index %d, error code: %d\n", x, ret);
+                pr_warning("Can't create loop back device at index %d, error code: %d\n", x, ret);
         }
     }else {
-        printk(KERN_WARNING "tty2comKm: not creating specified devices due to invalid total !\n");
+        pr_warning("Not creating specified devices due to invalid total !\n");
     }
 
-    printk(KERN_INFO "%s %s %s\n", "tty2comKm:", DRIVER_DESC, DRIVER_VERSION);
+    pr_info("%s %s\n", DRIVER_DESC, DRIVER_VERSION);
     return 0;
 
     failed_proc:
@@ -2463,6 +2465,8 @@ static void __exit sp_tty2comKm_exit(void)
 
     tty_unregister_driver(spvtty_driver);
     put_tty_driver(spvtty_driver);
+    
+    pr_info("Good bye !\n");
 }
 
 module_init(sp_tty2comKm_init);
