@@ -19,7 +19,7 @@
  * by this card are used in exactly the same way using termios and Linux/Posix APIs as the real tty 
  * devices.
  */
- 
+
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 
 #include <linux/kernel.h>
@@ -44,18 +44,17 @@
 /* Module information */
 #define DRIVER_VERSION "v1.0"
 #define DRIVER_AUTHOR "Rishi Gupta"
-#define DRIVER_DESC "Serial port null modem emulation driver (kernel mode)"
+#define DRIVER_DESC "Serial port null modem emulation driver !"
 
 /* 
  * Default number of virtual tty ports this driver is going to support. TTY devices are created 
  * on demand. Users can override this value at module load time for example to support 5000 tty 
  * virtual devices :
  * $ insmod ./tty2comKm.ko max_num_vtty_dev=5000
+ *
+ * Major number is assigned dynamically by kernel for device nodes served by this driver.
  */
-#define VTTY_DEV_DEFAULT_MAX 128
-
-/* Experimental range (major number of devices) */
-#define SP_VTTY_MAJOR 240
+#define DEFAULT_VTTY_DEV_MAX  128
 
 /* Pin out configurations definitions */
 #define SP_CON_CTS    0x0001
@@ -186,7 +185,7 @@ static void sp_port_destruct(struct tty_port *port);
 
 /* These 4 values can be overriden if this driver is loaded with parameters provided */
 static int minor_begin = 0;
-static ushort max_num_vtty_dev = VTTY_DEV_DEFAULT_MAX;
+static ushort max_num_vtty_dev = DEFAULT_VTTY_DEV_MAX;
 static ushort init_num_nm_pair = 0;
 static ushort init_num_lb_dev  = 0;
 
@@ -2141,28 +2140,18 @@ static ssize_t sp_vcard_proc_write(struct file *file, const char __user *buf, si
             /* First tty must be released and than port. */
             for(x=0; x < max_num_vtty_dev; x++) {
                 if (index_manager[x].index != -1) {
-                    printk(KERN_INFO "REMOVE IDX: %d\n", index_manager[x].index);
 
                     vttydev1 = index_manager[x].vttydev;
                     if (vttydev1 != NULL) {
 
                         sysfs_remove_group(&vttydev1->device->kobj, &sp_info_attr_group);
 
-
-                        printk(KERN_INFO "1 REMOVE IDX: %d\n", index_manager[x].index);
-
                         if (vttydev1->own_tty && vttydev1->own_tty->port) {
-                            printk(KERN_INFO "2 REMOVE IDX: %d\n", index_manager[x].index);
-
                             tty = tty_port_tty_get(vttydev1->own_tty->port);
-
-                            printk(KERN_INFO "3 REMOVE IDX: %d\n", index_manager[x].index);
                             if (tty) {
-                                printk(KERN_INFO "REMOVE IDX1: %p\n", vttydev1->own_tty->port);
                                 tty_vhangup(tty);
                                 tty_kref_put(tty);
                             }
-                            printk(KERN_INFO "4 REMOVE IDX: %d\n", index_manager[x].index);
                         }
                         tty_unregister_device(spvtty_driver, index_manager[x].index);
                         kfree(index_manager[x].vttydev);
@@ -2367,8 +2356,8 @@ static int __init sp_tty2comKm_init(void)
     spvtty_driver->owner = THIS_MODULE;
     spvtty_driver->driver_name = "tty2comKm";
     spvtty_driver->name = "tty2com";
+    spvtty_driver->major = 0;
     spvtty_driver->minor_start = minor_begin;
-    spvtty_driver->major = SP_VTTY_MAJOR;
     spvtty_driver->type = TTY_DRIVER_TYPE_SERIAL;
     spvtty_driver->subtype = SERIAL_TYPE_NORMAL;
     spvtty_driver->flags = TTY_DRIVER_REAL_RAW | TTY_DRIVER_RESET_TERMIOS | TTY_DRIVER_DYNAMIC_DEV;
@@ -2465,7 +2454,7 @@ static void __exit sp_tty2comKm_exit(void)
 
     tty_unregister_driver(spvtty_driver);
     put_tty_driver(spvtty_driver);
-    
+
     pr_info("Good bye !\n");
 }
 
@@ -2482,7 +2471,7 @@ module_param(init_num_lb_dev, ushort, 0);
 MODULE_PARM_DESC(init_num_lb_dev, "Number of standard loopback tty devices to be created at load time.");
 
 module_param(minor_begin, int, 0);
-MODULE_PARM_DESC(init_num_lb_dev, "Minor number of device nodes i.e. starting index of device nodes.");
+MODULE_PARM_DESC(minor_begin, "Minor number of device nodes i.e. starting index of device nodes.");
 
 MODULE_AUTHOR( DRIVER_AUTHOR );
 MODULE_DESCRIPTION( DRIVER_DESC );
