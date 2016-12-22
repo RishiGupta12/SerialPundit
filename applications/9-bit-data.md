@@ -20,6 +20,14 @@ There are three ways in which this additional bit can be added in transmitted ua
   
 - **Bit bang the GPIO** if available. This is mainly applicable to embedded system microcontroller where firmware manually constructs uart frame and send it over the same GPIO pin physically.
 
+There are one way in which 9th bit can be received by using 8 bit uart hardware. 
+
+- **XOR parity error** The trick given below can be applied to determine the value of 9th bit where the sender is configured to send 9 bit data, no parity while the receiver supports only 8 bit data communication.
+
+  1. Configure receiver for 8 bit data and even parity.
+  2. When data is received calculate what should be the parity bit (0 or 1) for this particular 8 bits received.
+  3. Call Operating system specific API to check if any parity error has happened or not when receiving data.
+  4. Calculate XOR from the value obtained in step two and three. The result will be the 9th bit sent by sender.
 
 ##Emulating Mark and Space parity bit
 
