@@ -41,12 +41,14 @@ public class Test77  {
 				libpath = "/home/r/ws-host-uart/tmp";
 				vendorSuppliedLib = "libcp210xmanufacturing.so.1.0";
 			}else if(osType == SerialComPlatform.OS_WINDOWS) {
-				libpath = "D:\\zz\\srun";
+				libpath = "D:\\cp210xruntime\\RuntimeDLL\\x86_64";
 				vendorSuppliedLib = "CP210xRuntime.dll";
 				PORT = "COM9";
 			}else if(osType == SerialComPlatform.OS_MAC_OS_X) {
 			}else {
 			}
+
+			System.out.println(libpath);
 
 			cprun = (SerialComSLabsCP210xRuntime) scm.getVendorLibFromFactory(SerialComVendorLib.VLIB_SLABS_CP210XRUNTIME , libpath, vendorSuppliedLib);
 
