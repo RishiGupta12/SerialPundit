@@ -1,13 +1,15 @@
 SerialPundit : Serial port communication and much more...
 -----------------------------------
 
-!["serial communication in java"](images/scm.jpg?raw=true "serial communication in java")
+<image align="right" width="370" heigth="247" src="https://github.com/RishiGupta12/xyz/blob/master/images/scm.jpg">
 
 SerialPundit is a Software Developer Kit (SDK) for serial port and HID communication. It has been ported to Linux, MAC, Windows and embedded SE Linux platforms for both 64/32 bit architectures.
 
 It is powerfully configurable for both poll and event driven application designs be it low volume low frequency data or high volume high frequency data.
 
 It eliminates the complexities of serial port programming for different operating systems, allowing engineers to concentrate on their application logic, facilitating faster engineering and development, reducing development cost and time to market.
+
+It is consistent, portable, efficient, testable, reliable, extensible and modifiable.
 
 ##USB module features
 - USB Hotplug notification; calls listener whenever a USB-UART/HID device is added/removed.
