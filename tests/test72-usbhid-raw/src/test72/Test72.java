@@ -273,4 +273,10 @@ public class Test72 implements IHIDInputReportListener {
 			e.printStackTrace();
 		}
 	}
+
+	@Override
+	public void onNewInputReportAvailableError(Exception arg0) {
+		// TODO Auto-generated method stub
+		
+	}
 }
