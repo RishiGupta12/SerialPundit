@@ -55,7 +55,7 @@ public class Eeventlistener {
 			scm.configureComPortControl(handle, FLOWCONTROL.NONE, 'x', 'x', false, false);
 			System.out.println("regisration status : " + scm.registerLineEventListener(handle, eventListener));
 
-			long handle1 = scm.openComPort(ports[3], true, true, true);
+			long handle1 = scm.openComPort(ports[4], true, true, true);
 			scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
 			scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
 
