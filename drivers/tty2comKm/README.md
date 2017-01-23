@@ -48,6 +48,7 @@ Desktop application, Eclipse IDE plugin, command line interface, Java APIs and P
 - Access restriction to created virtual serial ports.
 - API to control virtual ports directly from your application.
 - Dynamically specify minor number of device nodes for Linux OS.
+- Emulate faulty cable conditions.
 - Emulate noises like electromagnetic interference, drop/add data char, modify data due to line transient etc.
 
 ##Desktop application
