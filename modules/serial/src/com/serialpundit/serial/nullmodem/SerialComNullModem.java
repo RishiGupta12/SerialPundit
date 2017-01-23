@@ -388,6 +388,7 @@ public final class SerialComNullModem {
                 throw new SerialComException("Can not destroy created virtual devices !");
             }
         }
+
         return true;
     }
 
@@ -405,6 +406,7 @@ public final class SerialComNullModem {
                 throw new SerialComException("Can not destroy created null modem pairs/devices !");
             }
         }
+
         return true;
     }
 
@@ -422,6 +424,7 @@ public final class SerialComNullModem {
                 throw new SerialComException("Can not destroy created loopback devices !");
             }
         }
+
         return true;
     }
 
@@ -445,6 +448,7 @@ public final class SerialComNullModem {
                 throw new SerialComException("Can not destroy given virtual device !");
             }
         }
+
         return true;
     }
 
@@ -467,6 +471,7 @@ public final class SerialComNullModem {
         synchronized (lockA) {
             result = mComPortJNIBridge.getLastLoopBackDeviceNode();
         }
+
         return result;
     }
 
@@ -492,6 +497,7 @@ public final class SerialComNullModem {
         synchronized (lockA) {
             result = mComPortJNIBridge.getLastNullModemPairNodes();
         }
+
         return result;
     }
 
@@ -515,6 +521,7 @@ public final class SerialComNullModem {
         if(ret < 0) {
             throw new SerialComException("Can not emulate specified event on given device !");
         }
+
         return true;
     }
 
@@ -538,6 +545,7 @@ public final class SerialComNullModem {
         if(ret < 0) {
             throw new SerialComException("Can not emulate ringing event on given device !");
         }
+
         return true;
     }
 
@@ -624,9 +632,8 @@ public final class SerialComNullModem {
 
     /**
      * <p>Set/Unset faulty cable condition. If the state is true, faulty cable condition is emulated by driver i.e. the data 
-     * will not be sent by device however it will reported by driver to application that data has been sent. If the state is 
-     * false, driver will emulate a good cable condition i.e. all data integrity will be maintained and data will be sent to 
-     * intended receiver.</p>
+     * will be sent from sender end but receiver will not receive it. If the state is false, driver will emulate a good cable 
+     * condition i.e. all data integrity will be maintained and data will be sent to intended receiver.</p>
      * 
      * @param deviceNode name of the virtual serial port (virtual cable is attached to this port).
      * @param state true for faulty cable otherwise false.
@@ -635,13 +642,4 @@ public final class SerialComNullModem {
     public void emulateFaultyCable(String deviceNode, boolean state) throws SerialComException {
         mComPortJNIBridge.emulateFaultyCable(deviceNode, state);
     }
-    
-    public void emulateOverflowError(String deviceNode, ) throws SerialComException {
-        mComPortJNIBridge.emulateFaultyCable(deviceNode, );
-    }
-    
-    
-    
-    
-    
 }
