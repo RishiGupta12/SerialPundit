@@ -11,6 +11,35 @@
 # without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 #################################################################################################
 
-# To pass parameters to tty2comKm driver at load time, copy this file in /etc/modprobe.d folder.
+DEBFLAGS = -O2
 
-options tty2comKm max_num_vtty_dev=512 init_num_nm_pair=1 init_num_lb_dev=1
+EXTRA_CFLAGS += $(DEBFLAGS) -I..
+
+ifneq ($(KERNELRELEASE),)
+# building when compiling kernel
+obj-m := tty2com.o 
+
+else
+# building from command line
+KERNELDIR ?= /lib/modules/$(shell uname -r)/build
+
+PWD := $(shell pwd)
+
+default:
+	$(MAKE) -C $(KERNELDIR) M=$(PWD) modules
+
+modules_install:
+	$(MAKE) -C $(KERNELDIR) M=$(PWD) modules_install
+
+endif
+
+clean:
+	rm -rf *.o *~ core .depend .*.cmd *.ko *.mod.c .tmp_versions modules.order Module.symvers
+
+depend .depend dep:
+	$(CC) $(CFLAGS) -M *.c > .depend
+
+ifeq (.depend,$(wildcard .depend))
+include .depend
+endif
+

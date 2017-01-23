@@ -13,10 +13,10 @@
 #################################################################################################
 
 
-# This script installs application binaries in /usr/share/tty2comkm directory, driver in 
+# This script installs application binaries in /usr/share/tty2com directory, driver in 
 # /lib/modules/$KDIR/kernel/drivers/tty directory and application launcher in /usr/bin directory.
 
-# This script does clean install every time it is executed. It installs tty2comKm driver as standard 
+# This script does clean install every time it is executed. It installs tty2com driver as standard 
 # Linux install. To load/unload driver use modprobe command. To laucn application run tty2com from 
 # shell.
 
@@ -25,19 +25,19 @@ cd "$(dirname "$0")"
 
 # Variable initilization
 KDIR=$(uname -r)
-DRIVER_BINARY=$(pwd)"/tty2comKm.ko"
-INSTALLATION_DIRECTORY="/usr/share/tty2comkm"
+DRIVER_BINARY=$(pwd)"/tty2com.ko"
+INSTALLATION_DIRECTORY="/usr/share/tty2com"
 
 echo "Installation started..."
 
 function cleanup_installation {
-    rm -f /lib/modules/$KDIR/kernel/drivers/tty/tty2comKm.ko &>/dev/null
-    rm -f /etc/udev/rules.d/99-tty2comKm.rules &>/dev/null
-    rm -f /usr/share/tty2comkm/userguide.pdf &>/dev/null
+    rm -f /lib/modules/$KDIR/kernel/drivers/tty/tty2com.ko &>/dev/null
+    rm -f /etc/udev/rules.d/99-tty2com.rules &>/dev/null
+    rm -f /usr/share/tty2com/userguide.pdf &>/dev/null
     rm -f /usr/bin/tty2com &>/dev/null
-    rm -f /usr/share/tty2comkm/sp-tty2comkm-app.jar &>/dev/null
-    rm -f /usr/share/tty2comkm/sp-tty.jar &>/dev/null
-    rm -f /usr/share/tty2comkm/sp-core.jar &>/dev/null
+    rm -f /usr/share/tty2com/sp-tty2com-app.jar &>/dev/null
+    rm -f /usr/share/tty2com/sp-tty.jar &>/dev/null
+    rm -f /usr/share/tty2com/sp-core.jar &>/dev/null
 }
 
 # Check for root privileges
@@ -65,13 +65,13 @@ fi
 
 echo -n "..."
 
-wget -r -q https://github.com/RishiGupta12/SerialPundit/tree/master/drivers/tty2comKm/sp-tty2comkm-app.jar
+wget -r -q https://github.com/RishiGupta12/SerialPundit/tree/master/drivers/tty2com/sp-tty2com-app.jar
 if [ $? != '0' ]; then
-    echo -e "Can not download sp-tty2comkmapp.jar. Aborting installation !!"
+    echo -e "Can not download sp-tty2comapp.jar. Aborting installation !!"
     exit -1
 fi
 
-wget -r -q -O tty2com.sh https://github.com/RishiGupta12/SerialPundit/blob/master/drivers/tty2comKm/linux/tty2com?raw=true
+wget -r -q -O tty2com.sh https://github.com/RishiGupta12/SerialPundit/blob/master/drivers/tty2com/linux/tty2com?raw=true
 if [ $? != '0' ]; then
     echo "Can not download tty2com file. Aborting installation !!"
     exit -1
@@ -79,15 +79,15 @@ fi
 
 echo -n "..."
 
-wget -r -q -O tty2comKm.c https://github.com/RishiGupta12/SerialPundit/blob/master/drivers/tty2comKm/linux/tty2comKm.c?raw=true
+wget -r -q -O tty2com.c https://github.com/RishiGupta12/SerialPundit/blob/master/drivers/tty2com/linux/tty2com.c?raw=true
 if [ $? != '0' ]; then
-    echo "Can not download tty2comKm.c. Aborting installation !!"
+    echo "Can not download tty2com.c. Aborting installation !!"
     exit -1
 fi
 
 echo -n "..."
 
-wget -r -q -O Makefile https://github.com/RishiGupta12/SerialPundit/blob/master/drivers/tty2comKm/linux/Makefile?raw=true
+wget -r -q -O Makefile https://github.com/RishiGupta12/SerialPundit/blob/master/drivers/tty2com/linux/Makefile?raw=true
 if [ $? != '0' ]; then
     echo "Can not download Makefile. Aborting installation !!"
     exit -1
@@ -95,33 +95,33 @@ fi
 
 echo -n "..."
 
-wget -r -q -O 99-tty2comKm.rules https://github.com/RishiGupta12/SerialPundit/blob/master/drivers/tty2comKm/linux/99-tty2comKm.rules?raw=true
+wget -r -q -O 99-tty2com.rules https://github.com/RishiGupta12/SerialPundit/blob/master/drivers/tty2com/linux/99-tty2com.rules?raw=true
 if [ $? != '0' ]; then
-    echo "Can not download 99-tty2comKm.rules. Aborting installation !!"
+    echo "Can not download 99-tty2com.rules. Aborting installation !!"
     exit -1
 fi
 
 echo -n "..."
 
-wget -r -q https://github.com/RishiGupta12/SerialPundit/tree/master/drivers/tty2comKm/userguide.pdf
+wget -r -q https://github.com/RishiGupta12/SerialPundit/tree/master/drivers/tty2com/userguide.pdf
 if [ $? != '0' ]; then
     echo "Can not download userguide.pdf. Aborting installation !!"
     exit -1
 fi
 
-wget -r -q https://github.com/RishiGupta12/SerialPundit/tree/master/drivers/tty2comKm/resources/icon.png
+wget -r -q https://github.com/RishiGupta12/SerialPundit/tree/master/drivers/tty2com/resources/icon.png
 if [ $? != '0' ]; then
     echo "Can not download icon.png. Aborting installation !!"
     exit -1
 fi
 
-wget -r -q https://github.com/RishiGupta12/SerialPundit/tree/master/drivers/tty2comKm/resources/splash.png
+wget -r -q https://github.com/RishiGupta12/SerialPundit/tree/master/drivers/tty2com/resources/splash.png
 if [ $? != '0' ]; then
     echo "Can not download splash.png. Aborting installation !!"
     exit -1
 fi
 
-wget -r -q https://github.com/RishiGupta12/SerialPundit/tree/master/drivers/tty2comKm/resources/tty2com.desktop
+wget -r -q https://github.com/RishiGupta12/SerialPundit/tree/master/drivers/tty2com/resources/tty2com.desktop
 if [ $? != '0' ]; then
     echo "Can not download tty2com.desktop. Aborting installation !!"
     exit -1
@@ -149,14 +149,14 @@ if [ $? != '0' ]; then
 fi
 
 # Install udev rules for driver
-cp -f ./99-tty2comKm.rules /etc/udev/rules.d
+cp -f ./99-tty2com.rules /etc/udev/rules.d
 if [ $? != '0' ]; then
-    echo "Can not copy 99-tty2comKm.rules to /etc/udev/rules.d. Aborting installation !!"
+    echo "Can not copy 99-tty2com.rules to /etc/udev/rules.d. Aborting installation !!"
     cleanup_installation
     exit -1
 fi
 
-chmod 0444 /etc/udev/rules.d/99-tty2comKm.rules
+chmod 0444 /etc/udev/rules.d/99-tty2com.rules
 
 # Update udev rules notification
 if [ -f /sbin/udevadm ]
@@ -184,14 +184,14 @@ if [ $? != '0' ]; then
     exit -1
 fi
 
-cp -f ./sp-tty2comkm-app.jar $INSTALLATION_DIRECTORY
+cp -f ./sp-tty2com-app.jar $INSTALLATION_DIRECTORY
 if [ $? != '0' ]; then
-    echo "Can not copy sp-tty2comkm-app.jar in installation directory. Aborting installation !!"
+    echo "Can not copy sp-tty2com-app.jar in installation directory. Aborting installation !!"
     cleanup_installation
     exit -1
 fi
 
-spa="/sp-tty2comkm-app.jar"
+spa="/sp-tty2com-app.jar"
 chmod 0555 $INSTALLATION_DIRECTORY$spa
 
 cp -f ./sp-tty.jar $INSTALLATION_DIRECTORY

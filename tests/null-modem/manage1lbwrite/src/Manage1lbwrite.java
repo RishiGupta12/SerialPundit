@@ -26,7 +26,7 @@ import com.serialpundit.serial.SerialComManager.STOPBITS;
 /* 
  * LOAD module to support large number of devices for this test.
  * 
- * $ insmod ./tty2comKm.ko max_num_vtty_dev=5000
+ * $ insmod ./tty2com.ko max_num_vtty_dev=5000
  */
 
 public final class Manage1lbwrite {

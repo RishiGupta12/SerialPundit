@@ -1,7 +1,7 @@
 SerialPundit : Serial port communication and much more...
 -----------------------------------
 
-<image align="right" width="370" heigth="247" src="https://github.com/RishiGupta12/SerialPundit/blob/master/images/scm.jpg">
+<image align="right" width="370" heigth="247" src="https://github.com/RishiGupta12/SerialPundit/blob/master/images/sp.jpg">
 
 SerialPundit is a Software Developer Kit (SDK) for serial port and HID communication. It has been ported to Linux, MAC, Windows and embedded SE Linux platforms for both 64/32 bit architectures.
 

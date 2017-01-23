@@ -1,3 +1,4 @@
+#!/bin/bash
 #
 # This file is part of SerialPundit.
 # 
@@ -11,35 +12,27 @@
 # without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 #################################################################################################
 
-DEBFLAGS = -O2
+# Run this script as root user. This script has been tested with Ubuntu 12.04.
 
-EXTRA_CFLAGS += $(DEBFLAGS) -I..
+if [[ $EUID -ne 0 ]]; then
+   echo "This script must be run as root user !" 1>&2
+   exit 1
+fi
 
-ifneq ($(KERNELRELEASE),)
-# building when compiling kernel
-obj-m := tty2comKm.o 
+KDIR=$(uname -r)
 
-else
-# building from command line
-KERNELDIR ?= /lib/modules/$(shell uname -r)/build
+ufile="/etc/udev/rules.d/99-tty2com.rules"
+if [[ -f "$ufile" ]]; then
+    rm "$ufile"
+    udevadm control --reload-rules
+    udevadm trigger --attr-match=subsystem=tty
+fi
 
-PWD := $(shell pwd)
+dfile="/lib/modules/$KDIR/kernel/drivers/tty/tty2com.ko"
+if [[ -f "$dfile" ]]; then
+    rm "$dfile"
+    depmod
+fi
 
-default:
-	$(MAKE) -C $(KERNELDIR) M=$(PWD) modules
-
-modules_install:
-	$(MAKE) -C $(KERNELDIR) M=$(PWD) modules_install
-
-endif
-
-clean:
-	rm -rf *.o *~ core .depend .*.cmd *.ko *.mod.c .tmp_versions modules.order Module.symvers
-
-depend .depend dep:
-	$(CC) $(CFLAGS) -M *.c > .depend
-
-ifeq (.depend,$(wildcard .depend))
-include .depend
-endif
+echo "uninstallation complete !"
 

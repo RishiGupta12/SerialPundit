@@ -23,25 +23,25 @@ cd "$(dirname "$0")"
 
 KDIR=$(uname -r)
 
-dfile="./tty2comKm.ko"
+dfile="./tty2com.ko"
 if [ -f "$dfile" ]
 then
-    cp ./tty2comKm.ko /lib/modules/$KDIR/kernel/drivers/tty
+    cp ./tty2com.ko /lib/modules/$KDIR/kernel/drivers/tty
     echo "resolving dependencies..."
     depmod
 else
-    echo "driver file tty2comKm.ko not found in current directory !"
+    echo "driver file tty2com.ko not found in current directory !"
     exit 0
 fi
 
-ufile="./99-tty2comKm.rules"
+ufile="./99-tty2com.rules"
 if [ -f "$ufile" ]
 then
-    cp ./99-tty2comKm.rules /etc/udev/rules.d/
+    cp ./99-tty2com.rules /etc/udev/rules.d/
     udevadm control --reload-rules
     udevadm trigger --attr-match=subsystem=tty
 else
-    echo "udev rule file 99-tty2comKm.rules not found in current directory !"
+    echo "udev rule file 99-tty2com.rules not found in current directory !"
     exit 0
 fi
 

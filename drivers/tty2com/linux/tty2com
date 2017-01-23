@@ -1,3 +1,4 @@
+#!/bin/bash
 #
 # This file is part of SerialPundit.
 # 
@@ -11,7 +12,16 @@
 # without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 #################################################################################################
 
-# To load the tty2comKm driver automatically at boot time copy this file in /etc/modules-load.d  
-# folder and reboot.
+# Allow only one instance of this application to preserve state
+APP_NAME=$(ps -ax | grep -v grep |grep sp-tty2com-app.jar)
 
-tty2comKm
+if [ "x$APP_NAME" != "x" ]; then
+	echo "The tty2com application can't have two instances. Exiting !"
+	exit -1
+fi
+
+# Launch the application
+java -splash:/usr/share/tty2com/splash.png -cp .:/usr/share/tty2com/sp-core.jar:/usr/share/tty2com/sp-tty.jar:/usr/share/tty2com/sp-tty2com-app.jar tty2comApp.TTY2COMApp
+
+exit 0
+

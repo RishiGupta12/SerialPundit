@@ -16,7 +16,7 @@
 
 cd "$(dirname "$0")"
 
-rmmod tty2comKm &>/dev/null
+rmmod tty2com &>/dev/null
 
 set -e
 
@@ -25,15 +25,15 @@ if [[ $EUID -ne 0 ]]; then
    exit 1
 fi
 
-file="$(dirname "$0")/tty2comKm.ko"
+file="$(dirname "$0")/tty2com.ko"
 
-#insmod ./tty2comKm.ko max_num_vtty_dev=20 init_num_nm_pair=1 init_num_lb_dev=1
+#insmod ./tty2com.ko max_num_vtty_dev=20 init_num_nm_pair=1 init_num_lb_dev=1
 if [ -f "$file" ]; then
-    insmod ./tty2comKm.ko
-    echo "Driver tty2comKm loaded successfully !"
+    insmod ./tty2com.ko
+    echo "Driver tty2com loaded successfully !"
     exit 0
 fi
 
-echo "File tty2comKm.ko not found in current directory !" 1>&2
+echo "File tty2com.ko not found in current directory !" 1>&2
 exit 0
 

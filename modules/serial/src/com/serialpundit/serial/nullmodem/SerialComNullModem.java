@@ -19,8 +19,8 @@ import com.serialpundit.core.SerialComException;
 import com.serialpundit.serial.internal.SerialComPortJNIBridge;
 
 /**
- * <p>Provides APIs to create and destroy virtual serial ports using the tty2comKm null modem emulation 
- * driver provided by serialpundit. It follows the protocol as defined by tty2comKm driver.</p>
+ * <p>Provides APIs to create and destroy virtual serial ports using the tty2com null modem emulation 
+ * driver provided by serialpundit. It follows the protocol as defined by tty2com driver.</p>
  * 
  * @author Rishi Gupta
  */
@@ -375,7 +375,7 @@ public final class SerialComNullModem {
     }
 
     /**
-     * <p>Removes all virtual serial devices created by tty2comKm driver.</p>
+     * <p>Removes all virtual serial devices created by tty2com driver.</p>
      * 
      * @return true on success.
      * @throws SerialComException if the operation can not be completed due to some reason.
@@ -393,7 +393,7 @@ public final class SerialComNullModem {
     }
 
     /**
-     * <p>Removes all null modem virtual serial devices created by tty2comKm driver.</p>
+     * <p>Removes all null modem virtual serial devices created by tty2com driver.</p>
      * 
      * @return true on success.
      * @throws SerialComException if the operation can not be completed due to some reason.
@@ -411,7 +411,7 @@ public final class SerialComNullModem {
     }
 
     /**
-     * <p>Removes all loop back virtual serial devices created by tty2comKm driver.</p>
+     * <p>Removes all loop back virtual serial devices created by tty2com driver.</p>
      * 
      * @return true if device gets deleted.
      * @throws SerialComException if the operation can not be completed due to some reason.
@@ -429,7 +429,7 @@ public final class SerialComNullModem {
     }
 
     /**
-     * <p>Removes the given virtual serial device created by tty2comKm driver. If the given device 
+     * <p>Removes the given virtual serial device created by tty2com driver. If the given device 
      * is one of the device in a null modem pair, the other paired device will be automatically 
      * removed.</p>
      * 

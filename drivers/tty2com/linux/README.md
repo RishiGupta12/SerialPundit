@@ -27,15 +27,15 @@ Run uninstall.sh script to uninstall this driver from system.
 - To load driver with parameters for example to support 1000 virtual serial ports and create 1 loop back 
 device and 1 null modem pair, load as shown below:
 ```
-$ insmod ./tty2comKm.ko max_num_vtty_dev=1000 init_num_nm_pair=1 init_num_lb_dev=1
+$ insmod ./tty2com.ko max_num_vtty_dev=1000 init_num_nm_pair=1 init_num_lb_dev=1
 ```
-- To load the driver automatically at boot time execute install.sh script and then copy the tty2comKm.conf file in /etc/modules-load.d folder.
+- To load the driver automatically at boot time execute install.sh script and then copy the tty2com.conf file in /etc/modules-load.d folder.
 ```sh
-$ sudo cp ./tty2comKm.conf /etc/modules-load.d
+$ sudo cp ./tty2com.conf /etc/modules-load.d
 ```
-Further if we want to pass parameters to driver at load time during system boot, copy the tty2comKmParam.conf file in /etc/modprobe.d folder.
+Further if we want to pass parameters to driver at load time during system boot, copy the tty2comParam.conf file in /etc/modprobe.d folder.
 ```sh
-$ sudo cp ./tty2comKmParam.conf /etc/modprobe.d
+$ sudo cp ./tty2comParam.conf /etc/modprobe.d
 ```
 
 ####Create / destroy
@@ -69,7 +69,7 @@ $ head -c 46 /proc/sp_vmpscrdk
 ####Udev rules
 ---------------------
 The udev rules are provided and gets installed automatically when shell script install.sh is executed. 
-The file 99-tty2comKm.rules contains udev rules required by this driver.
+The file 99-tty2com.rules contains udev rules required by this driver.
 ```
 ACTION=="add", SUBSYSTEM=="tty", KERNEL=="tty2com[0-9]*", MODE="0666", RUN+="/bin/chmod 0666 %S/%p/evt"
 ```
@@ -82,13 +82,13 @@ debugging information at runtime. To set printk log level to debug and enable ex
 command.
 ```sh
 echo 8 > /proc/sys/kernel/printk
-echo -n "module tty2comKm +p" > /sys/kernel/debug/dynamic_debug/control
+echo -n "module tty2com +p" > /sys/kernel/debug/dynamic_debug/control
 ```
 
 - Information about running module
 ```
-# modinfo tty2comKm.ko
-filename:       /home/rishi/tty2comKm.ko
+# modinfo tty2com.ko
+filename:       /home/rishi/tty2com.ko
 version:        v1.0
 license:        GPL v2
 description:    Serial port null modem emulation driver (kernel mode)
@@ -105,12 +105,12 @@ parm:           init_num_lb_dev:Number of standard loopback tty devices to be cr
 - Kernel logs  
 ```
 $ dmesg
-tty2comKm: Serial port null modem emulation driver (kernel mode) v1.0
+tty2com: Serial port null modem emulation driver v1.0
 ```
 
 - Loaded modules in system  
 ```
-$ lsmod | grep tty2comKm
-tty2comKm              22833  0
+$ lsmod | grep tty2com
+tty2com              22833  0
 ```
 

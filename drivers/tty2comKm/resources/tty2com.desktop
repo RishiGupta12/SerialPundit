@@ -1,9 +1,0 @@
-#!/usr/bin/env xdg-open
-[Desktop Entry]
-Version=1.0
-Type=Application
-Terminal=false
-Exec=/usr/bin/tty2com
-Name=tty2com
-Comment=tty2comKm null modem emulation driver
-Icon=/usr/share/tty2comkm/icon.png

@@ -50,7 +50,7 @@
  * Default number of virtual tty ports this driver is going to support. TTY devices are created 
  * on demand. Users can override this value at module load time for example to support 5000 tty 
  * virtual devices :
- * $ insmod ./tty2comKm.ko max_num_vtty_dev=5000
+ * $ insmod ./tty2com.ko max_num_vtty_dev=5000
  *
  * Major number is assigned dynamically by kernel for device nodes served by this driver.
  */
@@ -205,7 +205,7 @@ struct vtty_info *index_manager = NULL;   /*  keep track of indexes in use curre
 /* Per device sysfs entries to emulate frame, parity and overrun error events during data
  * reception and providing some informations about device. The 'proc entries' are used to
  * interact with driver state as a whole while 'sysfs enteries' are used to interact with
- * individual device's state. Use 99-tty2comKm.rules file to correctly set permissions on
+ * individual device's state. Use 99-tty2com.rules file to correctly set permissions on
  * sysfs entries. To align with sysfs spirit 'one-value-per-file' approach is followed so
  * that user space does not have to know data format and their offsets in returned result
  * buffer. */
@@ -2323,7 +2323,7 @@ static const struct tty_operations sp_serial_ops = {
  * For example; if this driver should support upto maximum 20 devices and create 1 null-modem pair
  * and 1 loop back device, load this driver module as shown below:
  *
- * $ insmod ./tty2comKm.ko max_num_vtty_dev=20 init_num_nm_pair=1 init_num_lb_dev=1
+ * $ insmod ./tty2com.ko max_num_vtty_dev=20 init_num_nm_pair=1 init_num_lb_dev=1
  *
  * First all the null modem pair will be created and then loop back device will be created if
  * creating virtual devices at module load time is specified. For example for above command line:
@@ -2333,7 +2333,7 @@ static const struct tty_operations sp_serial_ops = {
  * Further if the minor number used by this driver conflicts with an existing other driver, specifying 
  * a different minor number can be done as shown below :
  *
- * $ insmod ./tty2comKm.ko max_num_vtty_dev=5000 init_num_nm_pair=1 init_num_lb_dev=1 minor_begin=20
+ * $ insmod ./tty2com.ko max_num_vtty_dev=5000 init_num_nm_pair=1 init_num_lb_dev=1 minor_begin=20
  * 
  * This driver does not set CLOCAL by default. This means that the open() system call will block
  * until it find its carrier detect line raised. Application should use O_NONBLOCK/O_NDELAY flag
@@ -2341,7 +2341,7 @@ static const struct tty_operations sp_serial_ops = {
  *
  * @return: 0 on success or negative error code on failure.
  */
-static int __init sp_tty2comKm_init(void)
+static int __init sp_tty2com_init(void)
 {
     int x = 0;
     int ret = 0;
@@ -2354,7 +2354,7 @@ static int __init sp_tty2comKm_init(void)
         return -ENOMEM;
 
     spvtty_driver->owner = THIS_MODULE;
-    spvtty_driver->driver_name = "tty2comKm";
+    spvtty_driver->driver_name = "tty2com";
     spvtty_driver->name = "tty2com";
     spvtty_driver->major = 0;
     spvtty_driver->minor_start = minor_begin;
@@ -2424,7 +2424,7 @@ static int __init sp_tty2comKm_init(void)
  * driver's disconnected logic. For clean exit, kicking out dependents, releasing resources hangup is
  * used.
  */
-static void __exit sp_tty2comKm_exit(void)
+static void __exit sp_tty2com_exit(void)
 {
     int x = 0;
     struct vtty_dev *vttydev = NULL;
@@ -2458,8 +2458,8 @@ static void __exit sp_tty2comKm_exit(void)
     pr_info("Good bye !\n");
 }
 
-module_init(sp_tty2comKm_init);
-module_exit(sp_tty2comKm_exit);
+module_init(sp_tty2com_init);
+module_exit(sp_tty2com_exit);
 
 module_param(max_num_vtty_dev, ushort, 0);
 MODULE_PARM_DESC(max_num_vtty_dev, "Maximum number of virtual tty devices this driver can create.");

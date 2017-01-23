@@ -12,16 +12,7 @@
 # without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 #################################################################################################
 
-# Allow only one instance of this application to preserve state
-APP_NAME=$(ps -ax | grep -v grep |grep sp-tty2comkm-app.jar)
 
-if [ "x$APP_NAME" != "x" ]; then
-	echo "The tty2com application can't have two instances. Exiting !"
-	exit -1
-fi
-
-# Launch the application
-java -splash:/usr/share/tty2comkm/splash.png -cp .:/usr/share/tty2comkm/sp-core.jar:/usr/share/tty2comkm/sp-tty.jar:/usr/share/tty2comkm/sp-tty2comkm-app.jar tty2comKmApp.TTY2COMApp
-
-exit 0
-
+set -e
+rmmod tty2com.ko
+ 
