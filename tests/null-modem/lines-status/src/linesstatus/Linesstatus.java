@@ -36,10 +36,13 @@ public class Linesstatus {
 			String[] ports = scnm.createStandardNullModemPair(-1, -1);
 			Thread.sleep(100);
 
+			System.out.println("PORTS CREATED : " + ports[0] + " : " + ports[4]);
+
 			long handle = scm.openComPort(ports[0], true, true, true);
 			scm.configureComPortData(handle, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
 			scm.configureComPortControl(handle, FLOWCONTROL.NONE, 'x', 'x', false, false);
-			long handle1 = scm.openComPort(ports[3], true, true, true);
+
+			long handle1 = scm.openComPort(ports[4], true, true, true);
 			scm.configureComPortData(handle1, DATABITS.DB_8, STOPBITS.SB_1, PARITY.P_NONE, BAUDRATE.B115200, 0);
 			scm.configureComPortControl(handle1, FLOWCONTROL.NONE, 'x', 'x', false, false);
 
@@ -150,7 +153,7 @@ public class Linesstatus {
 		} catch (Exception e) {
 			scnm.destroyAllCreatedVirtualDevices();
 			scnm.deinitialize();
-			System.out.println("Done !");
+			System.out.println("Error !");
 			e.printStackTrace();
 		}
 	}
