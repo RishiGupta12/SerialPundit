@@ -44,7 +44,7 @@
 /* Module information */
 #define DRIVER_VERSION "v1.0"
 #define DRIVER_AUTHOR "Rishi Gupta"
-#define DRIVER_DESC "Serial port null modem emulation driver !"
+#define DRIVER_DESC "Serial port null modem emulation driver "
 
 /* 
  * Default number of virtual tty ports this driver is going to support. TTY devices are created 
