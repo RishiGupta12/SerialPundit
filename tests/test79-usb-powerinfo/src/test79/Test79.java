@@ -46,6 +46,8 @@ public class Test79  {
 			}else{
 			}
 
+			System.out.println("port : " + PORT + " : " + PORT1);
+
 			SerialComUSBPowerInfo info = usbsys.getCDCUSBDevPowerInfo(PORT);
 			info.dumpDevicePowerInfo();
 
