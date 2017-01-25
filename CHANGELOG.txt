@@ -1,4 +1,4 @@
-v1.0.4 (TODO RELEASE DATE)
+v1.0.4 (25 Jan 2017)
 
 Additions :
     - Added API for data logging applications
