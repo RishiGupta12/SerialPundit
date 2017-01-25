@@ -1,5 +1,5 @@
 ##Latest releases
-Last updated on 14-Oct-2016
+Last updated on 25-Jan-2017
 
 | Jar file       | Functions/Features                    | Comments     |
 | :------------: |:-------------:                        | :--------:   |
@@ -28,40 +28,40 @@ Last updated on 14-Oct-2016
 <dependency>
 	<groupId>com.embeddedunveiled</groupId>
 	<artifactId>scm</artifactId>
-	<version>1.0.3</version>
+	<version>1.0.4</version>
 </dependency>
 ```
 
 #####IVY
 ```
-<dependency org="com.embeddedunveiled" name="scm" rev="1.0.3"/>
+<dependency org="com.embeddedunveiled" name="scm" rev="1.0.4"/>
 ```
 
 #####Grape
 ```
 @Grapes(
-	@Grab(group='com.embeddedunveiled', module='scm', version='1.0.3')
+	@Grab(group='com.embeddedunveiled', module='scm', version='1.0.4')
 )
 ```
 
 #####Gradle
 ```
-'com.embeddedunveiled:scm:1.0.3'
+'com.embeddedunveiled:scm:1.0.4'
 ```
 
 #####Buildr
 ```
-'com.embeddedunveiled:scm:jar:1.0.3'
+'com.embeddedunveiled:scm:jar:1.0.4'
 ```
 
 #####SBT
 ```
-libraryDependencies += "com.embeddedunveiled" % "scm" % "1.0.3"
+libraryDependencies += "com.embeddedunveiled" % "scm" % "1.0.4"
 ```
 
 #####Leiningen
 ```
-[com.embeddedunveiled/scm "1.0.3"]
+[com.embeddedunveiled/scm "1.0.4"]
 ```
 
 ##Signature verification
