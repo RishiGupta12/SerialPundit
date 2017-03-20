@@ -21,48 +21,6 @@ Last updated on 25-Jan-2017
 | Embedded Linux     | ARMv7 | 3.0 kernel or later  | libudev.so.1, libpthread.so.0, libc.so.6, hard/soft float ABI, Raspberry Pi, BeagleBone, Wandboard, Cubieboard etc. |
 | Embedded Linux     | ARMv6 | 3.0 kernel or later  | libudev.so.1, libpthread.so.0, libc.so.6, hard/soft float ABI, Raspberry Pi, BeagleBone etc. |
 
-##Integration information
-
-#####Maven
-```
-<dependency>
-	<groupId>com.embeddedunveiled</groupId>
-	<artifactId>scm</artifactId>
-	<version>1.0.4</version>
-</dependency>
-```
-
-#####IVY
-```
-<dependency org="com.embeddedunveiled" name="scm" rev="1.0.4"/>
-```
-
-#####Grape
-```
-@Grapes(
-	@Grab(group='com.embeddedunveiled', module='scm', version='1.0.4')
-)
-```
-
-#####Gradle
-```
-'com.embeddedunveiled:scm:1.0.4'
-```
-
-#####Buildr
-```
-'com.embeddedunveiled:scm:jar:1.0.4'
-```
-
-#####SBT
-```
-libraryDependencies += "com.embeddedunveiled" % "scm" % "1.0.4"
-```
-
-#####Leiningen
-```
-[com.embeddedunveiled/scm "1.0.4"]
-```
 
 ##Signature verification
 
