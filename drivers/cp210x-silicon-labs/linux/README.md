@@ -1,17 +1,17 @@
-####Building
+#### Building
 ---------------------
 
 - Build is done using make tool. Run build.sh shell script to build this driver.
 
 
-####Installing
+#### Installing
 ---------------------
 
 If you want to permanently install driver in system run install.sh script which will install driver
 at suitable place and make it ready to be used with modprobe tool.
 
 
-####Loading/Running
+#### Loading/Running
 ---------------------
 
 When cp210x device is inserted into system, default Linux kernel drivers will take control of the 
@@ -21,7 +21,7 @@ Run load.sh script which will unload default driver and load this driver for cp2
 device.
 
 
-####Debugging
+#### Debugging
 ---------------------
 
 ``` sh

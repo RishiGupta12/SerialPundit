@@ -1,25 +1,25 @@
-####Cloning
+#### Cloning
 ---------------------
 
 To clone driver follow steps as given in clone-driver.sh script.
 
-####Building
+#### Building
 ---------------------
 
 - Build is done using make tool. Run build.sh shell script to build this driver.
 
-####Installing
+#### Installing
 ---------------------
 
 If you want to permanently install driver in system run install.sh script which will install driver
 at suitable place and make it ready to be used with modprobe tool.
 
-####Unistalling
+#### Unistalling
 ---------------------
 
 Run uninstall.sh script to uninstall this driver from system.
 
-####Loading/Running
+#### Loading/Running
 ---------------------
 
 - Run load.sh script which will load this driver with default parameters.
@@ -38,7 +38,7 @@ Further if we want to pass parameters to driver at load time during system boot,
 $ sudo cp ./tty2comParam.conf /etc/modprobe.d
 ```
 
-####Create / destroy
+#### Create / destroy
 ---------------------
 
 - Create standard null modem connection
@@ -61,12 +61,12 @@ $echo "del#vdevX#xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" > /proc/sp
 $echo "del#xxxxx#xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" > /proc/sp_vmpscrdk
 ```
 
-####Meta information
+#### Meta information
 ```sh
 $ head -c 46 /proc/sp_vmpscrdk
 ```
 
-####Udev rules
+#### Udev rules
 ---------------------
 The udev rules are provided and gets installed automatically when shell script install.sh is executed. 
 The file 99-tty2com.rules contains udev rules required by this driver.
@@ -74,7 +74,7 @@ The file 99-tty2com.rules contains udev rules required by this driver.
 ACTION=="add", SUBSYSTEM=="tty", KERNEL=="tty2com[0-9]*", MODE="0666", RUN+="/bin/chmod 0666 %S/%p/evt"
 ```
 
-##Getting information
+## Getting information
 
 - Dynamic debugging
 If the kernel is compiled with CONFIG_DYNAMIC_DEBUG=y and debug log level for printk is set, this driver will print extra 
