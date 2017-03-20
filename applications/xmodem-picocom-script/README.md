@@ -4,7 +4,7 @@ xdotool, lrzsz etc tools.
 
 !["serial communication in java"](output.jpg?raw=true "serial communication in java")
 
-####Running this application
+#### Running this application
 - Copy scm-1.0.4.jar in xmodem-picocom-script folder. Do not change the directory structure.
 - Run the script as picocom.sh giving ports and file names as shown below. Transfer will occur 
 at 9600 baudrate 8N1 settings.
@@ -13,7 +13,7 @@ at 9600 baudrate 8N1 settings.
   ```
   See the output.jpg to see output of this program.
    
-####What this application does and how it does
+#### What this application does and how it does
 - Extract and validate parameters supplied to picocom.sh script.
 - Compile Java source files and create app.jar representing Java application that will 
 receive the file.
@@ -23,6 +23,6 @@ receive the file.
 actually do the file transfer.
 - Exit after 12 seconds.
      
-####Going further
+#### Going further
 - The shell script will self terminate after 12 seconds. This can be made interactive.
 

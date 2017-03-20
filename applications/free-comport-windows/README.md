@@ -2,11 +2,11 @@ This application suggest a design through which testing can be automated or may 
 on tester for testing products which requires test to be run after the DUT (device under test) has 
 been plugged into system.
 
-####Running this application
+#### Running this application
    
 Connect the USB-UART device of interest in computer. 
    
-####What this application does and how it does
+#### What this application does and how it does
 
 - As soon as DUT with given USB VID/PID is added/removed in system, tests cases are made to execute.
   When a particular number of devices for example 1000 has been tested, application will exit itself 

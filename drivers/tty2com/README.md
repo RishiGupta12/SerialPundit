@@ -4,7 +4,7 @@ The tty2com is a null modem / loop back kernel mode driver providing full duplex
 
 Desktop application, Eclipse IDE plugin, command line interface, Java APIs and Python APIs are provided to manage virtual ports.
 
-##Applications
+## Applications
 - Fully automate Junit testing and continuous integration
 - Serial communication protocols development, simulation and analysis
 - Serial port based application's scalability and performance testing
@@ -28,7 +28,7 @@ Desktop application, Eclipse IDE plugin, command line interface, Java APIs and P
 - Cases where socat utility does not meet requirements for unix-like OS
 - Cases where available physical serial ports do not meet the current requirements
 
-##Features
+## Features
 - Create standard, loopback or custom pinout connected serial devices.
 - Software, hardware and no flow controls emulation.
 - Parity, frame, overrun, line break and ring indicator events emulation.
@@ -51,26 +51,26 @@ Desktop application, Eclipse IDE plugin, command line interface, Java APIs and P
 - Emulate faulty cable conditions.
 - Emulate noises like electromagnetic interference, drop/add data char, modify data due to line transient etc.
 
-##Desktop application
+## Desktop application
 
 !["serial communication in java"](/drivers/tty2comKm/application/tty2com1.png?raw=true "serial port null modem emulation")
 
 A GUI application is provided to manage virtual ports graphically. Virtual ports can also be managed from shell terminal.
 
-##Eclipse IDE plugin
+## Eclipse IDE plugin
 
 
-##Command line interface
+## Command line interface
 See instructions in operating system specific directory for CLI commands.
 
-##Build and Run
+## Build and Run
 See instructions in operating system specific directory for build scripts, udev rules, steps to install etc.
 
-##Pins mapping
+## Pins mapping
 
 There are three connection configurations supported by this driver.
 
-####Standard nulll modem
+#### Standard nulll modem
 ```
  tty2com0            tty2com1
      TXD -------------- RXD
@@ -85,7 +85,7 @@ There are three connection configurations supported by this driver.
 - DTR of the local port is connected to DSR and DCD of the remote port
 - RTS of the local port is connected to CTS of the remote port
 
-####Standard loop back
+#### Standard loop back
 ```
    tty2com0            
      RXD -----]
@@ -101,7 +101,7 @@ There are three connection configurations supported by this driver.
 - DTR of the local port is connected to DSR and DCD of the local port
 - RTS of the local port is connected to CTS of the local port
 
-####Custom
+#### Custom
 
 The local pins RTS, DTR, DCD, DSR and RI can be connected to local/remote pins as desired.
 

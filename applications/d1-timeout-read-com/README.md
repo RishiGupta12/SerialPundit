@@ -1,7 +1,7 @@
 This example demonstrates how to read data from serial port and block until either data bytes are 
 available at serial port or given timeout occurs.
 
-####Running this application
+#### Running this application
    
 Open and configure minicom/teraterm for 9600 8N1 settings and start it. Launch this application. 
 Minicom/tertarem will show "test" as data received from this java program. 
@@ -9,7 +9,7 @@ Minicom/tertarem will show "test" as data received from this java program.
 If you type anything on minicom/teraterm screen, it will print data. If you do not type anything 
 read method will return after given timeout has expired.
    
-####What this application does and how it does
+#### What this application does and how it does
 
 - Open and configure given serial port at 9600 8N1 settings.
 - Configure timeout values.
@@ -17,7 +17,7 @@ read method will return after given timeout has expired.
 or given timeout expires.
 - Once data is recieved close the serial port.
 
-####Going further
+#### Going further
    
 - There are many different versions of read methods provided by serialpundit and an application 
 can use the method that is best fit for application requirement. Other variant of read are :

@@ -1,4 +1,4 @@
-##Latest releases
+## Latest releases
 Last updated on 25-Jan-2017
 
 | Jar file       | Functions/Features                    | Comments     |
@@ -8,7 +8,7 @@ Last updated on 25-Jan-2017
 | sp-tty.jar     | Serial port communication APIs        |              |
 | sp-hid.jar     | HID communication APIs                |              |
 
-##Platforms supported
+## Platforms supported
 
 | Operating System   | Architecture  |  Versions    | Comments |
 | :------------:     |:-------------:| :--------:   | :--------:|
@@ -22,7 +22,7 @@ Last updated on 25-Jan-2017
 | Embedded Linux     | ARMv6 | 3.0 kernel or later  | libudev.so.1, libpthread.so.0, libc.so.6, hard/soft float ABI, Raspberry Pi, BeagleBone etc. |
 
 
-##Signature verification
+## Signature verification
 
 For Linux, change directory to where sp-tty.jar file is placed on your system and check as follows :
 ```

@@ -1,7 +1,7 @@
-##USB reset utility
+## USB reset utility
 A small utility for resetting a usb device. Sometimes during firmware development of a usb-serial port based product resetting is required.
 
-####Build
+#### Build
 
 ```sh
 $ ./configure
@@ -9,7 +9,7 @@ $ make
 $ sudo make install
 ```
 
-####Run
+#### Run
 - Run lsusb to get the device path for example after connecting cp2102, here is the output.
 ```sh
 $ lsusb

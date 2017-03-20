@@ -1,4 +1,4 @@
-####Purpose
+#### Purpose
 ---------------------
 
 Apart from the regular expected job, this driver :
@@ -28,7 +28,7 @@ Apart from the regular expected job, this driver :
 - Handles B0 baudrate to terminate connection and gracefully changing from B0 to any BXXXXXXX etc.
 
 
-####GPIO in CP210X
+#### GPIO in CP210X
 ---------------------
 
 * Each CP210X device supports different GPIO and configurations. For example in CP2105, GPIO pins are multiplexed with some of the UART interface pins. Therefore their use is mutually exclusive. The datasheet has to be referenced for the device of interest.
@@ -44,7 +44,7 @@ Each GPIO pin has a mask and value associated with it. When calling IOCTL routin
 
 * Before using GPIO pins, they may need to be configured (input, open-drain/push-pull output). This configuration may be one time programmable only. Consult datasheet and application notes from vendor.
 
-####Build / Install / Run
+#### Build / Install / Run
 --------------------------
 
 See operating system specific directory for instructions.

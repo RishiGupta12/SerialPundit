@@ -1,4 +1,4 @@
-##Concurrently collecting data from source
+## Concurrently collecting data from source
 
 - **Use case 1:** 100 temperature sensors are placed at strategic locations in an industrial plant and central control room need to read temperature from each of them periodically.
 
@@ -8,7 +8,7 @@ Very fast concurrent reading strategy may be needed when state-of-art hardware w
 
 This document gives ideas that may be used in application's implementation to address use cases like above.
 
-####Polled read using executors and thread poll
+#### Polled read using executors and thread poll
 
 Polling every serial port using single thread will reduce overall throughput. Using thread for every serial port may cause resource starvation or degraded performance. So we use the Executor framework which decouples task submission from task execution. The design is divided into following parts:
 

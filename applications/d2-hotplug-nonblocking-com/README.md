@@ -3,7 +3,7 @@ serial device and start communicating with it.
 
 !["serial communication in java"](output.jpg?raw=true "serial communication in java")
 
-####Running this application
+#### Running this application
    
 Open and configure minicom/teraterm for 9600 8N1 settings and start it. Launch this 
 application. Minicom/tertarem will show "ABCDE" as data received from this java program.
@@ -12,7 +12,7 @@ program's console.
    
 See the output.jpg to see output of this program.
    
-####What this application does and how it does
+#### What this application does and how it does
 
 It sends 2 byte CMD to serial device (host => device) and then read data from serial port,
 buffering until serial device has sent 15 or more bytes (host <= device). The host can 
@@ -37,7 +37,7 @@ is plugged into system, application dynamically find its device node and opens i
    
   Once the device is found, create and start another thread that will communicate data on serial port.
      
-####Going further
+#### Going further
    
 - There are many different versions of read/write methods provided by serialpundit and an 
 application can use the method that is best fit for application requirement. Other variant 

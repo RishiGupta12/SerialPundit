@@ -1,4 +1,4 @@
-####Saving power in embedded systems
+#### Saving power in embedded systems
 
 If SerialPundit is used for serial communication in battery powered embedded systems then a 
 power saving can be achieved by calculating delay between transmitter and receive end.

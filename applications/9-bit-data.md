@@ -1,6 +1,6 @@
 This application note explains how to achieve actual 9 bit data communication and mark/space parity bit emulation.
 
-##9-bit data width communication
+## 9-bit data width communication
 
 In serial port communication, the uart frame consist of a start bit, data bits and stop bits. Typically the length of data bits varies from 5 to 8 bits with most of the application using 8-N-1 configuration. Some custom protocols and multidrop bus (MDB) uses and additional bit to carry extra information. This additional bit appears after last data bit but before stop bit in given uart frame.
 
@@ -29,7 +29,7 @@ There are one way in which 9th bit can be received by using 8 bit uart hardware.
   3. Call Operating system specific API to check if any parity error has happened or not when receiving data.
   4. Calculate XOR from the value obtained in step two and three. The result will be the 9th bit sent by sender.
 
-##Emulating Mark and Space parity bit
+## Emulating Mark and Space parity bit
 
 In serial port communication, the uart frame may use an additional bit known as parity bit to detect corrupted data byte. This bit is placed between last data bit and stop bit. There are 5 types of parity namely; even, odd, mark, space and no parity. Mark and space parity is supported by most available hardware however some tweaks may be needed in case the underlying operating system, driver or system library does not provide enough support for mark and space parities.
 

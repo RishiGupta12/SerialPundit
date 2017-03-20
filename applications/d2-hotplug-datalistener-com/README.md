@@ -3,7 +3,7 @@ it locally until a particular number of data bytes have been received from seria
 
 !["serial communication in java"](output.jpg?raw=true "serial communication in java")
 
-####Running this application
+#### Running this application
    
 Open and configure minicom/teraterm for 9600 8N1 settings and start it. Launch this 
 application. Minicom/tertarem will show "ABCDE" as data received from this java program.
@@ -12,7 +12,7 @@ program's console.
    
 See the output.jpg to see output of this program.
    
-####What this application does and how it does
+#### What this application does and how it does
 
 It sends 5 byte CMD to serial device (host => device) and then read data from serial 
 port, buffering until serial device has sent 15 or more bytes (host <= device). The 
@@ -39,7 +39,7 @@ find device node of this device, open it and register data listener for it.
 - The operation is same as for serial device already connected into system except that the USB hot plug 
 thread does not insert 'add' event in queue manually when it starts.
      
-####Going further
+#### Going further
    
 - This program assumes that a fixed size frame (15 bytes) is sent from device to host. Application can 
 use start and end specifier for example "$" represent start of data frame while "#" represent end of 

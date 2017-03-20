@@ -1,10 +1,10 @@
-##Goals
+## Goals
 - Emulate a beaglebone on host system using QEMU.
 - Install Java SE Embedded JVM and find serial ports in system.
 
 This note describes how to build linaro qemu on ubuntu 16.04 and emulate Beaglebone.
 
-##Steps
+## Steps
 
 Follow steps in the given order.
 
