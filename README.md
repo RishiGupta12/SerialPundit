@@ -11,7 +11,7 @@ It eliminates the complexities of serial port programming for different operatin
 
 It is consistent, portable, efficient, testable, reliable, extensible and modifiable.
 
-##USB module features
+## USB module features
 - USB Hotplug notification; calls listener whenever a USB-UART/HID device is added/removed.
 - Find COM port assigned to a USB device dynamically from USB-IF VID, PID and serial number.
 - Find information about all USB devices connected to system.
@@ -21,7 +21,7 @@ It is consistent, portable, efficient, testable, reliable, extensible and modifi
 - Statically find if a particular USB device is connected to system or not.
 - List all USB-HID devices connected to system.
 
-##Com port module features
+## Com port module features
 * Communication
   * Access to EIA232 standard DTR, CD, CTS, RTS and DSR signals.
   * Hardware and software flow-control options.
@@ -56,7 +56,7 @@ It is consistent, portable, efficient, testable, reliable, extensible and modifi
   * Two lock concurrent queue algorithm based ring buffer for faster data/event processing.
   * Easily integrate into existing application server software like Apache mina for cloud and IoT etc.
 
-##HID module features
+## HID module features
 - HID class API for communicating with USB-HID devices like MCP2200, CP2110 etc.
 - Dynamically find HID devices or get hotplug event notifications.
 - Input report listener for asynchronous operations.
@@ -73,13 +73,13 @@ The project is :
 - Extensively documented both Java (online javadocs) and C code.
 - Scripts for quick builds, tests, installation etc. 
 
-##Drivers and Services
+## Drivers and Services
 
 - [Null modem emulator](drivers/tty2comKm); tty2comKm is a feature rich null modem emulation driver supporting null modem, loopback, custom pinout and dynamic virtual serial port creation. Corresponding Desktop application, Eclipse IDE plugin, command line interface and Java/Python APIs are provided to manage virtual ports.
 
 - [CP210x driver](drivers/cp210x-silicon-labs); kernel mode driver for usb-serial cp210x IC and products based on it with access to GPIO pins, IOCTL operations support, configuration and installations scripts, udev rules etc.
 
-##Getting started
+## Getting started
 
 The folder prebuilt-release in this repository contains ready-to-use jar file (sp-tty.jar) that can be imported in any project and referenced right away. Simply add sp-tty.jar in your project as an external library. 
 
@@ -111,7 +111,7 @@ public class Example {
 }
 ```
 
-##Resources
+## Resources
 - [Several applications](applications) demonstrating serialpundit API usage, application notes and design ideas etc.
 - [Support and discussion group](https://groups.google.com/d/forum/serialpundit) for feature request, asking questions and raising bugs etc.
 - [Tools and utilities](tools-and-utilities) various scripts, configuration files, tools and udev rules etc.
@@ -119,7 +119,7 @@ public class Example {
 - [Video](https://www.youtube.com/watch?v=fYLQbelGunQ) showing UART signals captured using digital oscilloscope.
 
 
-##Help the project grow [<img src="https://github.com/RishiGupta12/SerialPundit/blob/master/images/help.jpg">](https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=gupt21@gmail.com&lc=IN&item_name=Serial Project&button_subtype=services&currency_code=USD&bn=PP-BuyNowBF:btn_buynowCC_LG.gif:NonHosted)
+## Help the project grow [<img src="https://github.com/RishiGupta12/SerialPundit/blob/master/images/help.jpg">](https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=gupt21@gmail.com&lc=IN&item_name=Serial Project&button_subtype=services&currency_code=USD&bn=PP-BuyNowBF:btn_buynowCC_LG.gif:NonHosted)
 
 - Suggest features and enhancements
 - Report bugs and fixes
@@ -128,7 +128,7 @@ public class Example {
 - Publish an article on your blog to educate others about this project
 - Provide peer support on mailing lists, forums or newsgroups
 
-##Author, License and Copyright
+## Author, License and Copyright
 - SerialPundit is designed, developed and maintained by Rishi Gupta. He does Linux driver development, embedded systems design, firmware development, circuit designing, prototyping, board bring up etc.     
   Linkdin profile : http://in.linkedin.com/pub/rishi-gupta/20/9b8/a10    
   
