@@ -118,8 +118,7 @@ public class Example {
 - [Documentaion](javadocs) updated javadocs for API references.
 - [Video](https://www.youtube.com/watch?v=fYLQbelGunQ) showing UART signals captured using digital oscilloscope.
 
-
-## Help the project grow [<img src="https://github.com/RishiGupta12/SerialPundit/blob/master/images/help.jpg">](https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=gupt21@gmail.com&lc=IN&item_name=Serial Project&button_subtype=services&currency_code=USD&bn=PP-BuyNowBF:btn_buynowCC_LG.gif:NonHosted)
+## Help the project grow [<img src="https://github.com/RishiGupta12/SerialPundit/blob/master/images/help.jpg">](https://www.paypal.me/RishiGupta12)
 
 - Suggest features and enhancements
 - Report bugs and fixes
