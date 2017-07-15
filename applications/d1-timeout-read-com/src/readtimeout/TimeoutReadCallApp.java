@@ -30,9 +30,12 @@ public final class TimeoutReadCallApp {
         String PORT = null;
         long handle = -1;
         byte[] dataRead;
+        long currentTime;
+        long laterTime;
 
         SerialComManager scm;
-        SerialComPlatform scp = new SerialComPlatform(new SerialComSystemProperty());
+        SerialComPlatform scp = new SerialComPlatform(
+                new SerialComSystemProperty());
 
         // get serial communication manager instance
         try {
@@ -43,13 +46,13 @@ public final class TimeoutReadCallApp {
         }
 
         int osType = scp.getOSType();
-        if(osType == SerialComPlatform.OS_LINUX) {
+        if (osType == SerialComPlatform.OS_LINUX) {
             PORT = "/dev/ttyUSB0";
-        }else if(osType == SerialComPlatform.OS_WINDOWS) {
+        } else if (osType == SerialComPlatform.OS_WINDOWS) {
             PORT = "COM51";
-        }else if(osType == SerialComPlatform.OS_MAC_OS_X) {
+        } else if (osType == SerialComPlatform.OS_MAC_OS_X) {
             PORT = "/dev/cu.usbserial-A70362A3";
-        }else{
+        } else {
         }
 
         try {
@@ -59,24 +62,31 @@ public final class TimeoutReadCallApp {
 
             scm.writeString(handle, "test ", 0);
 
-            // Tune read method behaviour (500 milliseconds wait timeout value)
-            if(osType == SerialComPlatform.OS_WINDOWS) {
-                scm.fineTuneReadBehaviour(handle, 0, 0, 0, 0 , 0);
-            }else {
-                scm.fineTuneReadBehaviour(handle, 0, 5, 0, 0 , 0);
+            // Tune read method behaviour (3000 milliseconds wait timeout value)
+            if (osType == SerialComPlatform.OS_WINDOWS) {
+                scm.fineTuneReadBehaviour(handle, 0, 3000, 0, 0, 0);
+            } else {
+                scm.fineTuneReadBehaviour(handle, 0, 30, 0, 0, 0);
             }
 
-            // This will return only after given timeout (500 milliseconds) has expired
+            // This will return only after given timeout (3000 milliseconds) has
+            // expired between the reception of last byte and next byte
+            currentTime = System.currentTimeMillis();
+
             dataRead = scm.readBytes(handle);
-            if(dataRead != null) {
+            if (dataRead != null) {
                 System.out.println("Data read : " + new String(dataRead));
-            }else {
+            } else {
                 System.out.println("Timed out without reading data");
             }
 
+            laterTime = System.currentTimeMillis();
+
+            System.out.println("Read returned after : " + (laterTime - currentTime));
+
             scm.closeComPort(handle);
         } catch (SerialComException e) {
-            if(handle == -1) {
+            if (handle == -1) {
                 try {
                     scm.closeComPort(handle);
                 } catch (SerialComException e1) {
@@ -86,4 +96,3 @@ public final class TimeoutReadCallApp {
         }
     }
 }
-
