@@ -15,10 +15,9 @@
 # Build the kernel driver for cp210x devices.
 
 set -e
-
-#touch -c ./sp_cp210x.c
-
 cd "$(dirname "$0")"
+
+touch -c ./sp_cp210x.c
 
 make clean
 

@@ -826,7 +826,7 @@ static void sp_cp210x_set_termios(struct tty_struct *tty, struct usb_serial_port
 
     /* Each variable is 4 bytes (32 bits) in size and ordered with offset as shown below.
      * <--ulXoffLimit--><--ulXonLimit--><--ulFlowReplace--><--ulControlHandshake--> */
-    unsigned int flowctrl[4];
+    unsigned int flowctrl[4] = { 0, 0, 0, 0};
 
     struct usb_device *usbdev = port->serial->dev;
     struct usb_interface *interface = port->serial->interface;
