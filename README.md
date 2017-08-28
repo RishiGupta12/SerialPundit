@@ -75,7 +75,7 @@ The project is :
 
 ## Drivers and Services
 
-- [Null modem emulator](drivers/tty2comKm); tty2comKm is a feature rich null modem emulation driver supporting null modem, loopback, custom pinout and dynamic virtual serial port creation. Corresponding Desktop application, Eclipse IDE plugin, command line interface and Java/Python APIs are provided to manage virtual ports.
+- [Null modem emulator](drivers/tty2com); tty2com is a feature rich null modem emulation driver supporting null modem, loopback, custom pinout and dynamic virtual serial port creation. Corresponding Desktop application, Eclipse IDE plugin, command line interface and Java/Python APIs are provided to manage virtual ports.
 
 - [CP210x driver](drivers/cp210x-silicon-labs); kernel mode driver for usb-serial cp210x IC and products based on it with access to GPIO pins, IOCTL operations support, configuration and installations scripts, udev rules etc.
 
