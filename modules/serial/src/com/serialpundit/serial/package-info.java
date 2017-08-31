@@ -12,7 +12,7 @@
  */
 
 /**
- * <p>Encapsulates behavior and environment centered around UART standard communication..</p>
+ * <p>Encapsulates behavior and environment centered around standard UART communication.</p>
  * 
  * @author Rishi Gupta
  */
