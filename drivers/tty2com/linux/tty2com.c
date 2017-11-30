@@ -200,7 +200,7 @@ static struct tty_driver *spvtty_driver;
 
 /* Used when creating or destroying virtual tty devices */
 static DEFINE_MUTEX(adaptlock);           /*  atomically create/destroy tty devices  */
-struct vtty_info *index_manager = NULL;   /*  keep track of indexes in use currently */
+static struct vtty_info *index_manager = NULL;   /*  keep track of indexes in use currently */
 
 /* Per device sysfs entries to emulate frame, parity and overrun error events during data
  * reception and providing some informations about device. The 'proc entries' are used to
