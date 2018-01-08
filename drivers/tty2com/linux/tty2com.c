@@ -905,7 +905,7 @@ static int sp_write(struct tty_struct *tty, const unsigned char *buf, int count)
         return 0;
 
     if (tx_vttydev->is_break_on == 1) {
-        dev_dbg(tty->dev, "break condition is on !");
+        dev_dbg(tty->dev, "break condition is on !\n");
         return -EIO;
     }
 
@@ -919,7 +919,7 @@ static int sp_write(struct tty_struct *tty, const unsigned char *buf, int count)
 
         if((tx_vttydev->baud != rx_vttydev->baud) || (tx_vttydev->uart_frame != rx_vttydev->uart_frame)) {
             /* Emulate data sent but not received */
-            dev_dbg(tty->dev, "mismatched serial port settings !");
+            dev_dbg(tty->dev, "mismatched serial port settings !\n");
             tx_vttydev->icount.tx++;
             return count;
         }
@@ -1259,8 +1259,10 @@ static int sp_wait_msr_change(struct tty_struct *tty, unsigned long mask)
     struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
 
     mutex_lock(&local_vttydev->lock);
+
     local_vttydev->waiting_msr_chg = 1;
     prev = local_vttydev->icount;
+
     mutex_unlock(&local_vttydev->lock);
 
     ret = wait_event_interruptible(tty->port->delta_msr_wait, sp_check_msr_delta(tty, local_vttydev, mask, &prev));
@@ -1512,7 +1514,7 @@ static void sp_hangup(struct tty_struct *tty)
 
     mutex_unlock(&local_vttydev->lock);
 
-    dev_dbg(tty->dev, "hanged up !");
+    dev_dbg(tty->dev, "hanged up !\n");
 }
 
 /*
