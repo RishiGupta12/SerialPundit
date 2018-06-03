@@ -32,7 +32,7 @@ It is consistent, portable, efficient, testable, reliable, extensible and modifi
   * Standard and custom baud rates support.
 
 * File transfer protocols
-  * X/Y/Z modem FTP API implemented with finite state machine.
+  * X/Y modem FTP API implemented with finite state machine.
   * Progress listener for GUI applications (number of blocks, percentage, file name etc.).
   * Both text and binary mode transfer can take place.
   * Abort command support to cancel transfer at any time by sender or receiver.
