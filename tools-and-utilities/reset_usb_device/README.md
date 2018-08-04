@@ -1,5 +1,5 @@
 ## USB reset utility
-A small utility for resetting a usb device. Sometimes during firmware development of a usb-serial port based product resetting is required.
+A small utility for resetting a usb device. Sometimes during firmware development of a usb-serial port based product resettingis required. This utility make it possible to keep developing driver while the firmware is still not fully developed.
 
 #### Build
 
@@ -24,7 +24,7 @@ $ lsusb
   Bus 003 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub  
   Bus 004 Device 001: ID 1d6b:0003 Linux Foundation 3.0 root hub  
 ```
-- Run executable reset_usb_device as root user as shown below :  
+- Run the executable spusbrst as root user as shown below :  
   ```sh
   spusbrst /dev/bus/usb/003/025
   ```
