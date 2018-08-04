@@ -33,12 +33,14 @@ int main(int argc, char **argv) {
     errno = 0;
     if(fd < 0) {
         fprintf(stderr, "failed with error code : %d\n", errno);
+		close(fd);
         return -1;
     }
     
     errno = 0;
     ret = ioctl(fd, USBDEVFS_RESET, 0);
     if(ret < 0) {
+		close(fd);
         fprintf(stderr, "failed with error code : %d\n", errno);
         return -1;
     }
