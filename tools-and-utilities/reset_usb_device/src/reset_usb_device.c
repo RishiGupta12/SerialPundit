@@ -24,15 +24,17 @@
 
 int main(int argc, char **argv) {
     
-    int ret = 0;
-    const char *filename;
-    int fd = 0;
-    filename = argv[1];
+    int ret, fd;
+
+    if(argv[1] == NULL) {
+        fprintf(stderr, "failed with error code : %d\n", EINVAL);
+        return -1;
+    }
     
-    fd = open(filename, O_WRONLY);
     errno = 0;
+    fd = open(argv[1], O_WRONLY);
     if(fd < 0) {
-        fprintf(stderr, "failed with error code : %d\n", errno);
+        fprintf(stderr, "open failed with error code : %d\n", errno);
 		close(fd);
         return -1;
     }
@@ -41,7 +43,7 @@ int main(int argc, char **argv) {
     ret = ioctl(fd, USBDEVFS_RESET, 0);
     if(ret < 0) {
 		close(fd);
-        fprintf(stderr, "failed with error code : %d\n", errno);
+        fprintf(stderr, "ioctl failed with error code : %d\n", errno);
         return -1;
     }
     
