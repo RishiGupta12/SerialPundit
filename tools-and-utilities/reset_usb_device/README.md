@@ -1,5 +1,5 @@
 ## USB reset utility
-A small utility for resetting a usb device. Sometimes during firmware development of a usb-serial port based product resettingis required. This utility make it possible to keep developing driver while the firmware is still not fully developed.
+A small utility for resetting a usb device. Sometimes during firmware development of a usb-serial port based product resetting is required. This utility make it possible to keep developing driver while the firmware is still not fully developed.
 
 #### Build
 
