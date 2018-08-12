@@ -342,7 +342,7 @@ public final class SerialComPlatform {
     }
 
     /** 
-     * <p>Identifies whether thsi software is running on an android platform.</p>
+     * <p>Identifies whether this software is running on a android platform.</p>
      * 
      * @return true if platform is android false otherwise.
      * @throws NullPointerException if "java.vm.vendor" java system property is null.
