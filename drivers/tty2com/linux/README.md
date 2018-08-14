@@ -6,7 +6,7 @@ To clone driver follow steps as given in clone-driver.sh script.
 #### Building
 ---------------------
 
-- Build is done using make tool. Run build.sh shell script to build this driver.
+Build is done using make tool. Run build.sh shell script to build this driver.
 
 #### Installing
 ---------------------
