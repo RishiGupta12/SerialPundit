@@ -57,9 +57,6 @@ Desktop application, Eclipse IDE plugin, command line interface, Java APIs and P
 
 A GUI application is provided to manage virtual ports graphically. Virtual ports can also be managed from shell terminal.
 
-## Eclipse IDE plugin
-
-
 ## Command line interface
 See instructions in operating system specific directory for CLI commands.
 
