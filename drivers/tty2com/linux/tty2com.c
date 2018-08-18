@@ -1808,6 +1808,9 @@ static int sp_extract_pin_mapping(char data[], int x)
  * 4. Delete all virtual tty devices in this card:
  * $echo "del#xxxxx#xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" > /proc/sp_vmpscrdk
  *
+ * Maximum number of devices that can be created is controlled by 'max_num_vtty_dev'. If a 
+ * request to create new device(s) comes and we don't have free device(s), ENOMEM is returned.
+ *
  * @file: file representing sp proc file.
  * @buf: command supplied by the caller.
  * @length: length of the command.
@@ -2408,7 +2411,7 @@ static int __init sp_tty2com_init(void)
         pr_warning("Not creating specified devices due to invalid total !\n");
     }
 
-    pr_info("%s %s\n", DRIVER_DESC, DRIVER_VERSION);
+    pr_info("%s%s\n", DRIVER_DESC, DRIVER_VERSION);
     return 0;
 
     failed_proc:
