@@ -414,9 +414,11 @@ static ssize_t sp_ostats_show(struct device *dev, struct device_attribute *attr,
     if(!buf)
         return -EINVAL;
 
-    return sprintf(buf, "%u#%u#%u#%u#%u#%u#%u#%u#%u#%u#%u#\n", local_vttydev->icount.tx, local_vttydev->icount.rx, local_vttydev->icount.cts, 
-            local_vttydev->icount.dcd, local_vttydev->icount.dsr, local_vttydev->icount.brk, local_vttydev->icount.rng, local_vttydev->icount.frame, 
-            local_vttydev->icount.parity, local_vttydev->icount.overrun, local_vttydev->icount.buf_overrun);
+    return sprintf(buf, "%u#%u#%u#%u#%u#%u#%u#%u#%u#%u#%u#\n", local_vttydev->icount.tx, 
+                   local_vttydev->icount.rx,local_vttydev->icount.cts, local_vttydev->icount.dcd, 
+                   local_vttydev->icount.dsr,local_vttydev->icount.brk, local_vttydev->icount.rng, 
+                   local_vttydev->icount.frame, local_vttydev->icount.parity,
+                   local_vttydev->icount.overrun, local_vttydev->icount.buf_overrun);
 }
 
 /*

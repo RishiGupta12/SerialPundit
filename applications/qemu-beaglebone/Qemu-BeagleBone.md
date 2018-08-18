@@ -92,10 +92,10 @@ $ qemu-system-arm -M beagle -m 256 -sd ./beagle_sd.img -clock unix -serial stdio
 # export PATH=$PATH:/home/ejdk1.8.0_91-sf/linux_arm_sflt/jre/bin
 # java -version
 ```
-- Execute out test application finally.
+- Execute our test application finally.
 ```sh
 # java -classpath .:sp-tty.jar:sp-core.jar FindPorts
 ```
 
-To get out of emualtion and back to host shell terminal run 'poweroff' on qemu shell and then press CTRL+C.
+To get out of emulation i.e. back to host shell terminal run 'poweroff' on qemu shell and then press CTRL+C.
 
