@@ -25,6 +25,7 @@ various serialpundit modules.
 - Power-save-baudrate.md
 - Read-method-designs.md
 - Emulate-space-parity.md
+- DTE-DCE-connection.md
 
 #### File transfer (X/Y modem)
 - xmodem-minicom-script
