@@ -1739,8 +1739,8 @@ public final class SerialComManager {
      * is not in progress.</p>
      * 
      * <p>Under multithreading scenarios, if thread is blocked on read method due to timeout configured using 
-     * this method and other thread tries to close port, the read method may cause the the thread which called 
-     * read methid not to return. It is therefore either timeout should be kept short or two threads must be 
+     * this method and other thread tries to close port, the read method may cause the thread which called 
+     * read method not to return. It is therefore either timeout should be kept short or two threads must be 
      * synchronized etc.</p>
      * 
      * <p>[1] Time out for read call for unix like OS can be set using vtime. Use formula vtime = time out in 
