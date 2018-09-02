@@ -1,5 +1,5 @@
 ## Read methods designs
-Give brief ideas about how to read data using serialpundit depending upon the nature of data (fixed length, delimited, timeout or burst etc). These ideas can also be used with non-blocking or blocking variant of read method according to use case.
+This application note give some ideas about how to read data using serialpundit depending upon the nature of data (fixed length, delimited, timeout or burst etc). These ideas can also be used with non-blocking or blocking variant of read method according to use case.
 
 - **Fixed length data**; length of data packet (number of bytes) is fixed and is known before hand.
 ```java
