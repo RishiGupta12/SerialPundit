@@ -17,7 +17,7 @@ cd "$(dirname "$0")"
 set -e
 
 make clean
-make
+make $1
 rm -rf *.o *~ core .depend .*.cmd *.mod.c .tmp_versions modules.order Module.symvers
 
 echo "Build done."
