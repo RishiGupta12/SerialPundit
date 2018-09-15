@@ -17,7 +17,10 @@ cd "$(dirname "$0")"
 set -e
 
 make clean
+
+# To enable sparse tool static analysis run this script as ./build.sh C=1
 make $1
+
 rm -rf *.o *~ core .depend .*.cmd *.mod.c .tmp_versions modules.order Module.symvers
 
 echo "Build done."
