@@ -1,3 +1,10 @@
+v1.5 (TBD)
+	- New 2 digit (x.y) sdk versioning instead of 3 (x.y.z)
+	- Updated/corrected various readme and javadocs
+	- Handled memory leak in usb reset utility
+	- Added sparse checking in null modem driver build
+	- 
+
 v1.0.4 (25 Jan 2017)
 
 Additions :

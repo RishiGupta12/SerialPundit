@@ -536,15 +536,15 @@ public final class SerialComManager {
      * opened, an exception will be thrown.</p>
      * 
      * <ul>
-     * <li>For Linux and Mac OS X, if exclusiveOwnerShip is true, before this method returns, the caller 
-     * will either be exclusive owner or not. If the caller is successful in becoming exclusive owner than 
+     * <li>For Linux and Mac OS X, if exclusiveOwnerShip is true, the caller will be either exclusive owner or 
+     * not before this method returns. If the caller is successful in becoming exclusive owner than 
      * all the attempt to open the same port again will cause native code to return error. Note that a root 
      * owned process (root user) will still be able to open the port.
      * 
      * <p>For Windows the exclusiveOwnerShip must be true as it does not allow sharing COM ports. An 
      * exception is thrown if exclusiveOwnerShip is set to false. For Solaris, exclusiveOwnerShip should be 
      * set to false as of now. On Unix-like system this method uses ioctl command TIOCEXCL for exclusive access.
-     * and not lock files</p></li>
+     * and not lock files.</p></li>
      *
      * <li>This method will clear both input and output buffers of drivers (or operating system).</li>
      * 
@@ -1315,7 +1315,7 @@ public final class SerialComManager {
      * This method must be called before configureComPortControl method.</p>
      * 
      * <ul>
-     * <li><p>[1] Most of the DTE/DCE (hardware) does not support different baud rates for transmission and reception 
+     * <li><p>Most of the DTE/DCE (hardware) does not support different baud rates for transmission and reception 
      * and therefore this method takes only single value applicable to both transmission and reception.</p></li>
      * 
      * <li>All serial devices/drivers/operating systems does not support all the baud rates (maximum change in signal 
