@@ -2,8 +2,8 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="/home/r/Desktop/sp-jar/sp-tty.jar"/>
-	<classpathentry kind="lib" path="/home/r/ws-host-uart/sp-project/applications/byte-stream-binary-jar-integrate/ui.jar"/>
-	<classpathentry kind="lib" path="/home/r/Desktop/sp-jar/sp-core.jar"/>
+	<classpathentry kind="lib" path="/home/a/Desktop/sp-jar/sp-core.jar"/>
+	<classpathentry kind="lib" path="/home/a/Desktop/sp-jar/sp-tty.jar"/>
+	<classpathentry kind="lib" path="/home/a/Ws-SerialPundit/SerialPundit/applications/byte-stream-binary-jar-integrate/ui.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

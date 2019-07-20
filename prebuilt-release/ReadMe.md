@@ -1,5 +1,5 @@
 ## Latest releases
-Last updated on 30/July/2017
+These jars were last updated on 18/August/2018
 
 | Jar file       | Functions/Features                    | Comments     |
 | :------------: |:-------------:                        | :--------:   |
