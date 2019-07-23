@@ -13,7 +13,7 @@ Desktop application, Eclipse IDE plugin, command line interface, Java APIs and P
 - GPS coordinates and robotics emulator/simulator
 - Application development when hardware is still not available (test driven development)
 - Test/debug different serial port device emulators like modem and faxes etc
-- Testing high level user space drivers
+- Testing high level user space drivers & corner case testing by injecting handcrafted data
 - Segregate hardware issues from software bugs quickly during product development
 - Multiple producers/consumers sharing same channel application design development/testing
 - Development cost reduction across team
@@ -27,6 +27,7 @@ Desktop application, Eclipse IDE plugin, command line interface, Java APIs and P
 - Analyze and reverse-engineer serial protocols
 - Cases where socat utility does not meet requirements for unix-like OS
 - Cases where available physical serial ports do not meet the current requirements
+- Product demo where data from hardware needs to be sent to the GUI application
 
 ## Features
 - Create standard, loopback or custom pinout connected serial devices.
