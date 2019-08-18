@@ -1762,28 +1762,28 @@ static ssize_t sp_vcard_proc_read(struct file *file, char __user *buf, size_t si
  */
 static int sp_extract_pin_mapping(char data[], int x) 
 {
-    int i = 0;
-    int mapping = 0;
+	int i = 0;
+	int mapping = 0;
 
-    for(i=0; i<8; i++) {
-        if(data[x] == '8') {
-            mapping |= SP_CON_CTS;
-        }else if(data[x] == '1') {
-            mapping |= SP_CON_DCD;
-        }else if(data[x] == '6') {
-            mapping |= SP_CON_DSR;
-        }else if(data[x] == '9') {
-            mapping |= SP_CON_RI;
-        }else if(data[x] == '#') {
-            break;
-        }else if((data[x] == 'x') || (data[x] == ',')) {
-        }else {
-            return -EINVAL;
-        }
-        x++;
-    }
+	for (i = 0; i < 8; i++) {
+		if(data[x] == '8') {
+			mapping |= SP_CON_CTS;
+		}else if(data[x] == '1') {
+			mapping |= SP_CON_DCD;
+		}else if(data[x] == '6') {
+			mapping |= SP_CON_DSR;
+		}else if(data[x] == '9') {
+			mapping |= SP_CON_RI;
+		}else if(data[x] == '#') {
+			break;
+		}else if((data[x] == 'x') || (data[x] == ',')) {
+		}else {
+			return -EINVAL;
+		}
+		x++;
+	}
 
-    return mapping;
+	return mapping;
 }
 
 /*
@@ -1810,7 +1810,7 @@ static int sp_extract_pin_mapping(char data[], int x)
  * 4. Delete all virtual tty devices in this card:
  * $echo "del#xxxxx#xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" > /proc/sp_vmpscrdk
  *
- * Maximum number of devices that can be created is controlled by 'max_num_vtty_dev'. If a 
+ * Maximum number of devices that can be created is controlled by 'max_num_vtty_dev'. If a
  * request to create new device(s) comes and we don't have free device(s), ENOMEM is returned.
  *
  * @file: file representing sp proc file.
@@ -1820,445 +1820,439 @@ static int sp_extract_pin_mapping(char data[], int x)
  *
  * @return number of bytes consumed by this function on success or negative error code on failure.
  */
-static ssize_t sp_vcard_proc_write(struct file *file, const char __user *buf, size_t length, loff_t * ppos)
+static ssize_t sp_vcard_proc_write(struct file *file, const char __user *buf, size_t length, loff_t *ppos)
 {
-    int x = -1;
-    int y = -1;
-    int i = -1;
-    int ret = -1;
-    int create = -1;
-    int vdev1idx = -1;
-    int vdev2idx = -1;
-    int vdev1rts = 0;
-    int vdev2rts = 0;
-    int vdev1dtr = 0;
-    int vdev2dtr = 0;
-    int is_loopback = -1;
+	int x = -1;
+	int y = -1;
+	int i = -1;
+	int ret = -1;
+	int create = -1;
+	int vdev1idx = -1;
+	int vdev2idx = -1;
+	int vdev1rts = 0;
+	int vdev2rts = 0;
+	int vdev1dtr = 0;
+	int vdev2dtr = 0;
+	int is_loopback = -1;
 
-    char tmp[8];
-    char data[64];
+	char tmp[8];
+	char data[64];
 
-    struct vtty_dev *vttydev1 = NULL;
-    struct vtty_dev *vttydev2 = NULL;
-    struct device *device1 = NULL;
-    struct device *device2 = NULL;
-    struct tty_struct *tty;
+	struct vtty_dev *vttydev1 = NULL;
+	struct vtty_dev *vttydev2 = NULL;
+	struct device *device1 = NULL;
+	struct device *device2 = NULL;
+	struct tty_struct *tty;
 
-    if(length == 2) {
-        memcpy(data, "gennm#xxxxx#xxxxx#7-8,x,x,x#4-1,6,x,x#7-8,x,x,x#4-1,6,x,x#y#y", 61);
-    }else if(length == 3) {
-        memcpy(data, "genlb#xxxxx#xxxxx#7-8,x,x,x#4-1,6,x,x#x-x,x,x,x#x-x,x,x,x#y#x", 61);
-    }else if((length > 60) && (length < 63)) {
-        if(copy_from_user(data, buf, length) != 0) {
-            return -EFAULT;
-        }
-    }else {
-        return -EINVAL;
-    }
-    data[62] = '\0';
+	if (length == 2) {
+		memcpy(data, "gennm#xxxxx#xxxxx#7-8,x,x,x#4-1,6,x,x#7-8,x,x,x#4-1,6,x,x#y#y", 61);
+	} else if (length == 3) {
+		memcpy(data, "genlb#xxxxx#xxxxx#7-8,x,x,x#4-1,6,x,x#x-x,x,x,x#x-x,x,x,x#y#x", 61);
+	} else if ((length > 60) && (length < 63)) {
+		if (copy_from_user(data, buf, length) != 0)
+			return -EFAULT;
+	} else {
+		return -EINVAL;
+	}
+	data[62] = '\0';
 
-    /* Initial sanitization */
-    if((data[0] == 'g') && (data[1] == 'e') && (data[2] == 'n')) {
-        if((data[3] == 'n') && (data[4] == 'm')) {
-        }else if((data[3] == 'l') && (data[4] == 'b')) {
-            is_loopback = 1;
-        }else {
-            return -EINVAL;
-        }
-        create = 1;
-    }else if((data[0] == 'd') && (data[1] == 'e') && (data[2] == 'l')) {
-        create = -1;
-    }else {
-        return -EINVAL;
-    }
+	/* Initial sanitization */
+	if ((data[0] == 'g') && (data[1] == 'e') && (data[2] == 'n')) {
+		if ((data[3] == 'n') && (data[4] == 'm')) {
+		} else if ((data[3] == 'l') && (data[4] == 'b')) {
+			is_loopback = 1;
+		} else {
+			return -EINVAL;
+		}
+		create = 1;
+	} else if ((data[0] == 'd') && (data[1] == 'e') && (data[2] == 'l')) {
+		create = -1;
+	} else {
+		return -EINVAL;
+	}
 
-    if(create == 1) {
-        /* Create device(s) command sent */
+	if (create == 1) {
+		/* Create device(s) command sent */
 
-        /* Extract 1st device index (for both null modem and loop back) */
-        x = 6;
-        if(data[6] != 'x') {
-            memset(tmp, '\0', sizeof(tmp));
-            for(i=0; i<5; i++) {
-                tmp[i] = data[x];
-                x++;
-            }
-            ret = kstrtouint(tmp, 10, &vdev1idx);
-            if(ret != 0)
-                return ret;
-            if((vdev1idx < 0) || (vdev1idx > 65535))
-                return -EINVAL;
-        }
+		/* Extract 1st device index (for both null modem and loop back) */
+		x = 6;
+		if (data[6] != 'x') {
+			memset(tmp, '\0', sizeof(tmp));
+			for (i = 0; i < 5; i++) {
+				tmp[i] = data[x];
+				x++;
+			}
+			ret = kstrtouint(tmp, 10, &vdev1idx);
+			if (ret != 0)
+				return ret;
+			if ((vdev1idx < 0) || (vdev1idx > 65535))
+				return -EINVAL;
+		}
 
-        vttydev1 = (struct vtty_dev *) kcalloc(1, sizeof(struct vtty_dev), GFP_KERNEL);
-        if(vttydev1 == NULL)
-            return -ENOMEM;
+		vttydev1 = (struct vtty_dev *) kcalloc(1, sizeof(struct vtty_dev), GFP_KERNEL);
+		if (vttydev1 == NULL)
+			return -ENOMEM;
 
-        /* Extract 2nd device index if null modem pair is to be created */
-        if(is_loopback != 1) {
-            x = 12;
-            if(data[x] != 'x') {
-                memset(tmp, '\0', sizeof(tmp));
-                i = 0;
-                for(i=0; i<5; i++) {
-                    tmp[i] = data[x];
-                    x++;
-                }
-                ret = kstrtouint(tmp, 10, &vdev2idx);
-                if(ret != 0)
-                    return ret;
-                if((vdev2idx < 0) || (vdev2idx > 65535)) {
-                    ret = -EINVAL;
-                    goto fail_arg;
-                }
+		/* Extract 2nd device index if null modem pair is to be created */
+		if (is_loopback != 1) {
+			x = 12;
+			if (data[x] != 'x') {
+				memset(tmp, '\0', sizeof(tmp));
+				i = 0;
+				for (i = 0; i < 5; i++) {
+					tmp[i] = data[x];
+					x++;
+				}
+				ret = kstrtouint(tmp, 10, &vdev2idx);
+				if (ret != 0)
+					return ret;
+				if ((vdev2idx < 0) || (vdev2idx > 65535)) {
+					ret = -EINVAL;
+					goto fail_arg;
+				}
 
-            }
+			}
 
-            vttydev2 = (struct vtty_dev *) kcalloc(1, sizeof(struct vtty_dev), GFP_KERNEL);
-            if(vttydev2 == NULL) {
-                ret = -ENOMEM;
-                goto fail_arg;
-            }
-        }
+			vttydev2 = (struct vtty_dev *) kcalloc(1, sizeof(struct vtty_dev), GFP_KERNEL);
+			if (vttydev2 == NULL) {
+				ret = -ENOMEM;
+				goto fail_arg;
+			}
+		}
 
-        /* rts mappings (dev1) */
-        if((data[18] != '7') || (data[19] != '-')) {
-            ret = -EINVAL;
-            goto fail_arg;
-        }
-        ret = sp_extract_pin_mapping(data, 20);
-        if(ret < 0)
-            goto fail_arg;
-        vdev1rts = ret;
+		/* rts mappings (dev1) */
+		if ((data[18] != '7') || (data[19] != '-')) {
+			ret = -EINVAL;
+			goto fail_arg;
+		}
+		ret = sp_extract_pin_mapping(data, 20);
+		if (ret < 0)
+			goto fail_arg;
+		vdev1rts = ret;
 
-        if((data[27] != '#') || (data[28] != '4') || (data[29] != '-'))
-            goto fail_arg;
+		if ((data[27] != '#') || (data[28] != '4') || (data[29] != '-'))
+			goto fail_arg;
 
-        /* dtr mapping (dev1) */
-        ret = sp_extract_pin_mapping(data, 30);
-        if(ret < 0)
-            goto fail_arg;
-        vdev1dtr = ret;
+		/* dtr mapping (dev1) */
+		ret = sp_extract_pin_mapping(data, 30);
+		if (ret < 0)
+			goto fail_arg;
+		vdev1dtr = ret;
 
-        if(data[37] != '#')
-            goto fail_arg;
+		if (data[37] != '#')
+			goto fail_arg;
 
-        if(is_loopback != 1) {
-            /* rts mappings (dev2) */
-            if((data[38] != '7') || (data[39] != '-')) {
-                ret = -EINVAL;
-                goto fail_arg;
-            }
-            ret = sp_extract_pin_mapping(data, 40);
-            if(ret < 0)
-                goto fail_arg;
-            vdev2rts = ret;
+		if (is_loopback != 1) {
+			/* rts mappings (dev2) */
+			if ((data[38] != '7') || (data[39] != '-')) {
+				ret = -EINVAL;
+				goto fail_arg;
+			}
+			ret = sp_extract_pin_mapping(data, 40);
+			if (ret < 0)
+				goto fail_arg;
+			vdev2rts = ret;
 
-            /* dtr mapping (dev2) */
-            if((data[47] != '#') || (data[48] != '4') || (data[49] != '-'))
-                goto fail_arg;
+			/* dtr mapping (dev2) */
+			if ((data[47] != '#') || (data[48] != '4') || (data[49] != '-'))
+				goto fail_arg;
 
-            ret = sp_extract_pin_mapping(data, 50);
-            if(ret < 0)
-                goto fail_arg;
-            vdev2dtr = ret;
+			ret = sp_extract_pin_mapping(data, 50);
+			if (ret < 0)
+				goto fail_arg;
+			vdev2dtr = ret;
 
-            if(data[57] != '#')
-                goto fail_arg;
-        }
+			if (data[57] != '#')
+				goto fail_arg;
+		}
 
-        /* Create serial port (tty device) with lock taken to ensure correctness of index in use
-           and associated data */
-        mutex_lock(&adaptlock);
+		/* Create serial port (tty device) with lock taken to ensure correctness of index in use
+		   and associated data */
+		mutex_lock(&adaptlock);
 
-        i = -1;
-        if(vdev1idx == -1) {
-            for(x=0; x < max_num_vtty_dev; x++) {
-                if(index_manager[x].index == -1) {
-                    i = x;
-                    break;
-                }
-            }
-        }else {
-            if(index_manager[vdev1idx].index == -1) {
-                i = vdev1idx;
-            }else {
-                ret = -EEXIST;
-                mutex_unlock(&adaptlock);
-                goto fail_arg;
-            }
-        }
-        if(i == -1) {
-            ret = -ENOMEM;
-            mutex_unlock(&adaptlock);
-            goto fail_arg;
-        }
+		i = -1;
+		if (vdev1idx == -1) {
+			for (x = 0; x < max_num_vtty_dev; x++) {
+				if (index_manager[x].index == -1) {
+					i = x;
+					break;
+				}
+			}
+		} else {
+			if (index_manager[vdev1idx].index == -1) {
+				i = vdev1idx;
+			} else {
+				ret = -EEXIST;
+				mutex_unlock(&adaptlock);
+				goto fail_arg;
+			}
+		}
+		if (i == -1) {
+			ret = -ENOMEM;
+			mutex_unlock(&adaptlock);
+			goto fail_arg;
+		}
 
-        /* Initialize meta information and create 1st serial port */
-        if(data[58] == 'y')
-            vttydev1->set_odtr_at_open = 1;
-        else
-            vttydev1->set_odtr_at_open = 0;
-        vttydev1->own_tty = NULL;
-        vttydev1->peer_tty = NULL;
-        vttydev1->own_index = i;
-        vttydev1->peer_index = i;
-        vttydev1->rts_mappings = vdev1rts;
-        vttydev1->dtr_mappings = vdev1dtr;
-        vttydev1->msr_reg = 0;
-        vttydev1->mcr_reg = 0;
-        vttydev1->waiting_msr_chg = 0;
-        vttydev1->tx_paused = 0;
-        vttydev1->faulty_cable = 0;
-        index_manager[i].index = i;
-        index_manager[i].vttydev = vttydev1;
-        mutex_init(&vttydev1->lock);
+		/* Initialize meta information and create 1st serial port */
+		if (data[58] == 'y')
+			vttydev1->set_odtr_at_open = 1;
+		else
+			vttydev1->set_odtr_at_open = 0;
+		vttydev1->own_tty = NULL;
+		vttydev1->peer_tty = NULL;
+		vttydev1->own_index = i;
+		vttydev1->peer_index = i;
+		vttydev1->rts_mappings = vdev1rts;
+		vttydev1->dtr_mappings = vdev1dtr;
+		vttydev1->msr_reg = 0;
+		vttydev1->mcr_reg = 0;
+		vttydev1->waiting_msr_chg = 0;
+		vttydev1->tx_paused = 0;
+		vttydev1->faulty_cable = 0;
+		index_manager[i].index = i;
+		index_manager[i].vttydev = vttydev1;
+		mutex_init(&vttydev1->lock);
 
-        if(is_loopback != 1) {
-            y = -1;
-            if(vdev2idx == -1) {
-                for(x=0; x < max_num_vtty_dev; x++) {
-                    if(index_manager[x].index == -1) {
-                        y = x;
-                        break;
-                    }
-                }
-            }else {
-                if(index_manager[vdev2idx].index == -1) {
-                    y = vdev2idx;
-                }else {
-                    ret = -EEXIST;
-                    mutex_unlock(&adaptlock);
-                    goto fail_arg;
-                }
-            }
-            if(y == -1) {
-                ret = -ENOMEM;
-                mutex_unlock(&adaptlock);
-                goto fail_arg;
-            }
+		if (is_loopback != 1) {
+			y = -1;
+			if (vdev2idx == -1) {
+				for (x = 0; x < max_num_vtty_dev; x++) {
+					if (index_manager[x].index == -1) {
+						y = x;
+						break;
+					}
+				}
+			} else {
+				if (index_manager[vdev2idx].index == -1) {
+					y = vdev2idx;
+				} else {
+					ret = -EEXIST;
+					mutex_unlock(&adaptlock);
+					goto fail_arg;
+				}
+			}
+			if (y == -1) {
+				ret = -ENOMEM;
+				mutex_unlock(&adaptlock);
+				goto fail_arg;
+			}
 
-            /* Initialize meta information and create 2nd serial port */
-            if(data[60] == 'y')
-                vttydev2->set_odtr_at_open = 1;
-            else
-                vttydev2->set_odtr_at_open = 0;
-            vttydev2->set_pdtr_at_open = vttydev1->set_odtr_at_open;
-            vttydev1->set_pdtr_at_open = vttydev2->set_odtr_at_open;
-            vttydev1->own_index = i;
-            vttydev1->peer_index = y;
-            vttydev2->own_index = y;
-            vttydev2->peer_index = i;
-            vttydev2->own_tty = NULL;
-            vttydev2->peer_tty = NULL;
-            vttydev2->rts_mappings = vdev2rts;
-            vttydev2->dtr_mappings = vdev2dtr;
-            vttydev2->msr_reg = 0;
-            vttydev2->mcr_reg = 0;
-            vttydev2->waiting_msr_chg = 0;
-            vttydev2->tx_paused = 0;
-            vttydev2->faulty_cable = 0;
-            index_manager[y].index = y;
-            index_manager[y].vttydev = vttydev2;
-            mutex_init(&vttydev2->lock);
-        }
+			/* Initialize meta information and create 2nd serial port */
+			if (data[60] == 'y')
+				vttydev2->set_odtr_at_open = 1;
+			else
+				vttydev2->set_odtr_at_open = 0;
+			vttydev2->set_pdtr_at_open = vttydev1->set_odtr_at_open;
+			vttydev1->set_pdtr_at_open = vttydev2->set_odtr_at_open;
+			vttydev1->own_index = i;
+			vttydev1->peer_index = y;
+			vttydev2->own_index = y;
+			vttydev2->peer_index = i;
+			vttydev2->own_tty = NULL;
+			vttydev2->peer_tty = NULL;
+			vttydev2->rts_mappings = vdev2rts;
+			vttydev2->dtr_mappings = vdev2dtr;
+			vttydev2->msr_reg = 0;
+			vttydev2->mcr_reg = 0;
+			vttydev2->waiting_msr_chg = 0;
+			vttydev2->tx_paused = 0;
+			vttydev2->faulty_cable = 0;
+			index_manager[y].index = y;
+			index_manager[y].vttydev = vttydev2;
+			mutex_init(&vttydev2->lock);
+		}
 
-        device1 = tty_register_device(spvtty_driver, i, NULL);
-        if(device1 == NULL) {
-            ret = -ENOMEM;
-            mutex_unlock(&adaptlock);
-            goto fail_arg;
-        }
+		device1 = tty_register_device(spvtty_driver, i, NULL);
+		if (device1 == NULL) {
+			ret = -ENOMEM;
+			mutex_unlock(&adaptlock);
+			goto fail_arg;
+		}
 
-        vttydev1->device = device1;
-        dev_set_drvdata(device1, vttydev1);
+		vttydev1->device = device1;
+		dev_set_drvdata(device1, vttydev1);
 
-        x = sysfs_create_group(&device1->kobj, &sp_info_attr_group);
-        if(x < 0) {
-            tty_unregister_device(spvtty_driver, i);
-            mutex_unlock(&adaptlock);
-            goto fail_arg;
-        }
+		x = sysfs_create_group(&device1->kobj, &sp_info_attr_group);
+		if (x < 0) {
+			tty_unregister_device(spvtty_driver, i);
+			mutex_unlock(&adaptlock);
+			goto fail_arg;
+		}
 
-        if(is_loopback != 1) {
-            device2 = tty_register_device(spvtty_driver, y, NULL);
-            if(device2 == NULL) {
-                ret = -ENOMEM;
-                mutex_unlock(&adaptlock);
-                goto fail_register;
-            }
+		if (is_loopback != 1) {
+			device2 = tty_register_device(spvtty_driver, y, NULL);
+			if (device2 == NULL) {
+				ret = -ENOMEM;
+				mutex_unlock(&adaptlock);
+				goto fail_register;
+			}
 
-            vttydev2->device = device2;
-            dev_set_drvdata(device2, vttydev2);
+			vttydev2->device = device2;
+			dev_set_drvdata(device2, vttydev2);
 
-            x = sysfs_create_group(&device2->kobj, &sp_info_attr_group);
-            if(x < 0) {
-                tty_unregister_device(spvtty_driver, y);
-                index_manager[y].index = -1;
-                mutex_unlock(&adaptlock);
-                goto fail_register;
-            }
+			x = sysfs_create_group(&device2->kobj, &sp_info_attr_group);
+			if (x < 0) {
+				tty_unregister_device(spvtty_driver, y);
+				index_manager[y].index = -1;
+				mutex_unlock(&adaptlock);
+				goto fail_register;
+			}
 
-            last_nmdev1_idx = i;
-            last_nmdev2_idx = y;
-            ++total_nm_pair;
+			last_nmdev1_idx = i;
+			last_nmdev2_idx = y;
+			++total_nm_pair;
 
-            if((vttydev1->dtr_mappings != (SP_CON_DSR | SP_CON_DCD)) || (vttydev1->rts_mappings != SP_CON_CTS)
-                    || (vttydev1->set_odtr_at_open != 1) || (vttydev2->dtr_mappings != (SP_CON_DSR | SP_CON_DCD))
-                    || (vttydev2->rts_mappings != SP_CON_CTS) || (vttydev2->set_odtr_at_open != 1)) {
-                vttydev1->odevtyp = CNM;
-                vttydev2->odevtyp = CNM;
-            }else {
-                vttydev1->odevtyp = SNM;
-                vttydev2->odevtyp = SNM;
-            }            
-        }else {
-            last_lbdev_idx = i;
-            ++total_lb_devs;
+			if ((vttydev1->dtr_mappings != (SP_CON_DSR | SP_CON_DCD)) || (vttydev1->rts_mappings != SP_CON_CTS)
+					|| (vttydev1->set_odtr_at_open != 1) || (vttydev2->dtr_mappings != (SP_CON_DSR | SP_CON_DCD))
+					|| (vttydev2->rts_mappings != SP_CON_CTS) || (vttydev2->set_odtr_at_open != 1)) {
+				vttydev1->odevtyp = CNM;
+				vttydev2->odevtyp = CNM;
+			} else {
+				vttydev1->odevtyp = SNM;
+				vttydev2->odevtyp = SNM;
+			}
+		} else {
+			last_lbdev_idx = i;
+			++total_lb_devs;
 
-            /* device type */
-            if((vttydev1->dtr_mappings != (SP_CON_DSR | SP_CON_DCD)) || (vttydev1->rts_mappings != SP_CON_CTS)
-                    || (vttydev1->set_odtr_at_open != 1)) {
-                vttydev1->odevtyp = CLB;
-            }else {
-                vttydev1->odevtyp = SLB;
-            }
-        }
+			/* device type */
+			if ((vttydev1->dtr_mappings != (SP_CON_DSR | SP_CON_DCD)) || (vttydev1->rts_mappings != SP_CON_CTS)
+					|| (vttydev1->set_odtr_at_open != 1)) {
+				vttydev1->odevtyp = CLB;
+			} else {
+				vttydev1->odevtyp = SLB;
+			}
+		}
 
-        mutex_unlock(&adaptlock);
-    }
-    else {
-        /* Destroy device command sent */
+		mutex_unlock(&adaptlock);
+	} else {
+		/* Destroy device command sent */
+		if ((total_nm_pair <= 0) && (total_lb_devs <= 0))
+			return length;
 
-        if((total_nm_pair <= 0) && (total_lb_devs <= 0))
-            return length;
+		/* An application may forget to close serial port or it might have been crashed resulting in
+		 * unclosed port and hence leaked resources. We handle such scenarios as disconnected event
+		 * as done in case of a plug and play for example usb device. Application is running, port
+		 * is opened and then suddenly user removes tty device. */
 
-        /* An application may forget to close serial port or it might have been crashed resulting in
-         * unclosed port and hence leaked resources. We handle such scenarios as disconnected event
-         * as done in case of a plug and play for example usb device. Application is running, port
-         * is opened and then suddenly user removes tty device. */
+		if (data[8] == 'x') {
 
-        if(data[8] == 'x') {
+			/* Delete all virtual devices */
 
-            /* Delete all virtual devices */
+			mutex_lock(&adaptlock);
 
-            mutex_lock(&adaptlock);
+			/* First tty must be released and than port. */
+			for (x = 0; x < max_num_vtty_dev; x++) {
+				if (index_manager[x].index != -1) {
 
-            /* First tty must be released and than port. */
-            for(x=0; x < max_num_vtty_dev; x++) {
-                if (index_manager[x].index != -1) {
+					vttydev1 = index_manager[x].vttydev;
+					if (vttydev1 != NULL) {
 
-                    vttydev1 = index_manager[x].vttydev;
-                    if (vttydev1 != NULL) {
+						sysfs_remove_group(&vttydev1->device->kobj, &sp_info_attr_group);
 
-                        sysfs_remove_group(&vttydev1->device->kobj, &sp_info_attr_group);
+						if (vttydev1->own_tty && vttydev1->own_tty->port) {
+							tty = tty_port_tty_get(vttydev1->own_tty->port);
+							if (tty) {
+								tty_vhangup(tty);
+								tty_kref_put(tty);
+							}
+						}
+						tty_unregister_device(spvtty_driver, index_manager[x].index);
+						kfree(index_manager[x].vttydev);
+					}
+					index_manager[x].index = -1;
+				}
+			}
 
-                        if (vttydev1->own_tty && vttydev1->own_tty->port) {
-                            tty = tty_port_tty_get(vttydev1->own_tty->port);
-                            if (tty) {
-                                tty_vhangup(tty);
-                                tty_kref_put(tty);
-                            }
-                        }
-                        tty_unregister_device(spvtty_driver, index_manager[x].index);
-                        kfree(index_manager[x].vttydev);
-                    }
-                    index_manager[x].index = -1;
-                }
-            }
+			total_nm_pair = 0;
+			total_lb_devs = 0;
+			last_lbdev_idx  = -1;
+			last_nmdev1_idx = -1;
+			last_nmdev2_idx = -1;
 
-            total_nm_pair = 0;
-            total_lb_devs = 0;
-            last_lbdev_idx  = -1;
-            last_nmdev1_idx = -1;
-            last_nmdev2_idx = -1;
+			mutex_unlock(&adaptlock);
+		} else {
+			/* Delete a specific virtual device */
+			x = 4;
+			memset(tmp, '\0', sizeof(tmp));
+			i = 0;
+			for (i = 0; i < 5; i++) {
+				tmp[i] = data[x];
+				x++;
+			}
 
-            mutex_unlock(&adaptlock);
-        }
-        else {
+			x = -1;
+			y = -1;
 
-            /* Delete a specific virtual device */
+			ret = kstrtouint(tmp, 10, &vdev1idx);
+			if (ret != 0)
+				return ret;
 
-            x = 4;
-            memset(tmp, '\0', sizeof(tmp));
-            i = 0;
-            for(i=0; i<5; i++) {
-                tmp[i] = data[x];
-                x++;
-            }
+			if ((vdev1idx >= 0) && (vdev1idx <= 65535) && (index_manager[vdev1idx].index != -1)) {
+				mutex_lock(&adaptlock);
 
-            x = -1;
-            y = -1;
+				x = index_manager[vdev1idx].index;
+				vttydev1 = index_manager[x].vttydev;
+				sysfs_remove_group(&vttydev1->device->kobj, &sp_info_attr_group);
+				tty_unregister_device(spvtty_driver, index_manager[x].index);
+				if (vttydev1 && vttydev1->own_tty && vttydev1->own_tty->port) {
+					tty = tty_port_tty_get(vttydev1->own_tty->port);
+					if (tty) {
+						tty_vhangup(tty);
+						tty_kref_put(tty);
+					}
+				}
 
-            ret = kstrtouint(tmp, 10, &vdev1idx);
-            if(ret != 0)
-                return ret;
+				if (vttydev1->own_index != vttydev1->peer_index) {
+					y = index_manager[vttydev1->peer_index].index;
+					vttydev2 = index_manager[y].vttydev;
+					sysfs_remove_group(&vttydev2->device->kobj, &sp_info_attr_group);
+					tty_unregister_device(spvtty_driver, index_manager[y].index);
+					if (vttydev2 && vttydev2->own_tty && vttydev2->own_tty->port) {
+						tty = tty_port_tty_get(vttydev2->own_tty->port);
+						if (tty) {
+							tty_vhangup(tty);
+							tty_kref_put(tty);
+						}
+					}
+				}
 
-            if((vdev1idx >= 0) && (vdev1idx <= 65535) && (index_manager[vdev1idx].index != -1)) {
-                mutex_lock(&adaptlock);
+				if (x != -1) {
+					kfree(index_manager[x].vttydev);
+					index_manager[x].index = -1;
+				}
+				if (y != -1) {
+					kfree(index_manager[y].vttydev);
+					index_manager[y].index = -1;
+					--total_nm_pair;
+				} else {
+					--total_lb_devs;
+				}
 
-                x = index_manager[vdev1idx].index;
-                vttydev1 = index_manager[x].vttydev;
-                sysfs_remove_group(&vttydev1->device->kobj, &sp_info_attr_group);
-                tty_unregister_device(spvtty_driver, index_manager[x].index);
-                if (vttydev1 && vttydev1->own_tty && vttydev1->own_tty->port) {
-                    tty = tty_port_tty_get(vttydev1->own_tty->port);
-                    if (tty) {
-                        tty_vhangup(tty);
-                        tty_kref_put(tty);
-                    }
-                }
+				mutex_unlock(&adaptlock);
 
-                if (vttydev1->own_index != vttydev1->peer_index) {
-                    y = index_manager[vttydev1->peer_index].index;
-                    vttydev2 = index_manager[y].vttydev;
-                    sysfs_remove_group(&vttydev2->device->kobj, &sp_info_attr_group);
-                    tty_unregister_device(spvtty_driver, index_manager[y].index);
-                    if (vttydev2 && vttydev2->own_tty && vttydev2->own_tty->port) {
-                        tty = tty_port_tty_get(vttydev2->own_tty->port);
-                        if (tty) {
-                            tty_vhangup(tty);
-                            tty_kref_put(tty);
-                        }
-                    }
-                }
+			} else {
+				return -EINVAL;
+			}
+		}
+	}
 
-                if (x != -1) {
-                    kfree(index_manager[x].vttydev);
-                    index_manager[x].index = -1;
-                }
-                if (y != -1) {
-                    kfree(index_manager[y].vttydev);
-                    index_manager[y].index = -1;
-                    --total_nm_pair;
-                }else {
-                    --total_lb_devs;
-                }
+	return length;
 
-                mutex_unlock(&adaptlock);
+fail_register:
+	sysfs_remove_group(&device1->kobj, &sp_info_attr_group);
+	tty_unregister_device(spvtty_driver, i);
 
-            }else {
-                return -EINVAL;
-            }
-        }
-    }
+fail_arg:
+	index_manager[i].index = -1;
 
-    return length;
+	if (vttydev2 != NULL)
+		kfree(vttydev2);
 
-    fail_register:
-    sysfs_remove_group(&device1->kobj, &sp_info_attr_group);
-    tty_unregister_device(spvtty_driver, i);
+	if (vttydev1 != NULL)
+		kfree(vttydev1);
 
-    fail_arg:
-    index_manager[i].index = -1;
-
-    if(vttydev2 != NULL)
-        kfree(vttydev2);
-
-    if(vttydev1 != NULL)
-        kfree(vttydev1);
-
-    return ret;
+	return ret;
 }
 
 /*
