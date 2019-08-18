@@ -1340,26 +1340,24 @@ static void sp_throttle(struct tty_struct *tty)
  */
 static void sp_unthrottle(struct tty_struct *tty)
 {
-    struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
-    struct vtty_dev *remote_vttydev = index_manager[local_vttydev->peer_index].vttydev;
+	struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
+	struct vtty_dev *remote_vttydev = index_manager[local_vttydev->peer_index].vttydev;
 
-    if (tty->termios.c_cflag & CRTSCTS) {
-        /* hardware (RTS/CTS) flow control */
-        mutex_lock(&local_vttydev->lock);
-        remote_vttydev->tx_paused = 0;
-        sp_update_modem_lines(tty, TIOCM_RTS, 0);
-        mutex_unlock(&local_vttydev->lock);
+	if (tty->termios.c_cflag & CRTSCTS) {
+		/* hardware (RTS/CTS) flow control */
+		mutex_lock(&local_vttydev->lock);
+		remote_vttydev->tx_paused = 0;
+		sp_update_modem_lines(tty, TIOCM_RTS, 0);
+		mutex_unlock(&local_vttydev->lock);
 
-        if (remote_vttydev->own_tty && remote_vttydev->own_tty->port)
-            tty_port_tty_wakeup(remote_vttydev->own_tty->port);
-    }
-    else if((tty->termios.c_iflag & IXON) || (tty->termios.c_iflag & IXOFF)) {
-        /* software flow control */
-        sp_put_char(tty, START_CHAR(tty));
-    }
-    else {
-        /* do nothing */
-    }
+		if (remote_vttydev->own_tty && remote_vttydev->own_tty->port)
+			tty_port_tty_wakeup(remote_vttydev->own_tty->port);
+	} else if((tty->termios.c_iflag & IXON) || (tty->termios.c_iflag & IXOFF)) {
+		/* software flow control */
+		sp_put_char(tty, START_CHAR(tty));
+	} else {
+		/* do nothing */
+	}
 }
 
 /*
@@ -1372,10 +1370,11 @@ static void sp_unthrottle(struct tty_struct *tty)
  */
 static void sp_stop(struct tty_struct *tty)
 {
-    struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
-    mutex_lock(&local_vttydev->lock);
-    local_vttydev->tx_paused = 1;
-    mutex_unlock(&local_vttydev->lock);
+	struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
+
+	mutex_lock(&local_vttydev->lock);
+	local_vttydev->tx_paused = 1;
+	mutex_unlock(&local_vttydev->lock);
 }
 
 /*
@@ -1388,13 +1387,14 @@ static void sp_stop(struct tty_struct *tty)
  */
 static void sp_start(struct tty_struct *tty)
 {
-    struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
-    mutex_lock(&local_vttydev->lock);
-    local_vttydev->tx_paused = 0;
-    mutex_unlock(&local_vttydev->lock);
+	struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
 
-    if (tty && tty->port)
-        tty_port_tty_wakeup(tty->port);
+	mutex_lock(&local_vttydev->lock);
+	local_vttydev->tx_paused = 0;
+	mutex_unlock(&local_vttydev->lock);
+
+	if (tty && tty->port)
+		tty_port_tty_wakeup(tty->port);
 }
 
 /*
@@ -1407,24 +1407,24 @@ static void sp_start(struct tty_struct *tty)
  */
 static int sp_tiocmget(struct tty_struct *tty)
 {
-    int status = 0;
-    int msr_reg = 0;
-    int mcr_reg = 0;
-    struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
+	int status = 0;
+	int msr_reg = 0;
+	int mcr_reg = 0;
+	struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
 
-    mutex_lock(&local_vttydev->lock);
-    mcr_reg = local_vttydev->mcr_reg;
-    msr_reg = local_vttydev->msr_reg;
-    mutex_unlock(&local_vttydev->lock);
+	mutex_lock(&local_vttydev->lock);
+	mcr_reg = local_vttydev->mcr_reg;
+	msr_reg = local_vttydev->msr_reg;
+	mutex_unlock(&local_vttydev->lock);
 
-    status= ((mcr_reg & SP_MCR_DTR)  ? TIOCM_DTR  : 0) |
-            ((mcr_reg & SP_MCR_RTS)  ? TIOCM_RTS  : 0) |
-            ((mcr_reg & SP_MCR_LOOP) ? TIOCM_LOOP : 0) |
-            ((msr_reg & SP_MSR_DCD)  ? TIOCM_CAR  : 0) |
-            ((msr_reg & SP_MSR_RI)   ? TIOCM_RI   : 0) |
-            ((msr_reg & SP_MSR_CTS)  ? TIOCM_CTS  : 0) |
-            ((msr_reg & SP_MSR_DSR)  ? TIOCM_DSR  : 0);
-    return status;
+	status= ((mcr_reg & SP_MCR_DTR)  ? TIOCM_DTR  : 0) |
+			((mcr_reg & SP_MCR_RTS)  ? TIOCM_RTS  : 0) |
+			((mcr_reg & SP_MCR_LOOP) ? TIOCM_LOOP : 0) |
+			((msr_reg & SP_MSR_DCD)  ? TIOCM_CAR  : 0) |
+			((msr_reg & SP_MSR_RI)   ? TIOCM_RI   : 0) |
+			((msr_reg & SP_MSR_CTS)  ? TIOCM_CTS  : 0) |
+			((msr_reg & SP_MSR_DSR)  ? TIOCM_DSR  : 0);
+	return status;
 }
 
 /*
@@ -1439,12 +1439,12 @@ static int sp_tiocmget(struct tty_struct *tty)
  */
 static int sp_tiocmset(struct tty_struct *tty, unsigned int set, unsigned int clear)
 {
-    int ret = 0;
-    struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
-    mutex_lock(&local_vttydev->lock);
-    ret = sp_update_modem_lines(tty, set, clear);
-    mutex_unlock(&local_vttydev->lock);
-    return ret;
+	int ret = 0;
+	struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
+	mutex_lock(&local_vttydev->lock);
+	ret = sp_update_modem_lines(tty, set, clear);
+	mutex_unlock(&local_vttydev->lock);
+	return ret;
 }
 
 /*
@@ -1457,38 +1457,36 @@ static int sp_tiocmset(struct tty_struct *tty, unsigned int set, unsigned int cl
  */
 static int sp_break_ctl(struct tty_struct *tty, int break_state)
 {
-    struct tty_struct *tty_to_write = NULL;
-    struct vtty_dev *brk_rx_vttydev = NULL;
-    struct vtty_dev *brk_tx_vttydev = index_manager[tty->index].vttydev;
+	struct tty_struct *tty_to_write = NULL;
+	struct vtty_dev *brk_rx_vttydev = NULL;
+	struct vtty_dev *brk_tx_vttydev = index_manager[tty->index].vttydev;
 
-    if(tty->index != brk_tx_vttydev->peer_index) {
-        tty_to_write = brk_tx_vttydev->peer_tty;
-        brk_rx_vttydev = index_manager[brk_tx_vttydev->peer_index].vttydev;
-    }
-    else {
-        tty_to_write = tty;
-        brk_rx_vttydev = brk_tx_vttydev;
-    }
+	if (tty->index != brk_tx_vttydev->peer_index) {
+		tty_to_write = brk_tx_vttydev->peer_tty;
+		brk_rx_vttydev = index_manager[brk_tx_vttydev->peer_index].vttydev;
+	} else {
+		tty_to_write = tty;
+		brk_rx_vttydev = brk_tx_vttydev;
+	}
 
-    mutex_lock(&brk_tx_vttydev->lock);
+	mutex_lock(&brk_tx_vttydev->lock);
 
-    if (break_state != 0) {
-        if(brk_tx_vttydev->is_break_on == 1)
-            return 0;
+	if (break_state != 0) {
+		if (brk_tx_vttydev->is_break_on == 1)
+			return 0;
 
-        brk_tx_vttydev->is_break_on = 1;
-        if(tty_to_write != NULL) {
-            tty_insert_flip_char(tty_to_write->port, 0, TTY_BREAK);
-            tty_flip_buffer_push(tty_to_write->port);
-            brk_rx_vttydev->icount.brk++;
-        }
-    }
-    else {
-        brk_tx_vttydev->is_break_on = 0;
-    }
+		brk_tx_vttydev->is_break_on = 1;
+		if (tty_to_write != NULL) {
+			tty_insert_flip_char(tty_to_write->port, 0, TTY_BREAK);
+			tty_flip_buffer_push(tty_to_write->port);
+			brk_rx_vttydev->icount.brk++;
+		}
+	} else {
+		brk_tx_vttydev->is_break_on = 0;
+	}
 
-    mutex_unlock(&brk_tx_vttydev->lock);
-    return 0;
+	mutex_unlock(&brk_tx_vttydev->lock);
+	return 0;
 }
 
 /*
@@ -1504,19 +1502,18 @@ static int sp_break_ctl(struct tty_struct *tty, int break_state)
  */
 static void sp_hangup(struct tty_struct *tty)
 {
-    struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
+	struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
 
-    mutex_lock(&local_vttydev->lock);
+	mutex_lock(&local_vttydev->lock);
 
-    /* Drops reference to tty */
-    tty_port_hangup(tty->port);
+	/* Drops reference to tty */
+	tty_port_hangup(tty->port);
 
-    if (tty && C_HUPCL(tty))
-        sp_update_modem_lines(tty, 0, TIOCM_DTR | TIOCM_RTS);
+	if (tty && C_HUPCL(tty))
+		sp_update_modem_lines(tty, 0, TIOCM_DTR | TIOCM_RTS);
 
-    mutex_unlock(&local_vttydev->lock);
-
-    dev_dbg(tty->dev, "hanged up !\n");
+	mutex_unlock(&local_vttydev->lock);
+	dev_dbg(tty->dev, "hanged up !\n");
 }
 
 /*
@@ -1530,26 +1527,26 @@ static void sp_hangup(struct tty_struct *tty)
  */
 static int sp_get_icount(struct tty_struct *tty, struct serial_icounter_struct *icount)
 {
-    struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
-    struct async_icount cnow;
+	struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
+	struct async_icount cnow;
 
-    mutex_lock(&local_vttydev->lock);
-    cnow = local_vttydev->icount;
-    mutex_unlock(&local_vttydev->lock);
+	mutex_lock(&local_vttydev->lock);
+	cnow = local_vttydev->icount;
+	mutex_unlock(&local_vttydev->lock);
 
-    icount->cts = cnow.cts;
-    icount->dsr = cnow.dsr;
-    icount->rng = cnow.rng;
-    icount->dcd = cnow.dcd;
-    icount->tx = cnow.tx;
-    icount->rx = cnow.rx;
-    icount->frame = cnow.frame;
-    icount->parity = cnow.parity;
-    icount->overrun = cnow.overrun;
-    icount->brk = cnow.brk;
-    icount->buf_overrun = cnow.buf_overrun;
+	icount->cts = cnow.cts;
+	icount->dsr = cnow.dsr;
+	icount->rng = cnow.rng;
+	icount->dcd = cnow.dcd;
+	icount->tx = cnow.tx;
+	icount->rx = cnow.rx;
+	icount->frame = cnow.frame;
+	icount->parity = cnow.parity;
+	icount->overrun = cnow.overrun;
+	icount->brk = cnow.brk;
+	icount->buf_overrun = cnow.buf_overrun;
 
-    return 0;
+	return 0;
 }
 
 /*
@@ -1583,16 +1580,16 @@ static void sp_flush_buffer(struct tty_struct *tty)
  */
 static void sp_send_xchar(struct tty_struct *tty, char ch)
 {
-    int was_paused = 0;
-    struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
+	int was_paused = 0;
+	struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
 
-    was_paused = local_vttydev->tx_paused;
-    if(was_paused)
-        local_vttydev->tx_paused = 0;
+	was_paused = local_vttydev->tx_paused;
+	if(was_paused)
+		local_vttydev->tx_paused = 0;
 
-    sp_put_char(tty, ch);
-    if(was_paused)
-        local_vttydev->tx_paused = 1;
+	sp_put_char(tty, ch);
+	if(was_paused)
+		local_vttydev->tx_paused = 1;
 }
 
 /*
@@ -1630,8 +1627,8 @@ static void sp_port_dtr_rts(struct tty_port *port, int raise)
  */
 static int sp_port_carrier_raised(struct tty_port *port)
 {
-    struct vtty_dev *local_vttydev = index_manager[port->tty->index].vttydev;
-    return (local_vttydev->msr_reg & SP_MSR_DCD) ? 1 : 0;
+	struct vtty_dev *local_vttydev = index_manager[port->tty->index].vttydev;
+	return (local_vttydev->msr_reg & SP_MSR_DCD) ? 1 : 0;
 }
 
 /*
@@ -1652,7 +1649,7 @@ static void sp_port_shutdown(struct tty_port *port)
  */
 static int sp_port_activate(struct tty_port *port, struct tty_struct *tty)
 {
-    return 0;
+	return 0;
 }
 
 /*
@@ -1690,49 +1687,49 @@ static ssize_t sp_vcard_proc_read(struct file *file, char __user *buf, size_t si
 
     memset(data, '\0', 64);
 
-    if(size != 52)
+    if (size != 52)
         return -EINVAL;
 
     mutex_lock(&adaptlock);
 
     /* Find next available free index */
-    for(x = 0; x < max_num_vtty_dev; x++) {
-        if(index_manager[x].index == -1) {
-            if(first_avail_idx == -1) {
+    for (x = 0; x < max_num_vtty_dev; x++) {
+        if (index_manager[x].index == -1) {
+            if (first_avail_idx == -1) {
                 first_avail_idx = x;
-            }else {
+            } else {
                 second_avail_idx = x;
                 break;
             }
         }
     }
 
-    if((first_avail_idx != -1) && (second_avail_idx != -1)) {
+    if ((first_avail_idx != -1) && (second_avail_idx != -1)) {
         val = 2;
-    }else if((first_avail_idx != -1) && (second_avail_idx == -1)) {
+    } else if ((first_avail_idx != -1) && (second_avail_idx == -1)) {
         val = 1;
-    }else if((first_avail_idx == -1) && (second_avail_idx == -1)) {
+    } else if ((first_avail_idx == -1) && (second_avail_idx == -1)) {
         val = 0;
-    }else {
+    } else {
         /* will not happen */
     }
 
-    if(last_lbdev_idx == -1) {
-        if(last_nmdev1_idx == -1) {
+    if (last_lbdev_idx == -1) {
+        if (last_nmdev1_idx == -1) {
             snprintf(data, 64, "xxxxx#xxxxx-xxxxx#%05d-%05d#%d#x-x#x-x#x-x#x#x#x\r\n", first_avail_idx, second_avail_idx, val);
-        }else {
+        } else {
             nm1vttydev = index_manager[last_nmdev1_idx].vttydev;
             nm2vttydev = index_manager[last_nmdev2_idx].vttydev;
             snprintf(data, 64, "xxxxx#%05d-%05d#%05d-%05d#%d#x-x#%d-%d#%d-%d#x#%d#%d\r\n", last_nmdev1_idx, last_nmdev2_idx,
                     first_avail_idx, second_avail_idx, val, nm1vttydev->rts_mappings, nm1vttydev->dtr_mappings,
                     nm2vttydev->rts_mappings, nm2vttydev->dtr_mappings, nm1vttydev->set_odtr_at_open, nm2vttydev->set_odtr_at_open);
         }
-    }else {
-        if(last_nmdev1_idx == -1) {
+    } else {
+        if (last_nmdev1_idx == -1) {
             lbvttydev = index_manager[last_lbdev_idx].vttydev;
             snprintf(data, 64, "%05d#xxxxx-xxxxx#%05d-%05d#%d#%d-%d#x-x#x-x#%d#x#x\r\n", last_lbdev_idx, first_avail_idx,
                     second_avail_idx, val, lbvttydev->rts_mappings, lbvttydev->dtr_mappings, lbvttydev->set_odtr_at_open);
-        }else {
+        } else {
             lbvttydev = index_manager[last_lbdev_idx].vttydev;
             nm1vttydev = index_manager[last_nmdev1_idx].vttydev;
             nm2vttydev = index_manager[last_nmdev2_idx].vttydev;
@@ -1746,7 +1743,7 @@ static ssize_t sp_vcard_proc_read(struct file *file, char __user *buf, size_t si
     mutex_unlock(&adaptlock);
 
     ret = copy_to_user(buf, &data, 52);
-    if(ret)
+    if (ret)
         return -EFAULT;
 
     return 52;
@@ -1766,18 +1763,18 @@ static int sp_extract_pin_mapping(char data[], int x)
 	int mapping = 0;
 
 	for (i = 0; i < 8; i++) {
-		if(data[x] == '8') {
+		if (data[x] == '8') {
 			mapping |= SP_CON_CTS;
-		}else if(data[x] == '1') {
+		} else if (data[x] == '1') {
 			mapping |= SP_CON_DCD;
-		}else if(data[x] == '6') {
+		} else if (data[x] == '6') {
 			mapping |= SP_CON_DSR;
-		}else if(data[x] == '9') {
+		} else if (data[x] == '9') {
 			mapping |= SP_CON_RI;
-		}else if(data[x] == '#') {
+		} else if (data[x] == '#') {
 			break;
-		}else if((data[x] == 'x') || (data[x] == ',')) {
-		}else {
+		} else if ((data[x] == 'x') || (data[x] == ',')) {
+		} else {
 			return -EINVAL;
 		}
 		x++;
