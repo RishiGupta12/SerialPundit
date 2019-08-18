@@ -2337,11 +2337,11 @@ static const struct tty_operations sp_serial_ops = {
  * 1. null modem pair : /dev/tty2com0 <---> /dev/tty2com1
  * 2. loop back       : /dev/tty2com2
  *
- * Further if the minor number used by this driver conflicts with an existing other driver, specifying 
- * a different minor number can be done as shown below :
+ * Further if the minor number used by this driver conflicts with an existing other driver, specifying
+ * a different minor number can be done as shown below:
  *
  * $ insmod ./tty2com.ko max_num_vtty_dev=5000 init_num_nm_pair=1 init_num_lb_dev=1 minor_begin=20
- * 
+ *
  * This driver does not set CLOCAL by default. This means that the open() system call will block
  * until it find its carrier detect line raised. Application should use O_NONBLOCK/O_NDELAY flag
  * if it does not want to wait for DCD line change.
@@ -2350,79 +2350,78 @@ static const struct tty_operations sp_serial_ops = {
  */
 static int __init sp_tty2com_init(void)
 {
-    int x = 0;
-    int ret = 0;
-    struct proc_dir_entry *pde = NULL;
+	int x = 0;
+	int ret = 0;
+	struct proc_dir_entry *pde = NULL;
 
-    /* Causes allocation of memory for 'struct tty_port' and 'struct cdev' for all tty devices this
-     * driver can handle. */
-    spvtty_driver = tty_alloc_driver(max_num_vtty_dev, 0);
-    if (!spvtty_driver)
-        return -ENOMEM;
+	/* Causes allocation of memory for 'struct tty_port' and 'struct cdev' for all tty devices this
+	 * driver can handle. */
+	spvtty_driver = tty_alloc_driver(max_num_vtty_dev, 0);
+	if (!spvtty_driver)
+		return -ENOMEM;
 
-    spvtty_driver->owner = THIS_MODULE;
-    spvtty_driver->driver_name = "tty2com";
-    spvtty_driver->name = "tty2com";
-    spvtty_driver->major = 0;
-    spvtty_driver->minor_start = minor_begin;
-    spvtty_driver->type = TTY_DRIVER_TYPE_SERIAL;
-    spvtty_driver->subtype = SERIAL_TYPE_NORMAL;
-    spvtty_driver->flags = TTY_DRIVER_REAL_RAW | TTY_DRIVER_RESET_TERMIOS | TTY_DRIVER_DYNAMIC_DEV;
-    spvtty_driver->init_termios = tty_std_termios;
-    spvtty_driver->init_termios.c_cflag = B9600 | CS8 | CREAD | HUPCL;
-    spvtty_driver->init_termios.c_ispeed = spvtty_driver->init_termios.c_ospeed = 9600;
+	spvtty_driver->owner = THIS_MODULE;
+	spvtty_driver->driver_name = "tty2com";
+	spvtty_driver->name = "tty2com";
+	spvtty_driver->major = 0;
+	spvtty_driver->minor_start = minor_begin;
+	spvtty_driver->type = TTY_DRIVER_TYPE_SERIAL;
+	spvtty_driver->subtype = SERIAL_TYPE_NORMAL;
+	spvtty_driver->flags = TTY_DRIVER_REAL_RAW | TTY_DRIVER_RESET_TERMIOS | TTY_DRIVER_DYNAMIC_DEV;
+	spvtty_driver->init_termios = tty_std_termios;
+	spvtty_driver->init_termios.c_cflag = B9600 | CS8 | CREAD | HUPCL;
+	spvtty_driver->init_termios.c_ispeed = spvtty_driver->init_termios.c_ospeed = 9600;
 
-    tty_set_operations(spvtty_driver, &sp_serial_ops);
+	tty_set_operations(spvtty_driver, &sp_serial_ops);
 
-    ret = tty_register_driver(spvtty_driver);
-    if (ret)
-        goto failed_register;
+	ret = tty_register_driver(spvtty_driver);
+	if (ret)
+		goto failed_register;
 
-    index_manager = (struct vtty_info *) kcalloc(max_num_vtty_dev, sizeof(struct vtty_info), GFP_KERNEL);
-    if(index_manager == NULL) {
-        ret = -ENOMEM;
-        goto failed_alloc;
-    }
+	index_manager = kcalloc(max_num_vtty_dev, sizeof(struct vtty_info), GFP_KERNEL);
+	if (index_manager == NULL) {
+		ret = -ENOMEM;
+		goto failed_alloc;
+	}
 
-    /* A value of -1 at particular 'X' (index_manager[X].index) means that tty2comportX is available for use */
-    for(x=0; x < max_num_vtty_dev;  x++) {
-        index_manager[x].index = -1;
-    }
+	/* A value of -1 at particular 'X' (index_manager[X].index) means that tty2comportX is available for use */
+	for (x = 0; x < max_num_vtty_dev;  x++)
+		index_manager[x].index = -1;
 
-    /* Application should read/write to this file to create/destroy tty device and query informations associated
-     * with them */
-    pde = proc_create("sp_vmpscrdk", (S_IRUGO | S_IWUGO), NULL, &sp_vcard_proc_fops);
-    if(pde == NULL) {
-        ret = -ENOMEM;
-        goto failed_proc;
-    }
+	/* Application should read/write to this file to create/destroy tty device and query informations associated
+	 * with them */
+	pde = proc_create("sp_vmpscrdk", 0666, NULL, &sp_vcard_proc_fops);
+	if (pde == NULL) {
+		ret = -ENOMEM;
+		goto failed_proc;
+	}
 
-    /* If module was supplied parameters, create null-modem and loopback virtual tty devices */
-    if (((2 * init_num_nm_pair) + init_num_lb_dev) <= max_num_vtty_dev) {
-        for(x=0; x < init_num_nm_pair; x++) {
-            ret = sp_vcard_proc_write(NULL, NULL, 2, NULL);
-            if(ret < 0)
-                pr_warning("Can't create null modem pair at index %d,  error code: %d\n", x, ret);
-        }
-        for(x=0; x < init_num_lb_dev; x++) {
-            ret = sp_vcard_proc_write(NULL, NULL, 3, NULL);
-            if(ret < 0)
-                pr_warning("Can't create loop back device at index %d, error code: %d\n", x, ret);
-        }
-    }else {
-        pr_warning("Not creating specified devices due to invalid total !\n");
-    }
+	/* If module was supplied parameters, create null-modem and loopback virtual tty devices */
+	if (((2 * init_num_nm_pair) + init_num_lb_dev) <= max_num_vtty_dev) {
+		for (x = 0; x < init_num_nm_pair; x++) {
+			ret = sp_vcard_proc_write(NULL, NULL, 2, NULL);
+			if (ret < 0)
+				pr_err("Can't create null modem pair at index %d,  error code: %d\n", x, ret);
+		}
+		for (x = 0; x < init_num_lb_dev; x++) {
+			ret = sp_vcard_proc_write(NULL, NULL, 3, NULL);
+			if (ret < 0)
+				pr_err("Can't create loop back device at index %d, error code: %d\n", x, ret);
+		}
+	} else {
+		pr_err("Specified devices not created. Invalid total.\n");
+	}
 
-    pr_info("%s%s\n", DRIVER_DESC, DRIVER_VERSION);
-    return 0;
+	pr_info("%s%s\n", DRIVER_DESC, DRIVER_VERSION);
+	return 0;
 
-    failed_proc:
-    kfree(index_manager);
-    failed_alloc:
-    tty_unregister_driver(spvtty_driver);
-    failed_register:
-    put_tty_driver(spvtty_driver);
-    return ret;
+failed_proc:
+	kfree(index_manager);
+failed_alloc:
+	tty_unregister_driver(spvtty_driver);
+failed_register:
+	put_tty_driver(spvtty_driver);
+	return ret;
 }
 
 /*
