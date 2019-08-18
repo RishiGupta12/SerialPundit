@@ -41,11 +41,6 @@
 #include <linux/proc_fs.h>
 #include <linux/device.h>
 
-/* Module information */
-#define DRIVER_VERSION "v1.0"
-#define DRIVER_AUTHOR "Rishi Gupta"
-#define DRIVER_DESC "Serial port null modem emulation driver "
-
 /* 
  * Default number of virtual tty ports this driver is going to support. TTY devices are created 
  * on demand. Users can override this value at module load time for example to support 5000 tty 
@@ -1201,7 +1196,7 @@ static void sp_set_termios(struct tty_struct *tty, struct ktermios *old_termios)
 }
 
 /*
- * Return the number of bytes of data in the device private output queue to be sent out. Invoked 
+ * Return the number of bytes of data in the device private output queue to be sent out. Invoked
  * when ioctl command TIOCOUTQ is executed or by tty layer as and when required (tty_wait_until_sent()).
  *
  * @tty: tty device enquired.
@@ -1235,9 +1230,9 @@ static int sp_check_msr_delta(struct tty_struct *tty, struct vtty_dev *local_vtt
 	now = local_vttydev->icount;
 	mutex_unlock(&local_vttydev->lock);
 	delta = ((mask & TIOCM_RNG && prev->rng != now.rng) ||
-			( mask & TIOCM_DSR && prev->dsr != now.dsr) ||
-			( mask & TIOCM_CAR && prev->dcd != now.dcd) ||
-			( mask & TIOCM_CTS && prev->cts != now.cts));
+			 (mask & TIOCM_DSR && prev->dsr != now.dsr) ||
+			 (mask & TIOCM_CAR && prev->dcd != now.dcd) ||
+			 (mask & TIOCM_CTS && prev->cts != now.cts));
 
 	*prev = now;
 	return delta;
@@ -1299,8 +1294,8 @@ static int sp_ioctl(struct tty_struct *tty, unsigned int cmd, unsigned long arg)
 
 /*
  * Invoked when tty layer's input buffers are about to get full.
- * 
- * When using RTS/CTS flow control, when RTS line is de-asserted, interrupt will be generated 
+ *
+ * When using RTS/CTS flow control, when RTS line is de-asserted, interrupt will be generated
  * in hardware. The interrupt handler will raise a flag to indicate transmission should be stopped. 
  * This is achieved in this driver through tx_paused variable.
  *
@@ -1346,7 +1341,7 @@ static void sp_unthrottle(struct tty_struct *tty)
 
 		if (remote_vttydev->own_tty && remote_vttydev->own_tty->port)
 			tty_port_tty_wakeup(remote_vttydev->own_tty->port);
-	} else if((tty->termios.c_iflag & IXON) || (tty->termios.c_iflag & IXOFF)) {
+	} else if ((tty->termios.c_iflag & IXON) || (tty->termios.c_iflag & IXOFF)) {
 		/* software flow control */
 		sp_put_char(tty, START_CHAR(tty));
 	} else {
@@ -1411,13 +1406,13 @@ static int sp_tiocmget(struct tty_struct *tty)
 	msr_reg = local_vttydev->msr_reg;
 	mutex_unlock(&local_vttydev->lock);
 
-	status= ((mcr_reg & SP_MCR_DTR)  ? TIOCM_DTR  : 0) |
-			((mcr_reg & SP_MCR_RTS)  ? TIOCM_RTS  : 0) |
-			((mcr_reg & SP_MCR_LOOP) ? TIOCM_LOOP : 0) |
-			((msr_reg & SP_MSR_DCD)  ? TIOCM_CAR  : 0) |
-			((msr_reg & SP_MSR_RI)   ? TIOCM_RI   : 0) |
-			((msr_reg & SP_MSR_CTS)  ? TIOCM_CTS  : 0) |
-			((msr_reg & SP_MSR_DSR)  ? TIOCM_DSR  : 0);
+	status = ((mcr_reg & SP_MCR_DTR)  ? TIOCM_DTR  : 0) |
+			 ((mcr_reg & SP_MCR_RTS)  ? TIOCM_RTS  : 0) |
+			 ((mcr_reg & SP_MCR_LOOP) ? TIOCM_LOOP : 0) |
+			 ((msr_reg & SP_MSR_DCD)  ? TIOCM_CAR  : 0) |
+			 ((msr_reg & SP_MSR_RI)   ? TIOCM_RI   : 0) |
+			 ((msr_reg & SP_MSR_CTS)  ? TIOCM_CTS  : 0) |
+			 ((msr_reg & SP_MSR_DSR)  ? TIOCM_DSR  : 0);
 	return status;
 }
 
@@ -1578,11 +1573,11 @@ static void sp_send_xchar(struct tty_struct *tty, char ch)
 	struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
 
 	was_paused = local_vttydev->tx_paused;
-	if(was_paused)
+	if (was_paused)
 		local_vttydev->tx_paused = 0;
 
 	sp_put_char(tty, ch);
-	if(was_paused)
+	if (was_paused)
 		local_vttydev->tx_paused = 1;
 }
 
@@ -1597,18 +1592,18 @@ static void sp_wait_until_sent(struct tty_struct *tty, int timeout)
 }
 
 /*
- * Asserts or de-asserts serial lines as specified by raise argument. It is handled by 
- * this driver exlicitly as of now because this will eventually become entirely internal 
+ * Asserts or de-asserts serial lines as specified by raise argument. It is handled by
+ * this driver exlicitly as of now because this will eventually become entirely internal
  * to the tty port as per linux kernel development plan.
  *
  * @port serial port whose lines is to be updated
  * @raise 1 if line should be asserted, 0 if line should be de-asserted
-static void sp_port_dtr_rts(struct tty_port *port, int raise) 
+static void sp_port_dtr_rts(struct tty_port *port, int raise)
 {
-    if(raise == 1)
-        sp_update_modem_lines(port->tty, TIOCM_DTR | TIOCM_RTS, 0);
-    else
-        sp_update_modem_lines(port->tty, 0, TIOCM_DTR | TIOCM_RTS);
+	if(raise == 1)
+		sp_update_modem_lines(port->tty, TIOCM_DTR | TIOCM_RTS, 0);
+	else
+		sp_update_modem_lines(port->tty, 0, TIOCM_DTR | TIOCM_RTS);
 }
  */
 
@@ -1622,6 +1617,7 @@ static void sp_port_dtr_rts(struct tty_port *port, int raise)
 static int sp_port_carrier_raised(struct tty_port *port)
 {
 	struct vtty_dev *local_vttydev = index_manager[port->tty->index].vttydev;
+
 	return (local_vttydev->msr_reg & SP_MSR_DCD) ? 1 : 0;
 }
 
@@ -1659,7 +1655,7 @@ static void sp_port_destruct(struct tty_port *port)
 /*
  * Gives next available index and last used index for virtual tty devices created. Invoke as shown below:
  * $ head -c 52 /proc/sp_vmpscrdk
- * 
+ *
  * @file: file for proc file.
  * @buf: user space buffer that will contain data when this function returns.
  * @size: number of character returned in buf.
@@ -1669,78 +1665,78 @@ static void sp_port_destruct(struct tty_port *port)
  */
 static ssize_t sp_vcard_proc_read(struct file *file, char __user *buf, size_t size, loff_t *ppos)
 {
-    int x = 0;
-    int ret = 0;
-    int val = 0;
-    char data[64];
-    int first_avail_idx = -1;
-    int second_avail_idx = -1;
-    struct vtty_dev *lbvttydev = NULL;
-    struct vtty_dev *nm1vttydev = NULL;
-    struct vtty_dev *nm2vttydev = NULL;
+	int x = 0;
+	int ret = 0;
+	int val = 0;
+	char data[64];
+	int first_avail_idx = -1;
+	int second_avail_idx = -1;
+	struct vtty_dev *lbvttydev = NULL;
+	struct vtty_dev *nm1vttydev = NULL;
+	struct vtty_dev *nm2vttydev = NULL;
 
-    memset(data, '\0', 64);
+	memset(data, '\0', 64);
 
-    if (size != 52)
-        return -EINVAL;
+	if (size != 52)
+		return -EINVAL;
 
-    mutex_lock(&adaptlock);
+	mutex_lock(&adaptlock);
 
-    /* Find next available free index */
-    for (x = 0; x < max_num_vtty_dev; x++) {
-        if (index_manager[x].index == -1) {
-            if (first_avail_idx == -1) {
-                first_avail_idx = x;
-            } else {
-                second_avail_idx = x;
-                break;
-            }
-        }
-    }
+	/* Find next available free index */
+	for (x = 0; x < max_num_vtty_dev; x++) {
+		if (index_manager[x].index == -1) {
+			if (first_avail_idx == -1) {
+				first_avail_idx = x;
+			} else {
+				second_avail_idx = x;
+				break;
+			}
+		}
+	}
 
-    if ((first_avail_idx != -1) && (second_avail_idx != -1)) {
-        val = 2;
-    } else if ((first_avail_idx != -1) && (second_avail_idx == -1)) {
-        val = 1;
-    } else if ((first_avail_idx == -1) && (second_avail_idx == -1)) {
-        val = 0;
-    } else {
-        /* will not happen */
-    }
+	if ((first_avail_idx != -1) && (second_avail_idx != -1)) {
+		val = 2;
+	} else if ((first_avail_idx != -1) && (second_avail_idx == -1)) {
+		val = 1;
+	} else if ((first_avail_idx == -1) && (second_avail_idx == -1)) {
+		val = 0;
+	} else {
+		/* will not happen */
+	}
 
-    if (last_lbdev_idx == -1) {
-        if (last_nmdev1_idx == -1) {
-            snprintf(data, 64, "xxxxx#xxxxx-xxxxx#%05d-%05d#%d#x-x#x-x#x-x#x#x#x\r\n", first_avail_idx, second_avail_idx, val);
-        } else {
-            nm1vttydev = index_manager[last_nmdev1_idx].vttydev;
-            nm2vttydev = index_manager[last_nmdev2_idx].vttydev;
-            snprintf(data, 64, "xxxxx#%05d-%05d#%05d-%05d#%d#x-x#%d-%d#%d-%d#x#%d#%d\r\n", last_nmdev1_idx, last_nmdev2_idx,
-                    first_avail_idx, second_avail_idx, val, nm1vttydev->rts_mappings, nm1vttydev->dtr_mappings,
-                    nm2vttydev->rts_mappings, nm2vttydev->dtr_mappings, nm1vttydev->set_odtr_at_open, nm2vttydev->set_odtr_at_open);
-        }
-    } else {
-        if (last_nmdev1_idx == -1) {
-            lbvttydev = index_manager[last_lbdev_idx].vttydev;
-            snprintf(data, 64, "%05d#xxxxx-xxxxx#%05d-%05d#%d#%d-%d#x-x#x-x#%d#x#x\r\n", last_lbdev_idx, first_avail_idx,
-                    second_avail_idx, val, lbvttydev->rts_mappings, lbvttydev->dtr_mappings, lbvttydev->set_odtr_at_open);
-        } else {
-            lbvttydev = index_manager[last_lbdev_idx].vttydev;
-            nm1vttydev = index_manager[last_nmdev1_idx].vttydev;
-            nm2vttydev = index_manager[last_nmdev2_idx].vttydev;
-            snprintf(data, 64, "%05d#%05d-%05d#%05d-%05d#%d#%d-%d#%d-%d#%d-%d#%d#%d#%d\r\n", last_lbdev_idx, last_nmdev1_idx,
-                    last_nmdev2_idx, first_avail_idx, second_avail_idx, val, lbvttydev->rts_mappings, lbvttydev->dtr_mappings,
-                    nm1vttydev->rts_mappings, nm1vttydev->dtr_mappings, nm2vttydev->rts_mappings, nm2vttydev->dtr_mappings, 
-                    lbvttydev->set_odtr_at_open, nm1vttydev->set_odtr_at_open, nm2vttydev->set_odtr_at_open);
-        }
-    }
+	if (last_lbdev_idx == -1) {
+		if (last_nmdev1_idx == -1) {
+			snprintf(data, 64, "xxxxx#xxxxx-xxxxx#%05d-%05d#%d#x-x#x-x#x-x#x#x#x\r\n", first_avail_idx, second_avail_idx, val);
+		} else {
+			nm1vttydev = index_manager[last_nmdev1_idx].vttydev;
+			nm2vttydev = index_manager[last_nmdev2_idx].vttydev;
+			snprintf(data, 64, "xxxxx#%05d-%05d#%05d-%05d#%d#x-x#%d-%d#%d-%d#x#%d#%d\r\n", last_nmdev1_idx, last_nmdev2_idx,
+					first_avail_idx, second_avail_idx, val, nm1vttydev->rts_mappings, nm1vttydev->dtr_mappings,
+					nm2vttydev->rts_mappings, nm2vttydev->dtr_mappings, nm1vttydev->set_odtr_at_open, nm2vttydev->set_odtr_at_open);
+		}
+	} else {
+		if (last_nmdev1_idx == -1) {
+			lbvttydev = index_manager[last_lbdev_idx].vttydev;
+			snprintf(data, 64, "%05d#xxxxx-xxxxx#%05d-%05d#%d#%d-%d#x-x#x-x#%d#x#x\r\n", last_lbdev_idx, first_avail_idx,
+					second_avail_idx, val, lbvttydev->rts_mappings, lbvttydev->dtr_mappings, lbvttydev->set_odtr_at_open);
+		} else {
+			lbvttydev = index_manager[last_lbdev_idx].vttydev;
+			nm1vttydev = index_manager[last_nmdev1_idx].vttydev;
+			nm2vttydev = index_manager[last_nmdev2_idx].vttydev;
+			snprintf(data, 64, "%05d#%05d-%05d#%05d-%05d#%d#%d-%d#%d-%d#%d-%d#%d#%d#%d\r\n", last_lbdev_idx, last_nmdev1_idx,
+					last_nmdev2_idx, first_avail_idx, second_avail_idx, val, lbvttydev->rts_mappings, lbvttydev->dtr_mappings,
+					nm1vttydev->rts_mappings, nm1vttydev->dtr_mappings, nm2vttydev->rts_mappings, nm2vttydev->dtr_mappings,
+					lbvttydev->set_odtr_at_open, nm1vttydev->set_odtr_at_open, nm2vttydev->set_odtr_at_open);
+		}
+	}
 
-    mutex_unlock(&adaptlock);
+	mutex_unlock(&adaptlock);
 
-    ret = copy_to_user(buf, &data, 52);
-    if (ret)
-        return -EFAULT;
+	ret = copy_to_user(buf, &data, 52);
+	if (ret)
+		return -EFAULT;
 
-    return 52;
+	return 52;
 }
 
 /*
@@ -1748,10 +1744,10 @@ static ssize_t sp_vcard_proc_read(struct file *file, char __user *buf, size_t si
  *
  * @data: dat to be parsed.
  * @x: starting index in array for parsing.
- * 
+ *
  * @return 0 on success or negative error code on failure.
  */
-static int sp_extract_pin_mapping(char data[], int x) 
+static int sp_extract_pin_mapping(char data[], int x)
 {
 	int i = 0;
 	int mapping = 0;
@@ -2397,7 +2393,7 @@ static int __init sp_tty2com_init(void)
 		pr_err("Specified devices not created. Invalid total.\n");
 	}
 
-	pr_info("%s%s\n", DRIVER_DESC, DRIVER_VERSION);
+	pr_info("Serial port null modem emulation driver v1.0\n");
 	return 0;
 
 failed_proc:
@@ -2443,7 +2439,7 @@ static void __exit sp_tty2com_exit(void)
 
 	tty_unregister_driver(spvtty_driver);
 	put_tty_driver(spvtty_driver);
-	pr_info("Good bye !\n");
+	pr_info("Good bye!\n");
 }
 
 module_init(sp_tty2com_init);
@@ -2461,7 +2457,7 @@ MODULE_PARM_DESC(init_num_lb_dev, "Number of standard loopback tty devices to be
 module_param(minor_begin, int, 0);
 MODULE_PARM_DESC(minor_begin, "Minor number of device nodes i.e. starting index of device nodes.");
 
-MODULE_AUTHOR(DRIVER_AUTHOR);
-MODULE_DESCRIPTION(DRIVER_DESC);
+MODULE_AUTHOR("Rishi Gupta <gupt21@gmail.com>");
+MODULE_DESCRIPTION("Serial port null modem emulation driver ");
 MODULE_LICENSE("GPL v2");
-MODULE_VERSION(DRIVER_VERSION);
+MODULE_VERSION("v1.0");
