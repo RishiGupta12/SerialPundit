@@ -17,6 +17,12 @@ set -e
 
 # checkpatch.pl from branch v5.3-rc3
 # run as: ./static-analysis-checkpatch.sh ~/linux5.0/linux/scripts/checkpatch.pl
-$1 -f --no-tree ./tty2com.c
+
+if [ -z "$1" ]; then
+	echo "checkpatch.pl path not passed"
+	exit 1
+else
+	$1 -f --no-tree ./tty2com.c
+fi
 
 echo "Checkpatch checking done."

@@ -2433,36 +2433,33 @@ static int __init sp_tty2com_init(void)
  */
 static void __exit sp_tty2com_exit(void)
 {
-    int x = 0;
-    struct vtty_dev *vttydev = NULL;
-    struct tty_struct *tty;
+	int x = 0;
+	struct vtty_dev *vttydev = NULL;
+	struct tty_struct *tty;
 
-    remove_proc_entry("sp_vmpscrdk", NULL);
+	remove_proc_entry("sp_vmpscrdk", NULL);
 
-    for(x=0; x < max_num_vtty_dev; x++) {
-        if (index_manager[x].index != -1) {
+	for (x = 0; x < max_num_vtty_dev; x++) {
+		if (index_manager[x].index != -1) {
+			vttydev = index_manager[x].vttydev;
+			sysfs_remove_group(&vttydev->device->kobj, &sp_info_attr_group);
+			tty_unregister_device(spvtty_driver, index_manager[x].index);
+			if (vttydev && vttydev->own_tty && vttydev->own_tty->port) {
+				tty = tty_port_tty_get(vttydev->own_tty->port);
+				if (tty) {
+					tty_vhangup(tty);
+					tty_kref_put(tty);
+				}
+				kfree(index_manager[x].vttydev);
+			}
+		}
+	}
 
-            vttydev = index_manager[x].vttydev;
-            sysfs_remove_group(&vttydev->device->kobj, &sp_info_attr_group);
-            tty_unregister_device(spvtty_driver, index_manager[x].index);
+	kfree(index_manager);
 
-            if (vttydev && vttydev->own_tty && vttydev->own_tty->port) {
-                tty = tty_port_tty_get(vttydev->own_tty->port);
-                if (tty) {
-                    tty_vhangup(tty);
-                    tty_kref_put(tty);
-                }
-                kfree(index_manager[x].vttydev);
-            }
-        }
-    }
-
-    kfree(index_manager);
-
-    tty_unregister_driver(spvtty_driver);
-    put_tty_driver(spvtty_driver);
-
-    pr_info("Good bye !\n");
+	tty_unregister_driver(spvtty_driver);
+	put_tty_driver(spvtty_driver);
+	pr_info("Good bye !\n");
 }
 
 module_init(sp_tty2com_init);
