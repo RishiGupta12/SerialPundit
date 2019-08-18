@@ -2272,7 +2272,7 @@ static ssize_t sp_vcard_proc_write(struct file *file, const char __user *buf, si
  */
 static int sp_vcard_proc_open(struct inode *inode, struct  file *file)
 {
-    return 0;
+	return 0;
 }
 
 /*
@@ -2285,41 +2285,41 @@ static int sp_vcard_proc_open(struct inode *inode, struct  file *file)
  */
 static int sp_vcard_proc_close(struct inode *inode, struct file *file)
 {
-    return 0;
+	return 0;
 }
 
 static const struct file_operations sp_vcard_proc_fops = {
-        .owner   = THIS_MODULE,
-        .open    = sp_vcard_proc_open,
-        .read    = sp_vcard_proc_read,
-        .write   = sp_vcard_proc_write,
-        .release = sp_vcard_proc_close,
+	.owner   = THIS_MODULE,
+	.open    = sp_vcard_proc_open,
+	.read    = sp_vcard_proc_read,
+	.write   = sp_vcard_proc_write,
+	.release = sp_vcard_proc_close,
 };
 
 static const struct tty_operations sp_serial_ops = {
-        .install         = sp_install,
-        .cleanup         = sp_cleanup,
-        .open            = sp_open,
-        .close           = sp_close,
-        .write           = sp_write,
-        .put_char        = sp_put_char,
-        .flush_chars     = sp_flush_chars,
-        .write_room      = sp_write_room,
-        .chars_in_buffer = sp_chars_in_buffer,
-        .ioctl           = sp_ioctl,
-        .set_termios     = sp_set_termios,
-        .throttle        = sp_throttle,
-        .unthrottle      = sp_unthrottle,
-        .stop            = sp_stop,
-        .start           = sp_start,
-        .hangup          = sp_hangup,
-        .break_ctl       = sp_break_ctl,
-        .flush_buffer    = sp_flush_buffer,
-        .wait_until_sent = sp_wait_until_sent,
-        .send_xchar      = sp_send_xchar,
-        .tiocmget        = sp_tiocmget,
-        .tiocmset        = sp_tiocmset,
-        .get_icount      = sp_get_icount,
+	.install	     = sp_install,
+	.cleanup	     = sp_cleanup,
+	.open	         = sp_open,
+	.close	         = sp_close,
+	.write	         = sp_write,
+	.put_char	     = sp_put_char,
+	.flush_chars     = sp_flush_chars,
+	.write_room      = sp_write_room,
+	.chars_in_buffer = sp_chars_in_buffer,
+	.ioctl	         = sp_ioctl,
+	.set_termios     = sp_set_termios,
+	.throttle	     = sp_throttle,
+	.unthrottle      = sp_unthrottle,
+	.stop	         = sp_stop,
+	.start	         = sp_start,
+	.hangup	         = sp_hangup,
+	.break_ctl       = sp_break_ctl,
+	.flush_buffer    = sp_flush_buffer,
+	.wait_until_sent = sp_wait_until_sent,
+	.send_xchar      = sp_send_xchar,
+	.tiocmget	     = sp_tiocmget,
+	.tiocmset	     = sp_tiocmset,
+	.get_icount      = sp_get_icount,
 };
 
 /*
