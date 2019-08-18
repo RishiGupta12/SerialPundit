@@ -2480,7 +2480,7 @@ MODULE_PARM_DESC(init_num_lb_dev, "Number of standard loopback tty devices to be
 module_param(minor_begin, int, 0);
 MODULE_PARM_DESC(minor_begin, "Minor number of device nodes i.e. starting index of device nodes.");
 
-MODULE_AUTHOR( DRIVER_AUTHOR );
-MODULE_DESCRIPTION( DRIVER_DESC );
+MODULE_AUTHOR(DRIVER_AUTHOR);
+MODULE_DESCRIPTION(DRIVER_DESC);
 MODULE_LICENSE("GPL v2");
-MODULE_VERSION( DRIVER_VERSION );
+MODULE_VERSION(DRIVER_VERSION);
