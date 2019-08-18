@@ -784,7 +784,7 @@ static int sp_install(struct tty_driver *driver, struct tty_struct *tty)
     int ret = 0;
     struct tty_port *port = NULL;
 
-    port = (struct tty_port *) kcalloc(1, sizeof(struct tty_port), GFP_KERNEL);
+    port = kcalloc(1, sizeof(struct tty_port), GFP_KERNEL);
     if(port == NULL)
         return -ENOMEM;
 
@@ -940,7 +940,7 @@ static int sp_write(struct tty_struct *tty, const unsigned char *buf, int count)
             data = (unsigned char *)buf;
         }
         else {
-            data = (unsigned char *) kcalloc(count, sizeof(unsigned char), GFP_KERNEL);
+            data = kcalloc(count, sizeof(unsigned char), GFP_KERNEL);
             if(data == NULL)
                 return -ENOMEM;
 
@@ -1889,7 +1889,7 @@ static ssize_t sp_vcard_proc_write(struct file *file, const char __user *buf, si
 				return -EINVAL;
 		}
 
-		vttydev1 = (struct vtty_dev *) kcalloc(1, sizeof(struct vtty_dev), GFP_KERNEL);
+		vttydev1 = kcalloc(1, sizeof(struct vtty_dev), GFP_KERNEL);
 		if (vttydev1 == NULL)
 			return -ENOMEM;
 
@@ -1913,7 +1913,7 @@ static ssize_t sp_vcard_proc_write(struct file *file, const char __user *buf, si
 
 			}
 
-			vttydev2 = (struct vtty_dev *) kcalloc(1, sizeof(struct vtty_dev), GFP_KERNEL);
+			vttydev2 = kcalloc(1, sizeof(struct vtty_dev), GFP_KERNEL);
 			if (vttydev2 == NULL) {
 				ret = -ENOMEM;
 				goto fail_arg;
