@@ -98,27 +98,27 @@
 /* Represent a virtual tty device in this virtual card. The peer_index will contain own 
  * index if this device is loop back configured device (peer_index == own_index). */
 struct vtty_dev {
-    unsigned int own_index;
-    unsigned int peer_index;
-    int msr_reg; /* shadow modem status register */
-    int mcr_reg; /* shadow modem control register */
-    int rts_mappings;
-    int dtr_mappings;
-    int set_odtr_at_open;
-    int set_pdtr_at_open;
-    int odevtyp;
-    struct mutex lock;
-    int is_break_on;
-    int baud;
-    int uart_frame;
-    int waiting_msr_chg;
-    int tx_paused;
-    int faulty_cable;
-    struct tty_struct *own_tty;
-    struct tty_struct *peer_tty;
-    struct serial_struct serial;
-    struct async_icount icount;
-    struct device *device;
+	unsigned int own_index;
+	unsigned int peer_index;
+	int msr_reg; /* shadow modem status register */
+	int mcr_reg; /* shadow modem control register */
+	int rts_mappings;
+	int dtr_mappings;
+	int set_odtr_at_open;
+	int set_pdtr_at_open;
+	int odevtyp;
+	struct mutex lock;
+	int is_break_on;
+	int baud;
+	int uart_frame;
+	int waiting_msr_chg;
+	int tx_paused;
+	int faulty_cable;
+	struct tty_struct *own_tty;
+	struct tty_struct *peer_tty;
+	struct serial_struct serial;
+	struct async_icount icount;
+	struct device *device;
 };
 
 /* Current driver design is such that the vtty_info for a device with index x will be placed at
@@ -223,31 +223,31 @@ static DEVICE_ATTR(pdtropn, S_IRUGO, sp_pdtropn_show, NULL);
 static DEVICE_ATTR(ostats,  S_IRUGO, sp_ostats_show, NULL);
 
 static struct attribute *spvtty_info_attrs[] = {
-        &dev_attr_evt.attr,
-        &dev_attr_faultycable.attr,
-        &dev_attr_ownidx.attr,
-        &dev_attr_peeridx.attr,
-        &dev_attr_ortsmap.attr,
-        &dev_attr_odtrmap.attr,
-        &dev_attr_prtsmap.attr,
-        &dev_attr_pdtrmap.attr,
-        &dev_attr_odevtyp.attr,
-        &dev_attr_odtropn.attr,
-        &dev_attr_pdtropn.attr,
-        &dev_attr_ostats.attr,
-        NULL,
+	&dev_attr_evt.attr,
+	&dev_attr_faultycable.attr,
+	&dev_attr_ownidx.attr,
+	&dev_attr_peeridx.attr,
+	&dev_attr_ortsmap.attr,
+	&dev_attr_odtrmap.attr,
+	&dev_attr_prtsmap.attr,
+	&dev_attr_pdtrmap.attr,
+	&dev_attr_odevtyp.attr,
+	&dev_attr_odtropn.attr,
+	&dev_attr_pdtropn.attr,
+	&dev_attr_ostats.attr,
+	NULL,
 };
 
 static const struct attribute_group sp_info_attr_group = {
-        .attrs = spvtty_info_attrs,
+	.attrs = spvtty_info_attrs,
 };
 
 static const struct tty_port_operations spvtty_port_ops = {
-        .carrier_raised = sp_port_carrier_raised,
-        .shutdown       = sp_port_shutdown,
-        .activate       = sp_port_activate,
-        .destruct       = sp_port_destruct,
-        /*.dtr_rts        = sp_port_dtr_rts,  */
+	.carrier_raised = sp_port_carrier_raised,
+	.shutdown       = sp_port_shutdown,
+	.activate       = sp_port_activate,
+	.destruct       = sp_port_destruct,
+	/*.dtr_rts        = sp_port_dtr_rts,  */
 };
 
 /*
@@ -272,7 +272,7 @@ static const struct tty_port_operations spvtty_port_ops = {
  * 4. Emulate ring indicator (set RI signal):
  * $ echo "4" > /sys/devices/virtual/tty/tty2com0/evt
  * 
- * 5. Emulate ring indicator (un-set RI signal):
+ * 5. Emulate ring indicator (unset RI signal):
  * $ echo "5" > /sys/devices/virtual/tty/tty2com0/evt
  * 
  * 6. Emulate break received:
@@ -293,74 +293,74 @@ static const struct tty_port_operations spvtty_port_ops = {
  */
 static ssize_t sp_evt_store(struct device *dev, struct device_attribute *attr, const char *buf, size_t count)
 {
-    int ret = 0;
-    int push = 1;
-    struct vtty_dev *local_vttydev = NULL;
-    struct tty_struct *tty_to_write = NULL;
+	int ret = 0;
+	int push = 1;
+	struct vtty_dev *local_vttydev = NULL;
+	struct tty_struct *tty_to_write = NULL;
 
-    if(!buf || (count <= 0))
-        return -EINVAL;
+	if (!buf || (count <= 0))
+		return -EINVAL;
 
-    local_vttydev = (struct vtty_dev *) dev_get_drvdata(dev);
-    tty_to_write = local_vttydev->own_tty;
+	local_vttydev = (struct vtty_dev *) dev_get_drvdata(dev);
+	tty_to_write = local_vttydev->own_tty;
 
-    /* Ensure required structure has been allocated, initialized and port has been opened. */
-    if((!tty_to_write) || (tty_to_write->port == NULL) || (tty_to_write->port->count <= 0))
-        return -EIO;
-    if(!test_bit(ASYNCB_INITIALIZED, &tty_to_write->port->flags))
-        return -EIO;
+	/* Ensure required structure has been allocated, initialized and port has been opened. */
+	if ((!tty_to_write) || (tty_to_write->port == NULL) || (tty_to_write->port->count <= 0))
+		return -EIO;
+	if (!test_bit(ASYNCB_INITIALIZED, &tty_to_write->port->flags))
+		return -EIO;
 
-    mutex_lock(&local_vttydev->lock);
+	mutex_lock(&local_vttydev->lock);
 
-    switch(buf[0]) {
-    case '1' : 
-        ret = tty_insert_flip_char(tty_to_write->port, -7, TTY_FRAME);
-        if(ret < 0)
-            goto fail;
-        local_vttydev->icount.frame++;
-        break;
-    case '2' :
-        ret = tty_insert_flip_char(tty_to_write->port, -7, TTY_PARITY);
-        if(ret < 0)
-            goto fail;
-        local_vttydev->icount.parity++;
-        break;
-    case '3' :
-        ret = tty_insert_flip_char(tty_to_write->port, 0, TTY_OVERRUN);
-        if(ret < 0)
-            goto fail;
-        local_vttydev->icount.overrun++;
-        break;
-    case '4' :
-        local_vttydev->msr_reg |= SP_MSR_RI;
-        local_vttydev->icount.rng++;
-        push = -1;
-        break;
-    case '5' :
-        local_vttydev->msr_reg &= ~SP_MSR_RI;
-        local_vttydev->icount.rng++;
-        push = -1;
-        break;
-    case '6' :
-        ret = tty_insert_flip_char(tty_to_write->port, 0, TTY_BREAK);
-        if(ret < 0)
-            goto fail;
-        local_vttydev->icount.brk++;
-        break;
-    default :
-        mutex_unlock(&local_vttydev->lock);
-        return -EINVAL;
-    }
+	switch(buf[0]) {
+	case '1' : 
+		ret = tty_insert_flip_char(tty_to_write->port, -7, TTY_FRAME);
+		if(ret < 0)
+			goto fail;
+		local_vttydev->icount.frame++;
+		break;
+	case '2' :
+		ret = tty_insert_flip_char(tty_to_write->port, -7, TTY_PARITY);
+		if(ret < 0)
+			goto fail;
+		local_vttydev->icount.parity++;
+		break;
+	case '3' :
+		ret = tty_insert_flip_char(tty_to_write->port, 0, TTY_OVERRUN);
+		if(ret < 0)
+			goto fail;
+		local_vttydev->icount.overrun++;
+		break;
+	case '4' :
+		local_vttydev->msr_reg |= SP_MSR_RI;
+		local_vttydev->icount.rng++;
+		push = -1;
+		break;
+	case '5' :
+		local_vttydev->msr_reg &= ~SP_MSR_RI;
+		local_vttydev->icount.rng++;
+		push = -1;
+		break;
+	case '6' :
+		ret = tty_insert_flip_char(tty_to_write->port, 0, TTY_BREAK);
+		if (ret < 0)
+			goto fail;
+		local_vttydev->icount.brk++;
+		break;
+	default :
+		mutex_unlock(&local_vttydev->lock);
+		return -EINVAL;
+	}
 
-    if (push)
-        tty_flip_buffer_push(tty_to_write->port);
+	if (push)
+		tty_flip_buffer_push(tty_to_write->port);
 
-    mutex_unlock(&local_vttydev->lock);
-    return count;
+	mutex_unlock(&local_vttydev->lock);
+	return count;
 
-    fail:
-    mutex_unlock(&local_vttydev->lock);
-    return ret;
+fail:
+	mutex_unlock(&local_vttydev->lock);
+	return ret;
 }
 
 /*
@@ -375,25 +375,25 @@ static ssize_t sp_evt_store(struct device *dev, struct device_attribute *attr, c
  */
 static ssize_t sp_faultycable_store(struct device *dev, struct device_attribute *attr, const char *buf, size_t count)
 {
-    struct vtty_dev *local_vttydev = NULL;
+	struct vtty_dev *local_vttydev = NULL;
 
-    if(!buf || (count <= 0))
-        return -EINVAL;
+	if (!buf || (count <= 0))
+		return -EINVAL;
 
-    local_vttydev = (struct vtty_dev *) dev_get_drvdata(dev);
+	local_vttydev = (struct vtty_dev *) dev_get_drvdata(dev);
 
-    switch(buf[0]) {
-    case '0' :
-        local_vttydev->faulty_cable = 0;
-        break;
-    case '1' :
-        local_vttydev->faulty_cable = 1;
-        break;
-    default :
-        return -EINVAL;
-    }
+	switch(buf[0]) {
+	case '0' :
+		local_vttydev->faulty_cable = 0;
+		break;
+	case '1' :
+		local_vttydev->faulty_cable = 1;
+		break;
+	default :
+		return -EINVAL;
+	}
 
-    return count;
+	return count;
 }
 
 /*
@@ -409,12 +409,12 @@ static ssize_t sp_faultycable_store(struct device *dev, struct device_attribute 
  */
 static ssize_t sp_ostats_show(struct device *dev, struct device_attribute *attr, char *buf)
 {
-    struct vtty_dev *local_vttydev = (struct vtty_dev *) dev_get_drvdata(dev);
+	struct vtty_dev *local_vttydev = (struct vtty_dev *) dev_get_drvdata(dev);
 
-    if(!buf)
-        return -EINVAL;
+	if (!buf)
+		return -EINVAL;
 
-    return sprintf(buf, "%u#%u#%u#%u#%u#%u#%u#%u#%u#%u#%u#\n", local_vttydev->icount.tx, 
+	return sprintf(buf, "%u#%u#%u#%u#%u#%u#%u#%u#%u#%u#%u#\n", local_vttydev->icount.tx, 
                    local_vttydev->icount.rx,local_vttydev->icount.cts, local_vttydev->icount.dcd, 
                    local_vttydev->icount.dsr,local_vttydev->icount.brk, local_vttydev->icount.rng, 
                    local_vttydev->icount.frame, local_vttydev->icount.parity,
@@ -434,13 +434,13 @@ static ssize_t sp_ostats_show(struct device *dev, struct device_attribute *attr,
  */
 static ssize_t sp_ownidx_show(struct device *dev, struct device_attribute *attr, char *buf)
 {
-    struct vtty_dev *local_vttydev = (struct vtty_dev *) dev_get_drvdata(dev);
+	struct vtty_dev *local_vttydev = (struct vtty_dev *) dev_get_drvdata(dev);
 
-    if(!buf)
-        return -EINVAL;
+	if (!buf)
+		return -EINVAL;
 
     /* Capacity of buf is typically 4096 (PAGE_SIZE) as passed by the kernel. */
-    return sprintf(buf, "%u\n", local_vttydev->own_index);
+	return sprintf(buf, "%u\n", local_vttydev->own_index);
 }
 
 /*
@@ -456,12 +456,12 @@ static ssize_t sp_ownidx_show(struct device *dev, struct device_attribute *attr,
  */
 static ssize_t sp_peeridx_show(struct device *dev, struct device_attribute *attr, char *buf)
 {
-    struct vtty_dev *local_vttydev = (struct vtty_dev *) dev_get_drvdata(dev);
+	struct vtty_dev *local_vttydev = (struct vtty_dev *) dev_get_drvdata(dev);
 
-    if(!buf)
-        return -EINVAL;
+	if (!buf)
+		return -EINVAL;
 
-    return sprintf(buf, "%u\n", local_vttydev->peer_index);
+	return sprintf(buf, "%u\n", local_vttydev->peer_index);
 }
 
 /*
@@ -477,12 +477,12 @@ static ssize_t sp_peeridx_show(struct device *dev, struct device_attribute *attr
  */
 static ssize_t sp_ortsmap_show(struct device *dev, struct device_attribute *attr, char *buf)
 {
-    struct vtty_dev *local_vttydev = (struct vtty_dev *) dev_get_drvdata(dev);
+	struct vtty_dev *local_vttydev = (struct vtty_dev *) dev_get_drvdata(dev);
 
-    if(!buf)
-        return -EINVAL;
+	if(!buf)
+		return -EINVAL;
 
-    return sprintf(buf, "%u\n", local_vttydev->rts_mappings);
+	return sprintf(buf, "%u\n", local_vttydev->rts_mappings);
 }
 
 /*
@@ -498,12 +498,12 @@ static ssize_t sp_ortsmap_show(struct device *dev, struct device_attribute *attr
  */
 static ssize_t sp_odtrmap_show(struct device *dev, struct device_attribute *attr, char *buf)
 {
-    struct vtty_dev *local_vttydev = (struct vtty_dev *) dev_get_drvdata(dev);
+	struct vtty_dev *local_vttydev = (struct vtty_dev *) dev_get_drvdata(dev);
 
-    if(!buf)
-        return -EINVAL;
+	if (!buf)
+		return -EINVAL;
 
-    return sprintf(buf, "%u\n", local_vttydev->dtr_mappings);
+	return sprintf(buf, "%u\n", local_vttydev->dtr_mappings);
 }
 
 /*
@@ -519,14 +519,14 @@ static ssize_t sp_odtrmap_show(struct device *dev, struct device_attribute *attr
  */
 static ssize_t sp_prtsmap_show(struct device *dev, struct device_attribute *attr, char *buf)
 {
-    struct vtty_dev *remote_vttydev = NULL;
-    struct vtty_dev *local_vttydev = (struct vtty_dev *) dev_get_drvdata(dev);
+	struct vtty_dev *remote_vttydev = NULL;
+	struct vtty_dev *local_vttydev = (struct vtty_dev *) dev_get_drvdata(dev);
 
-    if((local_vttydev->own_index == local_vttydev->peer_index) || (!buf))
-        return -EINVAL;
+	if ((local_vttydev->own_index == local_vttydev->peer_index) || (!buf))
+		return -EINVAL;
 
-    remote_vttydev = index_manager[local_vttydev->peer_index].vttydev;
-    return sprintf(buf, "%u\n", remote_vttydev->rts_mappings);
+	remote_vttydev = index_manager[local_vttydev->peer_index].vttydev;
+	return sprintf(buf, "%u\n", remote_vttydev->rts_mappings);
 }
 
 /*
@@ -542,14 +542,14 @@ static ssize_t sp_prtsmap_show(struct device *dev, struct device_attribute *attr
  */
 static ssize_t sp_pdtrmap_show(struct device *dev, struct device_attribute *attr, char *buf)
 {
-    struct vtty_dev *remote_vttydev = NULL;
-    struct vtty_dev *local_vttydev = (struct vtty_dev *) dev_get_drvdata(dev);
+	struct vtty_dev *remote_vttydev = NULL;
+	struct vtty_dev *local_vttydev = (struct vtty_dev *) dev_get_drvdata(dev);
 
-    if((local_vttydev->own_index == local_vttydev->peer_index) || (!buf))
-        return -EINVAL;
+	if ((local_vttydev->own_index == local_vttydev->peer_index) || (!buf))
+		return -EINVAL;
 
-    remote_vttydev = index_manager[local_vttydev->peer_index].vttydev;
-    return sprintf(buf, "%u\n", remote_vttydev->dtr_mappings);
+	remote_vttydev = index_manager[local_vttydev->peer_index].vttydev;
+	return sprintf(buf, "%u\n", remote_vttydev->dtr_mappings);
 }
 
 /*
@@ -565,12 +565,12 @@ static ssize_t sp_pdtrmap_show(struct device *dev, struct device_attribute *attr
  */
 static ssize_t sp_odevtyp_show(struct device *dev, struct device_attribute *attr, char *buf)
 {
-    struct vtty_dev *local_vttydev = (struct vtty_dev *) dev_get_drvdata(dev);
+	struct vtty_dev *local_vttydev = (struct vtty_dev *) dev_get_drvdata(dev);
 
-    if(!buf)
-        return -EINVAL;
+	if (!buf)
+		return -EINVAL;
 
-    return sprintf(buf, "%u\n", local_vttydev->odevtyp);
+	return sprintf(buf, "%u\n", local_vttydev->odevtyp);
 }
 
 /*
@@ -587,12 +587,12 @@ static ssize_t sp_odevtyp_show(struct device *dev, struct device_attribute *attr
  */
 static ssize_t sp_odtropn_show(struct device *dev, struct device_attribute *attr, char *buf)
 {
-    struct vtty_dev *local_vttydev = (struct vtty_dev *) dev_get_drvdata(dev);
+	struct vtty_dev *local_vttydev = (struct vtty_dev *) dev_get_drvdata(dev);
 
-    if(!buf)
-        return -EINVAL;
+	if (!buf)
+		return -EINVAL;
 
-    return sprintf(buf, "%u\n", local_vttydev->set_odtr_at_open);
+	return sprintf(buf, "%u\n", local_vttydev->set_odtr_at_open);
 }
 
 /*
@@ -609,12 +609,12 @@ static ssize_t sp_odtropn_show(struct device *dev, struct device_attribute *attr
  */
 static ssize_t sp_pdtropn_show(struct device *dev, struct device_attribute *attr, char *buf)
 {
-    struct vtty_dev *local_vttydev = (struct vtty_dev *) dev_get_drvdata(dev);
+	struct vtty_dev *local_vttydev = (struct vtty_dev *) dev_get_drvdata(dev);
 
-    if(!buf)
-        return -EINVAL;
-
-    return sprintf(buf, "%u\n", local_vttydev->set_pdtr_at_open);
+	if (!buf)
+		return -EINVAL;
+	
+	return sprintf(buf, "%u\n", local_vttydev->set_pdtr_at_open);
 }
 
 /* 
@@ -632,142 +632,141 @@ static ssize_t sp_pdtropn_show(struct device *dev, struct device_attribute *attr
  */
 static int sp_update_modem_lines(struct tty_struct *tty, unsigned int set, unsigned int clear)
 {
-    int ctsint = 0;
-    int dcdint = 0;
-    int dsrint = 0;
-    int rngint = 0;
-    int rts_mappings = 0;
-    int dtr_mappings = 0;
-    int mcr_ctrl_reg = 0;
-    int msr_state_reg = 0;
-    int wakeup_blocked_open = 0;
-    struct async_icount *evicount;
-    struct vtty_dev *vttydev = NULL;
-    struct vtty_dev *local_vttydev = NULL;
-    struct vtty_dev *remote_vttydev = NULL;
+	int ctsint = 0;
+	int dcdint = 0;
+	int dsrint = 0;
+	int rngint = 0;
+	int rts_mappings = 0;
+	int dtr_mappings = 0;
+	int mcr_ctrl_reg = 0;
+	int msr_state_reg = 0;
+	int wakeup_blocked_open = 0;
+	struct async_icount *evicount;
+	struct vtty_dev *vttydev = NULL;
+	struct vtty_dev *local_vttydev = NULL;
+	struct vtty_dev *remote_vttydev = NULL;
 
-    local_vttydev = index_manager[tty->index].vttydev;
-    if(tty->index != local_vttydev->peer_index)
-        remote_vttydev = index_manager[local_vttydev->peer_index].vttydev;
+	local_vttydev = index_manager[tty->index].vttydev;
+	if (tty->index != local_vttydev->peer_index)
+		remote_vttydev = index_manager[local_vttydev->peer_index].vttydev;
 
-    /* Read modify write MSR register */
-    if(remote_vttydev != NULL) {
-        msr_state_reg = remote_vttydev->msr_reg;
-        vttydev = remote_vttydev;
-    }
-    else {
-        msr_state_reg = local_vttydev->msr_reg;
-        vttydev = local_vttydev;
-    }
+	/* Read modify write MSR register */
+	if (remote_vttydev != NULL) {
+		msr_state_reg = remote_vttydev->msr_reg;
+		vttydev = remote_vttydev;
+	} else {
+		msr_state_reg = local_vttydev->msr_reg;
+		vttydev = local_vttydev;
+	}
 
-    rts_mappings = local_vttydev->rts_mappings;
-    dtr_mappings = local_vttydev->dtr_mappings;
+	rts_mappings = local_vttydev->rts_mappings;
+	dtr_mappings = local_vttydev->dtr_mappings;
 
-    if(set & TIOCM_RTS) {
-        mcr_ctrl_reg |= SP_MCR_RTS;
-        if((rts_mappings & SP_CON_CTS) == SP_CON_CTS) {
-            msr_state_reg |= SP_MSR_CTS;
-            ctsint++;
-        }
-        if((rts_mappings & SP_CON_DCD) == SP_CON_DCD) {
-            msr_state_reg |= SP_MSR_DCD;
-            dcdint++;
-            wakeup_blocked_open = 1;
-        }
-        if((rts_mappings & SP_CON_DSR) == SP_CON_DSR) {
-            msr_state_reg |= SP_MSR_DSR;
-            dsrint++;
-        }
-        if((rts_mappings & SP_CON_RI) == SP_CON_RI) {
-            msr_state_reg |= SP_MSR_RI;
-            rngint++;
-        }
-    }
+	if (set & TIOCM_RTS) {
+		mcr_ctrl_reg |= SP_MCR_RTS;
+		if ((rts_mappings & SP_CON_CTS) == SP_CON_CTS) {
+			msr_state_reg |= SP_MSR_CTS;
+			ctsint++;
+		}
+		if ((rts_mappings & SP_CON_DCD) == SP_CON_DCD) {
+			msr_state_reg |= SP_MSR_DCD;
+			dcdint++;
+			wakeup_blocked_open = 1;
+		}
+		if ((rts_mappings & SP_CON_DSR) == SP_CON_DSR) {
+			msr_state_reg |= SP_MSR_DSR;
+			dsrint++;
+		}
+		if ((rts_mappings & SP_CON_RI) == SP_CON_RI) {
+			msr_state_reg |= SP_MSR_RI;
+			rngint++;
+		}
+	}
 
-    if(set & TIOCM_DTR) {
-        mcr_ctrl_reg |= SP_MCR_DTR;
-        if((dtr_mappings & SP_CON_CTS) == SP_CON_CTS) {
-            msr_state_reg |= SP_MSR_CTS;
-            ctsint++;
-        }
-        if((dtr_mappings & SP_CON_DCD) == SP_CON_DCD) {
-            msr_state_reg |= SP_MSR_DCD;
-            dcdint++;
-            wakeup_blocked_open = 1;
-        }
-        if((dtr_mappings & SP_CON_DSR) == SP_CON_DSR) {
-            msr_state_reg |= SP_MSR_DSR;
-            dsrint++;
-        }
-        if((dtr_mappings & SP_CON_RI) == SP_CON_RI) {
-            msr_state_reg |= SP_MSR_RI;
-            rngint++;
-        }
-    }
+	if (set & TIOCM_DTR) {
+		mcr_ctrl_reg |= SP_MCR_DTR;
+		if ((dtr_mappings & SP_CON_CTS) == SP_CON_CTS) {
+			msr_state_reg |= SP_MSR_CTS;
+			ctsint++;
+		}
+		if ((dtr_mappings & SP_CON_DCD) == SP_CON_DCD) {
+			msr_state_reg |= SP_MSR_DCD;
+			dcdint++;
+			wakeup_blocked_open = 1;
+		}
+		if ((dtr_mappings & SP_CON_DSR) == SP_CON_DSR) {
+			msr_state_reg |= SP_MSR_DSR;
+			dsrint++;
+		}
+		if ((dtr_mappings & SP_CON_RI) == SP_CON_RI) {
+			msr_state_reg |= SP_MSR_RI;
+			rngint++;
+		}
+	}
 
-    if(clear & TIOCM_RTS) {
-        mcr_ctrl_reg &= ~SP_MCR_RTS;
-        if((rts_mappings & SP_CON_CTS) == SP_CON_CTS) {
-            msr_state_reg &= ~SP_MSR_CTS;
-            ctsint++;
-        }
-        if((rts_mappings & SP_CON_DCD) == SP_CON_DCD) {
-            msr_state_reg &= ~SP_MSR_DCD;
-            dcdint++;
-        }
-        if((rts_mappings & SP_CON_DSR) == SP_CON_DSR) {
-            msr_state_reg &= ~SP_MSR_DSR;
-            dsrint++;
-        }
-        if((rts_mappings & SP_CON_RI) == SP_CON_RI) {
-            msr_state_reg &= ~SP_MSR_RI;
-            rngint++;
-        }
-    }
+	if (clear & TIOCM_RTS) {
+		mcr_ctrl_reg &= ~SP_MCR_RTS;
+		if((rts_mappings & SP_CON_CTS) == SP_CON_CTS) {
+			msr_state_reg &= ~SP_MSR_CTS;
+			ctsint++;
+		}
+		if ((rts_mappings & SP_CON_DCD) == SP_CON_DCD) {
+			msr_state_reg &= ~SP_MSR_DCD;
+			dcdint++;
+		}
+		if ((rts_mappings & SP_CON_DSR) == SP_CON_DSR) {
+			msr_state_reg &= ~SP_MSR_DSR;
+			dsrint++;
+		}
+		if ((rts_mappings & SP_CON_RI) == SP_CON_RI) {
+			msr_state_reg &= ~SP_MSR_RI;
+			rngint++;
+		}
+	}
 
-    if (clear & TIOCM_DTR) {
-        mcr_ctrl_reg &= ~SP_MCR_DTR;
-        if((dtr_mappings & SP_CON_CTS) == SP_CON_CTS) {
-            msr_state_reg &= ~SP_MSR_CTS;
-            ctsint++;
-        }
-        if((dtr_mappings & SP_CON_DCD) == SP_CON_DCD) {
-            msr_state_reg &= ~SP_MSR_DCD;
-            dcdint++;
-        }
-        if((dtr_mappings & SP_CON_DSR) == SP_CON_DSR) {
-            msr_state_reg &= ~SP_MSR_DSR;
-            dsrint++;
-        }
-        if((dtr_mappings & SP_CON_RI) == SP_CON_RI) {
-            msr_state_reg &= ~SP_MSR_RI;
-            rngint++;
-        }
-    }
+	if (clear & TIOCM_DTR) {
+		mcr_ctrl_reg &= ~SP_MCR_DTR;
+		if((dtr_mappings & SP_CON_CTS) == SP_CON_CTS) {
+			msr_state_reg &= ~SP_MSR_CTS;
+			ctsint++;
+		}
+		if ((dtr_mappings & SP_CON_DCD) == SP_CON_DCD) {
+			msr_state_reg &= ~SP_MSR_DCD;
+			dcdint++;
+		}
+		if ((dtr_mappings & SP_CON_DSR) == SP_CON_DSR) {
+			msr_state_reg &= ~SP_MSR_DSR;
+			dsrint++;
+		}
+		if ((dtr_mappings & SP_CON_RI) == SP_CON_RI) {
+			msr_state_reg &= ~SP_MSR_RI;
+			rngint++;
+		}
+	}
 
-    local_vttydev->mcr_reg = mcr_ctrl_reg;
-    vttydev->msr_reg = msr_state_reg;
+	local_vttydev->mcr_reg = mcr_ctrl_reg;
+	vttydev->msr_reg = msr_state_reg;
 
-    evicount = &vttydev->icount;
-    evicount->cts += ctsint;
-    evicount->dsr += dsrint;
-    evicount->dcd += dcdint;
-    evicount->rng += rngint;
+	evicount = &vttydev->icount;
+	evicount->cts += ctsint;
+	evicount->dsr += dsrint;
+	evicount->dcd += dcdint;
+	evicount->rng += rngint;
 
-    if(vttydev->own_tty && vttydev->own_tty->port) {
+	if (vttydev->own_tty && vttydev->own_tty->port) {
 
-        /* Wake up process blocked on TIOCMIWAIT ioctl */
-        if((vttydev->waiting_msr_chg == 1) && (vttydev->own_tty->port->count > 0)) {
-            wake_up_interruptible(&vttydev->own_tty->port->delta_msr_wait);
-        }
+		/* Wake up process blocked on TIOCMIWAIT ioctl */
+		if ((vttydev->waiting_msr_chg == 1) && (vttydev->own_tty->port->count > 0)) {
+			wake_up_interruptible(&vttydev->own_tty->port->delta_msr_wait);
+		}
 
-        /* Wake up application blocked on carrier detect signal */
-        if((wakeup_blocked_open == 1) && (vttydev->own_tty->port->blocked_open > 0)) {
-            wake_up_interruptible(&vttydev->own_tty->port->open_wait);
-        }
-    }
+		/* Wake up application blocked on carrier detect signal */
+		if ((wakeup_blocked_open == 1) && (vttydev->own_tty->port->blocked_open > 0)) {
+			wake_up_interruptible(&vttydev->own_tty->port->open_wait);
+		}
+	}
 
-    return 0;
+	return 0;
 }
 
 /*
@@ -781,24 +780,24 @@ static int sp_update_modem_lines(struct tty_struct *tty, unsigned int set, unsig
  */
 static int sp_install(struct tty_driver *driver, struct tty_struct *tty)
 {
-    int ret = 0;
-    struct tty_port *port = NULL;
+	int ret = 0;
+	struct tty_port *port = NULL;
 
-    port = kcalloc(1, sizeof(struct tty_port), GFP_KERNEL);
-    if(port == NULL)
-        return -ENOMEM;
+	port = kcalloc(1, sizeof(struct tty_port), GFP_KERNEL);
+	if (port == NULL)
+		return -ENOMEM;
 
-    /* First initialize and then set port operations */
-    tty_port_init(port);
-    port->ops = &spvtty_port_ops;
+	/* First initialize and then set port operations */
+	tty_port_init(port);
+	port->ops = &spvtty_port_ops;
 
-    ret = tty_port_install(port, driver, tty);
-    if (ret) {
-        kfree(port);
-        return ret;
-    }
+	ret = tty_port_install(port, driver, tty);
+	if (ret) {
+		kfree(port);
+		return ret;
+	}
 
-    return 0;
+	return 0;
 }
 
 /*
@@ -808,7 +807,7 @@ static int sp_install(struct tty_driver *driver, struct tty_struct *tty)
  */
 static void sp_cleanup(struct tty_struct *tty)
 {
-    tty_port_put(tty->port);
+	tty_port_put(tty->port);
 }
 
 /*
@@ -831,36 +830,36 @@ static void sp_cleanup(struct tty_struct *tty)
  */
 static int sp_open(struct tty_struct *tty, struct file *filp)
 {    
-    int ret = 0;
-    struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
-    struct vtty_dev *remote_vttydev = NULL;
+	int ret = 0;
+	struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
+	struct vtty_dev *remote_vttydev = NULL;
 
-    local_vttydev->own_tty = tty;
+	local_vttydev->own_tty = tty;
 
-    /* If this device is one end of a null modem connection, provide its address to remote end */
-    if (tty->index != local_vttydev->peer_index) {
-        remote_vttydev = index_manager[local_vttydev->peer_index].vttydev;
-        remote_vttydev->peer_tty = tty;
-    }
+	/* If this device is one end of a null modem connection, provide its address to remote end */
+	if (tty->index != local_vttydev->peer_index) {
+		remote_vttydev = index_manager[local_vttydev->peer_index].vttydev;
+		remote_vttydev->peer_tty = tty;
+	}
 
-    memset(&local_vttydev->serial, 0, sizeof(struct serial_struct));
-    memset(&local_vttydev->icount, 0, sizeof(struct async_icount));
+	memset(&local_vttydev->serial, 0, sizeof(struct serial_struct));
+	memset(&local_vttydev->icount, 0, sizeof(struct async_icount));
 
-    /* Handle DTR raising logic ourselve instead of tty_port helpers doing it. */
-    if (local_vttydev->set_odtr_at_open == 1) {
-        sp_update_modem_lines(tty, TIOCM_DTR | TIOCM_RTS, 0);
-    }
+	/* Handle DTR raising logic ourselve instead of tty_port helpers doing it. */
+	if (local_vttydev->set_odtr_at_open == 1) {
+		sp_update_modem_lines(tty, TIOCM_DTR | TIOCM_RTS, 0);
+	}
 
-    /* Associate tty with port and do port level opening. */
-    ret = tty_port_open(tty->port, tty, filp);
-    if (ret < 0) 
-        return ret;
+	/* Associate tty with port and do port level opening. */
+	ret = tty_port_open(tty->port, tty, filp);
+	if (ret < 0) 
+		return ret;
 
-    tty->port->close_delay  = 0;
-    tty->port->closing_wait = ASYNC_CLOSING_WAIT_NONE;
-    tty->port->drain_delay  = 0;
+	tty->port->close_delay  = 0;
+	tty->port->closing_wait = ASYNC_CLOSING_WAIT_NONE;
+	tty->port->drain_delay  = 0;
 
-    return ret;
+	return ret;
 }
 
 /*
@@ -874,14 +873,14 @@ static int sp_open(struct tty_struct *tty, struct file *filp)
  */
 static void sp_close(struct tty_struct *tty, struct file *filp)
 {
-    if(test_bit(TTY_IO_ERROR, &tty->flags))
-        return;
+	if (test_bit(TTY_IO_ERROR, &tty->flags))
+		return;
 
-    if(tty && filp && tty->port && (tty->port->count > 0))
-        tty_port_close(tty->port, tty, filp);
+	if (tty && filp && tty->port && (tty->port->count > 0))
+		tty_port_close(tty->port, tty, filp);
 
-    if(tty && C_HUPCL(tty) && tty->port && (tty->port->count < 1))
-        sp_update_modem_lines(tty, 0, TIOCM_DTR | TIOCM_RTS);
+	if (tty && C_HUPCL(tty) && tty->port && (tty->port->count < 1))
+		sp_update_modem_lines(tty, 0, TIOCM_DTR | TIOCM_RTS);
 }
 
 /* 
@@ -897,88 +896,86 @@ static void sp_close(struct tty_struct *tty, struct file *filp)
  */
 static int sp_write(struct tty_struct *tty, const unsigned char *buf, int count)
 {
-    int x = 0;
-    unsigned char *data = NULL;
-    struct tty_struct *tty_to_write = NULL;
-    struct vtty_dev *rx_vttydev = NULL;
-    struct vtty_dev *tx_vttydev = index_manager[tty->index].vttydev;
+	int x = 0;
+	unsigned char *data = NULL;
+	struct tty_struct *tty_to_write = NULL;
+	struct vtty_dev *rx_vttydev = NULL;
+	struct vtty_dev *tx_vttydev = index_manager[tty->index].vttydev;
 
-    if (tx_vttydev->tx_paused || !tty || tty->stopped || (count < 1) || !buf || tty->hw_stopped)
-        return 0;
+	if (tx_vttydev->tx_paused || !tty || tty->stopped || (count < 1) || !buf || tty->hw_stopped)
+		return 0;
 
-    if (tx_vttydev->is_break_on == 1) {
-        dev_dbg(tty->dev, "break condition is on !\n");
-        return -EIO;
-    }
+	if (tx_vttydev->is_break_on == 1) {
+		dev_dbg(tty->dev, "break condition is on !\n");
+		return -EIO;
+	}
 
-    if(tx_vttydev->faulty_cable == 1)
-        return count;
+	if (tx_vttydev->faulty_cable == 1)
+		return count;
 
-    if (tty->index != tx_vttydev->peer_index) {
-        /* null modem */
-        tty_to_write = tx_vttydev->peer_tty;
-        rx_vttydev = index_manager[tx_vttydev->peer_index].vttydev;
+	if (tty->index != tx_vttydev->peer_index) {
+		/* null modem */
+		tty_to_write = tx_vttydev->peer_tty;
+		rx_vttydev = index_manager[tx_vttydev->peer_index].vttydev;
 
-        if((tx_vttydev->baud != rx_vttydev->baud) || (tx_vttydev->uart_frame != rx_vttydev->uart_frame)) {
-            /* Emulate data sent but not received */
-            dev_dbg(tty->dev, "mismatched serial port settings !\n");
-            tx_vttydev->icount.tx++;
-            return count;
-        }
-    }
-    else {
-        /* loop back */
-        tty_to_write = tty;
-        rx_vttydev = tx_vttydev;
-    }
+		if ((tx_vttydev->baud != rx_vttydev->baud) || (tx_vttydev->uart_frame != rx_vttydev->uart_frame)) {
+			/* Emulate data sent but not received */
+			dev_dbg(tty->dev, "mismatched serial port settings !\n");
+			tx_vttydev->icount.tx++;
+			return count;
+		}
+	} else {
+		/* loop back */
+		tty_to_write = tty;
+		rx_vttydev = tx_vttydev;
+	}
 
-    if (tty_to_write != NULL) {
+	if (tty_to_write != NULL) {
 
-        /* The UART hardware receiver samples received electrical signals at the middle of a bit in uart frame.
-         * Emulate correct number/size of data bits and hence uart frame. */
-        if((tty_to_write->termios.c_cflag & CSIZE) == CS8) {
-            data = (unsigned char *)buf;
-        }
-        else {
-            data = kcalloc(count, sizeof(unsigned char), GFP_KERNEL);
-            if(data == NULL)
-                return -ENOMEM;
+		/* The UART hardware receiver samples received electrical signals at the middle of a bit in uart frame.
+		 * Emulate correct number/size of data bits and hence uart frame. */
+		if ((tty_to_write->termios.c_cflag & CSIZE) == CS8) {
+			data = (unsigned char *)buf;
+		} else {
+			data = kcalloc(count, sizeof(unsigned char), GFP_KERNEL);
+			if (data == NULL)
+				return -ENOMEM;
 
-            switch (tty_to_write->termios.c_cflag & CSIZE) {
-            case CS7:
-                for(x=0; x < count; x++) {
-                    data[x] = buf[x] & 0x7F;
-                }
-                break;
-            case CS6:
-                for(x=0; x < count; x++) {
-                    data[x] = buf[x] & 0x3F;
-                }
-                break;
-            case CS5:
-                for(x=0; x < count; x++) {
-                    data[x] = buf[x] & 0x1F;
-                }
-                break;
-            default:
-                data = (unsigned char *)buf;
-            }
-        }
+			switch (tty_to_write->termios.c_cflag & CSIZE) {
+			case CS7:
+				for(x = 0; x < count; x++) {
+					data[x] = buf[x] & 0x7F;
+				}
+				break;
+			case CS6:
+				for(x=0; x < count; x++) {
+					data[x] = buf[x] & 0x3F;
+				}
+				break;
+			case CS5:
+				for(x = 0; x < count; x++) {
+					data[x] = buf[x] & 0x1F;
+				}
+				break;
+			default:
+				data = (unsigned char *)buf;
+			}
+		}
 
-        tty_insert_flip_string(tty_to_write->port, data, count);
-        tty_flip_buffer_push(tty_to_write->port);
-        tx_vttydev->icount.tx++;
-        rx_vttydev->icount.rx++;
+		tty_insert_flip_string(tty_to_write->port, data, count);
+		tty_flip_buffer_push(tty_to_write->port);
+		tx_vttydev->icount.tx++;
+		rx_vttydev->icount.rx++;
 
-        if(data != buf)
-            kfree(data);
-    }else {
-        /* Other end is still not opened, emulate transmission from local end
-           but don't make other end receive it as is the case in real world. */
-        tx_vttydev->icount.tx++;
-    }
+		if (data != buf)
+			kfree(data);
+	} else {
+		/* Other end is still not opened, emulate transmission from local end
+		   but don't make other end receive it as is the case in real world. */
+		tx_vttydev->icount.tx++;
+	}
 
-    return count;
+	return count;
 }
 
 /*
@@ -993,59 +990,58 @@ static int sp_write(struct tty_struct *tty, const unsigned char *buf, int count)
  */
 static int sp_put_char(struct tty_struct *tty, unsigned char ch)
 {
-    unsigned char data;
-    struct tty_struct *tty_to_write = NULL;
-    struct vtty_dev *rx_vttydev = NULL;
-    struct vtty_dev *tx_vttydev = index_manager[tty->index].vttydev;
+	unsigned char data;
+	struct tty_struct *tty_to_write = NULL;
+	struct vtty_dev *rx_vttydev = NULL;
+	struct vtty_dev *tx_vttydev = index_manager[tty->index].vttydev;
 
-    if (tx_vttydev->tx_paused || !tty || tty->stopped || tty->hw_stopped)
-        return 0;
+	if (tx_vttydev->tx_paused || !tty || tty->stopped || tty->hw_stopped)
+		return 0;
 
-    if (tx_vttydev->is_break_on == 1)
-        return -EIO;
+	if (tx_vttydev->is_break_on == 1)
+		return -EIO;
 
-    if(tx_vttydev->faulty_cable == 1)
-        return 1;
+	if (tx_vttydev->faulty_cable == 1)
+		return 1;
 
-    if (tty->index != tx_vttydev->peer_index) {
-        tty_to_write = tx_vttydev->peer_tty;
-        rx_vttydev = index_manager[tx_vttydev->peer_index].vttydev;
-        if((tx_vttydev->baud != rx_vttydev->baud) || (tx_vttydev->uart_frame != rx_vttydev->uart_frame)) {
-            tx_vttydev->icount.tx++;
-            return 1;
-        }
-    }
-    else {
-        tty_to_write = tty;
-        rx_vttydev = tx_vttydev;
-    }
+	if (tty->index != tx_vttydev->peer_index) {
+		tty_to_write = tx_vttydev->peer_tty;
+		rx_vttydev = index_manager[tx_vttydev->peer_index].vttydev;
+		if ((tx_vttydev->baud != rx_vttydev->baud) || (tx_vttydev->uart_frame != rx_vttydev->uart_frame)) {
+			tx_vttydev->icount.tx++;
+			return 1;
+		}
+	} else {
+		tty_to_write = tty;
+		rx_vttydev = tx_vttydev;
+	}
 
-    if(tty_to_write != NULL) {
-        switch (tty_to_write->termios.c_cflag & CSIZE) {
-        case CS8:
-            data = ch;
-            break;
-        case CS7:
-            data = ch & 0x7F;
-            break;
-        case CS6:
-            data = ch & 0x3F;
-            break;
-        case CS5:
-            data = ch & 0x1F;
-            break;
-        default:
-            data = ch;
-        }
-        tty_insert_flip_string(tty_to_write->port, &data, 1);
-        tty_flip_buffer_push(tty_to_write->port);
-        tx_vttydev->icount.tx++;
-        rx_vttydev->icount.rx++;
-    }else {
-        tx_vttydev->icount.tx++;
-    }
+	if (tty_to_write != NULL) {
+		switch (tty_to_write->termios.c_cflag & CSIZE) {
+		case CS8:
+			data = ch;
+			break;
+		case CS7:
+			data = ch & 0x7F;
+			break;
+		case CS6:
+			data = ch & 0x3F;
+			break;
+		case CS5:
+			data = ch & 0x1F;
+			break;
+		default:
+			data = ch;
+		}
+		tty_insert_flip_string(tty_to_write->port, &data, 1);
+		tty_flip_buffer_push(tty_to_write->port);
+		tx_vttydev->icount.tx++;
+		rx_vttydev->icount.rx++;
+	} else {
+		tx_vttydev->icount.tx++;
+	}
 
-    return 1;
+	return 1;
 }
 
 /*
@@ -1069,29 +1065,29 @@ static void sp_flush_chars(struct tty_struct *tty)
  */
 static int sp_get_serial_info(struct tty_struct *tty, unsigned long arg)
 {
-    struct serial_struct info;
-    struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
-    struct serial_struct serial = local_vttydev->serial;
+	struct serial_struct info;
+	struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
+	struct serial_struct serial = local_vttydev->serial;
 
-    if (!arg)
-        return -EFAULT;
+	if (!arg)
+		return -EFAULT;
 
-    memset(&info, 0, sizeof(info));
+	memset(&info, 0, sizeof(info));
 
-    info.type           = PORT_UNKNOWN;
-    info.line           = serial.line;
-    info.port           = tty->index;
-    info.irq            = 0;
-    info.flags          = tty->port->flags;
-    info.xmit_fifo_size = 0;
-    info.baud_base      = 0;
-    info.close_delay    = tty->port->close_delay;
-    info.closing_wait   = tty->port->closing_wait;
-    info.custom_divisor = 0;
-    info.hub6           = 0;
-    info.io_type        = SERIAL_IO_MEM;
+	info.type		    = PORT_UNKNOWN;
+	info.line		    = serial.line;
+	info.port		    = tty->index;
+	info.irq			= 0;
+	info.flags		    = tty->port->flags;
+	info.xmit_fifo_size = 0;
+	info.baud_base	    = 0;
+	info.close_delay	= tty->port->close_delay;
+	info.closing_wait   = tty->port->closing_wait;
+	info.custom_divisor = 0;
+	info.hub6		    = 0;
+	info.io_type		= SERIAL_IO_MEM;
 
-    return (copy_to_user((void __user *)arg, &info, sizeof(struct serial_struct))) ? -EFAULT : 0;
+	return (copy_to_user((void __user *)arg, &info, sizeof(struct serial_struct))) ? -EFAULT : 0;
 }
 
 /*
@@ -1105,12 +1101,12 @@ static int sp_get_serial_info(struct tty_struct *tty, unsigned long arg)
  */
 static int sp_write_room(struct tty_struct *tty)
 {
-    struct vtty_dev *tx_vttydev = index_manager[tty->index].vttydev;
+	struct vtty_dev *tx_vttydev = index_manager[tty->index].vttydev;
 
-    if (tx_vttydev->tx_paused || !tty || tty->stopped || tty->hw_stopped)
-        return 0;
+	if (tx_vttydev->tx_paused || !tty || tty->stopped || tty->hw_stopped)
+		return 0;
 
-    return 2048;
+	return 2048;
 }
 
 /*
@@ -1122,86 +1118,86 @@ static int sp_write_room(struct tty_struct *tty)
  */
 static void sp_set_termios(struct tty_struct *tty, struct ktermios *old_termios)
 {
-    u32 baud = 0;
-    int uart_frame_settings = 0;
-    unsigned int rts_mappings = 0;
-    unsigned int dtr_mappings = 0;
-    unsigned int mask = TIOCM_DTR;
-    struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
-    struct vtty_dev *remote_vttydev = NULL;
+	u32 baud = 0;
+	int uart_frame_settings = 0;
+	unsigned int rts_mappings = 0;
+	unsigned int dtr_mappings = 0;
+	unsigned int mask = TIOCM_DTR;
+	struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
+	struct vtty_dev *remote_vttydev = NULL;
 
-    rts_mappings = local_vttydev->rts_mappings;
-    dtr_mappings = local_vttydev->dtr_mappings;
+	rts_mappings = local_vttydev->rts_mappings;
+	dtr_mappings = local_vttydev->dtr_mappings;
 
-    if(tty->index != local_vttydev->peer_index)
-        remote_vttydev = index_manager[local_vttydev->peer_index].vttydev;
+	if(tty->index != local_vttydev->peer_index)
+		remote_vttydev = index_manager[local_vttydev->peer_index].vttydev;
 
-    mutex_lock(&local_vttydev->lock);
+	mutex_lock(&local_vttydev->lock);
 
-    /* Typically B0 is used to terminate the connection. Drop RTS and DTR. */
-    if ((tty->termios.c_cflag & CBAUD) == B0 ) {
-        sp_update_modem_lines(tty, 0, TIOCM_DTR | TIOCM_RTS);
-        mutex_unlock(&local_vttydev->lock);
-        return;
-    }
+	/* Typically B0 is used to terminate the connection. Drop RTS and DTR. */
+	if ((tty->termios.c_cflag & CBAUD) == B0 ) {
+		sp_update_modem_lines(tty, 0, TIOCM_DTR | TIOCM_RTS);
+		mutex_unlock(&local_vttydev->lock);
+		return;
+	}
 
-    /* If coming out of B0, raise DTR and RTS. This might get overridden in next steps. Applications like
-     * minicom when opens a serial port, may drop speed to B0 and then back to normal speed again. */
-    if (!old_termios || (old_termios->c_cflag & CBAUD) == B0) {
-        if (!(tty->termios.c_cflag & CRTSCTS) || !test_bit(TTY_THROTTLED, &tty->flags)) {
-            mask |= TIOCM_RTS;
-            sp_update_modem_lines(tty, mask, 0);
-        }
-    }
+	/* If coming out of B0, raise DTR and RTS. This might get overridden in next steps. Applications like
+	 * minicom when opens a serial port, may drop speed to B0 and then back to normal speed again. */
+	if (!old_termios || (old_termios->c_cflag & CBAUD) == B0) {
+		if (!(tty->termios.c_cflag & CRTSCTS) || !test_bit(TTY_THROTTLED, &tty->flags)) {
+			mask |= TIOCM_RTS;
+			sp_update_modem_lines(tty, mask, 0);
+		}
+	}
 
-    baud = tty_get_baud_rate(tty);
-    if (!baud) {
-        baud = 9600;
-    }
-    tty_encode_baud_rate(tty, baud, baud);
+	baud = tty_get_baud_rate(tty);
+	if (!baud) {
+		baud = 9600;
+	}
+	tty_encode_baud_rate(tty, baud, baud);
 
-    local_vttydev->baud = baud;
+	local_vttydev->baud = baud;
 
-    if (tty->termios.c_cflag & CRTSCTS) {
-        uart_frame_settings |= SP_CRTSCTS;
-    }else if((tty->termios.c_iflag & IXON) || (tty->termios.c_iflag & IXOFF)) {
-        uart_frame_settings |= SP_XON;
-    }else {
-        uart_frame_settings |= SP_NONE;
-    }
+	if (tty->termios.c_cflag & CRTSCTS) {
+		uart_frame_settings |= SP_CRTSCTS;
+	} else if ((tty->termios.c_iflag & IXON) || (tty->termios.c_iflag & IXOFF)) {
+		uart_frame_settings |= SP_XON;
+	} else {
+		uart_frame_settings |= SP_NONE;
+	}
 
-    switch (tty->termios.c_cflag & CSIZE) {
-    case CS8: uart_frame_settings |= SP_DATA_8;
-    case CS7: uart_frame_settings |= SP_DATA_7;
-    case CS6: uart_frame_settings |= SP_DATA_6;
-    case CS5: uart_frame_settings |= SP_DATA_5;
-    default:  uart_frame_settings |= SP_DATA_8;
-    }
+	switch (tty->termios.c_cflag & CSIZE) {
+	case CS8: uart_frame_settings |= SP_DATA_8;
+	case CS7: uart_frame_settings |= SP_DATA_7;
+	case CS6: uart_frame_settings |= SP_DATA_6;
+	case CS5: uart_frame_settings |= SP_DATA_5;
+	default:  uart_frame_settings |= SP_DATA_8;
+	}
 
-    if (tty->termios.c_cflag & CSTOPB)
-        uart_frame_settings |= SP_STOP_2;
-    else
-        uart_frame_settings |= SP_STOP_1;
+	if (tty->termios.c_cflag & CSTOPB)
+		uart_frame_settings |= SP_STOP_2;
+	else
+		uart_frame_settings |= SP_STOP_1;
 
-    if (tty->termios.c_cflag & PARENB) {
-        if (tty->termios.c_cflag & CMSPAR) {
-            if (tty->termios.c_cflag & PARODD)
-                uart_frame_settings |= SP_PARITY_MARK;
-            else
-                uart_frame_settings |= SP_PARITY_SPACE;
-        }else {
-            if (tty->termios.c_cflag & PARODD)
-                uart_frame_settings |= SP_PARITY_ODD;
-            else
-                uart_frame_settings |= SP_PARITY_EVEN;
-        }
-    }else {
-        uart_frame_settings |= SP_PARITY_NONE;
-    }
+	if (tty->termios.c_cflag & PARENB) {
+		if (tty->termios.c_cflag & CMSPAR) {
+			if (tty->termios.c_cflag & PARODD)
+				uart_frame_settings |= SP_PARITY_MARK;
+			else
+				uart_frame_settings |= SP_PARITY_SPACE;
+		} else {
+			if (tty->termios.c_cflag & PARODD)
+				uart_frame_settings |= SP_PARITY_ODD;
+			else
+				uart_frame_settings |= SP_PARITY_EVEN;
+		}
+	} else {
+		uart_frame_settings |= SP_PARITY_NONE;
+	}
 
-    local_vttydev->uart_frame = uart_frame_settings;
+	local_vttydev->uart_frame = uart_frame_settings;
 
-    mutex_unlock(&local_vttydev->lock);
+	mutex_unlock(&local_vttydev->lock);
 }
 
 /*
@@ -1214,7 +1210,7 @@ static void sp_set_termios(struct tty_struct *tty, struct ktermios *old_termios)
  */
 static int sp_chars_in_buffer(struct tty_struct *tty)
 {
-    return 0;
+	return 0;
 }
 
 /*
@@ -1228,23 +1224,23 @@ static int sp_chars_in_buffer(struct tty_struct *tty)
  */
 static int sp_check_msr_delta(struct tty_struct *tty, struct vtty_dev *local_vttydev, unsigned long mask, struct async_icount *prev)
 {
-    struct async_icount now;
-    int delta = 0;
+	struct async_icount now;
+	int delta = 0;
 
-    /* Use tty-port initialised flag to detect all hangups including the disconnect(device destroy) event */
-    if (!test_bit(ASYNCB_INITIALIZED, &tty->port->flags))
-        return 1;
+	/* Use tty-port initialised flag to detect all hangups including the disconnect(device destroy) event */
+	if (!test_bit(ASYNCB_INITIALIZED, &tty->port->flags))
+		return 1;
 
-    mutex_lock(&local_vttydev->lock);
-    now = local_vttydev->icount;
-    mutex_unlock(&local_vttydev->lock);
-    delta = ((mask & TIOCM_RNG && prev->rng != now.rng) ||
-            ( mask & TIOCM_DSR && prev->dsr != now.dsr) ||
-            ( mask & TIOCM_CAR && prev->dcd != now.dcd) ||
-            ( mask & TIOCM_CTS && prev->cts != now.cts));
+	mutex_lock(&local_vttydev->lock);
+	now = local_vttydev->icount;
+	mutex_unlock(&local_vttydev->lock);
+	delta = ((mask & TIOCM_RNG && prev->rng != now.rng) ||
+			( mask & TIOCM_DSR && prev->dsr != now.dsr) ||
+			( mask & TIOCM_CAR && prev->dcd != now.dcd) ||
+			( mask & TIOCM_CTS && prev->cts != now.cts));
 
-    *prev = now;
-    return delta;
+	*prev = now;
+	return delta;
 }
 /*
  * Sleeps until at-least one of the modem lines changes.
@@ -1256,25 +1252,25 @@ static int sp_check_msr_delta(struct tty_struct *tty, struct vtty_dev *local_vtt
  */
 static int sp_wait_msr_change(struct tty_struct *tty, unsigned long mask)
 {
-    int ret = 0;
-    struct async_icount prev;
-    struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
+	int ret = 0;
+	struct async_icount prev;
+	struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
 
-    mutex_lock(&local_vttydev->lock);
+	mutex_lock(&local_vttydev->lock);
 
-    local_vttydev->waiting_msr_chg = 1;
-    prev = local_vttydev->icount;
+	local_vttydev->waiting_msr_chg = 1;
+	prev = local_vttydev->icount;
 
-    mutex_unlock(&local_vttydev->lock);
+	mutex_unlock(&local_vttydev->lock);
 
-    ret = wait_event_interruptible(tty->port->delta_msr_wait, sp_check_msr_delta(tty, local_vttydev, mask, &prev));
+	ret = wait_event_interruptible(tty->port->delta_msr_wait, sp_check_msr_delta(tty, local_vttydev, mask, &prev));
 
-    local_vttydev->waiting_msr_chg = 0;
+	local_vttydev->waiting_msr_chg = 0;
 
-    if (!ret && !test_bit(ASYNCB_INITIALIZED, &tty->port->flags))
-        ret = -EIO;
+	if (!ret && !test_bit(ASYNCB_INITIALIZED, &tty->port->flags))
+		ret = -EIO;
 
-    return ret;
+	return ret;
 }
 
 /*
@@ -1291,14 +1287,14 @@ static int sp_wait_msr_change(struct tty_struct *tty, unsigned long mask)
  */
 static int sp_ioctl(struct tty_struct *tty, unsigned int cmd, unsigned long arg)
 {
-    switch (cmd) {
-    case TIOCGSERIAL:
-        return sp_get_serial_info(tty, arg);
-    case TIOCMIWAIT:
-        return sp_wait_msr_change(tty, arg);
-    }
+	switch (cmd) {
+	case TIOCGSERIAL:
+		return sp_get_serial_info(tty, arg);
+	case TIOCMIWAIT:
+		return sp_wait_msr_change(tty, arg);
+	}
 
-    return -ENOIOCTLCMD;
+	return -ENOIOCTLCMD;
 }
 
 /*
@@ -1312,20 +1308,18 @@ static int sp_ioctl(struct tty_struct *tty, unsigned int cmd, unsigned long arg)
  */
 static void sp_throttle(struct tty_struct *tty)
 {
-    struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
-    struct vtty_dev *remote_vttydev = index_manager[local_vttydev->peer_index].vttydev;
+	struct vtty_dev *local_vttydev = index_manager[tty->index].vttydev;
+	struct vtty_dev *remote_vttydev = index_manager[local_vttydev->peer_index].vttydev;
 
-    if (tty->termios.c_cflag & CRTSCTS) {
-        mutex_lock(&local_vttydev->lock);
-        remote_vttydev->tx_paused = 1;
-        sp_update_modem_lines(tty, 0, TIOCM_RTS);
-        mutex_unlock(&local_vttydev->lock);
-    }
-    else if((tty->termios.c_iflag & IXON) || (tty->termios.c_iflag & IXOFF)) {
-        sp_put_char(tty, STOP_CHAR(tty));
-    }
-    else {
-    }
+	if (tty->termios.c_cflag & CRTSCTS) {
+		mutex_lock(&local_vttydev->lock);
+		remote_vttydev->tx_paused = 1;
+		sp_update_modem_lines(tty, 0, TIOCM_RTS);
+		mutex_unlock(&local_vttydev->lock);
+	} else if ((tty->termios.c_iflag & IXON) || (tty->termios.c_iflag & IXOFF)) {
+		sp_put_char(tty, STOP_CHAR(tty));
+	} else {
+	}
 }
 
 /*
