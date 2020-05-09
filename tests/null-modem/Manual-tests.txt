@@ -1,0 +1,11 @@
+
+Test 1:
+- Create null modem pair and test communicaion using minicom.
+
+Test 2:
+- Create null modem pair and test communicaion using minicom
+  for 1st and gtkterm for 2nd device.
+
+Test 3:
+- Create null modem pair, Open and then hang up the device
+  from minicom. Open the same device again from minicom.

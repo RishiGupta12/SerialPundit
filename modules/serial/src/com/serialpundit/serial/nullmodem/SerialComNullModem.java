@@ -1,7 +1,7 @@
 /*
  * This file is part of SerialPundit.
  * 
- * Copyright (C) 2014-2018, Rishi Gupta. All rights reserved.
+ * Copyright (C) 2014-2020, Rishi Gupta. All rights reserved.
  *
  * The SerialPundit is DUAL LICENSED. It is made available under the terms of the GNU Affero 
  * General Public License (AGPL) v3.0 for non-commercial use and under the terms of a commercial 
@@ -480,13 +480,15 @@ public final class SerialComNullModem {
      * 
      * <p>The sequence of information returned is shown below. The RTS and DTR mappings are returned 
      * in string form. The caller has to convert them into int data type and then constant bit mask 
-     * SerialComNullModem.SP_CON_XXX can be used. The x is 0 or multiple of 6.<br>
+     * SerialComNullModem.SP_CON_XXX can be used. The x is 0 or multiple of 8.<br>
      * x + 0: 1st port's name/path <br>
      * x + 1: 1st port's RTS mappings <br>
      * x + 2: 1st port's DTR mappings <br>
-     * x + 3: 2nd port's name/path <br>
-     * x + 4: 2nd port's RTS mappings <br>
-     * x + 5: 2nd port's DTR mappings <br></p>
+     * x + 3: 1st port's DTR at open raised <br>
+     * x + 4: 2nd port's name/path <br>
+     * x + 5: 2nd port's RTS mappings <br>
+     * x + 6: 2nd port's DTR mappings <br>
+     * x + 7: 2nd port's DTR at open raised <br>
      * 
      * @return Device nodes of null modem pair on success otherwise null.
      * @throws SerialComException if the operation can not be completed for some reason.

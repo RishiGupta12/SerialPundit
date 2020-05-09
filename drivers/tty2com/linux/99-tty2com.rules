@@ -1,7 +1,7 @@
 #
 # This file is part of SerialPundit.
 # 
-# Copyright (C) 2014-2018, Rishi Gupta. All rights reserved.
+# Copyright (C) 2014-2020, Rishi Gupta. All rights reserved.
 #
 # The SerialPundit is DUAL LICENSED. It is made available under the terms of the GNU Affero 
 # General Public License (AGPL) v3.0 for non-commercial use and under the terms of a commercial 
@@ -22,6 +22,6 @@
 # $ sudo udevadm control --reload-rules
 # $ sudo udevadm trigger --attr-match=subsystem=tty
 
-# %S is sysfs mount point and %p is DEVPATH (/devices/virtual/tty/tty2comxx)
-ACTION=="add", SUBSYSTEM=="tty", KERNEL=="tty2com[0-9]*", MODE="0666", RUN+="/bin/chmod 0666 %S%p/evt %S%p/faultycable"
+# %S is sysfs mount point and %p is DEVPATH (/devices/virtual/tty/ttyvsxx)
+ACTION=="add", SUBSYSTEM=="tty", KERNEL=="ttyvs[0-9]*", MODE="0666", RUN+="/bin/chmod 0666 %S%p/event %S%p/faultycable"
 

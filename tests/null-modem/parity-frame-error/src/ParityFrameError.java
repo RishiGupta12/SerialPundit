@@ -1,7 +1,7 @@
 /*
  * This file is part of SerialPundit.
  * 
- * Copyright (C) 2014-2018, Rishi Gupta. All rights reserved.
+ * Copyright (C) 2014-2020, Rishi Gupta. All rights reserved.
  *
  * The SerialPundit is DUAL LICENSED. It is made available under the terms of the GNU Affero 
  * General Public License (AGPL) v3.0 for non-commercial use and under the terms of a commercial 
@@ -48,7 +48,7 @@ public final class ParityFrameError {
 
 			// PARITY 
 			System.out.println("PARITY  before : " + lineErr.hasParityErrorOccurred());
-			scnm.emulateSerialEvent(ports[3], SerialComNullModem.ERR_PARITY);
+			scnm.emulateSerialEvent(ports[4], SerialComNullModem.ERR_PARITY);
 
 			int ret = scm.readBytes(handle1, buffer, 0, 50, -1, lineErr);
 			System.out.println("PARITY  after : " + lineErr.hasParityErrorOccurred());
@@ -61,7 +61,7 @@ public final class ParityFrameError {
 			// OVERRUN
 			lineErr.resetLineErrors();
 			System.out.println("\nOVERRUN before : " + lineErr.hasOverrunErrorOccurred());
-			scnm.emulateSerialEvent(ports[3], SerialComNullModem.ERR_OVERRUN);
+			scnm.emulateSerialEvent(ports[4], SerialComNullModem.ERR_OVERRUN);
 
 			int ret1 = scm.readBytes(handle1, buffer, 0, 50, -1, lineErr);
 			System.out.println("OVERRUN after : " + lineErr.hasOverrunErrorOccurred());
@@ -73,7 +73,7 @@ public final class ParityFrameError {
 			// FRAME
 			lineErr.resetLineErrors();
 			System.out.println("\nFRAME before : " + lineErr.hasFramingErrorOccurred());
-			scnm.emulateSerialEvent(ports[3], SerialComNullModem.ERR_FRAME);
+			scnm.emulateSerialEvent(ports[4], SerialComNullModem.ERR_FRAME);
 
 			int ret2 = scm.readBytes(handle1, buffer, 0, 50, -1, lineErr);
 			System.out.println("FRAME after : " + lineErr.hasFramingErrorOccurred());
@@ -85,7 +85,7 @@ public final class ParityFrameError {
 			// BREAK
 			lineErr.resetLineErrors();
 			System.out.println("\nBREAK before : " + lineErr.isBreakReceived());
-			scnm.emulateSerialEvent(ports[3], SerialComNullModem.RCV_BREAK);
+			scnm.emulateSerialEvent(ports[4], SerialComNullModem.RCV_BREAK);
 
 			int ret3 = scm.readBytes(handle1, buffer, 0, 50, -1, lineErr);
 			System.out.println("BREAK after : " + lineErr.isBreakReceived());

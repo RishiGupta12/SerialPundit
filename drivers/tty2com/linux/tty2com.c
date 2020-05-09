@@ -1,7 +1,7 @@
 /************************************************************************************************
  * This file is part of SerialPundit.
  * 
- * Copyright (C) 2014-2018, Rishi Gupta. All rights reserved.
+ * Copyright (C) 2014-2020, Rishi Gupta. All rights reserved.
  *
  * The SerialPundit is DUAL LICENSED. It is made available under the terms of the GNU Affero 
  * General Public License (AGPL) v3.0 for non-commercial use and under the terms of a commercial 
@@ -41,13 +41,10 @@
 #include <linux/proc_fs.h>
 #include <linux/device.h>
 
-/* 
- * Default number of virtual tty ports this driver is going to support. TTY devices are created 
- * on demand. Users can override this value at module load time for example to support 5000 tty 
- * virtual devices :
- * $ insmod ./tty2com.ko max_num_vtty_dev=5000
- *
- * Major number is assigned dynamically by kernel for device nodes served by this driver.
+/*
+ * Default number of virtual tty devices this driver can create.
+ * User can override this value during module loading for ex;
+ * $insmod ./tty2com.ko max_num_vtty_dev=5000
  */
 #define DEFAULT_VTTY_DEV_MAX  128
 
@@ -84,26 +81,40 @@
 #define SP_STOP_1        0x1000
 #define SP_STOP_2        0x2000
 
-/* Constants values for device type (odevtyp) */
+/* Constants for the device type (odevtyp) */
 #define SNM 0x0001
 #define CNM 0x0002
 #define SLB 0x0003
 #define CLB 0x0004
 
-/* Represent a virtual tty device in this virtual card. The peer_index will contain own 
- * index if this device is loop back configured device (peer_index == own_index). */
+//### BREAK in swicth case for badurate
+//### proc_create_single
+
+/*
+ * Represents a virtual tty device in a virtual card. The peer_index
+ * will b own index if this device is loop back configured device
+ * (peer_index == own_index).
+ */
 struct vtty_dev {
+	/* index in tty core for this device */
 	unsigned int own_index;
+	/* index of the device to which this device is connected */
 	unsigned int peer_index;
-	int msr_reg; /* shadow modem status register */
-	int mcr_reg; /* shadow modem control register */
+	/* shadow modem status register */
+	int msr_reg;
+	/* shadow modem control register */
+	int mcr_reg;
+	/* rts line connections for this device */
 	int rts_mappings;
+	/* dtr line connections for this device */
 	int dtr_mappings;
 	int set_odtr_at_open;
 	int set_pdtr_at_open;
 	int odevtyp;
+	/* mutual exclusion at device level */
 	struct mutex lock;
 	int is_break_on;
+	/* currently active baudrate */
 	int baud;
 	int uart_frame;
 	int waiting_msr_chg;
