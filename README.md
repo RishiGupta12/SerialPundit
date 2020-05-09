@@ -21,7 +21,7 @@ It is consistent, portable, efficient, testable, reliable, extensible and modifi
 - Statically find if a particular USB device is connected to system or not.
 - List all USB-HID devices connected to system.
 
-## Com port module features
+## Serial port module features
 * Communication
   * Access to EIA232 standard DTR, CD, CTS, RTS and DSR signals.
   * Hardware and software flow-control options.
